@@ -1,0 +1,21 @@
+{
+  "__comment": "Payment Module API Documentation",
+  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints. all routes are prefixed with /api/v1/.",
+  "subscribeUser": {
+    "route": "POST /api/v1/payment",
+    "method": "POST",
+    "description": "Subscribe a user to a paid plan that provides extras such as pdf generation of reports.",
+    "authentication": "Bearer token required",
+    "input": {},
+    "output": {
+      "statusCode": 201,
+      "message": "Payment successful",
+      "success": true,
+      "data": null
+    },
+    "responses": {
+      "201": "Payment successful",
+      "401": "Unauthorized"
+    }
+  }
+}

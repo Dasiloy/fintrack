@@ -1,11 +1,20 @@
 {
+  "ui": "stream",
+  "globalEnv": ["NODE_ENV"],
   "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
+  "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "inputs": ["$TURBO_DEFAULT$"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "API_SERVICE_*",
+        "API_GATEWAY_URL",
+        "DATABASE_URL"
+      ],
+      "envMode": "strict",
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -13,9 +22,22 @@
     "check-types": {
       "dependsOn": ["^check-types"]
     },
+    "proto:gen": {
+      "cache": false
+    },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:deploy": {
+      "cache": false
     }
   }
 }

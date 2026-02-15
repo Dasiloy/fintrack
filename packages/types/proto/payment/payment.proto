@@ -1,0 +1,15 @@
+syntax= "proto3";
+
+package payment;
+
+service PaymentService {
+    rpc subscribe (SubscribeReq) returns (SubscribeRes) {}
+}
+
+message SubscribeReq {
+    string id= 1;
+}
+
+message SubscribeRes {
+    string message= 1;
+}

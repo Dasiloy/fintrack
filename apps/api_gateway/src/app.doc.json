@@ -1,0 +1,21 @@
+{
+  "__comment": "Root App Module API Documentation",
+  "meta_note": "System-level endpoints for monitoring and health. Authentication is usually neutral or not required for health checks.",
+  "healthCheck": {
+    "route": "GET /api/health",
+    "method": "GET",
+    "description": "Check if the API Gateway and Database are running correctly.",
+    "authentication": "None",
+    "input": {},
+    "output": {
+      "statusCode": 200,
+      "message": "Api Gateway running successfully",
+      "success": true,
+      "data": null
+    },
+    "responses": {
+      "200": "System is healthy",
+      "503": "Service Unavailable - Database connection failed"
+    }
+  }
+}

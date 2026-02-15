@@ -1,0 +1,72 @@
+{
+  "__comment": "Use this JSON structure as a prompt template for generating controller documentation. Replace placeholders {{...}} with specific details.",
+  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints. all routes are prefixed with /api/v{{version}}/.",
+  "{{operationId}}": {
+    "route": "{{METHOD}} /api/v{{version}}/{{resource}}",
+    "method": "{{METHOD}}",
+    "description": "{{Description of what this endpoint does}}",
+    "authentication": "Bearer token required",
+    "input": {
+      "{{field_name}}": "{{type}} ({{required|optional}}, {{description}})",
+      "{{another_field}}": "string (optional, example description)"
+    },
+    "output": {
+      "statusCode": "number",
+      "message": "string",
+      "success": "boolean",
+      "data": {
+        "{{resource_singular}}": {
+          "_id": "string",
+          "{{field_name}}": "{{type}}",
+          "createdAt": "2025-01-01T00:00:00.000Z",
+          "updatedAt": "2025-01-01T00:00:00.000Z"
+        }
+      }
+    },
+    "responses": {
+      "2XX": "{{Success message}}",
+      "400": "Bad Request / Validation Error",
+      "401": "Unauthorized",
+      "403": "Forbidden",
+      "404": "{{Resource}} not found",
+      "409": "Conflict / Already exists",
+      "500": "Internal server error"
+    }
+  },
+  "{{operationId_List}}": {
+    "route": "GET /api/v{{version}}/{{resource}}",
+    "method": "GET",
+    "description": "Get all {{resource_plural}} for the authenticated user.",
+    "authentication": "Bearer token required",
+    "input": {
+      "page?": "number (optional, pagination)",
+      "limit?": "number (optional, limit)"
+    },
+    "output": {
+      "statusCode": "number",
+      "message": "string",
+      "success": "boolean",
+      "data": {
+        "{{resource_plural}}": [
+          {
+            "_id": "string",
+            "{{field_name}}": "{{type}}",
+            "createdAt": "2025-01-01T00:00:00.000Z",
+            "updatedAt": "2025-01-01T00:00:00.000Z"
+          }
+        ]
+      },
+      "meta": {
+        "total": "number",
+        "page": "number",
+        "limit": "number",
+        "last_page": "number",
+        "page_size": "number"
+      }
+    },
+    "responses": {
+      "200": "{{Resource_plural}} retrieved successfully",
+      "500": "Internal server error"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@fintrack/utils",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@fintrack/types": "workspace:*",
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "typescript": "latest"
+  }
+}

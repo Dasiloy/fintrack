@@ -1,0 +1,41 @@
+{
+  "name": "@fintrack/types",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit",
+    "proto:gen": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/protos --proto_path=./proto ./proto/**/*.proto --ts_proto_opt=nestJs=true,addGrpcMetadata=true"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./proto/*": "./proto/*",
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "@nestjs/microservices": "^11.1.13",
+    "@grpc/grpc-js": "^1.14.3",
+    "rxjs": "^7.8.1",
+    "ts-proto": "^2.11.2",
+    "typescript": "latest"
+  },
+  "peerDependencies": {
+    "@nestjs/microservices": "^11.1.13",
+    "@grpc/grpc-js": "^1.14.3",
+    "rxjs": "^7.8.1"
+  }
+}

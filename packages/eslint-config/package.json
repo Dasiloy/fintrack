@@ -1,5 +1,5 @@
 {
-  "name": "@repo/eslint-config",
+  "name": "@fintrack/eslint-config",
   "version": "0.0.0",
   "type": "module",
   "private": true,

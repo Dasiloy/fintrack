@@ -1,0 +1,49 @@
+{
+  "name": "@fintrack/common",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "@grpc/grpc-js": "^1.14.3",
+    "nestjs-pino": "^4.5.0",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/types": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.0.1",
+    "@types/node": "^25.2.3",
+    "rxjs": "^7.8.1",
+    "typescript": "latest"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/microservices": "^11.1.13",
+    "rxjs": "^7.8.1"
+  }
+}
