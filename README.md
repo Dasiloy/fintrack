@@ -1,135 +1,119 @@
-# Turborepo starter
+# FinTrack - Smart Personal Finance Management
 
-This Turborepo starter is maintained by the Turborepo core team.
+FinTrack is a comprehensive, learning-focused personal finance management solution designed to provide users with deep insights into their spending habits through modern architecture and advanced algorithms.
 
-## Using this example
+---
 
-Run the following command:
+## 👑 Chief Contributor
 
-```sh
-npx create-turbo@latest
+| ![dasiloy](https://avatars.githubusercontent.com/dasiloy?v=4&s=150) |
+| :-----------------------------------------------------------------: |
+|              **[dasiloy](https://github.com/dasiloy)**              |
+|                    _Lead Architect / Developer_                     |
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+FinTrack is built as a highly scalable **Monorepo** using **Turborepo**, ensuring a shared source of truth for types, logic, and UI components across web, mobile, and backend.
+
+### **System Overview**
+
+```mermaid
+graph TD
+    subgraph Client
+    A[Next.js Web<br/>React + RSC] --- tRPC
+    B[Flutter Mobile<br/>Riverpod] --- GQL
+    end
+
+    subgraph Gateway
+    tRPC --> GW[API Gateway<br/>NestJS]
+    GQL --> GW
+    end
+
+    subgraph Services
+    GW --- |gRPC| S1[Auth Service]
+    GW --- |gRPC| S2[Transaction Service]
+    GW --- |gRPC| S3[Budget Service]
+    end
+
+    subgraph Storage
+    S1 --- P[Prisma ORM]
+    S2 --- P
+    S3 --- P
+    P --- DB[(PostgreSQL)]
+    end
 ```
 
-## What's inside?
+### **Tech Stack**
 
-This Turborepo includes the following packages/apps:
+- **Monorepo**: Turborepo, PNPM Workspaces
+- **Web**: Next.js 14, React Server Components, Tailwind CSS, Jotai
+- **Mobile**: Flutter, Riverpod, GraphQL
+- **API Gateway**: NestJS (tRPC, GraphQL, REST)
+- **Microservices**: NestJS, gRPC
+- **Database**: PostgreSQL (Neon), Prisma ORM
+- **AI/ML**: Vercel AI SDK, TensorFlow.js
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## 🎯 Key Features
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- 🔐 **Unified Authentication**: Session-based auth with "Max 2" session limit. Supporting Web (NextAuth) and Mobile (JWT).
+- 💸 **Transaction Tracking**: Manual income/expense entry with category auto-suggestion and evidence attachment.
+- 📊 **Deep Analytics**: Line, bar, and pie charts for spending distribution and trend analysis.
+- 🎯 **Budgeting**: Set limits per category with progress tracking and threshold alerts.
+- 🔄 **Recurring Bills**: Managed via Cron jobs with push notification reminders.
+- 🤝 **Bill Splitting**: Network-based debt management using the **MinCashFlow (Greedy)** algorithm for simplified settlements.
+- 💰 **Savings Goals**: Track milestones with linear regression for completion prediction.
+- 📄 **PDF Reports**: Professionally formatted monthly spending and budget vs. actual reports.
+- 💳 **Premium Tier**: Stripe-integrated subscription management for advanced features.
 
-### Utilities
+---
 
-This Turborepo has some additional tools already setup for you:
+## 📂 Project Structure
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```text
+fintrack/
+├── apps/
+│   ├── api_gateway/    # NestJS Gateway (tRPC/GraphQL proxy)
+│   ├── auth_service/   # Core Auth logic (gRPC)
+│   ├── payment_service/# Transaction/Split logic (gRPC)
+│   └── web/            # Next.js web application
+├── mobile/             # Flutter mobile application
+├── packages/
+│   ├── database/       # Prisma schema & Database service
+│   ├── common/         # Shared Guards, Decorators & Config
+│   ├── types/          # Generated Protobuf & Shared Interface types
+│   └── ui/             # Shared Design System components
+└── docs/               # Technical guides and journey logs
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+## 🎓 Learning Objectives
 
-```
-cd my-turborepo
+This project is built to master:
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+1.  **Microservices Architecture**: Service discovery, gRPC communication, and Gateway patterns.
+2.  **DSA in Real World**: Implementing Graph algorithms (MinCashFlow) and Statistical models for financial predictions.
+3.  **Modern Web/Mobile**: Reactive state management, Type-safe client-server communication, and Server-side rendering.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+---
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## 📜 Documentation
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+For more detailed guides, check the `docs/` folder:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+- [System Architecture](docs/architecture.md)
+- [Authentication Strategy](docs/authentication-guide.md)
+- [Stripe Integration Guide](docs/stripe-integration-guide.md)
+- [Features & DSA Mapping](docs/features.md)
+- [Design System & UI/UX](docs/design-system.md)
+- [Build Journey Log](docs/build-journey.md)
+- [Case Study & Business Value](docs/case-study.md)
+- [API Contract Template](docs/api-contract-template.json)
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Copyright © 2026 [dasiloy](https://github.com/dasiloy)
