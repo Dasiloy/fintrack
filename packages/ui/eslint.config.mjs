@@ -1,4 +1,3 @@
-import { config } from "@fintrack/eslint-config/react-internal";
+import { config as baseConfig } from '@fintrack/eslint-config/react-internal';
 
-/** @type {import("eslint").Linter.Config} */
-export default config;
+export default [...baseConfig];

@@ -1,18 +1,34 @@
 {
   "ui": "stream",
-  "globalEnv": ["NODE_ENV"],
-  "$schema": "https://turborepo.dev/schema.json",
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "AUTH_SECRET",
+    "AUTH_GOOGLE_ID",
+    "AUTH_GOOGLE_SECRET",
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "JWT_ACCESS_TOKEN_EXPIRATION",
+    "JWT_REFRESH_TOKEN_EXPIRATION",
+    "API_GATEWAY_URL",
+    "API_GATEWAY_HOST",
+    "API_GATEWAY_PORT",
+    "AUTH_SERVICE_HOST",
+    "AUTH_SERVICE_PORT",
+    "PAYMENT_SERVICE_HOST",
+    "PAYMENT_SERVICE_PORT",
+    "NODE_ENV",
+    "SKIP_ENV_VALIDATION",
+    "VERCEL_URL",
+    "PORT",
+    "SWAGGER_DOC_USER",
+    "SWAGGER_DOC_PASS"
+  ],
   "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$"],
-      "env": [
-        "NEXT_PUBLIC_*",
-        "API_SERVICE_*",
-        "API_GATEWAY_URL",
-        "DATABASE_URL"
-      ],
+      "env": ["NEXT_PUBLIC_*", "API_GATEWAY_URL"],
       "envMode": "strict",
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },

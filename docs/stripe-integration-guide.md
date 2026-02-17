@@ -424,14 +424,14 @@ export async function GET() {
 
 ---
 
-## 📱 Mobile (Flutter)
+## 📱 Mobile (Expo)
 
 Use **RevenueCat** or **in-app purchases** for mobile subscriptions (different from Stripe web).
 
 **Week 11 Day 76:** Just add UI placeholder:
 
 ```dart
-// Upgrade button in Flutter
+// Upgrade button in Expo
 ElevatedButton(
   onPressed: () {
     // TODO: Implement in-app purchase

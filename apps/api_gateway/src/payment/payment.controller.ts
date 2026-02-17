@@ -1,15 +1,16 @@
-import { Controller, Get, HttpStatus, Logger, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Logger, Post } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import { SubscribeRes } from '@fintrack/types/protos/payment/payment';
 
 import { PaymentService } from './payment.service';
+import { SubscribeDto } from './dtos/subscribe.dto';
 
 /**
  * Controller responsible for managing user payment and subscriptions
@@ -37,6 +38,11 @@ export class PaymentController {
     description:
       'subscribe a user to a paid plan that provides extras such as pdf generation of reports',
   })
+  @ApiBody({
+    description: 'Payload for subscribing',
+    required: true,
+    type: SubscribeDto,
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Successful payment subscription',
@@ -53,7 +59,9 @@ export class PaymentController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unathorized!',
   })
-  async subscribe(): Promise<StandardResponse<null>> {
+  async subscribe(
+    @Body() _body: SubscribeDto,
+  ): Promise<StandardResponse<null>> {
     await this.paymentService.subscribe();
 
     return {

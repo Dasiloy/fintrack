@@ -1,21 +1,18 @@
+// CRITICAL: Load environment variables FIRST, before any imports that use them
+import { loadEnv } from '@fintrack/common/env/index';
+loadEnv();
+
+// Now safe to import modules that depend on environment variables
 import helmet from 'helmet';
-import * as dotenv from 'dotenv';
 import * as basicAuth from 'express-basic-auth';
 
 import { NestFactory } from '@nestjs/core';
 import { Logger, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { getServiceConfig } from '@fintrack/common/config/services';
-
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  dotenv.config();
-
-  // get service config
-  const config = getServiceConfig()['API_GATEWAY'];
-
   // create app
   const app = await NestFactory.create(AppModule);
 
@@ -83,8 +80,9 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // start server
-  app.listen(config.DEFAULT_PORT, () => {
-    logger.log(`Running on port ${config.DEFAULT_PORT}`);
+  const port = Number(process.env.API_GATEWAY_PORT);
+  app.listen(port, () => {
+    logger.log(`Running on port ${port}`);
   });
 }
 bootstrap();

@@ -3,7 +3,7 @@
 **Inspired by:** [MatDash Template](https://matdash-nextjs-main.vercel.app/)  
 **Live Reference:** https://matdash-nextjs-main.vercel.app/  
 **Purpose:** Modern, glossy dark mode financial dashboard with premium feel  
-**Platforms:** Web (Next.js) + Mobile (Flutter)  
+**Platforms:** Web (Next.js) + Mobile (Expo)  
 **Design Style:** Dark Mode + Glassmorphism + Vibrant Colors + Smooth Animations
 
 ---
@@ -250,7 +250,7 @@
 
 ---
 
-## 📱 Mobile Adaptations (Flutter)
+## 📱 Mobile Adaptations (Expo)
 
 **Bottom Navigation:**
 
@@ -295,7 +295,7 @@ See `stripe-integration-guide.md` for code implementation details.
 
 ---
 
-## 🎨 Flutter Theme (Dark Mode)
+## 🎨 Expo Theme (Dark Mode)
 
 See `stripe-integration-guide.md` for code implementation details.
 
@@ -316,7 +316,7 @@ See `stripe-integration-guide.md` for code implementation details.
 
 - [ ] Install Manrope font (web + mobile)
 - [ ] Set up Tailwind config with dark mode colors
-- [ ] Create Flutter Dark ThemeData
+- [ ] Create Expo Dark ThemeData
 - [ ] Test color consistency across platforms
 - [ ] Build sample glossy card component
 

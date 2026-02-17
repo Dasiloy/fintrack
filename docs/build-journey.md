@@ -2,7 +2,7 @@
 
 ## 🎯 Parallel Development Plan
 
-**Goal:** Build web (Next.js), mobile (Flutter), and AI features simultaneously  
+**Goal:** Build web (Next.js), mobile (Expo), and AI features simultaneously  
 **Timeline:** 14 weeks (3.5 months)  
 **Daily Effort:** 2-3 hours/day  
 **Approach:** For each feature, build BOTH web and mobile versions
@@ -15,16 +15,16 @@
 
 #### Day 1: Project Setup (Both Platforms)
 
-- **Learn:** Turborepo monorepo, Flutter project structure
+- **Learn:** Turborepo monorepo, Expo project structure
 - **Web:** Initialize Next.js app
-- **Mobile:** Initialize Flutter app
+- **Mobile:** Initialize Expo app
 - **Output:** Both projects ready
 
 #### Day 2: Design System (Both)
 
-- **Learn:** Tailwind (web), Flutter themes (mobile)
+- **Learn:** Tailwind (web), Expo themes (mobile)
 - **Web:** Set up shadcn/ui, colors, typography
-- **Mobile:** Set up Flutter theme, colors, typography
+- **Mobile:** Set up Expo theme, colors, typography
 - **Output:** Design tokens for both
 
 #### Day 3: Sign Up UI (Web)
@@ -36,9 +36,9 @@
 
 #### Day 4: Sign Up UI (Mobile)
 
-- **Learn:** Flutter forms, validation
+- **Learn:** Expo forms, validation
 - **Generate Mockup:** Sign up screen (mobile)
-- **Do:** Build Flutter sign up screen
+- **Do:** Build Expo sign up screen
 - **Output:** Mobile sign up UI
 
 #### Day 5: Login UI (Both)
@@ -54,7 +54,7 @@
 - **Learn:** NextAuth.js, JWT tokens
 - **Do:** Set up authentication API
 - **Web:** Connect Next.js forms
-- **Mobile:** Connect Flutter to API
+- **Mobile:** Connect Expo to API
 - **Output:** Working auth on both
 
 #### Day 7: Biometric + Password Reset
@@ -70,7 +70,7 @@
 
 #### Day 8: Navigation (Both)
 
-- **Learn:** Layouts (Next.js) vs Navigation (Flutter)
+- **Learn:** Layouts (Next.js) vs Navigation (Expo)
 - **Generate Mockup:** Sidebar (web), Bottom nav (mobile)
 - **Web:** Build sidebar navigation
 - **Mobile:** Build bottom navigation
@@ -84,7 +84,7 @@
 
 #### Day 10: Dashboard Structure (Mobile)
 
-- **Learn:** Flutter widgets, Riverpod state
+- **Learn:** Expo widgets, React Query state
 - **Generate Mockup:** Mobile dashboard (use existing)
 - **Do:** Build mobile dashboard layout
 - **Output:** Mobile dashboard shell
@@ -105,7 +105,7 @@
 
 #### Day 13: Recent Transactions (Both)
 
-- **Learn:** Lists (React vs Flutter)
+- **Learn:** Lists (React vs Expo)
 - **Web:** Transaction list component
 - **Mobile:** ListView widget
 - **Output:** Recent activity on both
@@ -136,7 +136,7 @@
 
 #### Day 17: Transactions List (Mobile)
 
-- **Learn:** Flutter ListView, GraphQL queries
+- **Learn:** Expo ListView, tRPC queries
 - **Generate Mockup:** Transactions screen (mobile)
 - **Do:** Build mobile transactions screen
 - **Output:** Mobile transactions list
@@ -157,7 +157,7 @@
 
 #### Day 20: Add Transaction Screen (Mobile)
 
-- **Learn:** Flutter forms, camera
+- **Learn:** Expo forms, camera
 - **Generate Mockup:** Add transaction screen (mobile)
 - **Do:** Build mobile add screen with camera
 - **Output:** Mobile add transaction
@@ -239,7 +239,7 @@
 
 #### Day 31: Budget Screen (Mobile)
 
-- **Learn:** Flutter progress bars
+- **Learn:** Expo progress bars
 - **Generate Mockup:** Budget screen (mobile)
 - **Do:** Build mobile budget screen
 - **Output:** Mobile budgets
@@ -603,7 +603,7 @@
 
 #### Day 80: Testing (Mobile)
 
-- **Learn:** Flutter widget tests
+- **Learn:** Expo widget tests
 - **Do:** Write mobile tests
 - **Output:** Mobile test coverage
 
@@ -652,7 +652,7 @@
 - **Learn:** Prompt engineering, classification
 - **Build:** Categorization API route
 - **Web:** "Auto-categorize" button in add transaction
-- **Mobile:** Same feature via GraphQL
+- **Mobile:** Same feature via tRPC
 - **Output:** AI categorization working
 
 #### Day 87: Financial Chatbot
@@ -812,10 +812,10 @@
 - Progressive enhancement
 - SEO optimization
 
-**Mobile (Flutter):**
+**Mobile (Expo):**
 
 - Widget composition
-- State management (Riverpod)
+- State management (React Query)
 - Native features (camera, biometrics)
 - Platform-specific UX
 

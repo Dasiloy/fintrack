@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "check-types": "tsc --noEmit"
   },
   "exports": {

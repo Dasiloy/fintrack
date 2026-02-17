@@ -1,3 +1,8 @@
+// CRITICAL: Load environment variables FIRST, before any imports that use them
+import { loadEnv } from '@fintrack/common/env/index';
+loadEnv();
+
+// Now safe to import modules that depend on environment variables
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { PaymentModule } from './payment.module';
@@ -43,6 +48,6 @@ async function bootstrap() {
 
   // start microservice
   await app.listen();
-  logger.log(`Running on port ${config.DEFAULT_PORT}`);
+  logger.log(`Running on port ${process.env.PAYMENT_SERVICE_PORT}`);
 }
 bootstrap();

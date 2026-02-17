@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"

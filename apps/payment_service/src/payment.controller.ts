@@ -19,9 +19,9 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   async subscribe(
-    @Payload() request: SubscribeReq,
-    @Ctx() metadata: Metadata,
-    @RpcUser() user: any,
+    @Payload() _request: SubscribeReq,
+    @Ctx() _metadata: Metadata,
+    @RpcUser() _user: any,
   ): Promise<SubscribeRes> {
     return {
       message: 'Payment successsful',

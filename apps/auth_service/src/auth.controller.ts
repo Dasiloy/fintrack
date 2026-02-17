@@ -21,12 +21,12 @@ export class AuthController implements AuthServiceController {
   logger = new Logger(AuthController.name);
   constructor(private readonly appService: AuthService) {}
 
-  async login(request: LoginReq, metadata: Metadata) {
+  async login(_request: LoginReq, _metadata: Metadata) {
     const res: LoginRes = { id: '1', token: 'bbcj fbbvdb' };
     return res;
   }
 
-  async register(request: LoginReq) {
+  async register(_request: LoginReq) {
     const res: RegisterRes = { id: '1', userName: 'John Doe' };
     return res;
   }

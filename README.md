@@ -23,7 +23,7 @@ FinTrack is built as a highly scalable **Monorepo** using **Turborepo**, ensurin
 graph TD
     subgraph Client
     A[Next.js Web<br/>React + RSC] --- tRPC
-    B[Flutter Mobile<br/>Riverpod] --- GQL
+    B[Expo Mobile<br/>React Native] --- GQL
     end
 
     subgraph Gateway
@@ -49,7 +49,7 @@ graph TD
 
 - **Monorepo**: Turborepo, PNPM Workspaces
 - **Web**: Next.js 14, React Server Components, Tailwind CSS, Jotai
-- **Mobile**: Flutter, Riverpod, GraphQL
+- **Mobile**: Expo (React Native), Apollo Client, GraphQL
 - **API Gateway**: NestJS (tRPC, GraphQL, REST)
 - **Microservices**: NestJS, gRPC
 - **Database**: PostgreSQL (Neon), Prisma ORM
@@ -80,7 +80,7 @@ fintrack/
 │   ├── auth_service/   # Core Auth logic (gRPC)
 │   ├── payment_service/# Transaction/Split logic (gRPC)
 │   └── web/            # Next.js web application
-├── mobile/             # Flutter mobile application
+│   ├── mobile/          # Expo mobile application
 ├── packages/
 │   ├── database/       # Prisma schema & Database service
 │   ├── common/         # Shared Guards, Decorators & Config

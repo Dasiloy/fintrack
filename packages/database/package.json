@@ -12,7 +12,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "check-types": "tsc --noEmit"
   },
   "exports": {
@@ -38,13 +38,14 @@
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@types/pg": "^8.16.0",
+    "dotenv-expand": "^12.0.3",
     "prisma": "^7.4.0",
     "typescript": "latest"
   },
   "peerDependencies": {
     "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/config": "^4.0.3"
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.0.1"
   },
   "dependencies": {
     "@prisma/adapter-neon": "^7.4.0",

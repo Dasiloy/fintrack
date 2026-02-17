@@ -1,3 +1,10 @@
+// CRITICAL: Load environment variables FIRST, before any imports that use them
+import { loadEnv } from '@fintrack/common/env/index';
+loadEnv();
+
+import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
+
+// Now safe to import modules that depend on environment variables
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
@@ -14,16 +21,19 @@ import {
 
 async function bootstrap() {
   // Get Service config
-  const config = getServiceConfig()['AUTH_SERVICE'];
+  const serviceConfig = getServiceConfig()['AUTH_SERVICE'];
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AuthModule,
     {
       transport: Transport.GRPC,
       options: {
-        package: config.NAME,
+        package: serviceConfig.NAME,
         url: getServiceUrl('AUTH_SERVICE'),
-        protoPath: [healthCheckProtoPath, require.resolve(config.PROTO_PATH)],
+        protoPath: [
+          healthCheckProtoPath,
+          require.resolve(serviceConfig.PROTO_PATH),
+        ],
         onLoadPackageDefinition: (pkg, server) => {
           new ReflectionService(pkg).addToServer(server);
 
@@ -43,6 +53,6 @@ async function bootstrap() {
 
   // start microservice
   await app.listen();
-  logger.log(`Running on port ${config.DEFAULT_PORT}`);
+  logger.log(`Running on port ${process.env.AUTH_SERVICE_PORT}`);
 }
 bootstrap();

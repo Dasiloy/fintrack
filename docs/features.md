@@ -53,7 +53,7 @@
 
 - ✅ **MailTrap/Resend** - Password reset emails
 - ✅ **NextAuth.js** - Auth framework
-- ✅ **Local Auth** (Flutter) - Biometric on mobile
+- ✅ **Local Auth** (Expo) - Biometric on mobile
 
 ### **In Build Journey?**
 

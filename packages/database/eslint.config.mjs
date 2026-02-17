@@ -1,4 +1,3 @@
-import { config } from "@fintrack/eslint-config/base";
+import { config as baseConfig } from '@fintrack/eslint-config/base';
 
-/** @type {import("eslint").Linter.Config} */
-export default config;
+export default [...baseConfig];

@@ -2,13 +2,12 @@
   "extends": "@fintrack/typescript-config/base.json",
   "compilerOptions": {
     "strict": true,
-    "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "eslint.config.mjs"],
   "exclude": ["node_modules", "dist", "proto"]
 }

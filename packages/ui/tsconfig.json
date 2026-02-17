@@ -8,6 +8,6 @@
       "@ui/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "eslint.config.mjs", "turbo/generators/config.ts"],
   "exclude": ["node_modules"]
 }
