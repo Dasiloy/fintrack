@@ -1,18 +1,20 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-
-import { api } from "@/lib/trpc/client";
+import { useState } from 'react';
+import { api_client } from '@/lib/trpc_app/api_client';
 
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const [latestPost] = api_client.post.getLatest.useSuspenseQuery();
 
-  const utils = api.useUtils();
-  const [name, setName] = useState("");
-  const createPost = api.post.create.useMutation({
+  const utils = api_client.useUtils();
+  const [name, setName] = useState('');
+  const createPost = api_client.post.create.useMutation({
     onSuccess: async () => {
       await utils.post.invalidate();
-      setName("");
+      setName('');
+    },
+    onError(error, variables, onMutateResult, context) {
+      console.log(error);
     },
   });
 
@@ -42,7 +44,7 @@ export function LatestPost() {
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
           disabled={createPost.isPending}
         >
-          {createPost.isPending ? "Submitting..." : "Submit"}
+          {createPost.isPending ? 'Submitting...' : 'Submit'}
         </button>
       </form>
     </div>

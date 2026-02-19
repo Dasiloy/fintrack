@@ -46,9 +46,9 @@ async function bootstrap() {
       },
     }),
   );
-  // 4. Basic Auth For Swagger Docs
+  // 4. Basic Auth For Swagger and TRPC Docs
   app.use(
-    '/docs',
+    ['/docs', '/docs/trpc'],
     basicAuth({
       challenge: true,
       users: {
@@ -57,13 +57,9 @@ async function bootstrap() {
     }),
   );
 
-  /// VERSIONING
+  /// ROUTE PREFIX
   app.setGlobalPrefix('api', {
     exclude: ['/health', '/docs'],
-  });
-  app.enableVersioning({
-    type: VersioningType.URI,
-    prefix: 'v',
   });
 
   /// DOCUMENTATIONS

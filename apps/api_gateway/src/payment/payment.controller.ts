@@ -22,7 +22,6 @@ import { SubscribeDto } from './dtos/subscribe.dto';
 @ApiBearerAuth()
 // @UseGuards(JwtAuthGuards)
 @Controller({
-  version: '1',
   path: 'payment',
 })
 export class PaymentController {

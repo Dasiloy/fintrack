@@ -11,51 +11,170 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
-export interface AuthReq {
-  token: string;
+export interface User {
+  id: string;
+  email: string;
+  avatar?: string | undefined;
+  firstName: string;
+  lastName: string;
 }
 
-export interface AuthRes {
-  id: string;
-  status: string;
+export interface RegisterReq {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface RegisterRes {
+  user: User | undefined;
+  emailToken: string;
+}
+
+export interface VerifyEmailReq {
+  email: string;
+  emailToken: string;
+}
+
+export interface VerifyEmailRes {
+  user: User | undefined;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface ResendVerifyEmailTokenReq {
+  email: string;
+}
+
+export interface ResendVerifyEmailTokenRes {
+  user: User | undefined;
+  emailToken: string;
 }
 
 export interface LoginReq {
-  userName: string;
+  email: string;
   password: string;
 }
 
 export interface LoginRes {
-  token: string;
-  id: string;
+  user: User | undefined;
+  accessToken: string;
+  refreshToken: string;
 }
 
-export interface RegisterRes {
+export interface ForgotPasswordReq {
+  email: string;
+}
+
+export interface ForgotPasswordRes {
+  email: string;
+  forgotPasswordToken: string;
+}
+
+export interface ResendForgotPasswordTokenReq {
+  email: string;
+}
+
+export interface ResendForgotPasswordTokenRes {
+  email: string;
+  forgotPasswordToken: string;
+}
+
+export interface ValidateTokenReq {
+  token: string;
+}
+
+export interface ValidateTokenRes {
   id: string;
-  userName: string;
+  email: string;
+  avatar: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface RefreshTokenReq {
+  refreshToken: string;
+}
+
+export interface RefreshTokenRes {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
+  register(request: RegisterReq, metadata?: Metadata): Observable<RegisterRes>;
+
+  verifyEmail(request: VerifyEmailReq, metadata?: Metadata): Observable<VerifyEmailRes>;
+
+  resendVerifyEmailToken(
+    request: ResendVerifyEmailTokenReq,
+    metadata?: Metadata,
+  ): Observable<ResendVerifyEmailTokenRes>;
+
   login(request: LoginReq, metadata?: Metadata): Observable<LoginRes>;
 
-  register(request: LoginReq, metadata?: Metadata): Observable<RegisterRes>;
+  forgotPassword(request: ForgotPasswordReq, metadata?: Metadata): Observable<ForgotPasswordRes>;
 
-  auth(request: AuthReq, metadata?: Metadata): Observable<AuthRes>;
+  resendForgotPasswordToken(
+    request: ResendForgotPasswordTokenReq,
+    metadata?: Metadata,
+  ): Observable<ResendForgotPasswordTokenRes>;
+
+  validateToken(request: ValidateTokenReq, metadata?: Metadata): Observable<ValidateTokenRes>;
+
+  refreshToken(request: RefreshTokenReq, metadata?: Metadata): Observable<RefreshTokenRes>;
 }
 
 export interface AuthServiceController {
+  register(request: RegisterReq, metadata?: Metadata): Promise<RegisterRes> | Observable<RegisterRes> | RegisterRes;
+
+  verifyEmail(
+    request: VerifyEmailReq,
+    metadata?: Metadata,
+  ): Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes;
+
+  resendVerifyEmailToken(
+    request: ResendVerifyEmailTokenReq,
+    metadata?: Metadata,
+  ): Promise<ResendVerifyEmailTokenRes> | Observable<ResendVerifyEmailTokenRes> | ResendVerifyEmailTokenRes;
+
   login(request: LoginReq, metadata?: Metadata): Promise<LoginRes> | Observable<LoginRes> | LoginRes;
 
-  register(request: LoginReq, metadata?: Metadata): Promise<RegisterRes> | Observable<RegisterRes> | RegisterRes;
+  forgotPassword(
+    request: ForgotPasswordReq,
+    metadata?: Metadata,
+  ): Promise<ForgotPasswordRes> | Observable<ForgotPasswordRes> | ForgotPasswordRes;
 
-  auth(request: AuthReq, metadata?: Metadata): Promise<AuthRes> | Observable<AuthRes> | AuthRes;
+  resendForgotPasswordToken(
+    request: ResendForgotPasswordTokenReq,
+    metadata?: Metadata,
+  ): Promise<ResendForgotPasswordTokenRes> | Observable<ResendForgotPasswordTokenRes> | ResendForgotPasswordTokenRes;
+
+  validateToken(
+    request: ValidateTokenReq,
+    metadata?: Metadata,
+  ): Promise<ValidateTokenRes> | Observable<ValidateTokenRes> | ValidateTokenRes;
+
+  refreshToken(
+    request: RefreshTokenReq,
+    metadata?: Metadata,
+  ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["login", "register", "auth"];
+    const grpcMethods: string[] = [
+      "register",
+      "verifyEmail",
+      "resendVerifyEmailToken",
+      "login",
+      "forgotPassword",
+      "resendForgotPasswordToken",
+      "validateToken",
+      "refreshToken",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

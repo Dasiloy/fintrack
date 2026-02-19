@@ -4,7 +4,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 
-import { PrismaService } from '@fintrack/database/service';
+import { PrismaService } from '@fintrack/database/nest';
 
 @Injectable()
 export class AppService {

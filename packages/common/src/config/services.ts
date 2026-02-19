@@ -7,8 +7,12 @@ import {
   PAYMENT_PACKAGE_NAME,
   protobufPackage as PAYMENT,
 } from '@fintrack/types/protos/payment/payment';
+import {
+  NOTIFICATION_PACKAGE_NAME,
+  protobufPackage as NOTIFICATION,
+} from '@fintrack/types/protos/notification/notification';
 
-type Service = 'API_GATEWAY' | 'AUTH_SERVICE' | 'PAYMENT_SERVICE';
+type Service = 'API_GATEWAY' | 'AUTH_SERVICE' | 'PAYMENT_SERVICE' | 'NOTIFICATION_SERVICE';
 
 interface IService {
   NAME: string;
@@ -31,6 +35,16 @@ export const getServiceConfig = (): Record<Service, IService> => ({
     NAME: PAYMENT,
     PACKAGE_NAME: PAYMENT_PACKAGE_NAME,
     PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/payment/payment.proto'),
+  },
+  NOTIFICATION_SERVICE: {
+    NAME: NOTIFICATION,
+    PACKAGE_NAME: NOTIFICATION_PACKAGE_NAME,
+    PROTO_PATH: join(
+      process.cwd(),
+      '..',
+      '..',
+      'packages/types/proto/notification/notification.proto',
+    ),
   },
 });
 

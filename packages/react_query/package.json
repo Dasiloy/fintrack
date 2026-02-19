@@ -1,0 +1,33 @@
+{
+  "name": "@fintrack/react_query",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "@tanstack/react-query": "^5.69.0",
+    "superjson": "^2.2.1",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.69.0",
+    "superjson": "^2.2.1"
+  }
+}

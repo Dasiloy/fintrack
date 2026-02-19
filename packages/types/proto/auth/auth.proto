@@ -3,31 +3,106 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
+    rpc Register(RegisterReq) returns (RegisterRes) {}
+    rpc VerifyEmail(VerifyEmailReq) returns (VerifyEmailRes) {}
+    rpc ResendVerifyEmailToken(ResendVerifyEmailTokenReq) returns (ResendVerifyEmailTokenRes) {}
     rpc Login(LoginReq) returns (LoginRes) {}
-    rpc Register(LoginReq) returns (RegisterRes) {}
-    rpc Auth (AuthReq) returns (AuthRes) {}
+    rpc ForgotPassword(ForgotPasswordReq) returns (ForgotPasswordRes) {}
+    rpc ResendForgotPasswordToken(ResendForgotPasswordTokenReq) returns (ResendForgotPasswordTokenRes) {}
+    rpc ValidateToken(ValidateTokenReq) returns (ValidateTokenRes) {}
+    rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes) {}
 }
 
-message AuthReq {
-    string token =1;
+message User {
+    string id=1;
+    string email= 2;
+    optional string avatar= 3;
+    string firstName= 4;
+    string lastName= 5;
 }
 
-message AuthRes {
-    string id =1;
-    string status =2;
+message RegisterReq {
+    string email= 1;
+    string password= 2;
+    string firstName= 3;
+    string lastName= 4;
+}
+
+message RegisterRes {
+     User user= 1;
+     string emailToken= 2;
+}
+
+message VerifyEmailReq {
+    string email= 1;
+    string emailToken= 2;
+}
+
+message VerifyEmailRes {
+    User user= 1;
+    string accessToken= 2;
+    string refreshToken= 3;
+}
+
+message ResendVerifyEmailTokenReq {
+    string email= 1;
+}
+
+message ResendVerifyEmailTokenRes {
+    User user= 1;
+    string emailToken= 2;
 }
 
 message LoginReq {
- string userName= 1;
+ string email= 1;
  string password= 2;
 }
 
 message LoginRes {
-    string token= 1;
-    string id= 2;
+    User user= 1;
+    string accessToken= 2;
+    string refreshToken= 3;
 }
 
-message RegisterRes {
-      string id= 1;
-      string userName = 2;
+message ForgotPasswordReq {
+    string email= 1;
 }
+
+message ForgotPasswordRes {
+    string email= 1;
+    string forgotPasswordToken= 2;
+}
+
+message ResendForgotPasswordTokenReq {
+    string email= 1;
+}
+
+message ResendForgotPasswordTokenRes {
+    string email= 1;
+    string forgotPasswordToken= 2;
+}
+
+message ValidateTokenReq {
+    string token= 1;
+}
+
+message ValidateTokenRes {
+    string id=1;
+    string email= 2;
+    string avatar= 3;
+    string firstName= 4;
+    string lastName= 5;
+}
+
+message RefreshTokenReq {
+    string refreshToken= 1;
+}
+
+message RefreshTokenRes {
+    string accessToken= 2;
+    string refreshToken= 3;
+}
+
+
+
+

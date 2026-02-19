@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
+import { Logger, LoggerModule as PinoLoggerModule } from 'nestjs-pino';
 
 @Global()
 @Module({

@@ -1,7 +1,7 @@
+import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
-import { parseJwtExpiration } from '@/helpers/jwt';
+import { parseJwtExpiration } from '@fintrack/utils/jwt';
 
 /**
  * Middleware: Automatic Token Refresh
@@ -32,10 +32,12 @@ export async function middleware(request: NextRequest) {
   const refresh_token = request.cookies.get('refresh-token')?.value;
 
   // STEP 2: Early return if no tokens
-  // If user doesn't have tokens, let them through
-  // NextAuth will handle redirecting to login if needed
+  // If user doesn't have tokens, redirect them to /login
   if (!access_token || !refresh_token) {
-    return NextResponse.next();
+    const res = NextResponse.redirect(new URL('/login', request.url));
+    res.cookies.delete('next-auth.session-token');
+    res.cookies.delete('refresh-token');
+    return res;
   }
 
   try {
@@ -107,7 +109,7 @@ export async function middleware(request: NextRequest) {
 
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
-  '/',
+  // '/',
   '/login',
   '/register',
   '/forgot-password',

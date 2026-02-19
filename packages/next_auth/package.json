@@ -1,0 +1,40 @@
+{
+  "name": "@fintrack/next_auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "@types/node": "^20.14.10",
+    "@types/react": "^19.0.0",
+    "next": "^15.2.3",
+    "next-auth": "5.0.0-beta.25",
+    "react": "^19.0.0",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "next": "^15.2.3",
+    "next-auth": "5.0.0-beta.25",
+    "react": "^19.0.0"
+  },
+  "dependencies": {
+    "jose": "^6.1.3"
+  }
+}

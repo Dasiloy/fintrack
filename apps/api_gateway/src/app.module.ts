@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module, ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -11,7 +11,7 @@ import {
   getServiceConfig,
 } from '@fintrack/common/config/services';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
-import { DatabaseModule } from '@fintrack/database/index';
+import { DatabaseModule } from '@fintrack/database/nest';
 
 import { AppExceptionFilter } from './filters/rpc-exception.filter';
 import { AppController } from './app.controller';

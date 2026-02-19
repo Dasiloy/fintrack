@@ -4,48 +4,192 @@ import { Controller, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
 import {
-  AuthReq,
-  AuthRes,
   LoginReq,
   LoginRes,
   RegisterRes,
   AuthServiceController,
   AuthServiceControllerMethods,
+  RegisterReq,
+  VerifyEmailReq,
+  VerifyEmailRes,
+  ResendVerifyEmailTokenReq,
+  ResendVerifyEmailTokenRes,
+  ForgotPasswordReq,
+  ForgotPasswordRes,
+  ResendForgotPasswordTokenReq,
+  ResendForgotPasswordTokenRes,
+  ValidateTokenReq,
+  ValidateTokenRes,
+  RefreshTokenReq,
+  RefreshTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
 
+/**
+ * Controller Responsible for managing app-wide authentication
+ * Communicates with Api Gateway and other microservice via GCP
+ * Returns an Observable
+ *
+ * @class AuthController
+ */
 @Controller()
 @AuthServiceControllerMethods()
 export class AuthController implements AuthServiceController {
   logger = new Logger(AuthController.name);
-  constructor(private readonly appService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  async login(_request: LoginReq, _metadata: Metadata) {
-    const res: LoginRes = { id: '1', token: 'bbcj fbbvdb' };
-    return res;
+  /**
+   * @description Register a new user
+   *
+   * @async
+   * @public
+   * @param {RegisterReq} request
+   * @returns {Promise<RegisterRes> | Observable<RegisterRes> | RegisterRes}
+   * @throws {RpcException} ALREADY_EXISTS if user already exists
+   */
+  register(
+    request: RegisterReq,
+  ): Promise<RegisterRes> | Observable<RegisterRes> | RegisterRes {
+    return this.authService.register(request);
   }
 
-  async register(_request: LoginReq) {
-    const res: RegisterRes = { id: '1', userName: 'John Doe' };
-    return res;
+  /**
+   * @description Verify user email via token
+   *
+   * @async
+   * @public
+   * @param {VerifyEmailReq} request
+   * @returns {Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  verifyEmail(
+    request: VerifyEmailReq,
+  ): Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
   }
 
-  async auth(request: AuthReq) {
-    if (!request.token) {
-      throw new RpcException({
-        code: status.UNAUTHENTICATED,
-        message: 'No token provided',
-      });
-    }
+  /**
+   * @description Resend email verification token
+   *
+   * @async
+   * @public
+   * @param {ResendVerifyEmailTokenReq} request
+   * @returns {Promise<ResendVerifyEmailTokenRes> | Observable<ResendVerifyEmailTokenRes> | ResendVerifyEmailTokenRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  resendVerifyEmailToken(
+    request: ResendVerifyEmailTokenReq,
+  ):
+    | Promise<ResendVerifyEmailTokenRes>
+    | Observable<ResendVerifyEmailTokenRes>
+    | ResendVerifyEmailTokenRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
+  }
 
-    // dummy token verification for now
-    // In real app: this.jwtService.verify(request.token);
+  /**
+   * @description Login user via credentials
+   *
+   * @async
+   * @public
+   * @param {LoginReq} request
+   * @returns {Promise<LoginRes> | Observable<LoginRes> | LoginRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  login(
+    request: LoginReq,
+  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
+  }
 
-    // dummy db check for now
-    // const user = await prisma.user.findUnique(...)
+  /**
+   * @description Handle forgot password request
+   *
+   * @async
+   * @public
+   * @param {ForgotPasswordReq} request
+   * @returns {Promise<ForgotPasswordRes> | Observable<ForgotPasswordRes> | ForgotPasswordRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  forgotPassword(
+    request: ForgotPasswordReq,
+  ):
+    | Promise<ForgotPasswordRes>
+    | Observable<ForgotPasswordRes>
+    | ForgotPasswordRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
+  }
 
-    const res: AuthRes = { id: 'user-123', status: 'active' };
-    return res;
+  /**
+   * @description Resend forgot password token
+   *
+   * @async
+   * @public
+   * @param {ResendForgotPasswordTokenReq} request
+   * @returns {Promise<ResendForgotPasswordTokenRes> | Observable<ResendForgotPasswordTokenRes> | ResendForgotPasswordTokenRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  resendForgotPasswordToken(
+    request: ResendForgotPasswordTokenReq,
+  ):
+    | Promise<ResendForgotPasswordTokenRes>
+    | Observable<ResendForgotPasswordTokenRes>
+    | ResendForgotPasswordTokenRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
+  }
+
+  /**
+   * @description Validate authentication token
+   *
+   * @async
+   * @public
+   * @param {ValidateTokenReq} request
+   * @returns {Promise<ValidateTokenRes> | Observable<ValidateTokenRes> | ValidateTokenRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  validateToken(
+    request: ValidateTokenReq,
+  ):
+    | Promise<ValidateTokenRes>
+    | Observable<ValidateTokenRes>
+    | ValidateTokenRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
+  }
+
+  /**
+   * @description Refresh authentication token
+   *
+   * @async
+   * @public
+   * @param {RefreshTokenReq} request
+   * @returns {Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  refreshToken(
+    request: RefreshTokenReq,
+  ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes {
+    throw new RpcException({
+      code: status.UNIMPLEMENTED,
+      message: 'Method not implemented',
+    });
   }
 }

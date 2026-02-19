@@ -1,0 +1,12 @@
+syntax= "proto3";
+
+package notification;
+
+service NotificationService {
+  rpc CheckPreferences(EmptyReq) returns(EmptyReq) {}
+}
+
+
+message EmptyReq {
+
+}

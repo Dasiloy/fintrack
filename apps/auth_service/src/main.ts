@@ -2,8 +2,6 @@
 import { loadEnv } from '@fintrack/common/env/index';
 loadEnv();
 
-import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
-
 // Now safe to import modules that depend on environment variables
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -52,6 +50,7 @@ async function bootstrap() {
   const logger = new Logger('AUTH_SERVICE');
 
   // start microservice
+  app.enableShutdownHooks();
   await app.listen();
   logger.log(`Running on port ${process.env.AUTH_SERVICE_PORT}`);
 }

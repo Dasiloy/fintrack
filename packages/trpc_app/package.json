@@ -1,0 +1,51 @@
+{
+  "name": "@fintrack/trpc_app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint . --fix",
+    "check-types": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "client": [
+        "src/client.ts"
+      ],
+      "server": [
+        "src/server.ts"
+      ],
+      "*": [
+        "src/*"
+      ]
+    }
+  },
+  "dependencies": {
+    "@fintrack/database": "workspace:*"
+  },
+  "devDependencies": {
+    "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/typescript-config": "workspace:*",
+    "@fintrack/next_auth": "workspace:*",
+    "@trpc/server": "^11.0.0",
+    "superjson": "^2.2.1",
+    "zod": "^3.24.2",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "@fintrack/next_auth": "workspace:*",
+    "@fintrack/react_query": "workspace:*",
+    "@trpc/server": "^11.0.0",
+    "server-only": "^0.0.1",
+    "superjson": "^2.2.1",
+    "zod": "^3.24.2"
+  }
+}
