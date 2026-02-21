@@ -1,6 +1,6 @@
 import { Metadata, status } from '@grpc/grpc-js';
 
-import { Controller, Logger } from '@nestjs/common';
+import { Controller, Logger, SetMetadata, UseGuards } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
 import {
@@ -26,6 +26,8 @@ import {
 
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
+import { TokenGuard } from './guards/token.guard';
+import { TokenMeta } from './decorators/token.decorator';
 
 /**
  * Controller Responsible for managing app-wide authentication
@@ -64,13 +66,13 @@ export class AuthController implements AuthServiceController {
    * @returns {Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes}
    * @throws {RpcException} UNIMPLEMENTED
    */
+  @TokenMeta('otp_token')
+  @UseGuards(TokenGuard)
   verifyEmail(
     request: VerifyEmailReq,
+    metadata: Metadata,
   ): Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    return this.authService.verifyEmail((metadata as any).user, request);
   }
 
   /**
@@ -161,18 +163,19 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {ValidateTokenReq} request
    * @returns {Promise<ValidateTokenRes> | Observable<ValidateTokenRes> | ValidateTokenRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} UNAUTHENTICATED
    */
+  @TokenMeta('access_token')
+  @UseGuards(TokenGuard)
   validateToken(
-    request: ValidateTokenReq,
+    _request: ValidateTokenReq,
+    metadata: Metadata,
   ):
     | Promise<ValidateTokenRes>
     | Observable<ValidateTokenRes>
     | ValidateTokenRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    const user = (metadata as any).user;
+    return this.authService.validateToken(user.id);
   }
 
   /**

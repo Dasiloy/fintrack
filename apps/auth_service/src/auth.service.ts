@@ -10,15 +10,23 @@ import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
-import { Prisma, User } from '@fintrack/database/types';
+import { Prisma, Session, User } from '@fintrack/database/types';
 import { TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { PrismaService } from '@fintrack/database/nest';
-import { RegisterReq, RegisterRes } from '@fintrack/types/protos/auth/auth';
+import {
+  RegisterReq,
+  RegisterRes,
+  ValidateTokenRes,
+  VerifyEmailReq,
+  VerifyEmailRes,
+} from '@fintrack/types/protos/auth/auth';
 import {
   EMAIL_VERIFICATION_JOB,
   TOKEN_NOTIFICATION_QUEUE,
+  WELCOME_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
 import { EmailVerificationPayload } from '@fintrack/types/interfaces/mail.interface';
+import { parseJwtExpiration } from '@fintrack/utils/jwt';
 
 /**
  * Service responsible for managing uer authentication
@@ -54,85 +62,85 @@ export class AuthService {
 
     try {
       //  1. Database Operations (Atomic)
-      const { user: finalUser, token: verificationToken } =
-        await this.prismaService.$transaction(
-          async (tx) => {
-            const internalUser = await tx.user.upsert({
-              where: { email: data.email },
-              update: {
-                password: data.password,
-                accounts: {
-                  create: {
-                    type: 'CREDENTIALS',
-                    provider: 'LOCAL',
-                    providerAccountId: data.email,
-                  },
+      const result = await this.prismaService.$transaction(
+        async (tx) => {
+          const internalUser = await tx.user.upsert({
+            where: { email: data.email },
+            update: {
+              password: data.password,
+              accounts: {
+                create: {
+                  type: 'CREDENTIALS',
+                  provider: 'LOCAL',
+                  providerAccountId: data.email,
                 },
               },
-              create: {
-                ...data,
-                accounts: {
-                  create: {
-                    type: 'CREDENTIALS',
-                    provider: 'LOCAL',
-                    providerAccountId: data.email,
-                  },
+            },
+            create: {
+              ...data,
+              accounts: {
+                create: {
+                  type: 'CREDENTIALS',
+                  provider: 'LOCAL',
+                  providerAccountId: data.email,
                 },
               },
-              select: {
-                id: true,
-                email: true,
-                avatar: true,
-                firstName: true,
-                lastName: true,
-              },
-            });
+            },
+            select: {
+              id: true,
+              email: true,
+              avatar: true,
+              firstName: true,
+              lastName: true,
+            },
+          });
 
-            const token = await tx.verificationToken.create({
-              data: {
-                identifier: 'EMAIL',
-                email: internalUser.email,
-                token: this.generateToken(),
-                expires: this.generateExpiryDate(
-                  this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
-                ),
-              },
-            });
+          const token = await tx.verificationToken.create({
+            data: {
+              identifier: 'EMAIL',
+              email: internalUser.email,
+              token: this.generateToken(),
+              expires: this.generateExpiryDate(
+                this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
+              ),
+            },
+          });
 
-            return { user: internalUser, token };
-          },
-          {
-            maxWait: 5000,
-            timeout: 10000,
-            isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-          },
-        );
+          const emailToken = this.jwtService.sign(
+            this.createPayload(internalUser as User, 'otp_token'),
+            {
+              secret: this.configService.get('JWT_OTP_SECRET'),
+              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+            },
+          );
 
-      const emailToken = this.jwtService.sign(
-        this.createPayload(finalUser as User, 'email_otp'),
+          // ==> Push Email Token to Queue and move on
+          const payload: EmailVerificationPayload = {
+            email: internalUser.email,
+            otp: token.token,
+            firstName: internalUser.firstName,
+            lastName: internalUser.lastName,
+          };
+
+          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, payload);
+
+          return { user: internalUser, verificationToken: token, emailToken };
+        },
         {
-          secret: this.configService.get('JWT_OTP_SECRET'),
-          expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+          maxWait: 5000,
+          timeout: 10000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
 
-      // ==> Push Email Token to Queue and move on
-      const payload: EmailVerificationPayload = {
-        email: finalUser.email,
-        otp: verificationToken.token,
-        firstName: finalUser.firstName,
-        lastName: finalUser.lastName,
-      };
-      this.tokenQueue.add(EMAIL_VERIFICATION_JOB, payload);
-
       return {
-        emailToken,
+        emailToken: result.emailToken,
         user: {
-          id: finalUser.id,
-          email: finalUser.email,
-          avatar: finalUser.avatar!,
-          firstName: finalUser.firstName,
-          lastName: finalUser.lastName,
+          id: result.user.id,
+          email: result.user.email,
+          avatar: result.user.avatar!,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
         },
       };
     } catch (error: any) {
@@ -144,6 +152,222 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  /**
+   * @description Verify Email of new User by Local Credentials
+   *
+   * @async
+   * @public
+   * @param {TokenPayload} payload of the user
+   * @param {VerifyEmailReq} data containing otp
+   * @returns {Promise<VerifyEmailRes></VerifyEmailRes>} response with accesstokens
+   * @throws {RpcException} UNAUTHENTICATED - Auth checks
+   */
+  async verifyEmail(
+    payload: TokenPayload,
+    data: VerifyEmailReq,
+  ): Promise<VerifyEmailRes> {
+    try {
+      return this.prismaService.$transaction(async (tx) => {
+        const verificationToken =
+          await this.prismaService.verificationToken.findFirst({
+            where: {
+              email: payload.email,
+              token: data.otp,
+              identifier: 'EMAIL',
+              expires: {
+                gt: new Date(),
+              },
+            },
+          });
+
+        if (!verificationToken) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid Token',
+          });
+        }
+
+        const user = await tx.user.findUnique({
+          where: {
+            email: verificationToken.email,
+          },
+        });
+
+        if (!user) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid Token',
+          });
+        }
+
+        if (user.emailVerified) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'User Already verfied',
+          });
+        }
+
+        await tx.verificationToken.delete({
+          where: {
+            id: verificationToken.id,
+          },
+        });
+
+        await tx.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            emailVerified: true,
+            emailVerifiedAt: new Date(),
+          },
+        });
+
+        const tokens = await this.generateAuthTokens(tx, user);
+
+        // ==> Push Welcome Email to Queue (Async)
+        this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        });
+
+        return {
+          user: {
+            id: user.id,
+            email: user.email,
+            avatar: user.avatar!,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        };
+      });
+    } catch (error) {
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Invalid Token',
+      });
+    }
+  }
+
+  /**
+   * @description Validated payload is verified by geting user from DB
+   *
+   * @async
+   * @public
+   * @param {string} id of the user
+   * @returns {User}  user from prisma
+   * @throws {RpcException} UNAUTHENTICATED - Auth checks
+   */
+  async validateToken(id: string): Promise<ValidateTokenRes> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      omit: {
+        password: true,
+      },
+    });
+
+    ///!!! WE WILL ADD MORE SECURITY CHECKS AS NEEDED HERE
+
+    // 1 NO USER
+    if (!user) {
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Unauthorized!',
+      });
+    }
+
+    // 2 USER NOT VERIFIED
+    if (!user.emailVerified) {
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Please verify your email!',
+      });
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      avatar: user.avatar!,
+      lastName: user.lastName,
+      firstName: user.firstName,
+    };
+  }
+
+  /**
+   * @description Generate Auth tokens`
+   *
+   * @async
+   * @private
+   * @param {Prisma.TransactionClient} tx Prisma Transaction client
+   * @param {User} user information
+   * @returns {Promise<{accessToekn:string;refreshToken:string}>} auth tokens
+   */
+  private async generateAuthTokens(
+    tx: Prisma.TransactionClient,
+    user: User,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const session = await this.createSession(tx, user.id);
+
+    const accessToken = this.jwtService.sign(
+      this.createPayload(user, 'access_token'),
+      { secret: this.configService.get('JWT_SECRET') },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      this.createPayload(user, 'refresh_token', session.sessionToken),
+      {
+        expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION'),
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+      },
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  /**
+   * @description. Rotate Session
+   *
+   * @async
+   * @private
+   * @param {Prisma.TransactionClient} tx Prisma transaction client
+   * @param {string} userId Id of user
+   * @returns {Promise<Session>} cureent session
+   */
+  private async createSession(
+    tx: Prisma.TransactionClient,
+    userId: string,
+  ): Promise<Session> {
+    const sessions = await tx.session.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }, // newest first => bigger dates
+    });
+
+    if (sessions.length >= 2) {
+      const oldestSessions = sessions.slice(1);
+      await tx.session.deleteMany({
+        where: { id: { in: oldestSessions.map((s) => s.id) } },
+      });
+    }
+
+    const sessionToken = crypto.randomBytes(32).toString('hex');
+    return await tx.session.create({
+      data: {
+        userId,
+        sessionToken,
+        expires: new Date(
+          Date.now() +
+            parseJwtExpiration(
+              this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!,
+            ) *
+              1000,
+        ),
+      },
+    });
   }
 
   /**
@@ -190,6 +414,7 @@ export class AuthService {
   createPayload(
     user: Partial<User>,
     tokenType: TokenPayload['type'],
+    sessionToken?: string,
   ): TokenPayload {
     return {
       id: user.id!,
@@ -198,6 +423,7 @@ export class AuthService {
       avatar: user.avatar ?? null,
       firstName: user.firstName!,
       lastName: user.lastName!,
+      sessionToken,
     };
   }
 }

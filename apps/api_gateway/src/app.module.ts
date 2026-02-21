@@ -86,7 +86,7 @@ import { PaymentModule } from './payment/payment.module';
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
-        whitelist: true,
+        whitelist: false,
       }),
     },
     {

@@ -936,6 +936,9 @@ importers:
       '@fintrack/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@fintrack/types':
+        specifier: workspace:*
+        version: link:../types
       '@fintrack/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

@@ -5,21 +5,28 @@
 // source: notification/notification.proto
 
 /* eslint-disable */
+import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
 export const protobufPackage = "notification";
+
+export interface EmptyReq {
+}
 
 export const NOTIFICATION_PACKAGE_NAME = "notification";
 
 export interface NotificationServiceClient {
+  checkPreferences(request: EmptyReq, metadata?: Metadata): Observable<EmptyReq>;
 }
 
 export interface NotificationServiceController {
+  checkPreferences(request: EmptyReq, metadata?: Metadata): Promise<EmptyReq> | Observable<EmptyReq> | EmptyReq;
 }
 
 export function NotificationServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [];
+    const grpcMethods: string[] = ["checkPreferences"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("NotificationService", method)(constructor.prototype[method], method, descriptor);

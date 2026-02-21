@@ -32,8 +32,7 @@ export interface RegisterRes {
 }
 
 export interface VerifyEmailReq {
-  email: string;
-  emailToken: string;
+  otp: string;
 }
 
 export interface VerifyEmailRes {
@@ -81,7 +80,6 @@ export interface ResendForgotPasswordTokenRes {
 }
 
 export interface ValidateTokenReq {
-  token: string;
 }
 
 export interface ValidateTokenRes {

@@ -20,7 +20,6 @@ export class ApiGuard implements CanActivate {
     if (!authHeader) {
       throw new UnauthorizedException('Unathorized');
     }
-
     // Extract Bearer token
     const token = authHeader.split(' ')?.[1];
 

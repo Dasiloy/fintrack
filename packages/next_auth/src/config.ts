@@ -1,14 +1,17 @@
+import { jwtVerify } from 'jose';
+
 import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { jwtVerify } from 'jose';
+
+import { type TokenPayload } from '@fintrack/types/interfaces/token_payload';
 
 export interface AuthEnv {
   AUTH_SECRET: string;
   AUTH_GOOGLE_ID: string;
   AUTH_GOOGLE_SECRET: string;
   API_GATEWAY_URL: string;
-  JWT_ACCESS_TOKEN_EXPIRATION: string; // e.g. "15m"
+  JWT_ACCESS_TOKEN_EXPIRATION: string;
 }
 
 export interface AuthHelpers {
@@ -45,13 +48,15 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
       if (!token) return null;
 
       try {
-        const { payload } = await jwtVerify(token, new TextEncoder().encode(env.AUTH_SECRET));
+        const res = await jwtVerify(token, new TextEncoder().encode(env.AUTH_SECRET));
+        const payload = res.payload as unknown as TokenPayload;
 
         return {
           access_token: token,
-          id: payload.sub as string,
+          id: payload.id as string,
           email: payload.email as string,
-          name: payload.name as string,
+          image: payload.avatar as string,
+          name: (payload.firstName as string).concat(' ', payload.lastName),
         };
       } catch (error) {
         console.error('JWT decode error:', error);
@@ -94,9 +99,10 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           return {
             id: data.user.id,
             email: data.user.email,
-            name: data.user.name,
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
+            image: data.user.avatar,
+            access_token: data.accessToken,
+            refresh_token: data.refreshToken,
+            name: data.user.firstName.concat(' ', data.user.lastName),
           };
         } catch (error) {
           console.error('Login error:', error);
@@ -129,8 +135,11 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           const data = await response.json();
 
           user.id = data.user.id;
-          user.access_token = data.access_token;
-          user.refresh_token = data.refresh_token;
+          user.email = data.user.eamil;
+          user.image = data.user.avatar;
+          user.access_token = data.accessToken;
+          user.refresh_token = data.refreshToken;
+          user.name = data.user.firstName.concat(' ', data.user.lastName);
 
           return true;
         } catch (error) {
@@ -140,6 +149,7 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
       }
 
       if (account?.provider === 'credentials') {
+        // can we do direct redirect to /verifyEmail here??
         return true;
       }
 
@@ -152,10 +162,11 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
         }
 
         return {
-          access_token: user.access_token,
           id: user.id,
           email: user.email,
           name: user.name,
+          image: user.image,
+          access_token: user.access_token,
         };
       }
 
@@ -167,6 +178,7 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        session.user.image = token.image as string;
       }
 
       return session;

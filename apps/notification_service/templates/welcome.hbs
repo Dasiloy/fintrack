@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Fintrack!</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0F0F14;
+            color: #B4B4C0;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Container */
+        .wrapper {
+            background-color: #0F0F14;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #1C1C23 0%, #18181D 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Header */
+        .header {
+            padding: 48px 40px 32px 40px;
+            text-align: center;
+        }
+
+        .logo-ring {
+            display: inline-block;
+            padding: 4px;
+            background: linear-gradient(135deg, #7C7AFF 0%, #5D5BDD 100%);
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(124, 122, 255, 0.3);
+        }
+
+        .logo {
+            height: 64px;
+            width: 64px;
+            display: block;
+            border-radius: 16px;
+            background-color: #0F0F14;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            margin: 0 0 16px 0;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: #8B8B98;
+            margin: 0;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Content */
+        .content {
+            padding: 0 40px 48px 40px;
+        }
+
+        .greeting {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        /* Features Section */
+        .features-grid {
+            margin: 32px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            display: inline-block;
+            background: rgba(124, 122, 255, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            color: #7C7AFF;
+        }
+
+        .feature-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #B4B4C0;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* AI Tag */
+        .ai-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(90deg, #7C7AFF 0%, #00D9A5 100%);
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        /* CTA */
+        .cta-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #7C7AFF 0%, #5D5BDD 100%);
+            color: #FFFFFF !important;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 20px 40px rgba(124, 122, 255, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 48px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-text {
+            font-size: 13px;
+            color: #8B8B98;
+            margin-bottom: 16px;
+        }
+
+        .social-links a {
+            color: #7C7AFF;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+        }
+
+        .legal {
+            font-size: 11px;
+            color: #5A5A68;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <div class="logo-ring">
+                    <img src="https://res.cloudinary.com/fintrack/image/upload/v1771540001/static/logo_qtfjng.jpg" alt="F" class="logo">
+                </div>
+                <h1 class="hero-title">Your Financial Hero Awaits.</h1>
+                <p class="hero-subtitle">You're officially verified and ready to master your money with Fintrack.</p>
+            </div>
+
+            <div class="content">
+                <p class="greeting">Verified! Welcome {{firstName}}.</p>
+                
+                <div class="features-grid">
+                    <!-- Feature 1: AI Categorization -->
+                    <div class="feature-card">
+                        <div class="feature-icon">✨</div>
+                        <span class="feature-name">AI Smart Categorization <span class="ai-tag">AI Powered</span></span>
+                        <p class="feature-desc">Stop manual sorting. Our neural engine automatically organizes every cent into intuitive categories with 99% accuracy.</p>
+                    </div>
+
+                    <!-- Feature 2: Smart Decisions -->
+                    <div class="feature-card" style="border-left: 3px solid #00D9A5;">
+                        <div class="feature-icon" style="background: rgba(0, 217, 165, 0.1); color: #00D9A5;">🤖</div>
+                        <span class="feature-name">Smart Financial Decisions <span class="ai-tag" style="background: linear-gradient(90deg, #00D9A5 0%, #579DFF 100%);">New</span></span>
+                        <p class="feature-desc">Get personalized, AI-driven advice on how to optimize your subscriptions, save on fees, and reach your goals faster.</p>
+                    </div>
+
+                    <!-- Feature 3: Deep Insights -->
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: rgba(87, 157, 255, 0.1); color: #579DFF;">�</div>
+                        <span class="feature-name">Deep Glossy Analytics</span>
+                        <p class="feature-desc">Visualize your wealth like never before with beautiful, interactive charts that bring your data to life.</p>
+                    </div>
+                </div>
+
+                <div class="cta-container">
+                    <a href="https://app.fintrack.ai" class="btn">Launch Dashboard</a>
+                </div>
+                
+                <p style="text-align: center; font-size: 14px; color: #8B8B98; margin-top: 32px;">
+                    See you on the inside!<br>
+                    <strong style="color: #FFFFFF;">The Fintrack Team</strong>
+                </p>
+            </div>
+
+            <div class="footer">
+                <p class="footer-text">The only financial tool you'll ever need.</p>
+                <div class="social-links">
+                    <a href="#">Dashboard</a>
+                    <a href="#">Support</a>
+                    <a href="#">Community</a>
+                </div>
+                <div class="legal">
+                    &copy; 2026 Fintrack Inc. All rights reserved.<br>
+                    Designed for modern financial freedom.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

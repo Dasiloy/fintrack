@@ -1,15 +1,17 @@
 import { Metadata, status } from '@grpc/grpc-js';
+
 import { RpcException } from '@nestjs/microservices';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+
+import { PublicMetaKey } from '../decorators/public.decorator.js';
 
 @Injectable()
 export class RpcAuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(PublicMetaKey, [
       context.getHandler(),
       context.getClass(),
     ]);

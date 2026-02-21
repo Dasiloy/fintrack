@@ -4,3 +4,9 @@ export interface EmailVerificationPayload {
   firstName: string;
   lastName: string;
 }
+
+export interface WelcomeEmailPayload {
+  email: string;
+  firstName: string;
+  lastName: string;
+}

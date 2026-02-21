@@ -2,13 +2,14 @@ import {
   IsEmail,
   IsString,
   IsStrongPassword,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 import { ApiProperty } from '@nestjs/swagger';
 
-import { RegisterReq } from '@fintrack/types/protos/auth/auth';
+import { RegisterReq, VerifyEmailReq } from '@fintrack/types/protos/auth/auth';
 
 export class RegisterUserDto implements RegisterReq {
   /** email of new user */
@@ -64,4 +65,23 @@ export class RegisterUserDto implements RegisterReq {
     minUppercase: 1,
   })
   password: string;
+}
+
+export class VerifyEmailDto implements VerifyEmailReq {
+  /** otp token  */
+  @ApiProperty({
+    type: 'string',
+    description: 'Otp token for email verification',
+    example: '064321',
+  })
+  @IsString({
+    message: 'Otp token is required',
+  })
+  @MinLength(6, {
+    message: 'Token Invalid',
+  })
+  @MaxLength(6, {
+    message: 'Token Invalid',
+  })
+  otp: string;
 }

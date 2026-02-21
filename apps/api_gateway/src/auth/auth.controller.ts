@@ -1,10 +1,20 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Request } from 'express';
+
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import { RegisterRes } from '@fintrack/types/protos/auth/auth';
+import { RegisterRes, VerifyEmailRes } from '@fintrack/types/protos/auth/auth';
 
-import { RegisterUserDto } from './dto/auth.dto';
+import { RegisterUserDto, VerifyEmailDto } from './dto/auth.dto';
 import { AuthService } from './auth.service';
 
 /**
@@ -92,7 +102,68 @@ export class AuthController {
   //. Verify User Email
   // ================================================================
   @Post('verify')
-  verifyMail() {}
+  @ApiOperation({
+    summary: 'Verify Email',
+    description: 'Verify email of local users',
+  })
+  @ApiBody({
+    description: 'Payload for verifying email of users via local credentials',
+    required: true,
+    type: VerifyEmailDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully verified email',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        data: {
+          user: {
+            id: '61848663-52c2-4ff5-a6c2-e6cf5b355eb9',
+            email: 'dasiloy@dasy14.com',
+            firstName: 'dasiloy',
+            lastName: 'dasy',
+          },
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODQ4NjYzLTUyYzItNGZmNS1hNmMyLWU2Y2Y1YjM1NWViOSIsInR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJlbWFpbCI6ImRhc2lsb3lAZGFzeTE0LmNvbSIsImF2YXRhciI6bnVsbCwiZmlyc3ROYW1lIjoiZGFzaWxveSIsImxhc3ROYW1lIjoiZGFzeSIsImlhdCI6MTc3MTYzMjg1NSwiZXhwIjoxNzcxNjMzNzU1fQ.9GGOFdOIA3l21IcPm4_L4jk3W2MEjnOECtm9YjKzKyA',
+          refreshToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODQ4NjYzLTUyYzItNGZmNS1hNmMyLWU2Y2Y1YjM1NWViOSIsInR5cGUiOiJyZWZyZXNoX3Rva2VuIiwiZW1haWwiOiJkYXNpbG95QGRhc3kxNC5jb20iLCJhdmF0YXIiOm51bGwsImZpcnN0TmFtZSI6ImRhc2lsb3kiLCJsYXN0TmFtZSI6ImRhc3kiLCJzZXNzaW9uVG9rZW4iOiJkOTBiZmM4YjE3NDBlY2Y5Y2U5MGUyNzJlZjhiZGJmNmI4ZDg1YzlhYTMzODkxODMxOTdlNjY4MzI1MDZkYzUzIiwiaWF0IjoxNzcxNjMyODU1LCJleHAiOjE3NzE3MTkyNTV9.vf7v97x9hRHiUGOQZrQcAaEorMiFbLmH79MT7EF-SzA',
+        },
+        message: 'User Verified Successfully',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'OTP or token Expired',
+    example: {
+      success: true,
+      statusCode: HttpStatus.UNAUTHORIZED,
+      data: false,
+      message: 'User could not be verified',
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async verifyMail(
+    @Body() body: VerifyEmailDto,
+    @Req() req: Request,
+  ): Promise<StandardResponse<VerifyEmailRes>> {
+    const token = req.headers['x-token'] || (body as any).token;
+
+    if (!token) {
+      throw new UnauthorizedException('Token is invalid');
+    }
+
+    const res = await this.authService.verifyEmail(body, token as string);
+
+    return {
+      success: true,
+      message: 'Email verified successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 
   // ================================================================
   //. Resend Email Verification Token

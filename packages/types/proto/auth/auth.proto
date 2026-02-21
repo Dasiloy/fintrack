@@ -34,8 +34,7 @@ message RegisterRes {
 }
 
 message VerifyEmailReq {
-    string email= 1;
-    string emailToken= 2;
+    string otp= 1;
 }
 
 message VerifyEmailRes {
@@ -83,7 +82,7 @@ message ResendForgotPasswordTokenRes {
 }
 
 message ValidateTokenReq {
-    string token= 1;
+    
 }
 
 message ValidateTokenRes {
