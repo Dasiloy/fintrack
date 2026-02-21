@@ -28,6 +28,7 @@ import { AuthService } from './auth.service';
         JWT_REFRESH_SECRET: Joi.string().required(),
         JWT_OTP_SECRET: Joi.string().required(),
         OTP_EXPIRY_MINUTES: Joi.number().required(),
+        MAX_LOGIN_ATTEMPTS: Joi.number().required(),
         JWT_ACCESS_TOKEN_EXPIRATION: Joi.string().required(),
         JWT_REFRESH_TOKEN_EXPIRATION: Joi.string().required(),
         JWT_OTP_TOKEN_EXPIRATION: Joi.string().required(),

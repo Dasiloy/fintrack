@@ -1,16 +1,7 @@
-import { env } from '@/env';
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
-/**
- * Helper to get a cookie value by name on the client side.
- */
-function getCookie(name: string): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift();
-  return undefined;
-}
+import { env } from '@/env';
+import { getCookie, setCookie } from '@/utils/cookie';
 
 /**
  * Robust Axios client for the Web application.
@@ -105,16 +96,22 @@ axiosClient.interceptors.response.use(
         const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh_token: refreshToken }),
+          body: JSON.stringify({ refreshToken }),
         });
 
         if (!response.ok) throw new Error('Refresh failed');
-        const { access_token: accessToken } = await response.json();
+        const { accessToken, refreshToken: newRefreshToken } = await response.json();
 
         // 1. Tell everyone in the "Waiting Room" (queue) to proceed with the new token.
         processQueue(null, accessToken);
 
-        // 2. Update our own failed request and retry it.
+        // 2. Update RefreshToke => token Rotation
+        if (typeof document !== 'undefined') {
+          setCookie('next-auth.session-token', accessToken, 30 * 60);
+          setCookie('refresh-token', newRefreshToken, 7 * 24 * 60 * 60);
+        }
+
+        // 3. Update our own failed request and retry it.
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }

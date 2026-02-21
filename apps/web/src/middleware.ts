@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
       const response = await fetch(`${process.env.API_GATEWAY_URL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token }),
+        body: JSON.stringify({ refreshToken: refresh_token }),
       });
 
       // STEP 6: Handle refresh failure
@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
       // STEP 7: Refresh succeeded! Update cookies with new tokens
       // Set new access token (expiry from env: JWT_ACCESS_TOKEN_EXPIRATION)
       const res = NextResponse.next();
-      res.cookies.set('next-auth.session-token', data.access_token, {
+      res.cookies.set('next-auth.session-token', data.accessToken, {
         httpOnly: true, // Prevents JavaScript access (XSS protection)
         secure: process.env.NODE_ENV === 'production', // HTTPS only in production
         sameSite: 'lax', // CSRF protection
@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
       });
 
       // Set new refresh token (expiry from env: JWT_REFRESH_TOKEN_EXPIRATION)
-      res.cookies.set('refresh-token', data.refresh_token, {
+      res.cookies.set('refresh-token', data.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -109,7 +109,7 @@ export async function middleware(request: NextRequest) {
 
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
-  // '/',
+  '/',
   '/login',
   '/register',
   '/forgot-password',

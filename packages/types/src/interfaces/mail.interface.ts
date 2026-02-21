@@ -10,3 +10,16 @@ export interface WelcomeEmailPayload {
   firstName: string;
   lastName: string;
 }
+
+export interface ForgotPasswordEmailPayload {
+  email: string;
+  otp: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface PasswordChangeEmailPayload {
+  email: string;
+  firstName: string;
+  lastName: string;
+}

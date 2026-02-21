@@ -79,6 +79,14 @@ export interface ResendForgotPasswordTokenRes {
   forgotPasswordToken: string;
 }
 
+export interface ResetPasswordReq {
+  otp: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordRes {
+}
+
 export interface ValidateTokenReq {
 }
 
@@ -91,7 +99,6 @@ export interface ValidateTokenRes {
 }
 
 export interface RefreshTokenReq {
-  refreshToken: string;
 }
 
 export interface RefreshTokenRes {
@@ -119,6 +126,8 @@ export interface AuthServiceClient {
     request: ResendForgotPasswordTokenReq,
     metadata?: Metadata,
   ): Observable<ResendForgotPasswordTokenRes>;
+
+  resetPassword(request: ResetPasswordReq, metadata?: Metadata): Observable<ResetPasswordRes>;
 
   validateToken(request: ValidateTokenReq, metadata?: Metadata): Observable<ValidateTokenRes>;
 
@@ -150,6 +159,11 @@ export interface AuthServiceController {
     metadata?: Metadata,
   ): Promise<ResendForgotPasswordTokenRes> | Observable<ResendForgotPasswordTokenRes> | ResendForgotPasswordTokenRes;
 
+  resetPassword(
+    request: ResetPasswordReq,
+    metadata?: Metadata,
+  ): Promise<ResetPasswordRes> | Observable<ResetPasswordRes> | ResetPasswordRes;
+
   validateToken(
     request: ValidateTokenReq,
     metadata?: Metadata,
@@ -170,6 +184,7 @@ export function AuthServiceControllerMethods() {
       "login",
       "forgotPassword",
       "resendForgotPasswordToken",
+      "resetPassword",
       "validateToken",
       "refreshToken",
     ];

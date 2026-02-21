@@ -1,7 +1,7 @@
+import { Observable } from 'rxjs';
 import { Metadata, status } from '@grpc/grpc-js';
 
-import { Controller, Logger, SetMetadata, UseGuards } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Controller, Logger, UseGuards } from '@nestjs/common';
 
 import {
   LoginReq,
@@ -22,10 +22,11 @@ import {
   ValidateTokenRes,
   RefreshTokenReq,
   RefreshTokenRes,
+  ResetPasswordReq,
+  ResetPasswordRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import { AuthService } from './auth.service';
-import { Observable } from 'rxjs';
 import { TokenGuard } from './guards/token.guard';
 import { TokenMeta } from './decorators/token.decorator';
 
@@ -64,7 +65,7 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {VerifyEmailReq} request
    * @returns {Promise<VerifyEmailRes> | Observable<VerifyEmailRes> | VerifyEmailRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} UNAUTHENTICATED
    */
   @TokenMeta('otp_token')
   @UseGuards(TokenGuard)
@@ -82,7 +83,7 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {ResendVerifyEmailTokenReq} request
    * @returns {Promise<ResendVerifyEmailTokenRes> | Observable<ResendVerifyEmailTokenRes> | ResendVerifyEmailTokenRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} ALREADY_EXISTS
    */
   resendVerifyEmailToken(
     request: ResendVerifyEmailTokenReq,
@@ -90,10 +91,7 @@ export class AuthController implements AuthServiceController {
     | Promise<ResendVerifyEmailTokenRes>
     | Observable<ResendVerifyEmailTokenRes>
     | ResendVerifyEmailTokenRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    return this.authService.resendVerificationEmail(request);
   }
 
   /**
@@ -103,15 +101,12 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {LoginReq} request
    * @returns {Promise<LoginRes> | Observable<LoginRes> | LoginRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} UNAUTHENTICATED
    */
   login(
     request: LoginReq,
   ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    return this.authService.login(request);
   }
 
   /**
@@ -121,7 +116,6 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {ForgotPasswordReq} request
    * @returns {Promise<ForgotPasswordRes> | Observable<ForgotPasswordRes> | ForgotPasswordRes}
-   * @throws {RpcException} UNIMPLEMENTED
    */
   forgotPassword(
     request: ForgotPasswordReq,
@@ -129,10 +123,7 @@ export class AuthController implements AuthServiceController {
     | Promise<ForgotPasswordRes>
     | Observable<ForgotPasswordRes>
     | ForgotPasswordRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    return this.authService.forgotPassword(request);
   }
 
   /**
@@ -142,7 +133,7 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {ResendForgotPasswordTokenReq} request
    * @returns {Promise<ResendForgotPasswordTokenRes> | Observable<ResendForgotPasswordTokenRes> | ResendForgotPasswordTokenRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} ALREADY_EXISTS
    */
   resendForgotPasswordToken(
     request: ResendForgotPasswordTokenReq,
@@ -150,10 +141,28 @@ export class AuthController implements AuthServiceController {
     | Promise<ResendForgotPasswordTokenRes>
     | Observable<ResendForgotPasswordTokenRes>
     | ResendForgotPasswordTokenRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    return this.authService.resendForgotPassword(request);
+  }
+
+  /**
+   * @description Handle forgot password request
+   *
+   * @async
+   * @public
+   * @param {ResetPasswordReq} request
+   * @returns {Promise<ResetPasswordRes> | Observable<ResetPasswordRes> | ResetPasswordRes}
+   * @throws {RpcException} UNIMPLEMENTED
+   */
+  @TokenMeta('otp_token')
+  @UseGuards(TokenGuard)
+  resetPassword(
+    request: ResetPasswordReq,
+    metadata: Metadata,
+  ):
+    | Promise<ResetPasswordRes>
+    | Observable<ResetPasswordRes>
+    | ResetPasswordRes {
+    return this.authService.resetPassword((metadata as any).user, request);
   }
 
   /**
@@ -185,14 +194,15 @@ export class AuthController implements AuthServiceController {
    * @public
    * @param {RefreshTokenReq} request
    * @returns {Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes}
-   * @throws {RpcException} UNIMPLEMENTED
+   * @throws {RpcException} UNAUTHENTICATED
    */
+  @TokenMeta('refresh_token')
+  @UseGuards(TokenGuard)
   refreshToken(
-    request: RefreshTokenReq,
+    _request: RefreshTokenReq,
+    metadata: Metadata,
   ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes {
-    throw new RpcException({
-      code: status.UNIMPLEMENTED,
-      message: 'Method not implemented',
-    });
+    const user = (metadata as any).user;
+    return this.authService.refreshAuthTokens(user);
   }
 }

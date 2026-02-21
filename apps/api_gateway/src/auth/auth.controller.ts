@@ -12,9 +12,27 @@ import {
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import { RegisterRes, VerifyEmailRes } from '@fintrack/types/protos/auth/auth';
+import {
+  ForgotPasswordRes,
+  LoginRes,
+  RefreshTokenRes,
+  RegisterRes,
+  ResendForgotPasswordTokenRes,
+  ResendVerifyEmailTokenRes,
+  ResetPasswordRes,
+  VerifyEmailRes,
+} from '@fintrack/types/protos/auth/auth';
 
-import { RegisterUserDto, VerifyEmailDto } from './dto/auth.dto';
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  RefreshTokenDto,
+  RegisterUserDto,
+  ResendForgotPasswordDto,
+  ResendVerifyEmailDto,
+  ResetPasswordDto,
+  VerifyEmailDto,
+} from './dto/auth.dto';
 import { AuthService } from './auth.service';
 
 /**
@@ -80,7 +98,7 @@ export class AuthController {
     description: 'User already registered via local credentials',
     example: {
       success: true,
-      statusCode: HttpStatus.BAD_REQUEST,
+      statusCode: HttpStatus.CONFLICT,
       data: false,
       message: 'User registration failed',
     },
@@ -125,10 +143,8 @@ export class AuthController {
             firstName: 'dasiloy',
             lastName: 'dasy',
           },
-          accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODQ4NjYzLTUyYzItNGZmNS1hNmMyLWU2Y2Y1YjM1NWViOSIsInR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJlbWFpbCI6ImRhc2lsb3lAZGFzeTE0LmNvbSIsImF2YXRhciI6bnVsbCwiZmlyc3ROYW1lIjoiZGFzaWxveSIsImxhc3ROYW1lIjoiZGFzeSIsImlhdCI6MTc3MTYzMjg1NSwiZXhwIjoxNzcxNjMzNzU1fQ.9GGOFdOIA3l21IcPm4_L4jk3W2MEjnOECtm9YjKzKyA',
-          refreshToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxODQ4NjYzLTUyYzItNGZmNS1hNmMyLWU2Y2Y1YjM1NWViOSIsInR5cGUiOiJyZWZyZXNoX3Rva2VuIiwiZW1haWwiOiJkYXNpbG95QGRhc3kxNC5jb20iLCJhdmF0YXIiOm51bGwsImZpcnN0TmFtZSI6ImRhc2lsb3kiLCJsYXN0TmFtZSI6ImRhc3kiLCJzZXNzaW9uVG9rZW4iOiJkOTBiZmM4YjE3NDBlY2Y5Y2U5MGUyNzJlZjhiZGJmNmI4ZDg1YzlhYTMzODkxODMxOTdlNjY4MzI1MDZkYzUzIiwiaWF0IjoxNzcxNjMyODU1LCJleHAiOjE3NzE3MTkyNTV9.vf7v97x9hRHiUGOQZrQcAaEorMiFbLmH79MT7EF-SzA',
+          accessToken: 'eyJhbG...',
+          refreshToken: 'eyJhbG...',
         },
         message: 'User Verified Successfully',
       },
@@ -169,29 +185,316 @@ export class AuthController {
   //. Resend Email Verification Token
   // ================================================================
   @Post('resend-verify')
-  resendVerifyMailToken() {}
+  @ApiOperation({
+    summary: 'Resend Verification Token',
+    description: 'Resend the email verification OTP if it has expired',
+  })
+  @ApiBody({
+    description: 'Resend email payload',
+    required: true,
+    type: ResendVerifyEmailDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Verification token resent successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Verification token resent successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'A valid token still exists or user is already verified',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.CONFLICT,
+        message: 'User already verified or token unexpired',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async resendVerifyMailToken(
+    @Body() body: ResendVerifyEmailDto,
+  ): Promise<StandardResponse<ResendVerifyEmailTokenRes>> {
+    const res = await this.authService.resendVerifyEmailToken(body);
+    return {
+      success: true,
+      message: 'Verification token resent successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 
   // ================================================================
   //. Login User via local Credentials
   // ================================================================
   @Post('login')
-  login() {}
+  @ApiOperation({
+    summary: 'Login User',
+    description: 'Authenticate user with email and password',
+  })
+  @ApiBody({
+    description: 'Login credentials',
+    required: true,
+    type: LoginDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Login successful',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Login successful',
+        data: {
+          user: {
+            id: '61848663-52c2-4ff5-a6c2-e6cf5b355eb9',
+            email: 'dasiloy@dasy14.com',
+            firstName: 'dasiloy',
+            lastName: 'dasy',
+          },
+          accessToken: 'eyJhbG...',
+          refreshToken: 'eyJhbG...',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials or account locked',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid credentials',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() body: LoginDto): Promise<StandardResponse<LoginRes>> {
+    const res = await this.authService.login(body);
+    return {
+      success: true,
+      message: 'Login successful',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 
   // ================================================================
   //. Handle forgot password request
   // ================================================================
   @Post('forgot-password')
-  forgotPassword() {}
+  @ApiOperation({
+    summary: 'Forgot Password',
+    description: 'Initiate password reset process',
+  })
+  @ApiBody({
+    description: 'User email to send reset link',
+    required: true,
+    type: ForgotPasswordDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Reset instructions sent to email',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Reset instructions sent to email',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(
+    @Body() body: ForgotPasswordDto,
+  ): Promise<StandardResponse<ForgotPasswordRes>> {
+    const res = await this.authService.forgotPassword(body);
+    return {
+      success: true,
+      message: 'Reset instructions sent to email',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 
   // ================================================================
   //. Resend forgot password token
   // ================================================================
   @Post('resend-forgot-password')
-  resendForgotPasswordToken() {}
+  @ApiOperation({
+    summary: 'Resend Forgot Password Token',
+    description: 'Resend the password reset OTP',
+  })
+  @ApiBody({
+    description: 'User email for resending reset token',
+    required: true,
+    type: ResendForgotPasswordDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset token resent',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Password reset token resent',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'A valid forgot password token still exists',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.CONFLICT,
+        message: 'A valid token already exists',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async resendForgotPasswordToken(
+    @Body() body: ResendForgotPasswordDto,
+  ): Promise<StandardResponse<ResendForgotPasswordTokenRes>> {
+    const res = await this.authService.resendForgotPasswordToken(body);
+    return {
+      success: true,
+      message: 'Password reset token resent',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Reset password
+  // ================================================================
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Reset Password',
+    description: 'Set a new password using the OTP',
+  })
+  @ApiBody({
+    description: 'New password and OTP',
+    required: true,
+    type: ResetPasswordDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successful',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Password reset successful',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid OTP or session expired',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid or expired OTP',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'New password cannot be the same as the old password',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.CONFLICT,
+        message: 'New password cannot be the same as old',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() body: ResetPasswordDto,
+    @Req() req: Request,
+  ): Promise<StandardResponse<ResetPasswordRes>> {
+    const token = req.headers['x-token'] || (body as any).token;
+
+    if (!token) {
+      throw new UnauthorizedException('Reset token is invalid');
+    }
+
+    const res = await this.authService.resetPassword(token as string, body);
+    return {
+      success: true,
+      message: 'Password reset successful',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 
   // ================================================================
   //. Refresh authentication token
   // ================================================================
   @Post('refresh')
-  refreshToken() {}
+  @ApiOperation({
+    summary: 'Refresh Token',
+    description: 'Get new access token using a valid refresh token',
+  })
+  @ApiBody({
+    description: 'Refresh token payload',
+    required: true,
+    type: RefreshTokenDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token refreshed successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Token refreshed successfully',
+        data: {
+          accessToken: 'eyJhbG...',
+          refreshToken: 'eyJhbG...',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid or expired refresh token',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid refresh token',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(
+    @Body() body: RefreshTokenDto,
+  ): Promise<StandardResponse<RefreshTokenRes>> {
+    const res = await this.authService.refreshToken(body);
+    return {
+      success: true,
+      message: 'Token refreshed successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
 }

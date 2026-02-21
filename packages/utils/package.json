@@ -22,9 +22,12 @@
     }
   },
   "devDependencies": {
-    "@fintrack/types": "workspace:*",
     "@fintrack/eslint-config": "workspace:*",
+    "@fintrack/types": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
     "typescript": "latest"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.19"
   }
 }

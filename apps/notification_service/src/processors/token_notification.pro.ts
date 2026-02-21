@@ -5,10 +5,11 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 
 import {
   EMAIL_VERIFICATION_JOB,
+  FORGOT_PASSWORD_EMAIL_JOB,
+  PASSWORD_CHANGE_JOB,
   TOKEN_NOTIFICATION_QUEUE,
   WELCOME_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
-import { EmailVerificationPayload } from '@fintrack/types/interfaces/mail.interface';
 
 import { NotificationService } from '../notification.service';
 
@@ -63,7 +64,10 @@ export class TokenNotification extends WorkerHost {
         return this.notificationService.sendVerificationEmail(job.data);
       case WELCOME_EMAIL_JOB:
         return this.notificationService.sendWelcomeEmail(job.data);
-
+      case FORGOT_PASSWORD_EMAIL_JOB:
+        return this.notificationService.sendForgotPasswordEmail(job.data);
+      case PASSWORD_CHANGE_JOB:
+        return this.notificationService.sendPasswordChangeEmail(job.data);
       default:
         return;
     }

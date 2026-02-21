@@ -1224,14 +1224,25 @@ export namespace Prisma {
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    loginAttempts: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    loginAttempts: number | null
   }
 
   export type UserMinAggregateOutputType = {
     id: string | null
     email: string | null
     password: string | null
+    loginAttempts: number | null
     emailVerified: boolean | null
     emailVerifiedAt: Date | null
     firstName: string | null
@@ -1245,6 +1256,7 @@ export namespace Prisma {
     id: string | null
     email: string | null
     password: string | null
+    loginAttempts: number | null
     emailVerified: boolean | null
     emailVerifiedAt: Date | null
     firstName: string | null
@@ -1258,6 +1270,7 @@ export namespace Prisma {
     id: number
     email: number
     password: number
+    loginAttempts: number
     emailVerified: number
     emailVerifiedAt: number
     firstName: number
@@ -1269,10 +1282,19 @@ export namespace Prisma {
   }
 
 
+  export type UserAvgAggregateInputType = {
+    loginAttempts?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    loginAttempts?: true
+  }
+
   export type UserMinAggregateInputType = {
     id?: true
     email?: true
     password?: true
+    loginAttempts?: true
     emailVerified?: true
     emailVerifiedAt?: true
     firstName?: true
@@ -1286,6 +1308,7 @@ export namespace Prisma {
     id?: true
     email?: true
     password?: true
+    loginAttempts?: true
     emailVerified?: true
     emailVerifiedAt?: true
     firstName?: true
@@ -1299,6 +1322,7 @@ export namespace Prisma {
     id?: true
     email?: true
     password?: true
+    loginAttempts?: true
     emailVerified?: true
     emailVerifiedAt?: true
     firstName?: true
@@ -1347,6 +1371,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
@@ -1377,6 +1413,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
     _min?: UserMinAggregateInputType
     _max?: UserMaxAggregateInputType
   }
@@ -1385,6 +1423,7 @@ export namespace Prisma {
     id: string
     email: string
     password: string | null
+    loginAttempts: number
     emailVerified: boolean
     emailVerifiedAt: Date | null
     firstName: string
@@ -1393,6 +1432,8 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
   }
@@ -1415,6 +1456,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     password?: boolean
+    loginAttempts?: boolean
     emailVerified?: boolean
     emailVerifiedAt?: boolean
     firstName?: boolean
@@ -1431,6 +1473,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     password?: boolean
+    loginAttempts?: boolean
     emailVerified?: boolean
     emailVerifiedAt?: boolean
     firstName?: boolean
@@ -1444,6 +1487,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     password?: boolean
+    loginAttempts?: boolean
     emailVerified?: boolean
     emailVerifiedAt?: boolean
     firstName?: boolean
@@ -1457,6 +1501,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     password?: boolean
+    loginAttempts?: boolean
     emailVerified?: boolean
     emailVerifiedAt?: boolean
     firstName?: boolean
@@ -1466,7 +1511,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
@@ -1485,6 +1530,7 @@ export namespace Prisma {
       id: string
       email: string
       password: string | null
+      loginAttempts: number
       emailVerified: boolean
       emailVerifiedAt: Date | null
       firstName: string
@@ -1920,6 +1966,7 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
+    readonly loginAttempts: FieldRef<"User", 'Int'>
     readonly emailVerified: FieldRef<"User", 'Boolean'>
     readonly emailVerifiedAt: FieldRef<"User", 'DateTime'>
     readonly firstName: FieldRef<"User", 'String'>
@@ -5622,6 +5669,7 @@ export namespace Prisma {
     id: 'id',
     email: 'email',
     password: 'password',
+    loginAttempts: 'loginAttempts',
     emailVerified: 'emailVerified',
     emailVerifiedAt: 'emailVerifiedAt',
     firstName: 'firstName',
@@ -5717,6 +5765,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -5766,20 +5828,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
    * Reference to a field of type 'VerificationIdentifier'
    */
   export type EnumVerificationIdentifierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationIdentifier'>
@@ -5817,6 +5865,7 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     password?: StringNullableFilter<"User"> | string | null
+    loginAttempts?: IntFilter<"User"> | number
     emailVerified?: BoolFilter<"User"> | boolean
     emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     firstName?: StringFilter<"User"> | string
@@ -5832,6 +5881,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     password?: SortOrderInput | SortOrder
+    loginAttempts?: SortOrder
     emailVerified?: SortOrder
     emailVerifiedAt?: SortOrderInput | SortOrder
     firstName?: SortOrder
@@ -5850,6 +5900,7 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     password?: StringNullableFilter<"User"> | string | null
+    loginAttempts?: IntFilter<"User"> | number
     emailVerified?: BoolFilter<"User"> | boolean
     emailVerifiedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     firstName?: StringFilter<"User"> | string
@@ -5865,6 +5916,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     password?: SortOrderInput | SortOrder
+    loginAttempts?: SortOrder
     emailVerified?: SortOrder
     emailVerifiedAt?: SortOrderInput | SortOrder
     firstName?: SortOrder
@@ -5873,8 +5925,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
   }
 
   export type UserScalarWhereWithAggregatesInput = {
@@ -5884,6 +5938,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     password?: StringNullableWithAggregatesFilter<"User"> | string | null
+    loginAttempts?: IntWithAggregatesFilter<"User"> | number
     emailVerified?: BoolWithAggregatesFilter<"User"> | boolean
     emailVerifiedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     firstName?: StringWithAggregatesFilter<"User"> | string
@@ -6093,6 +6148,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -6108,6 +6164,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -6123,6 +6180,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -6138,6 +6196,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -6153,6 +6212,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -6166,6 +6226,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -6179,6 +6240,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -6426,6 +6488,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -6482,6 +6555,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     password?: SortOrder
+    loginAttempts?: SortOrder
     emailVerified?: SortOrder
     emailVerifiedAt?: SortOrder
     firstName?: SortOrder
@@ -6491,10 +6565,15 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type UserAvgOrderByAggregateInput = {
+    loginAttempts?: SortOrder
+  }
+
   export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
     password?: SortOrder
+    loginAttempts?: SortOrder
     emailVerified?: SortOrder
     emailVerifiedAt?: SortOrder
     firstName?: SortOrder
@@ -6508,6 +6587,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     password?: SortOrder
+    loginAttempts?: SortOrder
     emailVerified?: SortOrder
     emailVerifiedAt?: SortOrder
     firstName?: SortOrder
@@ -6515,6 +6595,10 @@ export namespace Prisma {
     avatar?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    loginAttempts?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -6551,6 +6635,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -6817,6 +6917,14 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
@@ -6961,6 +7069,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -7005,17 +7124,6 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -7042,6 +7150,33 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -7279,6 +7414,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -7293,6 +7429,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -7323,6 +7460,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -7337,6 +7475,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -7351,6 +7490,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -7365,6 +7505,7 @@ export namespace Prisma {
     id?: string
     email: string
     password?: string | null
+    loginAttempts: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
@@ -7395,6 +7536,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
@@ -7409,6 +7551,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
