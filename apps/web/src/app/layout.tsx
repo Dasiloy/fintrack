@@ -4,6 +4,7 @@ import { type Metadata } from 'next';
 import { Geist } from 'next/font/google';
 
 import { TRPCReactProvider as TRPCAppProvider } from '@/lib/trpc_app/client';
+import { AlertProvider } from '@fintrack/ui/components/atoms/alert';
 
 export const metadata: Metadata = {
   title: 'Create T3 App',
@@ -20,7 +21,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>
-        <TRPCAppProvider>{children}</TRPCAppProvider>
+        <TRPCAppProvider>
+          <AlertProvider>{children}</AlertProvider>
+        </TRPCAppProvider>
       </body>
     </html>
   );

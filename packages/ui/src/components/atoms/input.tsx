@@ -1,45 +1,7 @@
-import { auth } from '@/lib/nextauth';
-import { HydrateClient } from '@/lib/trpc_app/api_server';
-import { cn } from '@ui/lib/utils/cn';
-
-const TRANSACTIONS = [
-  { id: '1', date: '2024-03-20', description: 'Apple Store', category: 'Shopping', amount: -199.0 },
-  {
-    id: '2',
-    date: '2024-03-19',
-    description: 'Salary Deposit',
-    category: 'Income',
-    amount: 5000.0,
-  },
-  { id: '3', date: '2024-03-18', description: 'Starbucks', category: 'Food & Drink', amount: -6.5 },
-  {
-    id: '4',
-    date: '2024-03-17',
-    description: 'Landlord Inc',
-    category: 'Housing',
-    amount: -2200.0,
-  },
-];
-
-export default async function Home() {
-  const session = await auth();
-  console.log(session);
-
-  return (
-    <HydrateClient>
-      <main className="bg-bg-deep min-h-screen w-screen">
-        <div className="flex max-w-2xl flex-col gap-12 p-12">
-          <InputField label="Email" hint="email.com">
-            <Input />
-          </InputField>
-        </div>
-      </main>
-    </HydrateClient>
-  );
-}
-
 import * as React from 'react';
 import { AlertCircleIcon } from 'lucide-react';
+
+import { cn } from '@ui/lib/utils/cn';
 
 // ---------------------------------------------------------------------------
 // Input
