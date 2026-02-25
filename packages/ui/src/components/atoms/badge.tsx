@@ -13,8 +13,8 @@ import { cn } from '@ui/lib/utils/cn';
 
 const badgeVariants = cva(
   [
-    'inline-flex items-center gap-1 rounded-full border',
-    'px-2 py-[3px]',
+    'inline-flex items-center gap-space-1 rounded-full border',
+    'px-space-2 py-space-1',
     'text-caption font-medium leading-none',
     'w-fit whitespace-nowrap shrink-0',
     '[&>svg]:size-3 [&>svg]:pointer-events-none [&>svg]:shrink-0',

@@ -11,7 +11,7 @@ const textVariants = cva('', {
       h4: 'text-h4 font-semibold',
       'body-lg': 'text-body-lg font-medium',
       body: 'text-body font-normal',
-      'body-sm': 'text-body-sm font-normal',
+      'body-sm': 'text-sm font-normal',
       caption: 'text-caption font-normal',
       overline: 'text-overline font-semibold uppercase tracking-wider',
     },

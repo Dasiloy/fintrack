@@ -27,7 +27,7 @@ function CollapsibleTrigger({
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
       className={cn(
-        'focus-visible:ring-primary/50 cursor-pointer rounded-sm outline-none focus-visible:ring-2',
+        'focus-visible:ring-primary/50 cursor-pointer rounded-button outline-none focus-visible:ring-2',
         className,
       )}
       {...props}

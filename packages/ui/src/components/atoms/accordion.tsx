@@ -60,7 +60,7 @@ function AccordionTrigger({
           // Open state: primary colour + chevron rotates
           'data-[state=open]:text-primary data-[state=open]:font-semibold [&[data-state=open]>svg]:rotate-180',
           // Focus ring aligned to design system
-          'focus-visible:ring-primary/50 rounded-md outline-none focus-visible:ring-2',
+          'focus-visible:ring-primary/50 rounded-button outline-none focus-visible:ring-2',
           // Disabled
           'disabled:pointer-events-none disabled:opacity-50',
           // Smooth transition

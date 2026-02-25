@@ -1,30 +1,56 @@
 'use client';
 
 import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ChevronDownIcon } from 'lucide-react';
 
-export function DatePickerDemo() {
-  const [date, setDate] = React.useState<Date>();
+import { cn } from '@ui/lib/utils/cn';
+import { Button } from '@ui/components/atoms/button';
+import { Calendar } from '@ui/components/atoms/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@ui/components/atoms/popover';
 
+export function DatePicker({
+  value,
+  onChange,
+  placeholder = 'Pick a date',
+  className,
+}: {
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  placeholder?: string;
+  className?: string;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          data-empty={!date}
-          className="data-[empty=true]:text-muted-foreground w-[212px] justify-between text-left font-normal"
+          data-empty={!value}
+          className={cn(
+            'w-[212px] justify-between text-left font-normal',
+            'data-[empty=true]:text-text-tertiary',
+            className,
+          )}
         >
-          {date ? format(date, 'PPP') : <span>Pick a date</span>}
-          <ChevronDownIcon />
+          {value ? format(value, 'PPP') : <span>{placeholder}</span>}
+          <ChevronDownIcon className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={date} onSelect={setDate} defaultMonth={date} />
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={onChange}
+          defaultMonth={value}
+        />
       </PopoverContent>
     </Popover>
+  );
+}
+
+export function DatePickerDemo() {
+  const [date, setDate] = React.useState<Date>();
+  return (
+    <DatePicker value={date} onChange={setDate} placeholder="Pick a date" />
   );
 }

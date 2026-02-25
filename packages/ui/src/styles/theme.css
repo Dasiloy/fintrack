@@ -120,21 +120,25 @@
 
   /* Typography Scale */
   --text-h1: var(--ft-text-h1);
+  --text-h1--font-family: var(--font-manrope);
   --text-h1--font-weight: var(--ft-text-h1-weight);
   --text-h1--letter-spacing: var(--ft-text-h1-spacing);
   --text-h1--line-height: var(--ft-text-h1-line-height);
 
   --text-h2: var(--ft-text-h2);
+  --text-h2--font-family: var(--font-manrope);
   --text-h2--font-weight: var(--ft-text-h2-weight);
   --text-h2--letter-spacing: var(--ft-text-h2-spacing);
   --text-h2--line-height: var(--ft-text-h2-line-height);
 
   --text-h3: var(--ft-text-h3);
+  --text-h3--font-family: var(--font-manrope);
   --text-h3--font-weight: var(--ft-text-h3-weight);
   --text-h3--letter-spacing: var(--ft-text-h3-spacing);
   --text-h3--line-height: var(--ft-text-h3-line-height);
 
   --text-h4: var(--ft-text-h4);
+  --text-h4--font-family: var(--font-manrope);
   --text-h4--font-weight: var(--ft-text-h4-weight);
   --text-h4--line-height: var(--ft-text-h4-line-height);
 
@@ -246,21 +250,21 @@
     @apply border-border-subtle outline-primary/50;
   }
   body {
-    @apply bg-bg-deep text-text-primary font-sans;
+    @apply bg-bg-deep text-text-primary font-inter;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   h1 {
-    @apply text-h1 font-bold;
+    @apply text-h1 font-manrope font-bold;
   }
   h2 {
-    @apply text-h2 font-bold;
+    @apply text-h2 font-manrope font-bold;
   }
   h3 {
-    @apply text-h3 font-semibold;
+    @apply text-h3 font-manrope font-semibold;
   }
   h4 {
-    @apply text-h4 font-semibold;
+    @apply text-h4 font-manrope font-semibold;
   }
 }
 

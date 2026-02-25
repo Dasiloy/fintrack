@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { cn } from '@ui/lib/utils/cn';
+import { Spinner } from '@ui/components/atoms/spinner';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button text-body font-medium transition-all duration-smooth ease-smooth disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-primary/50 focus-visible:ring-2 active:scale-95",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button text-sm font-medium transition-all duration-smooth ease-smooth disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-primary/50 focus-visible:ring-2 active:scale-95",
   {
     variants: {
       variant: {
@@ -20,10 +20,10 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
       },
       size: {
-        default: 'h-11 px-6 py-2',
-        xs: 'h-7 px-2 text-caption',
-        sm: 'h-9 px-4 text-body',
-        lg: 'h-14 px-8 text-body-lg font-semibold',
+        default: 'h-10 px-6 py-2',
+        xs: 'h-6 px-2 text-caption',
+        sm: 'h-8 px-4 text-body',
+        lg: 'h-12 px-8 text-body-lg font-semibold',
         icon: 'size-11',
         'icon-sm': 'size-9',
       },
@@ -71,7 +71,7 @@ function Button({
     >
       {loading ? (
         <>
-          <Loader2 className="animate-spin" />
+          <Spinner speed={'fast'} data-icon="inline-start" />
           {size !== 'icon' && size !== 'icon-sm' && children}
         </>
       ) : (
