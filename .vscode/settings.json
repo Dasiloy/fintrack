@@ -1,7 +1,4 @@
 {
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
+  "css.lint.unknownAtRules": "ignore",
+  "claudeCode.useTerminal": true
 }

@@ -325,7 +325,7 @@
 
 ---
 
-### **Week 7: Recurring Transactions**
+### **Week 7: Bills & Recurring**
 
 #### Day 43: Recurring Backend
 
@@ -333,18 +333,18 @@
 - **Do:** Recurring model, auto-generation logic
 - **Output:** Recurring backend
 
-#### Day 44: Mark as Recurring (Web)
+#### Day 44: Bills & Recurring Page (Web)
 
-- **Learn:** Toggle UI
-- **Generate Mockup:** Recurring UI (web)
-- **Do:** Web recurring checkbox
-- **Output:** Web recurring marking
+- **Learn:** Dedicated bills view vs transaction list
+- **Generate Mockup:** Bills & Recurring page (web)
+- **Do:** Build dedicated Bills & Recurring page — upcoming bills, pause/skip/edit recurring items
+- **Output:** Web Bills & Recurring page
 
-#### Day 45: Mark as Recurring (Mobile)
+#### Day 45: Bills & Recurring Screen (Mobile)
 
-- **Learn:** Switch widgets
-- **Do:** Mobile recurring toggle
-- **Output:** Mobile recurring marking
+- **Learn:** List patterns for scheduled items
+- **Do:** Mobile Bills & Recurring screen — upcoming bills, recurring income/expenses, subscription tracking
+- **Output:** Mobile Bills & Recurring screen
 
 #### Day 46: Bill Reminders (Both)
 
@@ -564,21 +564,23 @@
 - **Mobile:** Error dialogs, snackbars
 - **Output:** User-friendly errors
 
-#### Day 75: Stripe Setup & Free/Premium Tiers
+#### Day 75: Stripe Setup & Free/Pro Plan System
 
 - **Learn:** Stripe basics, subscription model
-- **Do:** Stripe account, API keys
-- **Backend:** Add subscription field to User model
-- **Both:** Feature gating (free vs premium)
-- **Output:** Premium tier structure
+- **Context:** All users sign up as **Free** automatically — no plan selection at registration. Pro = $5/month via Stripe
+- **Do:** Stripe account, API keys; add `Plan` enum + `Subscription` + `UsageTracker` models to Prisma schema
+- **Backend:** Implement `PLAN_LIMITS` constants; build server-side quota check helpers (`assertStructuralLimit`, `assertAndIncrementUsageQuota`, `assertFeatureEnabled`)
+- **Both:** Wire feature gating — quota checks on all guarded endpoints; contextual upgrade overlays on the frontend
+- **Output:** Free/Pro plan system with enforced quotas
 
-#### Day 76: Stripe Checkout & Webhooks
+#### Day 76: Stripe Checkout, Webhooks & /pricing Page
 
-- **Learn:** Stripe Checkout, webhooks
-- **Web:** "Upgrade to Premium" button
-- **Mobile:** In-app purchase flow
-- **Backend:** Webhook handler for payment events
-- **Output:** Working Stripe subscription
+- **Learn:** Stripe Checkout, webhook event handling, Customer Portal
+- **Web:** Build `/pricing` static page (Free vs Pro comparison table + upgrade CTA); add "Upgrade to Pro" sidebar badge
+- **Mobile:** Upgrade flow routes to web `/pricing` (no in-app purchase for v1)
+- **Backend:** Webhook handler for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`; Customer Portal endpoint
+- **See:** `docs/subscription-implementation.md` for full technical details
+- **Output:** Working Stripe subscription + `/pricing` page live
 
 #### Day 77: Review Week 11
 
@@ -655,13 +657,13 @@
 - **Mobile:** Same feature via tRPC
 - **Output:** AI categorization working
 
-#### Day 87: Financial Chatbot
+#### Day 87: Chat Page (AI)
 
 - **Learn:** `useChat` hook, context management
 - **Build:** Chat API with transaction data access
-- **Web:** Chat interface (sidebar or modal)
-- **Mobile:** Chat screen
-- **Output:** Working financial chatbot
+- **Web:** Chat page under Analytics & AI section (`/analytics/chat`)
+- **Mobile:** Chat screen (accessible from Analytics tab stack)
+- **Output:** Chat page live — conversational AI for financial questions
 
 #### Day 88: Chatbot Refinement
 
@@ -679,13 +681,15 @@
 - **Test:** Verify alerts trigger correctly
 - **Output:** Anomaly detection working
 
-#### Day 90: ML Analytics Dashboard
+#### Day 90: Insights Page (AI)
 
-- **Learn:** AI-powered insights, predictions
+- **Learn:** AI-powered insights, predictions, anomaly surfacing
 - **Build:** Insights page with AI analysis
-- **Features:** Spending trends, predictions, recommendations
-- **Generate Mockup:** AI insights dashboard
-- **Output:** AI-powered analytics
+- **Features:** Spending trends, predictions, recommendations, anomaly alerts
+- **Generate Mockup:** Insights dashboard
+- **Web:** Insights page under Analytics & AI section (`/analytics/insights`) — Pro gated
+- **Mobile:** Insights screen (accessible from Analytics tab stack) — Pro gated
+- **Output:** Insights page live — AI-powered spending analysis and anomaly detection
 
 #### Day 91: Review Week 13
 
@@ -764,7 +768,7 @@
 - [ ] Week 4: Search & Filters (Both)
 - [ ] Week 5: Budgets (Both)
 - [ ] Week 6: Analytics (Both)
-- [ ] Week 7: Recurring (Both)
+- [ ] Week 7: Bills & Recurring (Both)
 - [ ] Week 8: Expense Splitting (Both)
 - [ ] Week 9: Goals (Both)
 - [ ] Week 10: Settings (Both)
