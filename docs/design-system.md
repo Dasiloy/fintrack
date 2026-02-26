@@ -1,9 +1,9 @@
 # FinTrack - Design System
 
-**Inspired by:** [MatDash Template](https://matdash-nextjs-main.vercel.app/)  
-**Live Reference:** https://matdash-nextjs-main.vercel.app/  
-**Purpose:** Modern, glossy dark mode financial dashboard with premium feel  
-**Platforms:** Web (Next.js) + Mobile (Expo)  
+**Inspired by:** [MatDash Template](https://matdash-nextjs-main.vercel.app/)
+**Live Reference:** https://matdash-nextjs-main.vercel.app/
+**Purpose:** Modern, glossy dark mode financial dashboard with premium feel
+**Platforms:** Web (Next.js) + Mobile (Expo)
 **Design Style:** Dark Mode + Glassmorphism + Vibrant Colors + Smooth Animations
 
 ---
@@ -59,7 +59,7 @@
 
 ## ✍️ Typography
 
-**Font Family:** Manrope, Inter, -apple-system  
+**Font Family:** Manrope, Inter, -apple-system
 **Download:** [Google Fonts - Manrope](https://fonts.google.com/specimen/Manrope)
 
 ### **Type Scale**
@@ -269,14 +269,6 @@
 
 ## 🖼️ Design References
 
-### **MatDash Dashboard Examples**
-
-![MatDash Dashboard 1 - Hero Card and Charts](file:///Users/admin/.gemini/antigravity/brain/8fe6d6ac-455a-4c76-9d15-025bb47b58d1/matdash_dashboard1_top_1770734253297.png)
-_Reference: Glassmorphism hero card, smooth line charts, stat cards_
-
-![MatDash Dashboard 3 - Metric Cards](file:///Users/admin/.gemini/antigravity/brain/8fe6d6ac-455a-4c76-9d15-025bb47b58d1/matdash_dashboard3_top_1770734490287.png)
-_Reference: Colored icon stat cards, clean spacing, rounded corners_
-
 ---
 
 ## 🎨 Tailwind Config (Dark Mode)
@@ -307,6 +299,170 @@ See `stripe-integration-guide.md` for code implementation details.
 - Text theme with proper colors
 - Elevated button styling
 - Custom shadows and elevations
+
+---
+
+## 🗺️ Page Inventory
+
+### Static / Public (`(static)` route group)
+
+| Route | Page |
+|---|---|
+| `/` | Landing page |
+| `/pricing` | Free vs Pro comparison + upgrade CTA |
+| `/about` | About FinTrack |
+| `/contact` | Contact |
+| `/privacy` | Privacy Policy |
+| `/terms` | Terms of Service |
+
+### Auth (`(auth)` route group)
+
+| Route | Page |
+|---|---|
+| `/login` | Sign in |
+| `/signup` | Create account |
+| `/verify-email` | Email verification |
+| `/forgot-password` | Request OTP reset |
+| `/verify-password-token` | Enter 6-digit OTP |
+| `/reset-password` | Set new password |
+
+### App — Overview (`(dashboard)/`)
+
+| Route | Page |
+|---|---|
+| `/dashboard` | Main dashboard |
+
+### App — Finances (`(dashboard)/finances/`)
+
+| Route | Page |
+|---|---|
+| `/finances/transactions` | Transactions list |
+| `/finances/transactions/add` | Add transaction (also via FAB) |
+| `/finances/transactions/[id]` | Transaction detail / edit |
+| `/finances/bills` | Bills & Recurring |
+| `/finances/budgets` | Budget overview |
+| `/finances/budgets/[id]/edit` | Edit budget (row action) |
+
+### App — Analytics & AI (`(dashboard)/analytics/`)
+
+| Route | Page |
+|---|---|
+| `/analytics` | Charts and trends |
+| `/analytics/insights` | AI insights, anomaly detection `[Pro]` |
+| `/analytics/chat` | Conversational AI `[Pro]` |
+
+### App — Planning (`(dashboard)/planning/`)
+
+| Route | Page |
+|---|---|
+| `/planning/goals` | Goals list |
+| `/planning/goals/create` | Create/edit goal |
+| `/planning/splits` | Split bills overview |
+| `/planning/splits/create` | Create split |
+
+### App — Account (`(dashboard)/`)
+
+| Route | Page |
+|---|---|
+| `/notifications` | Notification center |
+| `/settings/profile` | Profile settings |
+| `/settings/account` | Account settings |
+| `/settings/invite` | Invite friends |
+
+---
+
+## 🧭 Navigation Structure
+
+### Web — Sidebar Groups
+
+```
+OVERVIEW
+  Dashboard                     /dashboard
+
+FINANCES
+  Transactions                  /finances/transactions
+  Bills & Recurring             /finances/bills
+  Budgets                       /finances/budgets
+
+ANALYTICS & AI
+  Analytics                     /analytics
+  Insights              [Pro]   /analytics/insights
+  Chat                  [Pro]   /analytics/chat
+
+PLANNING
+  Goals                         /planning/goals
+  Split Bills                   /planning/splits
+
+ACCOUNT
+  Notifications                 /notifications
+  Settings (collapsible)
+    Profile                     /settings/profile
+    Account                     /settings/account
+    Invite Friends              /settings/invite
+```
+
+Notes:
+- Add Transaction and detail pages are not sidebar items — accessed via FAB / row click
+- `[Pro]` pages are visible but show an upgrade overlay for Free users; navigation is not blocked
+- Settings is a collapsible group at the bottom of the sidebar
+- Sidebar shows "Upgrade to Pro" badge below user avatar on Free plan
+
+### Mobile — 5 Bottom Tabs
+
+```
+Tab 1: Dashboard    /home
+Tab 2: Finances     /finances
+         Sub-nav: Transactions | Bills | Budgets | Goals | Splits
+Tab 3: + (FAB)      → opens Add Transaction modal directly
+Tab 4: Analytics    /analytics
+         Stack: Analytics → Insights → Chat
+Tab 5: Account      /account
+         Stack: Notifications → Settings → Profile / Account / Invite
+```
+
+---
+
+## 💎 Premium UI Patterns
+
+These UI elements communicate plan limits and upgrade opportunities without blocking navigation or destroying the user experience.
+
+### Sidebar Upgrade Badge
+
+- Location: Below user avatar/name in the sidebar
+- Visible: Free plan only
+- Style: Amber/gradient chip with "Upgrade to Pro" text + sparkle icon
+- Tap/click: Routes to `/pricing`
+
+### Quota Warning Banner (80% threshold)
+
+- Location: Inline, top of the relevant feature page
+- Trigger: `currentCount / limit >= 0.8`
+- Style: Amber background, left border accent
+- Example: "You're using 4/5 budgets. Upgrade to Pro for unlimited."
+- Dismissible: No (reappears until resolved)
+
+### Hard-Stop Overlay (limit reached)
+
+- Trigger: User attempts to create an item when `currentCount >= limit`
+- Style: Modal dialog — dark background, centered, cannot be dismissed without action
+- Content: Icon + "You've reached your [feature] limit" + current/max count + "Upgrade to Pro" CTA + "Maybe later" link
+- Example: "You have 5 budgets (Free plan limit). Upgrade to Pro for unlimited budgets."
+
+### Locked-Feature Overlay
+
+- Used for: AI Insights, AI Chat, PDF Reports, CSV Export on Free plan
+- Style: Blurred content behind the overlay + lock icon + feature name + "Upgrade to Pro" button
+- The page/section is still accessible (navigation works) — only the content is blurred
+- Pro badge: Small `[Pro]` chip in the page header and sidebar item
+
+### Pricing Page (`/pricing`)
+
+- Public static page — accessible without login
+- Layout: Two-column comparison table (Free vs Pro)
+- Free column: Listed limits, grayed-out locked features
+- Pro column: "Unlimited" for quotas, checkmarks for features, price, CTA button
+- CTA routes to Stripe Checkout (creates or reuses Stripe customer)
+- Also accessible from Customer Portal link (for managing existing subscription)
 
 ---
 

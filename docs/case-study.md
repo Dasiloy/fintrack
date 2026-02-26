@@ -1,6 +1,6 @@
 # FinTrack - What This App Does
 
-## 🎯 The Simple Idea
+## The Simple Idea
 
 **FinTrack helps you track where your money goes.**
 
@@ -13,7 +13,7 @@ Think of it like a digital piggy bank that:
 
 ---
 
-## 💰 Money Words Explained (Financial Terms)
+## Money Words Explained (Financial Terms)
 
 | Word            | What It Means                                              |
 | --------------- | ---------------------------------------------------------- |
@@ -30,51 +30,51 @@ Think of it like a digital piggy bank that:
 
 ---
 
-## 📱 What Can You Do With FinTrack?
+## What Can You Do With FinTrack?
 
-### 1. **Track Your Money**
+### 1. Track Your Money
 
 - See how much money you have
 - Add every time you spend or earn money
 - Remember what you spent it on
 
-### 2. **Know Where Money Goes**
+### 2. Know Where Money Goes
 
 - See all your spending in one place
 - Group spending by type (food, transport, shopping)
 - Search for old purchases
 
-### 3. **Set Spending Limits**
+### 3. Set Spending Limits
 
 - Decide "I'll only spend $200 on eating out this month"
 - App shows if you're close to your limit
 - Warns you if you go over
 
-### 4. **See Pretty Charts**
+### 4. See Pretty Charts
 
 - Visual graphs showing your spending
 - Compare this month to last month
 - See which category you spend most on
 
-### 5. **Remember Bills**
+### 5. Remember Bills
 
 - Never forget to pay rent or Netflix
 - App reminds you when bills are due
 - Auto-tracks monthly subscriptions
 
-### 6. **Split Bills With Friends**
+### 6. Split Bills With Friends
 
 - Had dinner with 3 friends?
 - App figures out who owes what
 - Tracks who paid you back
 
-### 7. **Save For Goals**
+### 7. Save For Goals
 
 - Want to buy a laptop for $1,500?
 - Set it as a goal
 - App shows how close you are
 
-### 8. **Mobile App**
+### 8. Mobile App
 
 - Quick add expenses on the go
 - Take photo of receipts
@@ -82,105 +82,196 @@ Think of it like a digital piggy bank that:
 
 ---
 
-## 🖥️ Web App - All Screens (18 Total)
+## Plans: Free vs Pro
 
-### **Authentication (3 screens)**
+All users start on the **Free plan** automatically — no plan selection during signup. Upgrade to **Pro ($5/month)** contextually inside the app.
 
-1. **Sign Up** - Create account with email/password
-2. **Login** - Sign in to your account
-3. **Forgot Password** - Reset password via email
+| Feature                 | Free                    | Pro                     |
+| ----------------------- | ----------------------- | ----------------------- |
+| Transactions            | Unlimited, full history | Unlimited, full history |
+| Custom categories       | 3                       | Unlimited               |
+| Budgets                 | 5                       | Unlimited               |
+| Bills & Recurring items | 5                       | Unlimited               |
+| Goals                   | 3                       | Unlimited               |
+| Active splits           | 3 (max 3 people/split)  | Unlimited               |
+| Analytics history       | Last 6 months           | All-time                |
+| AI Insights queries     | 20/month                | Unlimited               |
+| AI Chat messages        | 10/month                | Unlimited               |
+| Receipt uploads         | 10/month                | Unlimited               |
+| PDF Reports             | No                      | Yes                     |
+| CSV Export              | No                      | Yes                     |
 
-### **Dashboard (1 screen)**
+**Upgrade is triggered contextually:**
 
-4. **Dashboard** - Main overview with balance, charts, recent transactions
-
-### **Transactions (3 screens)**
-
-5. **Transaction List** - All your spending/income with filters
-6. **Add Transaction** - Form to add new expense/income
-7. **Transaction Details** - View/edit single transaction
-
-### **Budgets (2 screens)**
-
-8. **Budget Overview** - All category budgets with progress bars
-9. **Edit Budget** - Set/change budget limits
-
-### **Analytics (1 screen)**
-
-10. **Analytics Dashboard** - Charts and trends
-
-### **Goals (2 screens)**
-
-11. **Goals List** - All savings goals
-12. **Create/Edit Goal** - Add new savings goal
-
-### **Split Bills (2 screens)**
-
-13. **Split Overview** - Active splits, who owes what
-14. **Create Split** - Split a bill with friends
-
-### **Notifications (1 screen)**
-
-15. **Notification Center** - Budget alerts, bill reminders, activity feed
-
-### **Settings (3 screens)**
-
-16. **Profile Settings** - Edit name, email, avatar
-17. **Account Settings** - Manage accounts, categories, preferences
-18. **Invite Friends** - Send invitations via email
+- Hitting any structural limit → hard-stop overlay with upgrade CTA
+- At 80% of a limit → amber warning banner
+- Sidebar → persistent "Upgrade to Pro" badge (Free plan only)
+- Locked features (PDF, CSV, full analytics) → blurred overlay + "Upgrade to unlock"
 
 ---
 
-## 📱 Mobile App - All Screens (16 Total)
+## Web App — All Pages
 
-### **Authentication (5 screens)**
+### Static / Public Pages (6 pages)
 
-1. **Splash Screen** - App logo when opening
-2. **Onboarding** - Welcome screens (swipe through)
-3. **Login** - Email/password + biometric (fingerprint/face)
-4. **Sign Up** - Create account
-5. **Biometric Setup** - Enable fingerprint/face unlock (optional)
+These pages are accessible without logging in:
 
-### **Main Screens (5 screens)**
+1. **Home** (`/`) — Landing page: features overview, CTA to sign up
+2. **Pricing** (`/pricing`) — Free vs Pro plan comparison + upgrade CTA
+3. **About** (`/about`)
+4. **Contact** (`/contact`)
+5. **Privacy Policy** (`/privacy`)
+6. **Terms of Service** (`/terms`)
 
-5. **Home Dashboard** - Balance, quick stats, recent activity
-6. **Transactions List** - All transactions with search
-7. **Add Transaction** - Quick expense entry (camera for receipt)
-8. **Budgets** - Category budgets with progress
-9. **Profile** - User settings and preferences
+### Authentication (6 screens)
 
-### **Secondary Screens (6 screens)**
+7. **Login** — Sign in with email/password; links to sign up and forgot password
+8. **Sign Up** — Create account (auto-enrolled in Free plan)
+9. **Verify Email** — Verify email address after sign up
+10. **Forgot Password** — Request password reset via OTP email
+11. **Reset Password** — Set new password after OTP verified
 
-10. **Analytics** - Charts optimized for mobile
-11. **Transaction Details** - View/edit single transaction
-12. **Goals** - Savings goals list
-13. **Create Goal** - Add new goal
-14. **Split Bills** - Active splits
-15. **Notifications** - Budget alerts, bill reminders
-16. **Settings** - Account settings, preferences
+### Dashboard (1 screen)
+
+13. **Dashboard** — Total balance hero card, 4 quick stat cards (income / expenses / budget / savings), recent transactions (last 5), budget summary alerts, mini spending trend chart
+
+### Finances
+
+14. **Transactions List** — All spending/income with search, filters, sort; AI-suggested categories for uncategorized items
+15. **Add Transaction** — Form to add new expense/income; AI auto-categorization from description/merchant
+16. **Transaction Details** — View/edit single transaction; adjust or confirm AI category
+17. **Bills & Recurring** — Upcoming bills, recurring income/expenses, subscriptions; pause/skip/edit patterns
+18. **Budget Overview** — All category budgets with progress bars
+19. **Edit Budget** — Set/change budget limits
+
+### Analytics & AI
+
+20. **Analytics** — Charts and trends (spending over time, category breakdown, income vs expenses)
+21. **Insights** `[Pro]` — Spending insights, anomaly detection, recommendations (e.g. "You spent 20% more on dining")
+22. **Chat** `[Pro]` — Ask questions about your finances in natural language; get recommendations and explanations
+
+### Planning
+
+23. **Goals List** — All savings goals with progress
+24. **Create/Edit Goal** — Add or modify a savings goal
+25. **Split Overview** — Active splits, who owes what
+26. **Create Split** — Split a bill with friends
+
+### Account
+
+27. **Notification Center** — Budget alerts, bill reminders, activity feed
+28. **Profile Settings** — Edit name, email, avatar
+29. **Account Settings** — Manage accounts, categories, preferences
+30. **Invite Friends** — Send invitations via email
+
+**Premium UI:** Not a screen. Sidebar "Upgrade to Pro" badge + locked-feature overlays → `/pricing`
+
+**Web total: 6 static + 24 app = 30 pages**
 
 ---
 
-## 🎨 Special Mobile Features
+## Web App Navigation Structure
 
-### **Biometric Login** (Mobile Only)
+```
+OVERVIEW
+  Dashboard                     /dashboard
+
+FINANCES
+  Transactions                  /finances/transactions
+  Bills & Recurring             /finances/bills
+  Budgets                       /finances/budgets
+
+ANALYTICS & AI
+  Analytics                     /analytics
+  Insights              [Pro]   /analytics/insights
+  Chat                  [Pro]   /analytics/chat
+
+PLANNING
+  Goals                         /planning/goals
+  Split Bills                   /planning/splits
+
+ACCOUNT
+  Notifications                 /notifications
+  Settings (collapsible)
+    Profile                     /settings/profile
+    Account                     /settings/account
+    Invite Friends              /settings/invite
+```
+
+Notes:
+
+- Add Transaction and detail pages are accessed via FAB/row click — not sidebar items
+- Insights and Chat show a `[Pro]` badge for Free users; clicking shows an upgrade overlay rather than blocking navigation
+
+---
+
+## Mobile App — All Screens
+
+### Authentication (6 screens)
+
+1. **Splash Screen** — App logo on launch
+2. **Onboarding** — Welcome screens (swipe through)
+3. **Login** — Email/password + biometric (fingerprint/face)
+4. **Sign Up** — Create account
+5. **Forgot Password** — Request OTP reset via email
+6. **Biometric Setup** — Enable fingerprint/face unlock (optional, post-login)
+
+### Main Screens — Tab content (5 screens)
+
+7. **Home Dashboard** — Balance, quick stats, recent transactions, mini spending chart
+8. **Transactions List** — All transactions with search
+9. **Add Transaction** — Quick expense/income entry (camera for receipt)
+10. **Budgets** — Category budgets with progress bars
+11. **Profile** — User settings and preferences
+
+### Secondary Screens (11 screens)
+
+12. **Analytics** — Charts optimized for mobile
+13. **Transaction Details** — View/edit single transaction
+14. **Bills & Recurring** — Upcoming bills, recurring items, subscriptions
+15. **Goals List** — All savings goals
+16. **Create Goal** — Add new savings goal
+17. **Split Bills** — Active splits overview
+18. **Create Split** — Split a bill with friends
+19. **Insights** — AI spending insights and anomaly detection
+20. **Chat** — Conversational AI about finances
+21. **Notifications** — Budget alerts, bill reminders
+22. **Settings** — Account settings, preferences
+
+**Mobile total: 22 screens**
+
+---
+
+## Mobile Navigation Structure
+
+```
+Tab 1: Dashboard    /home
+Tab 2: Finances     /finances
+         sub-nav: Transactions | Bills | Budgets | Goals | Splits
+Tab 3: + (FAB)      → opens Add Transaction modal directly
+Tab 4: Analytics    /analytics
+         stack: Analytics → Insights → Chat
+Tab 5: Account      /account
+         stack: Notifications → Settings → Profile / Account / Invite
+```
+
+---
+
+## Special Mobile Features
+
+### Biometric Login (Mobile Only)
 
 - Use fingerprint or face to unlock app
 - Faster than typing password
 - More secure
 
-### **Receipt Camera** (Mobile Only)
+### Receipt Camera (Mobile Only)
 
 - Take photo of receipt when adding expense
 - App stores it with transaction
 - Can review later
 
-### **Bottom Navigation** (Mobile Only)
-
-- Always visible at bottom
-- Quick access to: Home, Transactions, Add (+), Analytics, Profile
-
-### **Push Notifications**
+### Push Notifications
 
 **Mobile:**
 
@@ -196,12 +287,12 @@ Think of it like a digital piggy bank that:
 
 ---
 
-## 🤝 How Features Work
+## How Features Work
 
-### **Add an Expense**
+### Add an Expense
 
 ```
-1. Click "Add" button
+1. Click "+" button
 2. Enter amount: $5.50
 3. Select "Coffee" (or type it)
 4. Pick category: Food & Dining
@@ -210,7 +301,7 @@ Think of it like a digital piggy bank that:
 7. Balance updates automatically
 ```
 
-### **Set a Budget**
+### Set a Budget
 
 ```
 1. Go to Budgets
@@ -221,7 +312,7 @@ Think of it like a digital piggy bank that:
 6. Warns you at 80%: "You're close to limit!"
 ```
 
-### **Split a Bill**
+### Split a Bill
 
 ```
 1. Create transaction: $120 dinner
@@ -232,7 +323,7 @@ Think of it like a digital piggy bank that:
 6. Track who paid back
 ```
 
-### **Save for Goal**
+### Save for Goal
 
 ```
 1. Create goal: "New Laptop - $1,500"
@@ -244,27 +335,34 @@ Think of it like a digital piggy bank that:
 
 ---
 
-## ✅ MVP Features (What We're Building)
+## MVP Features (What We're Building)
 
 **Phase 1 - Core:**
 
-- ✅ Sign up, login, forgot password
-- ✅ Dashboard with balance
-- ✅ Add/view/edit transactions
-- ✅ Categories
-- ✅ Simple budgets
+- Sign up, login, forgot password
+- Dashboard with balance
+- Add/view/edit transactions
+- Categories
+- Simple budgets
 
 **Phase 2 - Enhanced:**
 
-- ✅ Advanced analytics with charts
-- ✅ Expense splitting with friends
-- ✅ Recurring transactions
-- ✅ Savings goals
-- ✅ Mobile app with biometric login
+- Advanced analytics with charts
+- Expense splitting with friends
+- Bills & recurring transactions
+- Savings goals
+- Mobile app with biometric login
+
+**Phase 3 - AI & Monetization:**
+
+- AI auto-categorization
+- AI Insights (spending analysis, anomaly detection)
+- AI Chat (conversational finance assistant)
+- Free/Pro plan system (Stripe)
 
 ---
 
-## 🎯 Who Is This For?
+## Who Is This For?
 
 **Anyone who wants to:**
 
@@ -284,4 +382,4 @@ Think of it like a digital piggy bank that:
 
 ---
 
-**Simple. Clean. Helps you manage money better.** 💰
+**Simple. Clean. Helps you manage money better.**
