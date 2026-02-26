@@ -12,19 +12,17 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
       data-slot="input-group"
       role="group"
       className={cn(
-        'group/input-group border border-border-subtle bg-bg-surface/50 relative flex w-full items-center rounded-button outline-none',
-        'duration-smooth min-w-0 transition-[color,box-shadow] has-[>textarea]:h-auto h-11',
+        'group/input-group rounded-button border border-border-subtle bg-bg-surface relative flex w-full min-w-0 overflow-hidden outline-none',
+        'duration-smooth hover:border-border-light h-10 transition-[color,box-shadow] has-[>textarea]:h-auto',
 
-        // Variants based on alignment.
-        'has-[>[data-align=inline-start]]:[&>input]:pl-space-2',
-        'has-[>[data-align=inline-end]]:[&>input]:pr-space-2',
-        'has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-space-3',
-        'has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-space-3',
+        // Variants based on alignment (target control by data-slot for textarea support).
+        'has-[>[data-align=inline-start]]:**:data-[slot=input-group-control]:pl-space-2',
+        'has-[>[data-align=inline-end]]:**:data-[slot=input-group-control]:pr-space-2',
+        'has-[>[data-align=block-start]]:**:data-[slot=input-group-control]:pb-space-3 has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col',
+        'has-[>[data-align=block-end]]:**:data-[slot=input-group-control]:pt-space-3 has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col',
 
-        // Focus state.
-        'has-[[data-slot=input-group-control]:focus-visible]:border-primary has-[[data-slot=input-group-control]:focus-visible]:ring-primary/50 has-[[data-slot=input-group-control]:focus-visible]:ring-2',
-
-        // Error state.
+        // Focus/error (match Input: border-primary/30, ring-2 ring-primary/50).
+        'has-[[data-slot=input-group-control]:focus-visible]:border-primary/30 has-[[data-slot=input-group-control]:focus-visible]:ring-primary/50 has-[[data-slot=input-group-control]:focus-visible]:ring-2',
         'has-[[data-slot][aria-invalid=true]]:border-error has-[[data-slot][aria-invalid=true]]:ring-error/20 has-[[data-slot][aria-invalid=true]]:ring-2',
 
         className,
@@ -40,13 +38,13 @@ const inputGroupAddonVariants = cva(
     variants: {
       align: {
         'inline-start':
-          'order-first pl-space-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]',
+          'order-first pl-space-3 rounded-l-button has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]',
         'inline-end':
-          'order-last pr-space-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]',
+          'order-last pr-space-3 rounded-r-button has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]',
         'block-start':
-          'order-first w-full justify-start px-space-3 pt-space-3 [.border-b]:pb-space-3 group-has-[>input]/input-group:pt-2.5',
+          'order-first w-full justify-start rounded-t-button px-space-3 pt-space-3 [.border-b]:pb-space-3 group-has-[>input]/input-group:pt-2.5',
         'block-end':
-          'order-last w-full justify-start px-space-3 pb-space-3 [.border-t]:pt-space-3 group-has-[>input]/input-group:pb-2.5',
+          'order-last w-full justify-start rounded-b-button px-space-3 pb-space-3 [.border-t]:pt-space-3 group-has-[>input]/input-group:pb-2.5',
       },
     },
     defaultVariants: {
@@ -77,22 +75,19 @@ function InputGroupAddon({
   );
 }
 
-const inputGroupButtonVariants = cva(
-  'text-body-sm shadow-none flex gap-space-2 items-center',
-  {
-    variants: {
-      size: {
-        xs: "h-6 gap-space-1 px-space-2 rounded-chart [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-space-2",
-        sm: 'h-8 px-space-2.5 gap-space-1.5 rounded-button has-[>svg]:px-space-2.5',
-        'icon-xs': 'size-6 rounded-chart p-0 has-[>svg]:p-0',
-        'icon-sm': 'size-8 p-0 has-[>svg]:p-0',
-      },
-    },
-    defaultVariants: {
-      size: 'xs',
+const inputGroupButtonVariants = cva('text-body-sm shadow-none flex gap-space-2 items-center', {
+  variants: {
+    size: {
+      xs: "h-6 gap-space-1 px-space-2 rounded-chart [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-space-2",
+      sm: 'h-8 px-space-2.5 gap-space-1.5 rounded-button has-[>svg]:px-space-2.5',
+      'icon-xs': 'size-6 rounded-chart p-0 has-[>svg]:p-0',
+      'icon-sm': 'size-8 p-0 has-[>svg]:p-0',
     },
   },
-);
+  defaultVariants: {
+    size: 'xs',
+  },
+});
 
 function InputGroupButton({
   className,
@@ -117,7 +112,7 @@ function InputGroupText({ className, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       className={cn(
-        "text-text-secondary flex items-center gap-space-2 text-body-sm [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+        "text-text-secondary gap-space-2 text-body-sm flex items-center [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -130,7 +125,7 @@ function InputGroupInput({ className, ...props }: React.ComponentProps<'input'>)
     <Input
       data-slot="input-group-control"
       className={cn(
-        'flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent',
+        'bg-bg-surface first:rounded-l-button last:rounded-r-button flex-1 rounded-none border-0 shadow-none focus-visible:ring-0',
         className,
       )}
       {...props}
@@ -143,7 +138,7 @@ function InputGroupTextarea({ className, ...props }: React.ComponentProps<'texta
     <Textarea
       data-slot="input-group-control"
       className={cn(
-        'flex-1 resize-none rounded-none border-0 bg-transparent py-space-3 shadow-none focus-visible:ring-0',
+        'py-space-3 bg-bg-surface first:rounded-l-button last:rounded-r-button flex-1 resize-none rounded-none border-0 shadow-none focus-visible:ring-0',
         className,
       )}
       {...props}

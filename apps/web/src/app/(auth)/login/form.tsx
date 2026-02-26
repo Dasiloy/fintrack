@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-
 import {
   Button,
   Input,
@@ -12,8 +10,13 @@ import {
   AppleIcon,
   GoogleIcon,
   Separator,
+  FieldError,
+  PasswordInput,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils';
+import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+
+import StyledLink from '@/app/_components/styled_linkt';
 
 export function LoginForm({ className }: React.ComponentProps<'div'>) {
   return (
@@ -40,15 +43,18 @@ export function LoginForm({ className }: React.ComponentProps<'div'>) {
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input id="email" type="email" placeholder="m@example.com" required />
+          <FieldError errors={[]}></FieldError>
         </Field>
+
         <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-              Forgot your password?
-            </a>
-          </div>
-          <Input id="password" type="password" required />
+          <FieldLabel htmlFor="password">
+            Password
+            <StyledLink href={AUTH_ROUTES.FORGOT_PASSWORD} className="ml-auto">
+              Forgot password?
+            </StyledLink>
+          </FieldLabel>
+          <PasswordInput id="password" />
+          <FieldError errors={[]}></FieldError>
         </Field>
 
         <Field className="mb-2">
@@ -56,7 +62,7 @@ export function LoginForm({ className }: React.ComponentProps<'div'>) {
             Login
           </Button>
           <FieldDescription className="text-center text-sm">
-            Don&apos;t have an account? <Link href="/signup">Sign up</Link>
+            Don&apos;t have an account? <StyledLink href={AUTH_ROUTES.SIGNUP}>Sign up</StyledLink>
           </FieldDescription>
         </Field>
       </FieldGroup>

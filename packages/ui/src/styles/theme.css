@@ -1,6 +1,11 @@
 :root {
   color-scheme: dark;
 
+  /* Sidebar Layout (single source of truth; sidebar.tsx uses these via CSS var) */
+  --sidebar-width: 320px;
+  --sidebar-width-icon: 56px;
+  --sidebar-width-mobile: 100vw;
+
   /* Fonts (Source of Truth) */
   --ft-font-sans: 'Manrope', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --ft-font-manrope: 'Manrope', sans-serif;

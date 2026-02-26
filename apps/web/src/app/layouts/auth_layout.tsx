@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from '@ui/components';
-import { cn } from '@ui/lib/utils/cn';
+
+import { StyledLink } from '@/app/_components';
 
 export interface AuthLayoutProps extends React.PropsWithChildren {
   title?: string;
@@ -16,7 +18,7 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
     <div className="bg-bg-deep gap-space-6 p-space-6 md:p-space-10 flex min-h-svh flex-col items-center justify-center">
       <div className="gap-space-6 flex w-full max-w-md flex-col">
         {/** HEADER: primary box with white logo + Fintrack text */}
-        <Link href="/" className="flex items-center gap-2 self-center font-medium">
+        <Link href={STATIC_ROUTES.HOME} className="flex items-center gap-2 self-center font-medium">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <Image
               src={'/logo-icon-white.png'}
@@ -50,19 +52,14 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
             className="px-space-6 py-space-2 text-center leading-relaxed tracking-wide"
           >
             By clicking continue, you agree to our &nbsp;
-            <Link
-              className={cn('hover:text-primary inline h-auto p-0 underline underline-offset-4')}
-              href="/terms"
-            >
+            <StyledLink variant={'underline'} href={STATIC_ROUTES.TERMS}>
               Terms of Service
-            </Link>
+            </StyledLink>
             &nbsp;and &nbsp;
-            <Link
-              className={cn('hover:text-primary inline h-auto p-0 underline underline-offset-4')}
-              href="/policy"
-            >
-              {` Privacy Policy `}
-            </Link>
+            <StyledLink
+              variant={'underline'}
+              href={STATIC_ROUTES.PRIVACY}
+            >{` Privacy Policy `}</StyledLink>
           </Text>
         </div>
       </div>
