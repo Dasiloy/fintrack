@@ -1,6 +1,7 @@
 import { join } from 'path';
 
 import * as Joi from 'joi';
+import { MailtrapTransport } from 'mailtrap';
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -27,10 +28,7 @@ import { TokenNotification } from './processors/token_notification.pro';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        MAIL_TRAP_HOST: Joi.string().required(),
-        MAIL_TRAP_PORT: Joi.number().required(),
-        MAIL_TRAP_USER: Joi.string().required(),
-        MAIL_TRAP_PASS: Joi.string().required(),
+        MAIL_TOKEN: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),
       }),
     }),
@@ -38,14 +36,9 @@ import { TokenNotification } from './processors/token_notification.pro';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        transport: {
-          host: config.getOrThrow('MAIL_TRAP_HOST'),
-          port: config.getOrThrow('MAIL_TRAP_PORT'),
-          auth: {
-            user: config.getOrThrow('MAIL_TRAP_USER'),
-            pass: config.getOrThrow('MAIL_TRAP_PASS'),
-          },
-        },
+        transport: MailtrapTransport({
+          token: config.getOrThrow('MAIL_TOKEN'),
+        }),
         defaults: {
           from: `"Fintrack" <${config.get('MAIL_FROM')}>`,
         },
