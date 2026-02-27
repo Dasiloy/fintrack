@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+import { cn } from '@ui/lib/utils';
+
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Text } from '@ui/components';
 
@@ -10,10 +12,16 @@ import { StyledLink } from '@/app/_components';
 
 export interface AuthLayoutProps extends React.PropsWithChildren {
   title?: string;
+  withFooter?: boolean;
   description?: string;
 }
 
-export default function AuthLayout({ children, title, description }: AuthLayoutProps) {
+export default function AuthLayout({
+  children,
+  title,
+  description,
+  withFooter = true,
+}: AuthLayoutProps) {
   return (
     <div className="bg-bg-deep gap-space-6 p-space-6 md:p-space-10 flex min-h-svh flex-col items-center justify-center">
       <div className="gap-space-6 flex w-full max-w-md flex-col">
@@ -49,7 +57,9 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
             as="div"
             variant={'body-sm'}
             color={'secondary'}
-            className="px-space-6 py-space-2 text-center leading-relaxed tracking-wide"
+            className={cn('px-space-6 py-space-2 text-center leading-relaxed tracking-wide', {
+              hidden: !withFooter,
+            })}
           >
             By clicking continue, you agree to our &nbsp;
             <StyledLink variant={'underline'} href={STATIC_ROUTES.TERMS}>

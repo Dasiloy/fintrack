@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { WifiOff } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +14,8 @@ import {
   SidebarTrigger,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
+import { useNetworkStatus } from '@/hooks/use_network_status';
+import { useScrolled } from '@/hooks/use_scrolled';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,10 +52,20 @@ export function PageHeader({
   className,
   showTrigger = true,
 }: PageHeaderProps) {
+  const { online } = useNetworkStatus();
+  const scrolled = useScrolled();
+
   return (
     <header
       className={cn(
-        'flex h-14 shrink-0 items-center gap-2 border-b border-white/5 px-4',
+        'sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b px-4',
+        'transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300',
+        // Scrolled: solid surface lifts the header above page content.
+        scrolled
+          ? 'bg-bg-elevated shadow-[0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm'
+          : 'bg-transparent',
+        // Network status: amber border tint when offline
+        online ? 'border-white/5' : 'border-warning/30',
         className,
       )}
     >
@@ -78,7 +91,10 @@ export function PageHeader({
                           {crumb.label}
                         </BreadcrumbPage>
                       ) : (
-                        <BreadcrumbLink asChild className="text-text-tertiary hover:text-text-primary">
+                        <BreadcrumbLink
+                          asChild
+                          className="text-text-tertiary hover:text-text-primary"
+                        >
                           <Link href={crumb.href ?? '#'}>{crumb.label}</Link>
                         </BreadcrumbLink>
                       )}
@@ -94,14 +110,24 @@ export function PageHeader({
         ) : null}
 
         {description && (
-          <span className="text-caption hidden text-text-tertiary md:block">{description}</span>
+          <span className="text-caption text-text-tertiary hidden md:block">{description}</span>
         )}
       </div>
 
-      {/* Right: actions slot */}
-      {children && (
-        <div className="flex shrink-0 items-center gap-2">{children}</div>
-      )}
+      {/* Right: offline indicator + actions slot */}
+      <div className="flex shrink-0 items-center gap-2">
+        {!online && (
+          <div
+            role="status"
+            aria-label="No internet connection"
+            className="border-warning/20 bg-warning/10 text-warning flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+          >
+            <WifiOff className="size-3 shrink-0" />
+            <span className="hidden sm:inline">Offline</span>
+          </div>
+        )}
+        {children}
+      </div>
     </header>
   );
 }

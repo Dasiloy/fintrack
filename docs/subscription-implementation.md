@@ -5,6 +5,7 @@
 FinTrack uses a **Free + Pro** model. All users sign up as Free automatically — no plan selection at registration. Upgrade is contextual: triggered by hitting a quota limit, reaching 80% of a limit, or clicking the persistent sidebar badge. Pro costs $5/month, billed via Stripe.
 
 **Key principles:**
+
 - Plan state lives in the database (`User.plan`), NOT in the JWT — stale JWT risk on downgrade is too high
 - Server-side quota checks are mandatory; client-side UI gates (disabled buttons, hidden elements) are UX only
 - Existing user data is NEVER deleted on downgrade — only creation of new items is blocked
@@ -164,8 +165,8 @@ const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1,
 await tx.usageTracker.createMany({
   data: [
     { userId: user.id, feature: 'AI_INSIGHTS_QUERIES', count: 0, periodStart, periodEnd },
-    { userId: user.id, feature: 'AI_CHAT_MESSAGES',    count: 0, periodStart, periodEnd },
-    { userId: user.id, feature: 'RECEIPT_UPLOADS',     count: 0, periodStart, periodEnd },
+    { userId: user.id, feature: 'AI_CHAT_MESSAGES', count: 0, periodStart, periodEnd },
+    { userId: user.id, feature: 'RECEIPT_UPLOADS', count: 0, periodStart, periodEnd },
   ],
   skipDuplicates: true,
 });
@@ -195,7 +196,7 @@ For features with a maximum count of DB records (budgets, goals, splits, etc.).
 async function assertStructuralLimit(
   plan: PlanName,
   feature: keyof typeof PLAN_LIMITS.FREE,
-  currentCount: number
+  currentCount: number,
 ): Promise<void> {
   const limit = PLAN_LIMITS[plan][feature] as number;
   if (currentCount >= limit) {
@@ -221,7 +222,7 @@ async function assertAndIncrementUsageQuota(
   tx: PrismaTransactionClient,
   userId: string,
   plan: PlanName,
-  feature: UsageFeature
+  feature: UsageFeature,
 ): Promise<void> {
   const limitKey = `${feature}_PER_MONTH` as keyof typeof PLAN_LIMITS.FREE;
   const limit = PLAN_LIMITS[plan][limitKey] as number;
@@ -273,20 +274,20 @@ function assertFeatureEnabled(plan: PlanName, feature: 'PDF_REPORTS' | 'CSV_EXPO
 
 ## 5. Endpoints Requiring Quota Checks
 
-| tRPC Endpoint | Check Type | Limit Constant |
-|---|---|---|
-| `category.create` (custom only) | Structural | `MAX_CUSTOM_CATEGORIES` |
-| `budget.create` | Structural | `MAX_BUDGETS` |
-| `recurring.create` | Structural | `MAX_RECURRING_ITEMS` |
-| `goal.create` | Structural | `MAX_GOALS` |
-| `split.create` | Structural | `MAX_ACTIVE_SPLITS` |
-| `split.addParticipant` | Structural | `MAX_PEOPLE_PER_SPLIT` |
-| `ai.queryInsight` | Usage + Increment | `AI_INSIGHTS_QUERIES_PER_MONTH` |
-| `ai.sendChatMessage` | Usage + Increment | `AI_CHAT_MESSAGES_PER_MONTH` |
-| `receipt.upload` | Usage + Increment | `RECEIPT_UPLOADS_PER_MONTH` |
-| `report.generatePdf` | Feature flag | `PDF_REPORTS` |
-| `report.exportCsv` | Feature flag | `CSV_EXPORT` |
-| `analytics.query` | Conditional date filter | `ANALYTICS_MONTHS_LIMIT` — apply `WHERE date >= cutoff`, not a hard block |
+| tRPC Endpoint                   | Check Type              | Limit Constant                                                            |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| `category.create` (custom only) | Structural              | `MAX_CUSTOM_CATEGORIES`                                                   |
+| `budget.create`                 | Structural              | `MAX_BUDGETS`                                                             |
+| `recurring.create`              | Structural              | `MAX_RECURRING_ITEMS`                                                     |
+| `goal.create`                   | Structural              | `MAX_GOALS`                                                               |
+| `split.create`                  | Structural              | `MAX_ACTIVE_SPLITS`                                                       |
+| `split.addParticipant`          | Structural              | `MAX_PEOPLE_PER_SPLIT`                                                    |
+| `ai.queryInsight`               | Usage + Increment       | `AI_INSIGHTS_QUERIES_PER_MONTH`                                           |
+| `ai.sendChatMessage`            | Usage + Increment       | `AI_CHAT_MESSAGES_PER_MONTH`                                              |
+| `receipt.upload`                | Usage + Increment       | `RECEIPT_UPLOADS_PER_MONTH`                                               |
+| `report.generatePdf`            | Feature flag            | `PDF_REPORTS`                                                             |
+| `report.exportCsv`              | Feature flag            | `CSV_EXPORT`                                                              |
+| `analytics.query`               | Conditional date filter | `ANALYTICS_MONTHS_LIMIT` — apply `WHERE date >= cutoff`, not a hard block |
 
 **Note on analytics:** For Free users, add a date filter `WHERE date >= (NOW() - INTERVAL '6 months')` to the query. Do not throw an error — just silently limit the data range.
 
@@ -319,25 +320,28 @@ try {
 
 ### Event Handlers
 
-| Stripe Event | Action |
-|---|---|
-| `checkout.session.completed` | Set `User.plan = PRO`. Upsert `Subscription` with `customerId`, `subscriptionId`, `status = ACTIVE`, period dates. Queue `SUBSCRIPTION_UPGRADED` email job. |
-| `customer.subscription.updated` | Update `Subscription.status`, `cancelAtPeriodEnd`, period dates. Re-set `User.plan = PRO` if returning from `CANCELED`. |
-| `customer.subscription.deleted` | Set `User.plan = FREE`. Set `Subscription.status = CANCELED`. Do NOT delete user data (budgets, goals, etc. are preserved). Queue `SUBSCRIPTION_CANCELED` email. |
-| `invoice.payment_succeeded` | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
-| `invoice.payment_failed` | Set `Subscription.status = PAST_DUE`. Queue `PAYMENT_FAILED` email. Do NOT downgrade immediately — Stripe retries before deleting the subscription. |
+| Stripe Event                    | Action                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkout.session.completed`    | Set `User.plan = PRO`. Upsert `Subscription` with `customerId`, `subscriptionId`, `status = ACTIVE`, period dates. Queue `SUBSCRIPTION_UPGRADED` email job.                     |
+| `customer.subscription.updated` | Update `Subscription.status`, `cancelAtPeriodEnd`, period dates. Re-set `User.plan = PRO` if returning from `CANCELED`.                                                         |
+| `customer.subscription.deleted` | Set `User.plan = FREE`. Set `Subscription.status = CANCELED`. Do NOT delete user data (budgets, goals, etc. are preserved). Queue `SUBSCRIPTION_CANCELED` email.                |
+| `invoice.payment_succeeded`     | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
+| `invoice.payment_failed`        | Set `Subscription.status = PAST_DUE`. Queue `PAYMENT_FAILED` email. Do NOT downgrade immediately — Stripe retries before deleting the subscription.                             |
 
 ---
 
 ## 7. Monthly Usage Reset
 
 ### Pro Users
+
 Reset is triggered by `invoice.payment_succeeded` — create new `UsageTracker` rows for `periodStart = stripeCurrentPeriodStart` of the new invoice. This aligns reset with the Stripe billing cycle, not the calendar month.
 
 ### Free Users
+
 `assertAndIncrementUsageQuota` uses `periodStart = first day of current UTC month` as the upsert key. A new month naturally creates a new row — no explicit reset job needed.
 
 ### Cleanup Cron
+
 Delete `UsageTracker` rows where `periodEnd < NOW() - 90 days` to prevent table bloat. Run daily at low-traffic hours.
 
 ---
@@ -407,6 +411,7 @@ Same pattern, wrapping `(app)/_layout.tsx` in the Expo router.
 ### Customer Portal
 
 `POST /payment/create-portal-session` — redirects user to Stripe's hosted portal to:
+
 - Cancel subscription
 - Update payment method
 - View invoice history
@@ -416,6 +421,7 @@ No custom cancel/billing UI needed.
 ### Proto Updates
 
 Add to `payment.proto`:
+
 ```protobuf
 rpc CreateCheckoutSession(CreateCheckoutSessionRequest) returns (CreateCheckoutSessionResponse);
 rpc CreatePortalSession(CreatePortalSessionRequest) returns (CreatePortalSessionResponse);
@@ -436,11 +442,11 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
 Add to `packages/types/src/constants/queues.constants.ts`:
 
 ```typescript
-CREATE_STRIPE_CUSTOMER   // Worker: create Stripe customer, write stripeCustomerId to Subscription
-SUBSCRIPTION_UPGRADED    // Worker: send upgrade confirmation email
-SUBSCRIPTION_CANCELED    // Worker: send cancellation confirmation + downgrade notice email
-PAYMENT_FAILED           // Worker: send payment failure email with portal link
-USAGE_RESET              // Worker: (optional) Pro user UsageTracker reset on renewal
+CREATE_STRIPE_CUSTOMER; // Worker: create Stripe customer, write stripeCustomerId to Subscription
+SUBSCRIPTION_UPGRADED; // Worker: send upgrade confirmation email
+SUBSCRIPTION_CANCELED; // Worker: send cancellation confirmation + downgrade notice email
+PAYMENT_FAILED; // Worker: send payment failure email with portal link
+USAGE_RESET; // Worker: (optional) Pro user UsageTracker reset on renewal
 ```
 
 ### Do NOT Put `plan` in the JWT
@@ -451,17 +457,17 @@ Reading `User.plan` from the DB on each tRPC request is required. If plan is in 
 
 ## Plan Feature Matrix
 
-| Feature | Free | Pro |
-|---|---|---|
-| Transactions | Unlimited, full history | Unlimited, full history |
-| Custom categories | 3 | Unlimited |
-| Budgets | 5 | Unlimited |
-| Bills & Recurring items | 5 | Unlimited |
-| Goals | 3 | Unlimited |
-| Active splits | 3 (max 3 people/split) | Unlimited |
-| Analytics history | Last 6 months | All-time |
-| AI Insights queries | 20/month | Unlimited |
-| AI Chat messages | 10/month | Unlimited |
-| Receipt uploads | 10/month | Unlimited |
-| PDF Reports | No | Yes |
-| CSV Export | No | Yes |
+| Feature                 | Free                    | Pro                     |
+| ----------------------- | ----------------------- | ----------------------- |
+| Transactions            | Unlimited, full history | Unlimited, full history |
+| Custom categories       | 3                       | Unlimited               |
+| Budgets                 | 5                       | Unlimited               |
+| Bills & Recurring items | 5                       | Unlimited               |
+| Goals                   | 3                       | Unlimited               |
+| Active splits           | 3 (max 3 people/split)  | Unlimited               |
+| Analytics history       | Last 6 months           | All-time                |
+| AI Insights queries     | 20/month                | Unlimited               |
+| AI Chat messages        | 10/month                | Unlimited               |
+| Receipt uploads         | 10/month                | Unlimited               |
+| PDF Reports             | No                      | Yes                     |
+| CSV Export              | No                      | Yes                     |
