@@ -18,7 +18,7 @@ import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 import StyledLink from '@/app/_components/styled_linkt';
 
-export function LoginForm({ className }: React.ComponentProps<'div'>) {
+export function LoginForm({ className }: React.ComponentProps<'form'>) {
   return (
     <form className={cn('pt-6', className)}>
       <FieldGroup>

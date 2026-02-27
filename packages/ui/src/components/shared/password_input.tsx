@@ -3,7 +3,7 @@ import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@ui/components/atoms';
 import { useState } from 'react';
 
-function PasswordInput({ className, ...props }: React.ComponentProps<'input'>) {
+function PasswordInput({ className, ...props }: Omit<React.ComponentProps<'input'>, 'type'>) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

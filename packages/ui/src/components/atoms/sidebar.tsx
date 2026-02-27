@@ -119,7 +119,7 @@ export function SidebarProvider({
           } as React.CSSProperties
         }
         className={cn(
-          'group/sidebar-wrapper has-data-[variant=inset]:bg-bg-deep flex min-h-svh w-full flex-row overflow-x-hidden',
+          'group/sidebar-wrapper has-data-[variant=inset]:bg-bg-deep flex min-h-svh w-full flex-row overflow-x-clip',
           className,
         )}
         {...props}
