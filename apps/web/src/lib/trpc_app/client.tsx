@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import SuperJSON from 'superjson';
+import { AppProgressProvider } from '@bprogress/next';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchStreamLink, loggerLink } from '@trpc/client';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
@@ -10,6 +11,8 @@ import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { type AppRouter } from '@fintrack/trpc_app';
 import { createQueryClient } from '@fintrack/react_query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { networkCheckLink } from '@/lib/trpc_app/trpc_link';
 
 /**
  * Inference helper for inputs.
@@ -36,6 +39,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === 'development' ||
             (op.direction === 'down' && op.result instanceof Error),
         }),
+        networkCheckLink(), // pre-flight network check
         httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + '/api/trpc',
@@ -51,8 +55,23 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {process.env.NODE_ENV === 'development' && (
+        <ReactQueryDevtools
+          initialIsOpen
+          client={queryClient}
+          position="bottom"
+          buttonPosition="bottom-right"
+        />
+      )}
       <api_client.Provider client={trpcClient} queryClient={queryClient}>
-        {props.children}
+        <AppProgressProvider
+          color="#7c7aff"
+          disableSameURL
+          shallowRouting={false}
+          shouldCompareComplexProps
+        >
+          {props.children}
+        </AppProgressProvider>
       </api_client.Provider>
     </QueryClientProvider>
   );

@@ -55,16 +55,12 @@ function NavigationMenuItem({
       className={cn('relative', className)}
       {...props}
     />
-  )
+  );
 }
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-11 w-max items-center justify-center rounded-button bg-bg-surface px-space-4 py-space-2 text-body-sm font-medium text-text-primary",
-  "hover:bg-bg-surface-hover hover:text-text-primary focus:bg-bg-surface-hover focus:text-text-primary",
-  "disabled:pointer-events-none disabled:opacity-50",
-  "data-[state=open]:bg-bg-surface-hover data-[state=open]:text-text-primary data-[state=open]:bg-bg-surface-hover/80",
-  "focus-visible:ring-primary/50 outline-none duration-smooth transition-[color,box-shadow] focus-visible:ring-2 focus-visible:outline-1",
-)
+  'group inline-flex h-11 w-max items-center justify-center rounded-button bg-bg-surface px-space-4 py-space-2 text-body-sm font-medium text-text-primary hover:bg-bg-surface-hover hover:text-text-primary focus:bg-bg-surface-hover focus:text-text-primary disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-bg-surface-hover data-[state=open]:text-text-primary data-[state=open]:bg-bg-surface-hover/80 focus-visible:ring-primary/50 outline-none duration-smooth transition-[color,box-shadow] focus-visible:ring-2 focus-visible:outline-1',
+);
 
 function NavigationMenuTrigger({
   className,
@@ -79,7 +75,7 @@ function NavigationMenuTrigger({
     >
       {children}{' '}
       <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
+        className="relative top-px ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
         aria-hidden="true"
       />
     </NavigationMenuPrimitive.Trigger>
@@ -132,10 +128,10 @@ function NavigationMenuLink({
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "flex flex-col gap-space-1 rounded-button p-space-2 text-body-sm text-text-secondary",
-        "hover:bg-bg-surface-hover hover:text-text-primary focus:bg-bg-surface-hover focus:text-text-primary",
-        "data-[active=true]:bg-bg-surface-hover data-[active=true]:text-text-primary",
-        "focus-visible:ring-primary/50 outline-none duration-smooth transition-all focus-visible:ring-2 focus-visible:outline-1",
+        'gap-space-1 rounded-button p-space-2 text-body-sm text-text-secondary flex flex-col',
+        'hover:bg-bg-surface-hover hover:text-text-primary focus:bg-bg-surface-hover focus:text-text-primary',
+        'data-[active=true]:bg-bg-surface-hover data-[active=true]:text-text-primary',
+        'focus-visible:ring-primary/50 duration-smooth transition-all outline-none focus-visible:ring-2 focus-visible:outline-1',
         "[&_svg:not([class*='text-'])]:text-text-tertiary [&_svg:not([class*='size-'])]:size-4",
         className,
       )}

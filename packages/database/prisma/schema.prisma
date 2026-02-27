@@ -18,14 +18,18 @@ model User {
   id              String    @id @default(uuid())
   email           String    @unique
   password        String?
-  loginAttempts   Int       
+  loginAttempts   Int
   emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
   firstName       String
   lastName        String
   avatar          String?
+
+// reverse relationship
   accounts        Account[]
   sessions        Session[]
+  subscription    Subscription?
+  usageTrackers   UsageTracker[]
 
   // time stamps
   createdAt DateTime @default(now())
@@ -83,7 +87,7 @@ model VerificationToken {
   id         String  @id    @default(cuid())
   identifier VerificationIdentifier
   email      String
-  token      String   
+  token      String
   expires    DateTime
 
   // time stamps
@@ -92,4 +96,54 @@ model VerificationToken {
   @@unique([email, token, identifier])
 }
 
+enum SubscriptionPlan {
+  FREE
+  PRO
+}
 
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+  INCOMPLETE
+}
+
+model Subscription {
+  id                       String             @id @default(cuid())
+  userId                   String             @unique
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId         String             @unique
+  stripeSubscriptionId     String?            @unique
+  stripePriceId            String?
+  stripeCurrentPeriodStart DateTime?
+  stripeCurrentPeriodEnd   DateTime?
+  stripeCancelAtPeriodEnd  Boolean            @default(false)
+  status                   SubscriptionStatus @default(ACTIVE)
+  plan                     SubscriptionPlan               @default(FREE)
+
+  // timstamps
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+}
+
+enum UsageFeature {
+  AI_INSIGHTS_QUERIES
+  AI_CHAT_MESSAGES
+  RECEIPT_UPLOADS
+}
+
+model UsageTracker {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feature     UsageFeature
+  count       Int          @default(0)
+  periodStart DateTime     // First day of current month (UTC midnight)
+  periodEnd   DateTime     // First day of next month (UTC midnight)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@unique([userId, feature, periodStart])
+  @@index([userId, feature])
+}

@@ -4,7 +4,7 @@ import { PageHeader } from '@/app/_components/page-header';
 
 export default function DashboardPage() {
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-[200vh] flex-col">
       <PageHeader breadcrumbs={[{ label: 'Dashboard' }]} />
 
       <main className="flex flex-1 flex-col gap-5 p-6">
