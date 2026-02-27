@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import SuperJSON from 'superjson';
-import { AppProgressProvider } from '@bprogress/next';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchStreamLink, loggerLink } from '@trpc/client';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
@@ -64,14 +63,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         />
       )}
       <api_client.Provider client={trpcClient} queryClient={queryClient}>
-        <AppProgressProvider
-          color="#7c7aff"
-          disableSameURL
-          shallowRouting={false}
-          shouldCompareComplexProps
-        >
-          {props.children}
-        </AppProgressProvider>
+        {props.children}
       </api_client.Provider>
     </QueryClientProvider>
   );
