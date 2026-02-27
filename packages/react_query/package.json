@@ -20,6 +20,7 @@
     }
   },
   "devDependencies": {
+    "@fintrack/types": "workspace:*",
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
     "@tanstack/react-query": "^5.69.0",

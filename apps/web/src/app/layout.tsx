@@ -74,9 +74,3 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
-
-/**
- * password input
- * understanding field compoennst
- * dashboard layout
- */

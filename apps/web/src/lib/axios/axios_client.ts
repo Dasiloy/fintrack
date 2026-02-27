@@ -1,7 +1,9 @@
+import isOnline from 'is-online';
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 import { env } from '@/env';
 import { getCookie, setCookie } from '@/utils/cookie';
+import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
 
 /**
  * Robust Axios client for the Web application.
@@ -19,7 +21,12 @@ export const axiosClient: AxiosInstance = axios.create({
  * Request Interceptor: Attach Bearer token from cookies if available.
  */
 axiosClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
+    const online = await isOnline();
+    if (!online) {
+      throw new Error(INTERNET_CONNECTION_ERROR);
+    }
+
     const token = getCookie('next-auth.session-token');
 
     if (token && config.headers) {
