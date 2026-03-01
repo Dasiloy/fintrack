@@ -1,6 +1,7 @@
-import { initAuth } from '@fintrack/next_auth';
+import 'server-only';
+
 import { env } from '@/env';
-import { setRefreshTokenCookie } from '@/helpers/cookies';
+import { initAuth } from '@fintrack/next_auth';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
 
 /**
@@ -15,7 +16,6 @@ const { auth, handlers, signIn, signOut } = initAuth(
     JWT_ACCESS_TOKEN_EXPIRATION: env.JWT_ACCESS_TOKEN_EXPIRATION,
   },
   {
-    setRefreshTokenCookie,
     parseJwtExpiration,
   },
 );

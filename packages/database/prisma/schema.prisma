@@ -18,12 +18,13 @@ model User {
   id              String    @id @default(uuid())
   email           String    @unique
   password        String?
-  loginAttempts   Int
+  loginAttempts   Int       @default(0)
   emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
   firstName       String
   lastName        String
   avatar          String?
+  lastLoginAt     DateTime?
 
 // reverse relationship
   accounts        Account[]
@@ -68,19 +69,27 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String    @default(cuid())
+  userAgent    String?
+  ipAddress    String?
+  location     String?
+  lastUsedAt   DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // time stamps
   createdAt DateTime @default(now())
+
+  @@unique([userId, deviceId])
 }
 
 enum VerificationIdentifier {
   PASSWORD
   EMAIL
+  RESET
 }
 
 model VerificationToken {
@@ -113,7 +122,7 @@ model Subscription {
   id                       String             @id @default(cuid())
   userId                   String             @unique
   user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeCustomerId         String             @unique
+  stripeCustomerId         String?            @unique
   stripeSubscriptionId     String?            @unique
   stripePriceId            String?
   stripeCurrentPeriodStart DateTime?

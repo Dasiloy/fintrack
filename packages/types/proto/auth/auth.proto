@@ -9,6 +9,7 @@ service AuthService {
     rpc Login(LoginReq) returns (LoginRes) {}
     rpc ForgotPassword(ForgotPasswordReq) returns (ForgotPasswordRes) {}
     rpc ResendForgotPasswordToken(ResendForgotPasswordTokenReq) returns (ResendForgotPasswordTokenRes) {}
+    rpc VerifyPasswordToken(VerifyPasswordTokenReq) returns(VerifyPasswordTokenRes) {}
     rpc ResetPassword(ResetPasswordReq) returns(ResetPasswordRes) {}
     rpc ValidateToken(ValidateTokenReq) returns (ValidateTokenRes) {}
     rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes) {}
@@ -36,6 +37,10 @@ message RegisterRes {
 
 message VerifyEmailReq {
     string otp= 1;
+    string deviceId= 2;
+    optional string userAgent= 3;
+    optional string ipAddress= 4;
+    optional string location= 5;
 }
 
 message VerifyEmailRes {
@@ -56,6 +61,10 @@ message ResendVerifyEmailTokenRes {
 message LoginReq {
  string email= 1;
  string password= 2;
+ string deviceId= 3;
+ optional string userAgent= 4;
+ optional string ipAddress= 5;
+ optional string location= 6;
 }
 
 message LoginRes {
@@ -70,7 +79,6 @@ message ForgotPasswordReq {
 
 message ForgotPasswordRes {
     string email= 1;
-    string forgotPasswordToken= 2;
 }
 
 message ResendForgotPasswordTokenReq {
@@ -79,20 +87,27 @@ message ResendForgotPasswordTokenReq {
 
 message ResendForgotPasswordTokenRes {
     string email= 1;
-    string forgotPasswordToken= 2;
+}
+
+message VerifyPasswordTokenReq {
+     string email= 1;
+      string otp= 2;
+}
+
+message VerifyPasswordTokenRes {
+    string passwordToken= 1;
 }
 
 message ResetPasswordReq {
-      string otp= 1;
-      string newPassword= 2;
+      string newPassword= 1;
 }
 
 message ResetPasswordRes {
-   
+
 }
 
 message ValidateTokenReq {
-    
+
 }
 
 message ValidateTokenRes {
@@ -104,7 +119,7 @@ message ValidateTokenRes {
 }
 
 message RefreshTokenReq {
-   
+
 }
 
 message RefreshTokenRes {

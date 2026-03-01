@@ -3,7 +3,8 @@ import { jwtVerify } from 'jose';
 import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
+import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import type { LoginRes, RefreshTokenRes } from '@fintrack/types/protos/auth/auth';
 import { type TokenPayload } from '@fintrack/types/interfaces/token_payload';
 
 export interface AuthEnv {
@@ -15,7 +16,6 @@ export interface AuthEnv {
 }
 
 export interface AuthHelpers {
-  setRefreshTokenCookie: (token: string) => Promise<void> | void;
   parseJwtExpiration: (expiration: string) => number;
 }
 
@@ -24,6 +24,8 @@ declare module 'next-auth' {
     user: {
       id: string;
     } & DefaultSession['user'];
+    accessToken: string;
+    error?: 'RefreshTokenError';
   }
 
   interface User {
@@ -41,28 +43,6 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
   },
   jwt: {
     maxAge: helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION),
-    async encode({ token }) {
-      return (token?.access_token as string) || '';
-    },
-    async decode({ token }) {
-      if (!token) return null;
-
-      try {
-        const res = await jwtVerify(token, new TextEncoder().encode(env.AUTH_SECRET));
-        const payload = res.payload as unknown as TokenPayload;
-
-        return {
-          access_token: token,
-          id: payload.id as string,
-          email: payload.email as string,
-          image: payload.avatar as string,
-          name: (payload.firstName as string).concat(' ', payload.lastName),
-        };
-      } catch (error) {
-        console.error('JWT decode error:', error);
-        return null;
-      }
-    },
   },
   providers: [
     GoogleProvider({
@@ -72,10 +52,33 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
     CredentialsProvider({
       name: 'credentials',
       credentials: {
+        flow: { label: 'Flow', type: 'text' },
+        accessToken: { label: 'Access Token', type: 'text' },
+        refreshToken: { label: 'Refresh Token', type: 'text' },
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        if (credentials.flow === 'post-verify' || credentials.flow === 'post-login') {
+          try {
+            const res = await jwtVerify(
+              credentials.accessToken as string,
+              new TextEncoder().encode(env.AUTH_SECRET),
+            );
+            const payload = res.payload as unknown as TokenPayload;
+            return {
+              id: payload.id,
+              email: payload.email,
+              image: payload.avatar,
+              access_token: credentials.accessToken as string,
+              refresh_token: credentials.refreshToken as string,
+              name: `${payload.firstName} ${payload.lastName}`,
+            };
+          } catch {
+            return null;
+          }
+        }
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -94,15 +97,15 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
             return null;
           }
 
-          const data = await response.json();
+          const data: StandardResponse<LoginRes> = await response.json();
 
           return {
-            id: data.user.id,
-            email: data.user.email,
-            image: data.user.avatar,
-            access_token: data.accessToken,
-            refresh_token: data.refreshToken,
-            name: data.user.firstName.concat(' ', data.user.lastName),
+            id: data.data?.user?.id,
+            email: data.data?.user?.email,
+            image: data.data?.user?.avatar,
+            access_token: data.data?.accessToken,
+            refresh_token: data.data?.refreshToken,
+            name: `${data.data?.user?.firstName} ${data.data?.user?.lastName}`,
           };
         } catch (error) {
           console.error('Login error:', error);
@@ -139,7 +142,7 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           user.image = data.user.avatar;
           user.access_token = data.accessToken;
           user.refresh_token = data.refreshToken;
-          user.name = data.user.firstName.concat(' ', data.user.lastName);
+          user.name = `${data.user.firstName} ${data.user.lastName}`;
 
           return true;
         } catch (error) {
@@ -149,28 +152,58 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
       }
 
       if (account?.provider === 'credentials') {
-        // can we do direct redirect to /verifyEmail here??
         return true;
       }
 
       return false;
     },
     async jwt({ token, user }) {
+      // First sign-in — store both tokens + expiry timestamp
       if (user?.access_token) {
-        if (user.refresh_token) {
-          await helpers.setRefreshTokenCookie(user.refresh_token);
-        }
-
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           image: user.image,
           access_token: user.access_token,
+          refresh_token: user.refresh_token,
+          expires_at:
+            Date.now() + helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION) * 1000,
         };
       }
 
-      return token;
+      // Token still valid — pass through unchanged
+      if (token.expires_at && Date.now() < (token.expires_at as number)) {
+        return token;
+      }
+
+      // Access token expired — use refresh_token to get a new one  ← READ here
+      try {
+        const response = await fetch(`${env.API_GATEWAY_URL}/auth/refresh`, {
+          method: 'POST',
+          body: JSON.stringify({
+            refreshToken: token.refresh_token,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) throw new Error('Refresh failed');
+
+        const data: StandardResponse<RefreshTokenRes> = await response.json();
+
+        return {
+          ...token,
+          access_token: data.data?.accessToken,
+          refresh_token: data.data?.refreshToken,
+          expires_at:
+            Date.now() + helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION) * 1000,
+          error: undefined,
+        };
+      } catch {
+        return { ...token, error: 'RefreshTokenError' };
+      }
     },
 
     async session({ session, token }) {
@@ -179,6 +212,10 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.image as string;
+        session.accessToken = token.access_token as string;
+        if (token.error === 'RefreshTokenError') {
+          session.error = 'RefreshTokenError';
+        }
       }
 
       return session;

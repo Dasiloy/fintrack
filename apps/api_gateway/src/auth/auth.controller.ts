@@ -1,5 +1,3 @@
-import { Request } from 'express';
-
 import {
   Body,
   Controller,
@@ -9,6 +7,10 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+
+import { Request } from 'express';
+
+import { RequestWithDevice } from './middleware/device.middleware';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
@@ -21,6 +23,7 @@ import {
   ResendVerifyEmailTokenRes,
   ResetPasswordRes,
   VerifyEmailRes,
+  VerifyPasswordTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import {
@@ -32,6 +35,7 @@ import {
   ResendVerifyEmailDto,
   ResetPasswordDto,
   VerifyEmailDto,
+  VerifyPasswordTokenReqDto,
 } from './dto/auth.dto';
 import { AuthService } from './auth.service';
 
@@ -163,15 +167,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async verifyMail(
     @Body() body: VerifyEmailDto,
-    @Req() req: Request,
+    @Req() req: RequestWithDevice,
   ): Promise<StandardResponse<VerifyEmailRes>> {
-    const token = req.headers['x-token'] || (body as any).token;
+    const token = req.headers['x-token'];
 
     if (!token) {
       throw new UnauthorizedException('Token is invalid');
     }
 
-    const res = await this.authService.verifyEmail(body, token as string);
+    const res = await this.authService.verifyEmail(
+      body,
+      token as string,
+      req.deviceInfo,
+    );
 
     return {
       success: true,
@@ -278,8 +286,11 @@ export class AuthController {
     },
   })
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: LoginDto): Promise<StandardResponse<LoginRes>> {
-    const res = await this.authService.login(body);
+  async login(
+    @Body() body: LoginDto,
+    @Req() req: RequestWithDevice,
+  ): Promise<StandardResponse<LoginRes>> {
+    const res = await this.authService.login(body, req.deviceInfo);
     return {
       success: true,
       message: 'Login successful',
@@ -377,6 +388,58 @@ export class AuthController {
   }
 
   // ================================================================
+  //. Verify password reset token
+  // ================================================================
+  @Post('verify-password-token')
+  @ApiOperation({
+    summary: 'Verify Password Reset Token',
+    description: 'Verify the password reset token',
+  })
+  @ApiBody({
+    description: 'Password reset token payload',
+    required: true,
+    type: VerifyPasswordTokenReqDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset token verified',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Password reset token verified',
+        data: {
+          passwordToken: 'eyJhbG...',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or token expired',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid token or token expired',
+        data: null,
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  async verifyPasswordToken(
+    @Body() body: VerifyPasswordTokenReqDto,
+  ): Promise<StandardResponse<VerifyPasswordTokenRes>> {
+    const res = await this.authService.verifyPasswordToken(body);
+    return {
+      success: true,
+      message: 'Password reset token verified',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
   //. Reset password
   // ================================================================
   @Post('reset-password')
@@ -430,7 +493,7 @@ export class AuthController {
     @Body() body: ResetPasswordDto,
     @Req() req: Request,
   ): Promise<StandardResponse<ResetPasswordRes>> {
-    const token = req.headers['x-token'] || (body as any).token;
+    const token = req.headers['x-token'];
 
     if (!token) {
       throw new UnauthorizedException('Reset token is invalid');

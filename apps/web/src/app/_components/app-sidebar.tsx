@@ -45,9 +45,21 @@ import {
   useSidebar,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
-import { DASHBOARD_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
+import {
+  AUTH_ROUTES,
+  DASHBOARD_ROUTES,
+  STATIC_ROUTES,
+} from '@fintrack/types/constants/routes.constants';
 import type { SessionUser } from '@fintrack/types/interfaces/session_user.interface';
-import { ACCOUNT_GROUP, NAV_GROUPS, type NavCollapsibleItem, type NavGroup, type NavItem } from '@/constants/sidebar-nav.constants';
+import {
+  ACCOUNT_GROUP,
+  NAV_GROUPS,
+  type NavCollapsibleItem,
+  type NavGroup,
+  type NavItem,
+} from '@/constants/sidebar-nav.constants';
+import { signOut } from 'next-auth/react';
+import { Logo } from '@/app/_components/logo';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -246,7 +258,10 @@ function NavUser({ user }: { user: SessionUser }) {
             <DropdownMenuSeparator className="bg-border-subtle" />
 
             <DropdownMenuItem asChild className="py-space-1 cursor-pointer">
-              <Link href={DASHBOARD_ROUTES.SETTINGS_ACCOUNT} className="gap-space-2 flex items-center">
+              <Link
+                href={DASHBOARD_ROUTES.SETTINGS_ACCOUNT}
+                className="gap-space-2 flex items-center"
+              >
                 <SlidersHorizontal className="text-text-secondary size-4 shrink-0" />
                 <span className="text-body-sm">Account settings</span>
               </Link>
@@ -266,7 +281,15 @@ function NavUser({ user }: { user: SessionUser }) {
 
             <DropdownMenuSeparator className="bg-border-subtle" />
 
-            <DropdownMenuItem className="text-error focus:text-error focus:bg-error/10 py-space-2 cursor-pointer">
+            <DropdownMenuItem
+              className="text-error focus:text-error focus:bg-error/10 py-space-2 cursor-pointer"
+              onClick={() =>
+                signOut({
+                  redirect: true,
+                  redirectTo: AUTH_ROUTES.LOGIN,
+                })
+              }
+            >
               <LogOut className="mr-space-2 size-4 shrink-0" />
               <span className="text-body-sm">Log out</span>
             </DropdownMenuItem>
@@ -281,11 +304,6 @@ function NavUser({ user }: { user: SessionUser }) {
 // AppSidebar (main export)
 // ---------------------------------------------------------------------------
 
-const DEFAULT_SESSION_USER: SessionUser = {
-  name: 'User',
-  email: 'user@fintrack.app',
-};
-
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   /**
    * Whether the current user is on the Pro plan.
@@ -293,14 +311,10 @@ export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
    */
   isPro?: boolean;
   /** Session user for the footer. Falls back to placeholder when not provided. */
-  user?: SessionUser;
+  user: SessionUser;
 }
 
-export function AppSidebar({
-  isPro = false,
-  user = DEFAULT_SESSION_USER,
-  ...props
-}: AppSidebarProps) {
+export function AppSidebar({ isPro = false, user, ...props }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -313,26 +327,7 @@ export function AppSidebar({
               asChild
               className="group-data-[collapsible=icon]:mx-auto hover:bg-transparent active:bg-transparent"
             >
-              <Link href={DASHBOARD_ROUTES.DASHBOARD} className="flex items-center gap-2">
-                <div className="bg-primary shadow-glow flex size-8 shrink-0 items-center justify-center rounded-lg">
-                  <Image
-                    src="/logo-icon-white.png"
-                    alt="FinTrack"
-                    width={18}
-                    height={18}
-                    priority
-                    className="h-[18px] w-auto"
-                  />
-                </div>
-                <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="font-manrope text-text-primary text-sm font-semibold">
-                    FinTrack
-                  </span>
-                  <span className="text-text-tertiary text-[10px]">
-                    {isPro ? 'Pro' : 'Free plan'}
-                  </span>
-                </div>
-              </Link>
+              <Logo isPro={isPro} showPlan />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

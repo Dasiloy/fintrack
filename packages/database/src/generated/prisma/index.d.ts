@@ -33,6 +33,16 @@ export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
  * 
  */
 export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTokenPayload>
+/**
+ * Model Subscription
+ * 
+ */
+export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
+/**
+ * Model UsageTracker
+ * 
+ */
+export type UsageTracker = $Result.DefaultSelection<Prisma.$UsageTrackerPayload>
 
 /**
  * Enums
@@ -59,10 +69,39 @@ export type AccountProvider = (typeof AccountProvider)[keyof typeof AccountProvi
 
 export const VerificationIdentifier: {
   PASSWORD: 'PASSWORD',
-  EMAIL: 'EMAIL'
+  EMAIL: 'EMAIL',
+  RESET: 'RESET'
 };
 
 export type VerificationIdentifier = (typeof VerificationIdentifier)[keyof typeof VerificationIdentifier]
+
+
+export const SubscriptionPlan: {
+  FREE: 'FREE',
+  PRO: 'PRO'
+};
+
+export type SubscriptionPlan = (typeof SubscriptionPlan)[keyof typeof SubscriptionPlan]
+
+
+export const SubscriptionStatus: {
+  ACTIVE: 'ACTIVE',
+  CANCELED: 'CANCELED',
+  PAST_DUE: 'PAST_DUE',
+  TRIALING: 'TRIALING',
+  INCOMPLETE: 'INCOMPLETE'
+};
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
+
+
+export const UsageFeature: {
+  AI_INSIGHTS_QUERIES: 'AI_INSIGHTS_QUERIES',
+  AI_CHAT_MESSAGES: 'AI_CHAT_MESSAGES',
+  RECEIPT_UPLOADS: 'RECEIPT_UPLOADS'
+};
+
+export type UsageFeature = (typeof UsageFeature)[keyof typeof UsageFeature]
 
 }
 
@@ -77,6 +116,18 @@ export const AccountProvider: typeof $Enums.AccountProvider
 export type VerificationIdentifier = $Enums.VerificationIdentifier
 
 export const VerificationIdentifier: typeof $Enums.VerificationIdentifier
+
+export type SubscriptionPlan = $Enums.SubscriptionPlan
+
+export const SubscriptionPlan: typeof $Enums.SubscriptionPlan
+
+export type SubscriptionStatus = $Enums.SubscriptionStatus
+
+export const SubscriptionStatus: typeof $Enums.SubscriptionStatus
+
+export type UsageFeature = $Enums.UsageFeature
+
+export const UsageFeature: typeof $Enums.UsageFeature
 
 /**
  * ##  Prisma Client ʲˢ
@@ -234,6 +285,26 @@ export class PrismaClient<
     * ```
     */
   get verificationToken(): Prisma.VerificationTokenDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.subscription`: Exposes CRUD operations for the **Subscription** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Subscriptions
+    * const subscriptions = await prisma.subscription.findMany()
+    * ```
+    */
+  get subscription(): Prisma.SubscriptionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.usageTracker`: Exposes CRUD operations for the **UsageTracker** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UsageTrackers
+    * const usageTrackers = await prisma.usageTracker.findMany()
+    * ```
+    */
+  get usageTracker(): Prisma.UsageTrackerDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -671,7 +742,9 @@ export namespace Prisma {
     User: 'User',
     Account: 'Account',
     Session: 'Session',
-    VerificationToken: 'VerificationToken'
+    VerificationToken: 'VerificationToken',
+    Subscription: 'Subscription',
+    UsageTracker: 'UsageTracker'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -687,7 +760,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "verificationToken"
+      modelProps: "user" | "account" | "session" | "verificationToken" | "subscription" | "usageTracker"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -987,6 +1060,154 @@ export namespace Prisma {
           }
         }
       }
+      Subscription: {
+        payload: Prisma.$SubscriptionPayload<ExtArgs>
+        fields: Prisma.SubscriptionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SubscriptionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SubscriptionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          findFirst: {
+            args: Prisma.SubscriptionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SubscriptionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          findMany: {
+            args: Prisma.SubscriptionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+          }
+          create: {
+            args: Prisma.SubscriptionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          createMany: {
+            args: Prisma.SubscriptionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SubscriptionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+          }
+          delete: {
+            args: Prisma.SubscriptionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          update: {
+            args: Prisma.SubscriptionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          deleteMany: {
+            args: Prisma.SubscriptionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SubscriptionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SubscriptionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+          }
+          upsert: {
+            args: Prisma.SubscriptionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+          }
+          aggregate: {
+            args: Prisma.SubscriptionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSubscription>
+          }
+          groupBy: {
+            args: Prisma.SubscriptionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SubscriptionCountArgs<ExtArgs>
+            result: $Utils.Optional<SubscriptionCountAggregateOutputType> | number
+          }
+        }
+      }
+      UsageTracker: {
+        payload: Prisma.$UsageTrackerPayload<ExtArgs>
+        fields: Prisma.UsageTrackerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UsageTrackerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UsageTrackerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          findFirst: {
+            args: Prisma.UsageTrackerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UsageTrackerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          findMany: {
+            args: Prisma.UsageTrackerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>[]
+          }
+          create: {
+            args: Prisma.UsageTrackerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          createMany: {
+            args: Prisma.UsageTrackerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UsageTrackerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>[]
+          }
+          delete: {
+            args: Prisma.UsageTrackerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          update: {
+            args: Prisma.UsageTrackerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          deleteMany: {
+            args: Prisma.UsageTrackerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UsageTrackerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UsageTrackerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>[]
+          }
+          upsert: {
+            args: Prisma.UsageTrackerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsageTrackerPayload>
+          }
+          aggregate: {
+            args: Prisma.UsageTrackerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUsageTracker>
+          }
+          groupBy: {
+            args: Prisma.UsageTrackerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UsageTrackerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UsageTrackerCountArgs<ExtArgs>
+            result: $Utils.Optional<UsageTrackerCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1099,6 +1320,8 @@ export namespace Prisma {
     account?: AccountOmit
     session?: SessionOmit
     verificationToken?: VerificationTokenOmit
+    subscription?: SubscriptionOmit
+    usageTracker?: UsageTrackerOmit
   }
 
   /* Types for Logging */
@@ -1181,11 +1404,13 @@ export namespace Prisma {
   export type UserCountOutputType = {
     accounts: number
     sessions: number
+    usageTrackers: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+    usageTrackers?: boolean | UserCountOutputTypeCountUsageTrackersArgs
   }
 
   // Custom InputTypes
@@ -1211,6 +1436,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUsageTrackersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UsageTrackerWhereInput
   }
 
 
@@ -1248,6 +1480,7 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     avatar: string | null
+    lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1262,6 +1495,7 @@ export namespace Prisma {
     firstName: string | null
     lastName: string | null
     avatar: string | null
+    lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1276,6 +1510,7 @@ export namespace Prisma {
     firstName: number
     lastName: number
     avatar: number
+    lastLoginAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1300,6 +1535,7 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     avatar?: true
+    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1314,6 +1550,7 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     avatar?: true
+    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1328,6 +1565,7 @@ export namespace Prisma {
     firstName?: true
     lastName?: true
     avatar?: true
+    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1429,6 +1667,7 @@ export namespace Prisma {
     firstName: string
     lastName: string
     avatar: string | null
+    lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1462,10 +1701,13 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     avatar?: boolean
+    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    subscription?: boolean | User$subscriptionArgs<ExtArgs>
+    usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1479,6 +1721,7 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     avatar?: boolean
+    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1493,6 +1736,7 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     avatar?: boolean
+    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1507,14 +1751,17 @@ export namespace Prisma {
     firstName?: boolean
     lastName?: boolean
     avatar?: boolean
+    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    subscription?: boolean | User$subscriptionArgs<ExtArgs>
+    usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1525,6 +1772,8 @@ export namespace Prisma {
     objects: {
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       sessions: Prisma.$SessionPayload<ExtArgs>[]
+      subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+      usageTrackers: Prisma.$UsageTrackerPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1536,6 +1785,7 @@ export namespace Prisma {
       firstName: string
       lastName: string
       avatar: string | null
+      lastLoginAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -1934,6 +2184,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subscription<T extends User$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    usageTrackers<T extends User$usageTrackersArgs<ExtArgs> = {}>(args?: Subset<T, User$usageTrackersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1972,6 +2224,7 @@ export namespace Prisma {
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
     readonly avatar: FieldRef<"User", 'String'>
+    readonly lastLoginAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -2407,6 +2660,49 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SessionScalarFieldEnum | SessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.subscription
+   */
+  export type User$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    where?: SubscriptionWhereInput
+  }
+
+  /**
+   * User.usageTrackers
+   */
+  export type User$usageTrackersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    where?: UsageTrackerWhereInput
+    orderBy?: UsageTrackerOrderByWithRelationInput | UsageTrackerOrderByWithRelationInput[]
+    cursor?: UsageTrackerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UsageTrackerScalarFieldEnum | UsageTrackerScalarFieldEnum[]
   }
 
   /**
@@ -3600,6 +3896,11 @@ export namespace Prisma {
     sessionToken: string | null
     userId: string | null
     expires: Date | null
+    deviceId: string | null
+    userAgent: string | null
+    ipAddress: string | null
+    location: string | null
+    lastUsedAt: Date | null
     createdAt: Date | null
   }
 
@@ -3608,6 +3909,11 @@ export namespace Prisma {
     sessionToken: string | null
     userId: string | null
     expires: Date | null
+    deviceId: string | null
+    userAgent: string | null
+    ipAddress: string | null
+    location: string | null
+    lastUsedAt: Date | null
     createdAt: Date | null
   }
 
@@ -3616,6 +3922,11 @@ export namespace Prisma {
     sessionToken: number
     userId: number
     expires: number
+    deviceId: number
+    userAgent: number
+    ipAddress: number
+    location: number
+    lastUsedAt: number
     createdAt: number
     _all: number
   }
@@ -3626,6 +3937,11 @@ export namespace Prisma {
     sessionToken?: true
     userId?: true
     expires?: true
+    deviceId?: true
+    userAgent?: true
+    ipAddress?: true
+    location?: true
+    lastUsedAt?: true
     createdAt?: true
   }
 
@@ -3634,6 +3950,11 @@ export namespace Prisma {
     sessionToken?: true
     userId?: true
     expires?: true
+    deviceId?: true
+    userAgent?: true
+    ipAddress?: true
+    location?: true
+    lastUsedAt?: true
     createdAt?: true
   }
 
@@ -3642,6 +3963,11 @@ export namespace Prisma {
     sessionToken?: true
     userId?: true
     expires?: true
+    deviceId?: true
+    userAgent?: true
+    ipAddress?: true
+    location?: true
+    lastUsedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -3723,6 +4049,11 @@ export namespace Prisma {
     sessionToken: string
     userId: string
     expires: Date
+    deviceId: string
+    userAgent: string | null
+    ipAddress: string | null
+    location: string | null
+    lastUsedAt: Date
     createdAt: Date
     _count: SessionCountAggregateOutputType | null
     _min: SessionMinAggregateOutputType | null
@@ -3748,6 +4079,11 @@ export namespace Prisma {
     sessionToken?: boolean
     userId?: boolean
     expires?: boolean
+    deviceId?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    location?: boolean
+    lastUsedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
@@ -3757,6 +4093,11 @@ export namespace Prisma {
     sessionToken?: boolean
     userId?: boolean
     expires?: boolean
+    deviceId?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    location?: boolean
+    lastUsedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
@@ -3766,6 +4107,11 @@ export namespace Prisma {
     sessionToken?: boolean
     userId?: boolean
     expires?: boolean
+    deviceId?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    location?: boolean
+    lastUsedAt?: boolean
     createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
@@ -3775,10 +4121,15 @@ export namespace Prisma {
     sessionToken?: boolean
     userId?: boolean
     expires?: boolean
+    deviceId?: boolean
+    userAgent?: boolean
+    ipAddress?: boolean
+    location?: boolean
+    lastUsedAt?: boolean
     createdAt?: boolean
   }
 
-  export type SessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionToken" | "userId" | "expires" | "createdAt", ExtArgs["result"]["session"]>
+  export type SessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionToken" | "userId" | "expires" | "deviceId" | "userAgent" | "ipAddress" | "location" | "lastUsedAt" | "createdAt", ExtArgs["result"]["session"]>
   export type SessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -3799,6 +4150,11 @@ export namespace Prisma {
       sessionToken: string
       userId: string
       expires: Date
+      deviceId: string
+      userAgent: string | null
+      ipAddress: string | null
+      location: string | null
+      lastUsedAt: Date
       createdAt: Date
     }, ExtArgs["result"]["session"]>
     composites: {}
@@ -4228,6 +4584,11 @@ export namespace Prisma {
     readonly sessionToken: FieldRef<"Session", 'String'>
     readonly userId: FieldRef<"Session", 'String'>
     readonly expires: FieldRef<"Session", 'DateTime'>
+    readonly deviceId: FieldRef<"Session", 'String'>
+    readonly userAgent: FieldRef<"Session", 'String'>
+    readonly ipAddress: FieldRef<"Session", 'String'>
+    readonly location: FieldRef<"Session", 'String'>
+    readonly lastUsedAt: FieldRef<"Session", 'DateTime'>
     readonly createdAt: FieldRef<"Session", 'DateTime'>
   }
     
@@ -5652,6 +6013,2286 @@ export namespace Prisma {
 
 
   /**
+   * Model Subscription
+   */
+
+  export type AggregateSubscription = {
+    _count: SubscriptionCountAggregateOutputType | null
+    _min: SubscriptionMinAggregateOutputType | null
+    _max: SubscriptionMaxAggregateOutputType | null
+  }
+
+  export type SubscriptionMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    stripePriceId: string | null
+    stripeCurrentPeriodStart: Date | null
+    stripeCurrentPeriodEnd: Date | null
+    stripeCancelAtPeriodEnd: boolean | null
+    status: $Enums.SubscriptionStatus | null
+    plan: $Enums.SubscriptionPlan | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    stripePriceId: string | null
+    stripeCurrentPeriodStart: Date | null
+    stripeCurrentPeriodEnd: Date | null
+    stripeCancelAtPeriodEnd: boolean | null
+    status: $Enums.SubscriptionStatus | null
+    plan: $Enums.SubscriptionPlan | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubscriptionCountAggregateOutputType = {
+    id: number
+    userId: number
+    stripeCustomerId: number
+    stripeSubscriptionId: number
+    stripePriceId: number
+    stripeCurrentPeriodStart: number
+    stripeCurrentPeriodEnd: number
+    stripeCancelAtPeriodEnd: number
+    status: number
+    plan: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SubscriptionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    stripePriceId?: true
+    stripeCurrentPeriodStart?: true
+    stripeCurrentPeriodEnd?: true
+    stripeCancelAtPeriodEnd?: true
+    status?: true
+    plan?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    stripePriceId?: true
+    stripeCurrentPeriodStart?: true
+    stripeCurrentPeriodEnd?: true
+    stripeCancelAtPeriodEnd?: true
+    status?: true
+    plan?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SubscriptionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    stripeCustomerId?: true
+    stripeSubscriptionId?: true
+    stripePriceId?: true
+    stripeCurrentPeriodStart?: true
+    stripeCurrentPeriodEnd?: true
+    stripeCancelAtPeriodEnd?: true
+    status?: true
+    plan?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SubscriptionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Subscription to aggregate.
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Subscriptions to fetch.
+     */
+    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Subscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Subscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Subscriptions
+    **/
+    _count?: true | SubscriptionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SubscriptionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SubscriptionMaxAggregateInputType
+  }
+
+  export type GetSubscriptionAggregateType<T extends SubscriptionAggregateArgs> = {
+        [P in keyof T & keyof AggregateSubscription]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSubscription[P]>
+      : GetScalarType<T[P], AggregateSubscription[P]>
+  }
+
+
+
+
+  export type SubscriptionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubscriptionWhereInput
+    orderBy?: SubscriptionOrderByWithAggregationInput | SubscriptionOrderByWithAggregationInput[]
+    by: SubscriptionScalarFieldEnum[] | SubscriptionScalarFieldEnum
+    having?: SubscriptionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SubscriptionCountAggregateInputType | true
+    _min?: SubscriptionMinAggregateInputType
+    _max?: SubscriptionMaxAggregateInputType
+  }
+
+  export type SubscriptionGroupByOutputType = {
+    id: string
+    userId: string
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    stripePriceId: string | null
+    stripeCurrentPeriodStart: Date | null
+    stripeCurrentPeriodEnd: Date | null
+    stripeCancelAtPeriodEnd: boolean
+    status: $Enums.SubscriptionStatus
+    plan: $Enums.SubscriptionPlan
+    createdAt: Date
+    updatedAt: Date
+    _count: SubscriptionCountAggregateOutputType | null
+    _min: SubscriptionMinAggregateOutputType | null
+    _max: SubscriptionMaxAggregateOutputType | null
+  }
+
+  type GetSubscriptionGroupByPayload<T extends SubscriptionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SubscriptionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SubscriptionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SubscriptionGroupByOutputType[P]>
+            : GetScalarType<T[P], SubscriptionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    stripePriceId?: boolean
+    stripeCurrentPeriodStart?: boolean
+    stripeCurrentPeriodEnd?: boolean
+    stripeCancelAtPeriodEnd?: boolean
+    status?: boolean
+    plan?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscription"]>
+
+  export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    stripePriceId?: boolean
+    stripeCurrentPeriodStart?: boolean
+    stripeCurrentPeriodEnd?: boolean
+    stripeCancelAtPeriodEnd?: boolean
+    status?: boolean
+    plan?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscription"]>
+
+  export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    stripePriceId?: boolean
+    stripeCurrentPeriodStart?: boolean
+    stripeCurrentPeriodEnd?: boolean
+    stripeCancelAtPeriodEnd?: boolean
+    status?: boolean
+    plan?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subscription"]>
+
+  export type SubscriptionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    stripeCustomerId?: boolean
+    stripeSubscriptionId?: boolean
+    stripePriceId?: boolean
+    stripeCurrentPeriodStart?: boolean
+    stripeCurrentPeriodEnd?: boolean
+    stripeCancelAtPeriodEnd?: boolean
+    status?: boolean
+    plan?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeCurrentPeriodStart" | "stripeCurrentPeriodEnd" | "stripeCancelAtPeriodEnd" | "status" | "plan" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type SubscriptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type SubscriptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $SubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Subscription"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      stripeCustomerId: string | null
+      stripeSubscriptionId: string | null
+      stripePriceId: string | null
+      stripeCurrentPeriodStart: Date | null
+      stripeCurrentPeriodEnd: Date | null
+      stripeCancelAtPeriodEnd: boolean
+      status: $Enums.SubscriptionStatus
+      plan: $Enums.SubscriptionPlan
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["subscription"]>
+    composites: {}
+  }
+
+  type SubscriptionGetPayload<S extends boolean | null | undefined | SubscriptionDefaultArgs> = $Result.GetResult<Prisma.$SubscriptionPayload, S>
+
+  type SubscriptionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SubscriptionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SubscriptionCountAggregateInputType | true
+    }
+
+  export interface SubscriptionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Subscription'], meta: { name: 'Subscription' } }
+    /**
+     * Find zero or one Subscription that matches the filter.
+     * @param {SubscriptionFindUniqueArgs} args - Arguments to find a Subscription
+     * @example
+     * // Get one Subscription
+     * const subscription = await prisma.subscription.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SubscriptionFindUniqueArgs>(args: SelectSubset<T, SubscriptionFindUniqueArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Subscription that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SubscriptionFindUniqueOrThrowArgs} args - Arguments to find a Subscription
+     * @example
+     * // Get one Subscription
+     * const subscription = await prisma.subscription.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SubscriptionFindUniqueOrThrowArgs>(args: SelectSubset<T, SubscriptionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Subscription that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionFindFirstArgs} args - Arguments to find a Subscription
+     * @example
+     * // Get one Subscription
+     * const subscription = await prisma.subscription.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SubscriptionFindFirstArgs>(args?: SelectSubset<T, SubscriptionFindFirstArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Subscription that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionFindFirstOrThrowArgs} args - Arguments to find a Subscription
+     * @example
+     * // Get one Subscription
+     * const subscription = await prisma.subscription.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SubscriptionFindFirstOrThrowArgs>(args?: SelectSubset<T, SubscriptionFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Subscriptions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Subscriptions
+     * const subscriptions = await prisma.subscription.findMany()
+     * 
+     * // Get first 10 Subscriptions
+     * const subscriptions = await prisma.subscription.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const subscriptionWithIdOnly = await prisma.subscription.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SubscriptionFindManyArgs>(args?: SelectSubset<T, SubscriptionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Subscription.
+     * @param {SubscriptionCreateArgs} args - Arguments to create a Subscription.
+     * @example
+     * // Create one Subscription
+     * const Subscription = await prisma.subscription.create({
+     *   data: {
+     *     // ... data to create a Subscription
+     *   }
+     * })
+     * 
+     */
+    create<T extends SubscriptionCreateArgs>(args: SelectSubset<T, SubscriptionCreateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Subscriptions.
+     * @param {SubscriptionCreateManyArgs} args - Arguments to create many Subscriptions.
+     * @example
+     * // Create many Subscriptions
+     * const subscription = await prisma.subscription.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SubscriptionCreateManyArgs>(args?: SelectSubset<T, SubscriptionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Subscriptions and returns the data saved in the database.
+     * @param {SubscriptionCreateManyAndReturnArgs} args - Arguments to create many Subscriptions.
+     * @example
+     * // Create many Subscriptions
+     * const subscription = await prisma.subscription.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Subscriptions and only return the `id`
+     * const subscriptionWithIdOnly = await prisma.subscription.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SubscriptionCreateManyAndReturnArgs>(args?: SelectSubset<T, SubscriptionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Subscription.
+     * @param {SubscriptionDeleteArgs} args - Arguments to delete one Subscription.
+     * @example
+     * // Delete one Subscription
+     * const Subscription = await prisma.subscription.delete({
+     *   where: {
+     *     // ... filter to delete one Subscription
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SubscriptionDeleteArgs>(args: SelectSubset<T, SubscriptionDeleteArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Subscription.
+     * @param {SubscriptionUpdateArgs} args - Arguments to update one Subscription.
+     * @example
+     * // Update one Subscription
+     * const subscription = await prisma.subscription.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SubscriptionUpdateArgs>(args: SelectSubset<T, SubscriptionUpdateArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Subscriptions.
+     * @param {SubscriptionDeleteManyArgs} args - Arguments to filter Subscriptions to delete.
+     * @example
+     * // Delete a few Subscriptions
+     * const { count } = await prisma.subscription.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SubscriptionDeleteManyArgs>(args?: SelectSubset<T, SubscriptionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Subscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Subscriptions
+     * const subscription = await prisma.subscription.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SubscriptionUpdateManyArgs>(args: SelectSubset<T, SubscriptionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Subscriptions and returns the data updated in the database.
+     * @param {SubscriptionUpdateManyAndReturnArgs} args - Arguments to update many Subscriptions.
+     * @example
+     * // Update many Subscriptions
+     * const subscription = await prisma.subscription.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Subscriptions and only return the `id`
+     * const subscriptionWithIdOnly = await prisma.subscription.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SubscriptionUpdateManyAndReturnArgs>(args: SelectSubset<T, SubscriptionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Subscription.
+     * @param {SubscriptionUpsertArgs} args - Arguments to update or create a Subscription.
+     * @example
+     * // Update or create a Subscription
+     * const subscription = await prisma.subscription.upsert({
+     *   create: {
+     *     // ... data to create a Subscription
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Subscription we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SubscriptionUpsertArgs>(args: SelectSubset<T, SubscriptionUpsertArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Subscriptions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionCountArgs} args - Arguments to filter Subscriptions to count.
+     * @example
+     * // Count the number of Subscriptions
+     * const count = await prisma.subscription.count({
+     *   where: {
+     *     // ... the filter for the Subscriptions we want to count
+     *   }
+     * })
+    **/
+    count<T extends SubscriptionCountArgs>(
+      args?: Subset<T, SubscriptionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SubscriptionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Subscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SubscriptionAggregateArgs>(args: Subset<T, SubscriptionAggregateArgs>): Prisma.PrismaPromise<GetSubscriptionAggregateType<T>>
+
+    /**
+     * Group by Subscription.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubscriptionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SubscriptionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SubscriptionGroupByArgs['orderBy'] }
+        : { orderBy?: SubscriptionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SubscriptionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSubscriptionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Subscription model
+   */
+  readonly fields: SubscriptionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Subscription.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Subscription model
+   */
+  interface SubscriptionFieldRefs {
+    readonly id: FieldRef<"Subscription", 'String'>
+    readonly userId: FieldRef<"Subscription", 'String'>
+    readonly stripeCustomerId: FieldRef<"Subscription", 'String'>
+    readonly stripeSubscriptionId: FieldRef<"Subscription", 'String'>
+    readonly stripePriceId: FieldRef<"Subscription", 'String'>
+    readonly stripeCurrentPeriodStart: FieldRef<"Subscription", 'DateTime'>
+    readonly stripeCurrentPeriodEnd: FieldRef<"Subscription", 'DateTime'>
+    readonly stripeCancelAtPeriodEnd: FieldRef<"Subscription", 'Boolean'>
+    readonly status: FieldRef<"Subscription", 'SubscriptionStatus'>
+    readonly plan: FieldRef<"Subscription", 'SubscriptionPlan'>
+    readonly createdAt: FieldRef<"Subscription", 'DateTime'>
+    readonly updatedAt: FieldRef<"Subscription", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Subscription findUnique
+   */
+  export type SubscriptionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which Subscription to fetch.
+     */
+    where: SubscriptionWhereUniqueInput
+  }
+
+  /**
+   * Subscription findUniqueOrThrow
+   */
+  export type SubscriptionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which Subscription to fetch.
+     */
+    where: SubscriptionWhereUniqueInput
+  }
+
+  /**
+   * Subscription findFirst
+   */
+  export type SubscriptionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which Subscription to fetch.
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Subscriptions to fetch.
+     */
+    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Subscriptions.
+     */
+    cursor?: SubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Subscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Subscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Subscriptions.
+     */
+    distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Subscription findFirstOrThrow
+   */
+  export type SubscriptionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which Subscription to fetch.
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Subscriptions to fetch.
+     */
+    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Subscriptions.
+     */
+    cursor?: SubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Subscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Subscriptions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Subscriptions.
+     */
+    distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Subscription findMany
+   */
+  export type SubscriptionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter, which Subscriptions to fetch.
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Subscriptions to fetch.
+     */
+    orderBy?: SubscriptionOrderByWithRelationInput | SubscriptionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Subscriptions.
+     */
+    cursor?: SubscriptionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Subscriptions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Subscriptions.
+     */
+    skip?: number
+    distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Subscription create
+   */
+  export type SubscriptionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Subscription.
+     */
+    data: XOR<SubscriptionCreateInput, SubscriptionUncheckedCreateInput>
+  }
+
+  /**
+   * Subscription createMany
+   */
+  export type SubscriptionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Subscriptions.
+     */
+    data: SubscriptionCreateManyInput | SubscriptionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Subscription createManyAndReturn
+   */
+  export type SubscriptionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Subscriptions.
+     */
+    data: SubscriptionCreateManyInput | SubscriptionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Subscription update
+   */
+  export type SubscriptionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Subscription.
+     */
+    data: XOR<SubscriptionUpdateInput, SubscriptionUncheckedUpdateInput>
+    /**
+     * Choose, which Subscription to update.
+     */
+    where: SubscriptionWhereUniqueInput
+  }
+
+  /**
+   * Subscription updateMany
+   */
+  export type SubscriptionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Subscriptions.
+     */
+    data: XOR<SubscriptionUpdateManyMutationInput, SubscriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which Subscriptions to update
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * Limit how many Subscriptions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Subscription updateManyAndReturn
+   */
+  export type SubscriptionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * The data used to update Subscriptions.
+     */
+    data: XOR<SubscriptionUpdateManyMutationInput, SubscriptionUncheckedUpdateManyInput>
+    /**
+     * Filter which Subscriptions to update
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * Limit how many Subscriptions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Subscription upsert
+   */
+  export type SubscriptionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Subscription to update in case it exists.
+     */
+    where: SubscriptionWhereUniqueInput
+    /**
+     * In case the Subscription found by the `where` argument doesn't exist, create a new Subscription with this data.
+     */
+    create: XOR<SubscriptionCreateInput, SubscriptionUncheckedCreateInput>
+    /**
+     * In case the Subscription was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SubscriptionUpdateInput, SubscriptionUncheckedUpdateInput>
+  }
+
+  /**
+   * Subscription delete
+   */
+  export type SubscriptionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    /**
+     * Filter which Subscription to delete.
+     */
+    where: SubscriptionWhereUniqueInput
+  }
+
+  /**
+   * Subscription deleteMany
+   */
+  export type SubscriptionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Subscriptions to delete
+     */
+    where?: SubscriptionWhereInput
+    /**
+     * Limit how many Subscriptions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Subscription without action
+   */
+  export type SubscriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UsageTracker
+   */
+
+  export type AggregateUsageTracker = {
+    _count: UsageTrackerCountAggregateOutputType | null
+    _avg: UsageTrackerAvgAggregateOutputType | null
+    _sum: UsageTrackerSumAggregateOutputType | null
+    _min: UsageTrackerMinAggregateOutputType | null
+    _max: UsageTrackerMaxAggregateOutputType | null
+  }
+
+  export type UsageTrackerAvgAggregateOutputType = {
+    count: number | null
+  }
+
+  export type UsageTrackerSumAggregateOutputType = {
+    count: number | null
+  }
+
+  export type UsageTrackerMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    feature: $Enums.UsageFeature | null
+    count: number | null
+    periodStart: Date | null
+    periodEnd: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UsageTrackerMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    feature: $Enums.UsageFeature | null
+    count: number | null
+    periodStart: Date | null
+    periodEnd: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UsageTrackerCountAggregateOutputType = {
+    id: number
+    userId: number
+    feature: number
+    count: number
+    periodStart: number
+    periodEnd: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UsageTrackerAvgAggregateInputType = {
+    count?: true
+  }
+
+  export type UsageTrackerSumAggregateInputType = {
+    count?: true
+  }
+
+  export type UsageTrackerMinAggregateInputType = {
+    id?: true
+    userId?: true
+    feature?: true
+    count?: true
+    periodStart?: true
+    periodEnd?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UsageTrackerMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    feature?: true
+    count?: true
+    periodStart?: true
+    periodEnd?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UsageTrackerCountAggregateInputType = {
+    id?: true
+    userId?: true
+    feature?: true
+    count?: true
+    periodStart?: true
+    periodEnd?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UsageTrackerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UsageTracker to aggregate.
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsageTrackers to fetch.
+     */
+    orderBy?: UsageTrackerOrderByWithRelationInput | UsageTrackerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UsageTrackerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsageTrackers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsageTrackers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UsageTrackers
+    **/
+    _count?: true | UsageTrackerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UsageTrackerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UsageTrackerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UsageTrackerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UsageTrackerMaxAggregateInputType
+  }
+
+  export type GetUsageTrackerAggregateType<T extends UsageTrackerAggregateArgs> = {
+        [P in keyof T & keyof AggregateUsageTracker]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUsageTracker[P]>
+      : GetScalarType<T[P], AggregateUsageTracker[P]>
+  }
+
+
+
+
+  export type UsageTrackerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UsageTrackerWhereInput
+    orderBy?: UsageTrackerOrderByWithAggregationInput | UsageTrackerOrderByWithAggregationInput[]
+    by: UsageTrackerScalarFieldEnum[] | UsageTrackerScalarFieldEnum
+    having?: UsageTrackerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UsageTrackerCountAggregateInputType | true
+    _avg?: UsageTrackerAvgAggregateInputType
+    _sum?: UsageTrackerSumAggregateInputType
+    _min?: UsageTrackerMinAggregateInputType
+    _max?: UsageTrackerMaxAggregateInputType
+  }
+
+  export type UsageTrackerGroupByOutputType = {
+    id: string
+    userId: string
+    feature: $Enums.UsageFeature
+    count: number
+    periodStart: Date
+    periodEnd: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: UsageTrackerCountAggregateOutputType | null
+    _avg: UsageTrackerAvgAggregateOutputType | null
+    _sum: UsageTrackerSumAggregateOutputType | null
+    _min: UsageTrackerMinAggregateOutputType | null
+    _max: UsageTrackerMaxAggregateOutputType | null
+  }
+
+  type GetUsageTrackerGroupByPayload<T extends UsageTrackerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UsageTrackerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UsageTrackerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UsageTrackerGroupByOutputType[P]>
+            : GetScalarType<T[P], UsageTrackerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UsageTrackerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    feature?: boolean
+    count?: boolean
+    periodStart?: boolean
+    periodEnd?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["usageTracker"]>
+
+  export type UsageTrackerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    feature?: boolean
+    count?: boolean
+    periodStart?: boolean
+    periodEnd?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["usageTracker"]>
+
+  export type UsageTrackerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    feature?: boolean
+    count?: boolean
+    periodStart?: boolean
+    periodEnd?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["usageTracker"]>
+
+  export type UsageTrackerSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    feature?: boolean
+    count?: boolean
+    periodStart?: boolean
+    periodEnd?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UsageTrackerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "feature" | "count" | "periodStart" | "periodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["usageTracker"]>
+  export type UsageTrackerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UsageTrackerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UsageTrackerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UsageTrackerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UsageTracker"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      feature: $Enums.UsageFeature
+      count: number
+      periodStart: Date
+      periodEnd: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["usageTracker"]>
+    composites: {}
+  }
+
+  type UsageTrackerGetPayload<S extends boolean | null | undefined | UsageTrackerDefaultArgs> = $Result.GetResult<Prisma.$UsageTrackerPayload, S>
+
+  type UsageTrackerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UsageTrackerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UsageTrackerCountAggregateInputType | true
+    }
+
+  export interface UsageTrackerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UsageTracker'], meta: { name: 'UsageTracker' } }
+    /**
+     * Find zero or one UsageTracker that matches the filter.
+     * @param {UsageTrackerFindUniqueArgs} args - Arguments to find a UsageTracker
+     * @example
+     * // Get one UsageTracker
+     * const usageTracker = await prisma.usageTracker.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UsageTrackerFindUniqueArgs>(args: SelectSubset<T, UsageTrackerFindUniqueArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UsageTracker that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UsageTrackerFindUniqueOrThrowArgs} args - Arguments to find a UsageTracker
+     * @example
+     * // Get one UsageTracker
+     * const usageTracker = await prisma.usageTracker.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UsageTrackerFindUniqueOrThrowArgs>(args: SelectSubset<T, UsageTrackerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UsageTracker that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerFindFirstArgs} args - Arguments to find a UsageTracker
+     * @example
+     * // Get one UsageTracker
+     * const usageTracker = await prisma.usageTracker.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UsageTrackerFindFirstArgs>(args?: SelectSubset<T, UsageTrackerFindFirstArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UsageTracker that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerFindFirstOrThrowArgs} args - Arguments to find a UsageTracker
+     * @example
+     * // Get one UsageTracker
+     * const usageTracker = await prisma.usageTracker.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UsageTrackerFindFirstOrThrowArgs>(args?: SelectSubset<T, UsageTrackerFindFirstOrThrowArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UsageTrackers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UsageTrackers
+     * const usageTrackers = await prisma.usageTracker.findMany()
+     * 
+     * // Get first 10 UsageTrackers
+     * const usageTrackers = await prisma.usageTracker.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const usageTrackerWithIdOnly = await prisma.usageTracker.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UsageTrackerFindManyArgs>(args?: SelectSubset<T, UsageTrackerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UsageTracker.
+     * @param {UsageTrackerCreateArgs} args - Arguments to create a UsageTracker.
+     * @example
+     * // Create one UsageTracker
+     * const UsageTracker = await prisma.usageTracker.create({
+     *   data: {
+     *     // ... data to create a UsageTracker
+     *   }
+     * })
+     * 
+     */
+    create<T extends UsageTrackerCreateArgs>(args: SelectSubset<T, UsageTrackerCreateArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UsageTrackers.
+     * @param {UsageTrackerCreateManyArgs} args - Arguments to create many UsageTrackers.
+     * @example
+     * // Create many UsageTrackers
+     * const usageTracker = await prisma.usageTracker.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UsageTrackerCreateManyArgs>(args?: SelectSubset<T, UsageTrackerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UsageTrackers and returns the data saved in the database.
+     * @param {UsageTrackerCreateManyAndReturnArgs} args - Arguments to create many UsageTrackers.
+     * @example
+     * // Create many UsageTrackers
+     * const usageTracker = await prisma.usageTracker.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UsageTrackers and only return the `id`
+     * const usageTrackerWithIdOnly = await prisma.usageTracker.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UsageTrackerCreateManyAndReturnArgs>(args?: SelectSubset<T, UsageTrackerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UsageTracker.
+     * @param {UsageTrackerDeleteArgs} args - Arguments to delete one UsageTracker.
+     * @example
+     * // Delete one UsageTracker
+     * const UsageTracker = await prisma.usageTracker.delete({
+     *   where: {
+     *     // ... filter to delete one UsageTracker
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UsageTrackerDeleteArgs>(args: SelectSubset<T, UsageTrackerDeleteArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UsageTracker.
+     * @param {UsageTrackerUpdateArgs} args - Arguments to update one UsageTracker.
+     * @example
+     * // Update one UsageTracker
+     * const usageTracker = await prisma.usageTracker.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UsageTrackerUpdateArgs>(args: SelectSubset<T, UsageTrackerUpdateArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UsageTrackers.
+     * @param {UsageTrackerDeleteManyArgs} args - Arguments to filter UsageTrackers to delete.
+     * @example
+     * // Delete a few UsageTrackers
+     * const { count } = await prisma.usageTracker.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UsageTrackerDeleteManyArgs>(args?: SelectSubset<T, UsageTrackerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UsageTrackers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UsageTrackers
+     * const usageTracker = await prisma.usageTracker.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UsageTrackerUpdateManyArgs>(args: SelectSubset<T, UsageTrackerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UsageTrackers and returns the data updated in the database.
+     * @param {UsageTrackerUpdateManyAndReturnArgs} args - Arguments to update many UsageTrackers.
+     * @example
+     * // Update many UsageTrackers
+     * const usageTracker = await prisma.usageTracker.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UsageTrackers and only return the `id`
+     * const usageTrackerWithIdOnly = await prisma.usageTracker.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UsageTrackerUpdateManyAndReturnArgs>(args: SelectSubset<T, UsageTrackerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UsageTracker.
+     * @param {UsageTrackerUpsertArgs} args - Arguments to update or create a UsageTracker.
+     * @example
+     * // Update or create a UsageTracker
+     * const usageTracker = await prisma.usageTracker.upsert({
+     *   create: {
+     *     // ... data to create a UsageTracker
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UsageTracker we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UsageTrackerUpsertArgs>(args: SelectSubset<T, UsageTrackerUpsertArgs<ExtArgs>>): Prisma__UsageTrackerClient<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UsageTrackers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerCountArgs} args - Arguments to filter UsageTrackers to count.
+     * @example
+     * // Count the number of UsageTrackers
+     * const count = await prisma.usageTracker.count({
+     *   where: {
+     *     // ... the filter for the UsageTrackers we want to count
+     *   }
+     * })
+    **/
+    count<T extends UsageTrackerCountArgs>(
+      args?: Subset<T, UsageTrackerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UsageTrackerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UsageTracker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UsageTrackerAggregateArgs>(args: Subset<T, UsageTrackerAggregateArgs>): Prisma.PrismaPromise<GetUsageTrackerAggregateType<T>>
+
+    /**
+     * Group by UsageTracker.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsageTrackerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UsageTrackerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UsageTrackerGroupByArgs['orderBy'] }
+        : { orderBy?: UsageTrackerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UsageTrackerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUsageTrackerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UsageTracker model
+   */
+  readonly fields: UsageTrackerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UsageTracker.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UsageTrackerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UsageTracker model
+   */
+  interface UsageTrackerFieldRefs {
+    readonly id: FieldRef<"UsageTracker", 'String'>
+    readonly userId: FieldRef<"UsageTracker", 'String'>
+    readonly feature: FieldRef<"UsageTracker", 'UsageFeature'>
+    readonly count: FieldRef<"UsageTracker", 'Int'>
+    readonly periodStart: FieldRef<"UsageTracker", 'DateTime'>
+    readonly periodEnd: FieldRef<"UsageTracker", 'DateTime'>
+    readonly createdAt: FieldRef<"UsageTracker", 'DateTime'>
+    readonly updatedAt: FieldRef<"UsageTracker", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UsageTracker findUnique
+   */
+  export type UsageTrackerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter, which UsageTracker to fetch.
+     */
+    where: UsageTrackerWhereUniqueInput
+  }
+
+  /**
+   * UsageTracker findUniqueOrThrow
+   */
+  export type UsageTrackerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter, which UsageTracker to fetch.
+     */
+    where: UsageTrackerWhereUniqueInput
+  }
+
+  /**
+   * UsageTracker findFirst
+   */
+  export type UsageTrackerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter, which UsageTracker to fetch.
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsageTrackers to fetch.
+     */
+    orderBy?: UsageTrackerOrderByWithRelationInput | UsageTrackerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UsageTrackers.
+     */
+    cursor?: UsageTrackerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsageTrackers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsageTrackers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UsageTrackers.
+     */
+    distinct?: UsageTrackerScalarFieldEnum | UsageTrackerScalarFieldEnum[]
+  }
+
+  /**
+   * UsageTracker findFirstOrThrow
+   */
+  export type UsageTrackerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter, which UsageTracker to fetch.
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsageTrackers to fetch.
+     */
+    orderBy?: UsageTrackerOrderByWithRelationInput | UsageTrackerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UsageTrackers.
+     */
+    cursor?: UsageTrackerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsageTrackers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsageTrackers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UsageTrackers.
+     */
+    distinct?: UsageTrackerScalarFieldEnum | UsageTrackerScalarFieldEnum[]
+  }
+
+  /**
+   * UsageTracker findMany
+   */
+  export type UsageTrackerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter, which UsageTrackers to fetch.
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsageTrackers to fetch.
+     */
+    orderBy?: UsageTrackerOrderByWithRelationInput | UsageTrackerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UsageTrackers.
+     */
+    cursor?: UsageTrackerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsageTrackers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsageTrackers.
+     */
+    skip?: number
+    distinct?: UsageTrackerScalarFieldEnum | UsageTrackerScalarFieldEnum[]
+  }
+
+  /**
+   * UsageTracker create
+   */
+  export type UsageTrackerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UsageTracker.
+     */
+    data: XOR<UsageTrackerCreateInput, UsageTrackerUncheckedCreateInput>
+  }
+
+  /**
+   * UsageTracker createMany
+   */
+  export type UsageTrackerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UsageTrackers.
+     */
+    data: UsageTrackerCreateManyInput | UsageTrackerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UsageTracker createManyAndReturn
+   */
+  export type UsageTrackerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * The data used to create many UsageTrackers.
+     */
+    data: UsageTrackerCreateManyInput | UsageTrackerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UsageTracker update
+   */
+  export type UsageTrackerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UsageTracker.
+     */
+    data: XOR<UsageTrackerUpdateInput, UsageTrackerUncheckedUpdateInput>
+    /**
+     * Choose, which UsageTracker to update.
+     */
+    where: UsageTrackerWhereUniqueInput
+  }
+
+  /**
+   * UsageTracker updateMany
+   */
+  export type UsageTrackerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UsageTrackers.
+     */
+    data: XOR<UsageTrackerUpdateManyMutationInput, UsageTrackerUncheckedUpdateManyInput>
+    /**
+     * Filter which UsageTrackers to update
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * Limit how many UsageTrackers to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UsageTracker updateManyAndReturn
+   */
+  export type UsageTrackerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * The data used to update UsageTrackers.
+     */
+    data: XOR<UsageTrackerUpdateManyMutationInput, UsageTrackerUncheckedUpdateManyInput>
+    /**
+     * Filter which UsageTrackers to update
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * Limit how many UsageTrackers to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UsageTracker upsert
+   */
+  export type UsageTrackerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UsageTracker to update in case it exists.
+     */
+    where: UsageTrackerWhereUniqueInput
+    /**
+     * In case the UsageTracker found by the `where` argument doesn't exist, create a new UsageTracker with this data.
+     */
+    create: XOR<UsageTrackerCreateInput, UsageTrackerUncheckedCreateInput>
+    /**
+     * In case the UsageTracker was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UsageTrackerUpdateInput, UsageTrackerUncheckedUpdateInput>
+  }
+
+  /**
+   * UsageTracker delete
+   */
+  export type UsageTrackerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+    /**
+     * Filter which UsageTracker to delete.
+     */
+    where: UsageTrackerWhereUniqueInput
+  }
+
+  /**
+   * UsageTracker deleteMany
+   */
+  export type UsageTrackerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UsageTrackers to delete
+     */
+    where?: UsageTrackerWhereInput
+    /**
+     * Limit how many UsageTrackers to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UsageTracker without action
+   */
+  export type UsageTrackerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsageTracker
+     */
+    select?: UsageTrackerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsageTracker
+     */
+    omit?: UsageTrackerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UsageTrackerInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5675,6 +8316,7 @@ export namespace Prisma {
     firstName: 'firstName',
     lastName: 'lastName',
     avatar: 'avatar',
+    lastLoginAt: 'lastLoginAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5703,6 +8345,11 @@ export namespace Prisma {
     sessionToken: 'sessionToken',
     userId: 'userId',
     expires: 'expires',
+    deviceId: 'deviceId',
+    userAgent: 'userAgent',
+    ipAddress: 'ipAddress',
+    location: 'location',
+    lastUsedAt: 'lastUsedAt',
     createdAt: 'createdAt'
   };
 
@@ -5719,6 +8366,38 @@ export namespace Prisma {
   };
 
   export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFieldEnum)[keyof typeof VerificationTokenScalarFieldEnum]
+
+
+  export const SubscriptionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    stripeCustomerId: 'stripeCustomerId',
+    stripeSubscriptionId: 'stripeSubscriptionId',
+    stripePriceId: 'stripePriceId',
+    stripeCurrentPeriodStart: 'stripeCurrentPeriodStart',
+    stripeCurrentPeriodEnd: 'stripeCurrentPeriodEnd',
+    stripeCancelAtPeriodEnd: 'stripeCancelAtPeriodEnd',
+    status: 'status',
+    plan: 'plan',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+  export const UsageTrackerScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    feature: 'feature',
+    count: 'count',
+    periodStart: 'periodStart',
+    periodEnd: 'periodEnd',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UsageTrackerScalarFieldEnum = (typeof UsageTrackerScalarFieldEnum)[keyof typeof UsageTrackerScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -5842,6 +8521,48 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'SubscriptionStatus'
+   */
+  export type EnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionStatus[]'
+   */
+  export type ListEnumSubscriptionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionPlan'
+   */
+  export type EnumSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPlan'>
+    
+
+
+  /**
+   * Reference to a field of type 'SubscriptionPlan[]'
+   */
+  export type ListEnumSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPlan[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'UsageFeature'
+   */
+  export type EnumUsageFeatureFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageFeature'>
+    
+
+
+  /**
+   * Reference to a field of type 'UsageFeature[]'
+   */
+  export type ListEnumUsageFeatureFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageFeature[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -5871,10 +8592,13 @@ export namespace Prisma {
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
     avatar?: StringNullableFilter<"User"> | string | null
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+    usageTrackers?: UsageTrackerListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -5887,10 +8611,13 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     avatar?: SortOrderInput | SortOrder
+    lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     accounts?: AccountOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
+    subscription?: SubscriptionOrderByWithRelationInput
+    usageTrackers?: UsageTrackerOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -5906,10 +8633,13 @@ export namespace Prisma {
     firstName?: StringFilter<"User"> | string
     lastName?: StringFilter<"User"> | string
     avatar?: StringNullableFilter<"User"> | string | null
+    lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+    usageTrackers?: UsageTrackerListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -5922,6 +8652,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     avatar?: SortOrderInput | SortOrder
+    lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -5944,6 +8675,7 @@ export namespace Prisma {
     firstName?: StringWithAggregatesFilter<"User"> | string
     lastName?: StringWithAggregatesFilter<"User"> | string
     avatar?: StringNullableWithAggregatesFilter<"User"> | string | null
+    lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -6039,6 +8771,11 @@ export namespace Prisma {
     sessionToken?: StringFilter<"Session"> | string
     userId?: StringFilter<"Session"> | string
     expires?: DateTimeFilter<"Session"> | Date | string
+    deviceId?: StringFilter<"Session"> | string
+    userAgent?: StringNullableFilter<"Session"> | string | null
+    ipAddress?: StringNullableFilter<"Session"> | string | null
+    location?: StringNullableFilter<"Session"> | string | null
+    lastUsedAt?: DateTimeFilter<"Session"> | Date | string
     createdAt?: DateTimeFilter<"Session"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -6048,6 +8785,11 @@ export namespace Prisma {
     sessionToken?: SortOrder
     userId?: SortOrder
     expires?: SortOrder
+    deviceId?: SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    location?: SortOrderInput | SortOrder
+    lastUsedAt?: SortOrder
     createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
@@ -6055,20 +8797,31 @@ export namespace Prisma {
   export type SessionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     sessionToken?: string
+    userId_deviceId?: SessionUserIdDeviceIdCompoundUniqueInput
     AND?: SessionWhereInput | SessionWhereInput[]
     OR?: SessionWhereInput[]
     NOT?: SessionWhereInput | SessionWhereInput[]
     userId?: StringFilter<"Session"> | string
     expires?: DateTimeFilter<"Session"> | Date | string
+    deviceId?: StringFilter<"Session"> | string
+    userAgent?: StringNullableFilter<"Session"> | string | null
+    ipAddress?: StringNullableFilter<"Session"> | string | null
+    location?: StringNullableFilter<"Session"> | string | null
+    lastUsedAt?: DateTimeFilter<"Session"> | Date | string
     createdAt?: DateTimeFilter<"Session"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "sessionToken">
+  }, "id" | "sessionToken" | "userId_deviceId">
 
   export type SessionOrderByWithAggregationInput = {
     id?: SortOrder
     sessionToken?: SortOrder
     userId?: SortOrder
     expires?: SortOrder
+    deviceId?: SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    location?: SortOrderInput | SortOrder
+    lastUsedAt?: SortOrder
     createdAt?: SortOrder
     _count?: SessionCountOrderByAggregateInput
     _max?: SessionMaxOrderByAggregateInput
@@ -6083,6 +8836,11 @@ export namespace Prisma {
     sessionToken?: StringWithAggregatesFilter<"Session"> | string
     userId?: StringWithAggregatesFilter<"Session"> | string
     expires?: DateTimeWithAggregatesFilter<"Session"> | Date | string
+    deviceId?: StringWithAggregatesFilter<"Session"> | string
+    userAgent?: StringNullableWithAggregatesFilter<"Session"> | string | null
+    ipAddress?: StringNullableWithAggregatesFilter<"Session"> | string | null
+    location?: StringNullableWithAggregatesFilter<"Session"> | string | null
+    lastUsedAt?: DateTimeWithAggregatesFilter<"Session"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Session"> | Date | string
   }
 
@@ -6144,36 +8902,205 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"VerificationToken"> | Date | string
   }
 
+  export type SubscriptionWhereInput = {
+    AND?: SubscriptionWhereInput | SubscriptionWhereInput[]
+    OR?: SubscriptionWhereInput[]
+    NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
+    id?: StringFilter<"Subscription"> | string
+    userId?: StringFilter<"Subscription"> | string
+    stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
+    stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
+    stripePriceId?: StringNullableFilter<"Subscription"> | string | null
+    stripeCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    stripeCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
+    status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFilter<"Subscription"> | Date | string
+    updatedAt?: DateTimeFilter<"Subscription"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type SubscriptionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
+    stripePriceId?: SortOrderInput | SortOrder
+    stripeCurrentPeriodStart?: SortOrderInput | SortOrder
+    stripeCurrentPeriodEnd?: SortOrderInput | SortOrder
+    stripeCancelAtPeriodEnd?: SortOrder
+    status?: SortOrder
+    plan?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    stripeCustomerId?: string
+    stripeSubscriptionId?: string
+    AND?: SubscriptionWhereInput | SubscriptionWhereInput[]
+    OR?: SubscriptionWhereInput[]
+    NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
+    stripePriceId?: StringNullableFilter<"Subscription"> | string | null
+    stripeCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    stripeCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
+    status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFilter<"Subscription"> | Date | string
+    updatedAt?: DateTimeFilter<"Subscription"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId" | "stripeCustomerId" | "stripeSubscriptionId">
+
+  export type SubscriptionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    stripeCustomerId?: SortOrderInput | SortOrder
+    stripeSubscriptionId?: SortOrderInput | SortOrder
+    stripePriceId?: SortOrderInput | SortOrder
+    stripeCurrentPeriodStart?: SortOrderInput | SortOrder
+    stripeCurrentPeriodEnd?: SortOrderInput | SortOrder
+    stripeCancelAtPeriodEnd?: SortOrder
+    status?: SortOrder
+    plan?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SubscriptionCountOrderByAggregateInput
+    _max?: SubscriptionMaxOrderByAggregateInput
+    _min?: SubscriptionMinOrderByAggregateInput
+  }
+
+  export type SubscriptionScalarWhereWithAggregatesInput = {
+    AND?: SubscriptionScalarWhereWithAggregatesInput | SubscriptionScalarWhereWithAggregatesInput[]
+    OR?: SubscriptionScalarWhereWithAggregatesInput[]
+    NOT?: SubscriptionScalarWhereWithAggregatesInput | SubscriptionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Subscription"> | string
+    userId?: StringWithAggregatesFilter<"Subscription"> | string
+    stripeCustomerId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    stripeSubscriptionId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    stripePriceId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    stripeCurrentPeriodStart?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+    stripeCurrentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolWithAggregatesFilter<"Subscription"> | boolean
+    status?: EnumSubscriptionStatusWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionPlan
+    createdAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
+  }
+
+  export type UsageTrackerWhereInput = {
+    AND?: UsageTrackerWhereInput | UsageTrackerWhereInput[]
+    OR?: UsageTrackerWhereInput[]
+    NOT?: UsageTrackerWhereInput | UsageTrackerWhereInput[]
+    id?: StringFilter<"UsageTracker"> | string
+    userId?: StringFilter<"UsageTracker"> | string
+    feature?: EnumUsageFeatureFilter<"UsageTracker"> | $Enums.UsageFeature
+    count?: IntFilter<"UsageTracker"> | number
+    periodStart?: DateTimeFilter<"UsageTracker"> | Date | string
+    periodEnd?: DateTimeFilter<"UsageTracker"> | Date | string
+    createdAt?: DateTimeFilter<"UsageTracker"> | Date | string
+    updatedAt?: DateTimeFilter<"UsageTracker"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UsageTrackerOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    feature?: SortOrder
+    count?: SortOrder
+    periodStart?: SortOrder
+    periodEnd?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UsageTrackerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_feature_periodStart?: UsageTrackerUserIdFeaturePeriodStartCompoundUniqueInput
+    AND?: UsageTrackerWhereInput | UsageTrackerWhereInput[]
+    OR?: UsageTrackerWhereInput[]
+    NOT?: UsageTrackerWhereInput | UsageTrackerWhereInput[]
+    userId?: StringFilter<"UsageTracker"> | string
+    feature?: EnumUsageFeatureFilter<"UsageTracker"> | $Enums.UsageFeature
+    count?: IntFilter<"UsageTracker"> | number
+    periodStart?: DateTimeFilter<"UsageTracker"> | Date | string
+    periodEnd?: DateTimeFilter<"UsageTracker"> | Date | string
+    createdAt?: DateTimeFilter<"UsageTracker"> | Date | string
+    updatedAt?: DateTimeFilter<"UsageTracker"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_feature_periodStart">
+
+  export type UsageTrackerOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    feature?: SortOrder
+    count?: SortOrder
+    periodStart?: SortOrder
+    periodEnd?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: UsageTrackerCountOrderByAggregateInput
+    _avg?: UsageTrackerAvgOrderByAggregateInput
+    _max?: UsageTrackerMaxOrderByAggregateInput
+    _min?: UsageTrackerMinOrderByAggregateInput
+    _sum?: UsageTrackerSumOrderByAggregateInput
+  }
+
+  export type UsageTrackerScalarWhereWithAggregatesInput = {
+    AND?: UsageTrackerScalarWhereWithAggregatesInput | UsageTrackerScalarWhereWithAggregatesInput[]
+    OR?: UsageTrackerScalarWhereWithAggregatesInput[]
+    NOT?: UsageTrackerScalarWhereWithAggregatesInput | UsageTrackerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UsageTracker"> | string
+    userId?: StringWithAggregatesFilter<"UsageTracker"> | string
+    feature?: EnumUsageFeatureWithAggregatesFilter<"UsageTracker"> | $Enums.UsageFeature
+    count?: IntWithAggregatesFilter<"UsageTracker"> | number
+    periodStart?: DateTimeWithAggregatesFilter<"UsageTracker"> | Date | string
+    periodEnd?: DateTimeWithAggregatesFilter<"UsageTracker"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"UsageTracker"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"UsageTracker"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -6186,10 +9113,13 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -6202,22 +9132,26 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6232,6 +9166,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6246,6 +9181,7 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6344,6 +9280,11 @@ export namespace Prisma {
     id?: string
     sessionToken: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
     user: UserCreateNestedOneWithoutSessionsInput
   }
@@ -6353,6 +9294,11 @@ export namespace Prisma {
     sessionToken: string
     userId: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
   }
 
@@ -6360,6 +9306,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSessionsNestedInput
   }
@@ -6369,6 +9320,11 @@ export namespace Prisma {
     sessionToken?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6377,6 +9333,11 @@ export namespace Prisma {
     sessionToken: string
     userId: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
   }
 
@@ -6384,6 +9345,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6392,6 +9358,11 @@ export namespace Prisma {
     sessionToken?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6456,6 +9427,186 @@ export namespace Prisma {
     token?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionCreateInput = {
+    id?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    stripeCurrentPeriodStart?: Date | string | null
+    stripeCurrentPeriodEnd?: Date | string | null
+    stripeCancelAtPeriodEnd?: boolean
+    status?: $Enums.SubscriptionStatus
+    plan?: $Enums.SubscriptionPlan
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSubscriptionInput
+  }
+
+  export type SubscriptionUncheckedCreateInput = {
+    id?: string
+    userId: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    stripeCurrentPeriodStart?: Date | string | null
+    stripeCurrentPeriodEnd?: Date | string | null
+    stripeCancelAtPeriodEnd?: boolean
+    status?: $Enums.SubscriptionStatus
+    plan?: $Enums.SubscriptionPlan
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSubscriptionNestedInput
+  }
+
+  export type SubscriptionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionCreateManyInput = {
+    id?: string
+    userId: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    stripeCurrentPeriodStart?: Date | string | null
+    stripeCurrentPeriodEnd?: Date | string | null
+    stripeCancelAtPeriodEnd?: boolean
+    status?: $Enums.SubscriptionStatus
+    plan?: $Enums.SubscriptionPlan
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerCreateInput = {
+    id?: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUsageTrackersInput
+  }
+
+  export type UsageTrackerUncheckedCreateInput = {
+    id?: string
+    userId: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UsageTrackerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUsageTrackersNestedInput
+  }
+
+  export type UsageTrackerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerCreateManyInput = {
+    id?: string
+    userId: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UsageTrackerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6538,6 +9689,17 @@ export namespace Prisma {
     none?: SessionWhereInput
   }
 
+  export type SubscriptionNullableScalarRelationFilter = {
+    is?: SubscriptionWhereInput | null
+    isNot?: SubscriptionWhereInput | null
+  }
+
+  export type UsageTrackerListRelationFilter = {
+    every?: UsageTrackerWhereInput
+    some?: UsageTrackerWhereInput
+    none?: UsageTrackerWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -6551,6 +9713,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type UsageTrackerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
@@ -6561,6 +9727,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     avatar?: SortOrder
+    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6579,6 +9746,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     avatar?: SortOrder
+    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6593,6 +9761,7 @@ export namespace Prisma {
     firstName?: SortOrder
     lastName?: SortOrder
     avatar?: SortOrder
+    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6807,11 +9976,21 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type SessionUserIdDeviceIdCompoundUniqueInput = {
+    userId: string
+    deviceId: string
+  }
+
   export type SessionCountOrderByAggregateInput = {
     id?: SortOrder
     sessionToken?: SortOrder
     userId?: SortOrder
     expires?: SortOrder
+    deviceId?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    location?: SortOrder
+    lastUsedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -6820,6 +9999,11 @@ export namespace Prisma {
     sessionToken?: SortOrder
     userId?: SortOrder
     expires?: SortOrder
+    deviceId?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    location?: SortOrder
+    lastUsedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -6828,6 +10012,11 @@ export namespace Prisma {
     sessionToken?: SortOrder
     userId?: SortOrder
     expires?: SortOrder
+    deviceId?: SortOrder
+    userAgent?: SortOrder
+    ipAddress?: SortOrder
+    location?: SortOrder
+    lastUsedAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -6881,6 +10070,149 @@ export namespace Prisma {
     _max?: NestedEnumVerificationIdentifierFilter<$PrismaModel>
   }
 
+  export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
+  export type EnumSubscriptionPlanFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionPlanFilter<$PrismaModel> | $Enums.SubscriptionPlan
+  }
+
+  export type SubscriptionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    stripePriceId?: SortOrder
+    stripeCurrentPeriodStart?: SortOrder
+    stripeCurrentPeriodEnd?: SortOrder
+    stripeCancelAtPeriodEnd?: SortOrder
+    status?: SortOrder
+    plan?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    stripePriceId?: SortOrder
+    stripeCurrentPeriodStart?: SortOrder
+    stripeCurrentPeriodEnd?: SortOrder
+    stripeCancelAtPeriodEnd?: SortOrder
+    status?: SortOrder
+    plan?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubscriptionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    stripeCustomerId?: SortOrder
+    stripeSubscriptionId?: SortOrder
+    stripePriceId?: SortOrder
+    stripeCurrentPeriodStart?: SortOrder
+    stripeCurrentPeriodEnd?: SortOrder
+    stripeCancelAtPeriodEnd?: SortOrder
+    status?: SortOrder
+    plan?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+  }
+
+  export type EnumSubscriptionPlanWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionPlan
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
+  }
+
+  export type EnumUsageFeatureFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsageFeature | EnumUsageFeatureFieldRefInput<$PrismaModel>
+    in?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsageFeatureFilter<$PrismaModel> | $Enums.UsageFeature
+  }
+
+  export type UsageTrackerUserIdFeaturePeriodStartCompoundUniqueInput = {
+    userId: string
+    feature: $Enums.UsageFeature
+    periodStart: Date | string
+  }
+
+  export type UsageTrackerCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    feature?: SortOrder
+    count?: SortOrder
+    periodStart?: SortOrder
+    periodEnd?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UsageTrackerAvgOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type UsageTrackerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    feature?: SortOrder
+    count?: SortOrder
+    periodStart?: SortOrder
+    periodEnd?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UsageTrackerMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    feature?: SortOrder
+    count?: SortOrder
+    periodStart?: SortOrder
+    periodEnd?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UsageTrackerSumOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type EnumUsageFeatureWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsageFeature | EnumUsageFeatureFieldRefInput<$PrismaModel>
+    in?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsageFeatureWithAggregatesFilter<$PrismaModel> | $Enums.UsageFeature
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUsageFeatureFilter<$PrismaModel>
+    _max?: NestedEnumUsageFeatureFilter<$PrismaModel>
+  }
+
   export type AccountCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -6895,6 +10227,19 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type SubscriptionCreateNestedOneWithoutUserInput = {
+    create?: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutUserInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type UsageTrackerCreateNestedManyWithoutUserInput = {
+    create?: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput> | UsageTrackerCreateWithoutUserInput[] | UsageTrackerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UsageTrackerCreateOrConnectWithoutUserInput | UsageTrackerCreateOrConnectWithoutUserInput[]
+    createMany?: UsageTrackerCreateManyUserInputEnvelope
+    connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -6907,6 +10252,19 @@ export namespace Prisma {
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
     createMany?: SessionCreateManyUserInputEnvelope
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
+  }
+
+  export type SubscriptionUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutUserInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type UsageTrackerUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput> | UsageTrackerCreateWithoutUserInput[] | UsageTrackerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UsageTrackerCreateOrConnectWithoutUserInput | UsageTrackerCreateOrConnectWithoutUserInput[]
+    createMany?: UsageTrackerCreateManyUserInputEnvelope
+    connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -6965,6 +10323,30 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
+  export type SubscriptionUpdateOneWithoutUserNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutUserInput
+    upsert?: SubscriptionUpsertWithoutUserInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutUserInput, SubscriptionUpdateWithoutUserInput>, SubscriptionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UsageTrackerUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput> | UsageTrackerCreateWithoutUserInput[] | UsageTrackerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UsageTrackerCreateOrConnectWithoutUserInput | UsageTrackerCreateOrConnectWithoutUserInput[]
+    upsert?: UsageTrackerUpsertWithWhereUniqueWithoutUserInput | UsageTrackerUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UsageTrackerCreateManyUserInputEnvelope
+    set?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    disconnect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    delete?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    update?: UsageTrackerUpdateWithWhereUniqueWithoutUserInput | UsageTrackerUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UsageTrackerUpdateManyWithWhereWithoutUserInput | UsageTrackerUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -6991,6 +10373,30 @@ export namespace Prisma {
     update?: SessionUpdateWithWhereUniqueWithoutUserInput | SessionUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: SessionUpdateManyWithWhereWithoutUserInput | SessionUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
+  }
+
+  export type SubscriptionUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutUserInput
+    upsert?: SubscriptionUpsertWithoutUserInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutUserInput, SubscriptionUpdateWithoutUserInput>, SubscriptionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UsageTrackerUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput> | UsageTrackerCreateWithoutUserInput[] | UsageTrackerUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UsageTrackerCreateOrConnectWithoutUserInput | UsageTrackerCreateOrConnectWithoutUserInput[]
+    upsert?: UsageTrackerUpsertWithWhereUniqueWithoutUserInput | UsageTrackerUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UsageTrackerCreateManyUserInputEnvelope
+    set?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    disconnect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    delete?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+    update?: UsageTrackerUpdateWithWhereUniqueWithoutUserInput | UsageTrackerUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UsageTrackerUpdateManyWithWhereWithoutUserInput | UsageTrackerUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -7039,6 +10445,46 @@ export namespace Prisma {
 
   export type EnumVerificationIdentifierFieldUpdateOperationsInput = {
     set?: $Enums.VerificationIdentifier
+  }
+
+  export type UserCreateNestedOneWithoutSubscriptionInput = {
+    create?: XOR<UserCreateWithoutSubscriptionInput, UserUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSubscriptionInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.SubscriptionStatus
+  }
+
+  export type EnumSubscriptionPlanFieldUpdateOperationsInput = {
+    set?: $Enums.SubscriptionPlan
+  }
+
+  export type UserUpdateOneRequiredWithoutSubscriptionNestedInput = {
+    create?: XOR<UserCreateWithoutSubscriptionInput, UserUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSubscriptionInput
+    upsert?: UserUpsertWithoutSubscriptionInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSubscriptionInput, UserUpdateWithoutSubscriptionInput>, UserUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type UserCreateNestedOneWithoutUsageTrackersInput = {
+    create?: XOR<UserCreateWithoutUsageTrackersInput, UserUncheckedCreateWithoutUsageTrackersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUsageTrackersInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumUsageFeatureFieldUpdateOperationsInput = {
+    set?: $Enums.UsageFeature
+  }
+
+  export type UserUpdateOneRequiredWithoutUsageTrackersNestedInput = {
+    create?: XOR<UserCreateWithoutUsageTrackersInput, UserUncheckedCreateWithoutUsageTrackersInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUsageTrackersInput
+    upsert?: UserUpsertWithoutUsageTrackersInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUsageTrackersInput, UserUpdateWithoutUsageTrackersInput>, UserUncheckedUpdateWithoutUsageTrackersInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -7293,6 +10739,57 @@ export namespace Prisma {
     _max?: NestedEnumVerificationIdentifierFilter<$PrismaModel>
   }
 
+  export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusFilter<$PrismaModel> | $Enums.SubscriptionStatus
+  }
+
+  export type NestedEnumSubscriptionPlanFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionPlanFilter<$PrismaModel> | $Enums.SubscriptionPlan
+  }
+
+  export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
+    not?: NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionPlan
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
+    _max?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
+  }
+
+  export type NestedEnumUsageFeatureFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsageFeature | EnumUsageFeatureFieldRefInput<$PrismaModel>
+    in?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsageFeatureFilter<$PrismaModel> | $Enums.UsageFeature
+  }
+
+  export type NestedEnumUsageFeatureWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsageFeature | EnumUsageFeatureFieldRefInput<$PrismaModel>
+    in?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsageFeature[] | ListEnumUsageFeatureFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsageFeatureWithAggregatesFilter<$PrismaModel> | $Enums.UsageFeature
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUsageFeatureFilter<$PrismaModel>
+    _max?: NestedEnumUsageFeatureFilter<$PrismaModel>
+  }
+
   export type AccountCreateWithoutUserInput = {
     id?: string
     type: $Enums.AccountType
@@ -7331,6 +10828,11 @@ export namespace Prisma {
     id?: string
     sessionToken: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
   }
 
@@ -7338,6 +10840,11 @@ export namespace Prisma {
     id?: string
     sessionToken: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
   }
 
@@ -7348,6 +10855,69 @@ export namespace Prisma {
 
   export type SessionCreateManyUserInputEnvelope = {
     data: SessionCreateManyUserInput | SessionCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SubscriptionCreateWithoutUserInput = {
+    id?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    stripeCurrentPeriodStart?: Date | string | null
+    stripeCurrentPeriodEnd?: Date | string | null
+    stripeCancelAtPeriodEnd?: boolean
+    status?: $Enums.SubscriptionStatus
+    plan?: $Enums.SubscriptionPlan
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionUncheckedCreateWithoutUserInput = {
+    id?: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    stripePriceId?: string | null
+    stripeCurrentPeriodStart?: Date | string | null
+    stripeCurrentPeriodEnd?: Date | string | null
+    stripeCancelAtPeriodEnd?: boolean
+    status?: $Enums.SubscriptionStatus
+    plan?: $Enums.SubscriptionPlan
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionCreateOrConnectWithoutUserInput = {
+    where: SubscriptionWhereUniqueInput
+    create: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+  }
+
+  export type UsageTrackerCreateWithoutUserInput = {
+    id?: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UsageTrackerUncheckedCreateWithoutUserInput = {
+    id?: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UsageTrackerCreateOrConnectWithoutUserInput = {
+    where: UsageTrackerWhereUniqueInput
+    create: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput>
+  }
+
+  export type UsageTrackerCreateManyUserInputEnvelope = {
+    data: UsageTrackerCreateManyUserInput | UsageTrackerCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -7407,37 +10977,117 @@ export namespace Prisma {
     sessionToken?: StringFilter<"Session"> | string
     userId?: StringFilter<"Session"> | string
     expires?: DateTimeFilter<"Session"> | Date | string
+    deviceId?: StringFilter<"Session"> | string
+    userAgent?: StringNullableFilter<"Session"> | string | null
+    ipAddress?: StringNullableFilter<"Session"> | string | null
+    location?: StringNullableFilter<"Session"> | string | null
+    lastUsedAt?: DateTimeFilter<"Session"> | Date | string
     createdAt?: DateTimeFilter<"Session"> | Date | string
+  }
+
+  export type SubscriptionUpsertWithoutUserInput = {
+    update: XOR<SubscriptionUpdateWithoutUserInput, SubscriptionUncheckedUpdateWithoutUserInput>
+    create: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput>
+    where?: SubscriptionWhereInput
+  }
+
+  export type SubscriptionUpdateToOneWithWhereWithoutUserInput = {
+    where?: SubscriptionWhereInput
+    data: XOR<SubscriptionUpdateWithoutUserInput, SubscriptionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SubscriptionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerUpsertWithWhereUniqueWithoutUserInput = {
+    where: UsageTrackerWhereUniqueInput
+    update: XOR<UsageTrackerUpdateWithoutUserInput, UsageTrackerUncheckedUpdateWithoutUserInput>
+    create: XOR<UsageTrackerCreateWithoutUserInput, UsageTrackerUncheckedCreateWithoutUserInput>
+  }
+
+  export type UsageTrackerUpdateWithWhereUniqueWithoutUserInput = {
+    where: UsageTrackerWhereUniqueInput
+    data: XOR<UsageTrackerUpdateWithoutUserInput, UsageTrackerUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UsageTrackerUpdateManyWithWhereWithoutUserInput = {
+    where: UsageTrackerScalarWhereInput
+    data: XOR<UsageTrackerUpdateManyMutationInput, UsageTrackerUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UsageTrackerScalarWhereInput = {
+    AND?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
+    OR?: UsageTrackerScalarWhereInput[]
+    NOT?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
+    id?: StringFilter<"UsageTracker"> | string
+    userId?: StringFilter<"UsageTracker"> | string
+    feature?: EnumUsageFeatureFilter<"UsageTracker"> | $Enums.UsageFeature
+    count?: IntFilter<"UsageTracker"> | number
+    periodStart?: DateTimeFilter<"UsageTracker"> | Date | string
+    periodEnd?: DateTimeFilter<"UsageTracker"> | Date | string
+    createdAt?: DateTimeFilter<"UsageTracker"> | Date | string
+    updatedAt?: DateTimeFilter<"UsageTracker"> | Date | string
   }
 
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -7466,9 +11116,12 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -7481,39 +11134,48 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
     id?: string
     email: string
     password?: string | null
-    loginAttempts: number
+    loginAttempts?: number
     emailVerified?: boolean
     emailVerifiedAt?: Date | string | null
     firstName: string
     lastName: string
     avatar?: string | null
+    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -7542,9 +11204,12 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -7557,9 +11222,188 @@ export namespace Prisma {
     firstName?: StringFieldUpdateOperationsInput | string
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutSubscriptionInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSubscriptionInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSubscriptionInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSubscriptionInput, UserUncheckedCreateWithoutSubscriptionInput>
+  }
+
+  export type UserUpsertWithoutSubscriptionInput = {
+    update: XOR<UserUpdateWithoutSubscriptionInput, UserUncheckedUpdateWithoutSubscriptionInput>
+    create: XOR<UserCreateWithoutSubscriptionInput, UserUncheckedCreateWithoutSubscriptionInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSubscriptionInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSubscriptionInput, UserUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type UserUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUsageTrackersInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUsageTrackersInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUsageTrackersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUsageTrackersInput, UserUncheckedCreateWithoutUsageTrackersInput>
+  }
+
+  export type UserUpsertWithoutUsageTrackersInput = {
+    update: XOR<UserUpdateWithoutUsageTrackersInput, UserUncheckedUpdateWithoutUsageTrackersInput>
+    create: XOR<UserCreateWithoutUsageTrackersInput, UserUncheckedCreateWithoutUsageTrackersInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUsageTrackersInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUsageTrackersInput, UserUncheckedUpdateWithoutUsageTrackersInput>
+  }
+
+  export type UserUpdateWithoutUsageTrackersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUsageTrackersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -7578,7 +11422,22 @@ export namespace Prisma {
     id?: string
     sessionToken: string
     expires: Date | string
+    deviceId?: string
+    userAgent?: string | null
+    ipAddress?: string | null
+    location?: string | null
+    lastUsedAt?: Date | string
     createdAt?: Date | string
+  }
+
+  export type UsageTrackerCreateManyUserInput = {
+    id?: string
+    feature: $Enums.UsageFeature
+    count?: number
+    periodStart: Date | string
+    periodEnd: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type AccountUpdateWithoutUserInput = {
@@ -7621,6 +11480,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7628,6 +11492,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7635,7 +11504,42 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sessionToken?: StringFieldUpdateOperationsInput | string
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    deviceId?: StringFieldUpdateOperationsInput | string
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUsedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsageTrackerUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    feature?: EnumUsageFeatureFieldUpdateOperationsInput | $Enums.UsageFeature
+    count?: IntFieldUpdateOperationsInput | number
+    periodStart?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
