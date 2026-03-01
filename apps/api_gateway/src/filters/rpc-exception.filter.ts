@@ -15,7 +15,10 @@ export class AppExceptionFilter implements ExceptionFilter {
 
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest();
     const response = ctx.getResponse<Response>();
+
+    this.logger.debug('body', request.body);
 
     // 1. Handle HttpExceptions (e.g. from Guards, Pipes, or Controllers)
     if (exception instanceof HttpException) {

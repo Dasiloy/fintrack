@@ -4,15 +4,19 @@ export const AUTH_ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
   VERIFY_EMAIL: '/verify-email',
+  VERIFY_PASSWORD_TOKEN: '/verify-password-token',
 };
 
 export const STATIC_ROUTES = {
   HOME: '/',
   ABOUT: '/about',
+  BLOG: '/blog',
   CONTACT: '/contact',
   PRIVACY: '/privacy',
   TERMS: '/terms',
   PRICING: '/pricing',
+  SUPPORT: '/support',
+  COMMUNITY: '/community',
 };
 
 /** Dashboard app navigation paths — use these for all sidebar and in-app links */

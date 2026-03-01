@@ -7,16 +7,14 @@ import type { SessionUser } from '@fintrack/types/interfaces/session_user.interf
 
 export interface DashboardLayoutProps extends React.PropsWithChildren {
   isPro?: boolean;
-  user?: SessionUser;
+  user: SessionUser;
 }
 
 export default function DashboardLayout({ children, isPro = false, user }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <AppSidebar isPro={isPro} user={user} />
-      <SidebarInset className="bg-bg-deep flex flex-col">
-        {children}
-      </SidebarInset>
+      <SidebarInset className="bg-bg-deep flex flex-col">{children}</SidebarInset>
     </SidebarProvider>
   );
 }

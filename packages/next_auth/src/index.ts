@@ -1,5 +1,5 @@
-import NextAuth, { type NextAuthResult } from 'next-auth';
 import { cache } from 'react';
+import NextAuth, { type NextAuthResult } from 'next-auth';
 import { createAuthConfig, type AuthEnv, type AuthHelpers } from './config';
 
 export type { AuthEnv, AuthHelpers };

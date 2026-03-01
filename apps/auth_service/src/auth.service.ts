@@ -10,7 +10,12 @@ import { JwtService } from '@nestjs/jwt';
 import { RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
-import { Prisma, Session, User } from '@fintrack/database/types';
+import {
+  Prisma,
+  Session,
+  User,
+  VerificationToken,
+} from '@fintrack/database/types';
 import { TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { PrismaService } from '@fintrack/database/nest';
 import {
@@ -30,6 +35,8 @@ import {
   ValidateTokenRes,
   VerifyEmailReq,
   VerifyEmailRes,
+  VerifyPasswordTokenReq,
+  VerifyPasswordTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 import {
   EMAIL_VERIFICATION_JOB,
@@ -38,12 +45,12 @@ import {
   FORGOT_PASSWORD_EMAIL_JOB,
   PASSWORD_CHANGE_JOB,
 } from '@fintrack/types/constants/queus.constants';
-import {
-  EmailVerificationPayload,
-  ForgotPasswordEmailPayload,
-} from '@fintrack/types/interfaces/mail.interface';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
-import { getTimeFromNowInMinutes } from '@fintrack/utils/date';
+import { getPeriodRange, getTimeFromNowInMinutes } from '@fintrack/utils/date';
+import {
+  DeviceInfo,
+  CreateSessionOptions,
+} from '@fintrack/types/interfaces/device';
 
 /**
  * Service responsible for managing uer authentication
@@ -75,13 +82,13 @@ export class AuthService {
    * @throws {RpcException} ALREADY_EXISTS if user with email already has local account
    */
   async register(data: RegisterReq): Promise<RegisterRes> {
-    data.password = this.hasPassword(data.password);
+    data.password = this.hashPassword(data.password);
 
     try {
       //  1. Database Operations (Atomic)
       const result = await this.prismaService.$transaction(
         async (tx) => {
-          const internalUser = await tx.user.upsert({
+          const user = await tx.user.upsert({
             where: { email: data.email },
             update: {
               password: data.password,
@@ -113,11 +120,19 @@ export class AuthService {
             },
           });
 
-          const token = await tx.verificationToken.create({
+          await tx.verificationToken.deleteMany({
+            where: {
+              email: data.email,
+              identifier: 'EMAIL',
+            },
+          });
+
+          const otp = this.generateToken();
+          await tx.verificationToken.create({
             data: {
               identifier: 'EMAIL',
-              email: internalUser.email,
-              token: this.generateToken(),
+              email: user.email,
+              token: this.hashOtp(otp),
               expires: this.generateExpiryDate(
                 this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
               ),
@@ -125,7 +140,7 @@ export class AuthService {
           });
 
           const emailToken = this.jwtService.sign(
-            this.createPayload(internalUser as User, 'otp_token'),
+            this.createPayload(user as User, 'otp_token'),
             {
               secret: this.configService.get('JWT_OTP_SECRET'),
               expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
@@ -133,16 +148,14 @@ export class AuthService {
           );
 
           // ==> Push Email Token to Queue and move on
-          const payload: EmailVerificationPayload = {
-            email: internalUser.email,
-            otp: token.token,
-            firstName: internalUser.firstName,
-            lastName: internalUser.lastName,
-          };
+          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
+            otp,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          });
 
-          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, payload);
-
-          return { user: internalUser, verificationToken: token, emailToken };
+          return { user, emailToken };
         },
         {
           maxWait: 5000,
@@ -162,13 +175,17 @@ export class AuthService {
         },
       };
     } catch (error: any) {
+      this.logger.log(error);
       if (error.code === 'P2002') {
         throw new RpcException({
           code: status.ALREADY_EXISTS,
           message: 'User with this email already exists',
         });
       }
-      throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Unable to register, try again later',
+      });
     }
   }
 
@@ -192,7 +209,6 @@ export class AuthService {
           const verificationToken = await tx.verificationToken.findFirst({
             where: {
               email: payload.email,
-              token: data.otp,
               identifier: 'EMAIL',
               expires: {
                 gt: new Date(),
@@ -201,6 +217,13 @@ export class AuthService {
           });
 
           if (!verificationToken) {
+            throw new RpcException({
+              code: status.UNAUTHENTICATED,
+              message: 'Invalid Token',
+            });
+          }
+
+          if (!this.comparedOtp(data.otp, verificationToken)) {
             throw new RpcException({
               code: status.UNAUTHENTICATED,
               message: 'Invalid Token',
@@ -227,12 +250,6 @@ export class AuthService {
             });
           }
 
-          await tx.verificationToken.delete({
-            where: {
-              id: verificationToken.id,
-            },
-          });
-
           await tx.user.update({
             where: {
               id: user.id,
@@ -240,10 +257,61 @@ export class AuthService {
             data: {
               emailVerified: true,
               emailVerifiedAt: new Date(),
+              lastLoginAt: new Date(),
             },
           });
 
-          const tokens = await this.generateAuthTokens(tx, user);
+          await tx.subscription.create({
+            data: {
+              userId: user.id,
+              plan: 'FREE',
+              status: 'ACTIVE',
+            },
+          });
+
+          const [periodStart, periodEnd] = getPeriodRange();
+          await tx.usageTracker.createMany({
+            data: [
+              {
+                userId: user.id,
+                feature: 'AI_INSIGHTS_QUERIES',
+                count: 0,
+                periodStart,
+                periodEnd,
+              },
+              {
+                userId: user.id,
+                feature: 'AI_CHAT_MESSAGES',
+                count: 0,
+                periodStart,
+                periodEnd,
+              },
+              {
+                userId: user.id,
+                feature: 'RECEIPT_UPLOADS',
+                count: 0,
+                periodStart,
+                periodEnd,
+              },
+            ],
+            skipDuplicates: true,
+          });
+
+          await tx.verificationToken.delete({
+            where: {
+              id: verificationToken.id,
+            },
+          });
+
+          const tokens = await this.generateAuthTokens(tx, user, {
+            mode: 'login',
+            deviceInfo: {
+              deviceId: data.deviceId,
+              userAgent: data.userAgent,
+              ipAddress: data.ipAddress,
+              location: data.location,
+            },
+          });
 
           // ==> Push Welcome Email to Queue (Async)
           this.tokenQueue.add(WELCOME_EMAIL_JOB, {
@@ -328,11 +396,12 @@ export class AuthService {
             },
           });
 
-          const newToken = await tx.verificationToken.create({
+          const otp = this.generateToken();
+          await tx.verificationToken.create({
             data: {
               identifier: 'EMAIL',
-              email: data.email,
-              token: this.generateToken(),
+              email: user.email,
+              token: this.hashOtp(otp),
               expires: this.generateExpiryDate(
                 this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
               ),
@@ -348,14 +417,12 @@ export class AuthService {
           );
 
           // ==> Push Email Token to Queue
-          const payload: EmailVerificationPayload = {
+          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
+            otp,
             email: user.email,
-            otp: newToken.token,
             firstName: user.firstName,
             lastName: user.lastName,
-          };
-
-          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, payload);
+          });
 
           return { user, emailToken };
         },
@@ -379,7 +446,10 @@ export class AuthService {
     } catch (error) {
       this.logger.error('ResendVerificationEmail error in AuthService:', error);
       if (error instanceof RpcException) throw error;
-      throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occured!',
+      });
     }
   }
 
@@ -438,6 +508,7 @@ export class AuthService {
             where: { email: user.email },
             data: {
               loginAttempts: user.loginAttempts,
+              lastLoginAt: new Date(),
             },
           });
 
@@ -448,7 +519,15 @@ export class AuthService {
             });
           }
 
-          const tokens = await this.generateAuthTokens(tx, user);
+          const tokens = await this.generateAuthTokens(tx, user, {
+            mode: 'login',
+            deviceInfo: {
+              deviceId: data.deviceId,
+              userAgent: data.userAgent,
+              ipAddress: data.ipAddress,
+              location: data.location,
+            },
+          });
 
           return { user, tokens };
         },
@@ -475,7 +554,7 @@ export class AuthService {
       if (error instanceof RpcException) throw error;
       throw new RpcException({
         code: status.INTERNAL,
-        message: 'Internal server error during login',
+        message: 'Login Failed!, Please try again later',
       });
     }
   }
@@ -544,37 +623,35 @@ export class AuthService {
             return null as any;
           }
 
-          const token = await tx.verificationToken.create({
+          await tx.verificationToken.deleteMany({
+            where: {
+              email: data.email,
+              identifier: 'PASSWORD',
+            },
+          });
+
+          const otp = this.generateToken();
+          await tx.verificationToken.create({
             data: {
               identifier: 'PASSWORD',
               email: user.email,
-              token: this.generateToken(),
+              token: this.hashOtp(otp),
               expires: this.generateExpiryDate(
                 this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
               ),
             },
           });
 
-          const passwordToken = this.jwtService.sign(
-            this.createPayload(user as User, 'otp_token'),
-            {
-              secret: this.configService.get('JWT_OTP_SECRET'),
-              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
-            },
-          );
-
           // ==> Push Email Token to Queue and move on (Async)
-          const payload: ForgotPasswordEmailPayload = {
+          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
+            otp,
             email: user.email,
-            otp: token.token,
             firstName: user.firstName,
             lastName: user.lastName,
-          };
-          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, payload);
+          });
 
           return {
             email: user.email,
-            forgotPasswordToken: passwordToken,
           };
         },
         {
@@ -586,12 +663,14 @@ export class AuthService {
 
       return {
         email: result.email,
-        forgotPasswordToken: result.forgotPasswordToken,
       };
     } catch (error) {
       this.logger.error('ForgotPassword error in AuthService:', error);
       if (error instanceof RpcException) throw error;
-      throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occured!',
+      });
     }
   }
 
@@ -640,37 +719,28 @@ export class AuthService {
             },
           });
 
-          const newToken = await tx.verificationToken.create({
+          const otp = this.generateToken();
+          await tx.verificationToken.create({
             data: {
               identifier: 'PASSWORD',
-              email: data.email,
-              token: this.generateToken(),
+              email: user.email,
+              token: this.hashOtp(otp),
               expires: this.generateExpiryDate(
                 this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
               ),
             },
           });
 
-          const passwordToken = this.jwtService.sign(
-            this.createPayload(user as User, 'otp_token'),
-            {
-              secret: this.configService.get('JWT_OTP_SECRET'),
-              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
-            },
-          );
-
           // ==> Push Email Token to Queue and move on (Async)
-          const payload: ForgotPasswordEmailPayload = {
+          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
+            otp,
             email: user.email,
-            otp: newToken.token,
             firstName: user.firstName,
             lastName: user.lastName,
-          };
-          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, payload);
+          });
 
           return {
             email: user.email,
-            forgotPasswordToken: passwordToken,
           };
         },
         {
@@ -682,12 +752,122 @@ export class AuthService {
 
       return {
         email: result.email,
-        forgotPasswordToken: result.forgotPasswordToken,
       };
     } catch (error) {
       this.logger.error('ResendForgotPassword error in AuthService:', error);
       if (error instanceof RpcException) throw error;
-      throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occured!',
+      });
+    }
+  }
+
+  /**
+   * @description Verifies the password reset token and returns a password token
+   *
+   * @async
+   * @public
+   * @param {VerifyPasswordTokenReq} data Contains the email and otp token
+   * @returns {Promise<VerifyPasswordTokenRes>} The password token
+   * @throws {RpcException} UNAUTHENTICATED if the token is invalid or expired
+   * @throws {RpcException} ALREADY_EXISTS if the new password is the same as the old one
+   */
+  async verifyPasswordToken(
+    data: VerifyPasswordTokenReq,
+  ): Promise<VerifyPasswordTokenRes> {
+    try {
+      const result = await this.prismaService.$transaction(
+        async (tx) => {
+          const verificationToken = await tx.verificationToken.findFirst({
+            where: {
+              email: data.email,
+              identifier: 'PASSWORD',
+              expires: {
+                gt: new Date(),
+              },
+            },
+          });
+
+          if (!verificationToken) {
+            throw new RpcException({
+              code: status.UNAUTHENTICATED,
+              message: 'Invalid or expired otp',
+            });
+          }
+
+          if (!this.comparedOtp(data.otp, verificationToken)) {
+            throw new RpcException({
+              code: status.UNAUTHENTICATED,
+              message: 'Invalid or expired otp',
+            });
+          }
+
+          const user = await tx.user.findUnique({
+            where: {
+              email: verificationToken.email,
+            },
+          });
+
+          if (!user) {
+            throw new RpcException({
+              code: status.UNAUTHENTICATED,
+              message: 'Invalid or expired otp',
+            });
+          }
+
+          await tx.verificationToken.delete({
+            where: {
+              id: verificationToken.id,
+            },
+          });
+
+          const token = this.generateHash();
+          await tx.verificationToken.create({
+            data: {
+              identifier: 'RESET',
+              email: user.email,
+              token,
+              expires: this.generateExpiryDate(
+                this.configService.get<number>('OTP_EXPIRY_MINUTES', 5),
+              ),
+            },
+          });
+
+          const passwordToken = this.jwtService.sign(
+            this.createPayload(
+              { email: user.email, id: user.id },
+              'otp_token',
+              undefined,
+              token,
+            ),
+            {
+              secret: this.configService.get('JWT_OTP_SECRET'),
+              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+            },
+          );
+
+          return {
+            passwordToken,
+          };
+        },
+        {
+          maxWait: 5000,
+          timeout: 10000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
+      return {
+        passwordToken: result.passwordToken,
+      };
+    } catch (error) {
+      this.logger.error('VerifyPasswordToken error in AuthService:', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occured!',
+      });
     }
   }
 
@@ -707,13 +887,13 @@ export class AuthService {
     data: ResetPasswordReq,
   ): Promise<ResetPasswordRes> {
     try {
-      await this.prismaService.$transaction(
+      const result = await this.prismaService.$transaction(
         async (tx) => {
           const verificationToken = await tx.verificationToken.findFirst({
             where: {
               email: payload.email,
-              token: data.otp,
-              identifier: 'PASSWORD',
+              identifier: 'RESET',
+              token: payload.identifyer,
               expires: {
                 gt: new Date(),
               },
@@ -723,7 +903,7 @@ export class AuthService {
           if (!verificationToken) {
             throw new RpcException({
               code: status.UNAUTHENTICATED,
-              message: 'Invalid or expired OTP',
+              message: 'Invalid Toekn',
             });
           }
 
@@ -736,7 +916,7 @@ export class AuthService {
           if (!user) {
             throw new RpcException({
               code: status.UNAUTHENTICATED,
-              message: 'Invalid User',
+              message: 'Invalid Token',
             });
           }
 
@@ -747,18 +927,18 @@ export class AuthService {
             });
           }
 
-          await tx.verificationToken.delete({
-            where: {
-              id: verificationToken.id,
-            },
-          });
-
           await tx.user.update({
             where: {
               id: user.id,
             },
             data: {
-              password: this.hasPassword(data.newPassword),
+              password: this.hashPassword(data.newPassword),
+            },
+          });
+
+          await tx.verificationToken.delete({
+            where: {
+              id: verificationToken.id,
             },
           });
 
@@ -781,7 +961,7 @@ export class AuthService {
         },
       );
 
-      return null as any;
+      return result;
     } catch (error) {
       this.logger.error('ResetPassword error in AuthService:', error);
       if (error instanceof RpcException) throw error;
@@ -819,11 +999,10 @@ export class AuthService {
             });
           }
 
-          const tokens = await this.generateAuthTokens(
-            tx,
-            user,
-            payload.sessionToken,
-          );
+          const tokens = await this.generateAuthTokens(tx, user, {
+            mode: 'refresh',
+            oldSessionToken: payload.sessionToken,
+          });
           return { tokens };
         },
         {
@@ -848,21 +1027,21 @@ export class AuthService {
   }
 
   /**
-   * @description Generate Auth tokens`
+   * @description Generate Auth tokens
    *
    * @async
    * @private
    * @param {Prisma.TransactionClient} tx Prisma Transaction client
    * @param {User} user information
-   * @param {string} oldSessionToken the session to invalidate
-   * @returns {Promise<{accessToekn:string;refreshToken:string}>} auth tokens
+   * @param {CreateSessionOptions} options discriminated union for login vs refresh paths
+   * @returns {Promise<{accessToken:string;refreshToken:string}>} auth tokens
    */
   private async generateAuthTokens(
     tx: Prisma.TransactionClient,
     user: User,
-    oldSessionToken?: string,
+    options: CreateSessionOptions,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const session = await this.createSession(tx, user.id, oldSessionToken);
+    const session = await this.createSession(tx, user.id, options);
 
     const accessToken = this.jwtService.sign(
       this.createPayload(user, 'access_token'),
@@ -881,63 +1060,100 @@ export class AuthService {
   }
 
   /**
-   * @description. Rotate Session
+   * @description Create or rotate a Session with device-aware logic.
+   *
+   * mode: 'login'   — upsert by (userId, deviceId); evict oldest if > 2 other-device sessions
+   * mode: 'refresh' — rotate by oldSessionToken, preserving device info from the existing record
    *
    * @async
    * @private
    * @param {Prisma.TransactionClient} tx Prisma transaction client
    * @param {string} userId Id of user
-   * @param {string} oldSessionToken the session to invalidate
-   * @returns {Promise<Session>} cureent session
+   * @param {CreateSessionOptions} options
+   * @returns {Promise<Session>} new session
    */
   private async createSession(
     tx: Prisma.TransactionClient,
     userId: string,
-    oldSessionToken?: string,
+    options: CreateSessionOptions,
   ): Promise<Session> {
-    if (oldSessionToken) {
-      const session = await tx.session.findFirst({
-        where: {
-          sessionToken: oldSessionToken,
-        },
+    const expiresAt = new Date(
+      Date.now() +
+        parseJwtExpiration(
+          this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!,
+        ) *
+          1000,
+    );
+
+    if (options.mode === 'refresh') {
+      const existing = await tx.session.findFirst({
+        where: { sessionToken: options.oldSessionToken },
       });
 
-      if (!session) {
+      if (!existing) {
         throw new RpcException({
           code: status.UNAUTHENTICATED,
           message: 'Token Expired!',
         });
       }
 
+      // Preserve device info from the existing session — client never re-submits it
+      const { deviceId, userAgent, ipAddress, location } = existing;
+
       await tx.session.delete({
-        where: { sessionToken: oldSessionToken },
-      });
-    } else {
-      const sessions = await tx.session.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' }, // newest first => bigger dates
+        where: { sessionToken: options.oldSessionToken },
       });
 
-      if (sessions.length >= 2) {
-        const oldestSessions = sessions.slice(1);
-        await tx.session.deleteMany({
-          where: { id: { in: oldestSessions.map((s) => s.id) } },
-        });
-      }
+      const sessionToken = this.generateHash();
+      return tx.session.create({
+        data: {
+          userId,
+          sessionToken,
+          expires: expiresAt,
+          lastUsedAt: new Date(),
+          deviceId,
+          userAgent,
+          ipAddress,
+          location,
+        },
+      });
     }
 
-    const sessionToken = crypto.randomBytes(32).toString('hex');
-    return await tx.session.create({
+    // mode === 'login': upsert by (userId, deviceId)
+    const { deviceId, userAgent, ipAddress, location } = options.deviceInfo;
+
+    // Delete any existing session for this exact device (same-device re-login)
+    await tx.session.deleteMany({ where: { userId, deviceId } });
+
+    // Enforce max-2 concurrent sessions across OTHER devices
+    const otherSessions = await tx.session.findMany({
+      where: { userId, NOT: { deviceId } },
+      orderBy: { createdAt: 'asc' }, // oldest first
+    });
+
+    if (otherSessions.length >= 2) {
+      await tx.session.deleteMany({
+        where: {
+          id: {
+            in: otherSessions
+              .slice(0, otherSessions.length - 1)
+              .map((s) => s.id),
+          },
+        },
+      });
+    }
+
+    const sessionToken = this.generateHash();
+    return tx.session.create({
       data: {
         userId,
         sessionToken,
-        expires: new Date(
-          Date.now() +
-            parseJwtExpiration(
-              this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!,
-            ) *
-              1000,
-        ),
+        expires: expiresAt,
+        lastUsedAt: new Date(),
+        deviceId,
+        userAgent,
+        ipAddress,
+        location,
       },
     });
   }
@@ -967,8 +1183,18 @@ export class AuthService {
    * @param {number} minutes Minutes from now
    * @returns {Date} Expiry date
    */
-  generateExpiryDate(minutes: number): Date {
+  private generateExpiryDate(minutes: number): Date {
     return new Date(Date.now() + minutes * 60 * 1000);
+  }
+
+  /**
+   * @description Generate a hash
+   *
+   * @private
+   * @returns {string} Hash
+   */
+  private generateHash(): string {
+    return crypto.randomBytes(32).toString('hex');
   }
 
   /**
@@ -977,7 +1203,7 @@ export class AuthService {
    * @private
    * @returns {string} 6-digit OTP token
    */
-  generateToken(): string {
+  private generateToken(): string {
     return crypto.randomInt(100000, 1000000).toString();
   }
 
@@ -989,10 +1215,11 @@ export class AuthService {
    * @param {TokenPayload['type']} tokenType Type of token (e.g., 'email_otp')
    * @returns {TokenPayload} The token payload
    */
-  createPayload(
+  private createPayload(
     user: Partial<User>,
     tokenType: TokenPayload['type'],
     sessionToken?: string,
+    identifyer?: string,
   ): TokenPayload {
     return {
       id: user.id!,
@@ -1002,6 +1229,7 @@ export class AuthService {
       firstName: user.firstName!,
       lastName: user.lastName!,
       sessionToken,
+      identifyer,
     };
   }
 
@@ -1012,20 +1240,20 @@ export class AuthService {
    * @param {string} password Plain text password
    * @returns {string} Hashed password
    */
-  hasPassword(password: string): string {
+  private hashPassword(password: string): string {
     const hashed: string = bcrypt.hashSync(password, 10);
     return hashed;
   }
 
   /**
-   * @description Hashes a plain text password using bcrypt
+   * @description Compares plain Password and user password hash
    *
    * @private
    * @param {string} password Plain text password
    * @param {User} user trying to login
    * @returns {boolean} Password match indication
    */
-  comparedPassword(password: string, user: User): boolean {
+  private comparedPassword(password: string, user: User): boolean {
     if (!user.password) {
       this.logger.warn(
         `User ${user.email} attempted login but has no password (OAuth user?)`,
@@ -1039,6 +1267,41 @@ export class AuthService {
         `Error comparing password for user ${user.email}:`,
         error,
       );
+      return false;
+    }
+  }
+
+  /**
+   * @description Hashes a plain text otp using bcrypt
+   *
+   * @private
+   * @param {string} otp text otp code
+   * @returns {string} Hashed otp code
+   */
+  private hashOtp(otp: string): string {
+    const hashed: string = bcrypt.hashSync(otp, 5);
+    return hashed;
+  }
+
+  /**
+   * @description Compares otp code with hashed otp
+   *
+   * @private
+   * @param {string} otp Plain otp code
+   * @param {VerificationToken} token with hashed otp
+   * @returns {boolean} otp code  match indication
+   */
+  private comparedOtp(otp: string, token: VerificationToken): boolean {
+    if (!token.token) {
+      this.logger.warn(
+        `Token Compared attempeted for otp:${otp} with missing token otp hash`,
+      );
+      return false;
+    }
+    try {
+      return bcrypt.compareSync(otp, token.token);
+    } catch (error) {
+      this.logger.error(`Error comparing otp code:`, error);
       return false;
     }
   }

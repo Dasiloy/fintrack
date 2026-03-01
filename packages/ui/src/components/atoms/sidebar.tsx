@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { PanelLeft } from 'lucide-react';
 
-import { useIsMobile } from '@ui/lib/hooks/use-mobile';
+import { useIsMobile } from '@ui/hooks/use_mobile';
 import { cn } from '@ui/lib/utils/cn';
 import { Button } from './button';
 import { Input } from './input';
