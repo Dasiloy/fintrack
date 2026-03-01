@@ -7,6 +7,10 @@
       "types": "./src/components/*.tsx",
       "default": "./src/components/*.tsx"
     },
+    "./hooks/*": {
+      "types": "./src/hooks/*.ts",
+      "default": "./src/hooks/*.ts"
+    },
     "./lib/*": {
       "types": "./src/lib/*.ts",
       "default": "./src/lib/*.ts"

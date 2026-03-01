@@ -33,6 +33,10 @@ export interface RegisterRes {
 
 export interface VerifyEmailReq {
   otp: string;
+  deviceId: string;
+  userAgent?: string | undefined;
+  ipAddress?: string | undefined;
+  location?: string | undefined;
 }
 
 export interface VerifyEmailRes {
@@ -53,6 +57,10 @@ export interface ResendVerifyEmailTokenRes {
 export interface LoginReq {
   email: string;
   password: string;
+  deviceId: string;
+  userAgent?: string | undefined;
+  ipAddress?: string | undefined;
+  location?: string | undefined;
 }
 
 export interface LoginRes {
@@ -67,7 +75,6 @@ export interface ForgotPasswordReq {
 
 export interface ForgotPasswordRes {
   email: string;
-  forgotPasswordToken: string;
 }
 
 export interface ResendForgotPasswordTokenReq {
@@ -76,11 +83,18 @@ export interface ResendForgotPasswordTokenReq {
 
 export interface ResendForgotPasswordTokenRes {
   email: string;
-  forgotPasswordToken: string;
+}
+
+export interface VerifyPasswordTokenReq {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyPasswordTokenRes {
+  passwordToken: string;
 }
 
 export interface ResetPasswordReq {
-  otp: string;
   newPassword: string;
 }
 
@@ -127,6 +141,8 @@ export interface AuthServiceClient {
     metadata?: Metadata,
   ): Observable<ResendForgotPasswordTokenRes>;
 
+  verifyPasswordToken(request: VerifyPasswordTokenReq, metadata?: Metadata): Observable<VerifyPasswordTokenRes>;
+
   resetPassword(request: ResetPasswordReq, metadata?: Metadata): Observable<ResetPasswordRes>;
 
   validateToken(request: ValidateTokenReq, metadata?: Metadata): Observable<ValidateTokenRes>;
@@ -159,6 +175,11 @@ export interface AuthServiceController {
     metadata?: Metadata,
   ): Promise<ResendForgotPasswordTokenRes> | Observable<ResendForgotPasswordTokenRes> | ResendForgotPasswordTokenRes;
 
+  verifyPasswordToken(
+    request: VerifyPasswordTokenReq,
+    metadata?: Metadata,
+  ): Promise<VerifyPasswordTokenRes> | Observable<VerifyPasswordTokenRes> | VerifyPasswordTokenRes;
+
   resetPassword(
     request: ResetPasswordReq,
     metadata?: Metadata,
@@ -184,6 +205,7 @@ export function AuthServiceControllerMethods() {
       "login",
       "forgotPassword",
       "resendForgotPasswordToken",
+      "verifyPasswordToken",
       "resetPassword",
       "validateToken",
       "refreshToken",

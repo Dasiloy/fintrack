@@ -1,16 +1,12 @@
 import isOnline from 'is-online';
+import { getSession } from 'next-auth/react';
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 import { env } from '@/env';
-import { getCookie, setCookie } from '@/utils/cookie';
 import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
 
-/**
- * Robust Axios client for the Web application.
- * Configured with base URL and automatic token attachment.
- */
 export const axiosClient: AxiosInstance = axios.create({
-  baseURL: `${env.NEXT_PUBLIC_API_URL}/api`,
+  baseURL: `${env.NEXT_PUBLIC_APP_URL}/api`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -18,124 +14,67 @@ export const axiosClient: AxiosInstance = axios.create({
 });
 
 /**
- * Request Interceptor: Attach Bearer token from cookies if available.
+ * Request Interceptor: Attach Bearer token from NextAuth session.
+ * getSession() triggers the NextAuth jwt callback which auto-refreshes
+ * the access token if expired — no manual refresh needed here.
  */
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const online = await isOnline();
     if (!online) {
-      throw new Error(INTERNET_CONNECTION_ERROR);
+      return Promise.reject(new Error(INTERNET_CONNECTION_ERROR));
     }
 
-    const token = getCookie('next-auth.session-token');
+    // Pre-auth proxy routes use cookie-based auth — no Bearer token needed
+    if (config.url?.startsWith('/proxy-auth/')) {
+      return config;
+    }
 
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const session = await getSession();
+
+    if (session?.error === 'RefreshTokenError') {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      return Promise.reject(new Error('Session expired'));
+    }
+
+    if (session?.accessToken && config.headers) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`;
     }
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
 /**
- * Response Interceptor: Handle global error cases (e.g., 401 unauthorized).
- * Implementation: Automatic Token Refresh & Retry.
+ * Response Interceptor: On 401, retry once with a fresh session.
+ * This handles the rare race where the token expired between the request
+ * interceptor running and the backend processing the request.
  */
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (token: string | null) => void;
-  reject: (error: any) => void;
-}> = [];
-
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve(token);
-  });
-  failedQueue = [];
-};
-
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    /**
-     * IF ERROR IS 401 (UNAUTHORIZED)
-     * AND this isn't already a retry attempt.
-     */
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // CASE A: Someone else is already fetching a new token.
-      if (isRefreshing) {
-        /**
-         * Creating a "Waiting Room":
-         * We return a new Promise that doesn't resolve yet.
-         * We store the 'resolve' function in our queue so we can wake it up later.
-         */
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            // Once the leading request wakes us up with a token, we retry!
-            if (token && originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-            }
-            return axiosClient(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
+    // Pre-auth proxy routes use cookie-based auth — don't redirect to login on 401
+    const isPreAuthRoute = originalRequest.url?.startsWith('/proxy-auth/');
 
-      // CASE B: We are the first ones to fail! We lead the refresh.
+    if (error.response?.status === 401 && !originalRequest._retry && !isPreAuthRoute) {
       originalRequest._retry = true;
-      isRefreshing = true;
 
-      const refreshToken = getCookie('refresh-token');
+      const session = await getSession();
 
-      try {
-        /**
-         * REFRESH CALL: We use NATIVE FETCH here.
-         * Why? To bypass Axios interceptors and prevent infinite loops
-         * if the refresh call itself fails with a 401.
-         */
-        const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken }),
-        });
-
-        if (!response.ok) throw new Error('Refresh failed');
-        const { accessToken, refreshToken: newRefreshToken } = await response.json();
-
-        // 1. Tell everyone in the "Waiting Room" (queue) to proceed with the new token.
-        processQueue(null, accessToken);
-
-        // 2. Update RefreshToke => token Rotation
-        if (typeof document !== 'undefined') {
-          setCookie('next-auth.session-token', accessToken, 30 * 60);
-          setCookie('refresh-token', newRefreshToken, 7 * 24 * 60 * 60);
-        }
-
-        // 3. Update our own failed request and retry it.
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        return axiosClient(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, tell everyone in the queue to fail too.
-        processQueue(refreshError, null);
-
-        // Redirect to login (Client-side only check)
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      if (!session?.accessToken || session.error === 'RefreshTokenError') {
+        if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
-
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
+        return Promise.reject(error);
       }
+
+      originalRequest.headers.Authorization = `Bearer ${session.accessToken}`;
+      return axiosClient(originalRequest);
     }
 
     return Promise.reject(error);

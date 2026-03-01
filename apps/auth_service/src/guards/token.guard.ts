@@ -60,11 +60,12 @@ export class TokenGuard implements CanActivate {
       if (payload.type !== tokenType) {
         throw new RpcException({
           code: status.UNAUTHENTICATED,
-          message: 'Invalid Token Type!',
+          message: 'Invalid Token!',
         });
       }
 
       (metadata as any).user = payload;
+
       return true;
     } catch (error: any) {
       const isExpired = error.name === 'TokenExpiredError';

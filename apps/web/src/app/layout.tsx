@@ -1,7 +1,7 @@
 import '@/styles/globals.css';
 
 import { SpeedInsights } from '@vercel/speed-insights/next';
-
+import { Analytics } from '@vercel/analytics/next';
 import { type Metadata } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 
@@ -73,7 +73,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <AppProviver>{children}</AppProviver>
         </TRPCAppProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
 }
+
+// refreshtoken flow not fully functional yet

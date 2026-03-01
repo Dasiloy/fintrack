@@ -12,13 +12,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import {
   ForgotPasswordReq,
-  LoginReq,
   RefreshTokenReq,
   RegisterReq,
   ResendForgotPasswordTokenReq,
   ResendVerifyEmailTokenReq,
   ResetPasswordReq,
-  VerifyEmailReq,
+  VerifyPasswordTokenReq,
 } from '@fintrack/types/protos/auth/auth';
 
 export class RegisterUserDto implements RegisterReq {
@@ -77,7 +76,7 @@ export class RegisterUserDto implements RegisterReq {
   password: string;
 }
 
-export class VerifyEmailDto implements VerifyEmailReq {
+export class VerifyEmailDto {
   /** otp token  */
   @ApiProperty({
     type: 'string',
@@ -88,10 +87,10 @@ export class VerifyEmailDto implements VerifyEmailReq {
     message: 'Otp token is required',
   })
   @MinLength(6, {
-    message: 'Token Invalid',
+    message: 'Otp token Invalid',
   })
   @MaxLength(6, {
-    message: 'Token Invalid',
+    message: 'Otp token Invalid',
   })
   otp: string;
 }
@@ -107,7 +106,7 @@ export class ResendVerifyEmailDto implements ResendVerifyEmailTokenReq {
   email: string;
 }
 
-export class LoginDto implements LoginReq {
+export class LoginDto {
   @ApiProperty({
     type: 'string',
     description: 'Email of user',
@@ -149,7 +148,7 @@ export class ResendForgotPasswordDto implements ResendForgotPasswordTokenReq {
   email: string;
 }
 
-export class ResetPasswordDto implements ResetPasswordReq {
+export class VerifyPasswordTokenReqDto implements VerifyPasswordTokenReq {
   @ApiProperty({
     type: 'string',
     description: 'OTP token sent to email',
@@ -159,6 +158,16 @@ export class ResetPasswordDto implements ResetPasswordReq {
   @Length(6, 6)
   otp: string;
 
+  @ApiProperty({
+    type: 'string',
+    description: 'Email of user',
+    example: 'dasiloy@dasy.com',
+  })
+  @IsEmail()
+  @Transform(({ value }) => (value as string).toLocaleLowerCase())
+  email: string;
+}
+export class ResetPasswordDto implements ResetPasswordReq {
   @ApiProperty({
     type: 'string',
     description: 'New password',
