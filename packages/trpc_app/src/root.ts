@@ -1,4 +1,4 @@
-import { postRouter } from './routers/post';
+import { subscriptionRouter } from './routers/subscription';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
 /**
@@ -6,7 +6,7 @@ import { createTRPCRouter, createCallerFactory } from './setup';
  * All shared routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
+  subscription: subscriptionRouter,
 });
 
 // Export type definition of API

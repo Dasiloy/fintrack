@@ -1,5 +1,10 @@
 'use client';
 
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
+
 import {
   Button,
   Input,
@@ -12,15 +17,55 @@ import {
   Separator,
   FieldError,
   PasswordInput,
+  toast,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils';
-import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
-
 import StyledLink from '@/app/_components/styled_linkt';
+import { axiosClient } from '@/lib/axios/axios_client';
+import { ServerFormatter } from '@fintrack/utils/server';
+import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
+import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import type { LoginRes } from '@fintrack/types/protos/auth/auth';
+
+const loginschema = z.object({
+  email: z.string().email('Invalid Email'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type LoginValues = z.infer<typeof loginschema>;
 
 export function LoginForm({ className }: React.ComponentProps<'form'>) {
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginschema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (data: LoginValues) => {
+    try {
+      const response = await axiosClient.post('/proxy-auth/login', data);
+      const resData: StandardResponse<LoginRes> = response.data;
+
+      toast.success('Login successful', { description: 'Redirecting...' });
+
+      await signIn('credentials', {
+        redirect: true,
+        redirectTo: DASHBOARD_ROUTES.DASHBOARD,
+        flow: 'post-login',
+        accessToken: resData.data?.accessToken,
+        refreshToken: resData.data?.refreshToken,
+      });
+    } catch (error) {
+      toast.error('Login failed', {
+        description: ServerFormatter.formatError(error),
+      });
+    }
+  };
+
   return (
-    <form className={cn('pt-6', className)}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className={cn('pt-6', className)}>
       <FieldGroup>
         {/** SOCIALS */}
         <Field>
@@ -42,8 +87,14 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
 
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" type="email" placeholder="m@example.com" required />
-          <FieldError errors={[]}></FieldError>
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
+            aria-invalid={!!form.formState.errors.email}
+            {...form.register('email')}
+          />
+          <FieldError errors={[form.formState.errors.email]} />
         </Field>
 
         <Field>
@@ -53,12 +104,22 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
               Forgot password?
             </StyledLink>
           </FieldLabel>
-          <PasswordInput id="password" />
-          <FieldError errors={[]}></FieldError>
+          <PasswordInput
+            id="password"
+            placeholder="******************"
+            aria-invalid={!!form.formState.errors.password}
+            {...form.register('password')}
+          />
+          <FieldError errors={[form.formState.errors.password]} />
         </Field>
 
         <Field className="mb-2">
-          <Button className="mb-1" type="submit">
+          <Button
+            className="mb-1"
+            type="submit"
+            loading={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting}
+          >
             Login
           </Button>
           <FieldDescription className="text-center text-sm">

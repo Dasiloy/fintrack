@@ -130,6 +130,7 @@ exports.Prisma.UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   avatar: 'avatar',
+  lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -152,6 +153,11 @@ exports.Prisma.SessionScalarFieldEnum = {
   sessionToken: 'sessionToken',
   userId: 'userId',
   expires: 'expires',
+  deviceId: 'deviceId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  location: 'location',
+  lastUsedAt: 'lastUsedAt',
   createdAt: 'createdAt'
 };
 
@@ -162,6 +168,32 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   token: 'token',
   expires: 'expires',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  stripeCurrentPeriodStart: 'stripeCurrentPeriodStart',
+  stripeCurrentPeriodEnd: 'stripeCurrentPeriodEnd',
+  stripeCancelAtPeriodEnd: 'stripeCancelAtPeriodEnd',
+  status: 'status',
+  plan: 'plan',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UsageTrackerScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  feature: 'feature',
+  count: 'count',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -193,14 +225,36 @@ exports.AccountProvider = exports.$Enums.AccountProvider = {
 
 exports.VerificationIdentifier = exports.$Enums.VerificationIdentifier = {
   PASSWORD: 'PASSWORD',
-  EMAIL: 'EMAIL'
+  EMAIL: 'EMAIL',
+  RESET: 'RESET'
+};
+
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  CANCELED: 'CANCELED',
+  PAST_DUE: 'PAST_DUE',
+  TRIALING: 'TRIALING',
+  INCOMPLETE: 'INCOMPLETE'
+};
+
+exports.SubscriptionPlan = exports.$Enums.SubscriptionPlan = {
+  FREE: 'FREE',
+  PRO: 'PRO'
+};
+
+exports.UsageFeature = exports.$Enums.UsageFeature = {
+  AI_INSIGHTS_QUERIES: 'AI_INSIGHTS_QUERIES',
+  AI_CHAT_MESSAGES: 'AI_CHAT_MESSAGES',
+  RECEIPT_UPLOADS: 'RECEIPT_UPLOADS'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
   Account: 'Account',
   Session: 'Session',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Subscription: 'Subscription',
+  UsageTracker: 'UsageTracker'
 };
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 
+import { useBoolean } from '@ui/hooks';
 import { cn } from '@ui/lib/utils';
-import { useRouter } from '@bprogress/next';
 import {
   Button,
   Field,
@@ -12,28 +12,79 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
   Text,
+  toast,
 } from '@ui/components';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { useState } from 'react';
+import { ServerFormatter } from '@fintrack/utils/server';
+import { axiosClient } from '@/lib/axios/axios_client';
 import { useCountdown, CountdownDisplay, StyledLink } from '@/app/_components';
+import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
+import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import type { VerifyEmailRes } from '@fintrack/types/protos/auth/auth';
+import { signIn } from 'next-auth/react';
 
 export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
-  const router = useRouter();
-  const { secondsLeft, isComplete, restart } = useCountdown();
+  const [otpValue, setOtpValue] = useState('');
+  const [loading, setLoading] = useBoolean();
+  const [submitting, setSubmitting] = useBoolean();
+  const { secondsLeft, isComplete, restart } = useCountdown(300);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    router.push(DASHBOARD_ROUTES.DASHBOARD);
+  const handleSubmit = async (otp: string) => {
+    try {
+      setSubmitting.on();
+
+      const response = await axiosClient.post('/proxy-auth/verify-email', { otp });
+
+      const data: StandardResponse<VerifyEmailRes> = response.data;
+
+      toast.success(ServerFormatter.formatSuccess(response), {
+        description: 'Redirecting to dashboard...',
+      });
+
+      await signIn('credentials', {
+        // next auth options
+        redirect: true,
+        redirectTo: DASHBOARD_ROUTES.DASHBOARD,
+
+        // custom options
+        flow: 'post-verify',
+        accessToken: data.data?.accessToken,
+        refreshToken: data.data?.refreshToken,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occured', {
+        description: ServerFormatter.formatError(error),
+      });
+    } finally {
+      setSubmitting.off();
+      setOtpValue('');
+    }
   };
 
-  const handleResend = () => {
-    if (!isComplete) return;
-    // TODO: call resend OTP API
-    restart();
+  const handleResend = async () => {
+    try {
+      setLoading.on();
+      const response = await axiosClient.post('/proxy-auth/resend-verify-email');
+      restart();
+      setOtpValue('');
+
+      toast.success('Otp sent', {
+        description: ServerFormatter.formatSuccess(response),
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occured', {
+        description: ServerFormatter.formatError(error),
+      });
+    } finally {
+      setLoading.off();
+    }
   };
 
   return (
-    <form className={cn('pt-6', className)} onSubmit={handleSubmit}>
+    <div className={cn('pt-6', className)}>
       <FieldGroup>
         <Field orientation="horizontal" className="justify-center">
           <InputOTP
@@ -43,7 +94,10 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
             inputMode="numeric"
             pattern={REGEXP_ONLY_DIGITS}
             containerClassName="gap-space-2"
-            onComplete={() => router.push(DASHBOARD_ROUTES.DASHBOARD)}
+            disabled={submitting || loading}
+            value={otpValue}
+            onChange={setOtpValue}
+            onComplete={handleSubmit}
           >
             <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:font-semibold">
               <InputOTPSlot index={0} />
@@ -63,8 +117,19 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
           <Text variant="body-sm" color="secondary" className="text-text-secondary">
             Didn&apos;t get OTP code?
           </Text>
+          {submitting && (
+            <Text variant="body-sm" color="secondary" className="animate-pulse text-text-secondary">
+              Verifying...
+            </Text>
+          )}
           {isComplete ? (
-            <Button type="button" variant="secondary" onClick={handleResend}>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={!isComplete || loading || submitting}
+              loading={loading}
+              onClick={handleResend}
+            >
               Resend code
             </Button>
           ) : (
@@ -83,6 +148,6 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
           </FieldDescription>
         </Field>
       </FieldGroup>
-    </form>
+    </div>
   );
 }

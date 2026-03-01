@@ -4,6 +4,8 @@ import { Metadata } from '@grpc/grpc-js';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 
+import { DeviceInfo } from '@fintrack/types/interfaces/device';
+
 import {
   AUTH_PACKAGE_NAME,
   AUTH_SERVICE_NAME,
@@ -16,6 +18,7 @@ import {
   ResendVerifyEmailTokenRes,
   ResetPasswordRes,
   VerifyEmailRes,
+  VerifyPasswordTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import {
@@ -27,6 +30,7 @@ import {
   ResendVerifyEmailDto,
   ResetPasswordDto,
   VerifyEmailDto,
+  VerifyPasswordTokenReqDto,
 } from './dto/auth.dto';
 
 @Injectable()
@@ -72,12 +76,22 @@ export class AuthService implements OnModuleInit {
   async verifyEmail(
     data: VerifyEmailDto,
     jwtToken: string,
+    deviceInfo: DeviceInfo,
   ): Promise<VerifyEmailRes> {
     const metadata = new Metadata();
     metadata.add('x-token', jwtToken);
     return lastValueFrom(
       this.authService
-        .verifyEmail({ otp: data.otp }, metadata)
+        .verifyEmail(
+          {
+            otp: data.otp,
+            deviceId: deviceInfo.deviceId,
+            userAgent: deviceInfo.userAgent,
+            ipAddress: deviceInfo.ipAddress,
+            location: deviceInfo.location,
+          },
+          metadata,
+        )
         .pipe(timeout(15000)),
     );
   }
@@ -113,8 +127,19 @@ export class AuthService implements OnModuleInit {
    * @throws {UnauthorizedException} If credentials are invalid (mapped from microservice UNAUTHENTICATED)
    * @throws {RequestTimeoutException} If the auth microservice times out (mapped from 15s timeout)
    */
-  async login(data: LoginDto): Promise<LoginRes> {
-    return lastValueFrom(this.authService.login(data).pipe(timeout(15000)));
+  async login(data: LoginDto, deviceInfo: DeviceInfo): Promise<LoginRes> {
+    return lastValueFrom(
+      this.authService
+        .login({
+          email: data.email,
+          password: data.password,
+          deviceId: deviceInfo.deviceId,
+          userAgent: deviceInfo.userAgent,
+          ipAddress: deviceInfo.ipAddress,
+          location: deviceInfo.location,
+        })
+        .pipe(timeout(15000)),
+    );
   }
 
   /**
@@ -165,6 +190,24 @@ export class AuthService implements OnModuleInit {
   ): Promise<ResendForgotPasswordTokenRes> {
     return lastValueFrom(
       this.authService.resendForgotPasswordToken(data).pipe(timeout(15000)),
+    );
+  }
+
+  /**
+   * @description Verify password reset token
+   *
+   * @async
+   * @public
+   * @param {VerifyPasswordTokenReqDto} data Contains the email and otp token
+   * @returns {Promise<VerifyPasswordTokenRes>} The password token
+   * @throws {RpcException} UNAUTHENTICATED if the token is invalid or expired
+   * @throws {RpcException} ALREADY_EXISTS if the new password is the same as the old one
+   */
+  async verifyPasswordToken(
+    data: VerifyPasswordTokenReqDto,
+  ): Promise<VerifyPasswordTokenRes> {
+    return lastValueFrom(
+      this.authService.verifyPasswordToken(data).pipe(timeout(15000)),
     );
   }
 

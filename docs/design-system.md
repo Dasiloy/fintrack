@@ -306,68 +306,70 @@ See `stripe-integration-guide.md` for code implementation details.
 
 ### Static / Public (`(static)` route group)
 
-| Route | Page |
-|---|---|
-| `/` | Landing page |
-| `/pricing` | Free vs Pro comparison + upgrade CTA |
-| `/about` | About FinTrack |
-| `/contact` | Contact |
-| `/privacy` | Privacy Policy |
-| `/terms` | Terms of Service |
+| Route        | Page                                 |
+| ------------ | ------------------------------------ |
+| `/`          | Landing page                         |
+| `/pricing`   | Free vs Pro comparison + upgrade CTA |
+| `/about`     | About FinTrack                       |
+| `/contact`   | Contact                              |
+| `/privacy`   | Privacy Policy                       |
+| `/terms`     | Terms of Service                     |
+| `/community` | Community                            |
+| `/support`   | Support                              |
 
 ### Auth (`(auth)` route group)
 
-| Route | Page |
-|---|---|
-| `/login` | Sign in |
-| `/signup` | Create account |
-| `/verify-email` | Email verification |
-| `/forgot-password` | Request OTP reset |
-| `/verify-password-token` | Enter 6-digit OTP |
-| `/reset-password` | Set new password |
+| Route                    | Page               |
+| ------------------------ | ------------------ |
+| `/login`                 | Sign in            |
+| `/signup`                | Create account     |
+| `/verify-email`          | Email verification |
+| `/forgot-password`       | Request OTP reset  |
+| `/verify-password-token` | Enter 6-digit OTP  |
+| `/reset-password`        | Set new password   |
 
 ### App — Overview (`(dashboard)/`)
 
-| Route | Page |
-|---|---|
+| Route        | Page           |
+| ------------ | -------------- |
 | `/dashboard` | Main dashboard |
 
 ### App — Finances (`(dashboard)/finances/`)
 
-| Route | Page |
-|---|---|
-| `/finances/transactions` | Transactions list |
-| `/finances/transactions/add` | Add transaction (also via FAB) |
-| `/finances/transactions/[id]` | Transaction detail / edit |
-| `/finances/bills` | Bills & Recurring |
-| `/finances/budgets` | Budget overview |
-| `/finances/budgets/[id]/edit` | Edit budget (row action) |
+| Route                         | Page                           |
+| ----------------------------- | ------------------------------ |
+| `/finances/transactions`      | Transactions list              |
+| `/finances/transactions/add`  | Add transaction (also via FAB) |
+| `/finances/transactions/[id]` | Transaction detail / edit      |
+| `/finances/bills`             | Bills & Recurring              |
+| `/finances/budgets`           | Budget overview                |
+| `/finances/budgets/[id]/edit` | Edit budget (row action)       |
 
 ### App — Analytics & AI (`(dashboard)/analytics/`)
 
-| Route | Page |
-|---|---|
-| `/analytics` | Charts and trends |
+| Route                 | Page                                   |
+| --------------------- | -------------------------------------- |
+| `/analytics`          | Charts and trends                      |
 | `/analytics/insights` | AI insights, anomaly detection `[Pro]` |
-| `/analytics/chat` | Conversational AI `[Pro]` |
+| `/analytics/chat`     | Conversational AI `[Pro]`              |
 
 ### App — Planning (`(dashboard)/planning/`)
 
-| Route | Page |
-|---|---|
-| `/planning/goals` | Goals list |
-| `/planning/goals/create` | Create/edit goal |
-| `/planning/splits` | Split bills overview |
-| `/planning/splits/create` | Create split |
+| Route                     | Page                 |
+| ------------------------- | -------------------- |
+| `/planning/goals`         | Goals list           |
+| `/planning/goals/create`  | Create/edit goal     |
+| `/planning/splits`        | Split bills overview |
+| `/planning/splits/create` | Create split         |
 
 ### App — Account (`(dashboard)/`)
 
-| Route | Page |
-|---|---|
-| `/notifications` | Notification center |
-| `/settings/profile` | Profile settings |
-| `/settings/account` | Account settings |
-| `/settings/invite` | Invite friends |
+| Route               | Page                |
+| ------------------- | ------------------- |
+| `/notifications`    | Notification center |
+| `/settings/profile` | Profile settings    |
+| `/settings/account` | Account settings    |
+| `/settings/invite`  | Invite friends      |
 
 ---
 
@@ -402,6 +404,7 @@ ACCOUNT
 ```
 
 Notes:
+
 - Add Transaction and detail pages are not sidebar items — accessed via FAB / row click
 - `[Pro]` pages are visible but show an upgrade overlay for Free users; navigation is not blocked
 - Settings is a collapsible group at the bottom of the sidebar

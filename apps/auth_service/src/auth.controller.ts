@@ -24,11 +24,14 @@ import {
   RefreshTokenRes,
   ResetPasswordReq,
   ResetPasswordRes,
+  VerifyPasswordTokenRes,
+  VerifyPasswordTokenReq,
 } from '@fintrack/types/protos/auth/auth';
 
 import { AuthService } from './auth.service';
 import { TokenGuard } from './guards/token.guard';
 import { TokenMeta } from './decorators/token.decorator';
+import { RpcException } from '@nestjs/microservices';
 
 /**
  * Controller Responsible for managing app-wide authentication
@@ -142,6 +145,24 @@ export class AuthController implements AuthServiceController {
     | Observable<ResendForgotPasswordTokenRes>
     | ResendForgotPasswordTokenRes {
     return this.authService.resendForgotPassword(request);
+  }
+
+  /**
+   * @description Verify Password Otp
+   *
+   * @async
+   * @public
+   * @param {VerifyPasswordTokenReq} request
+   * @returns {Promise<VerifyPasswordTokenRes> | Observable<VerifyPasswordTokenRes> | VerifyPasswordTokenRes}
+   * @throws {RpcException} ALREADY_EXISTS
+   */
+  verifyPasswordToken(
+    request: VerifyPasswordTokenReq,
+  ):
+    | Promise<VerifyPasswordTokenRes>
+    | Observable<VerifyPasswordTokenRes>
+    | VerifyPasswordTokenRes {
+    return this.authService.verifyPasswordToken(request);
   }
 
   /**

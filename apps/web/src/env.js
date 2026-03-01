@@ -12,6 +12,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
     API_GATEWAY_URL: z.string().url(),
+    JWT_OTP_TOKEN_EXPIRATION: z.string().default('60m'),
     JWT_ACCESS_TOKEN_EXPIRATION: z.string().default('15m'),
     JWT_REFRESH_TOKEN_EXPIRATION: z.string().default('30d'),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -23,7 +24,8 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_API_URL: z.string().url(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
   },
 
   /**
@@ -36,7 +38,9 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     API_GATEWAY_URL: process.env.API_GATEWAY_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    JWT_OTP_TOKEN_EXPIRATION: process.env.JWT_OTP_TOKEN_EXPIRATION,
     JWT_ACCESS_TOKEN_EXPIRATION: process.env.JWT_ACCESS_TOKEN_EXPIRATION,
     JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION,
     NODE_ENV: process.env.NODE_ENV,

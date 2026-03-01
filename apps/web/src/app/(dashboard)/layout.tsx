@@ -1,23 +1,22 @@
-import { auth } from '@fintrack/next_auth';
+import { auth } from '@/lib/nextauth';
 
+import { redirect } from 'next/navigation';
+import { sessionToUser } from '@/helpers/session';
+import { api_server } from '@/lib/trpc_app/api_server';
 import DashboardLayout from '@/app/layouts/dashboard_layout';
-import type { SessionUser } from '@fintrack/types/interfaces/session_user.interface';
-
-function sessionToUser(session: { user?: { name?: string | null; email?: string | null; image?: string | null } } | null): SessionUser | undefined {
-  if (!session?.user?.name || !session?.user?.email) return undefined;
-  return {
-    name: session.user.name,
-    email: session.user.email,
-    avatar: session.user.image ?? undefined,
-  };
-}
+import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 export default async function DashboardGroupLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  const user = sessionToUser(session);
+
+  if (!session) {
+    redirect(AUTH_ROUTES.LOGIN);
+  }
+
+  const subscription = await api_server.subscription.getPlan();
 
   return (
-    <DashboardLayout isPro={false} user={user}>
+    <DashboardLayout isPro={subscription?.plan === 'PRO'} user={sessionToUser(session)}>
       {children}
     </DashboardLayout>
   );

@@ -50,7 +50,6 @@
   --ft-text-overline: 0.6875rem;
   --ft-text-overline-weight: 600;
   --ft-text-overline-spacing: 0.5px;
-  --ft-text-overline-transform: uppercase;
   --ft-text-overline-line-height: 1.5;
 
   /* Spacing (Source of Truth) */
@@ -123,50 +122,36 @@
   --font-manrope: var(--ft-font-manrope);
   --font-inter: var(--ft-font-inter);
 
-  /* Typography Scale */
+  /* Typography Scale — font-size tokens only; compound styles in @layer utilities below */
   --text-h1: var(--ft-text-h1);
-  --text-h1--font-family: var(--font-manrope);
-  --text-h1--font-weight: var(--ft-text-h1-weight);
   --text-h1--letter-spacing: var(--ft-text-h1-spacing);
   --text-h1--line-height: var(--ft-text-h1-line-height);
 
   --text-h2: var(--ft-text-h2);
-  --text-h2--font-family: var(--font-manrope);
-  --text-h2--font-weight: var(--ft-text-h2-weight);
   --text-h2--letter-spacing: var(--ft-text-h2-spacing);
   --text-h2--line-height: var(--ft-text-h2-line-height);
 
   --text-h3: var(--ft-text-h3);
-  --text-h3--font-family: var(--font-manrope);
-  --text-h3--font-weight: var(--ft-text-h3-weight);
   --text-h3--letter-spacing: var(--ft-text-h3-spacing);
   --text-h3--line-height: var(--ft-text-h3-line-height);
 
   --text-h4: var(--ft-text-h4);
-  --text-h4--font-family: var(--font-manrope);
-  --text-h4--font-weight: var(--ft-text-h4-weight);
   --text-h4--line-height: var(--ft-text-h4-line-height);
 
   --text-body-lg: var(--ft-text-body-lg);
-  --text-body-lg--font-weight: var(--ft-text-body-lg-weight);
   --text-body-lg--line-height: var(--ft-text-body-lg-line-height);
 
   --text-body: var(--ft-text-body);
-  --text-body--font-weight: var(--ft-text-body-weight);
   --text-body--line-height: var(--ft-text-body-line-height);
 
   --text-body-sm: var(--ft-text-body-sm);
-  --text-body-sm--font-weight: var(--ft-text-body-sm-weight);
   --text-body-sm--line-height: var(--ft-text-body-sm-line-height);
 
   --text-caption: var(--ft-text-caption);
-  --text-caption--font-weight: var(--ft-text-caption-weight);
   --text-caption--line-height: var(--ft-text-caption-line-height);
 
   --text-overline: var(--ft-text-overline);
-  --text-overline--font-weight: var(--ft-text-overline-weight);
   --text-overline--letter-spacing: var(--ft-text-overline-spacing);
-  --text-overline--text-transform: var(--ft-text-overline-transform);
   --text-overline--line-height: var(--ft-text-overline-line-height);
 
   /* Spacing */
@@ -271,6 +256,53 @@
   h4 {
     @apply text-h4 font-manrope font-semibold;
   }
+}
+
+/* Typography utilities — @utility places these after core Tailwind utilities in CSS output,
+   so they win over shadcn's built-in text-sm / text-xs / etc. for font-size.
+   Font-weight and line-height are intentionally excluded so components can override them
+   with font-medium, leading-snug etc. without conflicts.
+   Exceptions: letter-spacing on headings and text-transform on overline are inherent to those styles. */
+@utility text-h1 {
+  font-size: var(--ft-text-h1);
+  line-height: var(--ft-text-h1-line-height);
+  letter-spacing: var(--ft-text-h1-spacing);
+}
+@utility text-h2 {
+  font-size: var(--ft-text-h2);
+  line-height: var(--ft-text-h2-line-height);
+  letter-spacing: var(--ft-text-h2-spacing);
+}
+@utility text-h3 {
+  font-size: var(--ft-text-h3);
+  line-height: var(--ft-text-h3-line-height);
+  letter-spacing: var(--ft-text-h3-spacing);
+}
+@utility text-h4 {
+  font-size: var(--ft-text-h4);
+  line-height: var(--ft-text-h4-line-height);
+}
+@utility text-body-lg {
+  font-size: var(--ft-text-body-lg);
+  line-height: var(--ft-text-body-lg-line-height);
+}
+@utility text-body {
+  font-size: var(--ft-text-body);
+  line-height: var(--ft-text-body-line-height);
+}
+@utility text-body-sm {
+  font-size: var(--ft-text-body-sm);
+  line-height: var(--ft-text-body-sm-line-height);
+}
+@utility text-caption {
+  font-size: var(--ft-text-caption);
+  line-height: var(--ft-text-caption-line-height);
+}
+@utility text-overline {
+  font-size: var(--ft-text-overline);
+  line-height: var(--ft-text-overline-line-height);
+  letter-spacing: var(--ft-text-overline-spacing);
+  text-transform: uppercase;
 }
 
 @layer utilities {
