@@ -82,13 +82,13 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'Managing finances can often feel like a daunting task, but with the advent of artificial intelligence, it\'s becoming easier than ever. AI tools can automate your savings and track spending patterns with unprecedented accuracy.',
+        text: "Managing finances can often feel like a daunting task, but with the advent of artificial intelligence, it's becoming easier than ever. AI tools can automate your savings and track spending patterns with unprecedented accuracy.",
       },
       { type: 'divider' },
       { type: 'h2', text: 'Why AI Matters for Your Wallet' },
       {
         type: 'paragraph',
-        text: 'Traditional budgeting relies heavily on manual entry and retrospective analysis. By the time you realize you\'ve overspent on dining out, the month is already over. AI flips this model by providing predictive analytics — it learns your habits and alerts you before you break your budget.',
+        text: "Traditional budgeting relies heavily on manual entry and retrospective analysis. By the time you realize you've overspent on dining out, the month is already over. AI flips this model by providing predictive analytics — it learns your habits and alerts you before you break your budget.",
       },
       {
         type: 'paragraph',
@@ -116,13 +116,13 @@ export const BLOG_POSTS: BlogPost[] = [
           },
           {
             title: 'Predictive Alerts',
-            body: 'Get notified mid-month when you\'re trending over budget — not after the damage is done.',
+            body: "Get notified mid-month when you're trending over budget — not after the damage is done.",
           },
         ],
       },
       {
         type: 'paragraph',
-        text: 'The future of personal finance is autonomous. By embracing these tools early, you\'re not just organizing your money — you\'re optimizing your entire financial life for growth. Start with FinTrack\'s AI Insights tab and see the difference within a week.',
+        text: "The future of personal finance is autonomous. By embracing these tools early, you're not just organizing your money — you're optimizing your entire financial life for growth. Start with FinTrack's AI Insights tab and see the difference within a week.",
       },
     ],
   },
@@ -132,7 +132,7 @@ export const BLOG_POSTS: BlogPost[] = [
     categorySlug: 'investing',
     title: 'Understanding AI Insights in Your Portfolio',
     excerpt:
-      'Artificial Intelligence isn\'t just a buzzword. Learn how AI-driven analytics can predict market trends and help safeguard your long-term investments.',
+      "Artificial Intelligence isn't just a buzzword. Learn how AI-driven analytics can predict market trends and help safeguard your long-term investments.",
     author: 'Amara Osei',
     role: 'Investment Strategist',
     initials: 'AO',
@@ -150,7 +150,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: 'h2', text: 'Pattern Recognition at Scale' },
       {
         type: 'paragraph',
-        text: 'AI models trained on decades of market data can identify correlations between economic events and asset performance that aren\'t obvious to the naked eye. When volatility spikes in one sector, an AI insight engine flags related exposures in your portfolio before you even open the app.',
+        text: "AI models trained on decades of market data can identify correlations between economic events and asset performance that aren't obvious to the naked eye. When volatility spikes in one sector, an AI insight engine flags related exposures in your portfolio before you even open the app.",
       },
       {
         type: 'blockquote',
@@ -160,14 +160,23 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: 'Can: Trend detection', body: 'Spots momentum shifts and sector rotations weeks before they become headlines.' },
-          { title: 'Can: Risk scoring', body: 'Assigns a real-time risk score to each holding based on volatility, correlation, and macro signals.' },
-          { title: 'Cannot: Predict the future', body: 'No model eliminates uncertainty. AI gives probabilities, not guarantees — always pair insights with your own judgement.' },
+          {
+            title: 'Can: Trend detection',
+            body: 'Spots momentum shifts and sector rotations weeks before they become headlines.',
+          },
+          {
+            title: 'Can: Risk scoring',
+            body: 'Assigns a real-time risk score to each holding based on volatility, correlation, and macro signals.',
+          },
+          {
+            title: 'Cannot: Predict the future',
+            body: 'No model eliminates uncertainty. AI gives probabilities, not guarantees — always pair insights with your own judgement.',
+          },
         ],
       },
       {
         type: 'paragraph',
-        text: 'Use FinTrack\'s AI Insights to run weekly portfolio health checks. Set a recurring reminder, review the highlighted risks, and make one small rebalancing move per month.',
+        text: "Use FinTrack's AI Insights to run weekly portfolio health checks. Set a recurring reminder, review the highlighted risks, and make one small rebalancing move per month.",
       },
     ],
   },
@@ -196,9 +205,18 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: '50% — Needs', body: 'Rent, groceries, utilities, transport. Non-negotiable expenses that keep the lights on.' },
-          { title: '30% — Wants', body: 'Dining out, streaming subscriptions, hobbies. Things you enjoy but could live without.' },
-          { title: '20% — Savings & Debt', body: 'Emergency fund, investments, extra debt repayments. Your future self\'s contribution.' },
+          {
+            title: '50% — Needs',
+            body: 'Rent, groceries, utilities, transport. Non-negotiable expenses that keep the lights on.',
+          },
+          {
+            title: '30% — Wants',
+            body: 'Dining out, streaming subscriptions, hobbies. Things you enjoy but could live without.',
+          },
+          {
+            title: '20% — Savings & Debt',
+            body: "Emergency fund, investments, extra debt repayments. Your future self's contribution.",
+          },
         ],
       },
       {
@@ -220,9 +238,9 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'fintrack-2-whats-new',
     category: 'Product News',
     categorySlug: 'product-news',
-    title: 'FinTrack 2.0: What\'s New',
+    title: "FinTrack 2.0: What's New",
     excerpt:
-      'We\'ve completely overhauled the dashboard experience. Faster syncing, a redesigned analytics view, new budget widgets, and a powerful AI chat — all in one release.',
+      "We've completely overhauled the dashboard experience. Faster syncing, a redesigned analytics view, new budget widgets, and a powerful AI chat — all in one release.",
     author: 'FinTrack Team',
     role: 'Product',
     initials: 'FT',
@@ -235,16 +253,28 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'After six months of building, we\'re thrilled to ship FinTrack 2.0 — the biggest product update in our history. Here\'s everything that changed.',
+        text: "After six months of building, we're thrilled to ship FinTrack 2.0 — the biggest product update in our history. Here's everything that changed.",
       },
       { type: 'h2', text: 'Highlights' },
       {
         type: 'list',
         items: [
-          { title: 'Redesigned Dashboard', body: 'A cleaner, widget-based layout that surfaces your most important numbers at a glance.' },
-          { title: 'AI Chat (Beta)', body: 'Ask questions like "How much did I spend on food last month?" and get instant answers.' },
-          { title: 'Faster Sync', body: 'Transaction processing is now 3× faster with our new background sync engine.' },
-          { title: 'PDF Reports', body: 'Generate and download a full monthly financial report in one click. Pro feature.' },
+          {
+            title: 'Redesigned Dashboard',
+            body: 'A cleaner, widget-based layout that surfaces your most important numbers at a glance.',
+          },
+          {
+            title: 'AI Chat (Beta)',
+            body: 'Ask questions like "How much did I spend on food last month?" and get instant answers.',
+          },
+          {
+            title: 'Faster Sync',
+            body: 'Transaction processing is now 3× faster with our new background sync engine.',
+          },
+          {
+            title: 'PDF Reports',
+            body: 'Generate and download a full monthly financial report in one click. Pro feature.',
+          },
         ],
       },
       {
@@ -253,7 +283,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'paragraph',
-        text: 'The update is live now for all users. Pro subscribers get early access to AI Chat and PDF Reports. We\'re already working on 2.1 — stay tuned in the Community.',
+        text: "The update is live now for all users. Pro subscribers get early access to AI Chat and PDF Reports. We're already working on 2.1 — stay tuned in the Community.",
       },
     ],
   },
@@ -276,12 +306,12 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'Sarah, a 29-year-old teacher from Manchester, had $30,000 in combined student loan and credit card debt. Two years later, it\'s gone. This is her story.',
+        text: "Sarah, a 29-year-old teacher from Manchester, had $30,000 in combined student loan and credit card debt. Two years later, it's gone. This is her story.",
       },
       { type: 'h2', text: 'The Starting Point' },
       {
         type: 'paragraph',
-        text: 'Sarah signed up for FinTrack after a particularly stressful month where she couldn\'t explain where her salary had gone. The first thing the app revealed: she was spending $420/month on subscriptions and impulse food orders she\'d forgotten about.',
+        text: "Sarah signed up for FinTrack after a particularly stressful month where she couldn't explain where her salary had gone. The first thing the app revealed: she was spending $420/month on subscriptions and impulse food orders she'd forgotten about.",
       },
       {
         type: 'blockquote',
@@ -291,15 +321,27 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: 'Cancelled 8 subscriptions', body: 'Freed up $180/month immediately. Redirected straight to her highest-interest debt.' },
-          { title: 'Set a strict dining budget', body: 'Cut food spend by 60% using FinTrack\'s real-time budget alerts. Still ate well.' },
-          { title: 'Automated debt payments', body: 'Used recurring goals to earmark $900/month as untouchable debt repayment.' },
-          { title: 'Tracked every win', body: 'Posted monthly progress in the FinTrack Community for accountability.' },
+          {
+            title: 'Cancelled 8 subscriptions',
+            body: 'Freed up $180/month immediately. Redirected straight to her highest-interest debt.',
+          },
+          {
+            title: 'Set a strict dining budget',
+            body: "Cut food spend by 60% using FinTrack's real-time budget alerts. Still ate well.",
+          },
+          {
+            title: 'Automated debt payments',
+            body: 'Used recurring goals to earmark $900/month as untouchable debt repayment.',
+          },
+          {
+            title: 'Tracked every win',
+            body: 'Posted monthly progress in the FinTrack Community for accountability.',
+          },
         ],
       },
       {
         type: 'paragraph',
-        text: 'Sarah\'s story proves that financial freedom isn\'t about earning more — it\'s about seeing clearly and acting consistently. Her FinTrack account is still open, now focused on building a six-month emergency fund.',
+        text: "Sarah's story proves that financial freedom isn't about earning more — it's about seeing clearly and acting consistently. Her FinTrack account is still open, now focused on building a six-month emergency fund.",
       },
     ],
   },
@@ -309,7 +351,7 @@ export const BLOG_POSTS: BlogPost[] = [
     categorySlug: 'investing',
     title: 'DeFi for Beginners: What You Actually Need to Know',
     excerpt:
-      'Demystifying decentralized finance. What it is, how it works, the real risks involved — and whether it belongs in a beginner\'s financial strategy at all.',
+      "Demystifying decentralized finance. What it is, how it works, the real risks involved — and whether it belongs in a beginner's financial strategy at all.",
     author: 'Amara Osei',
     role: 'Investment Strategist',
     initials: 'AO',
@@ -322,7 +364,7 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'DeFi — decentralized finance — promised to make banks obsolete. Three years in, the reality is more nuanced. Here\'s what actually matters for the average investor.',
+        text: "DeFi — decentralized finance — promised to make banks obsolete. Three years in, the reality is more nuanced. Here's what actually matters for the average investor.",
       },
       { type: 'h2', text: 'What Is DeFi?' },
       {
@@ -333,10 +375,22 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: 'Smart contract bugs', body: 'Code vulnerabilities have led to over $3 billion in losses since 2020. There is no insurance.' },
-          { title: 'Regulatory uncertainty', body: 'Governments globally are still defining DeFi\'s legal status. Rules can change overnight.' },
-          { title: 'Volatility', body: 'Yield farming returns that look attractive today can be near-zero tomorrow due to token price swings.' },
-          { title: 'Complexity', body: 'Gas fees, wallet management, and protocol risks require significant learning before committing capital.' },
+          {
+            title: 'Smart contract bugs',
+            body: 'Code vulnerabilities have led to over $3 billion in losses since 2020. There is no insurance.',
+          },
+          {
+            title: 'Regulatory uncertainty',
+            body: "Governments globally are still defining DeFi's legal status. Rules can change overnight.",
+          },
+          {
+            title: 'Volatility',
+            body: 'Yield farming returns that look attractive today can be near-zero tomorrow due to token price swings.',
+          },
+          {
+            title: 'Complexity',
+            body: 'Gas fees, wallet management, and protocol risks require significant learning before committing capital.',
+          },
         ],
       },
       {
@@ -383,15 +437,27 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: 'Lean FIRE', body: 'Retire on a bare-bones budget ($25k–$40k/year). Requires extreme frugality but achievable on average income.' },
-          { title: 'Fat FIRE', body: 'Retire with a comfortable lifestyle ($80k+/year). Requires higher income or a longer accumulation phase.' },
-          { title: 'Barista FIRE', body: 'Semi-retire with part-time work covering daily expenses while investments continue to grow.' },
-          { title: 'Coast FIRE', body: 'Save aggressively early then stop — let compounding do the work while you earn just enough to live.' },
+          {
+            title: 'Lean FIRE',
+            body: 'Retire on a bare-bones budget ($25k–$40k/year). Requires extreme frugality but achievable on average income.',
+          },
+          {
+            title: 'Fat FIRE',
+            body: 'Retire with a comfortable lifestyle ($80k+/year). Requires higher income or a longer accumulation phase.',
+          },
+          {
+            title: 'Barista FIRE',
+            body: 'Semi-retire with part-time work covering daily expenses while investments continue to grow.',
+          },
+          {
+            title: 'Coast FIRE',
+            body: 'Save aggressively early then stop — let compounding do the work while you earn just enough to live.',
+          },
         ],
       },
       {
         type: 'paragraph',
-        text: 'Use FinTrack\'s Goals feature to model your FIRE target. Set your annual expense figure, apply the 25× multiplier, and track your portfolio progress monthly. The journey is long — but the visibility makes it manageable.',
+        text: "Use FinTrack's Goals feature to model your FIRE target. Set your annual expense figure, apply the 25× multiplier, and track your portfolio progress monthly. The journey is long — but the visibility makes it manageable.",
       },
     ],
   },
@@ -414,7 +480,7 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'The biggest barrier to investing isn\'t knowledge — it\'s inertia. Micro-investing apps remove the friction by letting you start with whatever you have, even $1.',
+        text: "The biggest barrier to investing isn't knowledge — it's inertia. Micro-investing apps remove the friction by letting you start with whatever you have, even $1.",
       },
       { type: 'h2', text: 'What to Look For' },
       {
@@ -425,10 +491,22 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'list',
         items: [
-          { title: 'Round-up investing', body: 'Round up every purchase to the nearest dollar and invest the difference automatically.' },
-          { title: 'Recurring deposits', body: 'Set $10/week auto-transfers so the habit runs in the background.' },
-          { title: 'Fractional shares', body: 'Own a slice of Amazon or Apple without needing $100+ per share.' },
-          { title: 'Goal tagging', body: 'Label each investment pot (holiday, house deposit, retirement) for clarity.' },
+          {
+            title: 'Round-up investing',
+            body: 'Round up every purchase to the nearest dollar and invest the difference automatically.',
+          },
+          {
+            title: 'Recurring deposits',
+            body: 'Set $10/week auto-transfers so the habit runs in the background.',
+          },
+          {
+            title: 'Fractional shares',
+            body: 'Own a slice of Amazon or Apple without needing $100+ per share.',
+          },
+          {
+            title: 'Goal tagging',
+            body: 'Label each investment pot (holiday, house deposit, retirement) for clarity.',
+          },
         ],
       },
       {
@@ -447,7 +525,7 @@ export const BLOG_POSTS: BlogPost[] = [
     categorySlug: 'budgeting',
     title: 'Building an Emergency Fund From Scratch',
     excerpt:
-      'A step-by-step guide to creating your financial safety net, even if you\'re living paycheck to paycheck. No magic required — just a system that works.',
+      "A step-by-step guide to creating your financial safety net, even if you're living paycheck to paycheck. No magic required — just a system that works.",
     author: 'Kezia Mensah',
     role: 'Personal Finance Coach',
     initials: 'KM',
@@ -460,20 +538,32 @@ export const BLOG_POSTS: BlogPost[] = [
     body: [
       {
         type: 'lead',
-        text: 'Three to six months of expenses. That\'s the number. It sounds impossible when you\'re stretched thin, but the path there is just a series of small, consistent steps.',
+        text: "Three to six months of expenses. That's the number. It sounds impossible when you're stretched thin, but the path there is just a series of small, consistent steps.",
       },
       { type: 'h2', text: 'Start with $1,000' },
       {
         type: 'paragraph',
-        text: 'A starter emergency fund of $1,000 handles most real-world emergencies — a car repair, a broken appliance, a medical co-pay. It\'s the psychological and practical first milestone. Everything after that is scaling.',
+        text: "A starter emergency fund of $1,000 handles most real-world emergencies — a car repair, a broken appliance, a medical co-pay. It's the psychological and practical first milestone. Everything after that is scaling.",
       },
       {
         type: 'list',
         items: [
-          { title: 'Separate account', body: 'Keep your emergency fund in a different bank. Out of sight, out of mind — and inaccessible for impulse spending.' },
-          { title: 'Automate it', body: 'Set up a recurring transfer the day after payday. Treat it like a bill you can\'t skip.' },
-          { title: 'Sell something', body: 'One declutter session — eBay, Facebook Marketplace — can fund your starter emergency fund in a weekend.' },
-          { title: 'Track it visibly', body: 'Use FinTrack\'s Goals feature with a progress bar. Visual progress is a powerful motivator.' },
+          {
+            title: 'Separate account',
+            body: 'Keep your emergency fund in a different bank. Out of sight, out of mind — and inaccessible for impulse spending.',
+          },
+          {
+            title: 'Automate it',
+            body: "Set up a recurring transfer the day after payday. Treat it like a bill you can't skip.",
+          },
+          {
+            title: 'Sell something',
+            body: 'One declutter session — eBay, Facebook Marketplace — can fund your starter emergency fund in a weekend.',
+          },
+          {
+            title: 'Track it visibly',
+            body: "Use FinTrack's Goals feature with a progress bar. Visual progress is a powerful motivator.",
+          },
         ],
       },
       {
@@ -482,12 +572,12 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: 'paragraph',
-        text: 'Once you hit $1,000, don\'t stop. Set the goal to three months of your essential expenses and keep the automation running. You\'ll get there faster than you think.',
+        text: "Once you hit $1,000, don't stop. Set the goal to three months of your essential expenses and keep the automation running. You'll get there faster than you think.",
       },
     ],
   },
 ];
 
-export const FEATURED_POST = BLOG_POSTS.find((p) => p.featured) ?? BLOG_POSTS[0];
+export const FEATURED_POST = BLOG_POSTS.find((p) => p.featured) ?? BLOG_POSTS[0]!;
 
 export { BookOpen };
