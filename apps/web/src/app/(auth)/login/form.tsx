@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +27,7 @@ import { ServerFormatter } from '@fintrack/utils/server';
 import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { LoginRes } from '@fintrack/types/protos/auth/auth';
+import { useRouter } from 'next/navigation';
 
 const loginschema = z.object({
   email: z.string().email('Invalid Email'),
@@ -34,14 +36,58 @@ const loginschema = z.object({
 
 type LoginValues = z.infer<typeof loginschema>;
 
-export function LoginForm({ className }: React.ComponentProps<'form'>) {
+/** Maps NextAuth error codes to human-readable messages. */
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  OAuthSignInError: 'Failed to sign in. Please try again.',
+  OAuthCallbackError: 'Sign-in was interrupted. Please try again.',
+  AccessDenied: 'Access was denied. Please check your account and try again.',
+  CredentialsSignin: 'Invalid email or password.',
+  Configuration: 'Authentication is misconfigured. Please contact support.',
+  Default: 'An error occurred during sign-in. Please try again.',
+};
+
+function resolveAuthError(code: string | undefined): string | null {
+  if (!code) return null;
+  return AUTH_ERROR_MESSAGES[code] ?? AUTH_ERROR_MESSAGES.Default!;
+}
+
+interface LoginFormProps extends React.ComponentProps<'form'> {
+  authError?: string;
+}
+
+export function LoginForm({ className, authError }: LoginFormProps) {
+  const router = useRouter();
+  const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginschema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
   });
+
+  // Show a toast and strip ?error= from the URL so a refresh doesn't re-trigger it
+  useEffect(() => {
+    const message = resolveAuthError(authError);
+    if (message) {
+      toast.error('Sign-in failed', { description: message });
+      router.replace(AUTH_ROUTES.LOGIN);
+    }
+  }, [authError, router]);
+
+  // True whenever any sign-in is in flight — used to lock all three buttons
+  const isAnyLoading = form.formState.isSubmitting || loadingProvider !== null;
+
+  const handleSocialSignIn = async (provider: 'google' | 'apple') => {
+    if (isAnyLoading) return;
+    setLoadingProvider(provider);
+    try {
+      await signIn(provider, { redirectTo: DASHBOARD_ROUTES.DASHBOARD });
+    } catch {
+      toast.error('Sign-in failed', {
+        description: 'Could not connect to the sign-in provider. Please try again.',
+      });
+      setLoadingProvider(null);
+    }
+  };
 
   const onSubmit = async (data: LoginValues) => {
     try {
@@ -53,7 +99,6 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
       await signIn('credentials', {
         redirect: true,
         redirectTo: DASHBOARD_ROUTES.DASHBOARD,
-        flow: 'post-login',
         accessToken: resData.data?.accessToken,
         refreshToken: resData.data?.refreshToken,
       });
@@ -67,13 +112,26 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className={cn('pt-6', className)}>
       <FieldGroup>
-        {/** SOCIALS */}
+        {/* Social sign-in — mutually exclusive; all disabled while any is loading */}
         <Field>
-          <Button variant="secondary" type="button">
+          <Button
+            variant="secondary"
+            type="button"
+            loading={loadingProvider === 'apple'}
+            disabled={isAnyLoading && loadingProvider !== 'apple'}
+            onClick={() => handleSocialSignIn('apple')}
+          >
             <AppleIcon fill="currentColor" />
             Login with Apple
           </Button>
-          <Button variant="secondary" type="button">
+
+          <Button
+            variant="secondary"
+            type="button"
+            loading={loadingProvider === 'google'}
+            disabled={isAnyLoading && loadingProvider !== 'google'}
+            onClick={() => handleSocialSignIn('google')}
+          >
             <GoogleIcon fill="currentColor" />
             Login with Google
           </Button>
@@ -92,6 +150,7 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
             type="email"
             placeholder="m@example.com"
             aria-invalid={!!form.formState.errors.email}
+            disabled={isAnyLoading}
             {...form.register('email')}
           />
           <FieldError errors={[form.formState.errors.email]} />
@@ -108,6 +167,7 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
             id="password"
             placeholder="******************"
             aria-invalid={!!form.formState.errors.password}
+            disabled={isAnyLoading}
             {...form.register('password')}
           />
           <FieldError errors={[form.formState.errors.password]} />
@@ -118,7 +178,7 @@ export function LoginForm({ className }: React.ComponentProps<'form'>) {
             className="mb-1"
             type="submit"
             loading={form.formState.isSubmitting}
-            disabled={form.formState.isSubmitting}
+            disabled={isAnyLoading && !form.formState.isSubmitting}
           >
             Login
           </Button>

@@ -1,11 +1,7 @@
 import Link from 'next/link';
 import { CheckCircle, ArrowDown, DollarSign } from 'lucide-react';
 
-const CHECKLIST = [
-  'Bank-level security encryption',
-  'Custom alerts and notifications',
-  'Exportable reports for tax season',
-] as const;
+import { FEATURE_CHECKLIST } from '../_data';
 
 /**
  * Two-column feature highlight — "Your Financial Health At A Glance".
@@ -36,7 +32,7 @@ export function FeatureHighlightSection() {
             </p>
 
             <ul className="space-y-3 mb-8" role="list">
-              {CHECKLIST.map((item) => (
+              {FEATURE_CHECKLIST.map((item) => (
                 <li key={item} className="flex items-center gap-3 text-body text-text-secondary">
                   <CheckCircle size={18} className="text-primary shrink-0" aria-hidden="true" />
                   {item}

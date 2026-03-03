@@ -13,6 +13,7 @@ service AuthService {
     rpc ResetPassword(ResetPasswordReq) returns(ResetPasswordRes) {}
     rpc ValidateToken(ValidateTokenReq) returns (ValidateTokenRes) {}
     rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes) {}
+    // rpc LoginWithGoogle()  returns () {}
 }
 
 message User {

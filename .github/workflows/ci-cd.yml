@@ -7,28 +7,15 @@
 #
 # Required GitHub secrets (repo → Settings → Secrets and variables → Actions):
 #   DOCKERHUB_USERNAME                      dasiloy
-#   DOCKERHUB_TOKEN                         Docker Hub access token
-#   DATABASE_URL                            Production Neon DB URL
-#   REDIS_URL                               Production Upstash Redis URL
-#   JWT_SECRET                              Long random string
-#   JWT_REFRESH_SECRET                      Long random string
-#   JWT_OTP_SECRET                          Long random string
-#   JWT_ACCESS_TOKEN_EXPIRATION             15m
-#   JWT_REFRESH_TOKEN_EXPIRATION            1d
-#   JWT_OTP_TOKEN_EXPIRATION                60m
-#   AUTH_SECRET                             Same as JWT_SECRET
-#   AUTH_GOOGLE_ID                          Google OAuth client ID
-#   AUTH_GOOGLE_SECRET                      Google OAuth client secret
-#   MAIL_FROM                               noreply@fintrack.live
-#   MAIL_TOKEN                              Mailtrap API token
-#   SWAGGER_DOC_USER                        Swagger basic-auth user
-#   SWAGGER_DOC_PASS                        Swagger basic-auth password
-#   MAX_LOGIN_ATTEMPTS                      3
-#   OTP_EXPIRY_MINUTES                      5
-#   RENDER_DEPLOY_HOOK_API_GATEWAY          (from Render dashboard)
-#   RENDER_DEPLOY_HOOK_AUTH_SERVICE         (from Render dashboard)
-#   RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE (from Render dashboard)
-#   RENDER_DEPLOY_HOOK_PAYMENT_SERVICE      (from Render dashboard)
+#   DOCKERHUB_TOKEN                         Docker Hub → Account Settings → Personal Access Tokens
+#   RENDER_DEPLOY_HOOK_API_GATEWAY          Render → fintrack-api-gateway → Settings → Deploy Hook
+#   RENDER_DEPLOY_HOOK_AUTH_SERVICE         Render → fintrack-auth-service → Settings → Deploy Hook
+#   RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE Render → fintrack-notification-service → Settings → Deploy Hook
+#   RENDER_DEPLOY_HOOK_PAYMENT_SERVICE      Render → fintrack-payment-service → Settings → Deploy Hook
+#
+# Runtime env vars (DATABASE_URL, JWT_SECRET, REDIS_URL, etc.) are NOT needed
+# here. Docker images are built without secrets. All runtime configuration is
+# set directly on each Render service via Settings → Environment.
 # =============================================================================
 
 name: CI / CD

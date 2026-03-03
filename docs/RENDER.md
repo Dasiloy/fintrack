@@ -12,13 +12,15 @@ GitHub (main push)
         ├── Type check + Tests
         ├── Build Docker images → Docker Hub
         └── Trigger Render deploy hooks
-              ├── fintrack-api-gateway        (Web Service — public)
-              ├── fintrack-auth-service       (Private Service — internal gRPC)
+              ├── fintrack-api-gateway          (Web Service — public)
+              ├── fintrack-auth-service         (Private Service — internal gRPC)
               ├── fintrack-notification-service (Private Service — internal gRPC)
-              └── fintrack-payment-service    (Private Service — internal gRPC)
+              └── fintrack-payment-service      (Private Service — internal gRPC)
 ```
 
 Only `api_gateway` is publicly accessible. The three gRPC services are Render Private Services — internal only, no public URL, cheaper tier.
+
+> **Important:** Docker images are built without any secrets. All environment variables are runtime config injected by Render when the container starts — nothing is baked into the image.
 
 ---
 
@@ -43,32 +45,19 @@ Set these on each service via **Settings → Environment**.
 
 ### api_gateway
 
+Handles HTTP traffic and routes requests to the gRPC microservices.
+
 ```env
 NODE_ENV=production
-PORT=4001
+API_GATEWAY_PORT=4001
 
-DATABASE_URL=
-REDIS_URL=
+DATABASE_URL=          # Neon PostgreSQL connection string
 
-JWT_SECRET=
-JWT_REFRESH_SECRET=
-JWT_OTP_SECRET=
-JWT_ACCESS_TOKEN_EXPIRATION=15m
-JWT_REFRESH_TOKEN_EXPIRATION=1d
-JWT_OTP_TOKEN_EXPIRATION=60m
+SWAGGER_DOC_USER=      # Basic auth username for /api/docs
+SWAGGER_DOC_PASS=      # Basic auth password for /api/docs
 
-AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
-
-SWAGGER_DOC_USER=
-SWAGGER_DOC_PASS=
-
-MAX_LOGIN_ATTEMPTS=3
-OTP_EXPIRY_MINUTES=5
-
-# Internal hostnames — get these from each service's dashboard after creation
-# Render → <service> → Settings → Internal Address
+# Internal Render hostnames for gRPC services
+# Find these in each Private Service → Settings → Internal Address
 AUTH_SERVICE_HOST=fintrack-auth-service
 AUTH_SERVICE_PORT=4002
 
@@ -79,18 +68,25 @@ PAYMENT_SERVICE_HOST=fintrack-payment-service
 PAYMENT_SERVICE_PORT=4008
 ```
 
+---
+
 ### auth_service
+
+Handles authentication, JWT issuance, sessions, OTP, and login limits.
 
 ```env
 NODE_ENV=production
-PORT=4002
+AUTH_SERVICE_PORT=4002
 
-DATABASE_URL=
-REDIS_URL=
+DATABASE_URL=          # Neon PostgreSQL connection string
+REDIS_URL=             # Upstash Redis connection string
 
-JWT_SECRET=
-JWT_REFRESH_SECRET=
-JWT_OTP_SECRET=
+AUTH_SECRET=           # Same value as JWT_SECRET
+
+JWT_SECRET=            # Long random string (openssl rand -base64 64)
+JWT_REFRESH_SECRET=    # Different long random string
+JWT_OTP_SECRET=        # Different long random string
+
 JWT_ACCESS_TOKEN_EXPIRATION=15m
 JWT_REFRESH_TOKEN_EXPIRATION=1d
 JWT_OTP_TOKEN_EXPIRATION=60m
@@ -99,27 +95,36 @@ MAX_LOGIN_ATTEMPTS=3
 OTP_EXPIRY_MINUTES=5
 ```
 
+---
+
 ### notification_service
+
+Processes email jobs from Redis queue and sends via Mailtrap.
 
 ```env
 NODE_ENV=production
-PORT=4009
+NOTIFICATION_SERVICE_PORT=4009
+
+DATABASE_URL=          # Neon PostgreSQL connection string
+REDIS_URL=             # Upstash Redis connection string
 
 MAIL_FROM=noreply@fintrack.live
-MAIL_TOKEN=
+MAIL_TOKEN=            # Mailtrap API token (mailtrap.io → API Tokens)
 ```
+
+---
 
 ### payment_service
 
+Handles Stripe subscriptions and billing.
+
 ```env
 NODE_ENV=production
-PORT=4008
+PAYMENT_SERVICE_PORT=4008
 
-DATABASE_URL=
-REDIS_URL=
+DATABASE_URL=          # Neon PostgreSQL connection string
+REDIS_URL=             # Upstash Redis connection string
 ```
-
-> **Internal hostnames:** After creating a Private Service, Render shows its internal address in the dashboard (e.g. `fintrack-auth-service:4002`). Use the hostname part only for `*_HOST` vars.
 
 ---
 
@@ -127,7 +132,7 @@ REDIS_URL=
 
 Each service → **Settings → Build & Deploy → Auto-Deploy → Off**
 
-This prevents Render from deploying on git push before GitHub Actions has finished building and pushing the new Docker image. The CI/CD pipeline is the sole deploy trigger.
+This prevents Render from deploying on git push before GitHub Actions finishes building the new Docker image. The CI/CD pipeline is the sole deploy trigger via deploy hooks — image is always ready before Render pulls it.
 
 ---
 
@@ -135,23 +140,25 @@ This prevents Render from deploying on git push before GitHub Actions has finish
 
 Each service → **Settings → Deploy Hook** → copy the URL.
 
-Add these to GitHub: **repo → Settings → Secrets and variables → Actions → New repository secret**
+Add to GitHub: **repo → Settings → Secrets and variables → Actions → New repository secret**
 
-| Secret Name | Value |
+| GitHub Secret | Where to get the value |
 |---|---|
-| `RENDER_DEPLOY_HOOK_API_GATEWAY` | `https://api.render.com/deploy/srv-...` |
-| `RENDER_DEPLOY_HOOK_AUTH_SERVICE` | `https://api.render.com/deploy/srv-...` |
-| `RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE` | `https://api.render.com/deploy/srv-...` |
-| `RENDER_DEPLOY_HOOK_PAYMENT_SERVICE` | `https://api.render.com/deploy/srv-...` |
+| `RENDER_DEPLOY_HOOK_API_GATEWAY` | Render → fintrack-api-gateway → Settings → Deploy Hook |
+| `RENDER_DEPLOY_HOOK_AUTH_SERVICE` | Render → fintrack-auth-service → Settings → Deploy Hook |
+| `RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE` | Render → fintrack-notification-service → Settings → Deploy Hook |
+| `RENDER_DEPLOY_HOOK_PAYMENT_SERVICE` | Render → fintrack-payment-service → Settings → Deploy Hook |
 
 ---
 
 ## Step 5 — Add Docker Hub Secrets to GitHub
 
-| Secret Name | Value |
+| GitHub Secret | Value |
 |---|---|
 | `DOCKERHUB_USERNAME` | `dasiloy` |
 | `DOCKERHUB_TOKEN` | Docker Hub → Account Settings → Personal Access Tokens → Generate |
+
+These are the **only** secrets GitHub Actions needs. All other env vars go on Render, not GitHub.
 
 ---
 
@@ -167,7 +174,7 @@ git push origin main
         │               dasiloy/fintrack-auth-service:latest
         │               dasiloy/fintrack-notification-service:latest
         │               dasiloy/fintrack-payment-service:latest
-        └── [deploy]   Calls Render deploy hooks
+        └── [deploy]   Calls Render deploy hooks (image already on Docker Hub)
                         → Render pulls new images
                         → Zero-downtime redeploy
 ```
@@ -176,16 +183,34 @@ Total time: ~8–12 minutes depending on build cache hits.
 
 ---
 
+## Internal Hostname Note
+
+After creating the Private Services, get each one's internal address from:
+**Render → \<service\> → Settings → Internal Address**
+
+The hostname part (before the colon) is what goes into `*_HOST` env vars on api_gateway. For example:
+```
+Internal Address:  fintrack-auth-service:4002
+AUTH_SERVICE_HOST: fintrack-auth-service   ← hostname only
+AUTH_SERVICE_PORT: 4002
+```
+
+---
+
 ## Troubleshooting
 
 **Service can't reach another service (gRPC connection refused)**
 - Check `*_HOST` and `*_PORT` env vars on api_gateway match the Render internal address exactly
-- Ensure the target service is healthy (check its Render logs)
+- Ensure the target Private Service is healthy (check its Render logs)
 
 **Deploy hook fires but Render pulls old image**
-- This means auto-deploy was still enabled and fired before CI finished
+- Auto-Deploy was still enabled and fired before CI finished
 - Go to each service → Settings → Auto-Deploy → Off
 
 **Image pull fails on Render**
-- If your Docker Hub repos are private, add credentials: Render → Account Settings → Integrations → Docker Hub
+- If your Docker Hub repos are private: Render → Account Settings → Integrations → Docker Hub
 - If public, no credentials needed
+
+**Container crashes on startup**
+- Almost always a missing or wrong environment variable
+- Check Render logs for the specific validation error from ConfigModule
