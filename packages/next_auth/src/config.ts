@@ -6,6 +6,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { LoginRes, RefreshTokenRes } from '@fintrack/types/protos/auth/auth';
 import { type TokenPayload } from '@fintrack/types/interfaces/token_payload';
+import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 export interface AuthEnv {
   AUTH_SECRET: string;
@@ -37,6 +38,10 @@ declare module 'next-auth' {
 
 export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthConfig => ({
   secret: env.AUTH_SECRET,
+  pages: {
+    signIn: AUTH_ROUTES.LOGIN,
+    error: AUTH_ROUTES.LOGIN,
+  },
   session: {
     strategy: 'jwt' as const,
     maxAge: helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION),
@@ -52,63 +57,25 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        flow: { label: 'Flow', type: 'text' },
         accessToken: { label: 'Access Token', type: 'text' },
         refreshToken: { label: 'Refresh Token', type: 'text' },
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (credentials.flow === 'post-verify' || credentials.flow === 'post-login') {
-          try {
-            const res = await jwtVerify(
-              credentials.accessToken as string,
-              new TextEncoder().encode(env.AUTH_SECRET),
-            );
-            const payload = res.payload as unknown as TokenPayload;
-            return {
-              id: payload.id,
-              email: payload.email,
-              image: payload.avatar,
-              access_token: credentials.accessToken as string,
-              refresh_token: credentials.refreshToken as string,
-              name: `${payload.firstName} ${payload.lastName}`,
-            };
-          } catch {
-            return null;
-          }
-        }
-
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
         try {
-          const response = await fetch(`${env.API_GATEWAY_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
-            }),
-          });
-
-          if (!response.ok) {
-            return null;
-          }
-
-          const data: StandardResponse<LoginRes> = await response.json();
-
+          const res = await jwtVerify(
+            credentials.accessToken as string,
+            new TextEncoder().encode(env.AUTH_SECRET),
+          );
+          const payload = res.payload as unknown as TokenPayload;
           return {
-            id: data.data?.user?.id,
-            email: data.data?.user?.email,
-            image: data.data?.user?.avatar,
-            access_token: data.data?.accessToken,
-            refresh_token: data.data?.refreshToken,
-            name: `${data.data?.user?.firstName} ${data.data?.user?.lastName}`,
+            id: payload.id,
+            email: payload.email,
+            image: payload.avatar,
+            access_token: credentials.accessToken as string,
+            refresh_token: credentials.refreshToken as string,
+            name: `${payload.firstName} ${payload.lastName}`,
           };
-        } catch (error) {
-          console.error('Login error:', error);
+        } catch {
           return null;
         }
       },
@@ -117,6 +84,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
+        console.log('user', user);
+        console.log('account', account);
         try {
           const response = await fetch(`${env.API_GATEWAY_URL}/auth/oauth/google`, {
             method: 'POST',
@@ -222,8 +191,20 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
     },
 
     async redirect({ url, baseUrl }) {
-      if (url.startsWith('/')) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
+      try {
+        const parsed = new URL(fullUrl);
+        // Intercept NextAuth's built-in error route and redirect to login
+        // with the error code as a search param so the login page can toast it.
+        if (parsed.pathname === '/api/auth/error') {
+          const error = parsed.searchParams.get('error') ?? 'Default';
+          return `${baseUrl}${AUTH_ROUTES.LOGIN}?error=${encodeURIComponent(error)}`;
+        }
+        if (url.startsWith('/')) return `${baseUrl}${url}`;
+        if (parsed.origin === baseUrl) return url;
+      } catch {
+        // Malformed URL — fall through to baseUrl
+      }
       return baseUrl;
     },
   },

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { useBoolean } from '@ui/hooks';
+import { useEffect, useRef, useState } from 'react';
 import {
   AUTH_ROUTES,
   DASHBOARD_ROUTES,
@@ -12,6 +13,7 @@ import {
 import type { SessionUser } from '@fintrack/types/interfaces/session_user.interface';
 import React from 'react';
 import { Logo } from '@/app/_components';
+import { cn } from '@ui/lib/utils';
 
 const NAV_LINKS = [
   { label: 'Pricing', href: STATIC_ROUTES.PRICING },
@@ -24,11 +26,35 @@ const NAV_LINKS = [
  * Fixed top navigation bar with a glass pill design.
  * Desktop: inline links. Mobile: collapsible dropdown.
  */
+const SCROLL_THRESHOLD = 300;
+
 export function LandingNav({ user }: { user: SessionUser }) {
   const [open, setOpen] = useBoolean(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > SCROLL_THRESHOLD && y > lastScrollY.current) {
+        setHidden(true);
+      } else if (y < lastScrollY.current) {
+        setHidden(false);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 right-0 left-0 z-50 px-4 pt-4 md:px-6">
+    <nav
+      className={cn(
+        'fixed top-0 right-0 left-0 z-50 px-4 pt-4 md:px-6',
+        'transition-[opacity,transform] duration-300 ease-in-out',
+        hidden ? 'pointer-events-none -translate-y-2 opacity-0' : 'translate-y-0 opacity-100',
+      )}
+    >
       <div className="mx-auto max-w-[1200px]">
         {/* Pill nav */}
         <div className="glass-card flex items-center justify-between rounded-full px-5 py-3">
