@@ -2,24 +2,40 @@
   "ui": "stream",
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
+    "NODE_ENV",
+    "SKIP_ENV_VALIDATION",
+    "PORT",
+    "VERCEL_URL",
+
+    "DATABASE_URL",
+    "REDIS_URL",
+
     "AUTH_SECRET",
     "AUTH_GOOGLE_ID",
     "AUTH_GOOGLE_SECRET",
-    "DATABASE_URL",
+
     "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "JWT_OTP_SECRET",
     "JWT_ACCESS_TOKEN_EXPIRATION",
     "JWT_REFRESH_TOKEN_EXPIRATION",
+    "JWT_OTP_TOKEN_EXPIRATION",
+    "MAX_LOGIN_ATTEMPTS",
+    "OTP_EXPIRY_MINUTES",
+
+    "MAIL_FROM",
+    "MAIL_TOKEN",
+
     "API_GATEWAY_URL",
     "API_GATEWAY_HOST",
     "API_GATEWAY_PORT",
     "AUTH_SERVICE_HOST",
     "AUTH_SERVICE_PORT",
+    "NOTIFICATION_SERVICE_HOST",
+    "NOTIFICATION_SERVICE_PORT",
     "PAYMENT_SERVICE_HOST",
     "PAYMENT_SERVICE_PORT",
-    "NODE_ENV",
-    "SKIP_ENV_VALIDATION",
-    "VERCEL_URL",
-    "PORT",
+
     "SWAGGER_DOC_USER",
     "SWAGGER_DOC_PASS"
   ],
@@ -28,7 +44,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$"],
-      "env": ["NEXT_PUBLIC_*", "API_GATEWAY_URL"],
+      "env": ["NEXT_PUBLIC_*"],
       "envMode": "strict",
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },

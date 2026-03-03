@@ -3,6 +3,7 @@ import { sessionToUser } from '@/helpers/session';
 
 import { LandingNav } from './landing_nav';
 import { LandingFooter } from './landing_footer';
+import { BackToTop } from './back_to_top';
 
 /**
  * Shared server-component shell for static/marketing pages.
@@ -27,8 +28,9 @@ export async function StaticPageShell({ children }: { children: React.ReactNode 
 
       <div className="bg-bg-deep text-text-primary selection:bg-primary/30 relative z-10 min-h-screen overflow-x-hidden">
         <LandingNav user={user} />
-        <main className="pt-28 pb-20">{children}</main>
+        <main className="pt-32 pb-20">{children}</main>
         <LandingFooter />
+        <BackToTop />
       </div>
     </>
   );

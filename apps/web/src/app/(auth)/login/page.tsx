@@ -4,10 +4,15 @@ import { auth } from '@/lib/nextauth';
 import { LoginForm } from '@/app/(auth)/login/form';
 import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 
-export default async function LoginPage() {
-  const session = await auth();
+interface LoginPageProps {
+  searchParams: Promise<{ error?: string }>;
+}
 
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const session = await auth();
   if (session) redirect(DASHBOARD_ROUTES.DASHBOARD);
 
-  return <LoginForm />;
+  const { error } = await searchParams;
+
+  return <LoginForm authError={error} />;
 }

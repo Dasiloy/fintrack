@@ -532,8 +532,8 @@ export class AuthService {
           return { user, tokens };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
+          // maxWait: 5000,
+          // timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );

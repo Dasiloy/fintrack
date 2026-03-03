@@ -1,0 +1,40 @@
+# ── Git ────────────────────────────────────────────────────────────────────────
+.git
+.gitignore
+
+# ── Node modules (installed inside the image) ─────────────────────────────────
+node_modules
+**/node_modules
+
+# ── Build artefacts ──────────────────────────────────────────────────────────
+dist
+**/dist
+.next
+**/.next
+.turbo
+**/.turbo
+coverage
+**/coverage
+
+# ── Environment files (secrets never go into images) ─────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── OS / editor noise ─────────────────────────────────────────────────────────
+.DS_Store
+*.pem
+.vscode
+.idea
+.claude
+
+# ── Docs / non-build files ────────────────────────────────────────────────────
+docs
+*.md
+!README.md
+
+# ── Mobile (Expo — never Dockerized) ─────────────────────────────────────────
+apps/mobile
+
+# ── CI ────────────────────────────────────────────────────────────────────────
+.github

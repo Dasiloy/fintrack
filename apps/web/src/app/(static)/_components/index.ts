@@ -8,3 +8,4 @@ export { CTASection } from './cta_section';
 export { LandingFooter } from './landing_footer';
 export { StaticPageShell } from './static_page_shell';
 export { Mailer } from './mailer';
+export { BackToTop } from './back_to_top';
