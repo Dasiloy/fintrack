@@ -25,7 +25,7 @@ export default function NotFound() {
       {/* Content */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 text-center">
         {/* Big 404 */}
-        <p className="font-manrope from-primary/60 to-primary/10 mb-4 select-none bg-linear-to-b bg-clip-text text-[clamp(7rem,20vw,14rem)] font-black leading-none text-transparent">
+        <p className="font-manrope from-primary/60 to-primary/10 mb-4 bg-linear-to-b bg-clip-text text-[clamp(7rem,20vw,14rem)] leading-none font-black text-transparent select-none">
           404
         </p>
 
@@ -34,8 +34,7 @@ export default function NotFound() {
         </h1>
 
         <p className="text-body text-text-secondary mb-10 max-w-md leading-relaxed">
-          The page you're looking for doesn't exist or has been moved. Check the URL or head back
-          to safety.
+          The page you're looking for doesn't exist or has been moved. Kindly Check the URL.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -45,13 +44,6 @@ export default function NotFound() {
           >
             <Home size={16} aria-hidden="true" />
             Go home
-          </Link>
-          <Link
-            href="javascript:history.back()"
-            className="rounded-button border-border-light text-text-secondary hover:text-text-primary hover:border-primary/40 text-body inline-flex items-center gap-2 border px-6 py-2.5 font-semibold transition-colors duration-smooth"
-          >
-            <ArrowLeft size={16} aria-hidden="true" />
-            Go back
           </Link>
         </div>
       </main>
