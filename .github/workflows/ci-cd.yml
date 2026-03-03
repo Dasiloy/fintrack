@@ -1,0 +1,214 @@
+# =============================================================================
+# FinTrack — CI / CD Pipeline
+#
+# Triggers:
+#   • Every push and PR → quality + tests
+#   • Push to main only → Docker build + push + Render deploy
+#
+# Required GitHub secrets (repo → Settings → Secrets and variables → Actions):
+#   DOCKERHUB_USERNAME                      dasiloy
+#   DOCKERHUB_TOKEN                         Docker Hub access token
+#   DATABASE_URL                            Production Neon DB URL
+#   REDIS_URL                               Production Upstash Redis URL
+#   JWT_SECRET                              Long random string
+#   JWT_REFRESH_SECRET                      Long random string
+#   JWT_OTP_SECRET                          Long random string
+#   JWT_ACCESS_TOKEN_EXPIRATION             15m
+#   JWT_REFRESH_TOKEN_EXPIRATION            1d
+#   JWT_OTP_TOKEN_EXPIRATION                60m
+#   AUTH_SECRET                             Same as JWT_SECRET
+#   AUTH_GOOGLE_ID                          Google OAuth client ID
+#   AUTH_GOOGLE_SECRET                      Google OAuth client secret
+#   MAIL_FROM                               noreply@fintrack.live
+#   MAIL_TOKEN                              Mailtrap API token
+#   SWAGGER_DOC_USER                        Swagger basic-auth user
+#   SWAGGER_DOC_PASS                        Swagger basic-auth password
+#   MAX_LOGIN_ATTEMPTS                      3
+#   OTP_EXPIRY_MINUTES                      5
+#   RENDER_DEPLOY_HOOK_API_GATEWAY          (from Render dashboard)
+#   RENDER_DEPLOY_HOOK_AUTH_SERVICE         (from Render dashboard)
+#   RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE (from Render dashboard)
+#   RENDER_DEPLOY_HOOK_PAYMENT_SERVICE      (from Render dashboard)
+# =============================================================================
+
+name: CI / CD
+
+on:
+  push:
+    branches: [main, feat/**]
+  pull_request:
+    branches: [main]
+
+env:
+  DOCKERHUB_USERNAME: dasiloy
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9.0.0"
+
+# ── Job 1: Type Check ─────────────────────────────────────────────────────────
+jobs:
+  quality:
+    name: Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Build shared packages so workspace imports resolve during type-check
+      - name: Build workspace packages
+        run: pnpm turbo build --filter="./packages/*"
+        env:
+          SKIP_ENV_VALIDATION: "true"
+
+      - name: Type check all apps
+        run: pnpm check-types
+        env:
+          SKIP_ENV_VALIDATION: "true"
+
+# ── Job 2: Unit Tests (one job per NestJS service) ────────────────────────────
+  test:
+    name: Test — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: quality
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api_gateway
+          - auth_service
+          - notification_service
+          - payment_service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: pnpm turbo build --filter="./packages/*"
+        env:
+          SKIP_ENV_VALIDATION: "true"
+
+      - name: Run tests
+        run: pnpm --filter ${{ matrix.service }} test
+        env:
+          NODE_ENV: test
+
+# ── Job 3: Docker Build & Push (main branch only) ────────────────────────────
+  docker:
+    name: Docker — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+
+    # Only run on pushes to main, not on PRs
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: api_gateway
+            image: fintrack-api-gateway
+            port: 4001
+          - service: auth_service
+            image: fintrack-auth-service
+            port: 4002
+          - service: notification_service
+            image: fintrack-notification-service
+            port: 4009
+          - service: payment_service
+            image: fintrack-payment-service
+            port: 4008
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Enable multi-platform builds and layer caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Produces tags:
+      #   dasiloy/fintrack-api-gateway:latest
+      #   dasiloy/fintrack-api-gateway:<short-sha>   (e.g. ab12cd34)
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_USERNAME }}/${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable=true
+            type=sha,prefix=,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # GitHub Actions cache — dramatically speeds up repeated builds
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+# ── Job 4: Deploy — trigger Render deploy hooks ───────────────────────────────
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: docker
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Trigger Render deploys
+        # Each hook is optional — if the secret is empty the step skips cleanly
+        env:
+          HOOK_API:   ${{ secrets.RENDER_DEPLOY_HOOK_API_GATEWAY }}
+          HOOK_AUTH:  ${{ secrets.RENDER_DEPLOY_HOOK_AUTH_SERVICE }}
+          HOOK_NOTIF: ${{ secrets.RENDER_DEPLOY_HOOK_NOTIFICATION_SERVICE }}
+          HOOK_PAY:   ${{ secrets.RENDER_DEPLOY_HOOK_PAYMENT_SERVICE }}
+        run: |
+          trigger() {
+            local name="$1"
+            local hook="$2"
+            if [ -n "$hook" ]; then
+              echo "Triggering deploy: $name"
+              curl -fsSL -X POST "$hook"
+              echo " ✓ $name"
+            else
+              echo " ⚠  No deploy hook configured for $name — skipping"
+            fi
+          }
+
+          trigger "API Gateway"          "$HOOK_API"
+          trigger "Auth Service"         "$HOOK_AUTH"
+          trigger "Notification Service" "$HOOK_NOTIF"
+          trigger "Payment Service"      "$HOOK_PAY"
