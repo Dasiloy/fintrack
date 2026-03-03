@@ -1,36 +1,4 @@
-import { Zap, Globe, TrendingUp } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
-interface Metric {
-  icon: LucideIcon;
-  stat: string;
-  label: string;
-  description: string;
-}
-
-const METRICS: Metric[] = [
-  {
-    icon: Zap,
-    stat: '99.9%',
-    label: 'Uptime Reliability',
-    description:
-      'Access your financial data anytime, anywhere. Our infrastructure ensures your money is always within reach.',
-  },
-  {
-    icon: Globe,
-    stat: '$2B+',
-    label: 'Assets Tracked',
-    description:
-      'Trusted by thousands to monitor investments, savings, and daily expenses across the globe securely.',
-  },
-  {
-    icon: TrendingUp,
-    stat: '$400',
-    label: 'Monthly Savings',
-    description:
-      'On average, our users save an extra $400 per month by identifying subscriptions and optimizing budgets.',
-  },
-];
+import { METRICS } from '../_data';
 
 /**
  * "Why FinTrack?" — three key metrics with icon, stat, and description.

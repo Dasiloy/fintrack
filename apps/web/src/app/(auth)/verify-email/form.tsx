@@ -43,12 +43,8 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
       });
 
       await signIn('credentials', {
-        // next auth options
         redirect: true,
         redirectTo: DASHBOARD_ROUTES.DASHBOARD,
-
-        // custom options
-        flow: 'post-verify',
         accessToken: data.data?.accessToken,
         refreshToken: data.data?.refreshToken,
       });
@@ -118,7 +114,7 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
             Didn&apos;t get OTP code?
           </Text>
           {submitting && (
-            <Text variant="body-sm" color="secondary" className="animate-pulse text-text-secondary">
+            <Text variant="body-sm" color="secondary" className="text-text-secondary animate-pulse">
               Verifying...
             </Text>
           )}

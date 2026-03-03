@@ -1,10 +1,4 @@
-/** Placeholder company logo marks for social proof. Shape varies per brand. */
-const LOGOS = [
-  { name: 'Acme', shapeClass: 'rounded-full' },
-  { name: 'Nexus', shapeClass: 'rotate-45' },
-  { name: 'Stark', shapeClass: 'rounded-sm border-2 border-current' },
-  { name: 'Bolt', shapeClass: 'rounded-tr-xl rounded-bl-xl' },
-] as const;
+import { LOGOS } from '../_data';
 
 /**
  * "Trusted by industry leaders" social proof bar.
