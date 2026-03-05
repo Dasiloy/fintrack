@@ -13,7 +13,7 @@ service AuthService {
     rpc ResetPassword(ResetPasswordReq) returns(ResetPasswordRes) {}
     rpc ValidateToken(ValidateTokenReq) returns (ValidateTokenRes) {}
     rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes) {}
-    // rpc LoginWithGoogle()  returns () {}
+    rpc LoginWithGoogle(LoginwithGoggleReq)  returns (LoginRes) {}
 }
 
 message User {
@@ -128,6 +128,10 @@ message RefreshTokenRes {
     string refreshToken= 3;
 }
 
-
-
-
+message LoginwithGoggleReq {
+   string idToken= 1;
+    string deviceId= 2;
+    optional string userAgent= 3;
+    optional string ipAddress= 4;
+    optional string location= 5;
+}

@@ -80,11 +80,16 @@ export function LoginForm({ className, authError }: LoginFormProps) {
     if (isAnyLoading) return;
     setLoadingProvider(provider);
     try {
-      await signIn(provider, { redirectTo: DASHBOARD_ROUTES.DASHBOARD });
+      await signIn(provider, {
+        redirect: true,
+        redirectTo: DASHBOARD_ROUTES.DASHBOARD,
+      });
+      form.reset();
     } catch {
       toast.error('Sign-in failed', {
         description: 'Could not connect to the sign-in provider. Please try again.',
       });
+    } finally {
       setLoadingProvider(null);
     }
   };
@@ -92,6 +97,7 @@ export function LoginForm({ className, authError }: LoginFormProps) {
   const onSubmit = async (data: LoginValues) => {
     try {
       const response = await axiosClient.post('/proxy-auth/login', data);
+      form.reset();
       const resData: StandardResponse<LoginRes> = response.data;
 
       toast.success('Login successful', { description: 'Redirecting...' });

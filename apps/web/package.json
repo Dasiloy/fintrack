@@ -51,6 +51,7 @@
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/types": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
+    "@fintrack/common": "workspace:*",
     "@tailwindcss/postcss": "^4.0.15",
     "@tanstack/react-query-devtools": "^5.91.3",
     "@types/js-cookie": "^3.0.6",

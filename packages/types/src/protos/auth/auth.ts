@@ -120,6 +120,14 @@ export interface RefreshTokenRes {
   refreshToken: string;
 }
 
+export interface LoginwithGoggleReq {
+  idToken: string;
+  deviceId: string;
+  userAgent?: string | undefined;
+  ipAddress?: string | undefined;
+  location?: string | undefined;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
@@ -148,6 +156,8 @@ export interface AuthServiceClient {
   validateToken(request: ValidateTokenReq, metadata?: Metadata): Observable<ValidateTokenRes>;
 
   refreshToken(request: RefreshTokenReq, metadata?: Metadata): Observable<RefreshTokenRes>;
+
+  loginWithGoogle(request: LoginwithGoggleReq, metadata?: Metadata): Observable<LoginRes>;
 }
 
 export interface AuthServiceController {
@@ -194,6 +204,11 @@ export interface AuthServiceController {
     request: RefreshTokenReq,
     metadata?: Metadata,
   ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes;
+
+  loginWithGoogle(
+    request: LoginwithGoggleReq,
+    metadata?: Metadata,
+  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes;
 }
 
 export function AuthServiceControllerMethods() {
@@ -209,6 +224,7 @@ export function AuthServiceControllerMethods() {
       "resetPassword",
       "validateToken",
       "refreshToken",
+      "loginWithGoogle",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 
+import { OAuth2Client } from 'google-auth-library';
 import { Queue } from 'bullmq';
 import { status } from '@grpc/grpc-js';
 import * as bcrypt from 'bcrypt';
@@ -23,6 +24,7 @@ import {
   ForgotPasswordRes,
   LoginReq,
   LoginRes,
+  LoginwithGoggleReq,
   RefreshTokenRes,
   RegisterReq,
   RegisterRes,
@@ -158,8 +160,6 @@ export class AuthService {
           return { user, emailToken };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -323,8 +323,6 @@ export class AuthService {
           return { user, tokens };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -427,8 +425,6 @@ export class AuthService {
           return { user, emailToken };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -532,8 +528,6 @@ export class AuthService {
           return { user, tokens };
         },
         {
-          // maxWait: 5000,
-          // timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -655,8 +649,6 @@ export class AuthService {
           };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -744,8 +736,6 @@ export class AuthService {
           };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -852,8 +842,6 @@ export class AuthService {
           };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -955,8 +943,6 @@ export class AuthService {
           return null as any;
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -1006,8 +992,6 @@ export class AuthService {
           return { tokens };
         },
         {
-          maxWait: 5000,
-          timeout: 10000,
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -1022,6 +1006,167 @@ export class AuthService {
       throw new RpcException({
         code: status.UNAUTHENTICATED,
         message: 'Invalid token',
+      });
+    }
+  }
+
+  /**
+   * @description Login With Google
+   *
+   * @async
+   * @public
+   * @param {LoginwithGoggleReq} data oauth google callback url data
+   * @returns {Promise<LoginRes>} containing user data and auth tokens
+   */
+  async loginWithGoogle(data: LoginwithGoggleReq): Promise<LoginRes> {
+    const clientId = this.configService.getOrThrow<string>('AUTH_GOOGLE_ID');
+    const oauthClient = new OAuth2Client(clientId);
+
+    let googleSub: string;
+    let googleEmail: string;
+    let googleName: string;
+    let googlePicture: string | undefined;
+
+    try {
+      const ticket = await oauthClient.verifyIdToken({
+        idToken: data.idToken,
+        audience: clientId,
+      });
+      const payload = ticket.getPayload();
+
+      if (!payload?.sub || !payload.email) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid token',
+        });
+      }
+
+      googleSub = payload.sub;
+      googleEmail = payload.email;
+      googleName = payload.name ?? payload.email;
+      googlePicture = payload.picture;
+    } catch (err) {
+      this.logger.error('Google id_token verification failed:', err);
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Invalid or expired Google token',
+      });
+    }
+
+    try {
+      const nameParts = googleName.split(' ');
+      const firstName = nameParts[0] ?? '';
+      const lastName = nameParts.slice(1).join(' ') || firstName;
+
+      const result = await this.prismaService.$transaction(
+        async (tx) => {
+          const user = await tx.user.upsert({
+            where: { email: googleEmail },
+            create: {
+              firstName,
+              lastName,
+              email: googleEmail,
+              loginAttempts: 0,
+              emailVerified: true,
+              emailVerifiedAt: new Date(),
+              avatar: googlePicture,
+            },
+            update: {
+              emailVerified: true,
+              avatar: googlePicture,
+              lastLoginAt: new Date(),
+            },
+            include: { accounts: true, subscription: true },
+          });
+
+          const hasGoogleAccount = user.accounts.some(
+            (acc) => acc.provider === 'GOOGLE',
+          );
+          if (!hasGoogleAccount) {
+            await tx.account.create({
+              data: {
+                provider: 'GOOGLE',
+                type: 'OAUTH',
+                providerAccountId: googleSub,
+                userId: user.id,
+              },
+            });
+          }
+
+          if (!user.subscription) {
+            await tx.subscription.create({
+              data: { userId: user.id, plan: 'FREE', status: 'ACTIVE' },
+            });
+
+            const [periodStart, periodEnd] = getPeriodRange();
+            await tx.usageTracker.createMany({
+              data: [
+                {
+                  userId: user.id,
+                  feature: 'AI_INSIGHTS_QUERIES',
+                  count: 0,
+                  periodStart,
+                  periodEnd,
+                },
+                {
+                  userId: user.id,
+                  feature: 'AI_CHAT_MESSAGES',
+                  count: 0,
+                  periodStart,
+                  periodEnd,
+                },
+                {
+                  userId: user.id,
+                  feature: 'RECEIPT_UPLOADS',
+                  count: 0,
+                  periodStart,
+                  periodEnd,
+                },
+              ],
+              skipDuplicates: true,
+            });
+
+            this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+            });
+          }
+
+          const tokens = await this.generateAuthTokens(tx, user, {
+            mode: 'login',
+            deviceInfo: {
+              deviceId: data.deviceId,
+              userAgent: data.userAgent,
+              ipAddress: data.ipAddress,
+              location: data.location,
+            },
+          });
+
+          return { user, tokens };
+        },
+        {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
+      return {
+        user: {
+          id: result.user.id,
+          email: result.user.email,
+          avatar: result.user.avatar || '',
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+        },
+        accessToken: result.tokens.accessToken,
+        refreshToken: result.tokens.refreshToken,
+      };
+    } catch (error) {
+      this.logger.error('LoginWithGoogle error in AuthService', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Login failed, please try again later',
       });
     }
   }

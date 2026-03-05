@@ -37,6 +37,7 @@
     "bcrypt": "^6.0.0",
     "bullmq": "^5.69.3",
     "dotenv": "^17.2.4",
+    "google-auth-library": "^10.6.1",
     "grpc-health-check": "^2.1.0",
     "joi": "^18.0.2",
     "reflect-metadata": "^0.2.2",

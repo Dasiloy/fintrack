@@ -79,4 +79,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   );
 }
 
+//adjust flow, if user should have signed up with social before, they cant sign up via local credentilas instead they have to basically go and update passord on account settings
+// veriofy email right flow
+// aplle login
+// 2FA setup
+// stripe steup
 // refreshtoken flow not fully functional yet
