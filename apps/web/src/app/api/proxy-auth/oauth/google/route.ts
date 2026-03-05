@@ -1,6 +1,5 @@
 import { env } from '@/env';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
-import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 
@@ -10,8 +9,9 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
 
     const deviceId = cookieStore.get(env.DEVICE_ID_COOKIE_NAME)?.value ?? '';
+    consoleLogger.log('deviceid', deviceId);
 
-    const response = await fetch(`${env.API_GATEWAY_URL}/api/auth/login`, {
+    const response = await fetch(`${env.API_GATEWAY_URL}/api/auth/oauth/google`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -21,8 +21,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      let errorReponse = JSON.parse(await response.text());
-      consoleLogger.error('LOGIN', errorReponse);
+      const errorReponse = JSON.parse(await response.text());
       return Response.json(errorReponse, { status: response.status });
     }
 

@@ -5,3 +5,4 @@ export * from './countdown';
 export * from './logo';
 export { CookieConsentBanner } from './cookie_consent_banner';
 export { GoogleAnalytics } from './google_analytics';
+export { DeviceIdInit } from './device_id_init';

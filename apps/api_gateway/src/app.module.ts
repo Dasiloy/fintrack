@@ -1,10 +1,12 @@
 import * as Joi from 'joi';
 
-import { Module, ValidationPipe, Logger } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+
+import { DeviceMiddleware } from './auth/middleware/device.middleware';
 
 import {
   getServiceUrl,
@@ -99,4 +101,8 @@ import { PaymentModule } from './payment/payment.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(DeviceMiddleware).forRoutes('*');
+  }
+}

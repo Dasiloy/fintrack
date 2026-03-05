@@ -4,15 +4,17 @@ import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import type { LoginRes, RefreshTokenRes } from '@fintrack/types/protos/auth/auth';
+import type { RefreshTokenRes } from '@fintrack/types/protos/auth/auth';
 import { type TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { consoleLogger } from '@fintrack/common/console_logger/index';
 
 export interface AuthEnv {
   AUTH_SECRET: string;
   AUTH_GOOGLE_ID: string;
   AUTH_GOOGLE_SECRET: string;
   API_GATEWAY_URL: string;
+  NEXT_PUBLIC_APP_URL: string;
   JWT_ACCESS_TOKEN_EXPIRATION: string;
 }
 
@@ -84,38 +86,39 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
-        console.log('user', user);
-        console.log('account', account);
+        if (!account.id_token) {
+          consoleLogger.error('Google sign-in missing id_token');
+          return false;
+        }
         try {
-          const response = await fetch(`${env.API_GATEWAY_URL}/auth/oauth/google`, {
+          const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/proxy-auth/oauth/google`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: user.email,
-              name: user.name,
-              image: user.image,
-              google_id: account.providerAccountId,
-            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idToken: account.id_token }),
           });
 
           if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-            console.error('Backend OAuth error:', error);
+            const error = await response.text();
+            consoleLogger.error('Backend OAuth error:', error);
             return false;
           }
 
-          const data = await response.json();
+          // Gateway wraps LoginRes in StandardResponse: { success, data: LoginRes }
+          const body = await response.json();
+          const loginRes = body.data;
 
-          user.id = data.user.id;
-          user.email = data.user.eamil;
-          user.image = data.user.avatar;
-          user.access_token = data.accessToken;
-          user.refresh_token = data.refreshToken;
-          user.name = `${data.user.firstName} ${data.user.lastName}`;
+          user.id = loginRes.user.id;
+          user.email = loginRes.user.email;
+          user.image = loginRes.user.avatar;
+          user.access_token = loginRes.accessToken;
+          user.refresh_token = loginRes.refreshToken;
+          user.name = `${loginRes.user.firstName} ${loginRes.user.lastName}`;
 
           return true;
         } catch (error) {
-          console.error('OAuth sync failed:', error);
+          consoleLogger.error('OAuth sync failed:', error);
           return false;
         }
       }
@@ -148,7 +151,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
 
       // Access token expired — use refresh_token to get a new one  ← READ here
       try {
-        const response = await fetch(`${env.API_GATEWAY_URL}/auth/refresh`, {
+        consoleLogger.log('NEXT_AUTH', 'I got here');
+        const response = await fetch(`${env.API_GATEWAY_URL}/api/auth/refresh`, {
           method: 'POST',
           body: JSON.stringify({
             refreshToken: token.refresh_token,
@@ -157,7 +161,7 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
             'Content-Type': 'application/json',
           },
         });
-
+        consoleLogger.debug('NEXT_AUTH', response);
         if (!response.ok) throw new Error('Refresh failed');
 
         const data: StandardResponse<RefreshTokenRes> = await response.json();
