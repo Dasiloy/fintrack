@@ -28,6 +28,7 @@ import {
 
 import {
   ForgotPasswordDto,
+  GoogleOAuthDto,
   LoginDto,
   RefreshTokenDto,
   RegisterUserDto,
@@ -556,6 +557,54 @@ export class AuthController {
     return {
       success: true,
       message: 'Token refreshed successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Google OAuth sign-in — accepts id_token only; verified server-side
+  // ================================================================
+  @Post('oauth/google')
+  @ApiOperation({
+    summary: 'Google OAuth Sign-in',
+    description:
+      'Accepts a Google id_token. The auth service verifies it against Google\'s public keys before creating or signing in the user.',
+  })
+  @ApiBody({
+    description: 'Google id_token from the client-side OAuth flow',
+    required: true,
+    type: GoogleOAuthDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Sign-in successful',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Login successful',
+        data: {
+          user: { id: '…', email: '…', firstName: '…', lastName: '…' },
+          accessToken: 'eyJhbG…',
+          refreshToken: 'eyJhbG…',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid or expired Google id_token',
+  })
+  @HttpCode(HttpStatus.OK)
+  async loginWithGoogle(
+    @Body() body: GoogleOAuthDto,
+    @Req() req: RequestWithDevice,
+  ): Promise<StandardResponse<LoginRes>> {
+    const res = await this.authService.loginWithGoogle(body.idToken, req.deviceInfo);
+    return {
+      success: true,
+      message: 'Login successful',
       statusCode: HttpStatus.OK,
       data: res,
     };

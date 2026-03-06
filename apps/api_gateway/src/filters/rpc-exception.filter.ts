@@ -87,6 +87,10 @@ export class AppExceptionFilter implements ExceptionFilter {
           status = HttpStatus.FORBIDDEN;
           message = details;
           break;
+        case 9: // FAILED_PRECONDITION
+          status = HttpStatus.FORBIDDEN;
+          message = details;
+          break;
         case 16: // UNAUTHENTICATED
           status = HttpStatus.UNAUTHORIZED;
           message = details;
