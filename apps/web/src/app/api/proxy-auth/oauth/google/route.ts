@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const cookieStore = await cookies();
 
-    const deviceId = cookieStore.get(env.DEVICE_ID_COOKIE_NAME)?.value ?? '';
+    const deviceId = cookieStore.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME)?.value ?? '';
     consoleLogger.log('deviceid', deviceId);
 
     const response = await fetch(`${env.API_GATEWAY_URL}/api/auth/oauth/google`, {

@@ -12,7 +12,7 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { type AppRouter } from '@fintrack/trpc_app';
 import { createQueryClient } from '@fintrack/react_query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { networkCheckLink } from '@/lib/trpc_app/trpc_link';
+import { networkCheckLink, authRetryLink } from '@/lib/trpc_app/trpc_link';
 
 /**
  * Inference helper for inputs.
@@ -39,7 +39,8 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === 'development' ||
             (op.direction === 'down' && op.result instanceof Error),
         }),
-        networkCheckLink(), // pre-flight network check
+        networkCheckLink(),
+        authRetryLink(),
         httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + '/api/trpc',

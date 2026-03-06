@@ -16,6 +16,6 @@ export interface DeviceInfo {
   };
 }
 
-export type CreateSessionOptions =
-  | { mode: 'login'; deviceInfo: DeviceInfo }
-  | { mode: 'refresh'; oldSessionToken: string };
+export interface CreateSessionOptions {
+  deviceInfo: DeviceInfo;
+}

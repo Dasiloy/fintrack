@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@fintrack/types": "workspace:*",
+    "@fintrack/utils": "workspace:*",
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
     "@types/node": "^20.14.10",

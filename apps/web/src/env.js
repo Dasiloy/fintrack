@@ -16,7 +16,6 @@ export const env = createEnv({
     JWT_ACCESS_TOKEN_EXPIRATION: z.string().default('15m'),
     JWT_REFRESH_TOKEN_EXPIRATION: z.string().default('30d'),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    DEVICE_ID_COOKIE_NAME: z.string(),
     DEVICE_ID_COOKIE_MAX_AGE: z.coerce.number(),
   },
 
@@ -28,6 +27,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
+    NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME: z.string(),
   },
 
   /**
@@ -42,11 +42,11 @@ export const env = createEnv({
     API_GATEWAY_URL: process.env.API_GATEWAY_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+    NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME: process.env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME,
     JWT_OTP_TOKEN_EXPIRATION: process.env.JWT_OTP_TOKEN_EXPIRATION,
     JWT_ACCESS_TOKEN_EXPIRATION: process.env.JWT_ACCESS_TOKEN_EXPIRATION,
     JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION,
     NODE_ENV: process.env.NODE_ENV,
-    DEVICE_ID_COOKIE_NAME: process.env.DEVICE_ID_COOKIE_NAME,
     DEVICE_ID_COOKIE_MAX_AGE: process.env.DEVICE_ID_COOKIE_MAX_AGE,
   },
   /**

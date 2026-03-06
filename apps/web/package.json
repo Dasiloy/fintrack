@@ -42,16 +42,17 @@
     "react": "^19.2.2",
     "react-dom": "^19.2.2",
     "react-hook-form": "^7.71.2",
+    "react-qr-code": "^2.0.18",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@fintrack/common": "workspace:*",
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/types": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
-    "@fintrack/common": "workspace:*",
     "@tailwindcss/postcss": "^4.0.15",
     "@tanstack/react-query-devtools": "^5.91.3",
     "@types/js-cookie": "^3.0.6",

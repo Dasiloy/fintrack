@@ -46,16 +46,19 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-export function SignupForm({ className }: React.ComponentProps<'form'>) {
+interface SignupFormProps extends React.ComponentProps<'form'> {
+  email?: string;
+}
+
+export function SignupForm({ className, email }: SignupFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
-      email: searchParams.get('email') || '',
+      email: email ?? '',
       password: '',
       confirmPassword: '',
     },
