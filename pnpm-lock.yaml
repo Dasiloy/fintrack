@@ -259,6 +259,9 @@ importers:
       joi:
         specifier: ^18.0.2
         version: 18.0.2
+      otplib:
+        specifier: ^13.3.0
+        version: 13.3.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -776,6 +779,9 @@ importers:
       react-hook-form:
         specifier: ^7.71.2
         version: 7.71.2(react@19.2.4)
+      react-qr-code:
+        specifier: ^2.0.18
+        version: 2.0.18(react@19.2.4)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -1003,6 +1009,9 @@ importers:
       '@fintrack/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@fintrack/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.33
@@ -3286,6 +3295,10 @@ packages:
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/hashes@2.0.1':
+    resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
+    engines: {node: '>= 20.19.0'}
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -3318,6 +3331,24 @@ packages:
 
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
+
+  '@otplib/core@13.3.0':
+    resolution: {integrity: sha512-pnQDOuCmFVeF/XnboJq9TOJgLoo2idNPJKMymOF8vGqJJ+ReKRYM9bUGjNPRWC0tHjMwu1TXbnzyBp494JgRag==}
+
+  '@otplib/hotp@13.3.0':
+    resolution: {integrity: sha512-XJMZGz2bg4QJwK7ulvl1GUI2VMn/flaIk/E/BTKAejHsX2kUtPF1bRhlZ2+elq8uU5Fs9Z9FHcQK2CPZNQbbUQ==}
+
+  '@otplib/plugin-base32-scure@13.3.0':
+    resolution: {integrity: sha512-/jYbL5S6GB0Ie3XGEWtLIr9s5ZICl/BfmNL7+8/W7usZaUU4GiyLd2S+JGsNCslPyqNekSudD864nDAvRI0s8w==}
+
+  '@otplib/plugin-crypto-noble@13.3.0':
+    resolution: {integrity: sha512-wmV+jBVncepgwv99G7Plrdzd0tHfbpXk2U+OD7MO7DzpDqOYEgOPi+IIneksJSTL8QvWdfi+uQEuhnER4fKouA==}
+
+  '@otplib/totp@13.3.0':
+    resolution: {integrity: sha512-XfjGNoN8d9S3Ove2j7AwkVV7+QDFsV7Lm7YwSiezNaHffkWtJ60aJYpmf+01dARdPST71U2ptueMsRJso4sq4A==}
+
+  '@otplib/uri@13.3.0':
+    resolution: {integrity: sha512-3oh6nBXy+cm3UX9cxEAGZiDrfxHU2gfelYFV+XNCx+8dq39VaQVymwlU2yjPZiMAi/3agaUeEftf2RwM5F+Cyg==}
 
   '@panva/hkdf@1.2.1':
     resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==}
@@ -4201,6 +4232,9 @@ packages:
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
+
+  '@scure/base@2.0.0':
+    resolution: {integrity: sha512-3E1kpuZginKkek01ovG8krQ0Z44E3DHPjc5S2rjJw9lZn3KSQOs8S7wqikF/AH7iRanHypj85uGyxk0XAyC37w==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -9154,6 +9188,9 @@ packages:
     resolution: {integrity: sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==}
     engines: {node: '>=0.10.0'}
 
+  otplib@13.3.0:
+    resolution: {integrity: sha512-VYMKyyDG8yt2q+z58sz54/EIyTh7+tyMrjeemR44iVh5+dkKtIs57irTqxjH+IkAL1uMmG1JIFhG5CxTpqdU5g==}
+
   outvariant@1.4.3:
     resolution: {integrity: sha512-+Sl2UErvtsoajRDKCE5/dBz4DIvHXQQnAxtQTF04OJxY0+DyZXSo5P5Bb7XYWOh81syohlYL24hbDwxedPUJCA==}
 
@@ -9788,6 +9825,9 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
+  qr.js@0.0.0:
+    resolution: {integrity: sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==}
+
   qrcode-terminal@0.11.0:
     resolution: {integrity: sha512-Uu7ii+FQy4Qf82G4xu7ShHhjhGahEpCWc3x8UavY3CTcWV+ufmmCtwkr7ZKsX42jdL0kr1B5FKUeqJvAn51jzQ==}
     hasBin: true
@@ -9897,6 +9937,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  react-qr-code@2.0.18:
+    resolution: {integrity: sha512-v1Jqz7urLMhkO6jkgJuBYhnqvXagzceg3qJUWayuCK/c6LTIonpWbwxR1f1APGd4xrW/QcQEovNrAojbUz65Tg==}
+    peerDependencies:
+      react: '*'
 
   react-refresh@0.14.2:
     resolution: {integrity: sha512-jCvmsr+1IUSMUyzOkRcvnVbX3ZYC6g9TDrDbFuFmRDq7PD4yaGbLKNQL6k2jnArV8hjYxh7hVhAZB6s9HDGpZA==}
@@ -13874,6 +13919,8 @@ snapshots:
 
   '@noble/hashes@1.8.0': {}
 
+  '@noble/hashes@2.0.1': {}
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -13903,6 +13950,33 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
+
+  '@otplib/core@13.3.0': {}
+
+  '@otplib/hotp@13.3.0':
+    dependencies:
+      '@otplib/core': 13.3.0
+      '@otplib/uri': 13.3.0
+
+  '@otplib/plugin-base32-scure@13.3.0':
+    dependencies:
+      '@otplib/core': 13.3.0
+      '@scure/base': 2.0.0
+
+  '@otplib/plugin-crypto-noble@13.3.0':
+    dependencies:
+      '@noble/hashes': 2.0.1
+      '@otplib/core': 13.3.0
+
+  '@otplib/totp@13.3.0':
+    dependencies:
+      '@otplib/core': 13.3.0
+      '@otplib/hotp': 13.3.0
+      '@otplib/uri': 13.3.0
+
+  '@otplib/uri@13.3.0':
+    dependencies:
+      '@otplib/core': 13.3.0
 
   '@panva/hkdf@1.2.1': {}
 
@@ -14930,6 +15004,8 @@ snapshots:
   '@rushstack/eslint-patch@1.15.0': {}
 
   '@scarf/scarf@1.4.0': {}
+
+  '@scure/base@2.0.0': {}
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -21166,6 +21242,15 @@ snapshots:
 
   os-tmpdir@1.0.2: {}
 
+  otplib@13.3.0:
+    dependencies:
+      '@otplib/core': 13.3.0
+      '@otplib/hotp': 13.3.0
+      '@otplib/plugin-base32-scure': 13.3.0
+      '@otplib/plugin-crypto-noble': 13.3.0
+      '@otplib/totp': 13.3.0
+      '@otplib/uri': 13.3.0
+
   outvariant@1.4.3: {}
 
   own-keys@1.0.1:
@@ -21775,6 +21860,8 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
+  qr.js@0.0.0: {}
+
   qrcode-terminal@0.11.0: {}
 
   qs@6.14.2:
@@ -21984,6 +22071,12 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  react-qr-code@2.0.18(react@19.2.4):
+    dependencies:
+      prop-types: 15.8.1
+      qr.js: 0.0.0
+      react: 19.2.4
 
   react-refresh@0.14.2: {}
 

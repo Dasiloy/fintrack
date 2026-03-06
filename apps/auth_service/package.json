@@ -40,6 +40,7 @@
     "google-auth-library": "^10.6.1",
     "grpc-health-check": "^2.1.0",
     "joi": "^18.0.2",
+    "otplib": "^13.3.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
 
     const emailToken = cookieStore.get('emailToken')?.value;
-    const deviceId = cookieStore.get(env.DEVICE_ID_COOKIE_NAME)?.value ?? '';
+    const deviceId = cookieStore.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME)?.value ?? '';
 
     if (!emailToken) {
       return Response.json({ message: 'Token Expired!' }, { status: 401 });

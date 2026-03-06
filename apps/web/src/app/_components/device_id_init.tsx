@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
+import Cookies from 'js-cookie';
 
-import { axiosClient } from '@/lib/axios/axios_client';
+import { env } from '@/env';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
 
 export function DeviceIdInit() {
   useEffect(() => {
-    axiosClient.get('/init').catch((err) => {
+    if (Cookies.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME)) return;
+    fetch('/api/init').catch((err) => {
       consoleLogger.error('INIT', err);
     });
   }, []);

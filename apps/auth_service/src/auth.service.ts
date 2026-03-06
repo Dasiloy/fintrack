@@ -84,26 +84,36 @@ export class AuthService {
    * @throws {RpcException} ALREADY_EXISTS if user with email already has local account
    */
   async register(data: RegisterReq): Promise<RegisterRes> {
-    data.password = this.hashPassword(data.password);
-
     try {
-      //  1. Database Operations (Atomic)
       const result = await this.prismaService.$transaction(
         async (tx) => {
-          const user = await tx.user.upsert({
+          const existingUser = await tx.user.findUnique({
             where: { email: data.email },
-            update: {
-              password: data.password,
-              accounts: {
-                create: {
-                  type: 'CREDENTIALS',
-                  provider: 'LOCAL',
-                  providerAccountId: data.email,
-                },
-              },
+            select: {
+              id: true,
+              accounts: { select: { provider: true } },
             },
-            create: {
+          });
+
+          if (existingUser) {
+            const hasSocialAccount = existingUser.accounts.some(
+              (acc) => acc.provider !== 'LOCAL',
+            );
+            throw new RpcException({
+              code: status.ALREADY_EXISTS,
+              message: hasSocialAccount
+                ? 'Please login via your social provider'
+                : 'User with this email already exists',
+            });
+          }
+
+          // Hash only after confirming no duplicate — bcrypt is expensive
+          const hashedPassword = this.hashPassword(data.password);
+
+          const user = await tx.user.create({
+            data: {
               ...data,
+              password: hashedPassword,
               loginAttempts: 0,
               accounts: {
                 create: {
@@ -122,13 +132,6 @@ export class AuthService {
             },
           });
 
-          await tx.verificationToken.deleteMany({
-            where: {
-              email: data.email,
-              identifier: 'EMAIL',
-            },
-          });
-
           const otp = this.generateToken();
           await tx.verificationToken.create({
             data: {
@@ -141,31 +144,31 @@ export class AuthService {
             },
           });
 
-          const emailToken = this.jwtService.sign(
-            this.createPayload(user as User, 'otp_token'),
-            {
-              secret: this.configService.get('JWT_OTP_SECRET'),
-              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
-            },
-          );
-
-          // ==> Push Email Token to Queue and move on
-          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
-            otp,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          });
-
-          return { user, emailToken };
+          return { user, otp };
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
 
+      // ==> After successful commit: sign JWT and dispatch email
+      const emailToken = this.jwtService.sign(
+        this.createPayload(result.user as User, 'otp_token'),
+        {
+          secret: this.configService.get('JWT_OTP_SECRET'),
+          expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+        },
+      );
+
+      this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
+        otp: result.otp,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+      });
+
       return {
-        emailToken: result.emailToken,
+        emailToken,
         user: {
           id: result.user.id,
           email: result.user.email,
@@ -175,13 +178,8 @@ export class AuthService {
         },
       };
     } catch (error: any) {
-      this.logger.log(error);
-      if (error.code === 'P2002') {
-        throw new RpcException({
-          code: status.ALREADY_EXISTS,
-          message: 'User with this email already exists',
-        });
-      }
+      this.logger.error('Register error in AuthService:', error);
+      if (error instanceof RpcException) throw error;
       throw new RpcException({
         code: status.INTERNAL,
         message: 'Unable to register, try again later',
@@ -303,8 +301,7 @@ export class AuthService {
             },
           });
 
-          const tokens = await this.generateAuthTokens(tx, user, {
-            mode: 'login',
+          const session = await this.createSession(tx, user.id, {
             deviceInfo: {
               deviceId: data.deviceId,
               userAgent: data.userAgent,
@@ -313,19 +310,21 @@ export class AuthService {
             },
           });
 
-          // ==> Push Welcome Email to Queue (Async)
-          this.tokenQueue.add(WELCOME_EMAIL_JOB, {
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          });
-
-          return { user, tokens };
+          return { user, session };
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
+
+      // ==> After successful commit: sign tokens and dispatch welcome email
+      const tokens = this.generateAuthTokens(result.user as User, result.session);
+
+      this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+      });
 
       return {
         user: {
@@ -335,8 +334,8 @@ export class AuthService {
           firstName: result.user.firstName,
           lastName: result.user.lastName,
         },
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
     } catch (error) {
       this.logger.error('VerifyEmail error in AuthService:', error);
@@ -406,31 +405,31 @@ export class AuthService {
             },
           });
 
-          const emailToken = this.jwtService.sign(
-            this.createPayload(user as User, 'otp_token'),
-            {
-              secret: this.configService.get('JWT_OTP_SECRET'),
-              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
-            },
-          );
-
-          // ==> Push Email Token to Queue
-          this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
-            otp,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          });
-
-          return { user, emailToken };
+          return { user, otp };
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
 
+      // ==> After successful commit: sign JWT and dispatch email
+      const emailToken = this.jwtService.sign(
+        this.createPayload(result.user as User, 'otp_token'),
+        {
+          secret: this.configService.get('JWT_OTP_SECRET'),
+          expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+        },
+      );
+
+      this.tokenQueue.add(EMAIL_VERIFICATION_JOB, {
+        otp: result.otp,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+      });
+
       return {
-        emailToken: result.emailToken,
+        emailToken,
         user: {
           id: result.user.id,
           email: result.user.email,
@@ -486,12 +485,9 @@ export class AuthService {
           }
 
           if (!this.comparedPassword(data.password, user)) {
-            user.loginAttempts++;
             await tx.user.update({
               where: { email: user.email },
-              data: {
-                loginAttempts: user.loginAttempts,
-              },
+              data: { loginAttempts: { increment: 1 } },
             });
 
             throw new RpcException({
@@ -499,24 +495,23 @@ export class AuthService {
               message: 'Invalid Email/Password',
             });
           }
-          user.loginAttempts = 0;
+
+          if (!user.emailVerified) {
+            throw new RpcException({
+              code: status.FAILED_PRECONDITION,
+              message: 'Email not verified. Please verify your email to continue.',
+            });
+          }
+
           await tx.user.update({
             where: { email: user.email },
             data: {
-              loginAttempts: user.loginAttempts,
+              loginAttempts: 0,
               lastLoginAt: new Date(),
             },
           });
 
-          if (!user.emailVerified) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Email not verified! Please verify your email.',
-            });
-          }
-
-          const tokens = await this.generateAuthTokens(tx, user, {
-            mode: 'login',
+          const session = await this.createSession(tx, user.id, {
             deviceInfo: {
               deviceId: data.deviceId,
               userAgent: data.userAgent,
@@ -525,12 +520,14 @@ export class AuthService {
             },
           });
 
-          return { user, tokens };
+          return { user, session };
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
+
+      const tokens = this.generateAuthTokens(result.user as User, result.session);
 
       return {
         user: {
@@ -540,8 +537,8 @@ export class AuthService {
           firstName: result.user.firstName,
           lastName: result.user.lastName,
         },
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
     } catch (error) {
       this.logger.error('Login error in AuthService:', error);
@@ -636,22 +633,25 @@ export class AuthService {
             },
           });
 
-          // ==> Push Email Token to Queue and move on (Async)
-          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
-            otp,
+          return {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-          });
-
-          return {
-            email: user.email,
+            otp,
           };
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
+
+      // ==> After successful commit: dispatch email
+      this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
+        otp: result.otp,
+        email: result.email,
+        firstName: result.firstName,
+        lastName: result.lastName,
+      });
 
       return {
         email: result.email,
@@ -723,22 +723,25 @@ export class AuthService {
             },
           });
 
-          // ==> Push Email Token to Queue and move on (Async)
-          this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
-            otp,
+          return {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-          });
-
-          return {
-            email: user.email,
+            otp,
           };
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
+
+      // ==> After successful commit: dispatch email
+      this.tokenQueue.add(FORGOT_PASSWORD_EMAIL_JOB, {
+        otp: result.otp,
+        email: result.email,
+        firstName: result.firstName,
+        lastName: result.lastName,
+      });
 
       return {
         email: result.email,
@@ -824,21 +827,13 @@ export class AuthService {
             },
           });
 
-          const passwordToken = this.jwtService.sign(
-            this.createPayload(
-              { email: user.email, id: user.id },
-              'otp_token',
-              undefined,
-              token,
-            ),
-            {
-              secret: this.configService.get('JWT_OTP_SECRET'),
-              expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
-            },
-          );
-
           return {
-            passwordToken,
+            userId: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            avatar: user.avatar,
+            token,
           };
         },
         {
@@ -846,8 +841,28 @@ export class AuthService {
         },
       );
 
+      // ==> After successful commit: sign password reset JWT
+      const passwordToken = this.jwtService.sign(
+        this.createPayload(
+          {
+            id: result.userId,
+            email: result.email,
+            firstName: result.firstName,
+            lastName: result.lastName,
+            avatar: result.avatar,
+          },
+          'otp_token',
+          undefined,
+          result.token,
+        ),
+        {
+          secret: this.configService.get('JWT_OTP_SECRET'),
+          expiresIn: this.configService.get('JWT_OTP_TOKEN_EXPIRATION'),
+        },
+      );
+
       return {
-        passwordToken: result.passwordToken,
+        passwordToken,
       };
     } catch (error) {
       this.logger.error('VerifyPasswordToken error in AuthService:', error);
@@ -875,6 +890,8 @@ export class AuthService {
     data: ResetPasswordReq,
   ): Promise<ResetPasswordRes> {
     try {
+      const hashedNewPassword = this.hashPassword(data.newPassword);
+
       const result = await this.prismaService.$transaction(
         async (tx) => {
           const verificationToken = await tx.verificationToken.findFirst({
@@ -920,7 +937,7 @@ export class AuthService {
               id: user.id,
             },
             data: {
-              password: this.hashPassword(data.newPassword),
+              password: hashedNewPassword,
             },
           });
 
@@ -933,21 +950,25 @@ export class AuthService {
           // Drop all active sessions for security
           await this.dropSession(tx, user.id);
 
-          // ==> Push Password Change Email to Queue (Async)
-          this.tokenQueue.add(PASSWORD_CHANGE_JOB, {
+          return {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
-          });
-
-          return null as any;
+          };
         },
         {
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
 
-      return result;
+      // ==> After successful commit: dispatch password change notification
+      this.tokenQueue.add(PASSWORD_CHANGE_JOB, {
+        email: result.email,
+        firstName: result.firstName,
+        lastName: result.lastName,
+      });
+
+      return null as any;
     } catch (error) {
       this.logger.error('ResetPassword error in AuthService:', error);
       if (error instanceof RpcException) throw error;
@@ -968,37 +989,27 @@ export class AuthService {
    */
   async refreshAuthTokens(payload: TokenPayload): Promise<RefreshTokenRes> {
     try {
-      const result = await this.prismaService.$transaction(
-        async (tx) => {
-          if (!payload.sessionToken) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Unauthorized!',
-            });
-          }
+      if (!payload.sessionToken) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Unauthorized!',
+        });
+      }
 
-          const user = await tx.user.findFirst({ where: { id: payload.id } });
-          if (!user) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Unauthorized!',
-            });
-          }
+      const user = await this.prismaService.user.findFirst({ where: { id: payload.id } });
+      if (!user) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Unauthorized!',
+        });
+      }
 
-          const tokens = await this.generateAuthTokens(tx, user, {
-            mode: 'refresh',
-            oldSessionToken: payload.sessionToken,
-          });
-          return { tokens };
-        },
-        {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-        },
-      );
+      const session = await this.rotateSession(payload.sessionToken);
+      const tokens = this.generateAuthTokens(user, session);
 
       return {
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
     } catch (error) {
       this.logger.error('RefreshAuthTokens error in AuthService:', error);
@@ -1007,6 +1018,42 @@ export class AuthService {
         code: status.UNAUTHENTICATED,
         message: 'Invalid token',
       });
+    }
+  }
+
+  /**
+   * @description Atomically rotate a session token in a single UPDATE.
+   * No transaction needed — Postgres row-level locking on the unique sessionToken
+   * guarantees only one concurrent caller can consume a given token.
+   * If the token is already consumed or expired, Prisma throws P2025 → 401.
+   *
+   * @private
+   * @param {string} oldSessionToken The current session token to rotate
+   * @returns {Promise<Session>} The updated session with the new token
+   */
+  private async rotateSession(oldSessionToken: string): Promise<Session> {
+    const expiresAt = new Date(
+      Date.now() +
+        parseJwtExpiration(this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!) * 1000,
+    );
+
+    try {
+      return await this.prismaService.session.update({
+        where: { sessionToken: oldSessionToken },
+        data: {
+          sessionToken: this.generateHash(),
+          lastUsedAt: new Date(),
+          expires: expiresAt,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Token Expired!',
+        });
+      }
+      throw error;
     }
   }
 
@@ -1093,9 +1140,12 @@ export class AuthService {
             });
           }
 
-          if (!user.subscription) {
-            await tx.subscription.create({
-              data: { userId: user.id, plan: 'FREE', status: 'ACTIVE' },
+          const isNewUser = !user.subscription;
+          if (isNewUser) {
+            await tx.subscription.upsert({
+              where: { userId: user.id },
+              create: { userId: user.id, plan: 'FREE', status: 'ACTIVE' },
+              update: {},
             });
 
             const [periodStart, periodEnd] = getPeriodRange();
@@ -1125,16 +1175,9 @@ export class AuthService {
               ],
               skipDuplicates: true,
             });
-
-            this.tokenQueue.add(WELCOME_EMAIL_JOB, {
-              email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-            });
           }
 
-          const tokens = await this.generateAuthTokens(tx, user, {
-            mode: 'login',
+          const session = await this.createSession(tx, user.id, {
             deviceInfo: {
               deviceId: data.deviceId,
               userAgent: data.userAgent,
@@ -1143,12 +1186,23 @@ export class AuthService {
             },
           });
 
-          return { user, tokens };
+          return { user, session, isNewUser };
         },
         {
-          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
+
+      // ==> After successful commit: dispatch welcome email for new users, sign tokens
+      if (result.isNewUser) {
+        this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+          email: result.user.email,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+        });
+      }
+
+      const tokens = this.generateAuthTokens(result.user as User, result.session);
 
       return {
         user: {
@@ -1158,8 +1212,8 @@ export class AuthService {
           firstName: result.user.firstName,
           lastName: result.user.lastName,
         },
-        accessToken: result.tokens.accessToken,
-        refreshToken: result.tokens.refreshToken,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
     } catch (error) {
       this.logger.error('LoginWithGoogle error in AuthService', error);
@@ -1178,16 +1232,13 @@ export class AuthService {
    * @private
    * @param {Prisma.TransactionClient} tx Prisma Transaction client
    * @param {User} user information
-   * @param {CreateSessionOptions} options discriminated union for login vs refresh paths
+   * @param {CreateSessionOptions} options device info for the session
    * @returns {Promise<{accessToken:string;refreshToken:string}>} auth tokens
    */
-  private async generateAuthTokens(
-    tx: Prisma.TransactionClient,
+  private generateAuthTokens(
     user: User,
-    options: CreateSessionOptions,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const session = await this.createSession(tx, user.id, options);
-
+    session: Session,
+  ): { accessToken: string; refreshToken: string } {
     const accessToken = this.jwtService.sign(
       this.createPayload(user, 'access_token'),
       { secret: this.configService.get('JWT_SECRET') },
@@ -1205,16 +1256,14 @@ export class AuthService {
   }
 
   /**
-   * @description Create or rotate a Session with device-aware logic.
-   *
-   * mode: 'login'   — upsert by (userId, deviceId); evict oldest if > 2 other-device sessions
-   * mode: 'refresh' — rotate by oldSessionToken, preserving device info from the existing record
+   * @description Create a new Session for a user on login.
+   * Upserts by (userId, deviceId) and evicts oldest if > 2 other-device sessions.
    *
    * @async
    * @private
    * @param {Prisma.TransactionClient} tx Prisma transaction client
    * @param {string} userId Id of user
-   * @param {CreateSessionOptions} options
+   * @param {CreateSessionOptions} options device info for the new session
    * @returns {Promise<Session>} new session
    */
   private async createSession(
@@ -1224,47 +1273,9 @@ export class AuthService {
   ): Promise<Session> {
     const expiresAt = new Date(
       Date.now() +
-        parseJwtExpiration(
-          this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!,
-        ) *
-          1000,
+        parseJwtExpiration(this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION')!) * 1000,
     );
 
-    if (options.mode === 'refresh') {
-      const existing = await tx.session.findFirst({
-        where: { sessionToken: options.oldSessionToken },
-      });
-
-      if (!existing) {
-        throw new RpcException({
-          code: status.UNAUTHENTICATED,
-          message: 'Token Expired!',
-        });
-      }
-
-      // Preserve device info from the existing session — client never re-submits it
-      const { deviceId, userAgent, ipAddress, location } = existing;
-
-      await tx.session.delete({
-        where: { sessionToken: options.oldSessionToken },
-      });
-
-      const sessionToken = this.generateHash();
-      return tx.session.create({
-        data: {
-          userId,
-          sessionToken,
-          expires: expiresAt,
-          lastUsedAt: new Date(),
-          deviceId,
-          userAgent,
-          ipAddress,
-          location,
-        },
-      });
-    }
-
-    // mode === 'login': upsert by (userId, deviceId)
     const { deviceId, userAgent, ipAddress, location } = options.deviceInfo;
 
     // Delete any existing session for this exact device (same-device re-login)
@@ -1280,9 +1291,7 @@ export class AuthService {
       await tx.session.deleteMany({
         where: {
           id: {
-            in: otherSessions
-              .slice(0, otherSessions.length - 1)
-              .map((s) => s.id),
+            in: otherSessions.slice(0, otherSessions.length - 1).map((s) => s.id),
           },
         },
       });

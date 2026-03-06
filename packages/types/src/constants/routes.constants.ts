@@ -33,5 +33,6 @@ export const DASHBOARD_ROUTES = {
   NOTIFICATIONS: '/notifications',
   SETTINGS_PROFILE: '/settings/profile',
   SETTINGS_ACCOUNT: '/settings/account',
+  SETTINGS_SECURITY: '/settings/security',
   SETTINGS_INVITE: '/settings/invite',
 } as const;
