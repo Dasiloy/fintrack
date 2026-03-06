@@ -56,7 +56,7 @@ export class AuthService implements OnModuleInit {
    */
   async register(data: RegisterUserDto): Promise<RegisterRes> {
     const user = await lastValueFrom(
-      this.authService.register(data).pipe(timeout(15000)),
+      this.authService.register(data).pipe(timeout(25000)),
     );
 
     return user;
@@ -92,7 +92,7 @@ export class AuthService implements OnModuleInit {
           },
           metadata,
         )
-        .pipe(timeout(15000)),
+        .pipe(timeout(25000)),
     );
   }
 
@@ -138,7 +138,7 @@ export class AuthService implements OnModuleInit {
           ipAddress: deviceInfo.ipAddress,
           location: deviceInfo.location,
         })
-        .pipe(timeout(15000)),
+        .pipe(timeout(25000)),
     );
   }
 
@@ -156,7 +156,7 @@ export class AuthService implements OnModuleInit {
     data: ResendVerifyEmailDto,
   ): Promise<ResendVerifyEmailTokenRes> {
     return lastValueFrom(
-      this.authService.resendVerifyEmailToken(data).pipe(timeout(15000)),
+      this.authService.resendVerifyEmailToken(data).pipe(timeout(25000)),
     );
   }
 
@@ -171,7 +171,7 @@ export class AuthService implements OnModuleInit {
    */
   async forgotPassword(data: ForgotPasswordDto): Promise<ForgotPasswordRes> {
     return lastValueFrom(
-      this.authService.forgotPassword(data).pipe(timeout(15000)),
+      this.authService.forgotPassword(data).pipe(timeout(25000)),
     );
   }
 
@@ -189,7 +189,7 @@ export class AuthService implements OnModuleInit {
     data: ResendForgotPasswordDto,
   ): Promise<ResendForgotPasswordTokenRes> {
     return lastValueFrom(
-      this.authService.resendForgotPasswordToken(data).pipe(timeout(15000)),
+      this.authService.resendForgotPasswordToken(data).pipe(timeout(25000)),
     );
   }
 
@@ -207,7 +207,7 @@ export class AuthService implements OnModuleInit {
     data: VerifyPasswordTokenReqDto,
   ): Promise<VerifyPasswordTokenRes> {
     return lastValueFrom(
-      this.authService.verifyPasswordToken(data).pipe(timeout(15000)),
+      this.authService.verifyPasswordToken(data).pipe(timeout(25000)),
     );
   }
 
@@ -230,7 +230,7 @@ export class AuthService implements OnModuleInit {
     const metadata = new Metadata();
     metadata.add('x-token', jwtToken);
     return lastValueFrom(
-      this.authService.resetPassword(data, metadata).pipe(timeout(15000)),
+      this.authService.resetPassword(data, metadata).pipe(timeout(25000)),
     );
   }
 
@@ -251,6 +251,33 @@ export class AuthService implements OnModuleInit {
 
     return lastValueFrom(
       this.authService.refreshToken(data, metadata).pipe(timeout(15000)),
+    );
+  }
+
+  /**
+   * @description Login user with Google via auth microservice
+   *
+   * @async
+   * @public
+   * @param {string} idToken Google id_token from the OAuth sign-in flow
+   * @returns {Promise<LoginRes>} login response contains tokens
+   * @throws {UnauthorizedException} If credentials are invalid (mapped from microservice UNAUTHENTICATED)
+   * @throws {RequestTimeoutException} If the auth microservice times out (mapped from 15s timeout)
+   */
+  async loginWithGoogle(
+    idToken: string,
+    deviceInfo: DeviceInfo,
+  ): Promise<LoginRes> {
+    return lastValueFrom(
+      this.authService
+        .loginWithGoogle({
+          idToken,
+          deviceId: deviceInfo.deviceId,
+          userAgent: deviceInfo.userAgent,
+          ipAddress: deviceInfo.ipAddress,
+          location: deviceInfo.location,
+        })
+        .pipe(timeout(25000)),
     );
   }
 }

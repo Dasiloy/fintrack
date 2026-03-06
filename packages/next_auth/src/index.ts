@@ -1,51 +1,25 @@
-import { cache } from 'react';
 import NextAuth, { type NextAuthResult } from 'next-auth';
+import { parseJwtExpiration } from '@fintrack/utils/jwt';
 import { createAuthConfig, type AuthEnv, type AuthHelpers } from './config';
 
 export type { AuthEnv, AuthHelpers };
+export { createAuthConfig };
 
-/**
- * Singleton pattern for NextAuth to handle HMR in development.
- */
-const globalForAuth = globalThis as unknown as {
-  authResult?: NextAuthResult;
-};
+const nextAuth = NextAuth(
+  createAuthConfig(
+    {
+      AUTH_SECRET: process.env.AUTH_SECRET!,
+      AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID!,
+      AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET!,
+      API_GATEWAY_URL: process.env.API_GATEWAY_URL!,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL!,
+      JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION!,
+    },
+    { parseJwtExpiration },
+  ),
+) as NextAuthResult;
 
-/**
- * Shared 'auth' function that can be imported by other packages (like @fintrack/trpc_app).
- * It delegates to the singleton instance initialized by the host application.
- */
-export const auth: NextAuthResult['auth'] = (...args: any[]) => {
-  const instance = globalForAuth.authResult?.auth;
-  if (!instance) {
-    throw new Error(
-      'NextAuth not initialized. Ensure you call "initAuth" in your main application (e.g., apps/web) before using shared auth imports.',
-    );
-  }
-  // @ts-expect-error - args spreads are hard to type for NextAuthResult['auth']
-  return instance(...args);
-};
-
-/**
- * Initialize NextAuth for the host application and hydrate the global singleton.
- */
-export const initAuth = (env: AuthEnv, helpers: AuthHelpers): NextAuthResult => {
-  // Return existing instance in dev if already initialized to prevent multiple instances
-  if (globalForAuth.authResult && process.env.NODE_ENV !== 'production') {
-    return globalForAuth.authResult;
-  }
-
-  const result = NextAuth(createAuthConfig(env, helpers));
-
-  const authResult: NextAuthResult = {
-    ...result,
-    auth: cache(result.auth),
-    handlers: result.handlers,
-    signIn: result.signIn,
-    signOut: result.signOut,
-  };
-
-  globalForAuth.authResult = authResult;
-
-  return authResult;
-};
+export const auth: NextAuthResult['auth'] = nextAuth.auth;
+export const handlers: NextAuthResult['handlers'] = nextAuth.handlers;
+export const signIn: NextAuthResult['signIn'] = nextAuth.signIn;
+export const signOut: NextAuthResult['signOut'] = nextAuth.signOut;

@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Repeat2,
   Settings2,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Target,
@@ -79,6 +80,7 @@ export const ACCOUNT_GROUP: NavGroup = {
       items: [
         { title: 'Profile', url: DASHBOARD_ROUTES.SETTINGS_PROFILE, icon: UserRound },
         { title: 'Account', url: DASHBOARD_ROUTES.SETTINGS_ACCOUNT, icon: SlidersHorizontal },
+        { title: 'Security', url: DASHBOARD_ROUTES.SETTINGS_SECURITY, icon: ShieldCheck },
         { title: 'Invite Friends', url: DASHBOARD_ROUTES.SETTINGS_INVITE, icon: UserPlus },
       ],
     },

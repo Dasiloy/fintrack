@@ -3,6 +3,7 @@ import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
 import { env } from '@/env';
 import { appRouter, createTRPCContext } from '@fintrack/trpc_app';
+import { consoleLogger } from '@fintrack/common/console_logger/index';
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -23,7 +24,7 @@ const handler = (req: NextRequest) =>
     onError:
       env.NODE_ENV === 'development'
         ? ({ path, error }) => {
-            console.error(`❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`);
+            consoleLogger.error('trpc', `tRPC failed on ${path ?? '<no-path>'}: ${error.message}`);
           }
         : undefined,
   });

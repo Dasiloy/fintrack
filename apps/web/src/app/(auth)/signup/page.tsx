@@ -1,13 +1,10 @@
-import { redirect } from 'next/navigation';
-
-import { auth } from '@/lib/nextauth';
 import { SignupForm } from '@/app/(auth)/signup/form';
-import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 
-export default async function SignupPage() {
-  const session = await auth();
+interface SignupPageProps {
+  searchParams: Promise<{ email?: string }>;
+}
 
-  if (session) redirect(DASHBOARD_ROUTES.DASHBOARD);
-
-  return <SignupForm />;
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const { email } = await searchParams;
+  return <SignupForm email={email} />;
 }

@@ -4,6 +4,15 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axio
 
 import { env } from '@/env';
 import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
+import { AUTH_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
+
+const PUBLIC_PATHS = new Set([...Object.values(AUTH_ROUTES), ...Object.values(STATIC_ROUTES)]);
+
+function isPublicPage(): boolean {
+  if (typeof window === 'undefined') return false;
+  const { pathname } = window.location;
+  return PUBLIC_PATHS.has(pathname) || Array.from(PUBLIC_PATHS).some((p) => pathname.startsWith(p + '/'));
+}
 
 export const axiosClient: AxiosInstance = axios.create({
   baseURL: `${env.NEXT_PUBLIC_APP_URL}/api`,
@@ -13,11 +22,7 @@ export const axiosClient: AxiosInstance = axios.create({
   },
 });
 
-/**
- * Request Interceptor: Attach Bearer token from NextAuth session.
- * getSession() triggers the NextAuth jwt callback which auto-refreshes
- * the access token if expired — no manual refresh needed here.
- */
+// Attach Bearer token from current session (jwt callback is now a pass-through — no refresh triggered)
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const online = await isOnline();
@@ -26,19 +31,12 @@ axiosClient.interceptors.request.use(
     }
 
     // Pre-auth proxy routes use cookie-based auth — no Bearer token needed
-    if (config.url?.startsWith('/proxy-auth/')) {
+    // Public/auth pages don't need a session — skip getSession() entirely
+    if (config.url?.startsWith('/proxy-auth/') || isPublicPage()) {
       return config;
     }
 
     const session = await getSession();
-
-    if (session?.error === 'RefreshTokenError') {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-      return Promise.reject(new Error('Session expired'));
-    }
-
     if (session?.accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${session.accessToken}`;
     }
@@ -48,32 +46,28 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-/**
- * Response Interceptor: On 401, retry once with a fresh session.
- * This handles the rare race where the token expired between the request
- * interceptor running and the backend processing the request.
- */
+// On 401, call the refresh route to get a new token, then retry once
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Pre-auth proxy routes use cookie-based auth — don't redirect to login on 401
+    // Pre-auth proxy routes use cookie-based auth — don't refresh on 401
     const isPreAuthRoute = originalRequest.url?.startsWith('/proxy-auth/');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isPreAuthRoute) {
       originalRequest._retry = true;
 
-      const session = await getSession();
-
-      if (!session?.accessToken || session.error === 'RefreshTokenError') {
+      const refreshRes = await fetch('/api/proxy-auth/refresh', { method: 'POST' });
+      if (!refreshRes.ok) {
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.location.href = AUTH_ROUTES.LOGIN;
         }
         return Promise.reject(error);
       }
 
-      originalRequest.headers.Authorization = `Bearer ${session.accessToken}`;
+      const { accessToken } = await refreshRes.json();
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
       return axiosClient(originalRequest);
     }
 

@@ -9,9 +9,6 @@ interface LoginPageProps {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await auth();
-  if (session) redirect(DASHBOARD_ROUTES.DASHBOARD);
-
   const { error } = await searchParams;
 
   return <LoginForm authError={error} />;

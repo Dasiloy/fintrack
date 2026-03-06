@@ -1,19 +1,19 @@
-import { jwtVerify } from 'jose';
+import { jwtVerify, decodeJwt } from 'jose';
 
-import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import type { LoginRes, RefreshTokenRes } from '@fintrack/types/protos/auth/auth';
 import { type TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { consoleLogger } from '@fintrack/common/console_logger/index';
+import { type DefaultSession, type NextAuthConfig } from 'next-auth';
 
 export interface AuthEnv {
   AUTH_SECRET: string;
   AUTH_GOOGLE_ID: string;
   AUTH_GOOGLE_SECRET: string;
   API_GATEWAY_URL: string;
-  JWT_ACCESS_TOKEN_EXPIRATION: string;
+  NEXT_PUBLIC_APP_URL: string;
+  JWT_REFRESH_TOKEN_EXPIRATION: string;
 }
 
 export interface AuthHelpers {
@@ -21,18 +21,24 @@ export interface AuthHelpers {
 }
 
 declare module 'next-auth' {
-  interface Session extends DefaultSession {
+  interface Session {
+    accessToken: string;
+    expires_at: number;
     user: {
       id: string;
+      email: string;
+      name: string;
+      image: string;
     } & DefaultSession['user'];
-    accessToken: string;
-    error?: 'RefreshTokenError';
   }
 
   interface User {
     id?: string;
-    access_token?: string;
-    refresh_token?: string;
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+    access_token: string;
+    refresh_token: string;
   }
 }
 
@@ -44,10 +50,10 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
   },
   session: {
     strategy: 'jwt' as const,
-    maxAge: helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION),
+    maxAge: helpers.parseJwtExpiration(env.JWT_REFRESH_TOKEN_EXPIRATION),
   },
   jwt: {
-    maxAge: helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION),
+    maxAge: helpers.parseJwtExpiration(env.JWT_REFRESH_TOKEN_EXPIRATION),
   },
   providers: [
     GoogleProvider({
@@ -84,38 +90,38 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
-        console.log('user', user);
-        console.log('account', account);
+        if (!account.id_token) {
+          consoleLogger.error('Google sign-in missing id_token');
+          return false;
+        }
         try {
-          const response = await fetch(`${env.API_GATEWAY_URL}/auth/oauth/google`, {
+          const response = await fetch(`${env.NEXT_PUBLIC_APP_URL}/api/proxy-auth/oauth/google`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: user.email,
-              name: user.name,
-              image: user.image,
-              google_id: account.providerAccountId,
-            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idToken: account.id_token }),
           });
 
           if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-            console.error('Backend OAuth error:', error);
+            const error = await response.text();
+            consoleLogger.error('Backend OAuth error:', error);
             return false;
           }
 
-          const data = await response.json();
+          const body = await response.json();
+          const loginRes = body.data;
 
-          user.id = data.user.id;
-          user.email = data.user.eamil;
-          user.image = data.user.avatar;
-          user.access_token = data.accessToken;
-          user.refresh_token = data.refreshToken;
-          user.name = `${data.user.firstName} ${data.user.lastName}`;
+          user.id = loginRes.user.id;
+          user.email = loginRes.user.email;
+          user.image = loginRes.user.avatar;
+          user.access_token = loginRes.accessToken;
+          user.refresh_token = loginRes.refreshToken;
+          user.name = `${loginRes.user.firstName} ${loginRes.user.lastName}`;
 
           return true;
         } catch (error) {
-          console.error('OAuth sync failed:', error);
+          consoleLogger.error('OAuth sync failed:', error);
           return false;
         }
       }
@@ -127,7 +133,7 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
       return false;
     },
     async jwt({ token, user }) {
-      // First sign-in — store both tokens + expiry timestamp
+      // First sign-in — store tokens + expiry
       if (user?.access_token) {
         return {
           id: user.id,
@@ -136,43 +142,11 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           image: user.image,
           access_token: user.access_token,
           refresh_token: user.refresh_token,
-          expires_at:
-            Date.now() + helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION) * 1000,
+          expires_at: decodeJwt(user.access_token as string).exp! * 1000,
         };
       }
-
-      // Token still valid — pass through unchanged
-      if (token.expires_at && Date.now() < (token.expires_at as number)) {
-        return token;
-      }
-
-      // Access token expired — use refresh_token to get a new one  ← READ here
-      try {
-        const response = await fetch(`${env.API_GATEWAY_URL}/auth/refresh`, {
-          method: 'POST',
-          body: JSON.stringify({
-            refreshToken: token.refresh_token,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) throw new Error('Refresh failed');
-
-        const data: StandardResponse<RefreshTokenRes> = await response.json();
-
-        return {
-          ...token,
-          access_token: data.data?.accessToken,
-          refresh_token: data.data?.refreshToken,
-          expires_at:
-            Date.now() + helpers.parseJwtExpiration(env.JWT_ACCESS_TOKEN_EXPIRATION) * 1000,
-          error: undefined,
-        };
-      } catch {
-        return { ...token, error: 'RefreshTokenError' };
-      }
+      // All subsequent calls — pass through unchanged; refresh is handled in middleware
+      return token;
     },
 
     async session({ session, token }) {
@@ -182,11 +156,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
         session.user.name = token.name as string;
         session.user.image = token.image as string;
         session.accessToken = token.access_token as string;
-        if (token.error === 'RefreshTokenError') {
-          session.error = 'RefreshTokenError';
-        }
+        session.expires_at = token.expires_at as number;
       }
-
       return session;
     },
 
@@ -194,12 +165,6 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
       const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : url;
       try {
         const parsed = new URL(fullUrl);
-        // Intercept NextAuth's built-in error route and redirect to login
-        // with the error code as a search param so the login page can toast it.
-        if (parsed.pathname === '/api/auth/error') {
-          const error = parsed.searchParams.get('error') ?? 'Default';
-          return `${baseUrl}${AUTH_ROUTES.LOGIN}?error=${encodeURIComponent(error)}`;
-        }
         if (url.startsWith('/')) return `${baseUrl}${url}`;
         if (parsed.origin === baseUrl) return url;
       } catch {

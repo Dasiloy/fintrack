@@ -190,3 +190,12 @@ export class RefreshTokenDto implements RefreshTokenReq {
   @IsString()
   refreshToken: string;
 }
+
+export class GoogleOAuthDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'Google id_token obtained from the OAuth sign-in flow. Verified server-side.',
+  })
+  @IsString()
+  idToken: string;
+}

@@ -26,12 +26,12 @@ import {
   ResetPasswordRes,
   VerifyPasswordTokenRes,
   VerifyPasswordTokenReq,
+  LoginwithGoggleReq,
 } from '@fintrack/types/protos/auth/auth';
 
 import { AuthService } from './auth.service';
 import { TokenGuard } from './guards/token.guard';
 import { TokenMeta } from './decorators/token.decorator';
-import { RpcException } from '@nestjs/microservices';
 
 /**
  * Controller Responsible for managing app-wide authentication
@@ -225,5 +225,20 @@ export class AuthController implements AuthServiceController {
   ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes {
     const user = (metadata as any).user;
     return this.authService.refreshAuthTokens(user);
+  }
+
+  /**
+   * @description Login With  Google
+   *
+   * @async
+   * @public
+   * @param {LoginwithGoggleReq} request
+   * @returns {Promise<LoginRes> | Observable<LoginRes> | LoginRes}
+   * @throws {RpcException} UNAUTHENTICATED
+   */
+  loginWithGoogle(
+    request: LoginwithGoggleReq,
+  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
+    return this.authService.loginWithGoogle(request);
   }
 }

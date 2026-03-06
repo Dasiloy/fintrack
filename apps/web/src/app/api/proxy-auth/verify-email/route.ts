@@ -8,9 +8,7 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
 
     const emailToken = cookieStore.get('emailToken')?.value;
-    const deviceId = cookieStore.get('deviceId')?.value ?? crypto.randomUUID();
-    const userAgent = request.headers.get('user-agent') ?? 'unknown';
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    const deviceId = cookieStore.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME)?.value ?? '';
 
     if (!emailToken) {
       return Response.json({ message: 'Token Expired!' }, { status: 401 });
@@ -22,9 +20,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'x-token': emailToken!,
-        'X-Device-ID': deviceId,
-        'X-Forwarded-For': ip,
-        'User-Agent': userAgent,
+        ...(deviceId && { 'x-device-id': deviceId }),
       },
     });
 
@@ -38,14 +34,6 @@ export async function POST(request: NextRequest) {
 
     res.cookies.delete('verifyEmail');
     res.cookies.delete('emailToken');
-
-    res.cookies.set('deviceId', deviceId, {
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: 365 * 24 * 60 * 60,
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-    });
 
     return res;
   } catch (error) {
