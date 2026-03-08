@@ -105,14 +105,17 @@ This project is built to master:
 
 For more detailed guides, check the `docs/` folder:
 
-- [System Architecture](docs/architecture.md)
-- [Features & DSA Mapping](docs/features.md)
-- [Design System & UI/UX](docs/design-system.md)
-- [Build Journey Log](docs/build-journey.md)
-- [Case Study & Business Value](docs/case-study.md)
-- [API Contract Template](docs/api-contract-template.json)
-- [API Contract — Auth](docs/api-contract.json)
-- [Backlog & Bug Tracker](docs/backlog.md)
+- [System Architecture](docs/ARCHITECTURE.md)
+- [Features & DSA Mapping](docs/FEATURES.md)
+- [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
+- [Build Journey Log](docs/BUILD-JOURNEY.md)
+- [Case Study & Business Value](docs/CASE-STUDY.md)
+- [OAuth Setup](docs/OAUTH.md)
+- [2FA / TOTP](docs/2FA-TOTP.md)
+- [Stripe & Subscriptions](docs/STRIPE.md)
+- [Render Deployment](docs/RENDER.md)
+- [API Contract Index](docs/API-CONTRACT-TEMPLATE.json)
+- [Backlog & Bug Tracker](docs/BACKLOG.md)
 
 ---
 
