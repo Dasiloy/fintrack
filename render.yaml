@@ -123,8 +123,6 @@ services:
         sync: false
       - key: JWT_2FA_SECRET
         sync: false
-      - key: JWT_2FA_TOKEN_EXPIRATION
-        sync: false
       - key: AES_KEY
         sync: false
 
