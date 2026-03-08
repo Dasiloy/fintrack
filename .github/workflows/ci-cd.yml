@@ -1,9 +1,14 @@
 # =============================================================================
 # FinTrack — CI / CD Pipeline
 #
-# Triggers:
-#   • Every push and PR → quality + tests
-#   • Push to main only → Docker build + push + Render deploy
+# Triggers & job matrix:
+#   • push feat/**          → quality (type-check) + test
+#   • pull_request → main   → quality (type-check) + test
+#   • push main (merge)     → docker build + push + Render deploy
+#
+# Quality and tests are intentionally skipped on main: they already ran on
+# the feature branch and PR before the merge. Docker runs independently so
+# it is not blocked by the skipped check jobs.
 #
 # Required GitHub secrets (repo → Settings → Secrets and variables → Actions):
 #   DOCKERHUB_USERNAME                      dasiloy
@@ -36,7 +41,7 @@ jobs:
   quality:
     name: Type Check
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
 
     steps:
       - uses: actions/checkout@v4
@@ -69,7 +74,7 @@ jobs:
     name: Test — ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: quality
-    if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
 
     strategy:
       fail-fast: false
@@ -109,14 +114,9 @@ jobs:
   docker:
     name: Docker — ${{ matrix.service }}
     runs-on: ubuntu-latest
-    needs: [quality, test]
-
-    # Only run on pushes to main; allow skipped quality/test (they're skipped intentionally on main)
-    if: |
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'push' &&
-      (needs.quality.result == 'success' || needs.quality.result == 'skipped') &&
-      (needs.test.result == 'success' || needs.test.result == 'skipped')
+    # No `needs` here — quality/test are skipped on main (they ran on the feature
+    # branch and PR). Depending on skipped jobs would cascade-skip this job too.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     strategy:
       fail-fast: false
