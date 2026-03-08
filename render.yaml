@@ -1,14 +1,9 @@
 # =============================================================================
-# FinTrack — Render Blueprint
+# FinTrack — Render Blueprint (Updated: Turbo Handles DB Gen)
 #
-# Defines all 4 backend services for Render's native Node.js runtime.
-# Link this repo in Render (New → Blueprint) and Render provisions everything.
-#
-# Non-secret env vars are defined here with `value:`.
-# Secrets use `sync: false` — Render creates the slot but you fill the value
-# once in the Render dashboard after the first deploy.
-#
-# See docs/RENDER.md for the full setup guide.
+# rootDir for monorepo isolation.
+# buildCommand simplified: pnpm turbo build auto-runs db:generate via turbo.json deps.
+# Assumes turbo.json has "build": {"dependsOn": ["^db:generate"]}.
 # =============================================================================
 
 services:
@@ -16,11 +11,11 @@ services:
   - type: web
     name: fintrack-api-gateway
     runtime: node
+    rootDir: apps/api_gateway
     buildCommand: >-
       pnpm install --prod=false &&
-      pnpm turbo run db:generate --filter=@fintrack/database &&
-      pnpm turbo build --filter=api_gateway
-    startCommand: node apps/api_gateway/dist/main.js
+      pnpm turbo build
+    startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -31,9 +26,7 @@ services:
       - key: API_GATEWAY_PORT
         value: 4001
 
-      # Internal hostnames for the private gRPC services (Render private DNS).
-      # After first deploy confirm these match each service's Internal Address
-      # in Render → <service> → Settings → Internal Address.
+      # Internal hostnames (verify post-deploy)
       - key: AUTH_SERVICE_HOST
         value: fintrack-auth-service
       - key: AUTH_SERVICE_PORT
@@ -47,7 +40,7 @@ services:
       - key: PAYMENT_SERVICE_PORT
         value: 4008
 
-      # Secrets — set these once in Render → fintrack-api-gateway → Settings → Environment
+      # Secrets
       - key: DATABASE_URL
         sync: false
       - key: SWAGGER_DOC_USER
@@ -59,11 +52,11 @@ services:
   - type: pserv
     name: fintrack-auth-service
     runtime: node
+    rootDir: apps/auth_service
     buildCommand: >-
       pnpm install --prod=false &&
-      pnpm turbo run db:generate --filter=@fintrack/database &&
-      pnpm turbo build --filter=auth_service
-    startCommand: node apps/auth_service/dist/main.js
+      pnpm turbo build
+    startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -74,7 +67,7 @@ services:
       - key: AUTH_SERVICE_PORT
         value: 4002
 
-      # Token expiry defaults (override in Render dashboard if needed)
+      # Token defaults
       - key: JWT_ACCESS_TOKEN_EXPIRATION
         value: 1h
       - key: JWT_REFRESH_TOKEN_EXPIRATION
@@ -88,7 +81,7 @@ services:
       - key: MAX_LOGIN_ATTEMPTS
         value: 3
 
-      # Secrets — set in Render → fintrack-auth-service → Settings → Environment
+      # Secrets
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -114,11 +107,11 @@ services:
   - type: pserv
     name: fintrack-notification-service
     runtime: node
+    rootDir: apps/notification_service
     buildCommand: >-
       pnpm install --prod=false &&
-      pnpm turbo run db:generate --filter=@fintrack/database &&
-      pnpm turbo build --filter=notification_service
-    startCommand: node apps/notification_service/dist/main.js
+      pnpm turbo build
+    startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -129,7 +122,7 @@ services:
       - key: NOTIFICATION_SERVICE_PORT
         value: 4009
 
-      # Secrets — set in Render → fintrack-notification-service → Settings → Environment
+      # Secrets
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
@@ -143,11 +136,11 @@ services:
   - type: pserv
     name: fintrack-payment-service
     runtime: node
+    rootDir: apps/payment_service
     buildCommand: >-
       pnpm install --prod=false &&
-      pnpm turbo run db:generate --filter=@fintrack/database &&
-      pnpm turbo build --filter=payment_service
-    startCommand: node apps/payment_service/dist/main.js
+      pnpm turbo build
+    startCommand: node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -158,7 +151,7 @@ services:
       - key: PAYMENT_SERVICE_PORT
         value: 4008
 
-      # Secrets — set in Render → fintrack-payment-service → Settings → Environment
+      # Secrets
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL

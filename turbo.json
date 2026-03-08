@@ -42,7 +42,7 @@
   "globalPassThroughEnv": ["AWS_SECRET_KEY", "GITHUB_TOKEN"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^db:generate", "^build"],
       "inputs": ["$TURBO_DEFAULT$"],
       "env": ["NEXT_PUBLIC_*"],
       "envMode": "strict",
