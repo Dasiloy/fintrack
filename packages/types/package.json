@@ -30,8 +30,7 @@
     "@nestjs/microservices": "^11.1.13",
     "@grpc/grpc-js": "^1.14.3",
     "rxjs": "^7.8.1",
-    "ts-proto": "^2.11.2",
-    "typescript": "latest"
+    "ts-proto": "^2.11.2"
   },
   "peerDependencies": {
     "@nestjs/microservices": "^11.1.13",

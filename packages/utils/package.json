@@ -24,8 +24,7 @@
   "devDependencies": {
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/types": "workspace:*",
-    "@fintrack/typescript-config": "workspace:*",
-    "typescript": "latest"
+    "@fintrack/typescript-config": "workspace:*"
   },
   "dependencies": {
     "dayjs": "^1.11.19"
