@@ -16,7 +16,7 @@ export const env = createEnv({
     JWT_ACCESS_TOKEN_EXPIRATION: z.string().default('15m'),
     JWT_REFRESH_TOKEN_EXPIRATION: z.string().default('30d'),
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    DEVICE_ID_COOKIE_MAX_AGE: z.number().default(31536000),
+    DEVICE_ID_COOKIE_MAX_AGE: z.string().default('31536000'),
   },
 
   /**
@@ -47,7 +47,7 @@ export const env = createEnv({
     JWT_ACCESS_TOKEN_EXPIRATION: process.env.JWT_ACCESS_TOKEN_EXPIRATION,
     JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION,
     NODE_ENV: process.env.NODE_ENV,
-    DEVICE_ID_COOKIE_MAX_AGE: parseInt(process.env.DEVICE_ID_COOKIE_MAX_AGE ?? '', 10),
+    DEVICE_ID_COOKIE_MAX_AGE: process.env.DEVICE_ID_COOKIE_MAX_AGE ?? '31536000',
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
