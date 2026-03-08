@@ -24,8 +24,7 @@
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
     "@tanstack/react-query": "^5.69.0",
-    "superjson": "^2.2.1",
-    "typescript": "^5.8.2"
+    "superjson": "^2.2.1"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.69.0",

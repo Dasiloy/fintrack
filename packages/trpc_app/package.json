@@ -37,8 +37,7 @@
     "@fintrack/next_auth": "workspace:*",
     "@trpc/server": "^11.0.0",
     "superjson": "^2.2.1",
-    "zod": "^3.24.2",
-    "typescript": "^5.8.2"
+    "zod": "^3.24.2"
   },
   "peerDependencies": {
     "@fintrack/next_auth": "workspace:*",
