@@ -1,7 +1,7 @@
 # =============================================================================
 # FinTrack — API Gateway (production)
 #
-# 5-stage multi-stage build using Turborepo workspace pruning.
+# 4-stage multi-stage build using Turborepo workspace pruning.
 # Build context MUST be the monorepo root:
 #   docker build -f docker/api_gateway/Dockerfile .
 #
@@ -28,31 +28,30 @@ WORKDIR /app
 COPY . .
 RUN turbo prune api_gateway --docker
 
-# ── Stage 3: Install dependencies (layer-cached) ──────────────────────────────
-# Copy only the pruned package.json files first. Docker caches this layer
-# separately, so pnpm install only re-runs when dependencies change.
-FROM base AS installer
-WORKDIR /app
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-# .npmrc must be present so pnpm hoists @prisma/* and the prisma CLI to root node_modules.
-# Without this, the custom Prisma output at dist/generated/ cannot resolve
-# @prisma/client-runtime-utils via standard Node module resolution.
-COPY --from=pruner /app/.npmrc ./.npmrc
-RUN pnpm install --frozen-lockfile
-
-# ── Stage 4: Build ────────────────────────────────────────────────────────────
-# Brings in the full source and builds api_gateway and all its workspace deps.
+# ── Stage 3: Build ────────────────────────────────────────────────────────────
+# Install then build in a single stage so pnpm creates all workspace package
+# node_modules correctly (the previous installer→builder copy approach broke
+# workspace package .bin symlinks, causing "prisma: not found").
+# Layer caching is preserved: json/ and lock are copied before source, so
+# pnpm install is only re-run when dependencies change, not on every code push.
 FROM base AS builder
 WORKDIR /app
-COPY --from=installer /app/node_modules ./node_modules
+# Copy package manifests only — pnpm install is cached until these change.
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+# .npmrc must be present so pnpm hoists @prisma/* and the prisma CLI to root
+# node_modules. Without this, the custom Prisma output at dist/generated/
+# cannot resolve @prisma/client-runtime-utils via Node module resolution.
+COPY --from=pruner /app/.npmrc ./.npmrc
+RUN pnpm install --frozen-lockfile
+# Copy full source after install so source changes don't bust the install cache.
 COPY --from=pruner /app/out/full/ .
 # Generate the Prisma client for Linux before the TypeScript build.
 # prisma generate only reads schema.prisma — no DATABASE_URL needed.
 RUN pnpm --filter @fintrack/database run db:generate
 RUN pnpm turbo build --filter=api_gateway
 
-# ── Stage 5: Production runner ────────────────────────────────────────────────
+# ── Stage 4: Production runner ────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 RUN apk add --no-cache dumb-init netcat-openbsd
 
