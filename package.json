@@ -24,7 +24,7 @@
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": "24.0.x"
+    "node": "22.21.0"
   },
   "pnpm": {
     "overrides": {
