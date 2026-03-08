@@ -44,11 +44,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Build shared packages so workspace imports resolve during type-check
+      # Build shared packages so workspace imports resolve during type-check.
+      # DATABASE_URL is a placeholder — prisma generate reads schema only, no DB connection.
       - name: Build workspace packages
         run: pnpm turbo build --filter="./packages/*"
         env:
           SKIP_ENV_VALIDATION: "true"
+          DATABASE_URL: "postgresql://user:pass@localhost/db"
 
       - name: Type check all apps
         run: pnpm check-types
@@ -90,6 +92,7 @@ jobs:
         run: pnpm turbo build --filter="./packages/*"
         env:
           SKIP_ENV_VALIDATION: "true"
+          DATABASE_URL: "postgresql://user:pass@localhost/db"
 
       - name: Run tests
         run: pnpm --filter ${{ matrix.service }} test
