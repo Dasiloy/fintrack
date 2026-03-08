@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(xargs ls -la)",
-      "Bash(ls -la /Users/admin/Projects/fintrack/apps/web/src/app/ -d */)"
+      "Bash(ls -la /Users/admin/Projects/fintrack/apps/web/src/app/ -d */)",
+      "Read(//Users/admin/Projects/fintrack/**)",
+      "Bash(echo \"no docker docs\" echo \"===\" ls /Users/admin/Projects/fintrack/*.dockerignore)"
     ]
   }
 }
