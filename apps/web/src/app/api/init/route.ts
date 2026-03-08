@@ -14,7 +14,7 @@ export async function GET() {
   res.cookies.set(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME, crypto.randomUUID(), {
     httpOnly: false,
     sameSite: 'lax',
-    maxAge: env.DEVICE_ID_COOKIE_MAX_AGE,
+    maxAge: parseInt(env.DEVICE_ID_COOKIE_MAX_AGE, 10),
     path: '/',
     secure: process.env.NODE_ENV === 'production',
   });
