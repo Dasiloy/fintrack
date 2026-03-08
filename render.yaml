@@ -25,7 +25,7 @@ services:
     buildCommand: >-
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=api_gateway
-    startCommand: node apps/api_gateway/dist/main.js
+    startCommand: cd apps/api_gateway && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -97,7 +97,7 @@ services:
     buildCommand: >-
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=auth_service
-    startCommand: node apps/auth_service/dist/main.js
+    startCommand: cd apps/auth_service && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -137,7 +137,7 @@ services:
     buildCommand: >-
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=notification_service
-    startCommand: node apps/notification_service/dist/main.js
+    startCommand: cd apps/notification_service && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -165,7 +165,7 @@ services:
     buildCommand: >-
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=payment_service
-    startCommand: node apps/payment_service/dist/main.js
+    startCommand: cd apps/payment_service && node dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
