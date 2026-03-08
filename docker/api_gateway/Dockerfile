@@ -35,7 +35,7 @@ FROM base AS installer
 WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-# .npmrc must be present so pnpm hoists @prisma/* to root node_modules.
+# .npmrc must be present so pnpm hoists @prisma/* and the prisma CLI to root node_modules.
 # Without this, the custom Prisma output at dist/generated/ cannot resolve
 # @prisma/client-runtime-utils via standard Node module resolution.
 COPY --from=pruner /app/.npmrc ./.npmrc
@@ -60,6 +60,16 @@ RUN apk add --no-cache dumb-init netcat-openbsd
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
 ENV NODE_ENV=production
+# Bind on all interfaces so the container is reachable in Docker / Render
+ENV API_GATEWAY_HOST=0.0.0.0
+ENV API_GATEWAY_PORT=4001
+ENV MICROSERVICE_NAME=API_GATEWAY
+# Safe non-secret defaults — override in Render environment if needed
+ENV JWT_ACCESS_TOKEN_EXPIRATION=1h
+ENV JWT_REFRESH_TOKEN_EXPIRATION=1d
+ENV JWT_OTP_TOKEN_EXPIRATION=60m
+ENV OTP_EXPIRY_MINUTES=5
+ENV MAX_LOGIN_ATTEMPTS=3
 
 # CRITICAL: WORKDIR must be apps/api_gateway so that process.cwd() inside the
 # running container resolves the proto file paths correctly (see header note).

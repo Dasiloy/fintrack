@@ -77,5 +77,4 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   );
 }
 
-// 2FA setup
 // stripe steup and subscription

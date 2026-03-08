@@ -32,7 +32,10 @@ import { AuthService } from './auth.service';
         JWT_ACCESS_TOKEN_EXPIRATION: Joi.string().required(),
         JWT_REFRESH_TOKEN_EXPIRATION: Joi.string().required(),
         JWT_OTP_TOKEN_EXPIRATION: Joi.string().required(),
+        JWT_2FA_SECRET: Joi.string().required(),
+        JWT_2FA_TOKEN_EXPIRATION: Joi.string().required(),
         AUTH_GOOGLE_ID: Joi.string().required(),
+        AES_KEY: Joi.string().required(),
       }),
     }),
     JwtModule.registerAsync({

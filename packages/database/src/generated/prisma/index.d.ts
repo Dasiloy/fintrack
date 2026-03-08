@@ -43,6 +43,11 @@ export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
  * 
  */
 export type UsageTracker = $Result.DefaultSelection<Prisma.$UsageTrackerPayload>
+/**
+ * Model BackupCodes
+ * 
+ */
+export type BackupCodes = $Result.DefaultSelection<Prisma.$BackupCodesPayload>
 
 /**
  * Enums
@@ -70,7 +75,8 @@ export type AccountProvider = (typeof AccountProvider)[keyof typeof AccountProvi
 export const VerificationIdentifier: {
   PASSWORD: 'PASSWORD',
   EMAIL: 'EMAIL',
-  RESET: 'RESET'
+  RESET: 'RESET',
+  EMAIL_CHANGE: 'EMAIL_CHANGE'
 };
 
 export type VerificationIdentifier = (typeof VerificationIdentifier)[keyof typeof VerificationIdentifier]
@@ -305,6 +311,16 @@ export class PrismaClient<
     * ```
     */
   get usageTracker(): Prisma.UsageTrackerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.backupCodes`: Exposes CRUD operations for the **BackupCodes** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BackupCodes
+    * const backupCodes = await prisma.backupCodes.findMany()
+    * ```
+    */
+  get backupCodes(): Prisma.BackupCodesDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -744,7 +760,8 @@ export namespace Prisma {
     Session: 'Session',
     VerificationToken: 'VerificationToken',
     Subscription: 'Subscription',
-    UsageTracker: 'UsageTracker'
+    UsageTracker: 'UsageTracker',
+    BackupCodes: 'BackupCodes'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -760,7 +777,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "verificationToken" | "subscription" | "usageTracker"
+      modelProps: "user" | "account" | "session" | "verificationToken" | "subscription" | "usageTracker" | "backupCodes"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1208,6 +1225,80 @@ export namespace Prisma {
           }
         }
       }
+      BackupCodes: {
+        payload: Prisma.$BackupCodesPayload<ExtArgs>
+        fields: Prisma.BackupCodesFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BackupCodesFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BackupCodesFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          findFirst: {
+            args: Prisma.BackupCodesFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BackupCodesFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          findMany: {
+            args: Prisma.BackupCodesFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>[]
+          }
+          create: {
+            args: Prisma.BackupCodesCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          createMany: {
+            args: Prisma.BackupCodesCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BackupCodesCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>[]
+          }
+          delete: {
+            args: Prisma.BackupCodesDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          update: {
+            args: Prisma.BackupCodesUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          deleteMany: {
+            args: Prisma.BackupCodesDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BackupCodesUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BackupCodesUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>[]
+          }
+          upsert: {
+            args: Prisma.BackupCodesUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BackupCodesPayload>
+          }
+          aggregate: {
+            args: Prisma.BackupCodesAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBackupCodes>
+          }
+          groupBy: {
+            args: Prisma.BackupCodesGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BackupCodesGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BackupCodesCountArgs<ExtArgs>
+            result: $Utils.Optional<BackupCodesCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1322,6 +1413,7 @@ export namespace Prisma {
     verificationToken?: VerificationTokenOmit
     subscription?: SubscriptionOmit
     usageTracker?: UsageTrackerOmit
+    backupCodes?: BackupCodesOmit
   }
 
   /* Types for Logging */
@@ -1405,12 +1497,14 @@ export namespace Prisma {
     accounts: number
     sessions: number
     usageTrackers: number
+    backupCodes: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | UserCountOutputTypeCountAccountsArgs
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     usageTrackers?: boolean | UserCountOutputTypeCountUsageTrackersArgs
+    backupCodes?: boolean | UserCountOutputTypeCountBackupCodesArgs
   }
 
   // Custom InputTypes
@@ -1445,6 +1539,13 @@ export namespace Prisma {
     where?: UsageTrackerWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountBackupCodesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BackupCodesWhereInput
+  }
+
 
   /**
    * Models
@@ -1464,10 +1565,12 @@ export namespace Prisma {
 
   export type UserAvgAggregateOutputType = {
     loginAttempts: number | null
+    twoFactorAttempts: number | null
   }
 
   export type UserSumAggregateOutputType = {
     loginAttempts: number | null
+    twoFactorAttempts: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -1481,6 +1584,10 @@ export namespace Prisma {
     lastName: string | null
     avatar: string | null
     lastLoginAt: Date | null
+    twoFactorAttempts: number | null
+    twoFactorEnabled: boolean | null
+    twoFactorSecret: string | null
+    twoFactorLastUsedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1496,6 +1603,10 @@ export namespace Prisma {
     lastName: string | null
     avatar: string | null
     lastLoginAt: Date | null
+    twoFactorAttempts: number | null
+    twoFactorEnabled: boolean | null
+    twoFactorSecret: string | null
+    twoFactorLastUsedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1511,6 +1622,10 @@ export namespace Prisma {
     lastName: number
     avatar: number
     lastLoginAt: number
+    twoFactorAttempts: number
+    twoFactorEnabled: number
+    twoFactorSecret: number
+    twoFactorLastUsedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1519,10 +1634,12 @@ export namespace Prisma {
 
   export type UserAvgAggregateInputType = {
     loginAttempts?: true
+    twoFactorAttempts?: true
   }
 
   export type UserSumAggregateInputType = {
     loginAttempts?: true
+    twoFactorAttempts?: true
   }
 
   export type UserMinAggregateInputType = {
@@ -1536,6 +1653,10 @@ export namespace Prisma {
     lastName?: true
     avatar?: true
     lastLoginAt?: true
+    twoFactorAttempts?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorLastUsedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1551,6 +1672,10 @@ export namespace Prisma {
     lastName?: true
     avatar?: true
     lastLoginAt?: true
+    twoFactorAttempts?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorLastUsedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1566,6 +1691,10 @@ export namespace Prisma {
     lastName?: true
     avatar?: true
     lastLoginAt?: true
+    twoFactorAttempts?: true
+    twoFactorEnabled?: true
+    twoFactorSecret?: true
+    twoFactorLastUsedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1668,6 +1797,10 @@ export namespace Prisma {
     lastName: string
     avatar: string | null
     lastLoginAt: Date | null
+    twoFactorAttempts: number
+    twoFactorEnabled: boolean
+    twoFactorSecret: string | null
+    twoFactorLastUsedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1702,12 +1835,17 @@ export namespace Prisma {
     lastName?: boolean
     avatar?: boolean
     lastLoginAt?: boolean
+    twoFactorAttempts?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorLastUsedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
+    backupCodes?: boolean | User$backupCodesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1722,6 +1860,10 @@ export namespace Prisma {
     lastName?: boolean
     avatar?: boolean
     lastLoginAt?: boolean
+    twoFactorAttempts?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorLastUsedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1737,6 +1879,10 @@ export namespace Prisma {
     lastName?: boolean
     avatar?: boolean
     lastLoginAt?: boolean
+    twoFactorAttempts?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorLastUsedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1752,16 +1898,21 @@ export namespace Prisma {
     lastName?: boolean
     avatar?: boolean
     lastLoginAt?: boolean
+    twoFactorAttempts?: boolean
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: boolean
+    twoFactorLastUsedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "twoFactorAttempts" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorLastUsedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
+    backupCodes?: boolean | User$backupCodesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1774,6 +1925,7 @@ export namespace Prisma {
       sessions: Prisma.$SessionPayload<ExtArgs>[]
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       usageTrackers: Prisma.$UsageTrackerPayload<ExtArgs>[]
+      backupCodes: Prisma.$BackupCodesPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1786,6 +1938,10 @@ export namespace Prisma {
       lastName: string
       avatar: string | null
       lastLoginAt: Date | null
+      twoFactorAttempts: number
+      twoFactorEnabled: boolean
+      twoFactorSecret: string | null
+      twoFactorLastUsedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -2186,6 +2342,7 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends User$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     usageTrackers<T extends User$usageTrackersArgs<ExtArgs> = {}>(args?: Subset<T, User$usageTrackersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    backupCodes<T extends User$backupCodesArgs<ExtArgs> = {}>(args?: Subset<T, User$backupCodesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2225,6 +2382,10 @@ export namespace Prisma {
     readonly lastName: FieldRef<"User", 'String'>
     readonly avatar: FieldRef<"User", 'String'>
     readonly lastLoginAt: FieldRef<"User", 'DateTime'>
+    readonly twoFactorAttempts: FieldRef<"User", 'Int'>
+    readonly twoFactorEnabled: FieldRef<"User", 'Boolean'>
+    readonly twoFactorSecret: FieldRef<"User", 'String'>
+    readonly twoFactorLastUsedAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -2703,6 +2864,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UsageTrackerScalarFieldEnum | UsageTrackerScalarFieldEnum[]
+  }
+
+  /**
+   * User.backupCodes
+   */
+  export type User$backupCodesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    where?: BackupCodesWhereInput
+    orderBy?: BackupCodesOrderByWithRelationInput | BackupCodesOrderByWithRelationInput[]
+    cursor?: BackupCodesWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BackupCodesScalarFieldEnum | BackupCodesScalarFieldEnum[]
   }
 
   /**
@@ -5019,6 +5204,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier | null
     email: string | null
     token: string | null
+    newEmail: string | null
     expires: Date | null
     createdAt: Date | null
   }
@@ -5028,6 +5214,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier | null
     email: string | null
     token: string | null
+    newEmail: string | null
     expires: Date | null
     createdAt: Date | null
   }
@@ -5037,6 +5224,7 @@ export namespace Prisma {
     identifier: number
     email: number
     token: number
+    newEmail: number
     expires: number
     createdAt: number
     _all: number
@@ -5048,6 +5236,7 @@ export namespace Prisma {
     identifier?: true
     email?: true
     token?: true
+    newEmail?: true
     expires?: true
     createdAt?: true
   }
@@ -5057,6 +5246,7 @@ export namespace Prisma {
     identifier?: true
     email?: true
     token?: true
+    newEmail?: true
     expires?: true
     createdAt?: true
   }
@@ -5066,6 +5256,7 @@ export namespace Prisma {
     identifier?: true
     email?: true
     token?: true
+    newEmail?: true
     expires?: true
     createdAt?: true
     _all?: true
@@ -5148,6 +5339,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier
     email: string
     token: string
+    newEmail: string | null
     expires: Date
     createdAt: Date
     _count: VerificationTokenCountAggregateOutputType | null
@@ -5174,6 +5366,7 @@ export namespace Prisma {
     identifier?: boolean
     email?: boolean
     token?: boolean
+    newEmail?: boolean
     expires?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["verificationToken"]>
@@ -5183,6 +5376,7 @@ export namespace Prisma {
     identifier?: boolean
     email?: boolean
     token?: boolean
+    newEmail?: boolean
     expires?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["verificationToken"]>
@@ -5192,6 +5386,7 @@ export namespace Prisma {
     identifier?: boolean
     email?: boolean
     token?: boolean
+    newEmail?: boolean
     expires?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["verificationToken"]>
@@ -5201,11 +5396,12 @@ export namespace Prisma {
     identifier?: boolean
     email?: boolean
     token?: boolean
+    newEmail?: boolean
     expires?: boolean
     createdAt?: boolean
   }
 
-  export type VerificationTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "identifier" | "email" | "token" | "expires" | "createdAt", ExtArgs["result"]["verificationToken"]>
+  export type VerificationTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "identifier" | "email" | "token" | "newEmail" | "expires" | "createdAt", ExtArgs["result"]["verificationToken"]>
 
   export type $VerificationTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "VerificationToken"
@@ -5215,6 +5411,7 @@ export namespace Prisma {
       identifier: $Enums.VerificationIdentifier
       email: string
       token: string
+      newEmail: string | null
       expires: Date
       createdAt: Date
     }, ExtArgs["result"]["verificationToken"]>
@@ -5644,6 +5841,7 @@ export namespace Prisma {
     readonly identifier: FieldRef<"VerificationToken", 'VerificationIdentifier'>
     readonly email: FieldRef<"VerificationToken", 'String'>
     readonly token: FieldRef<"VerificationToken", 'String'>
+    readonly newEmail: FieldRef<"VerificationToken", 'String'>
     readonly expires: FieldRef<"VerificationToken", 'DateTime'>
     readonly createdAt: FieldRef<"VerificationToken", 'DateTime'>
   }
@@ -8293,6 +8491,1064 @@ export namespace Prisma {
 
 
   /**
+   * Model BackupCodes
+   */
+
+  export type AggregateBackupCodes = {
+    _count: BackupCodesCountAggregateOutputType | null
+    _min: BackupCodesMinAggregateOutputType | null
+    _max: BackupCodesMaxAggregateOutputType | null
+  }
+
+  export type BackupCodesMinAggregateOutputType = {
+    id: string | null
+    usedAt: Date | null
+    code: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type BackupCodesMaxAggregateOutputType = {
+    id: string | null
+    usedAt: Date | null
+    code: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type BackupCodesCountAggregateOutputType = {
+    id: number
+    usedAt: number
+    code: number
+    userId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type BackupCodesMinAggregateInputType = {
+    id?: true
+    usedAt?: true
+    code?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type BackupCodesMaxAggregateInputType = {
+    id?: true
+    usedAt?: true
+    code?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type BackupCodesCountAggregateInputType = {
+    id?: true
+    usedAt?: true
+    code?: true
+    userId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type BackupCodesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BackupCodes to aggregate.
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BackupCodes to fetch.
+     */
+    orderBy?: BackupCodesOrderByWithRelationInput | BackupCodesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BackupCodesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BackupCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BackupCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BackupCodes
+    **/
+    _count?: true | BackupCodesCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BackupCodesMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BackupCodesMaxAggregateInputType
+  }
+
+  export type GetBackupCodesAggregateType<T extends BackupCodesAggregateArgs> = {
+        [P in keyof T & keyof AggregateBackupCodes]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBackupCodes[P]>
+      : GetScalarType<T[P], AggregateBackupCodes[P]>
+  }
+
+
+
+
+  export type BackupCodesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BackupCodesWhereInput
+    orderBy?: BackupCodesOrderByWithAggregationInput | BackupCodesOrderByWithAggregationInput[]
+    by: BackupCodesScalarFieldEnum[] | BackupCodesScalarFieldEnum
+    having?: BackupCodesScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BackupCodesCountAggregateInputType | true
+    _min?: BackupCodesMinAggregateInputType
+    _max?: BackupCodesMaxAggregateInputType
+  }
+
+  export type BackupCodesGroupByOutputType = {
+    id: string
+    usedAt: Date | null
+    code: string
+    userId: string
+    createdAt: Date
+    _count: BackupCodesCountAggregateOutputType | null
+    _min: BackupCodesMinAggregateOutputType | null
+    _max: BackupCodesMaxAggregateOutputType | null
+  }
+
+  type GetBackupCodesGroupByPayload<T extends BackupCodesGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BackupCodesGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BackupCodesGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BackupCodesGroupByOutputType[P]>
+            : GetScalarType<T[P], BackupCodesGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BackupCodesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usedAt?: boolean
+    code?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backupCodes"]>
+
+  export type BackupCodesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usedAt?: boolean
+    code?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backupCodes"]>
+
+  export type BackupCodesSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usedAt?: boolean
+    code?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backupCodes"]>
+
+  export type BackupCodesSelectScalar = {
+    id?: boolean
+    usedAt?: boolean
+    code?: boolean
+    userId?: boolean
+    createdAt?: boolean
+  }
+
+  export type BackupCodesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "usedAt" | "code" | "userId" | "createdAt", ExtArgs["result"]["backupCodes"]>
+  export type BackupCodesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BackupCodesIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type BackupCodesIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $BackupCodesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BackupCodes"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      usedAt: Date | null
+      code: string
+      userId: string
+      createdAt: Date
+    }, ExtArgs["result"]["backupCodes"]>
+    composites: {}
+  }
+
+  type BackupCodesGetPayload<S extends boolean | null | undefined | BackupCodesDefaultArgs> = $Result.GetResult<Prisma.$BackupCodesPayload, S>
+
+  type BackupCodesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BackupCodesFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BackupCodesCountAggregateInputType | true
+    }
+
+  export interface BackupCodesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BackupCodes'], meta: { name: 'BackupCodes' } }
+    /**
+     * Find zero or one BackupCodes that matches the filter.
+     * @param {BackupCodesFindUniqueArgs} args - Arguments to find a BackupCodes
+     * @example
+     * // Get one BackupCodes
+     * const backupCodes = await prisma.backupCodes.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BackupCodesFindUniqueArgs>(args: SelectSubset<T, BackupCodesFindUniqueArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BackupCodes that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BackupCodesFindUniqueOrThrowArgs} args - Arguments to find a BackupCodes
+     * @example
+     * // Get one BackupCodes
+     * const backupCodes = await prisma.backupCodes.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BackupCodesFindUniqueOrThrowArgs>(args: SelectSubset<T, BackupCodesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BackupCodes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesFindFirstArgs} args - Arguments to find a BackupCodes
+     * @example
+     * // Get one BackupCodes
+     * const backupCodes = await prisma.backupCodes.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BackupCodesFindFirstArgs>(args?: SelectSubset<T, BackupCodesFindFirstArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BackupCodes that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesFindFirstOrThrowArgs} args - Arguments to find a BackupCodes
+     * @example
+     * // Get one BackupCodes
+     * const backupCodes = await prisma.backupCodes.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BackupCodesFindFirstOrThrowArgs>(args?: SelectSubset<T, BackupCodesFindFirstOrThrowArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BackupCodes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BackupCodes
+     * const backupCodes = await prisma.backupCodes.findMany()
+     * 
+     * // Get first 10 BackupCodes
+     * const backupCodes = await prisma.backupCodes.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const backupCodesWithIdOnly = await prisma.backupCodes.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BackupCodesFindManyArgs>(args?: SelectSubset<T, BackupCodesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BackupCodes.
+     * @param {BackupCodesCreateArgs} args - Arguments to create a BackupCodes.
+     * @example
+     * // Create one BackupCodes
+     * const BackupCodes = await prisma.backupCodes.create({
+     *   data: {
+     *     // ... data to create a BackupCodes
+     *   }
+     * })
+     * 
+     */
+    create<T extends BackupCodesCreateArgs>(args: SelectSubset<T, BackupCodesCreateArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BackupCodes.
+     * @param {BackupCodesCreateManyArgs} args - Arguments to create many BackupCodes.
+     * @example
+     * // Create many BackupCodes
+     * const backupCodes = await prisma.backupCodes.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BackupCodesCreateManyArgs>(args?: SelectSubset<T, BackupCodesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BackupCodes and returns the data saved in the database.
+     * @param {BackupCodesCreateManyAndReturnArgs} args - Arguments to create many BackupCodes.
+     * @example
+     * // Create many BackupCodes
+     * const backupCodes = await prisma.backupCodes.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BackupCodes and only return the `id`
+     * const backupCodesWithIdOnly = await prisma.backupCodes.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BackupCodesCreateManyAndReturnArgs>(args?: SelectSubset<T, BackupCodesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BackupCodes.
+     * @param {BackupCodesDeleteArgs} args - Arguments to delete one BackupCodes.
+     * @example
+     * // Delete one BackupCodes
+     * const BackupCodes = await prisma.backupCodes.delete({
+     *   where: {
+     *     // ... filter to delete one BackupCodes
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BackupCodesDeleteArgs>(args: SelectSubset<T, BackupCodesDeleteArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BackupCodes.
+     * @param {BackupCodesUpdateArgs} args - Arguments to update one BackupCodes.
+     * @example
+     * // Update one BackupCodes
+     * const backupCodes = await prisma.backupCodes.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BackupCodesUpdateArgs>(args: SelectSubset<T, BackupCodesUpdateArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BackupCodes.
+     * @param {BackupCodesDeleteManyArgs} args - Arguments to filter BackupCodes to delete.
+     * @example
+     * // Delete a few BackupCodes
+     * const { count } = await prisma.backupCodes.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BackupCodesDeleteManyArgs>(args?: SelectSubset<T, BackupCodesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BackupCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BackupCodes
+     * const backupCodes = await prisma.backupCodes.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BackupCodesUpdateManyArgs>(args: SelectSubset<T, BackupCodesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BackupCodes and returns the data updated in the database.
+     * @param {BackupCodesUpdateManyAndReturnArgs} args - Arguments to update many BackupCodes.
+     * @example
+     * // Update many BackupCodes
+     * const backupCodes = await prisma.backupCodes.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BackupCodes and only return the `id`
+     * const backupCodesWithIdOnly = await prisma.backupCodes.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BackupCodesUpdateManyAndReturnArgs>(args: SelectSubset<T, BackupCodesUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BackupCodes.
+     * @param {BackupCodesUpsertArgs} args - Arguments to update or create a BackupCodes.
+     * @example
+     * // Update or create a BackupCodes
+     * const backupCodes = await prisma.backupCodes.upsert({
+     *   create: {
+     *     // ... data to create a BackupCodes
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BackupCodes we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BackupCodesUpsertArgs>(args: SelectSubset<T, BackupCodesUpsertArgs<ExtArgs>>): Prisma__BackupCodesClient<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BackupCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesCountArgs} args - Arguments to filter BackupCodes to count.
+     * @example
+     * // Count the number of BackupCodes
+     * const count = await prisma.backupCodes.count({
+     *   where: {
+     *     // ... the filter for the BackupCodes we want to count
+     *   }
+     * })
+    **/
+    count<T extends BackupCodesCountArgs>(
+      args?: Subset<T, BackupCodesCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BackupCodesCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BackupCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BackupCodesAggregateArgs>(args: Subset<T, BackupCodesAggregateArgs>): Prisma.PrismaPromise<GetBackupCodesAggregateType<T>>
+
+    /**
+     * Group by BackupCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BackupCodesGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BackupCodesGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BackupCodesGroupByArgs['orderBy'] }
+        : { orderBy?: BackupCodesGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BackupCodesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBackupCodesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BackupCodes model
+   */
+  readonly fields: BackupCodesFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BackupCodes.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BackupCodesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BackupCodes model
+   */
+  interface BackupCodesFieldRefs {
+    readonly id: FieldRef<"BackupCodes", 'String'>
+    readonly usedAt: FieldRef<"BackupCodes", 'DateTime'>
+    readonly code: FieldRef<"BackupCodes", 'String'>
+    readonly userId: FieldRef<"BackupCodes", 'String'>
+    readonly createdAt: FieldRef<"BackupCodes", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BackupCodes findUnique
+   */
+  export type BackupCodesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter, which BackupCodes to fetch.
+     */
+    where: BackupCodesWhereUniqueInput
+  }
+
+  /**
+   * BackupCodes findUniqueOrThrow
+   */
+  export type BackupCodesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter, which BackupCodes to fetch.
+     */
+    where: BackupCodesWhereUniqueInput
+  }
+
+  /**
+   * BackupCodes findFirst
+   */
+  export type BackupCodesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter, which BackupCodes to fetch.
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BackupCodes to fetch.
+     */
+    orderBy?: BackupCodesOrderByWithRelationInput | BackupCodesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BackupCodes.
+     */
+    cursor?: BackupCodesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BackupCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BackupCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BackupCodes.
+     */
+    distinct?: BackupCodesScalarFieldEnum | BackupCodesScalarFieldEnum[]
+  }
+
+  /**
+   * BackupCodes findFirstOrThrow
+   */
+  export type BackupCodesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter, which BackupCodes to fetch.
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BackupCodes to fetch.
+     */
+    orderBy?: BackupCodesOrderByWithRelationInput | BackupCodesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BackupCodes.
+     */
+    cursor?: BackupCodesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BackupCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BackupCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BackupCodes.
+     */
+    distinct?: BackupCodesScalarFieldEnum | BackupCodesScalarFieldEnum[]
+  }
+
+  /**
+   * BackupCodes findMany
+   */
+  export type BackupCodesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter, which BackupCodes to fetch.
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BackupCodes to fetch.
+     */
+    orderBy?: BackupCodesOrderByWithRelationInput | BackupCodesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BackupCodes.
+     */
+    cursor?: BackupCodesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BackupCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BackupCodes.
+     */
+    skip?: number
+    distinct?: BackupCodesScalarFieldEnum | BackupCodesScalarFieldEnum[]
+  }
+
+  /**
+   * BackupCodes create
+   */
+  export type BackupCodesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BackupCodes.
+     */
+    data: XOR<BackupCodesCreateInput, BackupCodesUncheckedCreateInput>
+  }
+
+  /**
+   * BackupCodes createMany
+   */
+  export type BackupCodesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BackupCodes.
+     */
+    data: BackupCodesCreateManyInput | BackupCodesCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BackupCodes createManyAndReturn
+   */
+  export type BackupCodesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * The data used to create many BackupCodes.
+     */
+    data: BackupCodesCreateManyInput | BackupCodesCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BackupCodes update
+   */
+  export type BackupCodesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BackupCodes.
+     */
+    data: XOR<BackupCodesUpdateInput, BackupCodesUncheckedUpdateInput>
+    /**
+     * Choose, which BackupCodes to update.
+     */
+    where: BackupCodesWhereUniqueInput
+  }
+
+  /**
+   * BackupCodes updateMany
+   */
+  export type BackupCodesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BackupCodes.
+     */
+    data: XOR<BackupCodesUpdateManyMutationInput, BackupCodesUncheckedUpdateManyInput>
+    /**
+     * Filter which BackupCodes to update
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * Limit how many BackupCodes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BackupCodes updateManyAndReturn
+   */
+  export type BackupCodesUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * The data used to update BackupCodes.
+     */
+    data: XOR<BackupCodesUpdateManyMutationInput, BackupCodesUncheckedUpdateManyInput>
+    /**
+     * Filter which BackupCodes to update
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * Limit how many BackupCodes to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BackupCodes upsert
+   */
+  export type BackupCodesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BackupCodes to update in case it exists.
+     */
+    where: BackupCodesWhereUniqueInput
+    /**
+     * In case the BackupCodes found by the `where` argument doesn't exist, create a new BackupCodes with this data.
+     */
+    create: XOR<BackupCodesCreateInput, BackupCodesUncheckedCreateInput>
+    /**
+     * In case the BackupCodes was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BackupCodesUpdateInput, BackupCodesUncheckedUpdateInput>
+  }
+
+  /**
+   * BackupCodes delete
+   */
+  export type BackupCodesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+    /**
+     * Filter which BackupCodes to delete.
+     */
+    where: BackupCodesWhereUniqueInput
+  }
+
+  /**
+   * BackupCodes deleteMany
+   */
+  export type BackupCodesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BackupCodes to delete
+     */
+    where?: BackupCodesWhereInput
+    /**
+     * Limit how many BackupCodes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BackupCodes without action
+   */
+  export type BackupCodesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BackupCodes
+     */
+    select?: BackupCodesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BackupCodes
+     */
+    omit?: BackupCodesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BackupCodesInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -8317,6 +9573,10 @@ export namespace Prisma {
     lastName: 'lastName',
     avatar: 'avatar',
     lastLoginAt: 'lastLoginAt',
+    twoFactorAttempts: 'twoFactorAttempts',
+    twoFactorEnabled: 'twoFactorEnabled',
+    twoFactorSecret: 'twoFactorSecret',
+    twoFactorLastUsedAt: 'twoFactorLastUsedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -8361,6 +9621,7 @@ export namespace Prisma {
     identifier: 'identifier',
     email: 'email',
     token: 'token',
+    newEmail: 'newEmail',
     expires: 'expires',
     createdAt: 'createdAt'
   };
@@ -8398,6 +9659,17 @@ export namespace Prisma {
   };
 
   export type UsageTrackerScalarFieldEnum = (typeof UsageTrackerScalarFieldEnum)[keyof typeof UsageTrackerScalarFieldEnum]
+
+
+  export const BackupCodesScalarFieldEnum: {
+    id: 'id',
+    usedAt: 'usedAt',
+    code: 'code',
+    userId: 'userId',
+    createdAt: 'createdAt'
+  };
+
+  export type BackupCodesScalarFieldEnum = (typeof BackupCodesScalarFieldEnum)[keyof typeof BackupCodesScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -8593,12 +9865,17 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     avatar?: StringNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    twoFactorAttempts?: IntFilter<"User"> | number
+    twoFactorEnabled?: BoolFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableFilter<"User"> | string | null
+    twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     usageTrackers?: UsageTrackerListRelationFilter
+    backupCodes?: BackupCodesListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8612,12 +9889,17 @@ export namespace Prisma {
     lastName?: SortOrder
     avatar?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    twoFactorAttempts?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    twoFactorLastUsedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     accounts?: AccountOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     usageTrackers?: UsageTrackerOrderByRelationAggregateInput
+    backupCodes?: BackupCodesOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -8634,12 +9916,17 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     avatar?: StringNullableFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    twoFactorAttempts?: IntFilter<"User"> | number
+    twoFactorEnabled?: BoolFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableFilter<"User"> | string | null
+    twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     usageTrackers?: UsageTrackerListRelationFilter
+    backupCodes?: BackupCodesListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -8653,6 +9940,10 @@ export namespace Prisma {
     lastName?: SortOrder
     avatar?: SortOrderInput | SortOrder
     lastLoginAt?: SortOrderInput | SortOrder
+    twoFactorAttempts?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    twoFactorLastUsedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -8676,6 +9967,10 @@ export namespace Prisma {
     lastName?: StringWithAggregatesFilter<"User"> | string
     avatar?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastLoginAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    twoFactorAttempts?: IntWithAggregatesFilter<"User"> | number
+    twoFactorEnabled?: BoolWithAggregatesFilter<"User"> | boolean
+    twoFactorSecret?: StringNullableWithAggregatesFilter<"User"> | string | null
+    twoFactorLastUsedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -8852,6 +10147,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFilter<"VerificationToken"> | $Enums.VerificationIdentifier
     email?: StringFilter<"VerificationToken"> | string
     token?: StringFilter<"VerificationToken"> | string
+    newEmail?: StringNullableFilter<"VerificationToken"> | string | null
     expires?: DateTimeFilter<"VerificationToken"> | Date | string
     createdAt?: DateTimeFilter<"VerificationToken"> | Date | string
   }
@@ -8861,6 +10157,7 @@ export namespace Prisma {
     identifier?: SortOrder
     email?: SortOrder
     token?: SortOrder
+    newEmail?: SortOrderInput | SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -8874,6 +10171,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFilter<"VerificationToken"> | $Enums.VerificationIdentifier
     email?: StringFilter<"VerificationToken"> | string
     token?: StringFilter<"VerificationToken"> | string
+    newEmail?: StringNullableFilter<"VerificationToken"> | string | null
     expires?: DateTimeFilter<"VerificationToken"> | Date | string
     createdAt?: DateTimeFilter<"VerificationToken"> | Date | string
   }, "id" | "email_token_identifier">
@@ -8883,6 +10181,7 @@ export namespace Prisma {
     identifier?: SortOrder
     email?: SortOrder
     token?: SortOrder
+    newEmail?: SortOrderInput | SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
     _count?: VerificationTokenCountOrderByAggregateInput
@@ -8898,6 +10197,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierWithAggregatesFilter<"VerificationToken"> | $Enums.VerificationIdentifier
     email?: StringWithAggregatesFilter<"VerificationToken"> | string
     token?: StringWithAggregatesFilter<"VerificationToken"> | string
+    newEmail?: StringNullableWithAggregatesFilter<"VerificationToken"> | string | null
     expires?: DateTimeWithAggregatesFilter<"VerificationToken"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"VerificationToken"> | Date | string
   }
@@ -9065,6 +10365,61 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"UsageTracker"> | Date | string
   }
 
+  export type BackupCodesWhereInput = {
+    AND?: BackupCodesWhereInput | BackupCodesWhereInput[]
+    OR?: BackupCodesWhereInput[]
+    NOT?: BackupCodesWhereInput | BackupCodesWhereInput[]
+    id?: StringFilter<"BackupCodes"> | string
+    usedAt?: DateTimeNullableFilter<"BackupCodes"> | Date | string | null
+    code?: StringFilter<"BackupCodes"> | string
+    userId?: StringFilter<"BackupCodes"> | string
+    createdAt?: DateTimeFilter<"BackupCodes"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type BackupCodesOrderByWithRelationInput = {
+    id?: SortOrder
+    usedAt?: SortOrderInput | SortOrder
+    code?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type BackupCodesWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BackupCodesWhereInput | BackupCodesWhereInput[]
+    OR?: BackupCodesWhereInput[]
+    NOT?: BackupCodesWhereInput | BackupCodesWhereInput[]
+    usedAt?: DateTimeNullableFilter<"BackupCodes"> | Date | string | null
+    code?: StringFilter<"BackupCodes"> | string
+    userId?: StringFilter<"BackupCodes"> | string
+    createdAt?: DateTimeFilter<"BackupCodes"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type BackupCodesOrderByWithAggregationInput = {
+    id?: SortOrder
+    usedAt?: SortOrderInput | SortOrder
+    code?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    _count?: BackupCodesCountOrderByAggregateInput
+    _max?: BackupCodesMaxOrderByAggregateInput
+    _min?: BackupCodesMinOrderByAggregateInput
+  }
+
+  export type BackupCodesScalarWhereWithAggregatesInput = {
+    AND?: BackupCodesScalarWhereWithAggregatesInput | BackupCodesScalarWhereWithAggregatesInput[]
+    OR?: BackupCodesScalarWhereWithAggregatesInput[]
+    NOT?: BackupCodesScalarWhereWithAggregatesInput | BackupCodesScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BackupCodes"> | string
+    usedAt?: DateTimeNullableWithAggregatesFilter<"BackupCodes"> | Date | string | null
+    code?: StringWithAggregatesFilter<"BackupCodes"> | string
+    userId?: StringWithAggregatesFilter<"BackupCodes"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"BackupCodes"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -9076,12 +10431,17 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -9095,12 +10455,17 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -9114,12 +10479,17 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -9133,12 +10503,17 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9152,6 +10527,10 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9167,6 +10546,10 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9182,6 +10565,10 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9371,6 +10758,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier
     email: string
     token: string
+    newEmail?: string | null
     expires: Date | string
     createdAt?: Date | string
   }
@@ -9380,6 +10768,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier
     email: string
     token: string
+    newEmail?: string | null
     expires: Date | string
     createdAt?: Date | string
   }
@@ -9389,6 +10778,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFieldUpdateOperationsInput | $Enums.VerificationIdentifier
     email?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    newEmail?: NullableStringFieldUpdateOperationsInput | string | null
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9398,6 +10788,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFieldUpdateOperationsInput | $Enums.VerificationIdentifier
     email?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    newEmail?: NullableStringFieldUpdateOperationsInput | string | null
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9407,6 +10798,7 @@ export namespace Prisma {
     identifier: $Enums.VerificationIdentifier
     email: string
     token: string
+    newEmail?: string | null
     expires: Date | string
     createdAt?: Date | string
   }
@@ -9416,6 +10808,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFieldUpdateOperationsInput | $Enums.VerificationIdentifier
     email?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    newEmail?: NullableStringFieldUpdateOperationsInput | string | null
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9425,6 +10818,7 @@ export namespace Prisma {
     identifier?: EnumVerificationIdentifierFieldUpdateOperationsInput | $Enums.VerificationIdentifier
     email?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
+    newEmail?: NullableStringFieldUpdateOperationsInput | string | null
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9609,6 +11003,61 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BackupCodesCreateInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutBackupCodesInput
+  }
+
+  export type BackupCodesUncheckedCreateInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type BackupCodesUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBackupCodesNestedInput
+  }
+
+  export type BackupCodesUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BackupCodesCreateManyInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type BackupCodesUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BackupCodesUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -9700,6 +11149,12 @@ export namespace Prisma {
     none?: UsageTrackerWhereInput
   }
 
+  export type BackupCodesListRelationFilter = {
+    every?: BackupCodesWhereInput
+    some?: BackupCodesWhereInput
+    none?: BackupCodesWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -9717,6 +11172,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type BackupCodesOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
@@ -9728,12 +11187,17 @@ export namespace Prisma {
     lastName?: SortOrder
     avatar?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorAttempts?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorLastUsedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
     loginAttempts?: SortOrder
+    twoFactorAttempts?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -9747,6 +11211,10 @@ export namespace Prisma {
     lastName?: SortOrder
     avatar?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorAttempts?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorLastUsedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -9762,12 +11230,17 @@ export namespace Prisma {
     lastName?: SortOrder
     avatar?: SortOrder
     lastLoginAt?: SortOrder
+    twoFactorAttempts?: SortOrder
+    twoFactorEnabled?: SortOrder
+    twoFactorSecret?: SortOrder
+    twoFactorLastUsedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
     loginAttempts?: SortOrder
+    twoFactorAttempts?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -10038,6 +11511,7 @@ export namespace Prisma {
     identifier?: SortOrder
     email?: SortOrder
     token?: SortOrder
+    newEmail?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -10047,6 +11521,7 @@ export namespace Prisma {
     identifier?: SortOrder
     email?: SortOrder
     token?: SortOrder
+    newEmail?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -10056,6 +11531,7 @@ export namespace Prisma {
     identifier?: SortOrder
     email?: SortOrder
     token?: SortOrder
+    newEmail?: SortOrder
     expires?: SortOrder
     createdAt?: SortOrder
   }
@@ -10213,6 +11689,30 @@ export namespace Prisma {
     _max?: NestedEnumUsageFeatureFilter<$PrismaModel>
   }
 
+  export type BackupCodesCountOrderByAggregateInput = {
+    id?: SortOrder
+    usedAt?: SortOrder
+    code?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BackupCodesMaxOrderByAggregateInput = {
+    id?: SortOrder
+    usedAt?: SortOrder
+    code?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type BackupCodesMinOrderByAggregateInput = {
+    id?: SortOrder
+    usedAt?: SortOrder
+    code?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type AccountCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -10240,6 +11740,13 @@ export namespace Prisma {
     connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
   }
 
+  export type BackupCodesCreateNestedManyWithoutUserInput = {
+    create?: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput> | BackupCodesCreateWithoutUserInput[] | BackupCodesUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BackupCodesCreateOrConnectWithoutUserInput | BackupCodesCreateOrConnectWithoutUserInput[]
+    createMany?: BackupCodesCreateManyUserInputEnvelope
+    connect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -10265,6 +11772,13 @@ export namespace Prisma {
     connectOrCreate?: UsageTrackerCreateOrConnectWithoutUserInput | UsageTrackerCreateOrConnectWithoutUserInput[]
     createMany?: UsageTrackerCreateManyUserInputEnvelope
     connect?: UsageTrackerWhereUniqueInput | UsageTrackerWhereUniqueInput[]
+  }
+
+  export type BackupCodesUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput> | BackupCodesCreateWithoutUserInput[] | BackupCodesUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BackupCodesCreateOrConnectWithoutUserInput | BackupCodesCreateOrConnectWithoutUserInput[]
+    createMany?: BackupCodesCreateManyUserInputEnvelope
+    connect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -10347,6 +11861,20 @@ export namespace Prisma {
     deleteMany?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
   }
 
+  export type BackupCodesUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput> | BackupCodesCreateWithoutUserInput[] | BackupCodesUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BackupCodesCreateOrConnectWithoutUserInput | BackupCodesCreateOrConnectWithoutUserInput[]
+    upsert?: BackupCodesUpsertWithWhereUniqueWithoutUserInput | BackupCodesUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BackupCodesCreateManyUserInputEnvelope
+    set?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    disconnect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    delete?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    connect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    update?: BackupCodesUpdateWithWhereUniqueWithoutUserInput | BackupCodesUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BackupCodesUpdateManyWithWhereWithoutUserInput | BackupCodesUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BackupCodesScalarWhereInput | BackupCodesScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -10397,6 +11925,20 @@ export namespace Prisma {
     update?: UsageTrackerUpdateWithWhereUniqueWithoutUserInput | UsageTrackerUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: UsageTrackerUpdateManyWithWhereWithoutUserInput | UsageTrackerUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: UsageTrackerScalarWhereInput | UsageTrackerScalarWhereInput[]
+  }
+
+  export type BackupCodesUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput> | BackupCodesCreateWithoutUserInput[] | BackupCodesUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: BackupCodesCreateOrConnectWithoutUserInput | BackupCodesCreateOrConnectWithoutUserInput[]
+    upsert?: BackupCodesUpsertWithWhereUniqueWithoutUserInput | BackupCodesUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: BackupCodesCreateManyUserInputEnvelope
+    set?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    disconnect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    delete?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    connect?: BackupCodesWhereUniqueInput | BackupCodesWhereUniqueInput[]
+    update?: BackupCodesUpdateWithWhereUniqueWithoutUserInput | BackupCodesUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: BackupCodesUpdateManyWithWhereWithoutUserInput | BackupCodesUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: BackupCodesScalarWhereInput | BackupCodesScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -10485,6 +12027,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutUsageTrackersInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUsageTrackersInput, UserUpdateWithoutUsageTrackersInput>, UserUncheckedUpdateWithoutUsageTrackersInput>
+  }
+
+  export type UserCreateNestedOneWithoutBackupCodesInput = {
+    create?: XOR<UserCreateWithoutBackupCodesInput, UserUncheckedCreateWithoutBackupCodesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBackupCodesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutBackupCodesNestedInput = {
+    create?: XOR<UserCreateWithoutBackupCodesInput, UserUncheckedCreateWithoutBackupCodesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutBackupCodesInput
+    upsert?: UserUpsertWithoutBackupCodesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBackupCodesInput, UserUpdateWithoutBackupCodesInput>, UserUncheckedUpdateWithoutBackupCodesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -10921,6 +12477,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BackupCodesCreateWithoutUserInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    createdAt?: Date | string
+  }
+
+  export type BackupCodesUncheckedCreateWithoutUserInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    createdAt?: Date | string
+  }
+
+  export type BackupCodesCreateOrConnectWithoutUserInput = {
+    where: BackupCodesWhereUniqueInput
+    create: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput>
+  }
+
+  export type BackupCodesCreateManyUserInputEnvelope = {
+    data: BackupCodesCreateManyUserInput | BackupCodesCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -11054,6 +12634,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"UsageTracker"> | Date | string
   }
 
+  export type BackupCodesUpsertWithWhereUniqueWithoutUserInput = {
+    where: BackupCodesWhereUniqueInput
+    update: XOR<BackupCodesUpdateWithoutUserInput, BackupCodesUncheckedUpdateWithoutUserInput>
+    create: XOR<BackupCodesCreateWithoutUserInput, BackupCodesUncheckedCreateWithoutUserInput>
+  }
+
+  export type BackupCodesUpdateWithWhereUniqueWithoutUserInput = {
+    where: BackupCodesWhereUniqueInput
+    data: XOR<BackupCodesUpdateWithoutUserInput, BackupCodesUncheckedUpdateWithoutUserInput>
+  }
+
+  export type BackupCodesUpdateManyWithWhereWithoutUserInput = {
+    where: BackupCodesScalarWhereInput
+    data: XOR<BackupCodesUpdateManyMutationInput, BackupCodesUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type BackupCodesScalarWhereInput = {
+    AND?: BackupCodesScalarWhereInput | BackupCodesScalarWhereInput[]
+    OR?: BackupCodesScalarWhereInput[]
+    NOT?: BackupCodesScalarWhereInput | BackupCodesScalarWhereInput[]
+    id?: StringFilter<"BackupCodes"> | string
+    usedAt?: DateTimeNullableFilter<"BackupCodes"> | Date | string | null
+    code?: StringFilter<"BackupCodes"> | string
+    userId?: StringFilter<"BackupCodes"> | string
+    createdAt?: DateTimeFilter<"BackupCodes"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -11065,11 +12672,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionCreateNestedManyWithoutUserInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -11083,11 +12695,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -11117,11 +12734,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -11135,11 +12757,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -11153,11 +12780,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -11171,11 +12803,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -11205,11 +12842,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -11223,11 +12865,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -11241,11 +12888,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -11259,11 +12911,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -11293,11 +12950,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -11311,11 +12973,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -11329,11 +12996,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -11347,11 +13019,16 @@ export namespace Prisma {
     lastName: string
     avatar?: string | null
     lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -11381,11 +13058,16 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -11399,11 +13081,124 @@ export namespace Prisma {
     lastName?: StringFieldUpdateOperationsInput | string
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutBackupCodesInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBackupCodesInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBackupCodesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBackupCodesInput, UserUncheckedCreateWithoutBackupCodesInput>
+  }
+
+  export type UserUpsertWithoutBackupCodesInput = {
+    update: XOR<UserUpdateWithoutBackupCodesInput, UserUncheckedUpdateWithoutBackupCodesInput>
+    create: XOR<UserCreateWithoutBackupCodesInput, UserUncheckedCreateWithoutBackupCodesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBackupCodesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBackupCodesInput, UserUncheckedUpdateWithoutBackupCodesInput>
+  }
+
+  export type UserUpdateWithoutBackupCodesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBackupCodesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -11438,6 +13233,13 @@ export namespace Prisma {
     periodEnd: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type BackupCodesCreateManyUserInput = {
+    id?: string
+    usedAt?: Date | string | null
+    code: string
+    createdAt?: Date | string
   }
 
   export type AccountUpdateWithoutUserInput = {
@@ -11540,6 +13342,27 @@ export namespace Prisma {
     periodEnd?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BackupCodesUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BackupCodesUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BackupCodesUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

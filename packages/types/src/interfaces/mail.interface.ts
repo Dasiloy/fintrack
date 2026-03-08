@@ -23,3 +23,17 @@ export interface PasswordChangeEmailPayload {
   firstName: string;
   lastName: string;
 }
+
+export interface EmailChangePayload {
+  email: string; // the new email address — OTP is sent here
+  otp: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface EmailChangedPayload {
+  oldEmail: string; // security alert goes to the old address
+  newEmail: string;
+  firstName: string;
+  lastName: string;
+}

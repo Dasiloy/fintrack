@@ -7,6 +7,8 @@ import {
   EMAIL_VERIFICATION_JOB,
   FORGOT_PASSWORD_EMAIL_JOB,
   PASSWORD_CHANGE_JOB,
+  EMAIL_CHANGE_JOB,
+  EMAIL_CHANGED_JOB,
   TOKEN_NOTIFICATION_QUEUE,
   WELCOME_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
@@ -68,6 +70,10 @@ export class TokenNotification extends WorkerHost {
         return this.notificationService.sendForgotPasswordEmail(job.data);
       case PASSWORD_CHANGE_JOB:
         return this.notificationService.sendPasswordChangeEmail(job.data);
+      case EMAIL_CHANGE_JOB:
+        return this.notificationService.sendEmailChangeEmail(job.data);
+      case EMAIL_CHANGED_JOB:
+        return this.notificationService.sendEmailChangedEmail(job.data);
       default:
         return;
     }

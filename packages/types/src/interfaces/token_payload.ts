@@ -5,6 +5,6 @@ export interface TokenPayload {
   firstName: string;
   lastName: string;
   sessionToken?: string;
-  type: 'otp_token' | 'access_token' | 'refresh_token';
+  type: 'otp_token' | 'access_token' | 'refresh_token' | '2fa_token';
   identifyer?: string;
 }
