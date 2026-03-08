@@ -1,12 +1,17 @@
 import * as Joi from 'joi';
 
-import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
-import { DeviceMiddleware } from './auth/middleware/device.middleware';
+import { DeviceMiddleware } from './middleware/device.middleware';
 
 import {
   getServiceUrl,
