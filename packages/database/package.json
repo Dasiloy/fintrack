@@ -9,7 +9,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "build": "rm -rf dist && tsc && cp -r src/generated dist/generated",
+    "build": "tsc && cp -r src/generated dist",
     "dev": "tsc --watch",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "lint": "eslint . --fix",
