@@ -1,0 +1,182 @@
+# =============================================================================
+# FinTrack — Render Blueprint
+#
+# Defines all 4 backend services for Render's native Node.js runtime.
+# Link this repo in Render (New → Blueprint) and Render provisions everything.
+#
+# Non-secret env vars are defined here with `value:`.
+# Secrets use `sync: false` — Render creates the slot but you fill the value
+# once in the Render dashboard after the first deploy.
+#
+# See docs/RENDER.md for the full setup guide.
+# =============================================================================
+
+services:
+
+  # ── Public HTTP service: API Gateway ────────────────────────────────────────
+  - type: web
+    name: fintrack-api-gateway
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile &&
+      pnpm turbo run db:generate --filter=@fintrack/database &&
+      pnpm turbo build --filter=api_gateway
+    startCommand: node apps/api_gateway/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: API_GATEWAY
+      - key: API_GATEWAY_HOST
+        value: 0.0.0.0
+      - key: API_GATEWAY_PORT
+        value: 4001
+
+      # Internal hostnames for the private gRPC services (Render private DNS).
+      # After first deploy confirm these match each service's Internal Address
+      # in Render → <service> → Settings → Internal Address.
+      - key: AUTH_SERVICE_HOST
+        value: fintrack-auth-service
+      - key: AUTH_SERVICE_PORT
+        value: 4002
+      - key: NOTIFICATION_SERVICE_HOST
+        value: fintrack-notification-service
+      - key: NOTIFICATION_SERVICE_PORT
+        value: 4009
+      - key: PAYMENT_SERVICE_HOST
+        value: fintrack-payment-service
+      - key: PAYMENT_SERVICE_PORT
+        value: 4008
+
+      # Token expiry defaults (override in Render dashboard if needed)
+      - key: JWT_ACCESS_TOKEN_EXPIRATION
+        value: 1h
+      - key: JWT_REFRESH_TOKEN_EXPIRATION
+        value: 1d
+      - key: JWT_OTP_TOKEN_EXPIRATION
+        value: 60m
+      - key: OTP_EXPIRY_MINUTES
+        value: 5
+      - key: MAX_LOGIN_ATTEMPTS
+        value: 3
+
+      # Secrets — set these once in Render → fintrack-api-gateway → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_OTP_SECRET
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+      - key: SWAGGER_DOC_USER
+        sync: false
+      - key: SWAGGER_DOC_PASS
+        sync: false
+      - key: CLOUDINARY_ID
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+
+  # ── Private gRPC service: Auth ──────────────────────────────────────────────
+  - type: pserv
+    name: fintrack-auth-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile &&
+      pnpm turbo run db:generate --filter=@fintrack/database &&
+      pnpm turbo build --filter=auth_service
+    startCommand: node apps/auth_service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: AUTH_SERVICE
+      - key: AUTH_SERVICE_HOST
+        value: 0.0.0.0
+      - key: AUTH_SERVICE_PORT
+        value: 4002
+      - key: JWT_OTP_TOKEN_EXPIRATION
+        value: 30m
+      - key: JWT_2FA_TOKEN_EXPIRATION
+        value: 5m
+      - key: OTP_EXPIRY_MINUTES
+        value: 5
+      - key: MAX_LOGIN_ATTEMPTS
+        value: 3
+
+      # Secrets — set in Render → fintrack-auth-service → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_OTP_SECRET
+        sync: false
+      - key: JWT_2FA_SECRET
+        sync: false
+      - key: AES_KEY
+        sync: false
+
+  # ── Private gRPC service: Notification ─────────────────────────────────────
+  - type: pserv
+    name: fintrack-notification-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile &&
+      pnpm turbo run db:generate --filter=@fintrack/database &&
+      pnpm turbo build --filter=notification_service
+    startCommand: node apps/notification_service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: NOTIFICATION_SERVICE
+      - key: NOTIFICATION_SERVICE_HOST
+        value: 0.0.0.0
+      - key: NOTIFICATION_SERVICE_PORT
+        value: 4009
+
+      # Secrets — set in Render → fintrack-notification-service → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_TOKEN
+        sync: false
+
+  # ── Private gRPC service: Payment ──────────────────────────────────────────
+  - type: pserv
+    name: fintrack-payment-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile &&
+      pnpm turbo run db:generate --filter=@fintrack/database &&
+      pnpm turbo build --filter=payment_service
+    startCommand: node apps/payment_service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: PAYMENT_SERVICE
+      - key: PAYMENT_SERVICE_HOST
+        value: 0.0.0.0
+      - key: PAYMENT_SERVICE_PORT
+        value: 4008
+
+      # Secrets — set in Render → fintrack-payment-service → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
