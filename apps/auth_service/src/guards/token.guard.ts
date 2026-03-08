@@ -49,8 +49,7 @@ export class TokenGuard implements CanActivate {
         otp_token: this.configService.get('JWT_OTP_SECRET'),
       };
 
-      const secret =
-        secretMap[tokenType] || this.configService.get('AUTH_SECRET');
+      const secret = secretMap[tokenType];
 
       const { payload }: any = this.jwtService.verify(jwtToken, {
         secret,

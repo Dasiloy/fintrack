@@ -22,7 +22,6 @@ import { AuthService } from './auth.service';
       expandVariables: true,
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
-        AUTH_SECRET: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
@@ -44,7 +43,7 @@ import { AuthService } from './auth.service';
       useFactory(configService: ConfigService) {
         return {
           global: true,
-          secret: configService.getOrThrow('AUTH_SECRET'),
+          secret: configService.getOrThrow('JWT_SECRET'),
           verifyOptions: {
             complete: true,
             ignoreExpiration: false,
