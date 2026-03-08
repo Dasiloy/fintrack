@@ -1,12 +1,9 @@
 import * as geoip from 'geoip-lite';
 import { UAParser } from 'ua-parser-js';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
 import { Injectable, NestMiddleware } from '@nestjs/common';
-
-import { DeviceInfo } from '@fintrack/types/interfaces/device';
-
-export type RequestWithDevice = Request & { deviceInfo: DeviceInfo };
+import { RequestWithDevice } from '../@types/device_info.types';
 
 @Injectable()
 export class DeviceMiddleware implements NestMiddleware {
@@ -21,16 +18,27 @@ export class DeviceMiddleware implements NestMiddleware {
     const deviceId = (req.headers['x-device-id'] as string) ?? '';
 
     const parsed = new UAParser(userAgent).getResult();
-    const browser = [parsed.browser.name, parsed.browser.version].filter(Boolean).join(' ') || 'Unknown';
-    const os = [parsed.os.name, parsed.os.version].filter(Boolean).join(' ') || 'Unknown';
+    const browser =
+      [parsed.browser.name, parsed.browser.version].filter(Boolean).join(' ') ||
+      'Unknown';
+    const os =
+      [parsed.os.name, parsed.os.version].filter(Boolean).join(' ') ||
+      'Unknown';
     const deviceType = parsed.device.type ?? 'desktop';
     const deviceModel = parsed.device.model ?? null;
 
     const geo = geoip.lookup(ip);
     const locationData = geo
-      ? { country: geo.country, region: geo.region, city: geo.city, timezone: geo.timezone }
+      ? {
+          country: geo.country,
+          region: geo.region,
+          city: geo.city,
+          timezone: geo.timezone,
+        }
       : { country: null, region: null, city: null, timezone: null };
-    const location = geo ? [geo.city, geo.country].filter(Boolean).join(', ') : undefined;
+    const location = geo
+      ? [geo.city, geo.country].filter(Boolean).join(', ')
+      : undefined;
 
     req.deviceInfo = {
       deviceId,

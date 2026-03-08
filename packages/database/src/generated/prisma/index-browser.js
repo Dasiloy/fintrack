@@ -131,6 +131,10 @@ exports.Prisma.UserScalarFieldEnum = {
   lastName: 'lastName',
   avatar: 'avatar',
   lastLoginAt: 'lastLoginAt',
+  twoFactorAttempts: 'twoFactorAttempts',
+  twoFactorEnabled: 'twoFactorEnabled',
+  twoFactorSecret: 'twoFactorSecret',
+  twoFactorLastUsedAt: 'twoFactorLastUsedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -166,6 +170,7 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   identifier: 'identifier',
   email: 'email',
   token: 'token',
+  newEmail: 'newEmail',
   expires: 'expires',
   createdAt: 'createdAt'
 };
@@ -194,6 +199,14 @@ exports.Prisma.UsageTrackerScalarFieldEnum = {
   periodEnd: 'periodEnd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BackupCodesScalarFieldEnum = {
+  id: 'id',
+  usedAt: 'usedAt',
+  code: 'code',
+  userId: 'userId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -226,7 +239,8 @@ exports.AccountProvider = exports.$Enums.AccountProvider = {
 exports.VerificationIdentifier = exports.$Enums.VerificationIdentifier = {
   PASSWORD: 'PASSWORD',
   EMAIL: 'EMAIL',
-  RESET: 'RESET'
+  RESET: 'RESET',
+  EMAIL_CHANGE: 'EMAIL_CHANGE'
 };
 
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
@@ -254,7 +268,8 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Subscription: 'Subscription',
-  UsageTracker: 'UsageTracker'
+  UsageTracker: 'UsageTracker',
+  BackupCodes: 'BackupCodes'
 };
 
 /**

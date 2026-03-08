@@ -1,0 +1,440 @@
+{
+  "__comment": "Auth Controller API Documentation — apps/api_gateway/src/auth/auth.controller.ts",
+  "meta_note": "All routes are prefixed with /api/v1/auth. Authentication tokens are JWT-based. See conventions below.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>  — short-lived JWT, default 1h",
+    "refresh_token": "Passed in the request body as refreshToken",
+    "otp_token": "x-token: <token>  — short-lived OTP-scoped JWT returned by register or verify-password-token",
+    "two_factor_token": "Passed in the request body as twoFactorToken — short-lived JWT (5m) returned by login when 2FA is required",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    }
+  },
+
+  "auth_register": {
+    "route": "POST /api/v1/auth/register",
+    "method": "POST",
+    "description": "Register a new user with email and password. Returns the user record and a short-lived emailToken (otp_token) to pass as x-token when calling /auth/verify.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required) — valid email; stored lowercase",
+      "firstName": "string (required) — min 2 characters",
+      "lastName": "string (required) — min 2 characters",
+      "password": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "User registered Successfully",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "avatar": "string | null",
+          "firstName": "string",
+          "lastName": "string"
+        },
+        "emailToken": "string — otp_token JWT; pass as x-token to POST /auth/verify"
+      }
+    },
+    "responses": {
+      "201": "User registered successfully",
+      "400": "Validation error — missing or invalid fields",
+      "409": "Email already registered"
+    }
+  },
+
+  "auth_verifyEmail": {
+    "route": "POST /api/v1/auth/verify",
+    "method": "POST",
+    "description": "Verify the user's email using the OTP sent to their inbox. Requires the emailToken from /auth/register as the x-token header. Creates the first session and returns access + refresh tokens.",
+    "authentication": "x-token: <emailToken>  (otp_token)",
+    "input": {
+      "otp": "string (required) — 6-digit code from the verification email"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Email verified successfully",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "firstName": "string",
+          "lastName": "string"
+        },
+        "accessToken": "string",
+        "refreshToken": "string"
+      }
+    },
+    "responses": {
+      "200": "Email verified — tokens returned",
+      "401": "OTP invalid / expired, or x-token missing / invalid"
+    }
+  },
+
+  "auth_resendVerifyEmail": {
+    "route": "POST /api/v1/auth/resend-verify",
+    "method": "POST",
+    "description": "Resend the email verification OTP. Deletes the previous pending token and issues a new emailToken.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Verification token resent successfully",
+      "data": {
+        "emailToken": "string — new otp_token"
+      }
+    },
+    "responses": {
+      "200": "Verification token resent",
+      "409": "User already verified, or a valid token still exists and has not expired"
+    }
+  },
+
+  "auth_login": {
+    "route": "POST /api/v1/auth/login",
+    "method": "POST",
+    "description": "Authenticate with email and password. Returns access + refresh tokens on success. If the account has 2FA enabled, returns a twoFactorToken and requiresTwoFactor:true instead — the client must then call POST /auth/2fa/verify.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)",
+      "password": "string (required) — min 8 characters"
+    },
+    "output": {
+      "_normal_login": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Login successful",
+        "data": {
+          "user": {
+            "id": "uuid",
+            "email": "string",
+            "firstName": "string",
+            "lastName": "string"
+          },
+          "accessToken": "string",
+          "refreshToken": "string"
+        }
+      },
+      "_2fa_required": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Login successful",
+        "data": {
+          "requiresTwoFactor": true,
+          "twoFactorToken": "string — pass to POST /auth/2fa/verify"
+        }
+      }
+    },
+    "responses": {
+      "200": "Login successful — tokens or 2FA challenge returned",
+      "401": "Invalid credentials or account locked after too many failed attempts"
+    }
+  },
+
+  "auth_forgotPassword": {
+    "route": "POST /api/v1/auth/forgot-password",
+    "method": "POST",
+    "description": "Initiate a password reset. Dispatches a 6-digit OTP to the user's email. Always returns 200 to prevent user enumeration.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Reset instructions sent to email",
+      "data": {
+        "email": "string — echoed back, or empty string if user not found"
+      }
+    },
+    "responses": {
+      "200": "Always 200 regardless of whether the email exists"
+    }
+  },
+
+  "auth_resendForgotPassword": {
+    "route": "POST /api/v1/auth/resend-forgot-password",
+    "method": "POST",
+    "description": "Resend the password reset OTP after the previous one has expired.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Password reset token resent",
+      "data": { "email": "string" }
+    },
+    "responses": {
+      "200": "Token resent",
+      "409": "A valid reset token already exists and has not yet expired"
+    }
+  },
+
+  "auth_verifyPasswordToken": {
+    "route": "POST /api/v1/auth/verify-password-token",
+    "method": "POST",
+    "description": "Verify the 6-digit OTP from the forgot-password email. Returns a passwordToken (otp_token JWT) to pass as x-token when calling /auth/reset-password.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)",
+      "otp": "string (required) — 6-digit code"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Password reset token verified",
+      "data": {
+        "passwordToken": "string — otp_token JWT; pass as x-token to POST /auth/reset-password"
+      }
+    },
+    "responses": {
+      "200": "OTP verified — passwordToken returned",
+      "401": "OTP invalid or expired"
+    }
+  },
+
+  "auth_resetPassword": {
+    "route": "POST /api/v1/auth/reset-password",
+    "method": "POST",
+    "description": "Set a new password using the passwordToken from /auth/verify-password-token. Pass the token as the x-token header.",
+    "authentication": "x-token: <passwordToken>  (otp_token)",
+    "input": {
+      "newPassword": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Password reset successful",
+      "data": null
+    },
+    "responses": {
+      "200": "Password reset successfully",
+      "401": "x-token missing, invalid, or expired",
+      "409": "New password is the same as the current password"
+    }
+  },
+
+  "auth_refreshToken": {
+    "route": "POST /api/v1/auth/refresh",
+    "method": "POST",
+    "description": "Exchange a valid refresh token for a new access + refresh token pair. The old refresh token is invalidated (rotation).",
+    "authentication": "None — refreshToken passed in request body",
+    "input": {
+      "refreshToken": "string (required) — current refresh JWT"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Token refreshed successfully",
+      "data": {
+        "accessToken": "string",
+        "refreshToken": "string — rotated"
+      }
+    },
+    "responses": {
+      "200": "Tokens refreshed",
+      "401": "Refresh token invalid, expired, or session not found"
+    }
+  },
+
+  "auth_loginWithGoogle": {
+    "route": "POST /api/v1/auth/oauth/google",
+    "method": "POST",
+    "description": "Sign in or register using a Google id_token from the client-side OAuth flow. The server verifies the token against Google's public keys. Creates or signs in the user and returns access + refresh tokens.",
+    "authentication": "None",
+    "input": {
+      "idToken": "string (required) — Google id_token"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Login successful",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "firstName": "string",
+          "lastName": "string"
+        },
+        "accessToken": "string",
+        "refreshToken": "string"
+      }
+    },
+    "responses": {
+      "200": "Login successful",
+      "401": "Google id_token invalid, expired, or signature mismatch"
+    }
+  },
+
+  "auth_init2fa": {
+    "route": "POST /api/v1/auth/2fa/init",
+    "method": "POST",
+    "description": "Generate a TOTP secret and otpauth URI for the authenticated user. Render the URI as a QR code for the user to scan. 2FA is not yet active until /auth/2fa/confirm succeeds.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "2FA setup initiated successfully",
+      "data": {
+        "secret": "string — base32 TOTP secret (show as fallback for manual entry)",
+        "otpauthUri": "string — otpauth://totp/... URI for QR code"
+      }
+    },
+    "responses": {
+      "200": "2FA setup initiated",
+      "401": "Access token invalid or expired"
+    }
+  },
+
+  "auth_confirm2fa": {
+    "route": "POST /api/v1/auth/2fa/confirm",
+    "method": "POST",
+    "description": "Confirm 2FA setup by verifying the first TOTP code from the authenticator app. Activates 2FA and returns 10 one-time backup codes — shown only once; the client must display them immediately.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "code": "string (required) — exactly 6-digit TOTP code"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "2FA enabled successfully",
+      "data": {
+        "backupCodes": ["string — 10 × 8-character codes, shown once only"]
+      }
+    },
+    "responses": {
+      "200": "2FA activated — backup codes returned",
+      "401": "Access token invalid, or TOTP code incorrect / expired"
+    }
+  },
+
+  "auth_verify2fa": {
+    "route": "POST /api/v1/auth/2fa/verify",
+    "method": "POST",
+    "description": "Complete a 2FA login challenge with a TOTP code or backup code. Rate limited to 5 attempts per 15 minutes to prevent brute-force attacks. Backup codes are single-use.",
+    "authentication": "None — identity proven via twoFactorToken in the body",
+    "rate_limit": "5 requests per 15 minutes per IP",
+    "input": {
+      "twoFactorToken": "string (required) — short-lived JWT from POST /auth/login when 2FA required",
+      "code": "string (required) — 6-digit TOTP code or 8-character backup code (min length 6)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Login successful",
+      "data": {
+        "user": {
+          "id": "uuid",
+          "email": "string",
+          "firstName": "string",
+          "lastName": "string"
+        },
+        "accessToken": "string",
+        "refreshToken": "string"
+      }
+    },
+    "responses": {
+      "200": "2FA verified — tokens returned",
+      "401": "twoFactorToken invalid / expired, or TOTP / backup code incorrect",
+      "429": "Too many attempts — rate limit exceeded (5 per 15 minutes)"
+    }
+  },
+
+  "auth_disable2fa": {
+    "route": "DELETE /api/v1/auth/2fa",
+    "method": "DELETE",
+    "description": "Disable TOTP 2FA on the account. Requires the current TOTP code. Wipes the stored secret and all backup codes.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "code": "string (required) — current 6-digit TOTP code"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "2FA disabled successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "2FA disabled",
+      "401": "Access token invalid or TOTP code incorrect"
+    }
+  },
+
+  "auth_changePassword": {
+    "route": "POST /api/v1/auth/change-password",
+    "method": "POST",
+    "description": "Change the authenticated user's password. Verifies the current password first. Drops all active sessions on success and sends a security alert email.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "currentPassword": "string (required) — min 8 characters",
+      "newPassword": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Password changed successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Password changed — all sessions invalidated",
+      "401": "Access token invalid or current password incorrect",
+      "409": "New password is identical to the current password"
+    }
+  },
+
+  "auth_initiateEmailChange": {
+    "route": "POST /api/v1/auth/email/initiate",
+    "method": "POST",
+    "description": "Begin an email change. Verifies password ownership, checks the new email is available, and dispatches a 6-digit OTP to the new address. Submit the OTP to /auth/email/verify to complete the change.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "newEmail": "string (required) — valid email address; stored lowercase",
+      "currentPassword": "string (required) — min 8 characters"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "OTP sent to new email address",
+      "data": {
+        "newEmail": "string — the address the OTP was dispatched to"
+      }
+    },
+    "responses": {
+      "200": "OTP dispatched to the new email address",
+      "401": "Access token invalid or current password incorrect",
+      "409": "New email is already registered to another account"
+    }
+  },
+
+  "auth_verifyEmailChange": {
+    "route": "POST /api/v1/auth/email/verify",
+    "method": "POST",
+    "description": "Complete an email change by submitting the OTP sent to the new address. Updates the email, deletes the pending token, drops all sessions, and sends a security alert to the old address.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "otp": "string (required) — exactly 6-digit code sent to the new email"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Email changed successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Email changed — all sessions invalidated",
+      "401": "Access token invalid, or OTP incorrect / expired",
+      "409": "Target email was claimed by another account between initiation and verification"
+    }
+  }
+}

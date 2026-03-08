@@ -6,6 +6,8 @@ import {
   WelcomeEmailPayload,
   ForgotPasswordEmailPayload,
   PasswordChangeEmailPayload,
+  EmailChangePayload,
+  EmailChangedPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
 @Injectable()
@@ -86,6 +88,58 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send password reset email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends an OTP to confirm a new email address during an in-app email change
+   * @param {EmailChangePayload} data new email (recipient), otp, firstName, lastName
+   */
+  async sendEmailChangeEmail(data: EmailChangePayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Confirm your new email address - Fintrack',
+        template: './email_change',
+        context: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          otp: data.otp,
+        },
+      });
+      this.logger.log(`Email change confirmation sent to ${data.email}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email change confirmation to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a security alert to the old address after an email change is confirmed
+   * @param {EmailChangedPayload} data oldEmail, newEmail, firstName, lastName
+   */
+  async sendEmailChangedEmail(data: EmailChangedPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.oldEmail,
+        subject: 'Security Alert: Email Address Changed - Fintrack',
+        template: './email_changed',
+        context: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          newEmail: data.newEmail,
+        },
+      });
+      this.logger.log(`Email changed alert sent to ${data.oldEmail}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to send email changed alert to ${data.oldEmail}`,
         error.stack,
       );
       throw error;

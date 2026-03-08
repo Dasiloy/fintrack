@@ -11,6 +11,10 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
+/** ------- REUSABLE EMPTY INTERFACE ---------- // */
+export interface Empty {
+}
+
 export interface User {
   id: string;
   email: string;
@@ -98,21 +102,12 @@ export interface ResetPasswordReq {
   newPassword: string;
 }
 
-export interface ResetPasswordRes {
-}
-
-export interface ValidateTokenReq {
-}
-
 export interface ValidateTokenRes {
   id: string;
   email: string;
   avatar: string;
   firstName: string;
   lastName: string;
-}
-
-export interface RefreshTokenReq {
 }
 
 export interface RefreshTokenRes {
@@ -126,6 +121,62 @@ export interface LoginwithGoggleReq {
   userAgent?: string | undefined;
   ipAddress?: string | undefined;
   location?: string | undefined;
+}
+
+export interface InitiateTwoFactorSetupRes {
+  /** base32 — for manual entry in authenticator app -> Unencrypted at this stage */
+  secret: string;
+  /** full otpauth://totp/... URI — render as QR code */
+  otpauthUri: string;
+}
+
+export interface ConfirmTwoFactorSetupReq {
+  /** 6-digit code from authenticator app — proves setup worked */
+  code: string;
+}
+
+export interface ConfirmTwoFactorSetupRes {
+  /** 10 plain codes — shown ONCE, never stored plain */
+  backupCodes: string[];
+}
+
+export interface DisableTwoFactorReq {
+  /** requires current TOTP code — prevents unauthorised disable */
+  code: string;
+}
+
+export interface VerifyTwoFactorReq {
+  /** short-lived JWT returned by Login when 2FA required */
+  twoFactorToken: string;
+  /** 6-digit TOTP or 8-char backup code */
+  code: string;
+  deviceId: string;
+  userAgent?: string | undefined;
+  ipAddress?: string | undefined;
+  location?: string | undefined;
+}
+
+export interface ChangePasswordReq {
+  /** current password — verifies ownership before change */
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangeEmailReq {
+  /** the new email address to change to */
+  newEmail: string;
+  /** current password — verifies ownership before change */
+  currentPassword: string;
+}
+
+export interface InitiateEmailChangeRes {
+  /** the address the OTP was sent to */
+  newEmail: string;
+}
+
+export interface VerifyEmailChangeReq {
+  /** 6-digit code sent to the new email address */
+  otp: string;
 }
 
 export const AUTH_PACKAGE_NAME = "auth";
@@ -151,13 +202,27 @@ export interface AuthServiceClient {
 
   verifyPasswordToken(request: VerifyPasswordTokenReq, metadata?: Metadata): Observable<VerifyPasswordTokenRes>;
 
-  resetPassword(request: ResetPasswordReq, metadata?: Metadata): Observable<ResetPasswordRes>;
+  resetPassword(request: ResetPasswordReq, metadata?: Metadata): Observable<Empty>;
 
-  validateToken(request: ValidateTokenReq, metadata?: Metadata): Observable<ValidateTokenRes>;
+  validateToken(request: Empty, metadata?: Metadata): Observable<ValidateTokenRes>;
 
-  refreshToken(request: RefreshTokenReq, metadata?: Metadata): Observable<RefreshTokenRes>;
+  refreshToken(request: Empty, metadata?: Metadata): Observable<RefreshTokenRes>;
 
   loginWithGoogle(request: LoginwithGoggleReq, metadata?: Metadata): Observable<LoginRes>;
+
+  initiateTwoFactorSetup(request: Empty, metadata?: Metadata): Observable<InitiateTwoFactorSetupRes>;
+
+  confirmTwoFactorSetup(request: ConfirmTwoFactorSetupReq, metadata?: Metadata): Observable<ConfirmTwoFactorSetupRes>;
+
+  disableTwoFactor(request: DisableTwoFactorReq, metadata?: Metadata): Observable<Empty>;
+
+  verifyTwoFactor(request: VerifyTwoFactorReq, metadata?: Metadata): Observable<LoginRes>;
+
+  changePassword(request: ChangePasswordReq, metadata?: Metadata): Observable<Empty>;
+
+  initiateEmailChange(request: ChangeEmailReq, metadata?: Metadata): Observable<InitiateEmailChangeRes>;
+
+  verifyEmailChange(request: VerifyEmailChangeReq, metadata?: Metadata): Observable<Empty>;
 }
 
 export interface AuthServiceController {
@@ -190,18 +255,15 @@ export interface AuthServiceController {
     metadata?: Metadata,
   ): Promise<VerifyPasswordTokenRes> | Observable<VerifyPasswordTokenRes> | VerifyPasswordTokenRes;
 
-  resetPassword(
-    request: ResetPasswordReq,
-    metadata?: Metadata,
-  ): Promise<ResetPasswordRes> | Observable<ResetPasswordRes> | ResetPasswordRes;
+  resetPassword(request: ResetPasswordReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
   validateToken(
-    request: ValidateTokenReq,
+    request: Empty,
     metadata?: Metadata,
   ): Promise<ValidateTokenRes> | Observable<ValidateTokenRes> | ValidateTokenRes;
 
   refreshToken(
-    request: RefreshTokenReq,
+    request: Empty,
     metadata?: Metadata,
   ): Promise<RefreshTokenRes> | Observable<RefreshTokenRes> | RefreshTokenRes;
 
@@ -209,6 +271,32 @@ export interface AuthServiceController {
     request: LoginwithGoggleReq,
     metadata?: Metadata,
   ): Promise<LoginRes> | Observable<LoginRes> | LoginRes;
+
+  initiateTwoFactorSetup(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<InitiateTwoFactorSetupRes> | Observable<InitiateTwoFactorSetupRes> | InitiateTwoFactorSetupRes;
+
+  confirmTwoFactorSetup(
+    request: ConfirmTwoFactorSetupReq,
+    metadata?: Metadata,
+  ): Promise<ConfirmTwoFactorSetupRes> | Observable<ConfirmTwoFactorSetupRes> | ConfirmTwoFactorSetupRes;
+
+  disableTwoFactor(request: DisableTwoFactorReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  verifyTwoFactor(
+    request: VerifyTwoFactorReq,
+    metadata?: Metadata,
+  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes;
+
+  changePassword(request: ChangePasswordReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  initiateEmailChange(
+    request: ChangeEmailReq,
+    metadata?: Metadata,
+  ): Promise<InitiateEmailChangeRes> | Observable<InitiateEmailChangeRes> | InitiateEmailChangeRes;
+
+  verifyEmailChange(request: VerifyEmailChangeReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function AuthServiceControllerMethods() {
@@ -225,6 +313,13 @@ export function AuthServiceControllerMethods() {
       "validateToken",
       "refreshToken",
       "loginWithGoogle",
+      "initiateTwoFactorSetup",
+      "confirmTwoFactorSetup",
+      "disableTwoFactor",
+      "verifyTwoFactor",
+      "changePassword",
+      "initiateEmailChange",
+      "verifyEmailChange",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

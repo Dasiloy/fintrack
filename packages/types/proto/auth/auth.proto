@@ -10,44 +10,59 @@ service AuthService {
     rpc ForgotPassword(ForgotPasswordReq) returns (ForgotPasswordRes) {}
     rpc ResendForgotPasswordToken(ResendForgotPasswordTokenReq) returns (ResendForgotPasswordTokenRes) {}
     rpc VerifyPasswordToken(VerifyPasswordTokenReq) returns(VerifyPasswordTokenRes) {}
-    rpc ResetPassword(ResetPasswordReq) returns(ResetPasswordRes) {}
-    rpc ValidateToken(ValidateTokenReq) returns (ValidateTokenRes) {}
-    rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes) {}
+    rpc ResetPassword(ResetPasswordReq) returns(Empty) {}
+    rpc ValidateToken(Empty) returns (ValidateTokenRes) {}
+    rpc RefreshToken(Empty) returns (RefreshTokenRes) {}
     rpc LoginWithGoogle(LoginwithGoggleReq)  returns (LoginRes) {}
+    rpc InitiateTwoFactorSetup(Empty) returns (InitiateTwoFactorSetupRes) {}
+    rpc ConfirmTwoFactorSetup(ConfirmTwoFactorSetupReq) returns (ConfirmTwoFactorSetupRes) {}
+    rpc DisableTwoFactor(DisableTwoFactorReq) returns (Empty) {}
+    rpc VerifyTwoFactor(VerifyTwoFactorReq) returns (LoginRes) {}
+    rpc ChangePassword(ChangePasswordReq) returns (Empty) {}
+    rpc InitiateEmailChange(ChangeEmailReq) returns (InitiateEmailChangeRes) {}
+    rpc VerifyEmailChange(VerifyEmailChangeReq) returns (Empty) {}
 }
+
+// ------- REUSABLE EMPTY INTERFACE ---------- //
+message Empty {
+
+}
+
+
+// ------- AUTH INTERFACES ---------------//
 
 message User {
     string id=1;
     string email= 2;
     optional string avatar= 3;
-    string firstName= 4;
-    string lastName= 5;
+    string first_name= 4;
+    string last_name= 5;
 }
 
 message RegisterReq {
     string email= 1;
     string password= 2;
-    string firstName= 3;
-    string lastName= 4;
+    string first_name= 3;
+    string last_name= 4;
 }
 
 message RegisterRes {
      User user= 1;
-     string emailToken= 2;
+     string email_token= 2;
 }
 
 message VerifyEmailReq {
     string otp= 1;
-    string deviceId= 2;
-    optional string userAgent= 3;
-    optional string ipAddress= 4;
+    string device_id= 2;
+    optional string user_agent= 3;
+    optional string ip_address= 4;
     optional string location= 5;
 }
 
 message VerifyEmailRes {
     User user= 1;
-    string accessToken= 2;
-    string refreshToken= 3;
+    string access_token= 2;
+    string refresh_token= 3;
 }
 
 message ResendVerifyEmailTokenReq {
@@ -56,22 +71,22 @@ message ResendVerifyEmailTokenReq {
 
 message ResendVerifyEmailTokenRes {
     User user= 1;
-    string emailToken= 2;
+    string email_token= 2;
 }
 
 message LoginReq {
  string email= 1;
  string password= 2;
- string deviceId= 3;
- optional string userAgent= 4;
- optional string ipAddress= 5;
+ string device_id= 3;
+ optional string user_agent= 4;
+ optional string ip_address= 5;
  optional string location= 6;
 }
 
 message LoginRes {
     User user= 1;
-    string accessToken= 2;
-    string refreshToken= 3;
+    string access_token= 2;
+    string refresh_token= 3;
 }
 
 message ForgotPasswordReq {
@@ -96,42 +111,74 @@ message VerifyPasswordTokenReq {
 }
 
 message VerifyPasswordTokenRes {
-    string passwordToken= 1;
+    string password_token= 1;
 }
 
 message ResetPasswordReq {
-      string newPassword= 1;
-}
-
-message ResetPasswordRes {
-
-}
-
-message ValidateTokenReq {
-
+      string new_password= 1;
 }
 
 message ValidateTokenRes {
     string id=1;
     string email= 2;
     string avatar= 3;
-    string firstName= 4;
-    string lastName= 5;
-}
-
-message RefreshTokenReq {
-
+    string first_name= 4;
+    string last_name= 5;
 }
 
 message RefreshTokenRes {
-    string accessToken= 2;
-    string refreshToken= 3;
+    string access_token= 2;
+    string refresh_token= 3;
 }
 
 message LoginwithGoggleReq {
-   string idToken= 1;
-    string deviceId= 2;
-    optional string userAgent= 3;
-    optional string ipAddress= 4;
+   string id_token= 1;
+    string device_id= 2;
+    optional string user_agent= 3;
+    optional string ip_address= 4;
     optional string location= 5;
+}
+
+message InitiateTwoFactorSetupRes {
+  string secret     = 1; // base32 — for manual entry in authenticator app -> Unencrypted at this stage
+  string otpauth_uri = 2; // full otpauth://totp/... URI — render as QR code
+}
+
+message ConfirmTwoFactorSetupReq {
+  string code   = 1; // 6-digit code from authenticator app — proves setup worked
+}
+
+message ConfirmTwoFactorSetupRes {
+  repeated string backup_codes = 1; // 10 plain codes — shown ONCE, never stored plain
+}
+
+message DisableTwoFactorReq {
+  string code   = 1; // requires current TOTP code — prevents unauthorised disable
+}
+
+message VerifyTwoFactorReq {
+  string two_factor_token  = 1; // short-lived JWT returned by Login when 2FA required
+  string code            = 2; // 6-digit TOTP or 8-char backup code
+  string device_id        = 3;
+  optional string user_agent  = 4;
+  optional string ip_address  = 5;
+  optional string location   = 6;
+}
+
+message ChangePasswordReq {
+  string current_password = 1; // current password — verifies ownership before change
+  string new_password     = 2;
+}
+
+message ChangeEmailReq {
+  string new_email        = 1; // the new email address to change to
+  string current_password = 2; // current password — verifies ownership before change
+}
+
+message InitiateEmailChangeRes {
+  string new_email = 1; // the address the OTP was sent to
+}
+
+message VerifyEmailChangeReq {
+  string otp = 1; // 6-digit code sent to the new email address
 }
