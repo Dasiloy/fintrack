@@ -47,42 +47,12 @@ services:
       - key: PAYMENT_SERVICE_PORT
         value: 4008
 
-      # Token expiry defaults (override in Render dashboard if needed)
-      - key: JWT_ACCESS_TOKEN_EXPIRATION
-        value: 1h
-      - key: JWT_REFRESH_TOKEN_EXPIRATION
-        value: 1d
-      - key: JWT_OTP_TOKEN_EXPIRATION
-        value: 60m
-      - key: OTP_EXPIRY_MINUTES
-        value: 5
-      - key: MAX_LOGIN_ATTEMPTS
-        value: 3
-
       # Secrets — set these once in Render → fintrack-api-gateway → Settings → Environment
       - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-      - key: JWT_REFRESH_SECRET
-        sync: false
-      - key: JWT_OTP_SECRET
-        sync: false
-      - key: AUTH_SECRET
-        sync: false
-      - key: AUTH_GOOGLE_ID
-        sync: false
-      - key: AUTH_GOOGLE_SECRET
         sync: false
       - key: SWAGGER_DOC_USER
         sync: false
       - key: SWAGGER_DOC_PASS
-        sync: false
-      - key: CLOUDINARY_ID
-        sync: false
-      - key: NEXT_PUBLIC_APP_URL
         sync: false
 
   # ── Private gRPC service: Auth ──────────────────────────────────────────────
@@ -103,6 +73,12 @@ services:
         value: 0.0.0.0
       - key: AUTH_SERVICE_PORT
         value: 4002
+
+      # Token expiry defaults (override in Render dashboard if needed)
+      - key: JWT_ACCESS_TOKEN_EXPIRATION
+        value: 1h
+      - key: JWT_REFRESH_TOKEN_EXPIRATION
+        value: 1d
       - key: JWT_OTP_TOKEN_EXPIRATION
         value: 30m
       - key: JWT_2FA_TOKEN_EXPIRATION
@@ -115,6 +91,8 @@ services:
       # Secrets — set in Render → fintrack-auth-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
+      - key: REDIS_URL
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: JWT_REFRESH_SECRET
@@ -124,6 +102,12 @@ services:
       - key: JWT_2FA_SECRET
         sync: false
       - key: AES_KEY
+        sync: false
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+      - key: CLOUDINARY_ID
         sync: false
 
   # ── Private gRPC service: Notification ─────────────────────────────────────
