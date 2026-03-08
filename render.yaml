@@ -17,7 +17,7 @@ services:
     name: fintrack-api-gateway
     runtime: node
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install &&
       pnpm turbo run db:generate --filter=@fintrack/database &&
       pnpm turbo build --filter=api_gateway
     startCommand: node apps/api_gateway/dist/main.js
@@ -60,7 +60,7 @@ services:
     name: fintrack-auth-service
     runtime: node
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install &&
       pnpm turbo run db:generate --filter=@fintrack/database &&
       pnpm turbo build --filter=auth_service
     startCommand: node apps/auth_service/dist/main.js
@@ -115,7 +115,7 @@ services:
     name: fintrack-notification-service
     runtime: node
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install &&
       pnpm turbo run db:generate --filter=@fintrack/database &&
       pnpm turbo build --filter=notification_service
     startCommand: node apps/notification_service/dist/main.js
@@ -144,7 +144,7 @@ services:
     name: fintrack-payment-service
     runtime: node
     buildCommand: >-
-      pnpm install --frozen-lockfile &&
+      pnpm install &&
       pnpm turbo run db:generate --filter=@fintrack/database &&
       pnpm turbo build --filter=payment_service
     startCommand: node apps/payment_service/dist/main.js

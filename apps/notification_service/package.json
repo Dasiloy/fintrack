@@ -34,7 +34,6 @@
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/platform-express": "^11.0.1",
     "bullmq": "^5.69.3",
-    "dotenv": "^17.2.4",
     "grpc-health-check": "^2.1.0",
     "handlebars": "^4.7.8",
     "joi": "^18.0.2",
@@ -70,7 +69,6 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
