@@ -1,0 +1,339 @@
+{
+  "__comment": "Auth Service gRPC Documentation — apps/auth_service/src/auth.controller.ts",
+  "meta_note": "All methods are exposed as gRPC procedures on the AuthService package. Callers are the API Gateway only. Auth context is passed via gRPC Metadata, not request fields.",
+  "conventions": {
+    "transport": "gRPC (NestJS microservice, @AuthServiceControllerMethods)",
+    "metadata_access_token": "x-token: <accessToken>  — decoded into metadata.user by TokenGuard when @TokenMeta('access_token') is applied",
+    "metadata_otp_token": "x-token: <otpToken>  — short-lived OTP-scoped JWT; decoded into metadata.user by TokenGuard when @TokenMeta('otp_token') is applied",
+    "metadata_refresh_token": "x-token: <refreshToken>  — decoded into metadata.user (session payload) by TokenGuard when @TokenMeta('refresh_token') is applied",
+    "no_metadata": "Method accepts no metadata guard; identity is embedded in the request message itself (e.g. twoFactorToken field) or the operation is public",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Invalid, expired, or missing token / wrong credentials",
+      "ALREADY_EXISTS": "Resource conflict (duplicate email, token still valid, identical password, etc.)",
+      "NOT_FOUND": "Entity not found",
+      "FAILED_PRECONDITION": "Pre-condition not met (e.g. email already verified)",
+      "INTERNAL": "Unexpected server error"
+    }
+  },
+
+  "register": {
+    "rpc": "Register",
+    "proto_method": "rpc Register (RegisterReq) returns (RegisterRes)",
+    "description": "Register a new user with email and password. Hashes the password, persists the user, and dispatches an OTP to the provided email. Returns the new user record and a short-lived emailToken (otp_token) for the subsequent verifyEmail call.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required) — stored lowercase",
+      "firstName": "string (required) — min 2 characters",
+      "lastName": "string (required) — min 2 characters",
+      "password": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": {
+      "user": {
+        "id": "string (uuid)",
+        "email": "string",
+        "avatar": "string | null",
+        "firstName": "string",
+        "lastName": "string"
+      },
+      "emailToken": "string — otp_token JWT; pass as x-token to verifyEmail"
+    },
+    "throws": {
+      "ALREADY_EXISTS": "Email is already registered"
+    }
+  },
+
+  "verifyEmail": {
+    "rpc": "VerifyEmail",
+    "proto_method": "rpc VerifyEmail (VerifyEmailReq) returns (VerifyEmailRes)",
+    "description": "Verify a user's email by checking the 6-digit OTP. Requires the emailToken from Register as x-token. Creates the first session and returns access + refresh tokens.",
+    "authentication": "x-token: <emailToken>  (otp_token) — metadata.user carries the token payload",
+    "input": {
+      "otp": "string (required) — 6-digit code from the verification email"
+    },
+    "output": {
+      "user": {
+        "id": "string (uuid)",
+        "email": "string",
+        "firstName": "string",
+        "lastName": "string"
+      },
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "x-token missing/invalid/expired, or OTP incorrect/expired",
+      "FAILED_PRECONDITION": "Email is already verified"
+    }
+  },
+
+  "resendVerifyEmailToken": {
+    "rpc": "ResendVerifyEmailToken",
+    "proto_method": "rpc ResendVerifyEmailToken (ResendVerifyEmailTokenReq) returns (ResendVerifyEmailTokenRes)",
+    "description": "Delete the previous pending email-verification token and issue a fresh one. Dispatches a new OTP to the user's email.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "emailToken": "string — new otp_token JWT"
+    },
+    "throws": {
+      "ALREADY_EXISTS": "User is already verified, or a valid token still exists and has not expired"
+    }
+  },
+
+  "login": {
+    "rpc": "Login",
+    "proto_method": "rpc Login (LoginReq) returns (LoginRes)",
+    "description": "Authenticate with email and password. Returns full auth tokens on success. If 2FA is enabled, returns requiresTwoFactor: true and a twoFactorToken instead — the caller must route the user to the verifyTwoFactor step.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)",
+      "password": "string (required)"
+    },
+    "output": {
+      "_normal_login": {
+        "user": { "id": "uuid", "email": "string", "firstName": "string", "lastName": "string" },
+        "accessToken": "string",
+        "refreshToken": "string"
+      },
+      "_2fa_required": {
+        "requiresTwoFactor": true,
+        "twoFactorToken": "string — short-lived JWT (5 min); pass to verifyTwoFactor"
+      }
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Invalid credentials or account locked after too many failed attempts"
+    }
+  },
+
+  "forgotPassword": {
+    "rpc": "ForgotPassword",
+    "proto_method": "rpc ForgotPassword (ForgotPasswordReq) returns (ForgotPasswordRes)",
+    "description": "Initiate a password reset. Dispatches a 6-digit OTP to the user's email if found. Always returns successfully to prevent user enumeration.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "email": "string — echoed back, or empty string if the user was not found"
+    },
+    "throws": {}
+  },
+
+  "resendForgotPasswordToken": {
+    "rpc": "ResendForgotPasswordToken",
+    "proto_method": "rpc ResendForgotPasswordToken (ResendForgotPasswordTokenReq) returns (ResendForgotPasswordTokenRes)",
+    "description": "Resend the password reset OTP after the previous one has expired.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)"
+    },
+    "output": {
+      "email": "string"
+    },
+    "throws": {
+      "ALREADY_EXISTS": "A valid reset token already exists and has not yet expired"
+    }
+  },
+
+  "verifyPasswordToken": {
+    "rpc": "VerifyPasswordToken",
+    "proto_method": "rpc VerifyPasswordToken (VerifyPasswordTokenReq) returns (VerifyPasswordTokenRes)",
+    "description": "Verify the 6-digit OTP from the forgot-password email. Returns a short-lived passwordToken (otp_token) to pass as x-token when calling resetPassword.",
+    "authentication": "None",
+    "input": {
+      "email": "string (required)",
+      "otp": "string (required) — 6-digit code"
+    },
+    "output": {
+      "passwordToken": "string — otp_token JWT; pass as x-token to resetPassword"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "OTP invalid or expired"
+    }
+  },
+
+  "resetPassword": {
+    "rpc": "ResetPassword",
+    "proto_method": "rpc ResetPassword (ResetPasswordReq) returns (Empty)",
+    "description": "Set a new password using the passwordToken from verifyPasswordToken. Requires that token as x-token in metadata.",
+    "authentication": "x-token: <passwordToken>  (otp_token) — metadata.user carries the token payload",
+    "input": {
+      "newPassword": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": "Empty",
+    "throws": {
+      "UNAUTHENTICATED": "x-token missing, invalid, or expired",
+      "ALREADY_EXISTS": "New password is identical to the current password"
+    }
+  },
+
+  "validateToken": {
+    "rpc": "ValidateToken",
+    "proto_method": "rpc ValidateToken (Empty) returns (ValidateTokenRes)",
+    "description": "Validate an access token and return the associated user record. Used by the gateway to authenticate incoming requests before proxying to downstream services.",
+    "authentication": "x-token: <accessToken>  (access_token) — metadata.user carries the decoded payload",
+    "input": "Empty",
+    "output": {
+      "id": "string (uuid)",
+      "email": "string",
+      "avatar": "string | null",
+      "firstName": "string",
+      "lastName": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Access token missing, invalid, or expired"
+    }
+  },
+
+  "refreshToken": {
+    "rpc": "RefreshToken",
+    "proto_method": "rpc RefreshToken (Empty) returns (RefreshTokenRes)",
+    "description": "Exchange a valid refresh token for a new access + refresh token pair. The old refresh token is invalidated (rotation). Requires the refresh token as x-token in metadata.",
+    "authentication": "x-token: <refreshToken>  (refresh_token) — metadata.user carries the session payload",
+    "input": "Empty",
+    "output": {
+      "accessToken": "string",
+      "refreshToken": "string — rotated"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Refresh token invalid, expired, or session not found"
+    }
+  },
+
+  "loginWithGoogle": {
+    "rpc": "LoginWithGoogle",
+    "proto_method": "rpc LoginwithGoggle (LoginwithGoggleReq) returns (LoginRes)",
+    "description": "Sign in or register using a Google id_token from the client-side OAuth flow. Verifies the token against Google's public keys, then creates or finds the user and returns auth tokens.",
+    "authentication": "None",
+    "input": {
+      "idToken": "string (required) — Google id_token from the client-side OAuth response"
+    },
+    "output": {
+      "user": { "id": "uuid", "email": "string", "firstName": "string", "lastName": "string" },
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Google id_token invalid, expired, or signature mismatch"
+    }
+  },
+
+  "initiateTwoFactorSetup": {
+    "rpc": "InitiateTwoFactorSetup",
+    "proto_method": "rpc InitiateTwoFactorSetup (Empty) returns (InitiateTwoFactorSetupRes)",
+    "description": "Generate a TOTP secret and otpauth URI for the authenticated user. 2FA is not yet active until confirmTwoFactorSetup succeeds. Render the URI as a QR code for the user to scan.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": "Empty",
+    "output": {
+      "secret": "string — base32 TOTP secret (show as manual-entry fallback)",
+      "otpauthUri": "string — otpauth://totp/... URI for QR code rendering"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid or expired"
+    }
+  },
+
+  "confirmTwoFactorSetup": {
+    "rpc": "ConfirmTwoFactorSetup",
+    "proto_method": "rpc ConfirmTwoFactorSetup (ConfirmTwoFactorSetupReq) returns (ConfirmTwoFactorSetupRes)",
+    "description": "Confirm 2FA setup by verifying the first TOTP code from the authenticator app. Activates 2FA on the account and returns 10 one-time backup codes — displayed only once.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "code": "string (required) — exactly 6-digit TOTP code from the authenticator app"
+    },
+    "output": {
+      "backupCodes": ["string — 10 × 8-character backup codes, shown once only"]
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid, or TOTP code incorrect / expired"
+    }
+  },
+
+  "disableTwoFactor": {
+    "rpc": "DisableTwoFactor",
+    "proto_method": "rpc DisableTwoFactor (DisableTwoFactorReq) returns (Empty)",
+    "description": "Disable TOTP 2FA on the account. Requires the current TOTP code to prevent unauthorised disablement. Wipes the stored secret and all backup codes.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "code": "string (required) — current 6-digit TOTP code"
+    },
+    "output": "Empty",
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid, or TOTP code incorrect"
+    }
+  },
+
+  "verifyTwoFactor": {
+    "rpc": "VerifyTwoFactor",
+    "proto_method": "rpc VerifyTwoFactor (VerifyTwoFactorReq) returns (LoginRes)",
+    "description": "Complete a 2FA login challenge with a TOTP code or backup code. Identity is proven via the twoFactorToken embedded in the request (no metadata guard). Backup codes are single-use.",
+    "authentication": "None — identity proven via twoFactorToken field in the request",
+    "input": {
+      "twoFactorToken": "string (required) — short-lived JWT from login when 2FA is required",
+      "code": "string (required) — 6-digit TOTP code or 8-character backup code",
+      "deviceId": "string (optional) — client device identifier for session metadata",
+      "userAgent": "string (optional) — HTTP User-Agent for session metadata",
+      "ipAddress": "string (optional) — client IP address for session metadata",
+      "location": "string (optional) — geographic location for session metadata"
+    },
+    "output": {
+      "user": { "id": "uuid", "email": "string", "firstName": "string", "lastName": "string" },
+      "accessToken": "string",
+      "refreshToken": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "twoFactorToken invalid/expired, or TOTP/backup code incorrect"
+    }
+  },
+
+  "changePassword": {
+    "rpc": "ChangePassword",
+    "proto_method": "rpc ChangePassword (ChangePasswordReq) returns (Empty)",
+    "description": "Change the authenticated user's password. Verifies the current password first. Drops all active sessions on success and sends a security alert email.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "currentPassword": "string (required)",
+      "newPassword": "string (required) — min 8 chars, 1 uppercase, 1 lowercase, 1 symbol"
+    },
+    "output": "Empty",
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid, or current password incorrect",
+      "ALREADY_EXISTS": "New password is identical to the current password"
+    }
+  },
+
+  "initiateEmailChange": {
+    "rpc": "InitiateEmailChange",
+    "proto_method": "rpc InitiateEmailChange (ChangeEmailReq) returns (InitiateEmailChangeRes)",
+    "description": "Begin an email change. Verifies password ownership, checks the new email is not already taken, and dispatches a 6-digit OTP to the new address. Complete the change via verifyEmailChange.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "newEmail": "string (required) — valid email address; stored lowercase",
+      "currentPassword": "string (required)"
+    },
+    "output": {
+      "newEmail": "string — the address the OTP was dispatched to"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid, or current password incorrect",
+      "ALREADY_EXISTS": "New email is already registered to another account"
+    }
+  },
+
+  "verifyEmailChange": {
+    "rpc": "VerifyEmailChange",
+    "proto_method": "rpc VerifyEmailChange (VerifyEmailChangeReq) returns (Empty)",
+    "description": "Complete an email change by submitting the OTP sent to the new address. Updates the email, deletes the pending token, drops all sessions, and sends a security alert to the old address.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "otp": "string (required) — 6-digit code sent to the new email address"
+    },
+    "output": "Empty",
+    "throws": {
+      "UNAUTHENTICATED": "Access token invalid, or OTP incorrect/expired",
+      "ALREADY_EXISTS": "Target email was claimed by another account between initiation and verification"
+    }
+  }
+}

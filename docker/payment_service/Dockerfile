@@ -42,6 +42,10 @@ RUN apk add --no-cache dumb-init netcat-openbsd
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
 ENV NODE_ENV=production
+# Bind on all interfaces so the container is reachable in Docker / Render
+ENV PAYMENT_SERVICE_HOST=0.0.0.0
+ENV PAYMENT_SERVICE_PORT=4008
+ENV MICROSERVICE_NAME=PAYMENT_SERVICE
 
 WORKDIR /app/apps/payment_service
 

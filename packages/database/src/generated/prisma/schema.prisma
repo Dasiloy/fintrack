@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(uuid())
+  id              String    @id @default(cuid())
   email           String    @unique
   password        String?
   loginAttempts   Int       @default(0)
@@ -25,11 +25,18 @@ model User {
   avatar          String?
   lastLoginAt     DateTime?
 
+  // 2FA fileds
+  twoFactorAttempts   Int       @default(0)
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret     String? // base32 TOTP secret, null until setup initiated => Encrypted
+  twoFactorLastUsedAt DateTime?
+
   // reverse relationship
   accounts      Account[]
   sessions      Session[]
   subscription  Subscription?
   usageTrackers UsageTracker[]
+  backupCodes   BackupCodes[]
 
   // time stamps
   createdAt DateTime @default(now())
@@ -89,6 +96,7 @@ enum VerificationIdentifier {
   PASSWORD
   EMAIL
   RESET
+  EMAIL_CHANGE
 }
 
 model VerificationToken {
@@ -96,6 +104,7 @@ model VerificationToken {
   identifier VerificationIdentifier
   email      String
   token      String
+  newEmail   String? // pending target email, used only for EMAIL_CHANGE flows
   expires    DateTime
 
   // time stamps
@@ -154,4 +163,14 @@ model UsageTracker {
 
   @@unique([userId, feature, periodStart])
   @@index([userId, feature])
+}
+
+model BackupCodes {
+  id     String    @id @default(cuid())
+  usedAt DateTime?
+  code   String // Hashed Code For Security
+  userId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }

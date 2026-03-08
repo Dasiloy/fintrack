@@ -12,7 +12,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import {
   ForgotPasswordReq,
-  RefreshTokenReq,
   RegisterReq,
   ResendForgotPasswordTokenReq,
   ResendVerifyEmailTokenReq,
@@ -182,7 +181,7 @@ export class ResetPasswordDto implements ResetPasswordReq {
   newPassword: string;
 }
 
-export class RefreshTokenDto implements RefreshTokenReq {
+export class RefreshTokenDto {
   @ApiProperty({
     type: 'string',
     description: 'Refresh token',
@@ -194,8 +193,104 @@ export class RefreshTokenDto implements RefreshTokenReq {
 export class GoogleOAuthDto {
   @ApiProperty({
     type: 'string',
-    description: 'Google id_token obtained from the OAuth sign-in flow. Verified server-side.',
+    description:
+      'Google id_token obtained from the OAuth sign-in flow. Verified server-side.',
   })
   @IsString()
   idToken: string;
+}
+
+export class ChangePasswordDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'Current account password',
+    example: '&45367tDewgbck',
+  })
+  @IsString()
+  @MinLength(8)
+  currentPassword: string;
+
+  @ApiProperty({
+    type: 'string',
+    description: 'New password — must be strong and differ from current',
+    example: '&45367tDewgbckNew',
+  })
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 1,
+    minSymbols: 1,
+    minUppercase: 1,
+  })
+  newPassword: string;
+}
+
+export class ChangeEmailDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'New email address to change to',
+    example: 'newemail@example.com',
+  })
+  @IsEmail()
+  @Transform(({ value }) => (value as string).toLocaleLowerCase())
+  newEmail: string;
+
+  @ApiProperty({
+    type: 'string',
+    description: 'Current account password — verifies ownership',
+    example: '&45367tDewgbck',
+  })
+  @IsString()
+  @MinLength(8)
+  currentPassword: string;
+}
+
+export class VerifyEmailChangeDto {
+  @ApiProperty({
+    type: 'string',
+    description: '6-digit OTP sent to the new email address',
+    example: '482910',
+  })
+  @IsString()
+  @Length(6, 6)
+  otp: string;
+}
+
+export class Disable2faDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'Current 6-digit TOTP code from the authenticator app',
+    example: '123456',
+  })
+  @IsString()
+  @Length(6, 6)
+  code: string;
+}
+
+export class Confirm2faDto {
+  @ApiProperty({
+    type: 'string',
+    description: '6-digit TOTP code from the authenticator app after scanning the QR code',
+    example: '482910',
+  })
+  @IsString()
+  @Length(6, 6)
+  code: string;
+}
+
+export class VerifyTwoFactorDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'Short-lived 2FA challenge JWT returned by login when 2FA is required',
+  })
+  @IsString()
+  twoFactorToken: string;
+
+  @ApiProperty({
+    type: 'string',
+    description: '6-digit TOTP code or 8-character backup code',
+    example: '482910',
+  })
+  @IsString()
+  @MinLength(6)
+  code: string;
 }

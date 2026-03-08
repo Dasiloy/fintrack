@@ -1,32 +1,43 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
-import { Request } from 'express';
-
-import { RequestWithDevice } from './middleware/device.middleware';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import {
+  ConfirmTwoFactorSetupRes,
   ForgotPasswordRes,
+  InitiateEmailChangeRes,
+  InitiateTwoFactorSetupRes,
   LoginRes,
   RefreshTokenRes,
   RegisterRes,
   ResendForgotPasswordTokenRes,
   ResendVerifyEmailTokenRes,
-  ResetPasswordRes,
+  Empty,
   VerifyEmailRes,
   VerifyPasswordTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import {
+  ChangeEmailDto,
+  ChangePasswordDto,
+  Confirm2faDto,
+  Disable2faDto,
   ForgotPasswordDto,
   GoogleOAuthDto,
   LoginDto,
@@ -35,10 +46,15 @@ import {
   ResendForgotPasswordDto,
   ResendVerifyEmailDto,
   ResetPasswordDto,
+  VerifyEmailChangeDto,
   VerifyEmailDto,
   VerifyPasswordTokenReqDto,
+  VerifyTwoFactorDto,
 } from './dto/auth.dto';
 import { AuthService } from './auth.service';
+import { AccessToken, HeaderToken } from '../decorators/token.decorator';
+import { Device } from '../decorators/devoce_info.decorator';
+import { DeviceInfo } from '@fintrack/types/interfaces/device';
 
 /**
  * Controller responsible for managing user authentication
@@ -168,10 +184,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async verifyMail(
     @Body() body: VerifyEmailDto,
-    @Req() req: RequestWithDevice,
+    @Device() deviceInfo: DeviceInfo,
+    @HeaderToken('x-token') token: string,
   ): Promise<StandardResponse<VerifyEmailRes>> {
-    const token = req.headers['x-token'];
-
     if (!token) {
       throw new UnauthorizedException('Token is invalid');
     }
@@ -179,7 +194,7 @@ export class AuthController {
     const res = await this.authService.verifyEmail(
       body,
       token as string,
-      req.deviceInfo,
+      deviceInfo,
     );
 
     return {
@@ -289,9 +304,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() body: LoginDto,
-    @Req() req: RequestWithDevice,
+    @Device() deviceInfo: DeviceInfo,
   ): Promise<StandardResponse<LoginRes>> {
-    const res = await this.authService.login(body, req.deviceInfo);
+    const res = await this.authService.login(body, deviceInfo);
     return {
       success: true,
       message: 'Login successful',
@@ -492,10 +507,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(
     @Body() body: ResetPasswordDto,
-    @Req() req: Request,
-  ): Promise<StandardResponse<ResetPasswordRes>> {
-    const token = req.headers['x-token'];
-
+    @HeaderToken('x-token') token: string,
+  ): Promise<StandardResponse<Empty>> {
     if (!token) {
       throw new UnauthorizedException('Reset token is invalid');
     }
@@ -569,7 +582,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Google OAuth Sign-in',
     description:
-      'Accepts a Google id_token. The auth service verifies it against Google\'s public keys before creating or signing in the user.',
+      "Accepts a Google id_token. The auth service verifies it against Google's public keys before creating or signing in the user.",
   })
   @ApiBody({
     description: 'Google id_token from the client-side OAuth flow',
@@ -599,12 +612,331 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async loginWithGoogle(
     @Body() body: GoogleOAuthDto,
-    @Req() req: RequestWithDevice,
+    @Device() deviceInfo: DeviceInfo,
   ): Promise<StandardResponse<LoginRes>> {
-    const res = await this.authService.loginWithGoogle(body.idToken, req.deviceInfo);
+    const res = await this.authService.loginWithGoogle(
+      body.idToken,
+      deviceInfo,
+    );
     return {
       success: true,
       message: 'Login successful',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Initiate 2FA setup
+  // ================================================================
+  @ApiBearerAuth()
+  @Post('2fa/init')
+  @ApiOperation({
+    summary: 'Initiate 2FA Setup',
+    description:
+      'Generate a TOTP secret and QR code URI for the authenticated user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      '2FA setup initiated — scan the QR code with an authenticator app',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: '2FA setup initiated successfully',
+        data: {
+          secret: 'JBSWY3DPEHPK3PXP',
+          otpauthUri: 'otpauth://totp/Fintrack:user@example.com?secret=…',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid or expired access token',
+  })
+  @HttpCode(HttpStatus.OK)
+  async init2fa(
+    @AccessToken() token: string,
+  ): Promise<StandardResponse<InitiateTwoFactorSetupRes>> {
+    const res = await this.authService.init2fa(token);
+    return {
+      success: true,
+      message: '2FA setup initiated successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Confirm 2FA setup
+  // ================================================================
+  @ApiBearerAuth()
+  @Post('2fa/confirm')
+  @ApiOperation({
+    summary: 'Confirm 2FA Setup',
+    description:
+      'Verify the first TOTP code to activate 2FA. Returns one-time backup codes.',
+  })
+  @ApiBody({
+    description: '6-digit TOTP code from the authenticator app',
+    type: Confirm2faDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '2FA confirmed — backup codes returned (shown only once)',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: '2FA enabled successfully',
+        data: { backupCodes: ['abc12345', 'def67890'] },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or TOTP code mismatch',
+  })
+  @HttpCode(HttpStatus.OK)
+  async confirm2fa(
+    @AccessToken() token: string,
+    @Body() body: Confirm2faDto,
+  ): Promise<StandardResponse<ConfirmTwoFactorSetupRes>> {
+    const res = await this.authService.confirm2fa(token, body);
+    return {
+      success: true,
+      message: '2FA enabled successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Verify 2FA login challenge
+  // ================================================================
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @Post('2fa/verify')
+  @ApiOperation({
+    summary: 'Verify 2FA Challenge',
+    description:
+      'Complete a 2FA login challenge using a TOTP code or backup code. Rate limited to 5 attempts per 15 minutes to prevent brute-force attacks.',
+  })
+  @ApiBody({
+    description: 'Challenge JWT, TOTP/backup code, and device info',
+    type: VerifyTwoFactorDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Login completed — full auth tokens returned',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Login successful',
+        data: { accessToken: 'eyJhbG…', refreshToken: 'eyJhbG…' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid challenge token or TOTP code',
+  })
+  @HttpCode(HttpStatus.OK)
+  async verify2fa(
+    @Body() body: VerifyTwoFactorDto,
+    @Device() deviceInfo: DeviceInfo,
+  ): Promise<StandardResponse<LoginRes>> {
+    const res = await this.authService.verify2fa(body, deviceInfo);
+    return {
+      success: true,
+      message: 'Login successful',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Disable 2FA
+  // ================================================================
+  @ApiBearerAuth()
+  @Delete('2fa')
+  @ApiOperation({
+    summary: 'Disable 2FA',
+    description:
+      'Disable TOTP 2FA on the account. Requires the current TOTP code.',
+  })
+  @ApiBody({ description: 'Current 6-digit TOTP code', type: Disable2faDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '2FA disabled successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: '2FA disabled successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or TOTP code',
+  })
+  @HttpCode(HttpStatus.OK)
+  async disable2fa(
+    @AccessToken() token: string,
+    @Body() body: Disable2faDto,
+  ): Promise<StandardResponse<Empty>> {
+    const res = await this.authService.disable2fa(token, body);
+    return {
+      success: true,
+      message: '2FA disabled successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Change password
+  // ================================================================
+  @ApiBearerAuth()
+  @Post('change-password')
+  @ApiOperation({
+    summary: 'Change Password',
+    description:
+      "Change the authenticated user's password. Invalidates all sessions on success.",
+  })
+  @ApiBody({
+    description: 'Current and new passwords',
+    type: ChangePasswordDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password changed — all sessions invalidated',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Password changed successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or incorrect current password',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'New password cannot be the same as the current one',
+  })
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @AccessToken() token: string,
+    @Body() body: ChangePasswordDto,
+  ): Promise<StandardResponse<Empty>> {
+    const res = await this.authService.changePassword(token, body);
+    return {
+      success: true,
+      message: 'Password changed successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Initiate email change — send OTP to new address
+  // ================================================================
+  @ApiBearerAuth()
+  @Post('email/initiate')
+  @ApiOperation({
+    summary: 'Initiate Email Change',
+    description:
+      'Verify password ownership and dispatch a 6-digit OTP to the new email address.',
+  })
+  @ApiBody({
+    description: 'New email address and current password',
+    type: ChangeEmailDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'OTP dispatched to the new email address',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'OTP sent to new email address',
+        data: { newEmail: 'new@example.com' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or incorrect password',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'New email is already registered',
+  })
+  @HttpCode(HttpStatus.OK)
+  async initiateEmailChange(
+    @AccessToken() token: string,
+    @Body() body: ChangeEmailDto,
+  ): Promise<StandardResponse<InitiateEmailChangeRes>> {
+    const res = await this.authService.initiateEmailChange(token, body);
+    return {
+      success: true,
+      message: 'OTP sent to new email address',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Verify email change — confirm OTP, swap email, drop sessions
+  // ================================================================
+  @ApiBearerAuth()
+  @Post('email/verify')
+  @ApiOperation({
+    summary: 'Verify Email Change',
+    description:
+      'Submit the OTP sent to the new address to confirm the email change. All sessions are invalidated on success.',
+  })
+  @ApiBody({
+    description: '6-digit OTP sent to the new email address',
+    type: VerifyEmailChangeDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Email changed — all sessions invalidated',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Email changed successfully',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or OTP expired',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Target email was claimed by another account',
+  })
+  @HttpCode(HttpStatus.OK)
+  async verifyEmailChange(
+    @AccessToken() token: string,
+    @Body() body: VerifyEmailChangeDto,
+  ): Promise<StandardResponse<Empty>> {
+    const res = await this.authService.verifyEmailChange(token, body);
+    return {
+      success: true,
+      message: 'Email changed successfully',
       statusCode: HttpStatus.OK,
       data: res,
     };
