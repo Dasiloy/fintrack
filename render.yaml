@@ -26,6 +26,17 @@ services:
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=api_gateway
     startCommand: cd apps/api_gateway && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/api_gateway/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
     envVars:
       - key: NODE_ENV
         value: production
@@ -98,6 +109,17 @@ services:
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=auth_service
     startCommand: cd apps/auth_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/auth_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
     envVars:
       - key: NODE_ENV
         value: production
@@ -138,6 +160,17 @@ services:
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=notification_service
     startCommand: cd apps/notification_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/notification_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
     envVars:
       - key: NODE_ENV
         value: production
@@ -166,6 +199,17 @@ services:
       pnpm install --frozen-lockfile --prod=false &&
       pnpm turbo build --filter=payment_service
     startCommand: cd apps/payment_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/payment_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
     envVars:
       - key: NODE_ENV
         value: production
