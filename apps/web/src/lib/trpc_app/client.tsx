@@ -67,7 +67,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           initialIsOpen
           client={queryClient}
           position="bottom"
-          buttonPosition="bottom-left"
+          buttonPosition="bottom-right"
         />
       )}
       <api_client.Provider client={trpcClient} queryClient={queryClient}>

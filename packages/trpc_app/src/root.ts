@@ -1,4 +1,4 @@
-import { subscriptionRouter } from './routers/subscription';
+import { subscriptionRouter, authrouter } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
 /**
@@ -6,6 +6,7 @@ import { createTRPCRouter, createCallerFactory } from './setup';
  * All shared routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  auth: authrouter,
   subscription: subscriptionRouter,
 });
 

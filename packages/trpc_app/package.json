@@ -32,6 +32,7 @@
     "@fintrack/database": "workspace:*"
   },
   "devDependencies": {
+    "@fintrack/types": "workspace:*",
     "@fintrack/eslint-config": "workspace:*",
     "@fintrack/typescript-config": "workspace:*",
     "@fintrack/next_auth": "workspace:*",
