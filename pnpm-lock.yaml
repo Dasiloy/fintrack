@@ -1014,6 +1014,9 @@ importers:
       '@fintrack/next_auth':
         specifier: workspace:*
         version: link:../next_auth
+      '@fintrack/types':
+        specifier: workspace:*
+        version: link:../types
       '@fintrack/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

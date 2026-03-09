@@ -1,16 +1,19 @@
-import TwoFactorSection from './_components/two_factor_section';
+import { PageHeader } from '@/app/_components/page-header';
 
-export default function SecuritySettingsPage() {
+import { SecurityLayout } from './_components/security_layout';
+import { api_server, HydrateClient } from '@/lib/trpc_app/api_server';
+
+export default async function SecuritySettingsPage() {
+  await api_server.auth.get2fa.prefetch();
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-8">
-      <div className="mb-8">
-        <h1 className="text-text-primary text-2xl font-semibold">Security</h1>
-        <p className="text-text-secondary mt-1 text-sm">
-          Manage your account security and authentication settings.
-        </p>
+    <HydrateClient>
+      <div className="flex h-full flex-col">
+        <PageHeader
+          breadcrumbs={[{ label: 'Settings', href: '/settings' }, { label: 'Security' }]}
+        />
+        <SecurityLayout />
       </div>
-
-      <TwoFactorSection />
-    </div>
+    </HydrateClient>
   );
 }

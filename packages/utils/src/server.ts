@@ -2,7 +2,9 @@ import { type StandardResponse } from '@fintrack/types/interfaces/server_respons
 
 export class ServerFormatter {
   static formatSuccess(response: any) {
-    return response.data?.data?.message ?? 'Successful!';
+    return (
+      response.data?.data?.message ?? response.data?.message ?? response.message ?? 'Successful!'
+    );
   }
 
   static formatError(err: any) {

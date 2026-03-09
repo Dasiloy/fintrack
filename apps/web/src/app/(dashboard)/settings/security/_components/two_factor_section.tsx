@@ -3,16 +3,13 @@
 import { useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Check, Copy, Download, ShieldCheck, ShieldOff } from 'lucide-react';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
 
 import {
   Button,
   Field,
   FieldGroup,
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
+  OtpInput,
+  Separator,
   Skeleton,
   Text,
   toast,
@@ -25,7 +22,6 @@ import { api_client } from '@/lib/trpc_app/api_client';
 // ---------------------------------------------------------------------------
 
 type TwoFactorState =
-  | 'loading'
   | 'disabled'
   | 'setup-scan'
   | 'setup-confirm'
@@ -34,66 +30,199 @@ type TwoFactorState =
   | 'disabling';
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// Left visual panel — animated shield that reacts to state
 // ---------------------------------------------------------------------------
 
-function SectionShell({ children }: { children: React.ReactNode }) {
+function TwoFactorVisual({ state }: { state: TwoFactorState }) {
+  const isEnabled = state === 'enabled';
+  const isSetup = state.startsWith('setup') || state === 'setup-scan' || state === 'setup-confirm';
+  const isDisabling = state === 'disabling';
+
+  const STEPS = [
+    { id: 'setup-scan', label: 'Scan QR code' },
+    { id: 'setup-confirm', label: 'Verify code' },
+    { id: 'setup-backup-codes', label: 'Save backup codes' },
+  ] as const;
+
   return (
-    <div className="border-border-subtle bg-bg-elevated rounded-card border p-6">
-      <div className="mb-5 flex items-center gap-3">
-        <div className="bg-primary/10 flex size-9 items-center justify-center rounded-lg">
-          <ShieldCheck className="text-primary size-4" />
-        </div>
-        <div>
-          <p className="text-text-primary text-sm font-medium">Two-Factor Authentication</p>
-          <p className="text-text-tertiary text-xs">
-            Require a verification code in addition to your password
-          </p>
+    <div className="flex flex-col items-center justify-start gap-6 pt-2">
+      {/* Shield visual — size-28 matches the outer ring so rings don't clip */}
+      <div className="relative mx-auto flex size-28 items-center justify-center">
+        {/* Outer ring — animated */}
+        <div
+          className={`absolute size-28 rounded-full transition-all duration-700 ${
+            isEnabled
+              ? 'bg-success/10 animate-pulse'
+              : isSetup
+                ? 'bg-primary/10 animate-pulse'
+                : 'bg-bg-surface-hover'
+          }`}
+        />
+        {/* Middle ring */}
+        <div
+          className={`absolute size-20 rounded-full border transition-all duration-700 ${
+            isEnabled ? 'border-success/30' : isSetup ? 'border-primary/30' : 'border-border-subtle'
+          }`}
+        />
+        {/* Icon container */}
+        <div
+          className={`relative z-10 flex size-14 items-center justify-center rounded-2xl border transition-all duration-700 ${
+            isEnabled
+              ? 'border-success/30 bg-success/10 shadow-[0_0_24px_rgba(34,197,94,0.2)]'
+              : isDisabling
+                ? 'border-red-500/30 bg-red-500/10'
+                : isSetup
+                  ? 'border-primary/30 bg-primary/10'
+                  : 'border-border-subtle bg-bg-surface'
+          }`}
+        >
+          {isEnabled ? (
+            <ShieldCheck className="text-success size-6" />
+          ) : isDisabling ? (
+            <ShieldOff className="size-6 text-red-400" />
+          ) : (
+            <ShieldCheck
+              className={`size-6 transition-colors duration-500 ${isSetup ? 'text-primary' : 'text-text-disabled'}`}
+            />
+          )}
         </div>
       </div>
-      {children}
+
+      {/* Status label */}
+      <div className="text-center">
+        <p
+          className={`text-sm font-semibold transition-colors duration-500 ${isEnabled ? 'text-success' : isDisabling ? 'text-red-400' : isSetup ? 'text-primary' : 'text-text-secondary'}`}
+        >
+          {isEnabled
+            ? 'Account Protected'
+            : isDisabling
+              ? 'Removing protection'
+              : isSetup
+                ? 'Setting up 2FA'
+                : 'Not Protected'}
+        </p>
+        <p className="text-text-disabled mt-0.5 text-xs">
+          {isEnabled
+            ? 'Two-factor authentication is active'
+            : isSetup
+              ? '3-step setup process'
+              : 'Your account uses only a password'}
+        </p>
+      </div>
+
+      {/* Setup step indicator */}
+      {(isSetup || state === 'setup-backup-codes') && (
+        <div className="w-full space-y-2">
+          {STEPS.map((step, i) => {
+            const stepIndex = STEPS.findIndex((s) => s.id === state);
+            const isDone = i < stepIndex || state === 'setup-backup-codes';
+            const isCurrent = step.id === state;
+
+            return (
+              <div key={step.id} className="flex items-center gap-2.5">
+                <div
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
+                    isDone
+                      ? 'bg-success text-white'
+                      : isCurrent
+                        ? 'bg-primary text-white'
+                        : 'bg-bg-surface-hover text-text-disabled border-border-subtle border'
+                  }`}
+                >
+                  {isDone ? <Check className="size-3" /> : i + 1}
+                </div>
+                <span
+                  className={`text-xs transition-colors duration-300 ${
+                    isCurrent
+                      ? 'text-text-primary font-medium'
+                      : isDone
+                        ? 'text-text-tertiary line-through'
+                        : 'text-text-disabled'
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Info blurb — only on disabled state */}
+      {state === 'disabled' && (
+        <div className="border-border-subtle bg-bg-surface rounded-lg border px-4 py-3">
+          <p className="text-text-tertiary text-xs leading-relaxed">
+            2FA adds a second verification step at login. Even if your password is stolen, your
+            account stays safe.
+          </p>
+        </div>
+      )}
+
+      {/* Enabled — backup codes info */}
+      {state === 'enabled' && (
+        <div className="border-success/15 bg-success/5 rounded-lg border px-4 py-3">
+          <p className="text-text-tertiary text-xs leading-relaxed">
+            Keep your backup codes in a safe place. They let you access your account if you lose
+            your authenticator device.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Loading skeleton ─────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Section wrapper — fills full width, content constrained via grid
+// ---------------------------------------------------------------------------
 
-function LoadingSkeleton() {
+function TwoFactorShell({ children, state }: { children: React.ReactNode; state: TwoFactorState }) {
   return (
-    <SectionShell>
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-9 w-36" />
+    <div>
+      <div className="mb-6">
+        <h2 className="text-text-primary text-lg font-semibold">Two-Factor Authentication</h2>
+        <p className="text-text-secondary mt-1 text-sm">
+          Require a verification code in addition to your password.
+        </p>
       </div>
-    </SectionShell>
+
+      <Separator className="mb-8" />
+
+      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
+        <TwoFactorVisual state={state} />
+
+        <div className="border-border-subtle bg-bg-elevated rounded-card border p-6">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }
 
-// ── Disabled state ────────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// States
+// ---------------------------------------------------------------------------
 
-function DisabledState({ onEnable }: { onEnable: () => void }) {
+function DisabledState({ onEnable, isLoading }: { isLoading: boolean; onEnable: () => void }) {
   return (
-    <SectionShell>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+    <TwoFactorShell state="disabled">
+      <div className="flex h-full flex-col justify-between gap-6">
+        <div>
           <span className="bg-bg-surface text-text-tertiary inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
             <span className="bg-text-disabled size-1.5 rounded-full" />
             Disabled
           </span>
+          <p className="text-text-secondary mt-4 text-sm leading-relaxed">
+            Protect your account with an authenticator app. You&apos;ll be asked for a 6-digit code
+            each time you sign in.
+          </p>
         </div>
-        <Button size="sm" onClick={onEnable}>
+        <Button size="sm" onClick={onEnable} loading={isLoading} className="w-fit">
           Enable 2FA
         </Button>
       </div>
-      <p className="text-text-tertiary mt-4 text-xs leading-relaxed">
-        Add an extra layer of security to your account. When enabled, you&apos;ll need your
-        authenticator app to log in.
-      </p>
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
-
-// ── Setup: Step 1 — Scan QR code ──────────────────────────────────────────────
 
 function SetupScanStep({
   secret,
@@ -115,19 +244,17 @@ function SetupScanStep({
   };
 
   return (
-    <SectionShell>
+    <TwoFactorShell state="setup-scan">
       <p className="text-text-secondary mb-5 text-sm">
-        Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, or
-        Bitwarden).
+        Open your authenticator app and scan the QR code below. Works with Google Authenticator,
+        Authy, 1Password, and Bitwarden.
       </p>
 
-      <div className="flex flex-col items-start gap-6 sm:flex-row">
-        {/* QR code */}
-        <div className="shrink-0 rounded-xl bg-white p-3 shadow-sm">
-          <QRCode value={otpauthUri} size={160} />
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="shrink-0 self-start rounded-xl bg-white p-3 shadow-sm">
+          <QRCode value={otpauthUri} size={148} />
         </div>
 
-        {/* Manual entry */}
         <div className="min-w-0 flex-1 space-y-3">
           <div>
             <p className="text-text-secondary mb-1.5 text-xs font-medium">
@@ -148,7 +275,7 @@ function SetupScanStep({
             </div>
           </div>
           <p className="text-text-disabled text-[11px] leading-relaxed">
-            After scanning, your app will show a 6-digit code that changes every 30 seconds.
+            Your app will show a 6-digit code that refreshes every 30 seconds.
           </p>
         </div>
       </div>
@@ -161,11 +288,9 @@ function SetupScanStep({
           Next — Enter code
         </Button>
       </div>
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
-
-// ── Setup: Step 2 — Confirm code ──────────────────────────────────────────────
 
 function SetupConfirmStep({
   onConfirm,
@@ -179,38 +304,15 @@ function SetupConfirmStep({
   const [otp, setOtp] = useState('');
 
   return (
-    <SectionShell>
+    <TwoFactorShell state="setup-confirm">
       <p className="text-text-secondary mb-6 text-sm">
-        Enter the 6-digit code from your authenticator app to confirm setup.
+        Enter the 6-digit code from your authenticator app to verify it&apos;s working correctly.
       </p>
 
       <FieldGroup>
         <Field orientation="horizontal" className="justify-center">
-          <InputOTP
-            required
-            maxLength={6}
-            inputMode="numeric"
-            pattern={REGEXP_ONLY_DIGITS}
-            containerClassName="gap-space-2"
-            disabled={isLoading}
-            value={otp}
-            onChange={setOtp}
-            onComplete={onConfirm}
-          >
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:font-semibold">
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator className="text-text-tertiary" />
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:font-semibold">
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          <OtpInput disabled={isLoading} value={otp} onChange={setOtp} onComplete={onConfirm} />
         </Field>
-
         {isLoading && (
           <Text variant="body-sm" className="text-text-secondary animate-pulse text-center">
             Verifying...
@@ -218,16 +320,19 @@ function SetupConfirmStep({
         )}
       </FieldGroup>
 
-      <div className="mt-6 flex justify-between">
-        <Button variant="ghost" size="sm" onClick={onBack} disabled={isLoading}>
-          Back
-        </Button>
+      <div className="mt-8 text-center">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isLoading}
+          className="text-text-disabled hover:text-text-secondary text-xs transition-colors disabled:pointer-events-none"
+        >
+          ← Back to QR code
+        </button>
       </div>
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
-
-// ── Setup: Step 3 — Backup codes ─────────────────────────────────────────────
 
 function BackupCodesStep({ codes, onDone }: { codes: string[]; onDone: () => void }) {
   const [allCopied, setAllCopied] = useState(false);
@@ -250,18 +355,16 @@ function BackupCodesStep({ codes, onDone }: { codes: string[]; onDone: () => voi
   };
 
   return (
-    <SectionShell>
+    <TwoFactorShell state="setup-backup-codes">
       <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
         <p className="text-xs font-medium text-amber-400">
-          Save these backup codes now — they will not be shown again.
+          Save these backup codes now — they won&apos;t be shown again.
         </p>
         <p className="text-text-tertiary mt-1 text-xs">
-          Each code can only be used once to access your account if you lose your authenticator
-          device.
+          Each code can be used once to access your account if you lose your authenticator.
         </p>
       </div>
 
-      {/* Grid of codes */}
       <div className="bg-bg-surface border-border-subtle mb-5 grid grid-cols-2 gap-2 rounded-lg border p-4">
         {codes.map((code) => (
           <code key={code} className="text-text-primary font-mono text-sm tracking-widest">
@@ -283,11 +386,9 @@ function BackupCodesStep({ codes, onDone }: { codes: string[]; onDone: () => voi
           Done — I&apos;ve saved these
         </Button>
       </div>
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
-
-// ── Enabled state ─────────────────────────────────────────────────────────────
 
 function EnabledState({
   backupCodesRemaining,
@@ -297,39 +398,45 @@ function EnabledState({
   onDisable: () => void;
 }) {
   return (
-    <SectionShell>
-      <div className="flex items-center justify-between">
-        <span className="bg-success/10 text-success inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
-          <span className="bg-success size-1.5 rounded-full" />
-          Active
-        </span>
-        <Button variant="destructive" size="sm" onClick={onDisable}>
+    <TwoFactorShell state="enabled">
+      <div className="flex h-full flex-col justify-between gap-6">
+        <div className="space-y-4">
+          <span className="bg-success/10 text-success inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium">
+            <span className="bg-success size-1.5 rounded-full" />
+            Active
+          </span>
+
+          <p className="text-text-secondary text-sm leading-relaxed">
+            Your account is protected with two-factor authentication. Each sign-in requires a code
+            from your authenticator app.
+          </p>
+
+          {backupCodesRemaining <= 2 && backupCodesRemaining > 0 && (
+            <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+              <p className="text-xs text-amber-400">
+                Only {backupCodesRemaining} backup code
+                {backupCodesRemaining !== 1 ? 's' : ''} remaining. Consider regenerating them.
+              </p>
+            </div>
+          )}
+
+          {backupCodesRemaining === 0 && (
+            <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+              <p className="text-error text-xs">
+                No backup codes remaining. Regenerate them to ensure account recovery access.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <Button variant="destructive" size="sm" onClick={onDisable} className="w-fit">
           <ShieldOff className="size-3.5" />
           Disable 2FA
         </Button>
       </div>
-
-      {backupCodesRemaining <= 2 && backupCodesRemaining > 0 && (
-        <div className="mt-4 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2">
-          <p className="text-xs text-amber-400">
-            Only {backupCodesRemaining} backup code{backupCodesRemaining !== 1 ? 's' : ''}{' '}
-            remaining. Consider regenerating them.
-          </p>
-        </div>
-      )}
-
-      {backupCodesRemaining === 0 && (
-        <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2">
-          <p className="text-error text-xs">
-            No backup codes remaining. Regenerate them to ensure account recovery access.
-          </p>
-        </div>
-      )}
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
-
-// ── Disabling state — inline confirmation ─────────────────────────────────────
 
 function DisablingState({
   onConfirm,
@@ -343,41 +450,18 @@ function DisablingState({
   const [otp, setOtp] = useState('');
 
   return (
-    <SectionShell>
+    <TwoFactorShell state="disabling">
       <p className="text-text-secondary mb-2 text-sm">
-        Enter the current code from your authenticator app to disable 2FA.
+        Enter your current authenticator code to confirm you want to disable 2FA.
       </p>
       <p className="text-text-tertiary mb-6 text-xs">
-        This will remove 2FA protection from your account and delete all backup codes.
+        This will remove 2FA protection and delete all backup codes.
       </p>
 
       <FieldGroup>
         <Field orientation="horizontal" className="justify-center">
-          <InputOTP
-            required
-            maxLength={6}
-            inputMode="numeric"
-            pattern={REGEXP_ONLY_DIGITS}
-            containerClassName="gap-space-2"
-            disabled={isLoading}
-            value={otp}
-            onChange={setOtp}
-            onComplete={onConfirm}
-          >
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:font-semibold">
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPSeparator className="text-text-tertiary" />
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl *:data-[slot=input-otp-slot]:font-semibold">
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          <OtpInput disabled={isLoading} value={otp} onChange={setOtp} onComplete={onConfirm} />
         </Field>
-
         {isLoading && (
           <Text variant="body-sm" className="text-text-secondary animate-pulse text-center">
             Disabling 2FA...
@@ -385,87 +469,84 @@ function DisablingState({
         )}
       </FieldGroup>
 
-      <div className="mt-6 flex justify-between">
-        <Button variant="ghost" size="sm" onClick={onCancel} disabled={isLoading}>
-          Cancel
-        </Button>
+      <div className="mt-8 text-center">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={isLoading}
+          className="text-text-disabled hover:text-text-secondary text-xs transition-colors disabled:pointer-events-none"
+        >
+          ← Cancel and keep 2FA enabled
+        </button>
       </div>
-    </SectionShell>
+    </TwoFactorShell>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Main component
+// Main
 // ---------------------------------------------------------------------------
 
 export default function TwoFactorSection() {
-  const [uiState, setUiState] = useState<TwoFactorState>('loading');
-  const [setupData, setSetupData] = useState<{ secret: string; otpauthUri: string } | null>(null);
+  const utils = api_client.useUtils();
+  const { data } = api_client.auth.get2fa.useQuery();
+
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [backupCodesRemaining, setBackupCodesRemaining] = useState(10);
+  const [uiState, setUiState] = useState<TwoFactorState>(
+    data?.data?.twoFactorEnabled ? 'enabled' : 'disabled',
+  );
+  const [setupData, setSetupData] = useState<{ secret: string; otpauthUri: string } | null>(null);
 
-  // ── tRPC ────────────────────────────────────────────────────────────────
+  const initiateMutation = api_client.auth.init2fa.useMutation({
+    onError(error) {
+      toast.error('Could not start 2FA setup', { description: ServerFormatter.formatError(error) });
+    },
+    onSuccess(data) {
+      toast.success('Success', { description: ServerFormatter.formatSuccess(data) });
+      setSetupData(data.data);
+      setUiState('setup-scan');
+    },
+  });
 
-  // api_client.auth.twoFactor.status.useQuery(undefined, {
-  //   onSuccess(data) {
-  //     setBackupCodesRemaining(data.backupCodesRemaining);
-  //     setUiState(data.enabled ? 'enabled' : 'disabled');
-  //   },
-  //   onError() {
-  //     setUiState('disabled');
-  //   },
-  // });
+  const confirmMuatation = api_client.auth.confirm2fa.useMutation({
+    onError(error) {
+      toast.error('Could not confirm 2FA setup', {
+        description: ServerFormatter.formatError(error),
+      });
+    },
+    onSuccess(data) {
+      toast.success('Success', { description: ServerFormatter.formatSuccess(data) });
+      setBackupCodes(data.data?.backupCodes ?? []);
+      setUiState('setup-backup-codes');
+    },
+  });
 
-  // const initiateMutation = api_client.auth.twoFactor.initiate.useMutation();
-  // const confirmMutation = api_client.auth.twoFactor.confirm.useMutation();
-  // const disableMutation = api_client.auth.twoFactor.disable.useMutation();
-
-  // ── Handlers ─────────────────────────────────────────────────────────────
-
-  const handleEnable = async () => {
-    // try {
-    //   const data = await initiateMutation.mutateAsync();
-    //   setSetupData(data);
-    //   setUiState('setup-scan');
-    // } catch (error) {
-    //   toast.error('Could not start 2FA setup', { description: ServerFormatter.formatError(error) });
-    // }
-  };
-
-  const handleConfirm = async (code: string) => {
-    // try {
-    //   const result = await confirmMutation.mutateAsync({ code });
-    //   setBackupCodes(result.backupCodes);
-    //   setUiState('setup-backup-codes');
-    // } catch (error) {
-    //   toast.error('Invalid code', { description: ServerFormatter.formatError(error) });
-    // }
-  };
+  const disableMutation = api_client.auth.disable2fa.useMutation({
+    onError(error) {
+      toast.error('Could not disable 2FA', { description: ServerFormatter.formatError(error) });
+    },
+    onSuccess() {
+      setUiState('disabled');
+      utils.auth.get2fa.invalidate();
+      toast.success('2FA disabled', { description: '2FA has been removed from your account.' });
+    },
+  });
 
   const handleBackupCodesDone = () => {
+    utils.auth.get2fa.invalidate();
     setBackupCodes([]);
     setSetupData(null);
-    setBackupCodesRemaining(10);
     setUiState('enabled');
     toast.success('2FA enabled', { description: 'Your account is now protected with 2FA.' });
   };
 
-  const handleDisableConfirm = async (code: string) => {
-    // try {
-    //   await disableMutation.mutateAsync({ code });
-    //   setUiState('disabled');
-    //   toast.success('2FA disabled', { description: '2FA has been removed from your account.' });
-    // } catch (error) {
-    //   toast.error('Invalid code', { description: ServerFormatter.formatError(error) });
-    // }
-  };
-
-  // ── Render ────────────────────────────────────────────────────────────────
-
-  if (uiState === 'loading') return <LoadingSkeleton />;
-
-  if (uiState === 'disabled') return <DisabledState onEnable={handleEnable} />;
-
+  if (uiState === 'disabled')
+    return (
+      <DisabledState
+        isLoading={initiateMutation.isPending}
+        onEnable={() => initiateMutation.mutate()}
+      />
+    );
   if (uiState === 'setup-scan' && setupData)
     return (
       <SetupScanStep
@@ -475,35 +556,29 @@ export default function TwoFactorSection() {
         onCancel={() => setUiState('disabled')}
       />
     );
-
   if (uiState === 'setup-confirm')
     return (
       <SetupConfirmStep
-        onConfirm={handleConfirm}
+        onConfirm={(code) => confirmMuatation.mutate({ code })}
         onBack={() => setUiState('setup-scan')}
-        isLoading
-        // isLoading={confirmMutation.isPending}
+        isLoading={confirmMuatation.isPending}
       />
     );
-
   if (uiState === 'setup-backup-codes')
     return <BackupCodesStep codes={backupCodes} onDone={handleBackupCodesDone} />;
-
   if (uiState === 'enabled')
     return (
       <EnabledState
-        backupCodesRemaining={backupCodesRemaining}
+        backupCodesRemaining={data?.data?.codeLeft ?? 0}
         onDisable={() => setUiState('disabling')}
       />
     );
-
   if (uiState === 'disabling')
     return (
       <DisablingState
-        onConfirm={handleDisableConfirm}
+        onConfirm={(code) => disableMutation.mutate({ code })}
         onCancel={() => setUiState('enabled')}
-        isLoading
-        // isLoading={disableMutation.isPending}
+        isLoading={disableMutation.isPending}
       />
     );
 
