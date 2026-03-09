@@ -1237,30 +1237,42 @@ export class AuthService {
       // fetch user and do auth check
       const user = await this.validateUser(userId);
 
-      // generate secret
-      const secret = this.otp.generateSecret();
+      // 2FA is only meaningful for local (email/password) accounts
+      const localAccount = await this.prismaService.account.findFirst({
+        where: { userId: user.id, provider: 'LOCAL' },
+      });
 
-      // generate auth url for authy apps
+      if (!localAccount) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message:
+            '2FA is only available for email/password accounts. Your account is secured by your social login provider.',
+        });
+      }
+
+      // Block re-initialization once 2FA is already active — user must disable first
+      if (user.twoFactorEnabled) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: '2FA is already enabled. Disable it before re-initializing.',
+        });
+      }
+
+      const secret = this.otp.generateSecret();
+      console.log('secret', secret);
+
       const otpauthUri = this.otp.generateURI({
         issuer: 'Fintrack',
         label: user.email,
         secret,
-        algorithm: 'sha1',
       });
 
-      // encyrpt the secret
-      const twoFactorSecret = this.encrypt(secret);
-
-      // update user
       await this.prismaService.user.update({
         where: { id: user.id },
-        data: { twoFactorSecret },
+        data: { twoFactorSecret: this.encrypt(secret) },
       });
 
-      return {
-        otpauthUri,
-        secret,
-      };
+      return { otpauthUri, secret };
     } catch (error) {
       this.logger.error('Init2fa error in AuthService', error);
       if (error instanceof RpcException) throw error;
@@ -1302,8 +1314,9 @@ export class AuthService {
         });
       }
 
-      // decrpt the secret here
+      // decrypt the secret here
       const secret = this.decrypt(user.twoFactorSecret);
+      console.log('secret', secret);
 
       const verify = await this.otp.verify({
         secret,
@@ -1385,6 +1398,7 @@ export class AuthService {
       const verify = await this.otp.verify({
         secret,
         token: data.code,
+        epochTolerance: 30,
       });
 
       if (!verify.valid) {
@@ -1455,6 +1469,7 @@ export class AuthService {
       const verify = await this.otp.verify({
         secret,
         token: data.code,
+        epochTolerance: 30,
       });
 
       if (verify.valid) {
