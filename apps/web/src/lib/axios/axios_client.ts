@@ -46,16 +46,24 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// On 401, call the refresh route to get a new token, then retry once
+// On 401, only refresh when the error is a TOKEN_EXPIRED response from the
+// API gateway guard. Any other 401 (wrong credentials, invalid token, auth
+// failures) is passed through without a refresh to avoid redundant calls.
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Pre-auth proxy routes use cookie-based auth — don't refresh on 401
+    // Pre-auth proxy routes use cookie-based auth — never refresh on 401
     const isPreAuthRoute = originalRequest.url?.startsWith('/proxy-auth/');
+    const isExpiredToken = error.response?.data?.message === 'TOKEN_EXPIRED';
 
-    if (error.response?.status === 401 && !originalRequest._retry && !isPreAuthRoute) {
+    if (
+      error.response?.status === 401 &&
+      isExpiredToken &&
+      !originalRequest._retry &&
+      !isPreAuthRoute
+    ) {
       originalRequest._retry = true;
 
       const refreshRes = await fetch('/api/proxy-auth/refresh', { method: 'POST' });

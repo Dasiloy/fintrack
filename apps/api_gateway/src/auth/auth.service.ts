@@ -40,6 +40,8 @@ import {
   VerifyEmailDto,
   VerifyPasswordTokenReqDto,
   VerifyTwoFactorDto,
+  RegenerateBackupCodesDto,
+  DeleteAccountDto,
 } from './dto/auth.dto';
 
 @Injectable()
@@ -106,22 +108,25 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
-   * @description Validate a JWT token via the auth microservice
+   * @description Validate a JWT token via the auth microservice.
+   * Returns the user payload on success, `'TOKEN_EXPIRED'` if the access
+   * token has expired (so the guard can respond with a distinct 401 message
+   * that clients use to trigger a token refresh), or `null` for any other
+   * invalid-token scenario.
    *
    * @async
-   * @private
+   * @public
    * @param {string} token JWT token to validate
-   * @returns {Promise<any | null>} Validated user payload or null if invalid
+   * @returns {Promise<any | 'TOKEN_EXPIRED' | null>}
    */
-  async validateToken(token: string): Promise<any | null> {
+  async validateToken(token: string): Promise<any | 'TOKEN_EXPIRED' | null> {
     try {
       const metadata = new Metadata();
       metadata.add('x-token', token);
-      return lastValueFrom(
+      return await lastValueFrom(
         this.authService.validateToken({}, metadata).pipe(timeout(8000)),
       );
-    } catch (error) {
-      // Don't throw - return undefined so Apiguard can handle it
+    } catch (error: any) {
       return null;
     }
   }
@@ -318,7 +323,10 @@ export class AuthService implements OnModuleInit {
    * @returns {Promise<ConfirmTwoFactorSetupRes>} One-time backup codes
    * @throws {UnauthorizedException} If the token is invalid or the TOTP code does not match
    */
-  async confirm2fa(token: string, data: Confirm2faDto): Promise<ConfirmTwoFactorSetupRes> {
+  async confirm2fa(
+    token: string,
+    data: Confirm2faDto,
+  ): Promise<ConfirmTwoFactorSetupRes> {
     const metadata = new Metadata();
     metadata.add('x-token', token);
     return lastValueFrom(
@@ -349,6 +357,28 @@ export class AuthService implements OnModuleInit {
   }
 
   /**
+   * @description Regenerate backup codes via the auth microservice
+   *
+   * @async
+   * @public
+   * @param {string} token Access JWT
+   * @param {RegenerateBackupCodesDto} data Current 6-digit TOTP code
+   * @returns {Promise<ConfirmTwoFactorSetupRes>} 10 new plain backup codes
+   */
+  async regenerateBackupCodes(
+    token: string,
+    data: RegenerateBackupCodesDto,
+  ): Promise<ConfirmTwoFactorSetupRes> {
+    const metadata = new Metadata();
+    metadata.add('x-token', token);
+    return lastValueFrom(
+      this.authService
+        .regenerateBackupCodes({ code: data.code }, metadata)
+        .pipe(timeout(10000)),
+    );
+  }
+
+  /**
    * @description Complete a 2FA login challenge via the auth microservice
    *
    * @async
@@ -358,7 +388,10 @@ export class AuthService implements OnModuleInit {
    * @returns {Promise<LoginRes>} Full auth tokens on success
    * @throws {UnauthorizedException} If the challenge token or code is invalid
    */
-  async verify2fa(data: VerifyTwoFactorDto, deviceInfo: DeviceInfo): Promise<LoginRes> {
+  async verify2fa(
+    data: VerifyTwoFactorDto,
+    deviceInfo: DeviceInfo,
+  ): Promise<LoginRes> {
     return lastValueFrom(
       this.authService
         .verifyTwoFactor({
@@ -390,7 +423,11 @@ export class AuthService implements OnModuleInit {
     return lastValueFrom(
       this.authService
         .changePassword(
-          { currentPassword: data.currentPassword, newPassword: data.newPassword },
+          {
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+            otpCode: data.otpCode,
+          },
           metadata,
         )
         .pipe(timeout(25000)),
@@ -408,13 +445,16 @@ export class AuthService implements OnModuleInit {
    * @throws {UnauthorizedException} If the token or current password is invalid
    * @throws {ConflictException} If the new email is already registered
    */
-  async initiateEmailChange(token: string, data: ChangeEmailDto): Promise<InitiateEmailChangeRes> {
+  async initiateEmailChange(
+    token: string,
+    data: ChangeEmailDto,
+  ): Promise<InitiateEmailChangeRes> {
     const metadata = new Metadata();
     metadata.add('x-token', token);
     return lastValueFrom(
       this.authService
         .initiateEmailChange(
-          { newEmail: data.newEmail, currentPassword: data.currentPassword },
+          { newEmail: data.newEmail, currentPassword: data.currentPassword, otpCode: data.otpCode },
           metadata,
         )
         .pipe(timeout(25000)),
@@ -432,12 +472,36 @@ export class AuthService implements OnModuleInit {
    * @throws {UnauthorizedException} If the token or OTP is invalid or expired
    * @throws {ConflictException} If the target email was claimed since initiation
    */
-  async verifyEmailChange(token: string, data: VerifyEmailChangeDto): Promise<Empty> {
+  async verifyEmailChange(
+    token: string,
+    data: VerifyEmailChangeDto,
+  ): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-token', token);
     return lastValueFrom(
       this.authService
         .verifyEmailChange({ otp: data.otp }, metadata)
+        .pipe(timeout(25000)),
+    );
+  }
+
+  /**
+   * @description Schedule the authenticated user's account for permanent deletion via the auth microservice.
+   *
+   * @async
+   * @public
+   * @param {string} token Access JWT
+   * @param {DeleteAccountDto} data Optional password and OTP code for ownership verification
+   * @returns {Promise<Empty>}
+   * @throws {UnauthorizedException} If the token, password, or TOTP code is invalid
+   * @throws {TooManyRequestsException} If too many failed verification attempts
+   */
+  async deleteAccount(token: string, data: DeleteAccountDto): Promise<Empty> {
+    const metadata = new Metadata();
+    metadata.add('x-token', token);
+    return lastValueFrom(
+      this.authService
+        .deleteAccount({ password: data.password, otpCode: data.otpCode }, metadata)
         .pipe(timeout(25000)),
     );
   }

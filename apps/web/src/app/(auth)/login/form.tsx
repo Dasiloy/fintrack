@@ -26,15 +26,14 @@ import {
   Text,
   toast,
 } from '@ui/components';
-import { cn } from '@ui/lib/utils';
 import StyledLink from '@/app/_components/styled_linkt';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { LoginRes } from '@fintrack/types/protos/auth/auth';
-import { useRouter } from 'next/navigation';
-import { api_client } from '@/lib/trpc_app/api_client';
+import { useRouter } from '@bprogress/next';
+import AuthLayout from '@/app/layouts/auth_layout';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -66,12 +65,18 @@ function resolveAuthError(code: string | undefined): string | null {
 }
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MAX_LOGIN_ATTEMPTS = 3;
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 type LoginStep = 'credentials' | 'two-factor';
 
-interface LoginFormProps extends React.ComponentProps<'form'> {
+interface LoginFormProps {
   authError?: string;
 }
 
@@ -79,11 +84,13 @@ interface LoginFormProps extends React.ComponentProps<'form'> {
 // Component
 // ---------------------------------------------------------------------------
 
-export function LoginForm({ className, authError }: LoginFormProps) {
+export function LoginForm({ authError }: LoginFormProps) {
   const router = useRouter();
 
   // Credentials step state
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [loginLocked, setLoginLocked] = useState(false);
 
   // 2FA step state
   const [step, setStep] = useState<LoginStep>('credentials');
@@ -91,13 +98,12 @@ export function LoginForm({ className, authError }: LoginFormProps) {
   const [otpValue, setOtpValue] = useState('');
   const [backupCode, setBackupCode] = useState('');
   const [isBackupMode, setIsBackupMode] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
-
-  // const verifyMutation = api_client.auth.twoFactor.verify.useMutation();
 
   useEffect(() => {
     const message = resolveAuthError(authError);
@@ -113,11 +119,11 @@ export function LoginForm({ className, authError }: LoginFormProps) {
 
   const completeSignIn = async (accessToken: string, refreshToken: string) => {
     await signIn('credentials', {
-      redirect: true,
-      redirectTo: DASHBOARD_ROUTES.DASHBOARD,
+      redirect: false,
       accessToken,
       refreshToken,
     });
+    router.push(DASHBOARD_ROUTES.DASHBOARD);
   };
 
   const resetToCredentials = () => {
@@ -137,16 +143,18 @@ export function LoginForm({ className, authError }: LoginFormProps) {
 
       // 2FA required — switch to second step
       if (resData.data?.requiresTwoFactor) {
-        setTwoFactorToken(resData.data.twoFactorToken!);
         form.reset();
+        setTwoFactorToken(resData.data.twoFactorToken!);
         setStep('two-factor');
         return;
       }
 
+      form.reset();
       toast.success('Login successful', { description: 'Redirecting...' });
       await completeSignIn(resData.data!.accessToken!, resData.data!.refreshToken!);
     } catch (error: any) {
       const code = error?.response?.data?.code;
+      const httpStatus = error?.response?.status;
 
       if (code === 'EMAIL_NOT_VERIFIED') {
         toast.info('Email not verified', {
@@ -156,10 +164,29 @@ export function LoginForm({ className, authError }: LoginFormProps) {
           await axiosClient.post('/proxy-auth/resend-verify-email');
         } catch {
           // 409 = a valid OTP still exists — redirect anyway
-          // Leave implementation for now
         }
         router.push(AUTH_ROUTES.VERIFY_EMAIL);
         return;
+      }
+
+      if (httpStatus === 429) {
+        setLoginLocked(true);
+        return;
+      }
+
+      if (
+        httpStatus === 401 &&
+        error?.response?.data?.message === 'Invalid Email/Password'
+      ) {
+        const newAttempts = loginAttempts + 1;
+        setLoginAttempts(newAttempts);
+        if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+          setLoginLocked(true);
+          toast.error('Account temporarily locked', {
+            description: 'Too many failed attempts. Reset your password to regain access.',
+          });
+          return;
+        }
       }
 
       toast.error('Login failed', { description: ServerFormatter.formatError(error) });
@@ -170,15 +197,20 @@ export function LoginForm({ className, authError }: LoginFormProps) {
 
   const handleTwoFactorSubmit = async (code: string) => {
     if (!code.trim()) return;
-    // try {
-    //   const result = await verifyMutation.mutateAsync({ twoFactorToken, code });
-    //   toast.success('Verified', { description: 'Redirecting...' });
-    //   await completeSignIn(result.accessToken!, result.refreshToken!);
-    // } catch (error) {
-    //   toast.error('Verification failed', { description: ServerFormatter.formatError(error) });
-    //   setOtpValue('');
-    //   setBackupCode('');
-    // }
+    setIsVerifying(true);
+    try {
+      const response = await axiosClient.post('/proxy-auth/verify-2fa', { twoFactorToken, code });
+      const resData: StandardResponse<LoginRes> = response.data;
+      setTwoFactorToken('');
+      toast.success('Verified', { description: 'Redirecting...' });
+      await completeSignIn(resData.data!.accessToken!, resData.data!.refreshToken!);
+    } catch (error) {
+      toast.error('Verification failed', { description: ServerFormatter.formatError(error) });
+    } finally {
+      setOtpValue('');
+      setBackupCode('');
+      setIsVerifying(false);
+    }
   };
 
   const handleOtpComplete = (value: string) => handleTwoFactorSubmit(value);
@@ -205,15 +237,28 @@ export function LoginForm({ className, authError }: LoginFormProps) {
     }
   };
 
-  // ── 2FA screen ─────────────────────────────────────────────────────────
+  // ── Layout props (step-aware) ─────────────────────────────────────────────
 
-  if (step === 'two-factor') {
-    // const isVerifying = verifyMutation.isPending;
-    const isVerifying = false;
+  const isTwoFactor = step === 'two-factor';
 
-    return (
-      <div className={cn('pt-6', className)}>
-        <FieldGroup>
+  const layoutProps = isTwoFactor
+    ? {
+        title: 'Two-Factor Authentication',
+        description: 'Enter the 6-digit code from your authenticator app',
+        withFooter: false,
+      }
+    : {
+        title: 'Welcome Back',
+        description: 'Log in with your Apple or Google account',
+      };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  return (
+    <AuthLayout {...layoutProps}>
+      {isTwoFactor ? (
+        // ── 2FA screen ──────────────────────────────────────────────────────
+        <FieldGroup className="pt-6">
           {/* TOTP code input */}
           {!isBackupMode ? (
             <Field orientation="horizontal" className="justify-center">
@@ -287,11 +332,11 @@ export function LoginForm({ className, authError }: LoginFormProps) {
             </button>
           </Field>
 
-          {/* Back to login */}
-          <Field>
+          {/* Back to login — centered */}
+          <Field className="flex justify-center">
             <button
               type="button"
-              className="text-text-tertiary hover:text-text-secondary flex items-center gap-1.5 text-sm"
+              className="text-text-tertiary hover:text-text-secondary mx-auto inline-flex w-auto! items-center gap-1.5 text-sm"
               onClick={resetToCredentials}
             >
               <ArrowLeft className="size-3.5" />
@@ -299,78 +344,97 @@ export function LoginForm({ className, authError }: LoginFormProps) {
             </button>
           </Field>
         </FieldGroup>
-      </div>
-    );
-  }
+      ) : (
+        // ── Credentials screen ───────────────────────────────────────────────
+        <form onSubmit={form.handleSubmit(onSubmit)} className="pt-6">
+          <FieldGroup>
+            <Field>
+              <Button
+                variant="secondary"
+                type="button"
+                loading={loadingProvider === 'google'}
+                disabled={isAnyLoading && loadingProvider !== 'google'}
+                onClick={() => handleSocialSignIn('google')}
+              >
+                <GoogleIcon fill="currentColor" />
+                Login with Google
+              </Button>
+            </Field>
 
-  // ── Credentials screen ─────────────────────────────────────────────────
+            <div className="text-text-tertiary flex items-center gap-2 text-sm">
+              <Separator className="flex-1" />
+              Or continue with
+              <Separator className="flex-1" />
+            </div>
 
-  return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className={cn('pt-6', className)}>
-      <FieldGroup>
-        <Field>
-          <Button
-            variant="secondary"
-            type="button"
-            loading={loadingProvider === 'google'}
-            disabled={isAnyLoading && loadingProvider !== 'google'}
-            onClick={() => handleSocialSignIn('google')}
-          >
-            <GoogleIcon fill="currentColor" />
-            Login with Google
-          </Button>
-        </Field>
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                aria-invalid={!!form.formState.errors.email}
+                disabled={isAnyLoading}
+                {...form.register('email')}
+              />
+              <FieldError errors={[form.formState.errors.email]} />
+            </Field>
 
-        <div className="text-text-tertiary flex items-center gap-2 text-sm">
-          <Separator className="flex-1" />
-          Or continue with
-          <Separator className="flex-1" />
-        </div>
+            <Field>
+              <FieldLabel htmlFor="password">
+                Password
+                <StyledLink href={AUTH_ROUTES.FORGOT_PASSWORD} className="ml-auto">
+                  Forgot password?
+                </StyledLink>
+              </FieldLabel>
+              <PasswordInput
+                id="password"
+                placeholder="******************"
+                aria-invalid={!!form.formState.errors.password}
+                disabled={isAnyLoading}
+                {...form.register('password')}
+              />
+              <FieldError errors={[form.formState.errors.password]} />
+            </Field>
 
-        <Field>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            aria-invalid={!!form.formState.errors.email}
-            disabled={isAnyLoading}
-            {...form.register('email')}
-          />
-          <FieldError errors={[form.formState.errors.email]} />
-        </Field>
+            {loginLocked && (
+              <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+                <p className="text-error text-sm font-medium">Account temporarily locked</p>
+                <p className="text-text-secondary mt-1 text-xs">
+                  Too many failed attempts.{' '}
+                  <StyledLink href={AUTH_ROUTES.FORGOT_PASSWORD}>Reset your password</StyledLink> to
+                  regain access.
+                </p>
+              </div>
+            )}
 
-        <Field>
-          <FieldLabel htmlFor="password">
-            Password
-            <StyledLink href={AUTH_ROUTES.FORGOT_PASSWORD} className="ml-auto">
-              Forgot password?
-            </StyledLink>
-          </FieldLabel>
-          <PasswordInput
-            id="password"
-            placeholder="******************"
-            aria-invalid={!!form.formState.errors.password}
-            disabled={isAnyLoading}
-            {...form.register('password')}
-          />
-          <FieldError errors={[form.formState.errors.password]} />
-        </Field>
+            {loginAttempts > 0 && !loginLocked && (
+              <p className="text-center text-xs text-amber-400">
+                Incorrect email or password —{' '}
+                <span className="font-medium">
+                  {MAX_LOGIN_ATTEMPTS - loginAttempts} attempt
+                  {MAX_LOGIN_ATTEMPTS - loginAttempts !== 1 ? 's' : ''} remaining
+                </span>
+              </p>
+            )}
 
-        <Field className="mb-2">
-          <Button
-            className="mb-1"
-            type="submit"
-            loading={form.formState.isSubmitting}
-            disabled={isAnyLoading && !form.formState.isSubmitting}
-          >
-            Login
-          </Button>
-          <FieldDescription className="text-center text-sm">
-            Don&apos;t have an account? <StyledLink href={AUTH_ROUTES.SIGNUP}>Sign up</StyledLink>
-          </FieldDescription>
-        </Field>
-      </FieldGroup>
-    </form>
+            <Field className="mb-2">
+              <Button
+                className="mb-1"
+                type="submit"
+                loading={form.formState.isSubmitting}
+                disabled={(isAnyLoading && !form.formState.isSubmitting) || loginLocked}
+              >
+                Login
+              </Button>
+              <FieldDescription className="text-center text-sm">
+                Don&apos;t have an account?{' '}
+                <StyledLink href={AUTH_ROUTES.SIGNUP}>Sign up</StyledLink>
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
+        </form>
+      )}
+    </AuthLayout>
   );
 }

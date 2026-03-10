@@ -30,7 +30,6 @@ export const DASHBOARD_ROUTES = {
   ANALYTICS_CHAT: '/analytics/chat',
   PLANNING_GOALS: '/planning/goals',
   PLANNING_SPLITS: '/planning/splits',
-  NOTIFICATIONS: '/notifications',
   SETTINGS_PROFILE: '/settings/profile',
   SETTINGS_ACCOUNT: '/settings/account',
   SETTINGS_SECURITY: '/settings/security',

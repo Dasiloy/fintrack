@@ -19,17 +19,28 @@
 
 ---
 
+F77C-60FF
+63C4-7F4D
+A35A-D502
+7710-8544
+CD2F-8A06
+4122-B6BB
+A5DF-9A4D
+A906-F868
+3C78-00AA
+2BF6-CDFB
+
 ## 1. What is 2FA?
 
 Two-Factor Authentication (2FA) requires a user to prove their identity using two independent methods before gaining access. The idea is that even if an attacker steals a password, they still cannot log in without the second factor.
 
 The three factor categories are:
 
-| Category | Example |
-|---|---|
-| Something you **know** | Password, PIN |
-| Something you **have** | Phone, hardware key |
-| Something you **are** | Fingerprint, Face ID |
+| Category               | Example              |
+| ---------------------- | -------------------- |
+| Something you **know** | Password, PIN        |
+| Something you **have** | Phone, hardware key  |
+| Something you **are**  | Fingerprint, Face ID |
 
 2FA = password (know) + one-time code from phone (have).
 
@@ -48,6 +59,7 @@ HMAC(key, message) → fixed-size digest
 ```
 
 Properties:
+
 - Given the same key and message, always produces the same output
 - Without the key, the output is computationally indistinguishable from random
 - Changing the message or key by even one bit produces a completely different output
@@ -142,13 +154,13 @@ The authenticator app (Google Authenticator, Authy, 1Password, Bitwarden) parses
 
 ### 2.6 Why TOTP is Right for a Financial App
 
-| Criterion | Email OTP | SMS OTP | TOTP |
-|---|---|---|---|
-| Security | Medium — if email compromised, 2FA fails | Low — SIM swapping is a known fintech attack vector | High — completely independent of email/phone |
-| Cost | Low (already have email infra) | High (per-SMS fee) | Zero per-auth cost |
-| Works offline | No | No | Yes |
-| Standard for financial apps | No | No | Yes |
-| User familiarity | High | Very high | High (most users have authenticator apps) |
+| Criterion                   | Email OTP                                | SMS OTP                                             | TOTP                                         |
+| --------------------------- | ---------------------------------------- | --------------------------------------------------- | -------------------------------------------- |
+| Security                    | Medium — if email compromised, 2FA fails | Low — SIM swapping is a known fintech attack vector | High — completely independent of email/phone |
+| Cost                        | Low (already have email infra)           | High (per-SMS fee)                                  | Zero per-auth cost                           |
+| Works offline               | No                                       | No                                                  | Yes                                          |
+| Standard for financial apps | No                                       | No                                                  | Yes                                          |
+| User familiarity            | High                                     | Very high                                           | High (most users have authenticator apps)    |
 
 ---
 
@@ -175,14 +187,14 @@ const uri = authenticator.keyuri('user@email.com', 'Fintrack', secret);
 
 // Verify a 6-digit code from the user
 const isValid = authenticator.verify({
-  token: '123456',  // code entered by user
-  secret,           // stored secret
+  token: '123456', // code entered by user
+  secret, // stored secret
 });
 // → true or false
 
 // Options (set globally or per call)
 authenticator.options = {
-  window: 1,  // accept T-1, T, T+1 (±30 seconds clock tolerance)
+  window: 1, // accept T-1, T, T+1 (±30 seconds clock tolerance)
 };
 ```
 
@@ -308,6 +320,7 @@ When the user clicks "Enable 2FA", the secret is generated and stored immediatel
 Backup codes are independent entities — they have their own lifecycle (created in bulk, consumed one-by-one, regenerated together). Putting them in a separate model keeps the User model clean and allows clean `deleteMany({ where: { userId } })` operations.
 
 **Migration command:**
+
 ```bash
 cd packages/database
 pnpm prisma migrate dev --name add_2fa_totp
@@ -393,6 +406,7 @@ service AuthService {
 ```
 
 **After editing the proto file, regenerate TypeScript types:**
+
 ```bash
 cd packages/types
 buf generate
@@ -523,7 +537,7 @@ if (user.twoFactorEnabled) {
     },
     {
       secret: this.configService.get<string>('JWT_OTP_SECRET'),
-      expiresIn: '5m',  // user has 5 minutes to complete 2FA
+      expiresIn: '5m', // user has 5 minutes to complete 2FA
     },
   );
 
@@ -681,12 +695,12 @@ DELETE /api/auth/2fa            → DisableTwoFactor
 
 ### 8.2 Authentication requirements
 
-| Endpoint | Auth required | Why |
-|---|---|---|
-| `POST /2fa/initiate` | Bearer token (normal session) | User must be logged in to set up 2FA |
-| `POST /2fa/confirm` | Bearer token (normal session) | Same |
-| `POST /2fa/verify` | `twoFactorToken` in request body | Called before a real session exists |
-| `DELETE /2fa` | Bearer token (normal session) + TOTP code in body | User must be logged in and prove identity |
+| Endpoint             | Auth required                                     | Why                                       |
+| -------------------- | ------------------------------------------------- | ----------------------------------------- |
+| `POST /2fa/initiate` | Bearer token (normal session)                     | User must be logged in to set up 2FA      |
+| `POST /2fa/confirm`  | Bearer token (normal session)                     | Same                                      |
+| `POST /2fa/verify`   | `twoFactorToken` in request body                  | Called before a real session exists       |
+| `DELETE /2fa`        | Bearer token (normal session) + TOTP code in body | User must be logged in and prove identity |
 
 ### 8.3 Request/response shapes
 
@@ -739,7 +753,7 @@ const result = await loginMutation(credentials);
 if (result.requiresTwoFactor) {
   // Store challenge token in React state (NOT localStorage — memory only)
   setTwoFactorToken(result.twoFactorToken);
-  setStep('two-factor');  // switch the login form to 2FA screen
+  setStep('two-factor'); // switch the login form to 2FA screen
   return;
 }
 
@@ -768,6 +782,7 @@ if (result.requiresTwoFactor) {
 ```
 
 Behaviour:
+
 - 6-digit numeric input, auto-submits on 6th digit (no button press needed)
 - "Use a backup code instead" toggle switches to a plain text input (accepts `XXXX-XXXX` format)
 - On submit: `POST /api/auth/2fa/verify` with `{ twoFactorToken, code, deviceId }`
@@ -777,6 +792,7 @@ Behaviour:
 ### 9.3 twoFactorToken security
 
 The `twoFactorToken` is a 5-minute JWT. It should:
+
 - Live in React component state only — not `localStorage`, not `sessionStorage`
 - Be discarded if the user navigates away from the login page
 - Never be sent to any endpoint except `/api/auth/2fa/verify`
@@ -794,6 +810,7 @@ The `twoFactorToken` is a 5-minute JWT. It should:
 ### 10.2 States and screens
 
 **State 1: 2FA Disabled**
+
 ```
 ┌─ Security ──────────────────────────────────────────────┐
 │                                                         │
@@ -874,6 +891,7 @@ Calls `POST /api/auth/2fa/confirm` with the entered code.
 ```
 
 **State 5: 2FA Enabled**
+
 ```
 ┌─ Security ──────────────────────────────────────────────┐
 │                                                         │
@@ -888,6 +906,7 @@ Calls `POST /api/auth/2fa/confirm` with the entered code.
 ```
 
 **Disable 2FA confirmation modal:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Disable Two-Factor Authentication?                     │
@@ -913,11 +932,11 @@ npm install react-qr-code
 import QRCode from 'react-qr-code';
 
 <QRCode
-  value={otpauthUri}  // the full otpauth://totp/... string
+  value={otpauthUri} // the full otpauth://totp/... string
   size={200}
   bgColor="transparent"
   fgColor="currentColor"
-/>
+/>;
 ```
 
 ---
@@ -942,6 +961,7 @@ const plainCodes = Array.from({ length: 10 }, () => {
 ```
 
 Each code is:
+
 - 32 bits of entropy (4 random bytes)
 - Case-insensitive (hex chars only)
 - Hyphen-separated for readability
@@ -951,9 +971,7 @@ Each code is:
 Only the **bcrypt hash** of each code is stored. The plain code is returned to the user once and never stored:
 
 ```typescript
-const hashedCodes = await Promise.all(
-  plainCodes.map(code => bcrypt.hash(code, 10)),
-);
+const hashedCodes = await Promise.all(plainCodes.map((code) => bcrypt.hash(code, 10)));
 // store hashedCodes in TwoFactorBackupCode table
 // return plainCodes to the user (once, never again)
 ```
@@ -961,22 +979,24 @@ const hashedCodes = await Promise.all(
 ### Usage
 
 When a user enters a backup code at the 2FA screen:
+
 1. Load all unused codes (`usedAt = null`) for the user
 2. `bcrypt.compare(entered, hash)` for each — O(n) but n is max 10
 3. On match: `update({ usedAt: new Date() })` — the code is now permanently spent
 
 ### Lifecycle
 
-| Event | Effect on backup codes |
-|---|---|
-| 2FA enabled | 10 codes created |
-| Code used | `usedAt` set — can never be reused |
-| 2FA disabled | All codes deleted |
+| Event             | Effect on backup codes                     |
+| ----------------- | ------------------------------------------ |
+| 2FA enabled       | 10 codes created                           |
+| Code used         | `usedAt` set — can never be reused         |
+| 2FA disabled      | All codes deleted                          |
 | Codes regenerated | All old codes deleted, 10 new ones created |
 
 ### Warning UX
 
 When the user has ≤ 2 unused backup codes remaining, the settings page should display a warning:
+
 ```
 Warning: Only 2 backup codes remaining.
 [Regenerate backup codes]  (requires current TOTP code)
@@ -997,6 +1017,7 @@ Recommended: 5 failed attempts → invalidate the `twoFactorToken` (force user t
 A TOTP code is valid for 90 seconds (window ±1). Without replay prevention, the same code could be submitted twice within that window.
 
 Solution: Track the last successfully used `T` value per user. On successful verification:
+
 ```typescript
 await this.prismaService.user.update({
   where: { id: user.id },
@@ -1113,6 +1134,7 @@ Redirect to /dashboard
 ## 14. Testing Checklist
 
 ### Setup
+
 - [ ] Click "Enable 2FA" → QR code and manual secret appear
 - [ ] Scan QR code with Google Authenticator → app shows 6-digit code
 - [ ] Enter wrong code → error shown, not enabled
@@ -1122,6 +1144,7 @@ Redirect to /dashboard
 - [ ] `TwoFactorBackupCode` table has 10 rows for this user, all hashed
 
 ### Login with 2FA
+
 - [ ] Login with email + password → 2FA screen shown (not redirected to dashboard)
 - [ ] Enter wrong TOTP code → error, can retry
 - [ ] Enter correct TOTP code → redirected to dashboard
@@ -1129,6 +1152,7 @@ Redirect to /dashboard
 - [ ] Same TOTP code cannot be used twice in the same 30-second window (replay prevention)
 
 ### Backup codes
+
 - [ ] At 2FA screen, switch to "backup code" input
 - [ ] Enter a valid backup code → log in successfully
 - [ ] Try the same backup code again → rejected (single-use)
@@ -1136,6 +1160,7 @@ Redirect to /dashboard
 - [ ] All 9 remaining codes still work individually
 
 ### Disable 2FA
+
 - [ ] Click "Disable 2FA" → modal appears asking for current TOTP code
 - [ ] Enter wrong code → rejected
 - [ ] Enter correct code → 2FA disabled
@@ -1144,6 +1169,7 @@ Redirect to /dashboard
 - [ ] All `TwoFactorBackupCode` rows deleted
 
 ### Edge cases
+
 - [ ] User abandons setup midway → can start setup again cleanly
 - [ ] User with no authenticator app uses backup code to log in → works
 - [ ] Google OAuth users can also enable 2FA (they may have no password — only TOTP blocks login)

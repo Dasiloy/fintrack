@@ -38,6 +38,7 @@ import {
   ChangePasswordDto,
   Confirm2faDto,
   Disable2faDto,
+  RegenerateBackupCodesDto,
   ForgotPasswordDto,
   GoogleOAuthDto,
   LoginDto,
@@ -47,6 +48,7 @@ import {
   ResendVerifyEmailDto,
   ResetPasswordDto,
   VerifyEmailChangeDto,
+  DeleteAccountDto,
   VerifyEmailDto,
   VerifyPasswordTokenReqDto,
   VerifyTwoFactorDto,
@@ -672,8 +674,9 @@ export class AuthController {
   // ================================================================
   //. Confirm 2FA setup
   // ================================================================
-  @ApiBearerAuth()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('2fa/confirm')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Confirm 2FA Setup',
     description:
@@ -760,8 +763,9 @@ export class AuthController {
   // ================================================================
   //. Disable 2FA
   // ================================================================
-  @ApiBearerAuth()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Delete('2fa')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Disable 2FA',
     description:
@@ -799,10 +803,44 @@ export class AuthController {
   }
 
   // ================================================================
+  //. Regenerate backup codes
+  // ================================================================
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @Post('2fa/backup-codes/regenerate')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Regenerate Backup Codes',
+    description: 'Regenerate 2FA backup codes. Requires current TOTP code.',
+  })
+  @ApiBody({ description: 'Current 6-digit TOTP code', type: RegenerateBackupCodesDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '10 new backup codes generated',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token or TOTP code',
+  })
+  @HttpCode(HttpStatus.OK)
+  async regenerateBackupCodes(
+    @AccessToken() token: string,
+    @Body() body: RegenerateBackupCodesDto,
+  ): Promise<StandardResponse<ConfirmTwoFactorSetupRes>> {
+    const res = await this.authService.regenerateBackupCodes(token, body);
+    return {
+      success: true,
+      message: 'Backup codes regenerated',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
   //. Change password
   // ================================================================
-  @ApiBearerAuth()
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('change-password')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Change Password',
     description:
@@ -849,8 +887,10 @@ export class AuthController {
   // ================================================================
   //. Initiate email change — send OTP to new address
   // ================================================================
-  @ApiBearerAuth()
+
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('email/initiate')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Initiate Email Change',
     description:
@@ -937,6 +977,48 @@ export class AuthController {
     return {
       success: true,
       message: 'Email changed successfully',
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
+  }
+
+  // ================================================================
+  //. Schedule account for permanent deletion (30-day grace window)
+  // ================================================================
+  @ApiBearerAuth()
+  @Delete('account')
+  @ApiOperation({
+    summary: 'Delete Account',
+    description:
+      'Schedules the authenticated account for permanent deletion. Sessions are revoked immediately. ' +
+      'Hard delete executes after a 30-day grace window. ' +
+      'Password is required for email/password accounts; omit for social-only accounts. ' +
+      'otpCode is required when 2FA is active.',
+  })
+  @ApiBody({ description: 'Optional password and OTP code for ownership verification', type: DeleteAccountDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Account scheduled for deletion — sessions revoked immediately',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Account scheduled for deletion',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid token, password, or TOTP code' })
+  @ApiResponse({ status: HttpStatus.TOO_MANY_REQUESTS, description: 'Too many failed verification attempts' })
+  @HttpCode(HttpStatus.OK)
+  async deleteAccount(
+    @AccessToken() token: string,
+    @Body() body: DeleteAccountDto,
+  ): Promise<StandardResponse<Empty>> {
+    const res = await this.authService.deleteAccount(token, body);
+    return {
+      success: true,
+      message: 'Account scheduled for deletion',
       statusCode: HttpStatus.OK,
       data: res,
     };
