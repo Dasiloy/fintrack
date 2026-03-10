@@ -14,11 +14,11 @@ import {
   PasswordInput,
   toast,
 } from '@ui/components';
-import { useRouter } from 'next/navigation';
+import { useBoolean } from '@ui/hooks';
+import { useRouter } from '@bprogress/next';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
-import { useBoolean } from '@ui/hooks';
 
 const resetPasswordSchema = z
   .object({

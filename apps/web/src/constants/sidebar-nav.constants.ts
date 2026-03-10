@@ -5,7 +5,6 @@ import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import {
   ArrowLeftRight,
   BarChart3,
-  Bell,
   LayoutDashboard,
   MessageCircle,
   Repeat2,
@@ -14,7 +13,6 @@ import {
   SlidersHorizontal,
   Sparkles,
   Target,
-  UserPlus,
   UserRound,
   Users,
   Wallet,
@@ -72,7 +70,6 @@ export const NAV_GROUPS: NavGroup[] = [
 export const ACCOUNT_GROUP: NavGroup = {
   label: 'Account',
   items: [
-    { title: 'Notifications', url: DASHBOARD_ROUTES.NOTIFICATIONS, icon: Bell },
     {
       title: 'Settings',
       icon: Settings2,
@@ -81,7 +78,6 @@ export const ACCOUNT_GROUP: NavGroup = {
         { title: 'Profile', url: DASHBOARD_ROUTES.SETTINGS_PROFILE, icon: UserRound },
         { title: 'Account', url: DASHBOARD_ROUTES.SETTINGS_ACCOUNT, icon: SlidersHorizontal },
         { title: 'Security', url: DASHBOARD_ROUTES.SETTINGS_SECURITY, icon: ShieldCheck },
-        { title: 'Invite Friends', url: DASHBOARD_ROUTES.SETTINGS_INVITE, icon: UserPlus },
       ],
     },
   ],

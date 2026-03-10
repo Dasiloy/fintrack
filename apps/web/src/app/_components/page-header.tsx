@@ -16,6 +16,7 @@ import {
 import { cn } from '@ui/lib/utils/cn';
 import { useNetworkStatus } from '@/hooks/use_network_status';
 import { useScrolled } from '@/hooks/use_scrolled';
+import { NotificationDrawer } from '@/app/_components/notification_drwer';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -114,6 +115,7 @@ export function PageHeader({
 
       {/* Right: offline indicator + actions slot */}
       <div className="flex shrink-0 items-center gap-2">
+        {children}
         {!online && (
           <div
             role="status"
@@ -124,7 +126,7 @@ export function PageHeader({
             <span className="hidden sm:inline">Offline</span>
           </div>
         )}
-        {children}
+        <NotificationDrawer />
       </div>
     </header>
   );

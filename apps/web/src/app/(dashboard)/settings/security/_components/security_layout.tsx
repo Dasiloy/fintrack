@@ -8,6 +8,7 @@ import { PasswordSection } from './password_section';
 import { EmailSection } from './email_section';
 import { SessionsSection } from './sessions_section';
 import { DangerZone } from './danger_zone';
+import { api_client } from '@/lib/trpc_app/api_client';
 
 // ---------------------------------------------------------------------------
 // Nav config
@@ -15,7 +16,14 @@ import { DangerZone } from './danger_zone';
 
 type SectionId = 'two-factor' | 'password' | 'email' | 'sessions' | 'danger';
 
-const NAV_ITEMS: any[] = [
+interface NavItem {
+  id: SectionId;
+  label: string;
+  icon: any;
+  danger?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
   { id: 'two-factor' as const, label: 'Two-Factor Auth', icon: Shield },
   { id: 'password' as const, label: 'Password', icon: KeyRound },
   { id: 'email' as const, label: 'Email', icon: Mail },
@@ -24,15 +32,14 @@ const NAV_ITEMS: any[] = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export function SecurityLayout() {
-  const [active, setActive] = useState<SectionId>('two-factor');
+  const { data } = api_client.auth.get2fa.useQuery();
+  const [active, setActive] = useState<SectionId>(
+    data?.data?.hasPassword ? 'two-factor' : 'password',
+  );
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -40,22 +47,27 @@ export function SecurityLayout() {
       <div className="border-border-subtle shrink-0 border-b px-6 pt-6 lg:px-8">
         {/* Title row */}
         <div className="mb-5">
-          <h1 className="text-text-primary text-xl font-semibold">Security &amp; Account</h1>
+          <h1 className="text-text-primary text-xl font-semibold">Security</h1>
           <p className="text-text-secondary mt-1 text-sm">
             Manage authentication, credentials, and account settings.
           </p>
         </div>
 
         {/* Tab bar — scrollable on mobile */}
-        <nav className="-mb-px flex overflow-x-auto">
-          {NAV_ITEMS.map(({ id, label, icon: Icon, danger }) => {
+        <nav className="no-scrollbar -mb-px flex overflow-x-auto">
+          {NAV_ITEMS.filter((nav) => {
+            if (['email', 'two-factor'].includes(nav.id) && !data?.data?.hasPassword) {
+              return undefined;
+            }
+            return nav;
+          }).map(({ id, label, icon: Icon, danger }) => {
             const isActive = active === id;
             return (
               <button
                 key={id}
                 onClick={() => setActive(id)}
                 className={[
-                  'flex shrink-0 items-center gap-2 border-b-2 px-4 pb-3 text-sm font-medium transition-colors duration-150 focus-visible:outline-none',
+                  'flex shrink-0 cursor-pointer items-center gap-2 border-b-2 px-4 pb-3 text-sm font-medium transition-colors duration-150 focus-visible:outline-none',
                   isActive && danger
                     ? 'border-red-500 text-red-400'
                     : isActive

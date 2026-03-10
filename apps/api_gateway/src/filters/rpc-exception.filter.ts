@@ -34,7 +34,12 @@ export class AppExceptionFilter implements ExceptionFilter {
 
       if (status === 429) {
         (res as any).message =
-          'Too many requests, please try again in afew minuite!';
+          'Too many requests, please try again in a few minuite!';
+      }
+
+      if (status === 500) {
+        (res as any).message =
+          'An error occured from our end, Please try again later!';
       }
 
       return response.status(status).json({
@@ -75,6 +80,9 @@ export class AppExceptionFilter implements ExceptionFilter {
           status = HttpStatus.BAD_REQUEST;
           message = details;
           break;
+        case 4: // DEADLNE_EXCEEDED
+          status = HttpStatus.GATEWAY_TIMEOUT;
+          message = 'Sorry, your request took too long, Please try again';
         case 5: // NOT_FOUND
           status = HttpStatus.NOT_FOUND;
           message = details;
@@ -87,10 +95,17 @@ export class AppExceptionFilter implements ExceptionFilter {
           status = HttpStatus.FORBIDDEN;
           message = details;
           break;
+        case 8: // RESOURCE_EXHAUSTED
+          status = HttpStatus.TOO_MANY_REQUESTS;
+          message = details;
+          break;
         case 9: // FAILED_PRECONDITION
           status = HttpStatus.FORBIDDEN;
           message = details;
           break;
+        case 14: // GATEWAY_UNRESPONSIVE
+          status = HttpStatus.BAD_GATEWAY;
+          message = 'Server is currently down, Please try again';
         case 16: // UNAUTHENTICATED
           status = HttpStatus.UNAUTHORIZED;
           message = details;
@@ -107,7 +122,7 @@ export class AppExceptionFilter implements ExceptionFilter {
 
     // 5. Log unforeseen internal errors
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.error(exception);
+      message = 'An error occured from our end, Please try again later!';
     }
 
     response.status(status).json({
