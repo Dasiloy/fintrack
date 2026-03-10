@@ -34,6 +34,7 @@ import {
   ChangeEmailReq,
   InitiateEmailChangeRes,
   VerifyEmailChangeReq,
+  DeleteAccountReq,
 } from '@fintrack/types/protos/auth/auth';
 
 import { AuthService } from './auth.service';
@@ -117,6 +118,22 @@ export class AuthController implements AuthServiceController {
     request: LoginReq,
   ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
     return this.authService.login(request);
+  }
+
+  /**
+   * @description Complete a 2FA login challenge using a TOTP code or backup code.
+   * Returns full auth tokens on success.
+   *
+   * @public
+   * @param {VerifyTwoFactorReq} request Challenge JWT, TOTP/backup code, and device info
+   * @returns {Promise<LoginRes> | Observable<LoginRes> | LoginRes}
+   * @throws {RpcException} UNAUTHENTICATED if the challenge token or code is invalid
+   */
+  verifyTwoFactor(
+    request: VerifyTwoFactorReq,
+    metadata?: Metadata,
+  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
+    return this.authService.verify2faCodes(request);
   }
 
   /**
@@ -318,22 +335,6 @@ export class AuthController implements AuthServiceController {
   }
 
   /**
-   * @description Complete a 2FA login challenge using a TOTP code or backup code.
-   * Returns full auth tokens on success.
-   *
-   * @public
-   * @param {VerifyTwoFactorReq} request Challenge JWT, TOTP/backup code, and device info
-   * @returns {Promise<LoginRes> | Observable<LoginRes> | LoginRes}
-   * @throws {RpcException} UNAUTHENTICATED if the challenge token or code is invalid
-   */
-  verifyTwoFactor(
-    request: VerifyTwoFactorReq,
-    metadata?: Metadata,
-  ): Promise<LoginRes> | Observable<LoginRes> | LoginRes {
-    return this.authService.verify2faCodes(request);
-  }
-
-  /**
    * @description Change the authenticated user's password.
    * Verifies the current password, updates to the new one, and invalidates all sessions.
    *
@@ -397,5 +398,52 @@ export class AuthController implements AuthServiceController {
   ): Promise<Empty> | Observable<Empty> | Empty {
     const userMeta = (metadata as any).user;
     return this.authService.verifyEmailChange(userMeta.id, request);
+  }
+
+  /**
+   * @description Regenerate backup codes for the authenticated user.
+   * Requires the current TOTP code. Atomically replaces all existing codes.
+   *
+   * @public
+   * @param {ConfirmTwoFactorSetupReq} request Contains the 6-digit TOTP code
+   * @param {Metadata} metadata Contains the access token
+   * @returns {Promise<ConfirmTwoFactorSetupRes>} 10 new plain backup codes
+   * @throws {RpcException} FAILED_PRECONDITION if 2FA is not enabled
+   * @throws {RpcException} UNAUTHENTICATED if the TOTP code is invalid
+   */
+  @TokenMeta('access_token')
+  @UseGuards(TokenGuard)
+  regenerateBackupCodes(
+    request: ConfirmTwoFactorSetupReq,
+    metadata?: Metadata,
+  ):
+    | Promise<ConfirmTwoFactorSetupRes>
+    | Observable<ConfirmTwoFactorSetupRes>
+    | ConfirmTwoFactorSetupRes {
+    const userMeta = (metadata as any).user;
+    return this.authService.regenerateBackupCodes(userMeta.id, request);
+  }
+
+  /**
+   * @description Schedule the authenticated user's account for permanent deletion.
+   * Sessions are revoked immediately. Hard delete executes after a 30-day grace window.
+   * Requires password verification (skipped for social-only accounts).
+   * When 2FA is enabled, `otpCode` is required.
+   *
+   * @public
+   * @param {DeleteAccountReq} request Optional password and OTP code
+   * @param {Metadata} metadata Contains the access token
+   * @returns {Promise<Empty> | Observable<Empty> | Empty}
+   * @throws {RpcException} UNAUTHENTICATED if the password or TOTP code is invalid
+   * @throws {RpcException} RESOURCE_EXHAUSTED if too many failed verification attempts
+   */
+  @TokenMeta('access_token')
+  @UseGuards(TokenGuard)
+  deleteAccount(
+    request: DeleteAccountReq,
+    metadata?: Metadata,
+  ): Promise<Empty> | Observable<Empty> | Empty {
+    const userMeta = (metadata as any).user;
+    return this.authService.deleteAccount(userMeta.id, request);
   }
 }

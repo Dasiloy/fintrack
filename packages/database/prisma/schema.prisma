@@ -39,6 +39,10 @@ model User {
   subscription    Subscription?
   usageTrackers   UsageTracker[]
   backupCodes     BackupCodes[]
+  loginActivity   LoginActivity[]
+
+  // account deletion
+  scheduledDeletionAt DateTime?
 
   // time stamps
   createdAt DateTime @default(now())
@@ -81,7 +85,7 @@ model Session {
   sessionToken String    @unique
   userId       String
   expires      DateTime
-  deviceId     String    @default(cuid())
+  deviceId     String
   userAgent    String?
   ipAddress    String?
   location     String?
@@ -92,6 +96,33 @@ model Session {
   createdAt DateTime @default(now())
 
   @@unique([userId, deviceId])
+}
+
+enum LoginActivityType {
+PASSWORD
+MFA
+}
+
+enum LoginActivityStatus {
+  FALED
+  SUCCESS
+}
+
+model LoginActivity {
+  id            String                      @id @default(cuid())
+  type          LoginActivityType
+  status        LoginActivityStatus
+  deviceId      String
+  userAgent     String?
+  ipAddress     String?
+  location      String?
+
+  // foreign relationships
+  userId String
+  user   User  @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  // time stamps
+  createdAt DateTime @default(now())
 }
 
 enum VerificationIdentifier {
@@ -175,4 +206,14 @@ model BackupCodes {
   user      User    @relation(fields: [userId], references: [id],onDelete: Cascade)
 
  createdAt  DateTime     @default(now())
+}
+
+
+model ActivityLogs {
+  id         String         @id @default(cuid())
+  // track transactyions and crud operations
+  // track budget and crud operations
+  // track biiklings and subscriptions an crud and crons
+  // track gaols and splist
+
 }

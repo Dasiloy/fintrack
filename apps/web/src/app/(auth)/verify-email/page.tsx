@@ -1,12 +1,14 @@
-import { auth } from '@/lib/nextauth';
-import { redirect } from 'next/navigation';
-import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { VerifyEmailForm } from '@/app/(auth)/verify-email/form';
+import AuthLayout from '@/app/layouts/auth_layout';
 
 export default async function VerifyEmailPage() {
-  // const session = await auth();
-
-  // if (!session?.error) redirect(DASHBOARD_ROUTES.DASHBOARD);
-
-  return <VerifyEmailForm />;
+  return (
+    <AuthLayout
+      title="Verify Email"
+      description="Enter the OTP code sent to your email"
+      withFooter={false}
+    >
+      <VerifyEmailForm />
+    </AuthLayout>
+  );
 }

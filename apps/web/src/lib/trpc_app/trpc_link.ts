@@ -6,10 +6,12 @@ import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
 
 /**
- * tRPC link that catches UNAUTHORIZED (401) errors, calls the refresh route,
- * then retries the operation once. On failed refresh, redirects to login.
- * After refresh the cookie is updated, so getSession() in the headers function
- * of httpBatchStreamLink will return the new access token on retry.
+ * tRPC link that catches UNAUTHORIZED (401) errors caused specifically by an
+ * *expired* access token (identified by the `TOKEN_EXPIRED` message set by
+ * the API gateway guard), calls the refresh route, then retries once.
+ *
+ * Any other 401 — wrong credentials, invalid token, auth failures — is passed
+ * through immediately without triggering a refresh, avoiding redundant calls.
  */
 export const authRetryLink =
   (): TRPCLink<AppRouter> =>
@@ -23,12 +25,14 @@ export const authRetryLink =
         currentSub = next(op).subscribe({
           next: observer.next.bind(observer),
           error: async (err) => {
-            if (
+            const isExpiredToken =
               !cancelled &&
               !retried &&
               err instanceof TRPCClientError &&
-              err.data?.httpStatus === 401
-            ) {
+              err.data?.httpStatus === 401 &&
+              err.message === 'TOKEN_EXPIRED';
+
+            if (isExpiredToken) {
               const res = await fetch('/api/proxy-auth/refresh', { method: 'POST' });
               if (!res.ok) {
                 if (typeof window !== 'undefined') {

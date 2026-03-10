@@ -1,17 +1,23 @@
 import * as Joi from 'joi';
 
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { BullModule } from '@nestjs/bullmq';
+import { BullModule, InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import { DatabaseModule } from '@fintrack/database/nest';
-import { TOKEN_NOTIFICATION_QUEUE } from '@fintrack/types/constants/queus.constants';
+import {
+  TOKEN_NOTIFICATION_QUEUE,
+  ACCOUNT_CLEANUP_QUEUE,
+  PURGE_SCHEDULED_DELETIONS_JOB,
+} from '@fintrack/types/constants/queus.constants';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { CleanupProcessor } from './cleanup/cleanup.processor';
 
 @Module({
   imports: [
@@ -66,17 +72,30 @@ import { AuthService } from './auth.service';
         };
       },
     }),
-    BullModule.registerQueue({
-      name: TOKEN_NOTIFICATION_QUEUE,
-    }),
+    BullModule.registerQueue({ name: TOKEN_NOTIFICATION_QUEUE }),
+    BullModule.registerQueue({ name: ACCOUNT_CLEANUP_QUEUE }),
   ],
   controllers: [AuthController],
   providers: [
     AuthService,
+    CleanupProcessor,
     {
       provide: APP_INTERCEPTOR,
       useClass: GrpcLoggingInterceptor,
     },
   ],
 })
-export class AuthModule {}
+export class AuthModule implements OnModuleInit {
+  constructor(
+    @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
+  ) {}
+
+  async onModuleInit(): Promise<void> {
+    // Schedule the daily purge job (idempotent — BullMQ deduplicates by pattern)
+    await this.cleanupQueue.add(
+      PURGE_SCHEDULED_DELETIONS_JOB,
+      {},
+      { repeat: { pattern: '0 3 * * *' } }, // runs daily at 03:00 UTC
+    );
+  }
+}

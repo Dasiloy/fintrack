@@ -21,6 +21,8 @@ service AuthService {
     rpc ChangePassword(ChangePasswordReq) returns (Empty) {}
     rpc InitiateEmailChange(ChangeEmailReq) returns (InitiateEmailChangeRes) {}
     rpc VerifyEmailChange(VerifyEmailChangeReq) returns (Empty) {}
+    rpc RegenerateBackupCodes(ConfirmTwoFactorSetupReq) returns (ConfirmTwoFactorSetupRes) {}
+    rpc DeleteAccount(DeleteAccountReq) returns (Empty) {}
 }
 
 // ------- REUSABLE EMPTY INTERFACE ---------- //
@@ -87,6 +89,8 @@ message LoginRes {
     User user= 1;
     string access_token= 2;
     string refresh_token= 3;
+    optional bool requires_two_factor = 4;
+    optional string two_factor_token  = 5;
 }
 
 message ForgotPasswordReq {
@@ -166,13 +170,15 @@ message VerifyTwoFactorReq {
 }
 
 message ChangePasswordReq {
-  string current_password = 1; // current password — verifies ownership before change
-  string new_password     = 2;
+  optional string current_password = 1; // omitted when user has no password yet (social users)
+  string new_password               = 2;
+  optional string otp_code          = 3; // required when user has 2FA enabled — enforced server-side
 }
 
 message ChangeEmailReq {
   string new_email        = 1; // the new email address to change to
   string current_password = 2; // current password — verifies ownership before change
+  optional string otp_code = 3; // required when user has 2FA enabled — enforced server-side
 }
 
 message InitiateEmailChangeRes {
@@ -181,4 +187,9 @@ message InitiateEmailChangeRes {
 
 message VerifyEmailChangeReq {
   string otp = 1; // 6-digit code sent to the new email address
+}
+
+message DeleteAccountReq {
+  optional string password = 1; // omit for social-only users (no password set)
+  optional string otp_code = 2; // required when 2FA is enabled — enforced server-side
 }

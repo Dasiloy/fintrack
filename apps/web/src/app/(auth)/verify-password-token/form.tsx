@@ -15,7 +15,7 @@ import {
 } from '@ui/components';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@bprogress/next';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { useCountdown, CountdownDisplay } from '@/app/_components';
