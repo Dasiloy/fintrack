@@ -1,12 +1,14 @@
-import { redirect } from 'next/navigation';
-
-import { auth } from '@/lib/nextauth';
-import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import ForgotPasswordForm from '@/app/(auth)/forgot-password/form';
+import AuthLayout from '@/app/layouts/auth_layout';
 
 export default async function ForgotPasswordPage() {
-  // const session = await auth();
-  // if (!session?.error) redirect(DASHBOARD_ROUTES.DASHBOARD);
-
-  return <ForgotPasswordForm />;
+  return (
+    <AuthLayout
+      title="Forgot Password"
+      description="Enter your email to receive an OTP code to reset your password"
+      withFooter={false}
+    >
+      <ForgotPasswordForm />
+    </AuthLayout>
+  );
 }

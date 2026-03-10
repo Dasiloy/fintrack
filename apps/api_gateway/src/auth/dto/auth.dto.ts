@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsOptional,
   IsString,
   IsStrongPassword,
   Length,
@@ -8,7 +9,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import {
   ForgotPasswordReq,
@@ -201,14 +202,15 @@ export class GoogleOAuthDto {
 }
 
 export class ChangePasswordDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'string',
-    description: 'Current account password',
+    description: 'Current account password — omitted when creating a password for the first time (social users)',
     example: '&45367tDewgbck',
   })
+  @IsOptional()
   @IsString()
   @MinLength(8)
-  currentPassword: string;
+  currentPassword?: string;
 
   @ApiProperty({
     type: 'string',
@@ -222,6 +224,16 @@ export class ChangePasswordDto {
     minUppercase: 1,
   })
   newPassword: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    description: '6-digit TOTP code — required when the account has 2FA enabled',
+    example: '123456',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(6, 6)
+  otpCode?: string;
 }
 
 export class ChangeEmailDto {
@@ -242,6 +254,16 @@ export class ChangeEmailDto {
   @IsString()
   @MinLength(8)
   currentPassword: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    description: '6-digit TOTP code — required when 2FA is enabled on the account',
+    example: '123456',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(6, 6)
+  otpCode?: string;
 }
 
 export class VerifyEmailChangeDto {
@@ -293,4 +315,37 @@ export class VerifyTwoFactorDto {
   @IsString()
   @MinLength(6)
   code: string;
+}
+
+export class RegenerateBackupCodesDto {
+  @ApiProperty({
+    type: 'string',
+    description: 'Current 6-digit TOTP code',
+    example: '123456',
+  })
+  @IsString()
+  @Length(6, 6)
+  code: string;
+}
+
+export class DeleteAccountDto {
+  @ApiPropertyOptional({
+    type: 'string',
+    description: 'Current account password — required for email/password accounts; omit for social-only accounts',
+    example: 'MyP@ssw0rd!',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  password?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    description: '6-digit TOTP code from the authenticator app — required when 2FA is active',
+    example: '123456',
+  })
+  @IsOptional()
+  @IsString()
+  @Length(6, 6)
+  otpCode?: string;
 }

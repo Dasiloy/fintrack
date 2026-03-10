@@ -4,7 +4,11 @@ import { SecurityLayout } from './_components/security_layout';
 import { api_server, HydrateClient } from '@/lib/trpc_app/api_server';
 
 export default async function SecuritySettingsPage() {
-  await api_server.auth.get2fa.prefetch();
+  await Promise.all([
+    api_server.auth.get2fa.prefetch(),
+    api_server.auth.getSessions.prefetch(),
+    api_server.auth.getLoginActivity.prefetch(),
+  ]);
 
   return (
     <HydrateClient>

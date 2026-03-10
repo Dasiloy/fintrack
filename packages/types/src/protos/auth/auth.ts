@@ -71,6 +71,8 @@ export interface LoginRes {
   user: User | undefined;
   accessToken: string;
   refreshToken: string;
+  requiresTwoFactor?: boolean | undefined;
+  twoFactorToken?: string | undefined;
 }
 
 export interface ForgotPasswordReq {
@@ -157,9 +159,11 @@ export interface VerifyTwoFactorReq {
 }
 
 export interface ChangePasswordReq {
-  /** current password — verifies ownership before change */
-  currentPassword: string;
+  /** omitted when user has no password yet (social users) */
+  currentPassword?: string | undefined;
   newPassword: string;
+  /** required when user has 2FA enabled — enforced server-side */
+  otpCode?: string | undefined;
 }
 
 export interface ChangeEmailReq {
@@ -167,6 +171,8 @@ export interface ChangeEmailReq {
   newEmail: string;
   /** current password — verifies ownership before change */
   currentPassword: string;
+  /** required when user has 2FA enabled — enforced server-side */
+  otpCode?: string | undefined;
 }
 
 export interface InitiateEmailChangeRes {
@@ -177,6 +183,15 @@ export interface InitiateEmailChangeRes {
 export interface VerifyEmailChangeReq {
   /** 6-digit code sent to the new email address */
   otp: string;
+}
+
+export interface DeleteAccountReq {
+  /** omit for social-only users (no password set) */
+  password?:
+    | string
+    | undefined;
+  /** required when 2FA is enabled — enforced server-side */
+  otpCode?: string | undefined;
 }
 
 export const AUTH_PACKAGE_NAME = "auth";
@@ -223,6 +238,10 @@ export interface AuthServiceClient {
   initiateEmailChange(request: ChangeEmailReq, metadata?: Metadata): Observable<InitiateEmailChangeRes>;
 
   verifyEmailChange(request: VerifyEmailChangeReq, metadata?: Metadata): Observable<Empty>;
+
+  regenerateBackupCodes(request: ConfirmTwoFactorSetupReq, metadata?: Metadata): Observable<ConfirmTwoFactorSetupRes>;
+
+  deleteAccount(request: DeleteAccountReq, metadata?: Metadata): Observable<Empty>;
 }
 
 export interface AuthServiceController {
@@ -297,6 +316,13 @@ export interface AuthServiceController {
   ): Promise<InitiateEmailChangeRes> | Observable<InitiateEmailChangeRes> | InitiateEmailChangeRes;
 
   verifyEmailChange(request: VerifyEmailChangeReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  regenerateBackupCodes(
+    request: ConfirmTwoFactorSetupReq,
+    metadata?: Metadata,
+  ): Promise<ConfirmTwoFactorSetupRes> | Observable<ConfirmTwoFactorSetupRes> | ConfirmTwoFactorSetupRes;
+
+  deleteAccount(request: DeleteAccountReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function AuthServiceControllerMethods() {
@@ -320,6 +346,8 @@ export function AuthServiceControllerMethods() {
       "changePassword",
       "initiateEmailChange",
       "verifyEmailChange",
+      "regenerateBackupCodes",
+      "deleteAccount",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -9,8 +9,18 @@ dayjs.extend(relativeTime);
  * @param {Date} date
  * @returns {number} mionuites from now to date
  */
-export const getTimeFromNowInMinutes = (date: Date) => {
+export const getTimeFromNowInMinutes = (date: Date): number => {
   return dayjs(date).diff(dayjs(), 'minute');
+};
+
+/**
+ * @description Get elapsed time differemce between a specific date and now
+ *
+ * @param {Date} date
+ * @returns {string} returns the diff as a formated string
+ */
+export const getTimeFromNow = (date: Date) => {
+  return dayjs(date).fromNow();
 };
 
 /**

@@ -28,14 +28,14 @@ export class ApiGuard implements CanActivate {
     }
 
     // Validate token via AuthService (calls auth_service microservice)
-    const user = await this.authService.validateToken(token);
+    const result = await this.authService.validateToken(token);
 
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized');
+    if (!result) {
+      throw new UnauthorizedException('TOKEN_EXPIRED');
     }
 
     // Attach user to request object for use in controllers
-    request.user = user;
+    request.user = result;
 
     return true;
   }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@bprogress/next';
 
 import { AUTH_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 

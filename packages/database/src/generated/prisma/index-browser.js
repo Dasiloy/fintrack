@@ -135,6 +135,7 @@ exports.Prisma.UserScalarFieldEnum = {
   twoFactorEnabled: 'twoFactorEnabled',
   twoFactorSecret: 'twoFactorSecret',
   twoFactorLastUsedAt: 'twoFactorLastUsedAt',
+  scheduledDeletionAt: 'scheduledDeletionAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -162,6 +163,18 @@ exports.Prisma.SessionScalarFieldEnum = {
   ipAddress: 'ipAddress',
   location: 'location',
   lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LoginActivityScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  deviceId: 'deviceId',
+  userAgent: 'userAgent',
+  ipAddress: 'ipAddress',
+  location: 'location',
+  userId: 'userId',
   createdAt: 'createdAt'
 };
 
@@ -209,6 +222,10 @@ exports.Prisma.BackupCodesScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ActivityLogsScalarFieldEnum = {
+  id: 'id'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -234,6 +251,16 @@ exports.AccountProvider = exports.$Enums.AccountProvider = {
   GITHUB: 'GITHUB',
   APPLE: 'APPLE',
   LOCAL: 'LOCAL'
+};
+
+exports.LoginActivityType = exports.$Enums.LoginActivityType = {
+  PASSWORD: 'PASSWORD',
+  MFA: 'MFA'
+};
+
+exports.LoginActivityStatus = exports.$Enums.LoginActivityStatus = {
+  FALED: 'FALED',
+  SUCCESS: 'SUCCESS'
 };
 
 exports.VerificationIdentifier = exports.$Enums.VerificationIdentifier = {
@@ -266,10 +293,12 @@ exports.Prisma.ModelName = {
   User: 'User',
   Account: 'Account',
   Session: 'Session',
+  LoginActivity: 'LoginActivity',
   VerificationToken: 'VerificationToken',
   Subscription: 'Subscription',
   UsageTracker: 'UsageTracker',
-  BackupCodes: 'BackupCodes'
+  BackupCodes: 'BackupCodes',
+  ActivityLogs: 'ActivityLogs'
 };
 
 /**

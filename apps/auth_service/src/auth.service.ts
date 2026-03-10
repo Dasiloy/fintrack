@@ -35,7 +35,6 @@ import {
   ResendVerifyEmailTokenRes,
   ResetPasswordReq,
   Empty,
-  ValidateTokenRes,
   VerifyEmailReq,
   VerifyEmailRes,
   VerifyPasswordTokenReq,
@@ -49,6 +48,7 @@ import {
   ChangeEmailReq,
   InitiateEmailChangeRes,
   VerifyEmailChangeReq,
+  DeleteAccountReq,
 } from '@fintrack/types/protos/auth/auth';
 import {
   EMAIL_VERIFICATION_JOB,
@@ -58,8 +58,12 @@ import {
   PASSWORD_CHANGE_JOB,
   EMAIL_CHANGE_JOB,
   EMAIL_CHANGED_JOB,
+  ACCOUNT_CLEANUP_QUEUE,
+  CANCEL_STRIPE_SUBSCRIPTION_JOB,
+  ACCOUNT_DELETION_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
+import dayjs from '@fintrack/utils/date';
 import { getPeriodRange, getTimeFromNowInMinutes } from '@fintrack/utils/date';
 import {
   DeviceInfo,
@@ -87,6 +91,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE) private readonly tokenQueue: Queue,
+    @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
   ) {}
 
   /**
@@ -106,11 +111,21 @@ export class AuthService {
             where: { email: data.email },
             select: {
               id: true,
+              scheduledDeletionAt: true,
               accounts: { select: { provider: true } },
             },
           });
 
           if (existingUser) {
+            // Pending-deletion account — use a generic message so the registrant
+            // never learns the original account is scheduled for deletion.
+            if (existingUser.scheduledDeletionAt) {
+              throw new RpcException({
+                code: status.ALREADY_EXISTS,
+                message: 'An account with this email already exists.',
+              });
+            }
+
             const hasSocialAccount = existingUser.accounts.some(
               (acc) => acc.provider !== 'LOCAL',
             );
@@ -125,18 +140,13 @@ export class AuthService {
           // Hash only after confirming no duplicate — bcrypt is expensive
           const hashedPassword = this.hashPassword(data.password);
 
+          // Two-step: create user first so we know the ID, then create the LOCAL
+          // account using that ID as providerAccountId (stable across email changes)
           const user = await tx.user.create({
             data: {
               ...data,
               password: hashedPassword,
               loginAttempts: 0,
-              accounts: {
-                create: {
-                  type: 'CREDENTIALS',
-                  provider: 'LOCAL',
-                  providerAccountId: data.email,
-                },
-              },
             },
             select: {
               id: true,
@@ -144,6 +154,15 @@ export class AuthService {
               avatar: true,
               firstName: true,
               lastName: true,
+            },
+          });
+
+          await tx.account.create({
+            data: {
+              userId: user.id,
+              type: 'CREDENTIALS',
+              provider: 'LOCAL',
+              providerAccountId: user.id,
             },
           });
 
@@ -483,80 +502,104 @@ export class AuthService {
    */
   async login(data: LoginReq): Promise<LoginRes> {
     try {
-      const result = await this.prismaService.$transaction(
-        async (tx) => {
-          const user = await tx.user.findUnique({
-            where: { email: data.email },
-          });
-          if (!user) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Invalid Email/Password',
-            });
-          }
+      // ── Step 1: Load user ────────────────────────────────────────────────────
+      // All checks run outside a transaction so that any writes (e.g. the
+      // loginAttempts increment) commit immediately and are not rolled back
+      // when we throw a RpcException.
+      const user = await this.prismaService.user.findUnique({
+        where: { email: data.email },
+      });
 
-          const maxAttempts = this.configService.get<number>(
-            'MAX_LOGIN_ATTEMPTS',
-            3,
-          );
-
-          if (user.loginAttempts >= maxAttempts) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message:
-                'You have attempted too many incorrect logins, Please reset your password',
-            });
-          }
-
-          if (!this.comparedPassword(data.password, user)) {
-            await tx.user.update({
-              where: { email: user.email },
-              data: { loginAttempts: { increment: 1 } },
-            });
-
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Invalid Email/Password',
-            });
-          }
-
-          if (!user.emailVerified) {
-            throw new RpcException({
-              code: status.FAILED_PRECONDITION,
-              message:
-                'Email not verified. Please verify your email to continue.',
-            });
-          }
-
-          if (user.twoFactorEnabled) {
-            const twoFactorToken = this.generate2faToken(user);
-
-            await tx.user.update({
-              where: { email: user.email },
-              data: {
-                twoFactorAttempts: 0,
-              },
-            });
-
-            return {
-              requiresTwoFactor: true,
-              twoFactorToken,
-            } as unknown as LoginRes;
-          }
-
-          return { user };
-        },
-        {
-          isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
-        },
-      );
-
-      // 2FA required — return the challenge response without creating a session
-      if (!result.user) {
-        return result as unknown as LoginRes;
+      if (!user) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid Email/Password',
+        });
       }
 
-      return this.completeLogin(result.user as User, {
+      // ── Deletion guard — treat pending-deletion accounts as non-existent ─────
+      if (user.scheduledDeletionAt) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid Email/Password.',
+        });
+      }
+
+      // ── Step 2: Rate-limit ───────────────────────────────────────────────────
+      const maxAttempts = this.configService.get<number>(
+        'MAX_LOGIN_ATTEMPTS',
+        3,
+      );
+
+      if (
+        user.loginAttempts >= maxAttempts ||
+        user.twoFactorAttempts >= maxAttempts
+      ) {
+        throw new RpcException({
+          code: status.RESOURCE_EXHAUSTED,
+          message:
+            'Too many failed login attempts. Reset your password to regain access.',
+        });
+      }
+
+      // ── Step 3: Password check ───────────────────────────────────────────────
+      if (!this.comparedPassword(data.password, user)) {
+        // Increment OUTSIDE any transaction so the counter always persists
+        const failedUser = await this.prismaService.user.update({
+          where: { email: user.email },
+          data: { loginAttempts: { increment: 1 } },
+        });
+
+        this.recordLoginActivity(user.id, 'PASSWORD', 'FALED', {
+          deviceId: data.deviceId,
+          userAgent: data.userAgent,
+          ipAddress: data.ipAddress,
+          location: data.location,
+        });
+
+        const hasMaxedOut = failedUser.loginAttempts >= maxAttempts;
+
+        throw new RpcException({
+          code: hasMaxedOut
+            ? status.RESOURCE_EXHAUSTED
+            : status.UNAUTHENTICATED,
+          message: hasMaxedOut
+            ? 'Too many failed login attempts. Reset your password to regain access.'
+            : 'Invalid Email/Password',
+        });
+      }
+
+      // ── Step 4: Email verification ───────────────────────────────────────────
+      if (!user.emailVerified) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'Email not verified. Please verify your email to continue.',
+        });
+      }
+
+      // ── Step 5: 2FA challenge ────────────────────────────────────────────────
+      if (user.twoFactorEnabled) {
+        const twoFactorToken = this.generate2faToken(user);
+
+        await this.prismaService.user.update({
+          where: { email: user.email },
+          data: { twoFactorAttempts: 0 },
+        });
+
+        return {
+          requiresTwoFactor: true,
+          twoFactorToken,
+        } as unknown as LoginRes;
+      }
+
+      this.recordLoginActivity(user.id, 'PASSWORD', 'SUCCESS', {
+        deviceId: data.deviceId,
+        userAgent: data.userAgent,
+        ipAddress: data.ipAddress,
+        location: data.location,
+      });
+
+      return this.completeLogin(user as User, {
         deviceId: data.deviceId,
         userAgent: data.userAgent,
         ipAddress: data.ipAddress,
@@ -568,6 +611,98 @@ export class AuthService {
       throw new RpcException({
         code: status.INTERNAL,
         message: 'Login Failed!, Please try again later',
+      });
+    }
+  }
+
+  /**
+   * @description Completes a 2FA login challenge.
+   * Validates the short-lived 2FA JWT, then accepts either a current TOTP code
+   * or an unused backup code. On success marks the backup code as used (if
+   * applicable) and calls completeLogin to issue real auth tokens.
+   *
+   * @async
+   * @public
+   * @param {VerifyTwoFactorReq} data - twoFactorToken (challenge JWT), code (TOTP or backup), and device info
+   * @returns {Promise<LoginRes>} base user info plus access and refresh tokens
+   * @throws {RpcException} UNAUTHENTICATED if the challenge token is invalid or expired
+   * @throws {RpcException} FAILED_PRECONDITION if 2FA is not active on the account
+   * @throws {RpcException} INVALID_ARGUMENT if neither TOTP nor any backup code matches
+   * @throws {RpcException} INTERNAL on unexpected failure
+   */
+  async verify2faCodes(data: VerifyTwoFactorReq): Promise<LoginRes> {
+    try {
+      // Step 1: Validate the challenge JWT
+      const id = this.verify2faToken(data.twoFactorToken);
+
+      // Step 2: Load the user
+      const user = await this.prismaService.user.findUniqueOrThrow({
+        where: { id },
+      });
+
+      // Step 3: Try TOTP verification first (validate2fa handles replay prevention)
+      let totpValid = false;
+      try {
+        await this.validate2fa(user, data.code);
+        totpValid = true;
+      } catch {
+        // TOTP failed — fall through to backup code check below
+      }
+
+      // Step 4: Backup code fallback (only when TOTP did not pass)
+      if (!totpValid) {
+        const unusedBackupCodes = await this.prismaService.backupCodes.findMany(
+          { where: { userId: user.id, usedAt: null } },
+        );
+
+        const matchResults = await Promise.all(
+          unusedBackupCodes.map(async (bc) => ({
+            id: bc.id,
+            valid: await bcrypt.compare(data.code, bc.code),
+          })),
+        );
+        const matched = matchResults.find((r) => r.valid);
+
+        if (!matched) {
+          this.recordLoginActivity(user.id, 'MFA', 'FALED', {
+            deviceId: data.deviceId,
+            userAgent: data.userAgent,
+            ipAddress: data.ipAddress,
+            location: data.location,
+          });
+          throw new RpcException({
+            code: status.INVALID_ARGUMENT,
+            message: 'Invalid authentication code',
+          });
+        }
+
+        // Mark backup code as used (single-use — can never be reused)
+        await this.prismaService.backupCodes.update({
+          where: { id: matched.id },
+          data: { usedAt: new Date() },
+        });
+      }
+
+      // Step 5: 2FA passed — complete the login (create session, issue real tokens)
+      this.recordLoginActivity(user.id, 'MFA', 'SUCCESS', {
+        deviceId: data.deviceId,
+        userAgent: data.userAgent,
+        ipAddress: data.ipAddress,
+        location: data.location,
+      });
+
+      return this.completeLogin(user, {
+        deviceId: data.deviceId,
+        userAgent: data.userAgent,
+        ipAddress: data.ipAddress,
+        location: data.location,
+      });
+    } catch (error) {
+      this.logger.error('Verify2fa error in AuthService', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Unathorized',
       });
     }
   }
@@ -962,6 +1097,8 @@ export class AuthService {
             },
             data: {
               password: hashedNewPassword,
+              loginAttempts: 0,
+              twoFactorAttempts: 0,
             },
           });
 
@@ -1097,6 +1234,19 @@ export class AuthService {
 
       const result = await this.prismaService.$transaction(
         async (tx) => {
+          // Guard: prevent a pending-deletion account from being re-activated via
+          // Google OAuth upsert. The upsert would silently undelete it otherwise.
+          const existingUser = await tx.user.findUnique({
+            where: { email: googleEmail },
+            select: { scheduledDeletionAt: true },
+          });
+          if (existingUser?.scheduledDeletionAt) {
+            throw new RpcException({
+              code: status.UNAUTHENTICATED,
+              message: 'Invalid credentials.',
+            });
+          }
+
           const user = await tx.user.upsert({
             where: { email: googleEmail },
             create: {
@@ -1191,6 +1341,13 @@ export class AuthService {
           lastName: result.user.lastName,
         });
       }
+
+      this.recordLoginActivity(result.user.id, 'PASSWORD', 'SUCCESS', {
+        deviceId: data.deviceId,
+        userAgent: data.userAgent,
+        ipAddress: data.ipAddress,
+        location: data.location,
+      });
 
       const tokens = this.generateAuthTokens(
         result.user as User,
@@ -1306,6 +1463,17 @@ export class AuthService {
       // get the user
       const user = await this.validateUser(userId);
 
+      // Belt-and-suspenders: confirm2fa requires a LOCAL account (password must exist)
+      const localAccount = await this.prismaService.account.findFirst({
+        where: { userId, provider: 'LOCAL' },
+      });
+      if (!localAccount) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'A password is required to enable 2FA',
+        });
+      }
+
       // no secret? =>  throw error
       if (!user.twoFactorSecret) {
         throw new RpcException({
@@ -1316,7 +1484,6 @@ export class AuthService {
 
       // decrypt the secret here
       const secret = this.decrypt(user.twoFactorSecret);
-      console.log('secret', secret);
 
       const verify = await this.otp.verify({
         secret,
@@ -1392,33 +1559,41 @@ export class AuthService {
         });
       }
 
-      // Step 2: Try TOTP verification
-      const secret = this.decrypt(user.twoFactorSecret);
-
-      const verify = await this.otp.verify({
-        secret,
-        token: data.code,
-        epochTolerance: 30,
-      });
-
-      if (!verify.valid) {
-        throw new RpcException({
-          code: status.UNAUTHENTICATED,
-          message: 'Unathorized',
-        });
+      // Step 2: Rate limit — block further attempts if threshold exceeded
+      const maxOtpAttempts = this.configService.get<number>(
+        'MAX_LOGIN_ATTEMPTS',
+        3,
+      );
+      if (user.twoFactorAttempts >= maxOtpAttempts) {
+        this.forceSessionReset(user.id);
       }
 
-      // Step 3: atomically disable 2FA and wipe all secrets and backup codes
+      // Step 3: Verify TOTP + replay prevention
+      try {
+        await this.validate2fa(user, data.code);
+      } catch (error) {
+        const failedUser = await this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: { increment: 1 } },
+        });
+        if (failedUser.twoFactorAttempts > maxOtpAttempts) {
+          this.forceSessionReset(user.id);
+        }
+        throw error;
+      }
+
+      // Step 4: atomically disable 2FA and wipe all secrets, backup codes, and attempt counter
       await this.prismaService.$transaction([
         this.prismaService.user.update({
           where: { id: user.id },
           data: {
             twoFactorEnabled: false,
             twoFactorSecret: null,
+            twoFactorAttempts: 0,
           },
         }),
         this.prismaService.backupCodes.deleteMany({
-          where: { userId: user.id },
+          where: { user: { id: user.id } },
         }),
       ]);
     } catch (error) {
@@ -1432,113 +1607,82 @@ export class AuthService {
   }
 
   /**
-   * @description Completes a 2FA login challenge.
-   * Validates the short-lived 2FA JWT, then accepts either a current TOTP code
-   * or an unused backup code. On success marks the backup code as used (if
-   * applicable) and calls completeLogin to issue real auth tokens.
+   * @description Regenerates backup codes for a user with 2FA enabled.
+   * Requires current TOTP code for authorisation. Atomically deletes the
+   * old codes and creates 10 fresh ones so there is no window with zero valid codes.
    *
    * @async
    * @public
-   * @param {VerifyTwoFactorReq} data - twoFactorToken (challenge JWT), code (TOTP or backup), and device info
-   * @returns {Promise<LoginRes>} base user info plus access and refresh tokens
-   * @throws {RpcException} UNAUTHENTICATED if the challenge token is invalid or expired
-   * @throws {RpcException} FAILED_PRECONDITION if 2FA is not active on the account
-   * @throws {RpcException} INVALID_ARGUMENT if neither TOTP nor any backup code matches
+   * @param {string} userId - ID of the authenticated user
+   * @param {ConfirmTwoFactorSetupReq} data - contains the 6-digit TOTP code
+   * @returns {Promise<ConfirmTwoFactorSetupRes>} The 10 new plain backup codes (shown once)
+   * @throws {RpcException} FAILED_PRECONDITION if 2FA is not enabled
+   * @throws {RpcException} UNAUTHENTICATED if TOTP verification fails
    * @throws {RpcException} INTERNAL on unexpected failure
    */
-  async verify2faCodes(data: VerifyTwoFactorReq): Promise<LoginRes> {
+  async regenerateBackupCodes(
+    userId: string,
+    data: ConfirmTwoFactorSetupReq,
+  ): Promise<ConfirmTwoFactorSetupRes> {
     try {
-      // Step 1: Validate the challenge JWT
-      const id = this.verify2faToken(data.twoFactorToken);
-
-      // Step 2: Load the user
-      const user = await this.prismaService.user.findUniqueOrThrow({
-        where: { id },
-      });
+      const user = await this.validateUser(userId);
 
       if (!user.twoFactorSecret || !user.twoFactorEnabled) {
         throw new RpcException({
           code: status.FAILED_PRECONDITION,
-          message: 'Unuthorized',
+          message: '2FA is not enabled',
         });
       }
 
-      // Step 3: Try TOTP verification first
-      const secret = this.decrypt(user.twoFactorSecret);
+      const maxOtpAttempts = this.configService.get<number>(
+        'MAX_LOGIN_ATTEMPTS',
+        3,
+      );
+      if (user.twoFactorAttempts >= maxOtpAttempts) {
+        this.forceSessionReset(user.id);
+      }
 
-      const verify = await this.otp.verify({
-        secret,
-        token: data.code,
-        epochTolerance: 30,
-      });
-
-      if (verify.valid) {
-        // Replay prevention: each 30-second time window may only be consumed once.
-        // T = floor(unix_ms / 30_000). If T_now === T_last the user (or an attacker)
-        // is replaying a code that was already accepted in this window.
-        const T_now = Math.floor(Date.now() / 30_000);
-        if (user.twoFactorLastUsedAt) {
-          const T_last = Math.floor(
-            user.twoFactorLastUsedAt.getTime() / 30_000,
-          );
-          if (T_now === T_last) {
-            throw new RpcException({
-              code: status.INVALID_ARGUMENT,
-              message: 'Invalid authentication code',
-            });
-          }
-        }
-
-        // Consume this time window so the same code cannot be replayed
-        await this.prismaService.user.update({
-          where: { id: user.id },
-          data: { twoFactorLastUsedAt: new Date() },
+      try {
+        await this.validate2fa(user as User, data.code);
+      } catch (error) {
+        const failedUser = await this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: { increment: 1 } },
         });
-      } else {
-        // Step 4: Try backup codes as fallback
-        const unusedBackupCodes = await this.prismaService.backupCodes.findMany(
-          {
-            where: { userId: user.id, usedAt: null },
-          },
-        );
+        if (failedUser.twoFactorAttempts > maxOtpAttempts) {
+          this.forceSessionReset(user.id);
+        }
+        throw error;
+      }
 
-        // Compare the entered code against each hashed backup code
-        const matchResults = await Promise.all(
-          unusedBackupCodes.map(async (bc) => ({
-            id: bc.id,
-            valid: await bcrypt.compare(data.code, bc.code),
+      const plainCodes = Array.from({ length: 10 }, () =>
+        this.generateBackupCode(),
+      );
+      const hashedCodes = await Promise.all(
+        plainCodes.map((code) => bcrypt.hash(code, 5)),
+      );
+
+      await this.prismaService.$transaction([
+        this.prismaService.backupCodes.deleteMany({ where: { userId } }),
+        this.prismaService.backupCodes.createMany({
+          data: hashedCodes.map((codeHash: string) => ({
+            userId,
+            code: codeHash,
           })),
-        );
-        const matched = matchResults.find((r) => r.valid);
+        }),
+        this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: 0 },
+        }),
+      ]);
 
-        if (!matched) {
-          // Neither TOTP nor backup code matched
-          throw new RpcException({
-            code: status.INVALID_ARGUMENT,
-            message: 'Invalid authentication code',
-          });
-        }
-
-        // Mark backup code as used (single-use — can never be reused)
-        await this.prismaService.backupCodes.update({
-          where: { id: matched.id },
-          data: { usedAt: new Date() },
-        });
-      }
-
-      // Step 5: 2FA passed — complete the login (create session, issue real tokens)
-      return this.completeLogin(user, {
-        deviceId: data.deviceId,
-        userAgent: data.userAgent,
-        ipAddress: data.ipAddress,
-        location: data.location,
-      });
+      return { backupCodes: plainCodes };
     } catch (error) {
-      this.logger.error('Verify2fa error in AuthService', error);
+      this.logger.error('RegenerateBackupCodes error in AuthService', error);
       if (error instanceof RpcException) throw error;
       throw new RpcException({
         code: status.INTERNAL,
-        message: 'Unathorized',
+        message: 'An error occurred',
       });
     }
   }
@@ -1565,52 +1709,162 @@ export class AuthService {
       // Hash before the transaction to keep the critical section short
       const hashedNewPassword = this.hashPassword(data.newPassword);
 
-      const result = await this.prismaService.$transaction(
-        async (tx) => {
-          const user = await tx.user.findUnique({ where: { id: userId } });
+      // ─── Phase 1: OTP pre-validation ────────────────────────────────────────
+      if (data.otpCode !== undefined) {
+        const user = await this.prismaService.user.findUnique({
+          where: { id: userId },
+        });
 
-          if (!user) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Unauthorized!',
-            });
-          }
+        if (!user) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid credentials',
+          });
+        }
 
-          if (!this.comparedPassword(data.currentPassword, user)) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Current password is incorrect',
-            });
-          }
+        // Rate limit — block further attempts if threshold exceeded
+        const maxOtpAttempts = this.configService.get<number>(
+          'MAX_LOGIN_ATTEMPTS',
+          3,
+        );
+        if (user.twoFactorAttempts >= maxOtpAttempts) {
+          this.forceSessionReset(user.id);
+        }
 
-          if (this.comparedPassword(data.newPassword, user)) {
-            throw new RpcException({
-              code: status.ALREADY_EXISTS,
-              message: 'New password cannot be the same as current password',
-            });
-          }
-
-          await tx.user.update({
-            where: { id: user.id },
-            data: { password: hashedNewPassword },
+        // validate2fa handles: decrypt → verify → replay check → consume window
+        try {
+          await this.validate2fa(user, data.otpCode);
+        } catch (error) {
+          const failedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { twoFactorAttempts: { increment: 1 } },
           });
 
-          await this.dropSession(tx, user.id);
+          const hasMaxedOut = failedUser.twoFactorAttempts >= maxOtpAttempts;
+          if (hasMaxedOut) {
+            this.forceSessionReset(user.id);
+          }
+          throw error;
+        }
 
-          return {
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          };
-        },
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-      );
+        // Reset attempt counter on successful verification
+        await this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: 0 },
+        });
+      }
 
-      // ==> After successful commit: notify user
+      // ─── Phase 2: Pre-checks (outside tx so writes survive a throw) ─────────
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid credentials',
+        });
+      }
+
+      // Guard: if 2FA is enabled the OTP phase above must have run
+      if (user.twoFactorEnabled && data.otpCode === undefined) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid credentials',
+        });
+      }
+
+      const isCreatingPassword = !user.password;
+
+      if (isCreatingPassword) {
+        // Social user with no password yet — skip current-password verification
+      } else {
+        // ── Existing-password path: verify current password ───────────────────
+        if (!data.currentPassword) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid credentials',
+          });
+        }
+
+        // Rate limit on current-password failures (reuses the login counter)
+        const maxLoginAttempts = this.configService.get<number>(
+          'MAX_LOGIN_ATTEMPTS',
+          3,
+        );
+        if (user.loginAttempts >= maxLoginAttempts) {
+          this.forceSessionReset(user.id);
+        }
+
+        if (!this.comparedPassword(data.currentPassword, user)) {
+          const failedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { loginAttempts: { increment: 1 } },
+          });
+
+          const hasMaxedOut = failedUser.loginAttempts >= maxLoginAttempts;
+          if (hasMaxedOut) {
+            this.forceSessionReset(user.id);
+          }
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid credentials',
+          });
+        }
+
+        // Guard: prevent change if new === current
+        if (this.comparedPassword(data.newPassword, user)) {
+          throw new RpcException({
+            code: status.ALREADY_EXISTS,
+            message: 'New password cannot be the same as current password',
+          });
+        }
+      }
+
+      // ─── Phase 3: Commit ─────────────────────────────────────────────────────
+      if (isCreatingPassword) {
+        // Create path: set password + upsert LOCAL account; sessions remain active
+        await this.prismaService.$transaction([
+          this.prismaService.user.update({
+            where: { id: user.id },
+            data: { password: hashedNewPassword },
+          }),
+          this.prismaService.account.upsert({
+            where: {
+              provider_providerAccountId: {
+                provider: 'LOCAL',
+                providerAccountId: userId,
+              },
+            },
+            create: {
+              userId,
+              provider: 'LOCAL',
+              type: 'CREDENTIALS',
+              providerAccountId: userId,
+            },
+            update: {},
+          }),
+        ]);
+      } else {
+        // Change path: update password + drop all sessions
+        await this.prismaService.$transaction(
+          async (tx) => {
+            await tx.user.update({
+              where: { id: user.id },
+              data: { password: hashedNewPassword, loginAttempts: 0 },
+            });
+
+            await this.dropSession(tx, user.id);
+          },
+          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        );
+      }
+
+      // After successful commit: notify user
       this.tokenQueue.add(PASSWORD_CHANGE_JOB, {
-        email: result.email,
-        firstName: result.firstName,
-        lastName: result.lastName,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
       });
 
       return null as any;
@@ -1644,6 +1898,88 @@ export class AuthService {
     data: ChangeEmailReq,
   ): Promise<InitiateEmailChangeRes> {
     try {
+      // Pre-flight: load user for password + 2FA checks (outside transaction
+      // because validate2fa needs to write attempt counter updates)
+      const preUser = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+      if (!preUser) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'email Chnage is not available!',
+        });
+      }
+
+      // ensure that only users with local account only can change their email,
+      // once a user has logged in with a socila ccount they cant chnage their email
+      const hasSocial = await this.prismaService.account.findFirst({
+        where: { userId: preUser.id, NOT: { provider: 'LOCAL' } },
+      });
+
+      if (hasSocial) {
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'email Chnage is not available!',
+        });
+      }
+
+      // Rate limit on password failures (same counter as login)
+      const maxLoginAttempts = this.configService.get<number>(
+        'MAX_LOGIN_ATTEMPTS',
+        3,
+      );
+      if (preUser.loginAttempts >= maxLoginAttempts) {
+        this.forceSessionReset(preUser.id);
+      }
+
+      if (!this.comparedPassword(data.currentPassword, preUser)) {
+        const failedUser = await this.prismaService.user.update({
+          where: { id: userId },
+          data: { loginAttempts: { increment: 1 } },
+        });
+        const hasMaxedOut = failedUser.loginAttempts >= maxLoginAttempts;
+        if (hasMaxedOut) {
+          this.forceSessionReset(preUser.id);
+        }
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Current password is incorrect',
+        });
+      }
+
+      // 2FA enforcement — same pattern as changePassword
+      if (preUser.twoFactorEnabled) {
+        if (!data.otpCode) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'TOTP code required',
+          });
+        }
+        const maxOtpAttempts = this.configService.get<number>(
+          'MAX_LOGIN_ATTEMPTS',
+          3,
+        );
+        if (preUser.twoFactorAttempts >= maxOtpAttempts) {
+          this.forceSessionReset(preUser.id);
+        }
+        try {
+          await this.validate2fa(preUser, data.otpCode);
+        } catch (error) {
+          const failedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { twoFactorAttempts: { increment: 1 } },
+          });
+          if (failedUser.twoFactorAttempts > maxOtpAttempts) {
+            this.forceSessionReset(preUser.id);
+          }
+          throw error;
+        }
+        await this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: 0 },
+        });
+      }
+
       const result = await this.prismaService.$transaction(
         async (tx) => {
           const user = await tx.user.findUnique({ where: { id: userId } });
@@ -1652,13 +1988,6 @@ export class AuthService {
             throw new RpcException({
               code: status.UNAUTHENTICATED,
               message: 'Unauthorized!',
-            });
-          }
-
-          if (!this.comparedPassword(data.currentPassword, user)) {
-            throw new RpcException({
-              code: status.UNAUTHENTICATED,
-              message: 'Current password is incorrect',
             });
           }
 
@@ -1671,6 +2000,12 @@ export class AuthService {
               message: 'Email already in use',
             });
           }
+
+          // Clear password-attempt counter on successful verification
+          await tx.user.update({
+            where: { id: userId },
+            data: { loginAttempts: 0 },
+          });
 
           // Remove any previous pending request for this user
           await tx.verificationToken.deleteMany({
@@ -1825,6 +2160,170 @@ export class AuthService {
   }
 
   /**
+   * @description Schedule the authenticated user's account for permanent deletion.
+   *
+   * Immediately revokes all active sessions (locks the user out), then sets
+   * `scheduledDeletionAt` to 30 days from now. A daily cron job performs the
+   * actual hard delete after that window expires.
+   *
+   * Ownership is verified via password (skipped for social-only accounts that
+   * have no password). When 2FA is enabled `otpCode` is required.
+   *
+   * Queues a Stripe subscription cancellation job (stub — wired end-to-end,
+   * actual SDK call deferred) and an account-deletion confirmation email.
+   *
+   * @async
+   * @public
+   * @param {string} userId ID of the authenticated user requesting deletion
+   * @param {DeleteAccountReq} data Optional password and OTP code for verification
+   * @returns {Promise<Empty>}
+   * @throws {RpcException} UNAUTHENTICATED if the password or TOTP code is wrong
+   * @throws {RpcException} RESOURCE_EXHAUSTED if too many failed verification attempts
+   */
+  async deleteAccount(userId: string, data: DeleteAccountReq): Promise<Empty> {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid credentials',
+        });
+      }
+
+      // ── OTP pre-validation (when 2FA is enabled) ──────────────────────────
+      if (data.otpCode !== undefined) {
+        const maxOtpAttempts = this.configService.get<number>(
+          'MAX_LOGIN_ATTEMPTS',
+          3,
+        );
+        if (user.twoFactorAttempts >= maxOtpAttempts) {
+          this.forceSessionReset(user.id);
+        }
+
+        try {
+          await this.validate2fa(user, data.otpCode);
+        } catch (error) {
+          const failedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { twoFactorAttempts: { increment: 1 } },
+          });
+          if (failedUser.twoFactorAttempts >= maxOtpAttempts) {
+            this.forceSessionReset(user.id);
+          }
+          throw error;
+        }
+
+        await this.prismaService.user.update({
+          where: { id: userId },
+          data: { twoFactorAttempts: 0 },
+        });
+      }
+
+      // ── Password verification (for accounts that have a password) ─────────
+      if (user.password) {
+        if (!data.password) {
+          throw new RpcException({
+            code: status.UNAUTHENTICATED,
+            message: 'Invalid credentials',
+          });
+        }
+
+        const maxLoginAttempts = this.configService.get<number>(
+          'MAX_LOGIN_ATTEMPTS',
+          3,
+        );
+        if (user.loginAttempts >= maxLoginAttempts) {
+          this.forceSessionReset(user.id);
+        }
+
+        if (!this.comparedPassword(data.password, user)) {
+          const failedUser = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { loginAttempts: { increment: 1 } },
+          });
+
+          const hasMaxedOut = failedUser.loginAttempts >= maxLoginAttempts;
+          if (hasMaxedOut) this.forceSessionReset(user.id);
+
+          throw new RpcException({
+            code: hasMaxedOut
+              ? status.RESOURCE_EXHAUSTED
+              : status.UNAUTHENTICATED,
+            message: hasMaxedOut
+              ? 'Too many failed attempts. Reset your password to regain access.'
+              : 'Invalid credentials',
+          });
+        }
+      }
+
+      // ── Guard: 2FA enabled but no OTP provided ────────────────────────────
+      if (user.twoFactorEnabled && data.otpCode === undefined) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid credentials',
+        });
+      }
+
+      // ── Fetch active Stripe subscription for async cancellation ───────────
+      const subscription = await this.prismaService.subscription.findUnique({
+        where: { userId },
+        select: { stripeSubscriptionId: true, status: true },
+      });
+
+      // ── Atomic: schedule deletion + revoke all sessions ───────────────────
+      const scheduledDeletionAt = dayjs().add(30, 'day').toDate();
+
+      await this.prismaService.$transaction([
+        this.prismaService.user.update({
+          where: { id: userId },
+          data: { scheduledDeletionAt },
+        }),
+        this.prismaService.session.deleteMany({
+          where: { user: { id: user.id } },
+        }),
+      ]);
+
+      // ── Fire-and-forget: cancel Stripe subscription (stub) ────────────────
+      if (
+        subscription?.stripeSubscriptionId &&
+        subscription.status === 'ACTIVE'
+      ) {
+        void this.cleanupQueue
+          .add(CANCEL_STRIPE_SUBSCRIPTION_JOB, {
+            stripeSubscriptionId: subscription.stripeSubscriptionId,
+          })
+          .catch((err) =>
+            this.logger.error('Failed to queue Stripe cancellation:', err),
+          );
+      }
+
+      // ── Fire-and-forget: deletion confirmation email ───────────────────────
+      void this.tokenQueue
+        .add(ACCOUNT_DELETION_EMAIL_JOB, {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+        })
+        .catch((err) =>
+          this.logger.error('Failed to queue deletion email:', err),
+        );
+
+      return {};
+    } catch (error) {
+      this.logger.error('DeleteAccount error in AuthService:', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred. Please try again later.',
+      });
+    }
+  }
+
+  /**
    * @description Complete login after credentials/2FA have been verified.
    * Updates login metadata, creates a session, and returns auth tokens.
    *
@@ -1904,9 +2403,11 @@ export class AuthService {
   private verify2faToken(token: string): string {
     let payload: { id: string; type: string };
     try {
-      payload = this.jwtService.verify(token, {
+      const tokenPayload = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_2FA_SECRET'),
       });
+
+      payload = tokenPayload.payload;
 
       if (payload.type !== '2fa_token') {
         throw new Error('Invalid Token');
@@ -2069,7 +2570,33 @@ export class AuthService {
     userId: string,
   ): Promise<any> {
     await tx.session.deleteMany({
-      where: { userId },
+      where: { user: { id: userId } },
+    });
+  }
+
+  /**
+   * @description Deletes all active sessions for a user.
+   * Called when suspected user account compromise.
+   * Called when login attempts maxes out
+   * Called when 2fa attempts maxes out
+   *
+   *
+   * @async
+   * @private
+   * @param {string} userId - ID of the user whose sessions should be dropped
+   * @returns {Promise<number>} Number of user sessiuons removed
+   */
+  private async forceSessionReset(userId: string): Promise<void> {
+    const res = await this.prismaService.session.deleteMany({
+      where: { user: { id: userId } },
+    });
+    this.logger.debug(
+      `Session Reset: Removed ${res.count} sessions for ${userId}`,
+    );
+    throw new RpcException({
+      code: status.RESOURCE_EXHAUSTED,
+      message:
+        'Too many failed attempts. Reset your password to regain access.',
     });
   }
 
@@ -2159,6 +2686,34 @@ export class AuthService {
    * @param {User} user trying to login
    * @returns {boolean} Password match indication
    */
+  private recordLoginActivity(
+    userId: string,
+    type: 'PASSWORD' | 'MFA',
+    activityStatus: 'SUCCESS' | 'FALED',
+    deviceInfo: {
+      deviceId: string;
+      userAgent?: string;
+      ipAddress?: string;
+      location?: string;
+    },
+  ): void {
+    void this.prismaService.loginActivity
+      .create({
+        data: {
+          userId,
+          type,
+          status: activityStatus,
+          deviceId: deviceInfo.deviceId,
+          userAgent: deviceInfo.userAgent,
+          ipAddress: deviceInfo.ipAddress,
+          location: deviceInfo.location,
+        },
+      })
+      .catch((err) =>
+        this.logger.error('Failed to record login activity:', err),
+      );
+  }
+
   private comparedPassword(password: string, user: User): boolean {
     if (!user.password) {
       this.logger.warn(
@@ -2210,6 +2765,60 @@ export class AuthService {
       this.logger.error(`Error comparing otp code:`, error);
       return false;
     }
+  }
+
+  /**
+   * @description Validates a TOTP code against the user's 2FA secret and enforces
+   * replay prevention. Safe to call from any flow that requires 2FA verification.
+   *
+   * Replay prevention: divides the current Unix timestamp by 30 000 ms to get the
+   * active TOTP window bucket. If that bucket matches `twoFactorLastUsedAt`, the
+   * code was already consumed in this window and is rejected. On success the window
+   * is stamped so subsequent calls within the same 30-second period are blocked.
+   *
+   * NOTE: Rate limiting (twoFactorAttempts) is intentionally left to callers —
+   * different operations have different thresholds and reset strategies.
+   *
+   * @param user - Fully loaded User record (must include twoFactorSecret/LastUsedAt)
+   * @param token - The 6-digit TOTP code supplied by the client
+   * @throws {RpcException} FAILED_PRECONDITION  if 2FA is not enabled on the account
+   * @throws {RpcException} UNAUTHENTICATED      if the code is invalid or replayed
+   */
+  private async validate2fa(user: User, token: string): Promise<void> {
+    if (!user.twoFactorEnabled || !user.twoFactorSecret) {
+      throw new RpcException({
+        code: status.FAILED_PRECONDITION,
+        message: 'Two-factor authentication is not enabled on this account',
+      });
+    }
+
+    const secret = this.decrypt(user.twoFactorSecret);
+    const result = await this.otp.verify({ secret, token, epochTolerance: 30 });
+
+    if (!result.valid) {
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Invalid credentials',
+      });
+    }
+
+    // Replay prevention: each 30-second window may only be consumed once
+    const T_now = Math.floor(Date.now() / 30_000);
+    if (user.twoFactorLastUsedAt) {
+      const T_last = Math.floor(user.twoFactorLastUsedAt.getTime() / 30_000);
+      if (T_now === T_last) {
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Invalid credentials',
+        });
+      }
+    }
+
+    // Consume the window so the same code cannot be replayed
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { twoFactorLastUsedAt: new Date() },
+    });
   }
 
   /**

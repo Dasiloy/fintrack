@@ -1,12 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   ArrowUpRight,
-  Bell,
   ChevronRight,
   ChevronsUpDown,
   CreditCard,
@@ -75,10 +73,12 @@ function NavItemRow({
   isActive: boolean;
   isPro: boolean;
 }) {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
-        <Link href={item.url}>
+        <Link href={item.url} onClick={() => isMobile && setOpenMobile(false)}>
           <item.icon />
           <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
           {item.isPro && !isPro && (
@@ -102,8 +102,58 @@ function NavCollapsibleRow({
   isAnyChildActive: boolean;
   pathname: string;
 }) {
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const [open, setOpen] = React.useState(isAnyChildActive);
+  const isIconMode = state === 'collapsed' && !isMobile;
 
+  // ── Icon-collapsed mode: show a dropdown on click ────────────────────────
+  if (isIconMode) {
+    return (
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton isActive={isAnyChildActive} className="cursor-pointer">
+              <item.icon />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            side="right"
+            align="start"
+            sideOffset={6}
+            className="rounded-card-mobile border-border-subtle bg-bg-surface shadow-card w-44 border p-1"
+          >
+            <p className="text-text-disabled px-2 pb-1 pt-0.5 text-[10px] font-medium tracking-wider uppercase">
+              {item.title}
+            </p>
+            {item.items.map((sub) => {
+              const subActive = pathname === sub.url;
+              return (
+                <DropdownMenuItem key={sub.title} asChild>
+                  <Link
+                    href={sub.url}
+                    className={cn(
+                      'flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors',
+                      subActive
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-text-secondary hover:text-text-primary',
+                    )}
+                  >
+                    <sub.icon className="size-3.5 shrink-0" />
+                    {sub.title}
+                    {subActive && (
+                      <span className="bg-primary ml-auto size-1.5 shrink-0 rounded-full" />
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    );
+  }
+
+  // ── Expanded mode: collapsible inline ────────────────────────────────────
   return (
     <SidebarMenuItem>
       <Collapsible open={open} onOpenChange={setOpen} asChild>
@@ -112,15 +162,13 @@ function NavCollapsibleRow({
             <SidebarMenuButton
               isActive={isAnyChildActive}
               tooltip={item.title}
-              className="group/collapsible justify-start text-left group-data-[collapsible=icon]:justify-center"
+              className="group/collapsible justify-start text-left"
             >
               <item.icon />
-              <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">
-                {item.title}
-              </span>
+              <span className="flex-1 truncate">{item.title}</span>
               <ChevronRight
                 className={cn(
-                  'text-text-disabled duration-smooth ease-smooth ml-auto size-3.5 shrink-0 transition-transform group-data-[collapsible=icon]:hidden',
+                  'text-text-disabled duration-smooth ease-smooth ml-auto size-3.5 shrink-0 transition-transform',
                   open && 'rotate-90',
                 )}
               />
@@ -134,7 +182,10 @@ function NavCollapsibleRow({
                 return (
                   <SidebarMenuSubItem key={sub.title}>
                     <SidebarMenuSubButton asChild isActive={subActive}>
-                      <Link href={sub.url}>
+                      <Link
+                        href={sub.url}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                      >
                         <sub.icon />
                         <span>{sub.title}</span>
                       </Link>
@@ -270,12 +321,6 @@ function NavUser({ user }: { user: SessionUser }) {
               <Link href={STATIC_ROUTES.PRICING} className="gap-space-2 flex items-center">
                 <CreditCard className="text-text-secondary size-4 shrink-0" />
                 <span className="text-body-sm">Billing</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="py-space-1 cursor-pointer">
-              <Link href={DASHBOARD_ROUTES.NOTIFICATIONS} className="gap-space-2 flex items-center">
-                <Bell className="text-text-secondary size-4 shrink-0" />
-                <span className="text-body-sm">Notifications</span>
               </Link>
             </DropdownMenuItem>
 

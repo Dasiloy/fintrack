@@ -1,21 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Check, Copy, Download, ShieldCheck, ShieldOff } from 'lucide-react';
 
-import {
-  Button,
-  Field,
-  FieldGroup,
-  OtpInput,
-  Separator,
-  Skeleton,
-  Text,
-  toast,
-} from '@ui/components';
+import { Button, Field, FieldGroup, OtpInput, Separator, Text, toast } from '@ui/components';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { signOut } from 'next-auth/react';
+import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MAX_OTP_ATTEMPTS = 3;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,7 +26,9 @@ type TwoFactorState =
   | 'setup-confirm'
   | 'setup-backup-codes'
   | 'enabled'
-  | 'disabling';
+  | 'disabling'
+  | 'regenerating'
+  | 'new-backup-codes';
 
 // ---------------------------------------------------------------------------
 // Left visual panel — animated shield that reacts to state
@@ -37,6 +38,7 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
   const isEnabled = state === 'enabled';
   const isSetup = state.startsWith('setup') || state === 'setup-scan' || state === 'setup-confirm';
   const isDisabling = state === 'disabling';
+  const isRegenerating = state === 'regenerating' || state === 'new-backup-codes';
 
   const STEPS = [
     { id: 'setup-scan', label: 'Scan QR code' },
@@ -55,13 +57,21 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
               ? 'bg-success/10 animate-pulse'
               : isSetup
                 ? 'bg-primary/10 animate-pulse'
-                : 'bg-bg-surface-hover'
+                : isRegenerating
+                  ? 'animate-pulse bg-amber-500/10'
+                  : 'bg-bg-surface-hover'
           }`}
         />
         {/* Middle ring */}
         <div
           className={`absolute size-20 rounded-full border transition-all duration-700 ${
-            isEnabled ? 'border-success/30' : isSetup ? 'border-primary/30' : 'border-border-subtle'
+            isEnabled
+              ? 'border-success/30'
+              : isSetup
+                ? 'border-primary/30'
+                : isRegenerating
+                  ? 'border-amber-500/30'
+                  : 'border-border-subtle'
           }`}
         />
         {/* Icon container */}
@@ -71,15 +81,19 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
               ? 'border-success/30 bg-success/10 shadow-[0_0_24px_rgba(34,197,94,0.2)]'
               : isDisabling
                 ? 'border-red-500/30 bg-red-500/10'
-                : isSetup
-                  ? 'border-primary/30 bg-primary/10'
-                  : 'border-border-subtle bg-bg-surface'
+                : isRegenerating
+                  ? 'border-amber-500/30 bg-amber-500/10'
+                  : isSetup
+                    ? 'border-primary/30 bg-primary/10'
+                    : 'border-border-subtle bg-bg-surface'
           }`}
         >
           {isEnabled ? (
             <ShieldCheck className="text-success size-6" />
           ) : isDisabling ? (
             <ShieldOff className="size-6 text-red-400" />
+          ) : isRegenerating ? (
+            <ShieldCheck className="size-6 text-amber-400" />
           ) : (
             <ShieldCheck
               className={`size-6 transition-colors duration-500 ${isSetup ? 'text-primary' : 'text-text-disabled'}`}
@@ -91,22 +105,26 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
       {/* Status label */}
       <div className="text-center">
         <p
-          className={`text-sm font-semibold transition-colors duration-500 ${isEnabled ? 'text-success' : isDisabling ? 'text-red-400' : isSetup ? 'text-primary' : 'text-text-secondary'}`}
+          className={`text-sm font-semibold transition-colors duration-500 ${isEnabled ? 'text-success' : isDisabling ? 'text-red-400' : isRegenerating ? 'text-amber-400' : isSetup ? 'text-primary' : 'text-text-secondary'}`}
         >
           {isEnabled
             ? 'Account Protected'
             : isDisabling
               ? 'Removing protection'
-              : isSetup
-                ? 'Setting up 2FA'
-                : 'Not Protected'}
+              : isRegenerating
+                ? 'Regenerating codes'
+                : isSetup
+                  ? 'Setting up 2FA'
+                  : 'Not Protected'}
         </p>
         <p className="text-text-disabled mt-0.5 text-xs">
           {isEnabled
             ? 'Two-factor authentication is active'
-            : isSetup
-              ? '3-step setup process'
-              : 'Your account uses only a password'}
+            : isRegenerating
+              ? 'Replacing your backup codes'
+              : isSetup
+                ? '3-step setup process'
+                : 'Your account uses only a password'}
         </p>
       </div>
 
@@ -393,9 +411,11 @@ function BackupCodesStep({ codes, onDone }: { codes: string[]; onDone: () => voi
 function EnabledState({
   backupCodesRemaining,
   onDisable,
+  onRegenerate,
 }: {
   backupCodesRemaining: number;
   onDisable: () => void;
+  onRegenerate: () => void;
 }) {
   return (
     <TwoFactorShell state="enabled">
@@ -429,10 +449,17 @@ function EnabledState({
           )}
         </div>
 
-        <Button variant="destructive" size="sm" onClick={onDisable} className="w-fit">
-          <ShieldOff className="size-3.5" />
-          Disable 2FA
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {backupCodesRemaining <= 2 && (
+            <Button variant="secondary" size="sm" onClick={onRegenerate} className="w-fit">
+              Regenerate backup codes
+            </Button>
+          )}
+          <Button variant="destructive" size="sm" onClick={onDisable} className="w-fit">
+            <ShieldOff className="size-3.5" />
+            Disable 2FA
+          </Button>
+        </div>
       </div>
     </TwoFactorShell>
   );
@@ -442,12 +469,22 @@ function DisablingState({
   onConfirm,
   onCancel,
   isLoading,
+  failedAttempts,
+  isLocked,
 }: {
   onConfirm: (code: string) => void;
   onCancel: () => void;
   isLoading: boolean;
+  failedAttempts: number;
+  isLocked: boolean;
 }) {
   const [otp, setOtp] = useState('');
+  const attemptsLeft = MAX_OTP_ATTEMPTS - failedAttempts;
+
+  // Reset the input after each failed attempt so the user can re-enter a new code
+  useEffect(() => {
+    if (failedAttempts > 0) setOtp('');
+  }, [failedAttempts]);
 
   return (
     <TwoFactorShell state="disabling">
@@ -458,27 +495,131 @@ function DisablingState({
         This will remove 2FA protection and delete all backup codes.
       </p>
 
-      <FieldGroup>
-        <Field orientation="horizontal" className="justify-center">
-          <OtpInput disabled={isLoading} value={otp} onChange={setOtp} onComplete={onConfirm} />
-        </Field>
-        {isLoading && (
-          <Text variant="body-sm" className="text-text-secondary animate-pulse text-center">
-            Disabling 2FA...
-          </Text>
-        )}
-      </FieldGroup>
+      {isLocked ? (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-4">
+          <p className="text-error text-sm font-medium">Too many failed attempts</p>
+          <p className="text-text-secondary mt-1 text-xs">
+            Your session has been ended for security. Please sign in again to continue.
+          </p>
+        </div>
+      ) : (
+        <>
+          <FieldGroup>
+            <Field orientation="horizontal" className="justify-center">
+              <OtpInput
+                key={failedAttempts}
+                disabled={isLoading}
+                value={otp}
+                onChange={setOtp}
+                onComplete={onConfirm}
+              />
+            </Field>
+            {failedAttempts > 0 && (
+              <p className="text-center text-xs text-amber-400">
+                Incorrect code —{' '}
+                <span className="font-medium">
+                  {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining
+                </span>
+              </p>
+            )}
+            {isLoading && (
+              <Text variant="body-sm" className="text-text-secondary animate-pulse text-center">
+                Disabling 2FA...
+              </Text>
+            )}
+          </FieldGroup>
 
-      <div className="mt-8 text-center">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isLoading}
-          className="text-text-disabled hover:text-text-secondary text-xs transition-colors disabled:pointer-events-none"
-        >
-          ← Cancel and keep 2FA enabled
-        </button>
-      </div>
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isLoading}
+              className="text-text-disabled hover:text-text-secondary text-xs transition-colors disabled:pointer-events-none"
+            >
+              ← Cancel and keep 2FA enabled
+            </button>
+          </div>
+        </>
+      )}
+    </TwoFactorShell>
+  );
+}
+
+function RegeneratingState({
+  onConfirm,
+  onCancel,
+  isLoading,
+  failedAttempts,
+  isLocked,
+}: {
+  onConfirm: (code: string) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+  failedAttempts: number;
+  isLocked: boolean;
+}) {
+  const [otp, setOtp] = useState('');
+  const attemptsLeft = MAX_OTP_ATTEMPTS - failedAttempts;
+
+  useEffect(() => {
+    if (failedAttempts > 0) setOtp('');
+  }, [failedAttempts]);
+
+  return (
+    <TwoFactorShell state="regenerating">
+      <p className="text-text-secondary mb-2 text-sm">
+        Enter your current authenticator code to regenerate your backup codes.
+      </p>
+      <p className="text-text-tertiary mb-6 text-xs">
+        All existing backup codes will be replaced with 10 new ones.
+      </p>
+
+      {isLocked ? (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-4">
+          <p className="text-error text-sm font-medium">Too many failed attempts</p>
+          <p className="text-text-secondary mt-1 text-xs">
+            Your session has been ended for security. Please sign in again to continue.
+          </p>
+        </div>
+      ) : (
+        <>
+          <FieldGroup>
+            <Field orientation="horizontal" className="justify-center">
+              <OtpInput
+                key={failedAttempts}
+                disabled={isLoading}
+                value={otp}
+                onChange={setOtp}
+                onComplete={onConfirm}
+              />
+            </Field>
+            {failedAttempts > 0 && (
+              <p className="text-center text-xs text-amber-400">
+                Incorrect code —{' '}
+                <span className="font-medium">
+                  {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining
+                </span>
+              </p>
+            )}
+            {isLoading && (
+              <Text variant="body-sm" className="text-text-secondary animate-pulse text-center">
+                Regenerating codes...
+              </Text>
+            )}
+          </FieldGroup>
+
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isLoading}
+              className="text-text-disabled hover:text-text-secondary text-xs transition-colors disabled:pointer-events-none"
+            >
+              ← Cancel
+            </button>
+          </div>
+        </>
+      )}
     </TwoFactorShell>
   );
 }
@@ -496,6 +637,21 @@ export default function TwoFactorSection() {
     data?.data?.twoFactorEnabled ? 'enabled' : 'disabled',
   );
   const [setupData, setSetupData] = useState<{ secret: string; otpauthUri: string } | null>(null);
+  const [disableAttempts, setDisableAttempts] = useState(0);
+  const [disableLocked, setDisableLocked] = useState(false);
+  const [regenAttempts, setRegenAttempts] = useState(0);
+  const [regenLocked, setRegenLocked] = useState(false);
+
+  const promiseSignout = async () => {
+    new Promise((resolve) => {
+      toast.error('Session ended', {
+        description: 'Too many failed attempts. Please sign in again.',
+      });
+      setTimeout(() => {
+        signOut({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN }).then(resolve);
+      }, 1500);
+    });
+  };
 
   const initiateMutation = api_client.auth.init2fa.useMutation({
     onError(error) {
@@ -522,13 +678,51 @@ export default function TwoFactorSection() {
   });
 
   const disableMutation = api_client.auth.disable2fa.useMutation({
-    onError(error) {
-      toast.error('Could not disable 2FA', { description: ServerFormatter.formatError(error) });
+    async onError(error) {
+      if (error.data?.code === 'TOO_MANY_REQUESTS') {
+        setDisableLocked(true);
+        await promiseSignout();
+      } else {
+        const newAttempts = disableAttempts + 1;
+        setDisableAttempts(newAttempts);
+        if (newAttempts >= MAX_OTP_ATTEMPTS) {
+          setDisableLocked(true);
+          await promiseSignout();
+        } else {
+          toast.error('Could not disable 2FA', { description: ServerFormatter.formatError(error) });
+        }
+      }
     },
     onSuccess() {
       setUiState('disabled');
+      setDisableAttempts(0);
+      setDisableLocked(false);
       utils.auth.get2fa.invalidate();
       toast.success('2FA disabled', { description: '2FA has been removed from your account.' });
+    },
+  });
+
+  const regenMutation = api_client.auth.regenerateBackupCodes.useMutation({
+    async onError(error) {
+      if (error.data?.code === 'TOO_MANY_REQUESTS') {
+        setRegenLocked(true);
+        await promiseSignout();
+      } else {
+        const newAttempts = regenAttempts + 1;
+        setRegenAttempts(newAttempts);
+        if (newAttempts >= MAX_OTP_ATTEMPTS) {
+          setRegenLocked(true);
+          await promiseSignout();
+        } else {
+          toast.error('Invalid code', { description: ServerFormatter.formatError(error) });
+        }
+      }
+    },
+    onSuccess(data) {
+      setBackupCodes(data.data?.backupCodes ?? []);
+      setRegenAttempts(0);
+      setRegenLocked(false);
+      setUiState('new-backup-codes');
     },
   });
 
@@ -571,14 +765,48 @@ export default function TwoFactorSection() {
       <EnabledState
         backupCodesRemaining={data?.data?.codeLeft ?? 0}
         onDisable={() => setUiState('disabling')}
+        onRegenerate={() => setUiState('regenerating')}
       />
     );
   if (uiState === 'disabling')
     return (
       <DisablingState
         onConfirm={(code) => disableMutation.mutate({ code })}
-        onCancel={() => setUiState('enabled')}
+        onCancel={() => {
+          setDisableAttempts(0);
+          setDisableLocked(false);
+          setUiState('enabled');
+        }}
         isLoading={disableMutation.isPending}
+        failedAttempts={disableAttempts}
+        isLocked={disableLocked}
+      />
+    );
+  if (uiState === 'regenerating')
+    return (
+      <RegeneratingState
+        onConfirm={(code) => regenMutation.mutate({ code })}
+        onCancel={() => {
+          setRegenAttempts(0);
+          setRegenLocked(false);
+          setUiState('enabled');
+        }}
+        isLoading={regenMutation.isPending}
+        failedAttempts={regenAttempts}
+        isLocked={regenLocked}
+      />
+    );
+  if (uiState === 'new-backup-codes')
+    return (
+      <BackupCodesStep
+        codes={backupCodes}
+        onDone={() => {
+          utils.auth.get2fa.invalidate();
+          setBackupCodes([]);
+          setRegenAttempts(0);
+          setRegenLocked(false);
+          setUiState('enabled');
+        }}
       />
     );
 

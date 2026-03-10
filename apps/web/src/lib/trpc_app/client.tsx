@@ -8,8 +8,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchStreamLink, loggerLink } from '@trpc/client';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
 
+import Cookies from 'js-cookie';
+
 import { api_client } from '@/lib/trpc_app/api_client';
 import { type AppRouter } from '@fintrack/trpc_app';
+import { env } from '@/env';
 import { createQueryClient } from '@fintrack/react_query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { networkCheckLink, authRetryLink } from '@/lib/trpc_app/trpc_link';
@@ -51,6 +54,11 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             const session = await getSession();
             if (session?.accessToken) {
               headers.set('Authorization', `Bearer ${session.accessToken}`);
+            }
+
+            const deviceId = Cookies.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME);
+            if (deviceId) {
+              headers.set('x-device-id', deviceId);
             }
 
             return headers;

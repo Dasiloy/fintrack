@@ -20,6 +20,15 @@
 }
 
 @layer utilities {
+  /** Hide scrollbar while keeping the element scrollable — use on any overflow-x/y-auto container */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .animate-landing-float {
     animation: landing-float 20s infinite ease-in-out;
     will-change: transform;
