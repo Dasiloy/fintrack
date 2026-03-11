@@ -166,6 +166,12 @@ export class AuthService {
             },
           });
 
+          await tx.notificationSetting.create({
+            data: {
+              userId: user.id,
+            },
+          });
+
           const otp = this.generateToken();
           await tx.verificationToken.create({
             data: {
@@ -1263,7 +1269,7 @@ export class AuthService {
               avatar: googlePicture,
               lastLoginAt: new Date(),
             },
-            include: { accounts: true, subscription: true },
+            include: { accounts: true, subscription: true, setting: true },
           });
 
           const hasGoogleAccount = user.accounts.some(
@@ -1275,6 +1281,15 @@ export class AuthService {
                 provider: 'GOOGLE',
                 type: 'OAUTH',
                 providerAccountId: googleSub,
+                userId: user.id,
+              },
+            });
+          }
+
+          const hasNotificationSettings = !!user.setting;
+          if (!hasNotificationSettings) {
+            await tx.notificationSetting.create({
+              data: {
                 userId: user.id,
               },
             });
