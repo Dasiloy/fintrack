@@ -165,27 +165,35 @@ export const authrouter = createTRPCRouter({
   deleteSession: protectedProcedure
     .input(z.object({ sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const session = await ctx.db.session.findFirst({
-        where: { id: input.sessionId, userId: ctx.session.user.id },
-        select: { id: true, deviceId: true },
-      });
+      try {
+        const session = await ctx.db.session.delete({
+          where: { id: input.sessionId, userId: ctx.session.user.id },
+        });
 
-      if (!session) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Session not found' });
+        if (!session) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Session does not exist',
+          });
+        }
+
+        const currentDeviceId = ctx.headers.get('x-device-id') ?? '';
+        const wasCurrentSession = !!currentDeviceId && session.deviceId === currentDeviceId;
+
+        const data: StandardResponse<{ wasCurrentSession: boolean }> = {
+          message: 'Session revoked successfully',
+          data: { wasCurrentSession },
+          statusCode: 200,
+          success: true,
+        };
+        return data;
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An error occured, Please try again later!',
+        });
       }
-
-      await ctx.db.session.delete({ where: { id: session.id } });
-
-      const currentDeviceId = ctx.headers.get('x-device-id') ?? '';
-      const wasCurrentSession = !!currentDeviceId && session.deviceId === currentDeviceId;
-
-      const data: StandardResponse<{ wasCurrentSession: boolean }> = {
-        message: 'Session revoked successfully',
-        data: { wasCurrentSession },
-        statusCode: 200,
-        success: true,
-      };
-      return data;
     }),
 
   /**
@@ -198,22 +206,30 @@ export const authrouter = createTRPCRouter({
    * @returns `count` — number of sessions deleted
    */
   revokeAllOtherSessions: protectedProcedure.mutation(async ({ ctx }) => {
-    const currentDeviceId = ctx.headers.get('x-device-id') ?? '';
+    try {
+      const currentDeviceId = ctx.headers.get('x-device-id') ?? '';
 
-    const { count } = await ctx.db.session.deleteMany({
-      where: {
-        userId: ctx.session.user.id,
-        ...(currentDeviceId ? { NOT: { deviceId: currentDeviceId } } : {}),
-      },
-    });
+      const { count } = await ctx.db.session.deleteMany({
+        where: {
+          userId: ctx.session.user.id,
+          ...(currentDeviceId ? { NOT: { deviceId: currentDeviceId } } : {}),
+        },
+      });
 
-    const data: StandardResponse<{ count: number }> = {
-      message: `${count} session(s) revoked`,
-      data: { count },
-      statusCode: 200,
-      success: true,
-    };
-    return data;
+      const data: StandardResponse<{ count: number }> = {
+        message: `${count} session(s) revoked`,
+        data: { count },
+        statusCode: 200,
+        success: true,
+      };
+      return data;
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An error occured, Please try again later!',
+      });
+    }
   }),
 
   // ---------------------------------------------------------------------------
