@@ -13,6 +13,233 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Currency {
+  AFN
+  EUR
+  ALL
+  DZD
+  USD
+  AOA
+  XCD
+  ARS
+  AMD
+  AWG
+  AUD
+  AZN
+  BSD
+  BHD
+  BDT
+  BBD
+  BYN
+  BZD
+  XOF
+  BMD
+  INR
+  BTN
+  BOB
+  BOV
+  BAM
+  BWP
+  NOK
+  BRL
+  BND
+  BGN
+  BIF
+  CVE
+  KHR
+  XAF
+  CAD
+  KYD
+  CLP
+  CLF
+  CNY
+  COP
+  COU
+  KMF
+  CDF
+  NZD
+  CRC
+  HRK
+  CUP
+  CUC
+  ANG
+  CZK
+  DKK
+  DJF
+  DOP
+  EGP
+  SVC
+  ERN
+  ETB
+  FKP
+  FJD
+  XPF
+  GMD
+  GEL
+  GHS
+  GIP
+  GTQ
+  GBP
+  GNF
+  GYD
+  HTG
+  HNL
+  HKD
+  HUF
+  ISK
+  IDR
+  XDR
+  IRR
+  IQD
+  ILS
+  JMD
+  JPY
+  JOD
+  KZT
+  KES
+  KPW
+  KRW
+  KWD
+  KGS
+  LAK
+  LBP
+  LSL
+  ZAR
+  LRD
+  LYD
+  CHF
+  MOP
+  MKD
+  MGA
+  MWK
+  MYR
+  MVR
+  MUR
+  XUA
+  MXN
+  MXV
+  MDL
+  MNT
+  MAD
+  MZN
+  MMK
+  NAD
+  NPR
+  NIO
+  NGN
+  OMR
+  PKR
+  PAB
+  PGK
+  PYG
+  PEN
+  PHP
+  PLN
+  QAR
+  RON
+  RUB
+  RWF
+  SHP
+  WST
+  STN
+  SAR
+  RSD
+  SCR
+  SLL
+  SGD
+  XSU
+  SBD
+  SOS
+  SSP
+  LKR
+  SDG
+  SRD
+  SZL
+  SEK
+  CHE
+  CHW
+  SYP
+  TWD
+  TJS
+  TZS
+  THB
+  TOP
+  TTD
+  TND
+  TRY
+  TMT
+  UGX
+  UAH
+  AED
+  USN
+  UYU
+  UYI
+  UYW
+  UZS
+  VUV
+  VES
+  VND
+  XBA
+  XBB
+  XBC
+  XBD
+  XTS
+  XXX
+  XAU
+  XPD
+  XPT
+  XAG
+  ZMW
+  ZWL
+}
+
+model Currencies {
+  id           String    @id @default(cuid())
+  currency     Currency
+  label        String
+
+
+ // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Language {
+  // Core “base” languages
+  EN        // en
+  FR        // fr
+  ES        // es
+  PT        // pt
+
+  // Key English variants
+  EN_US     // en-US
+  EN_GB     // en-GB
+
+  // Important regional languages for NG/Africa
+  HA_LATN_NG  // ha-Latn-NG
+  YO_NG       // yo-NG
+  IG_NG       // ig-NG
+  SW_KE       // sw-KE
+  SW_TZ       // sw-TZ
+}
+
+model Locale {
+   id           String    @id @default(cuid())
+  language     Language
+  label        String
+
+
+ // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DateFormat {
+   DMY
+  MDY
+  YMD
+}
+
 
 model User {
   id              String    @id @default(cuid())
@@ -33,6 +260,14 @@ model User {
   twoFactorLastUsedAt  DateTime?
 
 
+  // preferences
+  currency     Currency   @default(NGN)
+  language     Language   @default(EN_US)
+  timezone     String     @default("Africa/Lagos")
+  dateFormat   DateFormat @default(DMY)
+
+
+
 // reverse relationship
   accounts        Account[]
   sessions        Session[]
@@ -40,6 +275,7 @@ model User {
   usageTrackers   UsageTracker[]
   backupCodes     BackupCodes[]
   loginActivity   LoginActivity[]
+  setting         NotificationSetting?
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -215,5 +451,50 @@ model ActivityLogs {
   // track budget and crud operations
   // track biiklings and subscriptions an crud and crons
   // track gaols and splist
+
+}
+
+model NotificationSetting {
+  id                  String     @id @default(cuid())
+
+  // budget alerts
+  budgetAlertMail     Boolean    @default(true)
+  budgetAlertApp      Boolean    @default(true)
+
+  // reminders
+  billReminderMail    Boolean    @default(true)
+  billReminderApp     Boolean    @default(true)
+
+  // weekly reports
+  weeklyReportMail    Boolean    @default(true)
+  weeklyReportApp     Boolean    @default(true)
+
+ // ai insights
+ aiInsightsMail       Boolean    @default(true)
+ aiInsightsApp        Boolean    @default(true)
+
+
+ // goals
+ goalsAlertMail    Boolean    @default(true)
+ gaolsAlertApp     Boolean    @default(true)
+
+// splits
+splitsAlertMail    Boolean    @default(true)
+splitsAlertApp     Boolean     @default(true)
+
+//news letter
+newsLetterAlert   Boolean      @default(false)
+
+// community updates
+communityAlert    Boolean       @default(false)
+
+// relations
+userId           String       @unique
+user             User          @relation(fields: [userId],references: [id],onDelete:Cascade)
+
+
+  // timestamp
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
 }

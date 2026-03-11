@@ -14,6 +14,16 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
+ * Model Currencies
+ * 
+ */
+export type Currencies = $Result.DefaultSelection<Prisma.$CurrenciesPayload>
+/**
+ * Model Locale
+ * 
+ */
+export type Locale = $Result.DefaultSelection<Prisma.$LocalePayload>
+/**
  * Model User
  * 
  */
@@ -58,12 +68,226 @@ export type BackupCodes = $Result.DefaultSelection<Prisma.$BackupCodesPayload>
  * 
  */
 export type ActivityLogs = $Result.DefaultSelection<Prisma.$ActivityLogsPayload>
+/**
+ * Model NotificationSetting
+ * 
+ */
+export type NotificationSetting = $Result.DefaultSelection<Prisma.$NotificationSettingPayload>
 
 /**
  * Enums
  */
 export namespace $Enums {
-  export const AccountType: {
+  export const Currency: {
+  AFN: 'AFN',
+  EUR: 'EUR',
+  ALL: 'ALL',
+  DZD: 'DZD',
+  USD: 'USD',
+  AOA: 'AOA',
+  XCD: 'XCD',
+  ARS: 'ARS',
+  AMD: 'AMD',
+  AWG: 'AWG',
+  AUD: 'AUD',
+  AZN: 'AZN',
+  BSD: 'BSD',
+  BHD: 'BHD',
+  BDT: 'BDT',
+  BBD: 'BBD',
+  BYN: 'BYN',
+  BZD: 'BZD',
+  XOF: 'XOF',
+  BMD: 'BMD',
+  INR: 'INR',
+  BTN: 'BTN',
+  BOB: 'BOB',
+  BOV: 'BOV',
+  BAM: 'BAM',
+  BWP: 'BWP',
+  NOK: 'NOK',
+  BRL: 'BRL',
+  BND: 'BND',
+  BGN: 'BGN',
+  BIF: 'BIF',
+  CVE: 'CVE',
+  KHR: 'KHR',
+  XAF: 'XAF',
+  CAD: 'CAD',
+  KYD: 'KYD',
+  CLP: 'CLP',
+  CLF: 'CLF',
+  CNY: 'CNY',
+  COP: 'COP',
+  COU: 'COU',
+  KMF: 'KMF',
+  CDF: 'CDF',
+  NZD: 'NZD',
+  CRC: 'CRC',
+  HRK: 'HRK',
+  CUP: 'CUP',
+  CUC: 'CUC',
+  ANG: 'ANG',
+  CZK: 'CZK',
+  DKK: 'DKK',
+  DJF: 'DJF',
+  DOP: 'DOP',
+  EGP: 'EGP',
+  SVC: 'SVC',
+  ERN: 'ERN',
+  ETB: 'ETB',
+  FKP: 'FKP',
+  FJD: 'FJD',
+  XPF: 'XPF',
+  GMD: 'GMD',
+  GEL: 'GEL',
+  GHS: 'GHS',
+  GIP: 'GIP',
+  GTQ: 'GTQ',
+  GBP: 'GBP',
+  GNF: 'GNF',
+  GYD: 'GYD',
+  HTG: 'HTG',
+  HNL: 'HNL',
+  HKD: 'HKD',
+  HUF: 'HUF',
+  ISK: 'ISK',
+  IDR: 'IDR',
+  XDR: 'XDR',
+  IRR: 'IRR',
+  IQD: 'IQD',
+  ILS: 'ILS',
+  JMD: 'JMD',
+  JPY: 'JPY',
+  JOD: 'JOD',
+  KZT: 'KZT',
+  KES: 'KES',
+  KPW: 'KPW',
+  KRW: 'KRW',
+  KWD: 'KWD',
+  KGS: 'KGS',
+  LAK: 'LAK',
+  LBP: 'LBP',
+  LSL: 'LSL',
+  ZAR: 'ZAR',
+  LRD: 'LRD',
+  LYD: 'LYD',
+  CHF: 'CHF',
+  MOP: 'MOP',
+  MKD: 'MKD',
+  MGA: 'MGA',
+  MWK: 'MWK',
+  MYR: 'MYR',
+  MVR: 'MVR',
+  MUR: 'MUR',
+  XUA: 'XUA',
+  MXN: 'MXN',
+  MXV: 'MXV',
+  MDL: 'MDL',
+  MNT: 'MNT',
+  MAD: 'MAD',
+  MZN: 'MZN',
+  MMK: 'MMK',
+  NAD: 'NAD',
+  NPR: 'NPR',
+  NIO: 'NIO',
+  NGN: 'NGN',
+  OMR: 'OMR',
+  PKR: 'PKR',
+  PAB: 'PAB',
+  PGK: 'PGK',
+  PYG: 'PYG',
+  PEN: 'PEN',
+  PHP: 'PHP',
+  PLN: 'PLN',
+  QAR: 'QAR',
+  RON: 'RON',
+  RUB: 'RUB',
+  RWF: 'RWF',
+  SHP: 'SHP',
+  WST: 'WST',
+  STN: 'STN',
+  SAR: 'SAR',
+  RSD: 'RSD',
+  SCR: 'SCR',
+  SLL: 'SLL',
+  SGD: 'SGD',
+  XSU: 'XSU',
+  SBD: 'SBD',
+  SOS: 'SOS',
+  SSP: 'SSP',
+  LKR: 'LKR',
+  SDG: 'SDG',
+  SRD: 'SRD',
+  SZL: 'SZL',
+  SEK: 'SEK',
+  CHE: 'CHE',
+  CHW: 'CHW',
+  SYP: 'SYP',
+  TWD: 'TWD',
+  TJS: 'TJS',
+  TZS: 'TZS',
+  THB: 'THB',
+  TOP: 'TOP',
+  TTD: 'TTD',
+  TND: 'TND',
+  TRY: 'TRY',
+  TMT: 'TMT',
+  UGX: 'UGX',
+  UAH: 'UAH',
+  AED: 'AED',
+  USN: 'USN',
+  UYU: 'UYU',
+  UYI: 'UYI',
+  UYW: 'UYW',
+  UZS: 'UZS',
+  VUV: 'VUV',
+  VES: 'VES',
+  VND: 'VND',
+  XBA: 'XBA',
+  XBB: 'XBB',
+  XBC: 'XBC',
+  XBD: 'XBD',
+  XTS: 'XTS',
+  XXX: 'XXX',
+  XAU: 'XAU',
+  XPD: 'XPD',
+  XPT: 'XPT',
+  XAG: 'XAG',
+  ZMW: 'ZMW',
+  ZWL: 'ZWL'
+};
+
+export type Currency = (typeof Currency)[keyof typeof Currency]
+
+
+export const Language: {
+  EN: 'EN',
+  FR: 'FR',
+  ES: 'ES',
+  PT: 'PT',
+  EN_US: 'EN_US',
+  EN_GB: 'EN_GB',
+  HA_LATN_NG: 'HA_LATN_NG',
+  YO_NG: 'YO_NG',
+  IG_NG: 'IG_NG',
+  SW_KE: 'SW_KE',
+  SW_TZ: 'SW_TZ'
+};
+
+export type Language = (typeof Language)[keyof typeof Language]
+
+
+export const DateFormat: {
+  DMY: 'DMY',
+  MDY: 'MDY',
+  YMD: 'YMD'
+};
+
+export type DateFormat = (typeof DateFormat)[keyof typeof DateFormat]
+
+
+export const AccountType: {
   OAUTH: 'OAUTH',
   OIDC: 'OIDC',
   CREDENTIALS: 'CREDENTIALS'
@@ -137,6 +361,18 @@ export type UsageFeature = (typeof UsageFeature)[keyof typeof UsageFeature]
 
 }
 
+export type Currency = $Enums.Currency
+
+export const Currency: typeof $Enums.Currency
+
+export type Language = $Enums.Language
+
+export const Language: typeof $Enums.Language
+
+export type DateFormat = $Enums.DateFormat
+
+export const DateFormat: typeof $Enums.DateFormat
+
 export type AccountType = $Enums.AccountType
 
 export const AccountType: typeof $Enums.AccountType
@@ -176,8 +412,8 @@ export const UsageFeature: typeof $Enums.UsageFeature
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Currencies
+ * const currencies = await prisma.currencies.findMany()
  * ```
  *
  *
@@ -197,8 +433,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Currencies
+   * const currencies = await prisma.currencies.findMany()
    * ```
    *
    *
@@ -287,6 +523,26 @@ export class PrismaClient<
   }>>
 
       /**
+   * `prisma.currencies`: Exposes CRUD operations for the **Currencies** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Currencies
+    * const currencies = await prisma.currencies.findMany()
+    * ```
+    */
+  get currencies(): Prisma.CurrenciesDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.locale`: Exposes CRUD operations for the **Locale** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Locales
+    * const locales = await prisma.locale.findMany()
+    * ```
+    */
+  get locale(): Prisma.LocaleDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
     * Example usage:
     * ```ts
@@ -375,6 +631,16 @@ export class PrismaClient<
     * ```
     */
   get activityLogs(): Prisma.ActivityLogsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.notificationSetting`: Exposes CRUD operations for the **NotificationSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NotificationSettings
+    * const notificationSettings = await prisma.notificationSetting.findMany()
+    * ```
+    */
+  get notificationSetting(): Prisma.NotificationSettingDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -809,6 +1075,8 @@ export namespace Prisma {
 
 
   export const ModelName: {
+    Currencies: 'Currencies',
+    Locale: 'Locale',
     User: 'User',
     Account: 'Account',
     Session: 'Session',
@@ -817,7 +1085,8 @@ export namespace Prisma {
     Subscription: 'Subscription',
     UsageTracker: 'UsageTracker',
     BackupCodes: 'BackupCodes',
-    ActivityLogs: 'ActivityLogs'
+    ActivityLogs: 'ActivityLogs',
+    NotificationSetting: 'NotificationSetting'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -833,10 +1102,158 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "usageTracker" | "backupCodes" | "activityLogs"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "usageTracker" | "backupCodes" | "activityLogs" | "notificationSetting"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
+      Currencies: {
+        payload: Prisma.$CurrenciesPayload<ExtArgs>
+        fields: Prisma.CurrenciesFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CurrenciesFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CurrenciesFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          findFirst: {
+            args: Prisma.CurrenciesFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CurrenciesFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          findMany: {
+            args: Prisma.CurrenciesFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>[]
+          }
+          create: {
+            args: Prisma.CurrenciesCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          createMany: {
+            args: Prisma.CurrenciesCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CurrenciesCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>[]
+          }
+          delete: {
+            args: Prisma.CurrenciesDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          update: {
+            args: Prisma.CurrenciesUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          deleteMany: {
+            args: Prisma.CurrenciesDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CurrenciesUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CurrenciesUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>[]
+          }
+          upsert: {
+            args: Prisma.CurrenciesUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CurrenciesPayload>
+          }
+          aggregate: {
+            args: Prisma.CurrenciesAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCurrencies>
+          }
+          groupBy: {
+            args: Prisma.CurrenciesGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CurrenciesGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CurrenciesCountArgs<ExtArgs>
+            result: $Utils.Optional<CurrenciesCountAggregateOutputType> | number
+          }
+        }
+      }
+      Locale: {
+        payload: Prisma.$LocalePayload<ExtArgs>
+        fields: Prisma.LocaleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LocaleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LocaleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          findFirst: {
+            args: Prisma.LocaleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LocaleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          findMany: {
+            args: Prisma.LocaleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>[]
+          }
+          create: {
+            args: Prisma.LocaleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          createMany: {
+            args: Prisma.LocaleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LocaleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>[]
+          }
+          delete: {
+            args: Prisma.LocaleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          update: {
+            args: Prisma.LocaleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          deleteMany: {
+            args: Prisma.LocaleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LocaleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LocaleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>[]
+          }
+          upsert: {
+            args: Prisma.LocaleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LocalePayload>
+          }
+          aggregate: {
+            args: Prisma.LocaleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLocale>
+          }
+          groupBy: {
+            args: Prisma.LocaleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LocaleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LocaleCountArgs<ExtArgs>
+            result: $Utils.Optional<LocaleCountAggregateOutputType> | number
+          }
+        }
+      }
       User: {
         payload: Prisma.$UserPayload<ExtArgs>
         fields: Prisma.UserFieldRefs
@@ -1503,6 +1920,80 @@ export namespace Prisma {
           }
         }
       }
+      NotificationSetting: {
+        payload: Prisma.$NotificationSettingPayload<ExtArgs>
+        fields: Prisma.NotificationSettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NotificationSettingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NotificationSettingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          findFirst: {
+            args: Prisma.NotificationSettingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NotificationSettingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          findMany: {
+            args: Prisma.NotificationSettingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>[]
+          }
+          create: {
+            args: Prisma.NotificationSettingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          createMany: {
+            args: Prisma.NotificationSettingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NotificationSettingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>[]
+          }
+          delete: {
+            args: Prisma.NotificationSettingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          update: {
+            args: Prisma.NotificationSettingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.NotificationSettingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NotificationSettingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NotificationSettingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>[]
+          }
+          upsert: {
+            args: Prisma.NotificationSettingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationSettingPayload>
+          }
+          aggregate: {
+            args: Prisma.NotificationSettingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNotificationSetting>
+          }
+          groupBy: {
+            args: Prisma.NotificationSettingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NotificationSettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NotificationSettingCountArgs<ExtArgs>
+            result: $Utils.Optional<NotificationSettingCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1611,6 +2102,8 @@ export namespace Prisma {
     comments?: runtime.SqlCommenterPlugin[]
   }
   export type GlobalOmitConfig = {
+    currencies?: CurrenciesOmit
+    locale?: LocaleOmit
     user?: UserOmit
     account?: AccountOmit
     session?: SessionOmit
@@ -1620,6 +2113,7 @@ export namespace Prisma {
     usageTracker?: UsageTrackerOmit
     backupCodes?: BackupCodesOmit
     activityLogs?: ActivityLogsOmit
+    notificationSetting?: NotificationSettingOmit
   }
 
   /* Types for Logging */
@@ -1767,6 +2261,1996 @@ export namespace Prisma {
    */
 
   /**
+   * Model Currencies
+   */
+
+  export type AggregateCurrencies = {
+    _count: CurrenciesCountAggregateOutputType | null
+    _min: CurrenciesMinAggregateOutputType | null
+    _max: CurrenciesMaxAggregateOutputType | null
+  }
+
+  export type CurrenciesMinAggregateOutputType = {
+    id: string | null
+    currency: $Enums.Currency | null
+    label: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CurrenciesMaxAggregateOutputType = {
+    id: string | null
+    currency: $Enums.Currency | null
+    label: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CurrenciesCountAggregateOutputType = {
+    id: number
+    currency: number
+    label: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CurrenciesMinAggregateInputType = {
+    id?: true
+    currency?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CurrenciesMaxAggregateInputType = {
+    id?: true
+    currency?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CurrenciesCountAggregateInputType = {
+    id?: true
+    currency?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CurrenciesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Currencies to aggregate.
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Currencies to fetch.
+     */
+    orderBy?: CurrenciesOrderByWithRelationInput | CurrenciesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CurrenciesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Currencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Currencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Currencies
+    **/
+    _count?: true | CurrenciesCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CurrenciesMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CurrenciesMaxAggregateInputType
+  }
+
+  export type GetCurrenciesAggregateType<T extends CurrenciesAggregateArgs> = {
+        [P in keyof T & keyof AggregateCurrencies]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCurrencies[P]>
+      : GetScalarType<T[P], AggregateCurrencies[P]>
+  }
+
+
+
+
+  export type CurrenciesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CurrenciesWhereInput
+    orderBy?: CurrenciesOrderByWithAggregationInput | CurrenciesOrderByWithAggregationInput[]
+    by: CurrenciesScalarFieldEnum[] | CurrenciesScalarFieldEnum
+    having?: CurrenciesScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CurrenciesCountAggregateInputType | true
+    _min?: CurrenciesMinAggregateInputType
+    _max?: CurrenciesMaxAggregateInputType
+  }
+
+  export type CurrenciesGroupByOutputType = {
+    id: string
+    currency: $Enums.Currency
+    label: string
+    createdAt: Date
+    updatedAt: Date
+    _count: CurrenciesCountAggregateOutputType | null
+    _min: CurrenciesMinAggregateOutputType | null
+    _max: CurrenciesMaxAggregateOutputType | null
+  }
+
+  type GetCurrenciesGroupByPayload<T extends CurrenciesGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CurrenciesGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CurrenciesGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CurrenciesGroupByOutputType[P]>
+            : GetScalarType<T[P], CurrenciesGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CurrenciesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    currency?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["currencies"]>
+
+  export type CurrenciesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    currency?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["currencies"]>
+
+  export type CurrenciesSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    currency?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["currencies"]>
+
+  export type CurrenciesSelectScalar = {
+    id?: boolean
+    currency?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CurrenciesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "currency" | "label" | "createdAt" | "updatedAt", ExtArgs["result"]["currencies"]>
+
+  export type $CurrenciesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Currencies"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      currency: $Enums.Currency
+      label: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["currencies"]>
+    composites: {}
+  }
+
+  type CurrenciesGetPayload<S extends boolean | null | undefined | CurrenciesDefaultArgs> = $Result.GetResult<Prisma.$CurrenciesPayload, S>
+
+  type CurrenciesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CurrenciesFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CurrenciesCountAggregateInputType | true
+    }
+
+  export interface CurrenciesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Currencies'], meta: { name: 'Currencies' } }
+    /**
+     * Find zero or one Currencies that matches the filter.
+     * @param {CurrenciesFindUniqueArgs} args - Arguments to find a Currencies
+     * @example
+     * // Get one Currencies
+     * const currencies = await prisma.currencies.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CurrenciesFindUniqueArgs>(args: SelectSubset<T, CurrenciesFindUniqueArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Currencies that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CurrenciesFindUniqueOrThrowArgs} args - Arguments to find a Currencies
+     * @example
+     * // Get one Currencies
+     * const currencies = await prisma.currencies.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CurrenciesFindUniqueOrThrowArgs>(args: SelectSubset<T, CurrenciesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Currencies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesFindFirstArgs} args - Arguments to find a Currencies
+     * @example
+     * // Get one Currencies
+     * const currencies = await prisma.currencies.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CurrenciesFindFirstArgs>(args?: SelectSubset<T, CurrenciesFindFirstArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Currencies that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesFindFirstOrThrowArgs} args - Arguments to find a Currencies
+     * @example
+     * // Get one Currencies
+     * const currencies = await prisma.currencies.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CurrenciesFindFirstOrThrowArgs>(args?: SelectSubset<T, CurrenciesFindFirstOrThrowArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Currencies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Currencies
+     * const currencies = await prisma.currencies.findMany()
+     * 
+     * // Get first 10 Currencies
+     * const currencies = await prisma.currencies.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const currenciesWithIdOnly = await prisma.currencies.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CurrenciesFindManyArgs>(args?: SelectSubset<T, CurrenciesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Currencies.
+     * @param {CurrenciesCreateArgs} args - Arguments to create a Currencies.
+     * @example
+     * // Create one Currencies
+     * const Currencies = await prisma.currencies.create({
+     *   data: {
+     *     // ... data to create a Currencies
+     *   }
+     * })
+     * 
+     */
+    create<T extends CurrenciesCreateArgs>(args: SelectSubset<T, CurrenciesCreateArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Currencies.
+     * @param {CurrenciesCreateManyArgs} args - Arguments to create many Currencies.
+     * @example
+     * // Create many Currencies
+     * const currencies = await prisma.currencies.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CurrenciesCreateManyArgs>(args?: SelectSubset<T, CurrenciesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Currencies and returns the data saved in the database.
+     * @param {CurrenciesCreateManyAndReturnArgs} args - Arguments to create many Currencies.
+     * @example
+     * // Create many Currencies
+     * const currencies = await prisma.currencies.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Currencies and only return the `id`
+     * const currenciesWithIdOnly = await prisma.currencies.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CurrenciesCreateManyAndReturnArgs>(args?: SelectSubset<T, CurrenciesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Currencies.
+     * @param {CurrenciesDeleteArgs} args - Arguments to delete one Currencies.
+     * @example
+     * // Delete one Currencies
+     * const Currencies = await prisma.currencies.delete({
+     *   where: {
+     *     // ... filter to delete one Currencies
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CurrenciesDeleteArgs>(args: SelectSubset<T, CurrenciesDeleteArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Currencies.
+     * @param {CurrenciesUpdateArgs} args - Arguments to update one Currencies.
+     * @example
+     * // Update one Currencies
+     * const currencies = await prisma.currencies.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CurrenciesUpdateArgs>(args: SelectSubset<T, CurrenciesUpdateArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Currencies.
+     * @param {CurrenciesDeleteManyArgs} args - Arguments to filter Currencies to delete.
+     * @example
+     * // Delete a few Currencies
+     * const { count } = await prisma.currencies.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CurrenciesDeleteManyArgs>(args?: SelectSubset<T, CurrenciesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Currencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Currencies
+     * const currencies = await prisma.currencies.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CurrenciesUpdateManyArgs>(args: SelectSubset<T, CurrenciesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Currencies and returns the data updated in the database.
+     * @param {CurrenciesUpdateManyAndReturnArgs} args - Arguments to update many Currencies.
+     * @example
+     * // Update many Currencies
+     * const currencies = await prisma.currencies.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Currencies and only return the `id`
+     * const currenciesWithIdOnly = await prisma.currencies.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CurrenciesUpdateManyAndReturnArgs>(args: SelectSubset<T, CurrenciesUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Currencies.
+     * @param {CurrenciesUpsertArgs} args - Arguments to update or create a Currencies.
+     * @example
+     * // Update or create a Currencies
+     * const currencies = await prisma.currencies.upsert({
+     *   create: {
+     *     // ... data to create a Currencies
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Currencies we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CurrenciesUpsertArgs>(args: SelectSubset<T, CurrenciesUpsertArgs<ExtArgs>>): Prisma__CurrenciesClient<$Result.GetResult<Prisma.$CurrenciesPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Currencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesCountArgs} args - Arguments to filter Currencies to count.
+     * @example
+     * // Count the number of Currencies
+     * const count = await prisma.currencies.count({
+     *   where: {
+     *     // ... the filter for the Currencies we want to count
+     *   }
+     * })
+    **/
+    count<T extends CurrenciesCountArgs>(
+      args?: Subset<T, CurrenciesCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CurrenciesCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Currencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CurrenciesAggregateArgs>(args: Subset<T, CurrenciesAggregateArgs>): Prisma.PrismaPromise<GetCurrenciesAggregateType<T>>
+
+    /**
+     * Group by Currencies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CurrenciesGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CurrenciesGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CurrenciesGroupByArgs['orderBy'] }
+        : { orderBy?: CurrenciesGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CurrenciesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCurrenciesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Currencies model
+   */
+  readonly fields: CurrenciesFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Currencies.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CurrenciesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Currencies model
+   */
+  interface CurrenciesFieldRefs {
+    readonly id: FieldRef<"Currencies", 'String'>
+    readonly currency: FieldRef<"Currencies", 'Currency'>
+    readonly label: FieldRef<"Currencies", 'String'>
+    readonly createdAt: FieldRef<"Currencies", 'DateTime'>
+    readonly updatedAt: FieldRef<"Currencies", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Currencies findUnique
+   */
+  export type CurrenciesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter, which Currencies to fetch.
+     */
+    where: CurrenciesWhereUniqueInput
+  }
+
+  /**
+   * Currencies findUniqueOrThrow
+   */
+  export type CurrenciesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter, which Currencies to fetch.
+     */
+    where: CurrenciesWhereUniqueInput
+  }
+
+  /**
+   * Currencies findFirst
+   */
+  export type CurrenciesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter, which Currencies to fetch.
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Currencies to fetch.
+     */
+    orderBy?: CurrenciesOrderByWithRelationInput | CurrenciesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Currencies.
+     */
+    cursor?: CurrenciesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Currencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Currencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Currencies.
+     */
+    distinct?: CurrenciesScalarFieldEnum | CurrenciesScalarFieldEnum[]
+  }
+
+  /**
+   * Currencies findFirstOrThrow
+   */
+  export type CurrenciesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter, which Currencies to fetch.
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Currencies to fetch.
+     */
+    orderBy?: CurrenciesOrderByWithRelationInput | CurrenciesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Currencies.
+     */
+    cursor?: CurrenciesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Currencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Currencies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Currencies.
+     */
+    distinct?: CurrenciesScalarFieldEnum | CurrenciesScalarFieldEnum[]
+  }
+
+  /**
+   * Currencies findMany
+   */
+  export type CurrenciesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter, which Currencies to fetch.
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Currencies to fetch.
+     */
+    orderBy?: CurrenciesOrderByWithRelationInput | CurrenciesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Currencies.
+     */
+    cursor?: CurrenciesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Currencies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Currencies.
+     */
+    skip?: number
+    distinct?: CurrenciesScalarFieldEnum | CurrenciesScalarFieldEnum[]
+  }
+
+  /**
+   * Currencies create
+   */
+  export type CurrenciesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Currencies.
+     */
+    data: XOR<CurrenciesCreateInput, CurrenciesUncheckedCreateInput>
+  }
+
+  /**
+   * Currencies createMany
+   */
+  export type CurrenciesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Currencies.
+     */
+    data: CurrenciesCreateManyInput | CurrenciesCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Currencies createManyAndReturn
+   */
+  export type CurrenciesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * The data used to create many Currencies.
+     */
+    data: CurrenciesCreateManyInput | CurrenciesCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Currencies update
+   */
+  export type CurrenciesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Currencies.
+     */
+    data: XOR<CurrenciesUpdateInput, CurrenciesUncheckedUpdateInput>
+    /**
+     * Choose, which Currencies to update.
+     */
+    where: CurrenciesWhereUniqueInput
+  }
+
+  /**
+   * Currencies updateMany
+   */
+  export type CurrenciesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Currencies.
+     */
+    data: XOR<CurrenciesUpdateManyMutationInput, CurrenciesUncheckedUpdateManyInput>
+    /**
+     * Filter which Currencies to update
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * Limit how many Currencies to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Currencies updateManyAndReturn
+   */
+  export type CurrenciesUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * The data used to update Currencies.
+     */
+    data: XOR<CurrenciesUpdateManyMutationInput, CurrenciesUncheckedUpdateManyInput>
+    /**
+     * Filter which Currencies to update
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * Limit how many Currencies to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Currencies upsert
+   */
+  export type CurrenciesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Currencies to update in case it exists.
+     */
+    where: CurrenciesWhereUniqueInput
+    /**
+     * In case the Currencies found by the `where` argument doesn't exist, create a new Currencies with this data.
+     */
+    create: XOR<CurrenciesCreateInput, CurrenciesUncheckedCreateInput>
+    /**
+     * In case the Currencies was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CurrenciesUpdateInput, CurrenciesUncheckedUpdateInput>
+  }
+
+  /**
+   * Currencies delete
+   */
+  export type CurrenciesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+    /**
+     * Filter which Currencies to delete.
+     */
+    where: CurrenciesWhereUniqueInput
+  }
+
+  /**
+   * Currencies deleteMany
+   */
+  export type CurrenciesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Currencies to delete
+     */
+    where?: CurrenciesWhereInput
+    /**
+     * Limit how many Currencies to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Currencies without action
+   */
+  export type CurrenciesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Currencies
+     */
+    select?: CurrenciesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Currencies
+     */
+    omit?: CurrenciesOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Locale
+   */
+
+  export type AggregateLocale = {
+    _count: LocaleCountAggregateOutputType | null
+    _min: LocaleMinAggregateOutputType | null
+    _max: LocaleMaxAggregateOutputType | null
+  }
+
+  export type LocaleMinAggregateOutputType = {
+    id: string | null
+    language: $Enums.Language | null
+    label: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LocaleMaxAggregateOutputType = {
+    id: string | null
+    language: $Enums.Language | null
+    label: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type LocaleCountAggregateOutputType = {
+    id: number
+    language: number
+    label: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type LocaleMinAggregateInputType = {
+    id?: true
+    language?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LocaleMaxAggregateInputType = {
+    id?: true
+    language?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type LocaleCountAggregateInputType = {
+    id?: true
+    language?: true
+    label?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type LocaleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Locale to aggregate.
+     */
+    where?: LocaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Locales to fetch.
+     */
+    orderBy?: LocaleOrderByWithRelationInput | LocaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LocaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Locales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Locales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Locales
+    **/
+    _count?: true | LocaleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LocaleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LocaleMaxAggregateInputType
+  }
+
+  export type GetLocaleAggregateType<T extends LocaleAggregateArgs> = {
+        [P in keyof T & keyof AggregateLocale]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLocale[P]>
+      : GetScalarType<T[P], AggregateLocale[P]>
+  }
+
+
+
+
+  export type LocaleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LocaleWhereInput
+    orderBy?: LocaleOrderByWithAggregationInput | LocaleOrderByWithAggregationInput[]
+    by: LocaleScalarFieldEnum[] | LocaleScalarFieldEnum
+    having?: LocaleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LocaleCountAggregateInputType | true
+    _min?: LocaleMinAggregateInputType
+    _max?: LocaleMaxAggregateInputType
+  }
+
+  export type LocaleGroupByOutputType = {
+    id: string
+    language: $Enums.Language
+    label: string
+    createdAt: Date
+    updatedAt: Date
+    _count: LocaleCountAggregateOutputType | null
+    _min: LocaleMinAggregateOutputType | null
+    _max: LocaleMaxAggregateOutputType | null
+  }
+
+  type GetLocaleGroupByPayload<T extends LocaleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LocaleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LocaleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LocaleGroupByOutputType[P]>
+            : GetScalarType<T[P], LocaleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LocaleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    language?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["locale"]>
+
+  export type LocaleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    language?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["locale"]>
+
+  export type LocaleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    language?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["locale"]>
+
+  export type LocaleSelectScalar = {
+    id?: boolean
+    language?: boolean
+    label?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type LocaleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "language" | "label" | "createdAt" | "updatedAt", ExtArgs["result"]["locale"]>
+
+  export type $LocalePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Locale"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      language: $Enums.Language
+      label: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["locale"]>
+    composites: {}
+  }
+
+  type LocaleGetPayload<S extends boolean | null | undefined | LocaleDefaultArgs> = $Result.GetResult<Prisma.$LocalePayload, S>
+
+  type LocaleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LocaleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LocaleCountAggregateInputType | true
+    }
+
+  export interface LocaleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Locale'], meta: { name: 'Locale' } }
+    /**
+     * Find zero or one Locale that matches the filter.
+     * @param {LocaleFindUniqueArgs} args - Arguments to find a Locale
+     * @example
+     * // Get one Locale
+     * const locale = await prisma.locale.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LocaleFindUniqueArgs>(args: SelectSubset<T, LocaleFindUniqueArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Locale that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LocaleFindUniqueOrThrowArgs} args - Arguments to find a Locale
+     * @example
+     * // Get one Locale
+     * const locale = await prisma.locale.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LocaleFindUniqueOrThrowArgs>(args: SelectSubset<T, LocaleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Locale that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleFindFirstArgs} args - Arguments to find a Locale
+     * @example
+     * // Get one Locale
+     * const locale = await prisma.locale.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LocaleFindFirstArgs>(args?: SelectSubset<T, LocaleFindFirstArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Locale that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleFindFirstOrThrowArgs} args - Arguments to find a Locale
+     * @example
+     * // Get one Locale
+     * const locale = await prisma.locale.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LocaleFindFirstOrThrowArgs>(args?: SelectSubset<T, LocaleFindFirstOrThrowArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Locales that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Locales
+     * const locales = await prisma.locale.findMany()
+     * 
+     * // Get first 10 Locales
+     * const locales = await prisma.locale.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const localeWithIdOnly = await prisma.locale.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LocaleFindManyArgs>(args?: SelectSubset<T, LocaleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Locale.
+     * @param {LocaleCreateArgs} args - Arguments to create a Locale.
+     * @example
+     * // Create one Locale
+     * const Locale = await prisma.locale.create({
+     *   data: {
+     *     // ... data to create a Locale
+     *   }
+     * })
+     * 
+     */
+    create<T extends LocaleCreateArgs>(args: SelectSubset<T, LocaleCreateArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Locales.
+     * @param {LocaleCreateManyArgs} args - Arguments to create many Locales.
+     * @example
+     * // Create many Locales
+     * const locale = await prisma.locale.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LocaleCreateManyArgs>(args?: SelectSubset<T, LocaleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Locales and returns the data saved in the database.
+     * @param {LocaleCreateManyAndReturnArgs} args - Arguments to create many Locales.
+     * @example
+     * // Create many Locales
+     * const locale = await prisma.locale.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Locales and only return the `id`
+     * const localeWithIdOnly = await prisma.locale.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LocaleCreateManyAndReturnArgs>(args?: SelectSubset<T, LocaleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Locale.
+     * @param {LocaleDeleteArgs} args - Arguments to delete one Locale.
+     * @example
+     * // Delete one Locale
+     * const Locale = await prisma.locale.delete({
+     *   where: {
+     *     // ... filter to delete one Locale
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LocaleDeleteArgs>(args: SelectSubset<T, LocaleDeleteArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Locale.
+     * @param {LocaleUpdateArgs} args - Arguments to update one Locale.
+     * @example
+     * // Update one Locale
+     * const locale = await prisma.locale.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LocaleUpdateArgs>(args: SelectSubset<T, LocaleUpdateArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Locales.
+     * @param {LocaleDeleteManyArgs} args - Arguments to filter Locales to delete.
+     * @example
+     * // Delete a few Locales
+     * const { count } = await prisma.locale.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LocaleDeleteManyArgs>(args?: SelectSubset<T, LocaleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Locales.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Locales
+     * const locale = await prisma.locale.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LocaleUpdateManyArgs>(args: SelectSubset<T, LocaleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Locales and returns the data updated in the database.
+     * @param {LocaleUpdateManyAndReturnArgs} args - Arguments to update many Locales.
+     * @example
+     * // Update many Locales
+     * const locale = await prisma.locale.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Locales and only return the `id`
+     * const localeWithIdOnly = await prisma.locale.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LocaleUpdateManyAndReturnArgs>(args: SelectSubset<T, LocaleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Locale.
+     * @param {LocaleUpsertArgs} args - Arguments to update or create a Locale.
+     * @example
+     * // Update or create a Locale
+     * const locale = await prisma.locale.upsert({
+     *   create: {
+     *     // ... data to create a Locale
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Locale we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LocaleUpsertArgs>(args: SelectSubset<T, LocaleUpsertArgs<ExtArgs>>): Prisma__LocaleClient<$Result.GetResult<Prisma.$LocalePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Locales.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleCountArgs} args - Arguments to filter Locales to count.
+     * @example
+     * // Count the number of Locales
+     * const count = await prisma.locale.count({
+     *   where: {
+     *     // ... the filter for the Locales we want to count
+     *   }
+     * })
+    **/
+    count<T extends LocaleCountArgs>(
+      args?: Subset<T, LocaleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LocaleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Locale.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LocaleAggregateArgs>(args: Subset<T, LocaleAggregateArgs>): Prisma.PrismaPromise<GetLocaleAggregateType<T>>
+
+    /**
+     * Group by Locale.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LocaleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LocaleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LocaleGroupByArgs['orderBy'] }
+        : { orderBy?: LocaleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LocaleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLocaleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Locale model
+   */
+  readonly fields: LocaleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Locale.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LocaleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Locale model
+   */
+  interface LocaleFieldRefs {
+    readonly id: FieldRef<"Locale", 'String'>
+    readonly language: FieldRef<"Locale", 'Language'>
+    readonly label: FieldRef<"Locale", 'String'>
+    readonly createdAt: FieldRef<"Locale", 'DateTime'>
+    readonly updatedAt: FieldRef<"Locale", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Locale findUnique
+   */
+  export type LocaleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter, which Locale to fetch.
+     */
+    where: LocaleWhereUniqueInput
+  }
+
+  /**
+   * Locale findUniqueOrThrow
+   */
+  export type LocaleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter, which Locale to fetch.
+     */
+    where: LocaleWhereUniqueInput
+  }
+
+  /**
+   * Locale findFirst
+   */
+  export type LocaleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter, which Locale to fetch.
+     */
+    where?: LocaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Locales to fetch.
+     */
+    orderBy?: LocaleOrderByWithRelationInput | LocaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Locales.
+     */
+    cursor?: LocaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Locales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Locales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Locales.
+     */
+    distinct?: LocaleScalarFieldEnum | LocaleScalarFieldEnum[]
+  }
+
+  /**
+   * Locale findFirstOrThrow
+   */
+  export type LocaleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter, which Locale to fetch.
+     */
+    where?: LocaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Locales to fetch.
+     */
+    orderBy?: LocaleOrderByWithRelationInput | LocaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Locales.
+     */
+    cursor?: LocaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Locales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Locales.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Locales.
+     */
+    distinct?: LocaleScalarFieldEnum | LocaleScalarFieldEnum[]
+  }
+
+  /**
+   * Locale findMany
+   */
+  export type LocaleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter, which Locales to fetch.
+     */
+    where?: LocaleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Locales to fetch.
+     */
+    orderBy?: LocaleOrderByWithRelationInput | LocaleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Locales.
+     */
+    cursor?: LocaleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Locales from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Locales.
+     */
+    skip?: number
+    distinct?: LocaleScalarFieldEnum | LocaleScalarFieldEnum[]
+  }
+
+  /**
+   * Locale create
+   */
+  export type LocaleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Locale.
+     */
+    data: XOR<LocaleCreateInput, LocaleUncheckedCreateInput>
+  }
+
+  /**
+   * Locale createMany
+   */
+  export type LocaleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Locales.
+     */
+    data: LocaleCreateManyInput | LocaleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Locale createManyAndReturn
+   */
+  export type LocaleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * The data used to create many Locales.
+     */
+    data: LocaleCreateManyInput | LocaleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Locale update
+   */
+  export type LocaleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Locale.
+     */
+    data: XOR<LocaleUpdateInput, LocaleUncheckedUpdateInput>
+    /**
+     * Choose, which Locale to update.
+     */
+    where: LocaleWhereUniqueInput
+  }
+
+  /**
+   * Locale updateMany
+   */
+  export type LocaleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Locales.
+     */
+    data: XOR<LocaleUpdateManyMutationInput, LocaleUncheckedUpdateManyInput>
+    /**
+     * Filter which Locales to update
+     */
+    where?: LocaleWhereInput
+    /**
+     * Limit how many Locales to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Locale updateManyAndReturn
+   */
+  export type LocaleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * The data used to update Locales.
+     */
+    data: XOR<LocaleUpdateManyMutationInput, LocaleUncheckedUpdateManyInput>
+    /**
+     * Filter which Locales to update
+     */
+    where?: LocaleWhereInput
+    /**
+     * Limit how many Locales to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Locale upsert
+   */
+  export type LocaleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Locale to update in case it exists.
+     */
+    where: LocaleWhereUniqueInput
+    /**
+     * In case the Locale found by the `where` argument doesn't exist, create a new Locale with this data.
+     */
+    create: XOR<LocaleCreateInput, LocaleUncheckedCreateInput>
+    /**
+     * In case the Locale was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LocaleUpdateInput, LocaleUncheckedUpdateInput>
+  }
+
+  /**
+   * Locale delete
+   */
+  export type LocaleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+    /**
+     * Filter which Locale to delete.
+     */
+    where: LocaleWhereUniqueInput
+  }
+
+  /**
+   * Locale deleteMany
+   */
+  export type LocaleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Locales to delete
+     */
+    where?: LocaleWhereInput
+    /**
+     * Limit how many Locales to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Locale without action
+   */
+  export type LocaleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Locale
+     */
+    select?: LocaleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Locale
+     */
+    omit?: LocaleOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model User
    */
 
@@ -1803,6 +4287,10 @@ export namespace Prisma {
     twoFactorEnabled: boolean | null
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    currency: $Enums.Currency | null
+    language: $Enums.Language | null
+    timezone: string | null
+    dateFormat: $Enums.DateFormat | null
     scheduledDeletionAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1823,6 +4311,10 @@ export namespace Prisma {
     twoFactorEnabled: boolean | null
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    currency: $Enums.Currency | null
+    language: $Enums.Language | null
+    timezone: string | null
+    dateFormat: $Enums.DateFormat | null
     scheduledDeletionAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1843,6 +4335,10 @@ export namespace Prisma {
     twoFactorEnabled: number
     twoFactorSecret: number
     twoFactorLastUsedAt: number
+    currency: number
+    language: number
+    timezone: number
+    dateFormat: number
     scheduledDeletionAt: number
     createdAt: number
     updatedAt: number
@@ -1875,6 +4371,10 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    currency?: true
+    language?: true
+    timezone?: true
+    dateFormat?: true
     scheduledDeletionAt?: true
     createdAt?: true
     updatedAt?: true
@@ -1895,6 +4395,10 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    currency?: true
+    language?: true
+    timezone?: true
+    dateFormat?: true
     scheduledDeletionAt?: true
     createdAt?: true
     updatedAt?: true
@@ -1915,6 +4419,10 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    currency?: true
+    language?: true
+    timezone?: true
+    dateFormat?: true
     scheduledDeletionAt?: true
     createdAt?: true
     updatedAt?: true
@@ -2022,6 +4530,10 @@ export namespace Prisma {
     twoFactorEnabled: boolean
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    currency: $Enums.Currency
+    language: $Enums.Language
+    timezone: string
+    dateFormat: $Enums.DateFormat
     scheduledDeletionAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -2061,6 +4573,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    currency?: boolean
+    language?: boolean
+    timezone?: boolean
+    dateFormat?: boolean
     scheduledDeletionAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -2070,6 +4586,7 @@ export namespace Prisma {
     usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
     backupCodes?: boolean | User$backupCodesArgs<ExtArgs>
     loginActivity?: boolean | User$loginActivityArgs<ExtArgs>
+    setting?: boolean | User$settingArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2088,6 +4605,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    currency?: boolean
+    language?: boolean
+    timezone?: boolean
+    dateFormat?: boolean
     scheduledDeletionAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -2108,6 +4629,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    currency?: boolean
+    language?: boolean
+    timezone?: boolean
+    dateFormat?: boolean
     scheduledDeletionAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -2128,12 +4653,16 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    currency?: boolean
+    language?: boolean
+    timezone?: boolean
+    dateFormat?: boolean
     scheduledDeletionAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "twoFactorAttempts" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorLastUsedAt" | "scheduledDeletionAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "twoFactorAttempts" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorLastUsedAt" | "currency" | "language" | "timezone" | "dateFormat" | "scheduledDeletionAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
@@ -2141,6 +4670,7 @@ export namespace Prisma {
     usageTrackers?: boolean | User$usageTrackersArgs<ExtArgs>
     backupCodes?: boolean | User$backupCodesArgs<ExtArgs>
     loginActivity?: boolean | User$loginActivityArgs<ExtArgs>
+    setting?: boolean | User$settingArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2155,6 +4685,7 @@ export namespace Prisma {
       usageTrackers: Prisma.$UsageTrackerPayload<ExtArgs>[]
       backupCodes: Prisma.$BackupCodesPayload<ExtArgs>[]
       loginActivity: Prisma.$LoginActivityPayload<ExtArgs>[]
+      setting: Prisma.$NotificationSettingPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2171,6 +4702,10 @@ export namespace Prisma {
       twoFactorEnabled: boolean
       twoFactorSecret: string | null
       twoFactorLastUsedAt: Date | null
+      currency: $Enums.Currency
+      language: $Enums.Language
+      timezone: string
+      dateFormat: $Enums.DateFormat
       scheduledDeletionAt: Date | null
       createdAt: Date
       updatedAt: Date
@@ -2574,6 +5109,7 @@ export namespace Prisma {
     usageTrackers<T extends User$usageTrackersArgs<ExtArgs> = {}>(args?: Subset<T, User$usageTrackersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageTrackerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     backupCodes<T extends User$backupCodesArgs<ExtArgs> = {}>(args?: Subset<T, User$backupCodesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BackupCodesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loginActivity<T extends User$loginActivityArgs<ExtArgs> = {}>(args?: Subset<T, User$loginActivityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    setting<T extends User$settingArgs<ExtArgs> = {}>(args?: Subset<T, User$settingArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2617,6 +5153,10 @@ export namespace Prisma {
     readonly twoFactorEnabled: FieldRef<"User", 'Boolean'>
     readonly twoFactorSecret: FieldRef<"User", 'String'>
     readonly twoFactorLastUsedAt: FieldRef<"User", 'DateTime'>
+    readonly currency: FieldRef<"User", 'Currency'>
+    readonly language: FieldRef<"User", 'Language'>
+    readonly timezone: FieldRef<"User", 'String'>
+    readonly dateFormat: FieldRef<"User", 'DateFormat'>
     readonly scheduledDeletionAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -3144,6 +5684,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LoginActivityScalarFieldEnum | LoginActivityScalarFieldEnum[]
+  }
+
+  /**
+   * User.setting
+   */
+  export type User$settingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    where?: NotificationSettingWhereInput
   }
 
   /**
@@ -11858,6 +14417,1233 @@ export namespace Prisma {
 
 
   /**
+   * Model NotificationSetting
+   */
+
+  export type AggregateNotificationSetting = {
+    _count: NotificationSettingCountAggregateOutputType | null
+    _min: NotificationSettingMinAggregateOutputType | null
+    _max: NotificationSettingMaxAggregateOutputType | null
+  }
+
+  export type NotificationSettingMinAggregateOutputType = {
+    id: string | null
+    budgetAlertMail: boolean | null
+    budgetAlertApp: boolean | null
+    billReminderMail: boolean | null
+    billReminderApp: boolean | null
+    weeklyReportMail: boolean | null
+    weeklyReportApp: boolean | null
+    aiInsightsMail: boolean | null
+    aiInsightsApp: boolean | null
+    goalsAlertMail: boolean | null
+    gaolsAlertApp: boolean | null
+    splitsAlertMail: boolean | null
+    splitsAlertApp: boolean | null
+    newsLetterAlert: boolean | null
+    communityAlert: boolean | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NotificationSettingMaxAggregateOutputType = {
+    id: string | null
+    budgetAlertMail: boolean | null
+    budgetAlertApp: boolean | null
+    billReminderMail: boolean | null
+    billReminderApp: boolean | null
+    weeklyReportMail: boolean | null
+    weeklyReportApp: boolean | null
+    aiInsightsMail: boolean | null
+    aiInsightsApp: boolean | null
+    goalsAlertMail: boolean | null
+    gaolsAlertApp: boolean | null
+    splitsAlertMail: boolean | null
+    splitsAlertApp: boolean | null
+    newsLetterAlert: boolean | null
+    communityAlert: boolean | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NotificationSettingCountAggregateOutputType = {
+    id: number
+    budgetAlertMail: number
+    budgetAlertApp: number
+    billReminderMail: number
+    billReminderApp: number
+    weeklyReportMail: number
+    weeklyReportApp: number
+    aiInsightsMail: number
+    aiInsightsApp: number
+    goalsAlertMail: number
+    gaolsAlertApp: number
+    splitsAlertMail: number
+    splitsAlertApp: number
+    newsLetterAlert: number
+    communityAlert: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type NotificationSettingMinAggregateInputType = {
+    id?: true
+    budgetAlertMail?: true
+    budgetAlertApp?: true
+    billReminderMail?: true
+    billReminderApp?: true
+    weeklyReportMail?: true
+    weeklyReportApp?: true
+    aiInsightsMail?: true
+    aiInsightsApp?: true
+    goalsAlertMail?: true
+    gaolsAlertApp?: true
+    splitsAlertMail?: true
+    splitsAlertApp?: true
+    newsLetterAlert?: true
+    communityAlert?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NotificationSettingMaxAggregateInputType = {
+    id?: true
+    budgetAlertMail?: true
+    budgetAlertApp?: true
+    billReminderMail?: true
+    billReminderApp?: true
+    weeklyReportMail?: true
+    weeklyReportApp?: true
+    aiInsightsMail?: true
+    aiInsightsApp?: true
+    goalsAlertMail?: true
+    gaolsAlertApp?: true
+    splitsAlertMail?: true
+    splitsAlertApp?: true
+    newsLetterAlert?: true
+    communityAlert?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NotificationSettingCountAggregateInputType = {
+    id?: true
+    budgetAlertMail?: true
+    budgetAlertApp?: true
+    billReminderMail?: true
+    billReminderApp?: true
+    weeklyReportMail?: true
+    weeklyReportApp?: true
+    aiInsightsMail?: true
+    aiInsightsApp?: true
+    goalsAlertMail?: true
+    gaolsAlertApp?: true
+    splitsAlertMail?: true
+    splitsAlertApp?: true
+    newsLetterAlert?: true
+    communityAlert?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type NotificationSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NotificationSetting to aggregate.
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NotificationSettings to fetch.
+     */
+    orderBy?: NotificationSettingOrderByWithRelationInput | NotificationSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NotificationSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NotificationSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NotificationSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NotificationSettings
+    **/
+    _count?: true | NotificationSettingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NotificationSettingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NotificationSettingMaxAggregateInputType
+  }
+
+  export type GetNotificationSettingAggregateType<T extends NotificationSettingAggregateArgs> = {
+        [P in keyof T & keyof AggregateNotificationSetting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNotificationSetting[P]>
+      : GetScalarType<T[P], AggregateNotificationSetting[P]>
+  }
+
+
+
+
+  export type NotificationSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationSettingWhereInput
+    orderBy?: NotificationSettingOrderByWithAggregationInput | NotificationSettingOrderByWithAggregationInput[]
+    by: NotificationSettingScalarFieldEnum[] | NotificationSettingScalarFieldEnum
+    having?: NotificationSettingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NotificationSettingCountAggregateInputType | true
+    _min?: NotificationSettingMinAggregateInputType
+    _max?: NotificationSettingMaxAggregateInputType
+  }
+
+  export type NotificationSettingGroupByOutputType = {
+    id: string
+    budgetAlertMail: boolean
+    budgetAlertApp: boolean
+    billReminderMail: boolean
+    billReminderApp: boolean
+    weeklyReportMail: boolean
+    weeklyReportApp: boolean
+    aiInsightsMail: boolean
+    aiInsightsApp: boolean
+    goalsAlertMail: boolean
+    gaolsAlertApp: boolean
+    splitsAlertMail: boolean
+    splitsAlertApp: boolean
+    newsLetterAlert: boolean
+    communityAlert: boolean
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: NotificationSettingCountAggregateOutputType | null
+    _min: NotificationSettingMinAggregateOutputType | null
+    _max: NotificationSettingMaxAggregateOutputType | null
+  }
+
+  type GetNotificationSettingGroupByPayload<T extends NotificationSettingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NotificationSettingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NotificationSettingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NotificationSettingGroupByOutputType[P]>
+            : GetScalarType<T[P], NotificationSettingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NotificationSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notificationSetting"]>
+
+  export type NotificationSettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notificationSetting"]>
+
+  export type NotificationSettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notificationSetting"]>
+
+  export type NotificationSettingSelectScalar = {
+    id?: boolean
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "gaolsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
+  export type NotificationSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationSettingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationSettingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $NotificationSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NotificationSetting"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      budgetAlertMail: boolean
+      budgetAlertApp: boolean
+      billReminderMail: boolean
+      billReminderApp: boolean
+      weeklyReportMail: boolean
+      weeklyReportApp: boolean
+      aiInsightsMail: boolean
+      aiInsightsApp: boolean
+      goalsAlertMail: boolean
+      gaolsAlertApp: boolean
+      splitsAlertMail: boolean
+      splitsAlertApp: boolean
+      newsLetterAlert: boolean
+      communityAlert: boolean
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["notificationSetting"]>
+    composites: {}
+  }
+
+  type NotificationSettingGetPayload<S extends boolean | null | undefined | NotificationSettingDefaultArgs> = $Result.GetResult<Prisma.$NotificationSettingPayload, S>
+
+  type NotificationSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationSettingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NotificationSettingCountAggregateInputType | true
+    }
+
+  export interface NotificationSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NotificationSetting'], meta: { name: 'NotificationSetting' } }
+    /**
+     * Find zero or one NotificationSetting that matches the filter.
+     * @param {NotificationSettingFindUniqueArgs} args - Arguments to find a NotificationSetting
+     * @example
+     * // Get one NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NotificationSettingFindUniqueArgs>(args: SelectSubset<T, NotificationSettingFindUniqueArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one NotificationSetting that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NotificationSettingFindUniqueOrThrowArgs} args - Arguments to find a NotificationSetting
+     * @example
+     * // Get one NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NotificationSettingFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationSettingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NotificationSetting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingFindFirstArgs} args - Arguments to find a NotificationSetting
+     * @example
+     * // Get one NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NotificationSettingFindFirstArgs>(args?: SelectSubset<T, NotificationSettingFindFirstArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NotificationSetting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingFindFirstOrThrowArgs} args - Arguments to find a NotificationSetting
+     * @example
+     * // Get one NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NotificationSettingFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationSettingFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NotificationSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NotificationSettings
+     * const notificationSettings = await prisma.notificationSetting.findMany()
+     * 
+     * // Get first 10 NotificationSettings
+     * const notificationSettings = await prisma.notificationSetting.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const notificationSettingWithIdOnly = await prisma.notificationSetting.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NotificationSettingFindManyArgs>(args?: SelectSubset<T, NotificationSettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a NotificationSetting.
+     * @param {NotificationSettingCreateArgs} args - Arguments to create a NotificationSetting.
+     * @example
+     * // Create one NotificationSetting
+     * const NotificationSetting = await prisma.notificationSetting.create({
+     *   data: {
+     *     // ... data to create a NotificationSetting
+     *   }
+     * })
+     * 
+     */
+    create<T extends NotificationSettingCreateArgs>(args: SelectSubset<T, NotificationSettingCreateArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many NotificationSettings.
+     * @param {NotificationSettingCreateManyArgs} args - Arguments to create many NotificationSettings.
+     * @example
+     * // Create many NotificationSettings
+     * const notificationSetting = await prisma.notificationSetting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NotificationSettingCreateManyArgs>(args?: SelectSubset<T, NotificationSettingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NotificationSettings and returns the data saved in the database.
+     * @param {NotificationSettingCreateManyAndReturnArgs} args - Arguments to create many NotificationSettings.
+     * @example
+     * // Create many NotificationSettings
+     * const notificationSetting = await prisma.notificationSetting.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NotificationSettings and only return the `id`
+     * const notificationSettingWithIdOnly = await prisma.notificationSetting.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NotificationSettingCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationSettingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a NotificationSetting.
+     * @param {NotificationSettingDeleteArgs} args - Arguments to delete one NotificationSetting.
+     * @example
+     * // Delete one NotificationSetting
+     * const NotificationSetting = await prisma.notificationSetting.delete({
+     *   where: {
+     *     // ... filter to delete one NotificationSetting
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NotificationSettingDeleteArgs>(args: SelectSubset<T, NotificationSettingDeleteArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one NotificationSetting.
+     * @param {NotificationSettingUpdateArgs} args - Arguments to update one NotificationSetting.
+     * @example
+     * // Update one NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NotificationSettingUpdateArgs>(args: SelectSubset<T, NotificationSettingUpdateArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more NotificationSettings.
+     * @param {NotificationSettingDeleteManyArgs} args - Arguments to filter NotificationSettings to delete.
+     * @example
+     * // Delete a few NotificationSettings
+     * const { count } = await prisma.notificationSetting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NotificationSettingDeleteManyArgs>(args?: SelectSubset<T, NotificationSettingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NotificationSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NotificationSettings
+     * const notificationSetting = await prisma.notificationSetting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NotificationSettingUpdateManyArgs>(args: SelectSubset<T, NotificationSettingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NotificationSettings and returns the data updated in the database.
+     * @param {NotificationSettingUpdateManyAndReturnArgs} args - Arguments to update many NotificationSettings.
+     * @example
+     * // Update many NotificationSettings
+     * const notificationSetting = await prisma.notificationSetting.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more NotificationSettings and only return the `id`
+     * const notificationSettingWithIdOnly = await prisma.notificationSetting.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NotificationSettingUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationSettingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one NotificationSetting.
+     * @param {NotificationSettingUpsertArgs} args - Arguments to update or create a NotificationSetting.
+     * @example
+     * // Update or create a NotificationSetting
+     * const notificationSetting = await prisma.notificationSetting.upsert({
+     *   create: {
+     *     // ... data to create a NotificationSetting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NotificationSetting we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NotificationSettingUpsertArgs>(args: SelectSubset<T, NotificationSettingUpsertArgs<ExtArgs>>): Prisma__NotificationSettingClient<$Result.GetResult<Prisma.$NotificationSettingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of NotificationSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingCountArgs} args - Arguments to filter NotificationSettings to count.
+     * @example
+     * // Count the number of NotificationSettings
+     * const count = await prisma.notificationSetting.count({
+     *   where: {
+     *     // ... the filter for the NotificationSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends NotificationSettingCountArgs>(
+      args?: Subset<T, NotificationSettingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NotificationSettingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NotificationSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NotificationSettingAggregateArgs>(args: Subset<T, NotificationSettingAggregateArgs>): Prisma.PrismaPromise<GetNotificationSettingAggregateType<T>>
+
+    /**
+     * Group by NotificationSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationSettingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NotificationSettingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NotificationSettingGroupByArgs['orderBy'] }
+        : { orderBy?: NotificationSettingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NotificationSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNotificationSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NotificationSetting model
+   */
+  readonly fields: NotificationSettingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NotificationSetting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NotificationSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NotificationSetting model
+   */
+  interface NotificationSettingFieldRefs {
+    readonly id: FieldRef<"NotificationSetting", 'String'>
+    readonly budgetAlertMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly budgetAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly billReminderMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly billReminderApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly weeklyReportMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly weeklyReportApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly aiInsightsMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly aiInsightsApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly goalsAlertMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly gaolsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly splitsAlertMail: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly splitsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly newsLetterAlert: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly communityAlert: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly userId: FieldRef<"NotificationSetting", 'String'>
+    readonly createdAt: FieldRef<"NotificationSetting", 'DateTime'>
+    readonly updatedAt: FieldRef<"NotificationSetting", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NotificationSetting findUnique
+   */
+  export type NotificationSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which NotificationSetting to fetch.
+     */
+    where: NotificationSettingWhereUniqueInput
+  }
+
+  /**
+   * NotificationSetting findUniqueOrThrow
+   */
+  export type NotificationSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which NotificationSetting to fetch.
+     */
+    where: NotificationSettingWhereUniqueInput
+  }
+
+  /**
+   * NotificationSetting findFirst
+   */
+  export type NotificationSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which NotificationSetting to fetch.
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NotificationSettings to fetch.
+     */
+    orderBy?: NotificationSettingOrderByWithRelationInput | NotificationSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NotificationSettings.
+     */
+    cursor?: NotificationSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NotificationSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NotificationSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NotificationSettings.
+     */
+    distinct?: NotificationSettingScalarFieldEnum | NotificationSettingScalarFieldEnum[]
+  }
+
+  /**
+   * NotificationSetting findFirstOrThrow
+   */
+  export type NotificationSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which NotificationSetting to fetch.
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NotificationSettings to fetch.
+     */
+    orderBy?: NotificationSettingOrderByWithRelationInput | NotificationSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NotificationSettings.
+     */
+    cursor?: NotificationSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NotificationSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NotificationSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NotificationSettings.
+     */
+    distinct?: NotificationSettingScalarFieldEnum | NotificationSettingScalarFieldEnum[]
+  }
+
+  /**
+   * NotificationSetting findMany
+   */
+  export type NotificationSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which NotificationSettings to fetch.
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NotificationSettings to fetch.
+     */
+    orderBy?: NotificationSettingOrderByWithRelationInput | NotificationSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NotificationSettings.
+     */
+    cursor?: NotificationSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NotificationSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NotificationSettings.
+     */
+    skip?: number
+    distinct?: NotificationSettingScalarFieldEnum | NotificationSettingScalarFieldEnum[]
+  }
+
+  /**
+   * NotificationSetting create
+   */
+  export type NotificationSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a NotificationSetting.
+     */
+    data: XOR<NotificationSettingCreateInput, NotificationSettingUncheckedCreateInput>
+  }
+
+  /**
+   * NotificationSetting createMany
+   */
+  export type NotificationSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NotificationSettings.
+     */
+    data: NotificationSettingCreateManyInput | NotificationSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NotificationSetting createManyAndReturn
+   */
+  export type NotificationSettingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * The data used to create many NotificationSettings.
+     */
+    data: NotificationSettingCreateManyInput | NotificationSettingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NotificationSetting update
+   */
+  export type NotificationSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a NotificationSetting.
+     */
+    data: XOR<NotificationSettingUpdateInput, NotificationSettingUncheckedUpdateInput>
+    /**
+     * Choose, which NotificationSetting to update.
+     */
+    where: NotificationSettingWhereUniqueInput
+  }
+
+  /**
+   * NotificationSetting updateMany
+   */
+  export type NotificationSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NotificationSettings.
+     */
+    data: XOR<NotificationSettingUpdateManyMutationInput, NotificationSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which NotificationSettings to update
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * Limit how many NotificationSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NotificationSetting updateManyAndReturn
+   */
+  export type NotificationSettingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * The data used to update NotificationSettings.
+     */
+    data: XOR<NotificationSettingUpdateManyMutationInput, NotificationSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which NotificationSettings to update
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * Limit how many NotificationSettings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NotificationSetting upsert
+   */
+  export type NotificationSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the NotificationSetting to update in case it exists.
+     */
+    where: NotificationSettingWhereUniqueInput
+    /**
+     * In case the NotificationSetting found by the `where` argument doesn't exist, create a new NotificationSetting with this data.
+     */
+    create: XOR<NotificationSettingCreateInput, NotificationSettingUncheckedCreateInput>
+    /**
+     * In case the NotificationSetting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NotificationSettingUpdateInput, NotificationSettingUncheckedUpdateInput>
+  }
+
+  /**
+   * NotificationSetting delete
+   */
+  export type NotificationSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+    /**
+     * Filter which NotificationSetting to delete.
+     */
+    where: NotificationSettingWhereUniqueInput
+  }
+
+  /**
+   * NotificationSetting deleteMany
+   */
+  export type NotificationSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NotificationSettings to delete
+     */
+    where?: NotificationSettingWhereInput
+    /**
+     * Limit how many NotificationSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * NotificationSetting without action
+   */
+  export type NotificationSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationSetting
+     */
+    select?: NotificationSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationSetting
+     */
+    omit?: NotificationSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationSettingInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -11869,6 +15655,28 @@ export namespace Prisma {
   };
 
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+  export const CurrenciesScalarFieldEnum: {
+    id: 'id',
+    currency: 'currency',
+    label: 'label',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CurrenciesScalarFieldEnum = (typeof CurrenciesScalarFieldEnum)[keyof typeof CurrenciesScalarFieldEnum]
+
+
+  export const LocaleScalarFieldEnum: {
+    id: 'id',
+    language: 'language',
+    label: 'label',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type LocaleScalarFieldEnum = (typeof LocaleScalarFieldEnum)[keyof typeof LocaleScalarFieldEnum]
 
 
   export const UserScalarFieldEnum: {
@@ -11886,6 +15694,10 @@ export namespace Prisma {
     twoFactorEnabled: 'twoFactorEnabled',
     twoFactorSecret: 'twoFactorSecret',
     twoFactorLastUsedAt: 'twoFactorLastUsedAt',
+    currency: 'currency',
+    language: 'language',
+    timezone: 'timezone',
+    dateFormat: 'dateFormat',
     scheduledDeletionAt: 'scheduledDeletionAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -12004,6 +15816,30 @@ export namespace Prisma {
   export type ActivityLogsScalarFieldEnum = (typeof ActivityLogsScalarFieldEnum)[keyof typeof ActivityLogsScalarFieldEnum]
 
 
+  export const NotificationSettingScalarFieldEnum: {
+    id: 'id',
+    budgetAlertMail: 'budgetAlertMail',
+    budgetAlertApp: 'budgetAlertApp',
+    billReminderMail: 'billReminderMail',
+    billReminderApp: 'billReminderApp',
+    weeklyReportMail: 'weeklyReportMail',
+    weeklyReportApp: 'weeklyReportApp',
+    aiInsightsMail: 'aiInsightsMail',
+    aiInsightsApp: 'aiInsightsApp',
+    goalsAlertMail: 'goalsAlertMail',
+    gaolsAlertApp: 'gaolsAlertApp',
+    splitsAlertMail: 'splitsAlertMail',
+    splitsAlertApp: 'splitsAlertApp',
+    newsLetterAlert: 'newsLetterAlert',
+    communityAlert: 'communityAlert',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type NotificationSettingScalarFieldEnum = (typeof NotificationSettingScalarFieldEnum)[keyof typeof NotificationSettingScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -12048,6 +15884,48 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Currency'
+   */
+  export type EnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency'>
+    
+
+
+  /**
+   * Reference to a field of type 'Currency[]'
+   */
+  export type ListEnumCurrencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Currency[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Language'
+   */
+  export type EnumLanguageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Language'>
+    
+
+
+  /**
+   * Reference to a field of type 'Language[]'
+   */
+  export type ListEnumLanguageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Language[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -12069,16 +15947,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'DateTime'
+   * Reference to a field of type 'DateFormat'
    */
-  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+  export type EnumDateFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateFormat'>
     
 
 
   /**
-   * Reference to a field of type 'DateTime[]'
+   * Reference to a field of type 'DateFormat[]'
    */
-  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+  export type ListEnumDateFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateFormat[]'>
     
 
 
@@ -12211,6 +16089,110 @@ export namespace Prisma {
    */
 
 
+  export type CurrenciesWhereInput = {
+    AND?: CurrenciesWhereInput | CurrenciesWhereInput[]
+    OR?: CurrenciesWhereInput[]
+    NOT?: CurrenciesWhereInput | CurrenciesWhereInput[]
+    id?: StringFilter<"Currencies"> | string
+    currency?: EnumCurrencyFilter<"Currencies"> | $Enums.Currency
+    label?: StringFilter<"Currencies"> | string
+    createdAt?: DateTimeFilter<"Currencies"> | Date | string
+    updatedAt?: DateTimeFilter<"Currencies"> | Date | string
+  }
+
+  export type CurrenciesOrderByWithRelationInput = {
+    id?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrenciesWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CurrenciesWhereInput | CurrenciesWhereInput[]
+    OR?: CurrenciesWhereInput[]
+    NOT?: CurrenciesWhereInput | CurrenciesWhereInput[]
+    currency?: EnumCurrencyFilter<"Currencies"> | $Enums.Currency
+    label?: StringFilter<"Currencies"> | string
+    createdAt?: DateTimeFilter<"Currencies"> | Date | string
+    updatedAt?: DateTimeFilter<"Currencies"> | Date | string
+  }, "id">
+
+  export type CurrenciesOrderByWithAggregationInput = {
+    id?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CurrenciesCountOrderByAggregateInput
+    _max?: CurrenciesMaxOrderByAggregateInput
+    _min?: CurrenciesMinOrderByAggregateInput
+  }
+
+  export type CurrenciesScalarWhereWithAggregatesInput = {
+    AND?: CurrenciesScalarWhereWithAggregatesInput | CurrenciesScalarWhereWithAggregatesInput[]
+    OR?: CurrenciesScalarWhereWithAggregatesInput[]
+    NOT?: CurrenciesScalarWhereWithAggregatesInput | CurrenciesScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Currencies"> | string
+    currency?: EnumCurrencyWithAggregatesFilter<"Currencies"> | $Enums.Currency
+    label?: StringWithAggregatesFilter<"Currencies"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Currencies"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Currencies"> | Date | string
+  }
+
+  export type LocaleWhereInput = {
+    AND?: LocaleWhereInput | LocaleWhereInput[]
+    OR?: LocaleWhereInput[]
+    NOT?: LocaleWhereInput | LocaleWhereInput[]
+    id?: StringFilter<"Locale"> | string
+    language?: EnumLanguageFilter<"Locale"> | $Enums.Language
+    label?: StringFilter<"Locale"> | string
+    createdAt?: DateTimeFilter<"Locale"> | Date | string
+    updatedAt?: DateTimeFilter<"Locale"> | Date | string
+  }
+
+  export type LocaleOrderByWithRelationInput = {
+    id?: SortOrder
+    language?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LocaleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LocaleWhereInput | LocaleWhereInput[]
+    OR?: LocaleWhereInput[]
+    NOT?: LocaleWhereInput | LocaleWhereInput[]
+    language?: EnumLanguageFilter<"Locale"> | $Enums.Language
+    label?: StringFilter<"Locale"> | string
+    createdAt?: DateTimeFilter<"Locale"> | Date | string
+    updatedAt?: DateTimeFilter<"Locale"> | Date | string
+  }, "id">
+
+  export type LocaleOrderByWithAggregationInput = {
+    id?: SortOrder
+    language?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: LocaleCountOrderByAggregateInput
+    _max?: LocaleMaxOrderByAggregateInput
+    _min?: LocaleMinOrderByAggregateInput
+  }
+
+  export type LocaleScalarWhereWithAggregatesInput = {
+    AND?: LocaleScalarWhereWithAggregatesInput | LocaleScalarWhereWithAggregatesInput[]
+    OR?: LocaleScalarWhereWithAggregatesInput[]
+    NOT?: LocaleScalarWhereWithAggregatesInput | LocaleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Locale"> | string
+    language?: EnumLanguageWithAggregatesFilter<"Locale"> | $Enums.Language
+    label?: StringWithAggregatesFilter<"Locale"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Locale"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Locale"> | Date | string
+  }
+
   export type UserWhereInput = {
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
@@ -12229,6 +16211,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFilter<"User"> | boolean
     twoFactorSecret?: StringNullableFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    currency?: EnumCurrencyFilter<"User"> | $Enums.Currency
+    language?: EnumLanguageFilter<"User"> | $Enums.Language
+    timezone?: StringFilter<"User"> | string
+    dateFormat?: EnumDateFormatFilter<"User"> | $Enums.DateFormat
     scheduledDeletionAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -12238,6 +16224,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerListRelationFilter
     backupCodes?: BackupCodesListRelationFilter
     loginActivity?: LoginActivityListRelationFilter
+    setting?: XOR<NotificationSettingNullableScalarRelationFilter, NotificationSettingWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -12255,6 +16242,10 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrderInput | SortOrder
     twoFactorLastUsedAt?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    language?: SortOrder
+    timezone?: SortOrder
+    dateFormat?: SortOrder
     scheduledDeletionAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -12264,6 +16255,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerOrderByRelationAggregateInput
     backupCodes?: BackupCodesOrderByRelationAggregateInput
     loginActivity?: LoginActivityOrderByRelationAggregateInput
+    setting?: NotificationSettingOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -12284,6 +16276,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFilter<"User"> | boolean
     twoFactorSecret?: StringNullableFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    currency?: EnumCurrencyFilter<"User"> | $Enums.Currency
+    language?: EnumLanguageFilter<"User"> | $Enums.Language
+    timezone?: StringFilter<"User"> | string
+    dateFormat?: EnumDateFormatFilter<"User"> | $Enums.DateFormat
     scheduledDeletionAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -12293,6 +16289,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerListRelationFilter
     backupCodes?: BackupCodesListRelationFilter
     loginActivity?: LoginActivityListRelationFilter
+    setting?: XOR<NotificationSettingNullableScalarRelationFilter, NotificationSettingWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -12310,6 +16307,10 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrderInput | SortOrder
     twoFactorLastUsedAt?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    language?: SortOrder
+    timezone?: SortOrder
+    dateFormat?: SortOrder
     scheduledDeletionAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -12338,6 +16339,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolWithAggregatesFilter<"User"> | boolean
     twoFactorSecret?: StringNullableWithAggregatesFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    currency?: EnumCurrencyWithAggregatesFilter<"User"> | $Enums.Currency
+    language?: EnumLanguageWithAggregatesFilter<"User"> | $Enums.Language
+    timezone?: StringWithAggregatesFilter<"User"> | string
+    dateFormat?: EnumDateFormatWithAggregatesFilter<"User"> | $Enums.DateFormat
     scheduledDeletionAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -12895,6 +16900,238 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"ActivityLogs"> | string
   }
 
+  export type NotificationSettingWhereInput = {
+    AND?: NotificationSettingWhereInput | NotificationSettingWhereInput[]
+    OR?: NotificationSettingWhereInput[]
+    NOT?: NotificationSettingWhereInput | NotificationSettingWhereInput[]
+    id?: StringFilter<"NotificationSetting"> | string
+    budgetAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    budgetAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    billReminderMail?: BoolFilter<"NotificationSetting"> | boolean
+    billReminderApp?: BoolFilter<"NotificationSetting"> | boolean
+    weeklyReportMail?: BoolFilter<"NotificationSetting"> | boolean
+    weeklyReportApp?: BoolFilter<"NotificationSetting"> | boolean
+    aiInsightsMail?: BoolFilter<"NotificationSetting"> | boolean
+    aiInsightsApp?: BoolFilter<"NotificationSetting"> | boolean
+    goalsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    gaolsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    splitsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
+    communityAlert?: BoolFilter<"NotificationSetting"> | boolean
+    userId?: StringFilter<"NotificationSetting"> | string
+    createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type NotificationSettingOrderByWithRelationInput = {
+    id?: SortOrder
+    budgetAlertMail?: SortOrder
+    budgetAlertApp?: SortOrder
+    billReminderMail?: SortOrder
+    billReminderApp?: SortOrder
+    weeklyReportMail?: SortOrder
+    weeklyReportApp?: SortOrder
+    aiInsightsMail?: SortOrder
+    aiInsightsApp?: SortOrder
+    goalsAlertMail?: SortOrder
+    gaolsAlertApp?: SortOrder
+    splitsAlertMail?: SortOrder
+    splitsAlertApp?: SortOrder
+    newsLetterAlert?: SortOrder
+    communityAlert?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type NotificationSettingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: NotificationSettingWhereInput | NotificationSettingWhereInput[]
+    OR?: NotificationSettingWhereInput[]
+    NOT?: NotificationSettingWhereInput | NotificationSettingWhereInput[]
+    budgetAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    budgetAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    billReminderMail?: BoolFilter<"NotificationSetting"> | boolean
+    billReminderApp?: BoolFilter<"NotificationSetting"> | boolean
+    weeklyReportMail?: BoolFilter<"NotificationSetting"> | boolean
+    weeklyReportApp?: BoolFilter<"NotificationSetting"> | boolean
+    aiInsightsMail?: BoolFilter<"NotificationSetting"> | boolean
+    aiInsightsApp?: BoolFilter<"NotificationSetting"> | boolean
+    goalsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    gaolsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    splitsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
+    splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
+    communityAlert?: BoolFilter<"NotificationSetting"> | boolean
+    createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type NotificationSettingOrderByWithAggregationInput = {
+    id?: SortOrder
+    budgetAlertMail?: SortOrder
+    budgetAlertApp?: SortOrder
+    billReminderMail?: SortOrder
+    billReminderApp?: SortOrder
+    weeklyReportMail?: SortOrder
+    weeklyReportApp?: SortOrder
+    aiInsightsMail?: SortOrder
+    aiInsightsApp?: SortOrder
+    goalsAlertMail?: SortOrder
+    gaolsAlertApp?: SortOrder
+    splitsAlertMail?: SortOrder
+    splitsAlertApp?: SortOrder
+    newsLetterAlert?: SortOrder
+    communityAlert?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: NotificationSettingCountOrderByAggregateInput
+    _max?: NotificationSettingMaxOrderByAggregateInput
+    _min?: NotificationSettingMinOrderByAggregateInput
+  }
+
+  export type NotificationSettingScalarWhereWithAggregatesInput = {
+    AND?: NotificationSettingScalarWhereWithAggregatesInput | NotificationSettingScalarWhereWithAggregatesInput[]
+    OR?: NotificationSettingScalarWhereWithAggregatesInput[]
+    NOT?: NotificationSettingScalarWhereWithAggregatesInput | NotificationSettingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NotificationSetting"> | string
+    budgetAlertMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    budgetAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    billReminderMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    billReminderApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    weeklyReportMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    weeklyReportApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    aiInsightsMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    aiInsightsApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    goalsAlertMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    gaolsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    splitsAlertMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    splitsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    newsLetterAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    communityAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    userId?: StringWithAggregatesFilter<"NotificationSetting"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
+  }
+
+  export type CurrenciesCreateInput = {
+    id?: string
+    currency: $Enums.Currency
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrenciesUncheckedCreateInput = {
+    id?: string
+    currency: $Enums.Currency
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrenciesUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrenciesUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrenciesCreateManyInput = {
+    id?: string
+    currency: $Enums.Currency
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CurrenciesUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CurrenciesUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LocaleCreateInput = {
+    id?: string
+    language: $Enums.Language
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LocaleUncheckedCreateInput = {
+    id?: string
+    language: $Enums.Language
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LocaleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LocaleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LocaleCreateManyInput = {
+    id?: string
+    language: $Enums.Language
+    label: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type LocaleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LocaleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    label?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -12910,6 +17147,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12919,6 +17160,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -12936,6 +17178,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12945,6 +17191,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -12962,6 +17209,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12971,6 +17222,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -12988,6 +17240,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12997,6 +17253,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -13014,6 +17271,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -13034,6 +17295,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13054,6 +17319,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13655,6 +17924,152 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
   }
 
+  export type NotificationSettingCreateInput = {
+    id?: string
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSettingInput
+  }
+
+  export type NotificationSettingUncheckedCreateInput = {
+    id?: string
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationSettingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSettingNestedInput
+  }
+
+  export type NotificationSettingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationSettingCreateManyInput = {
+    id?: string
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationSettingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationSettingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -13668,6 +18083,131 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type EnumCurrencyFilter<$PrismaModel = never> = {
+    equals?: $Enums.Currency | EnumCurrencyFieldRefInput<$PrismaModel>
+    in?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumCurrencyFilter<$PrismaModel> | $Enums.Currency
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type CurrenciesCountOrderByAggregateInput = {
+    id?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrenciesMaxOrderByAggregateInput = {
+    id?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CurrenciesMinOrderByAggregateInput = {
+    id?: SortOrder
+    currency?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StringWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type EnumCurrencyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Currency | EnumCurrencyFieldRefInput<$PrismaModel>
+    in?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumCurrencyWithAggregatesFilter<$PrismaModel> | $Enums.Currency
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCurrencyFilter<$PrismaModel>
+    _max?: NestedEnumCurrencyFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type EnumLanguageFilter<$PrismaModel = never> = {
+    equals?: $Enums.Language | EnumLanguageFieldRefInput<$PrismaModel>
+    in?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    not?: NestedEnumLanguageFilter<$PrismaModel> | $Enums.Language
+  }
+
+  export type LocaleCountOrderByAggregateInput = {
+    id?: SortOrder
+    language?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LocaleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    language?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type LocaleMinOrderByAggregateInput = {
+    id?: SortOrder
+    language?: SortOrder
+    label?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumLanguageWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Language | EnumLanguageFieldRefInput<$PrismaModel>
+    in?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    not?: NestedEnumLanguageWithAggregatesFilter<$PrismaModel> | $Enums.Language
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLanguageFilter<$PrismaModel>
+    _max?: NestedEnumLanguageFilter<$PrismaModel>
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -13712,15 +18252,11 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  export type EnumDateFormatFilter<$PrismaModel = never> = {
+    equals?: $Enums.DateFormat | EnumDateFormatFieldRefInput<$PrismaModel>
+    in?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    not?: NestedEnumDateFormatFilter<$PrismaModel> | $Enums.DateFormat
   }
 
   export type AccountListRelationFilter = {
@@ -13756,6 +18292,11 @@ export namespace Prisma {
     every?: LoginActivityWhereInput
     some?: LoginActivityWhereInput
     none?: LoginActivityWhereInput
+  }
+
+  export type NotificationSettingNullableScalarRelationFilter = {
+    is?: NotificationSettingWhereInput | null
+    isNot?: NotificationSettingWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -13798,6 +18339,10 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    currency?: SortOrder
+    language?: SortOrder
+    timezone?: SortOrder
+    dateFormat?: SortOrder
     scheduledDeletionAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13823,6 +18368,10 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    currency?: SortOrder
+    language?: SortOrder
+    timezone?: SortOrder
+    dateFormat?: SortOrder
     scheduledDeletionAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13843,6 +18392,10 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    currency?: SortOrder
+    language?: SortOrder
+    timezone?: SortOrder
+    dateFormat?: SortOrder
     scheduledDeletionAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -13851,24 +18404,6 @@ export namespace Prisma {
   export type UserSumOrderByAggregateInput = {
     loginAttempts?: SortOrder
     twoFactorAttempts?: SortOrder
-  }
-
-  export type StringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -13927,18 +18462,14 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+  export type EnumDateFormatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DateFormat | EnumDateFormatFieldRefInput<$PrismaModel>
+    in?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    not?: NestedEnumDateFormatWithAggregatesFilter<$PrismaModel> | $Enums.DateFormat
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
+    _min?: NestedEnumDateFormatFilter<$PrismaModel>
+    _max?: NestedEnumDateFormatFilter<$PrismaModel>
   }
 
   export type EnumAccountTypeFilter<$PrismaModel = never> = {
@@ -14405,6 +18936,85 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type NotificationSettingCountOrderByAggregateInput = {
+    id?: SortOrder
+    budgetAlertMail?: SortOrder
+    budgetAlertApp?: SortOrder
+    billReminderMail?: SortOrder
+    billReminderApp?: SortOrder
+    weeklyReportMail?: SortOrder
+    weeklyReportApp?: SortOrder
+    aiInsightsMail?: SortOrder
+    aiInsightsApp?: SortOrder
+    goalsAlertMail?: SortOrder
+    gaolsAlertApp?: SortOrder
+    splitsAlertMail?: SortOrder
+    splitsAlertApp?: SortOrder
+    newsLetterAlert?: SortOrder
+    communityAlert?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NotificationSettingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    budgetAlertMail?: SortOrder
+    budgetAlertApp?: SortOrder
+    billReminderMail?: SortOrder
+    billReminderApp?: SortOrder
+    weeklyReportMail?: SortOrder
+    weeklyReportApp?: SortOrder
+    aiInsightsMail?: SortOrder
+    aiInsightsApp?: SortOrder
+    goalsAlertMail?: SortOrder
+    gaolsAlertApp?: SortOrder
+    splitsAlertMail?: SortOrder
+    splitsAlertApp?: SortOrder
+    newsLetterAlert?: SortOrder
+    communityAlert?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NotificationSettingMinOrderByAggregateInput = {
+    id?: SortOrder
+    budgetAlertMail?: SortOrder
+    budgetAlertApp?: SortOrder
+    billReminderMail?: SortOrder
+    billReminderApp?: SortOrder
+    weeklyReportMail?: SortOrder
+    weeklyReportApp?: SortOrder
+    aiInsightsMail?: SortOrder
+    aiInsightsApp?: SortOrder
+    goalsAlertMail?: SortOrder
+    gaolsAlertApp?: SortOrder
+    splitsAlertMail?: SortOrder
+    splitsAlertApp?: SortOrder
+    newsLetterAlert?: SortOrder
+    communityAlert?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
+  }
+
+  export type EnumCurrencyFieldUpdateOperationsInput = {
+    set?: $Enums.Currency
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type EnumLanguageFieldUpdateOperationsInput = {
+    set?: $Enums.Language
+  }
+
   export type AccountCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -14444,6 +19054,12 @@ export namespace Prisma {
     connectOrCreate?: LoginActivityCreateOrConnectWithoutUserInput | LoginActivityCreateOrConnectWithoutUserInput[]
     createMany?: LoginActivityCreateManyUserInputEnvelope
     connect?: LoginActivityWhereUniqueInput | LoginActivityWhereUniqueInput[]
+  }
+
+  export type NotificationSettingCreateNestedOneWithoutUserInput = {
+    create?: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: NotificationSettingCreateOrConnectWithoutUserInput
+    connect?: NotificationSettingWhereUniqueInput
   }
 
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
@@ -14487,8 +19103,10 @@ export namespace Prisma {
     connect?: LoginActivityWhereUniqueInput | LoginActivityWhereUniqueInput[]
   }
 
-  export type StringFieldUpdateOperationsInput = {
-    set?: string
+  export type NotificationSettingUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: NotificationSettingCreateOrConnectWithoutUserInput
+    connect?: NotificationSettingWhereUniqueInput
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -14511,8 +19129,8 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
+  export type EnumDateFormatFieldUpdateOperationsInput = {
+    set?: $Enums.DateFormat
   }
 
   export type AccountUpdateManyWithoutUserNestedInput = {
@@ -14595,6 +19213,16 @@ export namespace Prisma {
     deleteMany?: LoginActivityScalarWhereInput | LoginActivityScalarWhereInput[]
   }
 
+  export type NotificationSettingUpdateOneWithoutUserNestedInput = {
+    create?: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: NotificationSettingCreateOrConnectWithoutUserInput
+    upsert?: NotificationSettingUpsertWithoutUserInput
+    disconnect?: NotificationSettingWhereInput | boolean
+    delete?: NotificationSettingWhereInput | boolean
+    connect?: NotificationSettingWhereUniqueInput
+    update?: XOR<XOR<NotificationSettingUpdateToOneWithWhereWithoutUserInput, NotificationSettingUpdateWithoutUserInput>, NotificationSettingUncheckedUpdateWithoutUserInput>
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -14673,6 +19301,16 @@ export namespace Prisma {
     update?: LoginActivityUpdateWithWhereUniqueWithoutUserInput | LoginActivityUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: LoginActivityUpdateManyWithWhereWithoutUserInput | LoginActivityUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: LoginActivityScalarWhereInput | LoginActivityScalarWhereInput[]
+  }
+
+  export type NotificationSettingUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: NotificationSettingCreateOrConnectWithoutUserInput
+    upsert?: NotificationSettingUpsertWithoutUserInput
+    disconnect?: NotificationSettingWhereInput | boolean
+    delete?: NotificationSettingWhereInput | boolean
+    connect?: NotificationSettingWhereUniqueInput
+    update?: XOR<XOR<NotificationSettingUpdateToOneWithWhereWithoutUserInput, NotificationSettingUpdateWithoutUserInput>, NotificationSettingUncheckedUpdateWithoutUserInput>
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -14799,6 +19437,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBackupCodesInput, UserUpdateWithoutBackupCodesInput>, UserUncheckedUpdateWithoutBackupCodesInput>
   }
 
+  export type UserCreateNestedOneWithoutSettingInput = {
+    create?: XOR<UserCreateWithoutSettingInput, UserUncheckedCreateWithoutSettingInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSettingInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutSettingNestedInput = {
+    create?: XOR<UserCreateWithoutSettingInput, UserUncheckedCreateWithoutSettingInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSettingInput
+    upsert?: UserUpsertWithoutSettingInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSettingInput, UserUpdateWithoutSettingInput>, UserUncheckedUpdateWithoutSettingInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -14813,45 +19465,11 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  export type NestedEnumCurrencyFilter<$PrismaModel = never> = {
+    equals?: $Enums.Currency | EnumCurrencyFieldRefInput<$PrismaModel>
+    in?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumCurrencyFilter<$PrismaModel> | $Enums.Currency
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -14880,6 +19498,95 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumCurrencyWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Currency | EnumCurrencyFieldRefInput<$PrismaModel>
+    in?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Currency[] | ListEnumCurrencyFieldRefInput<$PrismaModel>
+    not?: NestedEnumCurrencyWithAggregatesFilter<$PrismaModel> | $Enums.Currency
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCurrencyFilter<$PrismaModel>
+    _max?: NestedEnumCurrencyFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLanguageFilter<$PrismaModel = never> = {
+    equals?: $Enums.Language | EnumLanguageFieldRefInput<$PrismaModel>
+    in?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    not?: NestedEnumLanguageFilter<$PrismaModel> | $Enums.Language
+  }
+
+  export type NestedEnumLanguageWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Language | EnumLanguageFieldRefInput<$PrismaModel>
+    in?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Language[] | ListEnumLanguageFieldRefInput<$PrismaModel>
+    not?: NestedEnumLanguageWithAggregatesFilter<$PrismaModel> | $Enums.Language
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLanguageFilter<$PrismaModel>
+    _max?: NestedEnumLanguageFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedEnumDateFormatFilter<$PrismaModel = never> = {
+    equals?: $Enums.DateFormat | EnumDateFormatFieldRefInput<$PrismaModel>
+    in?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    not?: NestedEnumDateFormatFilter<$PrismaModel> | $Enums.DateFormat
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -14959,18 +19666,14 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+  export type NestedEnumDateFormatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DateFormat | EnumDateFormatFieldRefInput<$PrismaModel>
+    in?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DateFormat[] | ListEnumDateFormatFieldRefInput<$PrismaModel>
+    not?: NestedEnumDateFormatWithAggregatesFilter<$PrismaModel> | $Enums.DateFormat
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
+    _min?: NestedEnumDateFormatFilter<$PrismaModel>
+    _max?: NestedEnumDateFormatFilter<$PrismaModel>
   }
 
   export type NestedEnumAccountTypeFilter<$PrismaModel = never> = {
@@ -15323,6 +20026,51 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type NotificationSettingCreateWithoutUserInput = {
+    id?: string
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationSettingUncheckedCreateWithoutUserInput = {
+    id?: string
+    budgetAlertMail?: boolean
+    budgetAlertApp?: boolean
+    billReminderMail?: boolean
+    billReminderApp?: boolean
+    weeklyReportMail?: boolean
+    weeklyReportApp?: boolean
+    aiInsightsMail?: boolean
+    aiInsightsApp?: boolean
+    goalsAlertMail?: boolean
+    gaolsAlertApp?: boolean
+    splitsAlertMail?: boolean
+    splitsAlertApp?: boolean
+    newsLetterAlert?: boolean
+    communityAlert?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationSettingCreateOrConnectWithoutUserInput = {
+    where: NotificationSettingWhereUniqueInput
+    create: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -15514,6 +20262,57 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"LoginActivity"> | Date | string
   }
 
+  export type NotificationSettingUpsertWithoutUserInput = {
+    update: XOR<NotificationSettingUpdateWithoutUserInput, NotificationSettingUncheckedUpdateWithoutUserInput>
+    create: XOR<NotificationSettingCreateWithoutUserInput, NotificationSettingUncheckedCreateWithoutUserInput>
+    where?: NotificationSettingWhereInput
+  }
+
+  export type NotificationSettingUpdateToOneWithWhereWithoutUserInput = {
+    where?: NotificationSettingWhereInput
+    data: XOR<NotificationSettingUpdateWithoutUserInput, NotificationSettingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type NotificationSettingUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationSettingUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    budgetAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    budgetAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    billReminderMail?: BoolFieldUpdateOperationsInput | boolean
+    billReminderApp?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportMail?: BoolFieldUpdateOperationsInput | boolean
+    weeklyReportApp?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
+    aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
+    splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
+    communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -15529,6 +20328,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15537,6 +20340,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -15554,6 +20358,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15562,6 +20370,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -15595,6 +20404,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15603,6 +20416,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -15620,6 +20434,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15628,6 +20446,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -15645,6 +20464,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15653,6 +20476,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -15670,6 +20494,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15678,6 +20506,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -15711,6 +20540,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15719,6 +20552,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -15736,6 +20570,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15744,6 +20582,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -15761,6 +20600,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15769,6 +20612,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -15786,6 +20630,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15794,6 +20642,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -15827,6 +20676,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15835,6 +20688,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -15852,6 +20706,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15860,6 +20718,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -15877,6 +20736,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15885,6 +20748,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -15902,6 +20766,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15910,6 +20778,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -15943,6 +20812,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15951,6 +20824,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -15968,6 +20842,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15976,6 +20854,7 @@ export namespace Prisma {
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -15993,6 +20872,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16001,6 +20884,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -16018,6 +20902,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16026,6 +20914,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -16059,6 +20948,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16067,6 +20960,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -16084,6 +20978,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16092,6 +20990,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -16109,6 +21008,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16117,6 +21020,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -16134,6 +21038,10 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
     scheduledDeletionAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -16142,6 +21050,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
     loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -16175,6 +21084,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16183,6 +21096,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -16200,6 +21114,10 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
     scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16207,6 +21125,143 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutSettingInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSettingInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSettingInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSettingInput, UserUncheckedCreateWithoutSettingInput>
+  }
+
+  export type UserUpsertWithoutSettingInput = {
+    update: XOR<UserUpdateWithoutSettingInput, UserUncheckedUpdateWithoutSettingInput>
+    create: XOR<UserCreateWithoutSettingInput, UserUncheckedCreateWithoutSettingInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSettingInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSettingInput, UserUncheckedUpdateWithoutSettingInput>
+  }
+
+  export type UserUpdateWithoutSettingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSettingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
     loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
   }
 
