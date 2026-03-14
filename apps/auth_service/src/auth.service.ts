@@ -187,6 +187,8 @@ export class AuthService {
           return { user, otp };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
@@ -356,6 +358,8 @@ export class AuthService {
           return { user, session };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -454,6 +458,8 @@ export class AuthService {
           return { user, otp };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -800,6 +806,8 @@ export class AuthService {
           };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
@@ -893,6 +901,8 @@ export class AuthService {
           };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -1002,6 +1012,8 @@ export class AuthService {
           };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -1124,6 +1136,8 @@ export class AuthService {
           };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         },
       );
@@ -1344,6 +1358,8 @@ export class AuthService {
           return { user, session, isNewUser };
         },
         {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
           isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
         },
       );
@@ -1871,7 +1887,11 @@ export class AuthService {
 
             await this.dropSession(tx, user.id);
           },
-          { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+          {
+            maxWait: 10000, // Wait up to 10 seconds for a connection
+            timeout: 30000, // Allow the transaction to take up to 30 seconds
+            isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+          },
         );
       }
 
@@ -2047,7 +2067,11 @@ export class AuthService {
             lastName: user.lastName,
           };
         },
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
       );
 
       // ==> After successful commit: send OTP to the NEW address
@@ -2152,7 +2176,11 @@ export class AuthService {
             lastName: user.lastName,
           };
         },
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+        {
+          maxWait: 10000, // Wait up to 10 seconds for a connection
+          timeout: 30000, // Allow the transaction to take up to 30 seconds
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
       );
 
       // ==> After successful commit: alert the old address about the change
