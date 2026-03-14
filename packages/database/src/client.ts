@@ -1,12 +1,19 @@
+import 'dotenv/config';
+import { join } from 'node:path';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from './generated/prisma/index.js';
-import { PrismaNeon } from '@prisma/adapter-neon';
 
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient;
 };
 
-const adapter = new PrismaNeon({
-  connectionString: process.env.DATABASE_URL,
+const sslRootCert = join(process.cwd(), '..', '..', 'ca.pem');
+const adapter = new PrismaPg({
+  connectionString: `${process.env.DATABASE_URL}?sslmode=verify-full&sslrootcert=${sslRootCert}`,
+  ssl: { rejectUnauthorized: false },
+  max: 8,
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
 });
 
 export const prisma =
