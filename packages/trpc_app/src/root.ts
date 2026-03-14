@@ -1,4 +1,4 @@
-import { subscriptionRouter, authrouter } from './routers';
+import { subscriptionRouter, authrouter, userRouter } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
 /**
@@ -7,6 +7,7 @@ import { createTRPCRouter, createCallerFactory } from './setup';
  */
 export const appRouter = createTRPCRouter({
   auth: authrouter,
+  user: userRouter,
   subscription: subscriptionRouter,
 });
 
