@@ -11,12 +11,14 @@ const PUBLIC_PATHS = new Set([...Object.values(AUTH_ROUTES), ...Object.values(ST
 function isPublicPage(): boolean {
   if (typeof window === 'undefined') return false;
   const { pathname } = window.location;
-  return PUBLIC_PATHS.has(pathname) || Array.from(PUBLIC_PATHS).some((p) => pathname.startsWith(p + '/'));
+  return (
+    PUBLIC_PATHS.has(pathname) || Array.from(PUBLIC_PATHS).some((p) => pathname.startsWith(p + '/'))
+  );
 }
 
 export const axiosClient: AxiosInstance = axios.create({
   baseURL: `${env.NEXT_PUBLIC_APP_URL}/api`,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
