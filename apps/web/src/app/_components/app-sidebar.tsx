@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import type { Session } from 'next-auth';
 import { usePathname } from 'next/navigation';
 import {
   ArrowUpRight,
@@ -58,6 +59,7 @@ import {
 } from '@/constants/sidebar-nav.constants';
 import { signOut } from 'next-auth/react';
 import { Logo } from '@/app/_components/logo';
+import { api_client } from '@/lib/trpc_app/api_client';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -122,7 +124,7 @@ function NavCollapsibleRow({
             sideOffset={6}
             className="rounded-card-mobile border-border-subtle bg-bg-surface shadow-card w-44 border p-1"
           >
-            <p className="text-text-disabled px-2 pb-1 pt-0.5 text-[10px] font-medium tracking-wider uppercase">
+            <p className="text-text-disabled px-2 pt-0.5 pb-1 text-[10px] font-medium tracking-wider uppercase">
               {item.title}
             </p>
             {item.items.map((sub) => {
@@ -182,10 +184,7 @@ function NavCollapsibleRow({
                 return (
                   <SidebarMenuSubItem key={sub.title}>
                     <SidebarMenuSubButton asChild isActive={subActive}>
-                      <Link
-                        href={sub.url}
-                        onClick={() => isMobile && setOpenMobile(false)}
-                      >
+                      <Link href={sub.url} onClick={() => isMobile && setOpenMobile(false)}>
                         <sub.icon />
                         <span>{sub.title}</span>
                       </Link>
@@ -349,21 +348,23 @@ function NavUser({ user }: { user: SessionUser }) {
 // AppSidebar (main export)
 // ---------------------------------------------------------------------------
 
-export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  /**
-   * Whether the current user is on the Pro plan.
-   * Defaults to `false` (shows upgrade badge + Pro item markers).
-   */
-  isPro?: boolean;
-  /** Session user for the footer. Falls back to placeholder when not provided. */
-  user: SessionUser;
-}
-
-export function AppSidebar({ isPro = false, user, ...props }: AppSidebarProps) {
+export function AppSidebar({ session }: { session: Session }) {
   const pathname = usePathname();
+  const { data, isLoading } = api_client.user.getMe.useQuery();
+
+  const isPro = React.useMemo(() => data?.data?.subscription?.plan === 'PRO', [data]);
+  const user: SessionUser = React.useMemo(
+    () => ({
+      id: data?.data?.id ?? '',
+      email: data?.data?.email ?? '',
+      avatar: data?.data?.avatar ?? '',
+      name: `${data?.data?.firstName ?? ''} ${data?.data?.lastName ?? ''}`,
+    }),
+    [data],
+  );
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon">
       {/* ── Header: logo + brand ─────────────────────────────────── */}
       <SidebarHeader>
         <SidebarMenu>
@@ -378,7 +379,9 @@ export function AppSidebar({ isPro = false, user, ...props }: AppSidebarProps) {
         </SidebarMenu>
 
         {/* ── Upgrade pill — only when on free plan ── */}
-        {!isPro && (
+        {isPro ? (
+          <></>
+        ) : (
           <Link
             href={STATIC_ROUTES.PRICING}
             className="border-warning/20 from-warning/10 to-primary/5 hover:border-warning/30 hover:from-warning/15 mx-1 flex items-center gap-2 overflow-hidden rounded-lg border bg-linear-to-br px-2.5 py-1.5 transition-colors group-data-[collapsible=icon]:hidden"
@@ -405,7 +408,7 @@ export function AppSidebar({ isPro = false, user, ...props }: AppSidebarProps) {
 
         {/* User profile at bottom of scroll (no footer; nothing gets cut off) */}
         <SidebarSeparator />
-        <NavUser user={user} />
+        <NavUser user={isLoading ? session.user : user} />
       </SidebarContent>
     </Sidebar>
   );
