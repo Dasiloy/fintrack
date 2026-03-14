@@ -146,7 +146,6 @@ export class AuthService {
             data: {
               ...data,
               password: hashedPassword,
-              loginAttempts: 0,
             },
             select: {
               id: true,
@@ -1273,7 +1272,6 @@ export class AuthService {
               firstName,
               lastName,
               email: googleEmail,
-              loginAttempts: 0,
               emailVerified: true,
               emailVerifiedAt: new Date(),
               avatar: googlePicture,
