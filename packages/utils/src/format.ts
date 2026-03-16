@@ -23,3 +23,12 @@ export function maskIp(ip?: string | null): string {
   if (ip.includes(':')) return ip.replace(/:[^:]+$/, ':***');
   return '***';
 }
+
+/**
+ *
+ * @param str string to capitalize
+ * @returns capitalized string
+ */
+export function capitalize(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

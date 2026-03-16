@@ -29,7 +29,8 @@
     }
   },
   "dependencies": {
-    "@fintrack/database": "workspace:*"
+    "@fintrack/database": "workspace:*",
+    "@fintrack/utils": "workspace:*"
   },
   "devDependencies": {
     "@fintrack/types": "workspace:*",

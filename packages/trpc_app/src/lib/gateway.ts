@@ -9,6 +9,11 @@ import type { StandardResponse } from '@fintrack/types/interfaces/server_respons
 export const GATEWAY_URL = process.env.API_GATEWAY_URL;
 if (!GATEWAY_URL) throw new Error('API_GATEWAY_URL env var is not set');
 
+/**
+ * Map HTTP status codes to TRPC error codes
+ *
+ * @type {Record<number, TRPC_ERROR_CODE_KEY>}
+ */
 export const HTTP_TO_TRPC: Record<number, TRPC_ERROR_CODE_KEY> = {
   400: 'BAD_REQUEST',
   401: 'UNAUTHORIZED',
@@ -22,6 +27,23 @@ export const HTTP_TO_TRPC: Record<number, TRPC_ERROR_CODE_KEY> = {
   502: 'INTERNAL_SERVER_ERROR',
   503: 'INTERNAL_SERVER_ERROR',
 };
+
+/**
+ * Content types for the API gateway
+ *
+ * @enum {string}
+ */
+export enum ContentType {
+  JSON = 'application/json',
+  TEXT = 'text/plain',
+  HTML = 'text/html',
+  IMAGE = 'image/*',
+  VIDEO = 'video/*',
+  AUDIO = 'audio/*',
+  APPLICATION = 'application/*',
+  MULTIPART = 'multipart/form-data',
+  FORM_DATA = 'application/x-www-form-urlencoded',
+}
 
 /**
  * Reads the gateway error body and throws a TRPCError with the correct code
@@ -56,10 +78,10 @@ export async function throwGatewayError(response: Response): Promise<never> {
  * - Authorization: Bearer <token>  — set by the tRPC client (client.tsx) on every request
  * - Cookie                         — for any session cookie based flows
  */
-export function gatewayHeaders(incomingHeaders: Headers): HeadersInit {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+export function gatewayHeaders(incomingHeaders: Headers, contentType?: ContentType): HeadersInit {
+  const headers: Record<string, string> = {};
+
+  if (contentType) headers['Content-Type'] = contentType;
 
   const authorization = incomingHeaders.get('authorization');
   if (authorization) headers['Authorization'] = authorization;
