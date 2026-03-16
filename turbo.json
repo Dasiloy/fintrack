@@ -8,6 +8,7 @@
     "VERCEL_URL",
 
     "DATABASE_URL",
+    "DATABASE_CA_CERTIFICATE",
     "REDIS_URL",
 
     "AUTH_SECRET",

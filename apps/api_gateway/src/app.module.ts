@@ -51,6 +51,7 @@ import { UploadModule } from './upload/upload.module';
         API_GATEWAY_PORT: Joi.string().required(),
         API_GATEWAY_HOST: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         NEXT_PUBLIC_APP_URL: Joi.string().required(),
         CLOUDINARY_URL: Joi.string().required(),
         CLOUDINARY_SIGNATURE_EXPIRATION: Joi.string().required(),
