@@ -28,6 +28,7 @@ import { TokenNotification } from './processors/token_notification.pro';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MAIL_TOKEN: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),
       }),

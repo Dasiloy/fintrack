@@ -149,7 +149,7 @@ git --version
 
 FinTrack depends on several third-party services. Create a free account for each one below, then collect the credentials — you will paste them into your `.env` files in the next step.
 
-#### Neon PostgreSQL (primary database)
+#### Aiven PostgreSQL (primary database)
 
 Used by all backend services via Prisma ORM.
 
@@ -158,6 +158,7 @@ Used by all backend services via Prisma ORM.
 3. Go to **Connection Details** and copy the **Pooled connection** string.
 4. It looks like: `postgresql://user:password@host/dbname?sslmode=require`
 5. This becomes your `DATABASE_URL`.
+6. Copy the pem file
 
 #### Upstash Redis (session store / cache)
 
