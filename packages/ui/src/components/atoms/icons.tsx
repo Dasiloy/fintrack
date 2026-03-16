@@ -21,3 +21,26 @@ export function GoogleIcon({ fill }: SVGProps<any>) {
     </svg>
   );
 }
+
+/**
+ * Default avatar icon for users without a profile image.
+ * Uses currentColor so it inherits text color (e.g. text-text-secondary or text-primary).
+ */
+export function DefaultAvatarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      <circle cx="12" cy="8" r="3.25" />
+      <path d="M5 20.5c0-3.87 3.13-7 7-7s7 3.13 7 7" />
+    </svg>
+  );
+}

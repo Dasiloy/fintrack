@@ -9,7 +9,7 @@ import type {
 
 import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, protectedProcedure } from '../setup';
-import { GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 
 export const authrouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
@@ -252,7 +252,7 @@ export const authrouter = createTRPCRouter({
   init2fa: protectedProcedure.mutation(async ({ ctx }) => {
     const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/init`, {
       method: 'POST',
-      headers: gatewayHeaders(ctx.headers),
+      headers: gatewayHeaders(ctx.headers, ContentType.JSON),
     });
 
     if (!response.ok) await throwGatewayError(response);
@@ -285,7 +285,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/confirm`, {
         method: 'POST',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -317,7 +317,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa`, {
         method: 'DELETE',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -343,7 +343,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/backup-codes/regenerate`, {
         method: 'POST',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -386,7 +386,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/change-password`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -423,7 +423,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/email/initiate`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -449,7 +449,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/email/verify`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -482,7 +482,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/account`, {
         method: 'DELETE',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);

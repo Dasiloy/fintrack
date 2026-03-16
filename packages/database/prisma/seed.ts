@@ -15,8 +15,7 @@ async function main() {
     label: key.replaceAll('_', ' '),
   }));
 
-  // lets use prisma db transaction to load the currencies and locales
-  await prisma.$transaction([
+  await Promise.all([
     prisma.locale.createMany({ data: localePyload, skipDuplicates: true }),
     prisma.currencies.createMany({ data: currencyPyload, skipDuplicates: true }),
   ]);
