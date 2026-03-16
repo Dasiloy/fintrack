@@ -54,7 +54,7 @@ function getPasswordStrength(password: string): Strength {
 // Component
 // ---------------------------------------------------------------------------
 
-export function PasswordSection() {
+export default function PasswordSection() {
   // states
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

@@ -15,7 +15,7 @@ const badgeVariants = cva(
   [
     'inline-flex items-center gap-space-1 rounded-full border',
     'px-space-2 py-space-1',
-    'text-caption font-medium leading-none',
+    'text-caption! font-medium leading-none',
     'w-fit whitespace-nowrap shrink-0',
     '[&>svg]:size-3 [&>svg]:pointer-events-none [&>svg]:shrink-0',
     'transition-colors duration-smooth',

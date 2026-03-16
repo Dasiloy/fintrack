@@ -27,6 +27,7 @@ import { AppService } from './app.service';
 /// MODULES
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -44,7 +45,23 @@ import { PaymentModule } from './payment/payment.module';
       envFilePath: `.env`,
       expandVariables: true,
       validationSchema: Joi.object({
+        REDIS_URL: Joi.string().required(),
+        AUTH_GOOGLE_ID: Joi.string().required(),
+        AUTH_GOOGLE_SECRET: Joi.string().required(),
+        API_GATEWAY_PORT: Joi.string().required(),
+        API_GATEWAY_HOST: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        NEXT_PUBLIC_APP_URL: Joi.string().required(),
+        CLOUDINARY_URL: Joi.string().required(),
+        CLOUDINARY_SIGNATURE_EXPIRATION: Joi.string().required(),
+        SWAGGER_DOC_USER: Joi.string().required(),
+        SWAGGER_DOC_PASS: Joi.string().required(),
+        AUTH_SERVICE_HOST: Joi.string().required(),
+        AUTH_SERVICE_PORT: Joi.string().required(),
+        PAYMENT_SERVICE_HOST: Joi.string().required(),
+        PAYMENT_SERVICE_PORT: Joi.string().required(),
+        NOTIFICATION_SERVICE_HOST: Joi.string().required(),
+        NOTIFICATION_SERVICE_PORT: Joi.string().required(),
       }),
     }),
     ClientsModule.registerAsync({
@@ -86,6 +103,7 @@ import { PaymentModule } from './payment/payment.module';
     /// APP MODULES
     AuthModule,
     PaymentModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [

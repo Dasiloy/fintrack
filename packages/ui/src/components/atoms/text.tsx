@@ -5,15 +5,15 @@ import { cva, type VariantProps } from 'class-variance-authority';
 const textVariants = cva('', {
   variants: {
     variant: {
-      h1: 'text-h1 font-bold tracking-tight',
-      h2: 'text-h2 font-bold tracking-tight',
-      h3: 'text-h3 font-semibold tracking-tight',
-      h4: 'text-h4 font-semibold',
-      'body-lg': 'text-body-lg font-medium',
-      body: 'text-body font-normal',
-      'body-sm': 'text-sm font-normal',
-      caption: 'text-caption font-normal',
-      overline: 'text-overline font-semibold uppercase tracking-wider',
+      h1: 'text-h1! font-bold tracking-tight',
+      h2: 'text-h2! font-bold tracking-tight',
+      h3: 'text-h3! font-semibold tracking-tight',
+      h4: 'text-h4! font-semibold',
+      'body-lg': 'text-body-lg! font-medium',
+      body: 'text-body! font-normal',
+      'body-sm': 'text-sm! font-normal',
+      caption: 'text-caption! font-normal',
+      overline: 'text-overline! font-semibold uppercase tracking-wider',
     },
     color: {
       primary: 'text-text-primary',
