@@ -9,7 +9,7 @@ import type {
 
 import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, protectedProcedure } from '../setup';
-import { GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 
 export const authrouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
@@ -70,36 +70,37 @@ export const authrouter = createTRPCRouter({
    * @returns `sessions` — array of active session records
    * @throws INTERNAL_SERVER_ERROR on unexpected database failure
    */
-  getSessions: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const query = await ctx.db.session.findMany({
-        where: { userId: ctx.session.user.id },
-        select: {
-          id: true,
-          deviceId: true,
-          ipAddress: true,
-          location: true,
-          lastUsedAt: true,
-          userAgent: true,
-        },
-        orderBy: { lastUsedAt: 'desc' },
-      });
-      const data: StandardResponse<{
-        sessions: typeof query;
-      }> = {
-        message: 'Count fetched successfully',
-        data: { sessions: query },
-        statusCode: 200,
-        success: true,
-      };
-      return data;
-    } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'an error occured',
-      });
-    }
-  }),
+  getSessions: protectedProcedure
+    .input(z.object({ take: z.number().default(10) }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const query = await ctx.db.session.findMany({
+          where: { userId: ctx.session.user.id },
+          select: {
+            id: true,
+            deviceId: true,
+            ipAddress: true,
+            location: true,
+            lastUsedAt: true,
+            userAgent: true,
+          },
+          orderBy: { lastUsedAt: 'desc' },
+          take: input.take,
+        });
+        const data: StandardResponse<typeof query> = {
+          message: 'Count fetched successfully',
+          data: query,
+          statusCode: 200,
+          success: true,
+        };
+        return data;
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'an error occured',
+        });
+      }
+    }),
 
   /**
    * Fetch the 10 most recent login activity records for the current user,
@@ -112,39 +113,43 @@ export const authrouter = createTRPCRouter({
    * @returns `activities` — up to 10 recent login activity entries
    * @throws INTERNAL_SERVER_ERROR on unexpected database failure
    */
-  getLoginActivity: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const query = await ctx.db.loginActivity.findMany({
-        where: { userId: ctx.session.user.id },
-        select: {
-          id: true,
-          deviceId: true,
-          ipAddress: true,
-          location: true,
-          userAgent: true,
-          status: true,
-          type: true,
-          createdAt: true,
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      });
-      const data: StandardResponse<{
-        activities: typeof query;
-      }> = {
-        message: 'Count fetched successfully',
-        data: { activities: query },
-        statusCode: 200,
-        success: true,
-      };
-      return data;
-    } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'an error occured',
-      });
-    }
-  }),
+  getLoginActivity: protectedProcedure
+    .input(
+      z.object({
+        take: z.number().default(10),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const query = await ctx.db.loginActivity.findMany({
+          where: { userId: ctx.session.user.id },
+          select: {
+            id: true,
+            deviceId: true,
+            ipAddress: true,
+            location: true,
+            userAgent: true,
+            status: true,
+            type: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: input.take,
+        });
+        const data: StandardResponse<typeof query> = {
+          message: 'Count fetched successfully',
+          data: query,
+          statusCode: 200,
+          success: true,
+        };
+        return data;
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'an error occured',
+        });
+      }
+    }),
 
   // ---------------------------------------------------------------------------
   // Session management mutations
@@ -252,7 +257,7 @@ export const authrouter = createTRPCRouter({
   init2fa: protectedProcedure.mutation(async ({ ctx }) => {
     const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/init`, {
       method: 'POST',
-      headers: gatewayHeaders(ctx.headers),
+      headers: gatewayHeaders(ctx.headers, ContentType.JSON),
     });
 
     if (!response.ok) await throwGatewayError(response);
@@ -285,7 +290,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/confirm`, {
         method: 'POST',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -317,7 +322,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa`, {
         method: 'DELETE',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -343,7 +348,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/2fa/backup-codes/regenerate`, {
         method: 'POST',
         body: JSON.stringify({ code: input.code }),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -386,7 +391,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/change-password`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -423,7 +428,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/email/initiate`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -449,7 +454,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/email/verify`, {
         method: 'POST',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
@@ -482,7 +487,7 @@ export const authrouter = createTRPCRouter({
       const response = await fetch(`${GATEWAY_URL}/api/auth/account`, {
         method: 'DELETE',
         body: JSON.stringify(input),
-        headers: gatewayHeaders(ctx.headers),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);

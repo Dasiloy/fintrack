@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
+import { api_client } from '@/lib/trpc_app/api_client';
 import { KeyRound, Mail, Monitor, Shield, Trash2 } from 'lucide-react';
 
-import TwoFactorSection from './two_factor_section';
-import { PasswordSection } from './password_section';
-import { EmailSection } from './email_section';
-import { SessionsSection } from './sessions_section';
-import { DangerZone } from './danger_zone';
-import { api_client } from '@/lib/trpc_app/api_client';
+// Lazy Load Sections
+const TwoFactorSection = lazy(() => import('./two_factor_section'));
+const PasswordSection = lazy(() => import('./password_section'));
+const EmailSection = lazy(() => import('./email_section'));
+const SessionsSection = lazy(() => import('./sessions_section'));
+const DangerZone = lazy(() => import('./danger_zone'));
 
 // ---------------------------------------------------------------------------
 // Nav config
@@ -88,11 +89,31 @@ export function SecurityLayout() {
       {/* ── Section content ───────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto">
         <div className="px-6 py-8 lg:px-8">
-          {active === 'two-factor' && <TwoFactorSection />}
-          {active === 'password' && <PasswordSection />}
-          {active === 'email' && <EmailSection />}
-          {active === 'sessions' && <SessionsSection />}
-          {active === 'danger' && <DangerZone />}
+          {active === 'two-factor' && (
+            <Suspense fallback={<></>}>
+              <TwoFactorSection />
+            </Suspense>
+          )}
+          {active === 'password' && (
+            <Suspense fallback={<></>}>
+              <PasswordSection />
+            </Suspense>
+          )}
+          {active === 'email' && (
+            <Suspense fallback={<></>}>
+              <EmailSection />
+            </Suspense>
+          )}
+          {active === 'sessions' && (
+            <Suspense fallback={<></>}>
+              <SessionsSection />
+            </Suspense>
+          )}
+          {active === 'danger' && (
+            <Suspense fallback={<></>}>
+              <DangerZone />
+            </Suspense>
+          )}
         </div>
       </main>
     </div>
