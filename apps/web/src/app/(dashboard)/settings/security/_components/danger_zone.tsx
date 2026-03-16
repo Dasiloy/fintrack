@@ -29,7 +29,7 @@ import { api_client } from '@/lib/trpc_app/api_client';
 // Component
 // ---------------------------------------------------------------------------
 
-export function DangerZone() {
+export default function DangerZone() {
   const { data: tfaData } = api_client.auth.get2fa.useQuery();
   const hasPassword = tfaData?.data?.hasPassword ?? false;
   const twoFactorEnabled = tfaData?.data?.twoFactorEnabled ?? false;

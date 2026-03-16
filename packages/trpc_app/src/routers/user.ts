@@ -81,12 +81,13 @@ export const userRouter = createTRPCRouter({
   updateMe: protectedProcedure
     .input(
       z.object({
-        firstName: z.string().min(1, 'first name is required').optional(),
-        lastName: z.string().min(1, 'last name is required').optional(),
-        avatar: z.string().url('Invalid url').optional(),
-        language: z.nativeEnum(Language).optional(),
-        currency: z.nativeEnum(Currency).optional(),
-        dateFormat: z.nativeEnum(DateFormat).optional(),
+        firstName: z.string().min(1, 'first name is required').nullable().default(null),
+        lastName: z.string().min(1, 'last name is required').nullable().default(null),
+        avatar: z.string().url('Invalid url').nullable().default(null),
+        language: z.nativeEnum(Language).nullable().default(null),
+        currency: z.nativeEnum(Currency).nullable().default(null),
+        dateFormat: z.nativeEnum(DateFormat).nullable().default(null),
+        timezone: z.string().nullable().default(null),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -110,7 +111,9 @@ export const userRouter = createTRPCRouter({
         if (input.dateFormat) {
           data.dateFormat = input.dateFormat;
         }
-
+        if (input.timezone) {
+          data.timezone = input.timezone;
+        }
         const newUser = await ctx.db.user.update({
           where: { email: ctx.session.user.email },
           data,

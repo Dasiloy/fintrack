@@ -1,6 +1,6 @@
 'use client';
-import React from 'react';
 
+import React from 'react';
 import { api_client } from '@/lib/trpc_app/api_client';
 import {
   Button,
@@ -12,12 +12,16 @@ import {
   Separator,
   SkeletonWrapper,
   Text,
+  toast,
 } from '@ui/components';
 import { CheckCircle2 } from 'lucide-react';
-import { useIsMobile } from '@ui/hooks';
+import { useCsv, useIsMobile } from '@ui/hooks';
 import dayjs from '@fintrack/utils/date';
+import type { Session } from '@fintrack/database/types';
+import { UiSession } from '@/app/(dashboard)/settings/_components/session';
+import { flattenObject } from '@fintrack/utils/format';
 
-// helpers
+// Helpers
 const getSecurityScore = ({
   hasTwoFactor,
   hasBackupCodes,
@@ -37,7 +41,6 @@ const getSecurityScore = ({
   if (hasBackupCodes) {
     score += 20;
   }
-
   return score;
 };
 
@@ -45,8 +48,14 @@ const getSecurityScore = ({
 // MAIN COMPONENT
 // ==================================
 export function History() {
+  // custom hooks
   const isMobile = useIsMobile();
+
+  const { downloadCsv, isDownloading } = useCsv('profile.csv');
+
+  // queries
   const twoFaData = api_client.auth.get2fa.useQuery();
+  const sessionHistoryData = api_client.auth.getSessions.useQuery({ take: 1 });
   const { data, isPending } = api_client.user.getMe.useQuery();
 
   // memoized data
@@ -60,12 +69,36 @@ export function History() {
     return twoFaData?.data?.data?.codeLeft > 0;
   }, [twoFaData]);
   const hasPassword = React.useMemo(() => twoFaData?.data?.data?.hasPassword ?? false, [user]);
+  const sessionHistory = React.useMemo(
+    () => sessionHistoryData?.data?.data ?? [],
+    [sessionHistoryData],
+  );
+
+  const downloadProfileCsv = async () => {
+    const flattenedUser = flattenObject(user ?? {});
+    const data = Object.entries(flattenedUser).map(([key, value]) => ({
+      label: key,
+      value: value as string,
+    }));
+    try {
+      await downloadCsv(data);
+    } catch (error) {
+      toast.error('Failed to download profile CSV');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>History</CardTitle>
         <CardAction>
-          <Button size="xs" variant={'secondary'}>
+          <Button
+            size="xs"
+            variant={'secondary'}
+            onClick={downloadProfileCsv}
+            loading={isDownloading}
+            disabled={isPending || isDownloading}
+          >
             Export CSV
           </Button>
         </CardAction>
@@ -105,12 +138,15 @@ export function History() {
         <Separator orientation={isMobile ? 'horizontal' : 'vertical'} />
         {/** SECURITY */}
         <div className="p-space-6 xl:p-space-8 flex-1">
-          <SkeletonWrapper loading={isPending} className="mb-4.5 h-5 w-auto max-w-4/5">
+          <SkeletonWrapper loading={twoFaData.isPending} className="mb-4.5 h-5 w-auto max-w-4/5">
             <Text color={'tertiary'} variant={'caption'} className="mb-4.5 font-bold">
               SECURITY STATUS
             </Text>
           </SkeletonWrapper>
-          <SkeletonWrapper loading={isPending} className="mb-space-4 h-5 w-auto max-w-4/5">
+          <SkeletonWrapper
+            loading={twoFaData.isPending}
+            className="mb-space-4 h-5 w-auto max-w-4/5"
+          >
             {' '}
             <div className="mb-space-4 flex items-center gap-2">
               <Progress
@@ -131,7 +167,10 @@ export function History() {
               </Text>
             </div>
           </SkeletonWrapper>
-          <SkeletonWrapper loading={isPending} className="mb-space-2 h-5 w-auto max-w-4/5">
+          <SkeletonWrapper
+            loading={twoFaData.isPending}
+            className="mb-space-2 h-5 w-auto max-w-4/5"
+          >
             <Text color={'secondary'} variant={'body-sm'} className="font-bold">
               Complete 2FA to reach 100% security score.
             </Text>
@@ -139,7 +178,20 @@ export function History() {
         </div>
         <Separator orientation={isMobile ? 'horizontal' : 'vertical'} />
         {/** LAST LOGIN */}
-        <div className="p-space-6 xl:p-space-8 flex-1">last login</div>
+        <div className="p-space-6 xl:p-space-8 flex-1">
+          <SkeletonWrapper
+            loading={sessionHistoryData.isPending}
+            className="mb-space-2 h-5 w-auto max-w-4/5"
+          >
+            <Text color={'tertiary'} variant={'caption'} className="mb-space-2 font-bold">
+              LAST LOGIN
+            </Text>
+          </SkeletonWrapper>
+
+          <SkeletonWrapper loading={sessionHistoryData.isPending} className="mb-space-4 h-6 w-full">
+            {sessionHistory.length && <UiSession session={sessionHistory[0] as Session} />}
+          </SkeletonWrapper>
+        </div>
       </div>
     </Card>
   );
