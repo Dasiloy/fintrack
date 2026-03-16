@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { Globe, Loader2, Monitor, Shield, WifiOff, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
@@ -16,15 +16,15 @@ import { LoginActivityItem } from '@/app/(dashboard)/settings/_components/login_
 // Component
 // ---------------------------------------------------------------------------
 
-export function SessionsSection() {
+export default function SessionsSection() {
   const currentDeviceId = Cookies.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME) ?? '';
 
-  const { data: sessionsData } = api_client.auth.getSessions.useQuery();
-  const { data: activityData } = api_client.auth.getLoginActivity.useQuery();
+  const { data: sessionsData } = api_client.auth.getSessions.useQuery({ take: 10 });
+  const { data: activityData } = api_client.auth.getLoginActivity.useQuery({ take: 10 });
   const utils = api_client.useUtils();
 
-  const sessions = sessionsData?.data?.sessions ?? [];
-  const activities = activityData?.data?.activities ?? [];
+  const sessions = useMemo(() => sessionsData?.data ?? [], [sessionsData]);
+  const activities = useMemo(() => activityData?.data ?? [], [sessionsData]);
 
   // Track which session IDs are in-flight for deletion
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());

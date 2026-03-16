@@ -35,7 +35,7 @@ const MAX_OTP_ATTEMPTS = 3;
 // Component
 // ---------------------------------------------------------------------------
 
-export function EmailSection() {
+export default function EmailSection() {
   // Form state
   const [newEmail, setNewEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -306,7 +306,10 @@ export function EmailSection() {
           }
         }}
       >
-        <DialogContent showCloseButton={!initiateMutation.isPending && !otpLocked} className="max-w-sm">
+        <DialogContent
+          showCloseButton={!initiateMutation.isPending && !otpLocked}
+          className="max-w-sm"
+        >
           <DialogHeader>
             <DialogTitle>Verify your identity</DialogTitle>
             <DialogDescription>

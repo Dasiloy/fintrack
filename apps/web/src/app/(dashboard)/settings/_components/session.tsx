@@ -13,7 +13,7 @@ interface UiSessionProps {
   isCurrent?: boolean;
   isDeleting?: boolean;
   showActionButton?: boolean;
-  deleteSession: ({ sessionId }: { sessionId: string }) => void;
+  deleteSession?: ({ sessionId }: { sessionId: string }) => void;
 }
 
 export function UiSession({
@@ -64,7 +64,7 @@ export function UiSession({
           size="sm"
           className="text-text-disabled hover:text-error ml-2 h-auto shrink-0 px-2 py-1 text-xs"
           disabled={isDeleting}
-          onClick={() => deleteSession({ sessionId: session.id })}
+          onClick={deleteSession?.bind(null, { sessionId: session.id })}
         >
           {isDeleting ? <Loader2 className="size-3 animate-spin" /> : <X className="size-3" />}
           <span className="ml-1">{isCurrent ? 'Sign out' : 'End'}</span>
