@@ -1,6 +1,6 @@
 # Two-Factor Authentication (TOTP) — Complete Reference
 
-## Table of Contents
+## Table of Content
 
 1. [What is 2FA?](#1-what-is-2fa)
 2. [TOTP Theory — How It Works](#2-totp-theory--how-it-works)
