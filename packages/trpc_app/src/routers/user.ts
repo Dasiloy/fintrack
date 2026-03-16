@@ -140,7 +140,7 @@ export const userRouter = createTRPCRouter({
         });
 
         return newUser;
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -192,7 +192,7 @@ export const userRouter = createTRPCRouter({
         });
 
         return notification;
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
           throw new TRPCError({
             code: 'NOT_FOUND',
@@ -239,7 +239,7 @@ export const userRouter = createTRPCRouter({
         if (!response.ok) await throwGatewayError(response);
         const data: StandardResponse<null> = await response.json();
         return data;
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
