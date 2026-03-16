@@ -524,7 +524,7 @@ export class AuthService {
       if (!user) {
         throw new RpcException({
           code: status.UNAUTHENTICATED,
-          message: 'Invalid Email/Password',
+          message: 'Unauthorized',
         });
       }
 
@@ -532,7 +532,7 @@ export class AuthService {
       if (user.scheduledDeletionAt) {
         throw new RpcException({
           code: status.UNAUTHENTICATED,
-          message: 'Invalid Email/Password.',
+          message: 'Unauthorized',
         });
       }
 

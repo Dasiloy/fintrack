@@ -8,13 +8,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(PrismaService.name);
-  constructor(private readonly configService: ConfigService) {
-    const sslRootCert = join(process.cwd(), '..', '..', 'ca.pem');
-    const connectionString = `${configService.getOrThrow<string>('DATABASE_URL')}?sslmode=verify-full&sslrootcert=${sslRootCert}`;
+  constructor(configService: ConfigService) {
+    const databaseCaCertificate = configService.getOrThrow<string>('DATABASE_CA_CERTIFICATE');
+
+    const sslRootCert = Buffer.from(databaseCaCertificate, 'base64').toString('utf-8');
 
     const adapter = new PrismaPg({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
+      connectionString: configService.getOrThrow<string>('DATABASE_URL'),
+      ssl: { rejectUnauthorized: true, ca: sslRootCert },
       max: 8,
       connectionTimeoutMillis: 10000,
       idleTimeoutMillis: 30000,
