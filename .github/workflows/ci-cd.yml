@@ -19,8 +19,8 @@ on:
     branches: [main]
 
 env:
-  NODE_VERSION: "20"
-  PNPM_VERSION: "9.0.0"
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9.0.0'
 
 # ── Job 1: Type Check ─────────────────────────────────────────────────────────
 jobs:
@@ -49,15 +49,16 @@ jobs:
       - name: Build workspace packages
         run: pnpm turbo build --filter="./packages/*"
         env:
-          SKIP_ENV_VALIDATION: "true"
-          DATABASE_URL: "postgresql://user:pass@localhost/db"
+          SKIP_ENV_VALIDATION: 'true'
+          DATABASE_URL: 'postgresql://user:pass@localhost/db'
+          DATABASE_CA_CERTIFICATE: 'your-database-ca-certificate-in-base64'
 
       - name: Type check all apps
         run: pnpm check-types
         env:
-          SKIP_ENV_VALIDATION: "true"
+          SKIP_ENV_VALIDATION: 'true'
 
-# ── Job 2: Unit Tests (one job per NestJS service) ────────────────────────────
+  # ── Job 2: Unit Tests (one job per NestJS service) ────────────────────────────
   test:
     name: Test — ${{ matrix.service }}
     runs-on: ubuntu-latest
@@ -91,8 +92,9 @@ jobs:
       - name: Build workspace packages
         run: pnpm turbo build --filter="./packages/*"
         env:
-          SKIP_ENV_VALIDATION: "true"
-          DATABASE_URL: "postgresql://user:pass@localhost/db"
+          SKIP_ENV_VALIDATION: 'true'
+          DATABASE_URL: 'postgresql://user:pass@localhost/db'
+          DATABASE_CA_CERTIFICATE: 'your-database-ca-certificate-in-base64'
 
       - name: Run tests
         run: pnpm --filter ${{ matrix.service }} test

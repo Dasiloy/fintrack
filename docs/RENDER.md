@@ -40,47 +40,48 @@ Go to each service → **Settings → Environment** and set:
 
 ### fintrack-api-gateway
 
-| Variable | Where to get it |
-|---|---|
-| `DATABASE_URL` | Neon → Connection Details → Pooled connection string |
-| `REDIS_URL` | Upstash → Redis → Details tab (`rediss://...`) |
-| `JWT_SECRET` | `openssl rand -base64 48` |
-| `JWT_REFRESH_SECRET` | `openssl rand -base64 48` (different value) |
-| `JWT_OTP_SECRET` | `openssl rand -base64 48` (different value) |
-| `AUTH_SECRET` | Same value as `JWT_SECRET` |
-| `AUTH_GOOGLE_ID` | Google Cloud Console → OAuth 2.0 Client ID |
-| `AUTH_GOOGLE_SECRET` | Google Cloud Console → OAuth 2.0 Client Secret |
-| `SWAGGER_DOC_USER` | Any username for the `/api/docs` basic auth |
-| `SWAGGER_DOC_PASS` | Any strong password |
-| `CLOUDINARY_ID` | Cloudinary Dashboard → Cloud name |
-| `NEXT_PUBLIC_APP_URL` | Your production web app URL (e.g. `https://fintrack.live`) |
+| Variable                  | Where to get it                                            |
+| ------------------------- | ---------------------------------------------------------- |
+| `DATABASE_URL`            | Neon → Connection Details → Pooled connection string       |
+| `DATABASE_CA_CERTIFICATE` | DB Ca Certificate                                          |
+| `REDIS_URL`               | Upstash → Redis → Details tab (`rediss://...`)             |
+| `JWT_SECRET`              | `openssl rand -base64 48`                                  |
+| `JWT_REFRESH_SECRET`      | `openssl rand -base64 48` (different value)                |
+| `JWT_OTP_SECRET`          | `openssl rand -base64 48` (different value)                |
+| `AUTH_SECRET`             | Same value as `JWT_SECRET`                                 |
+| `AUTH_GOOGLE_ID`          | Google Cloud Console → OAuth 2.0 Client ID                 |
+| `AUTH_GOOGLE_SECRET`      | Google Cloud Console → OAuth 2.0 Client Secret             |
+| `SWAGGER_DOC_USER`        | Any username for the `/api/docs` basic auth                |
+| `SWAGGER_DOC_PASS`        | Any strong password                                        |
+| `CLOUDINARY_ID`           | Cloudinary Dashboard → Cloud name                          |
+| `NEXT_PUBLIC_APP_URL`     | Your production web app URL (e.g. `https://fintrack.live`) |
 
 ### fintrack-auth-service
 
-| Variable | Where to get it |
-|---|---|
-| `DATABASE_URL` | Same Neon connection string |
-| `JWT_SECRET` | Same value as api_gateway |
-| `JWT_REFRESH_SECRET` | Same value as api_gateway |
-| `JWT_OTP_SECRET` | Same value as api_gateway |
-| `JWT_2FA_SECRET` | `openssl rand -base64 48` (new unique value) |
-| `AES_KEY` | `openssl rand -hex 32` — **must be exactly 64 hex characters** |
+| Variable             | Where to get it                                                |
+| -------------------- | -------------------------------------------------------------- |
+| `DATABASE_URL`       | Same Neon connection string                                    |
+| `JWT_SECRET`         | Same value as api_gateway                                      |
+| `JWT_REFRESH_SECRET` | Same value as api_gateway                                      |
+| `JWT_OTP_SECRET`     | Same value as api_gateway                                      |
+| `JWT_2FA_SECRET`     | `openssl rand -base64 48` (new unique value)                   |
+| `AES_KEY`            | `openssl rand -hex 32` — **must be exactly 64 hex characters** |
 
 ### fintrack-notification-service
 
-| Variable | Where to get it |
-|---|---|
-| `DATABASE_URL` | Same Neon connection string |
-| `REDIS_URL` | Same Upstash URL |
-| `MAIL_FROM` | Your verified Mailtrap sending domain address (e.g. `noreply@fintrack.live`) |
-| `MAIL_TOKEN` | Mailtrap → Email API → API Tokens |
+| Variable       | Where to get it                                                              |
+| -------------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL` | Same Neon connection string                                                  |
+| `REDIS_URL`    | Same Upstash URL                                                             |
+| `MAIL_FROM`    | Your verified Mailtrap sending domain address (e.g. `noreply@fintrack.live`) |
+| `MAIL_TOKEN`   | Mailtrap → Email API → API Tokens                                            |
 
 ### fintrack-payment-service
 
-| Variable | Where to get it |
-|---|---|
+| Variable       | Where to get it             |
+| -------------- | --------------------------- |
 | `DATABASE_URL` | Same Neon connection string |
-| `REDIS_URL` | Same Upstash URL |
+| `REDIS_URL`    | Same Upstash URL            |
 
 ---
 
@@ -121,13 +122,16 @@ CI (GitHub Actions) still runs type-check and tests on `feat/**` branches and PR
 ## Troubleshooting
 
 **Service can't reach another service (gRPC connection refused)**
+
 - Check `*_HOST` and `*_PORT` env vars on api_gateway match the Render internal address exactly
 - Ensure the target Private Service is healthy (check its Render logs)
 
 **Build fails with missing module**
+
 - Check Render logs for the exact error
 - Most common: a secret env var is empty — fill it in and trigger a manual deploy
 
 **Container crashes on startup**
+
 - Almost always a missing or wrong environment variable
 - Check Render logs for the specific validation error from ConfigModule/Joi

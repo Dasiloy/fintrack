@@ -66,6 +66,8 @@ services:
       # Secrets — set in Render → fintrack-api-gateway → Settings → Environment
       - key: DATABASE_URL
         sync: false
+      - key: DATABASE_CA_CERTIFICATE
+        sync: false
       - key: REDIS_URL
         sync: false
       - key: AUTH_GOOGLE_ID
