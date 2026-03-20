@@ -258,11 +258,6 @@
   }
 }
 
-/* Typography utilities — @utility places these after core Tailwind utilities in CSS output,
-   so they win over shadcn's built-in text-sm / text-xs / etc. for font-size.
-   Font-weight and line-height are intentionally excluded so components can override them
-   with font-medium, leading-snug etc. without conflicts.
-   Exceptions: letter-spacing on headings and text-transform on overline are inherent to those styles. */
 @utility text-h1 {
   font-size: var(--ft-text-h1);
   line-height: var(--ft-text-h1-line-height);

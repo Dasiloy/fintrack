@@ -1,9 +1,18 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
+import {
+  COOKIE_CONSENT,
+  COOKIE_CONSENT_EXPIRES,
+  COOKIE_CONSENT_VALUE_ACCEPTED,
+  COOKIE_CONSENT_VALUE_DECLINED,
+} from '@/lib/constants/cookies';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-type ConsentValue = 'accepted' | 'declined' | null;
+type ConsentValue =
+  | typeof COOKIE_CONSENT_VALUE_ACCEPTED
+  | typeof COOKIE_CONSENT_VALUE_DECLINED
+  | null;
 
 interface CookieConsentContextValue {
   consent: ConsentValue;
@@ -11,27 +20,30 @@ interface CookieConsentContextValue {
   decline: () => void;
 }
 
-const COOKIE_KEY = 'fintrack_cookie_consent';
-const COOKIE_EXPIRES = 365; // days
-
 const CookieConsentContext = createContext<CookieConsentContextValue | null>(null);
 
 export function CookieConsentProvider({ children }: React.PropsWithChildren) {
   const [consent, setConsent] = useState<ConsentValue>(null);
 
   useEffect(() => {
-    const stored = Cookies.get(COOKIE_KEY) as ConsentValue | undefined;
+    const stored = Cookies.get(COOKIE_CONSENT) as ConsentValue | undefined;
     if (stored === 'accepted' || stored === 'declined') setConsent(stored);
   }, []);
 
   const accept = useCallback(() => {
-    Cookies.set(COOKIE_KEY, 'accepted', { expires: COOKIE_EXPIRES, sameSite: 'lax' });
-    setConsent('accepted');
+    Cookies.set(COOKIE_CONSENT, COOKIE_CONSENT_VALUE_ACCEPTED, {
+      expires: COOKIE_CONSENT_EXPIRES,
+      sameSite: 'lax',
+    });
+    setConsent(COOKIE_CONSENT_VALUE_ACCEPTED);
   }, []);
 
   const decline = useCallback(() => {
-    Cookies.set(COOKIE_KEY, 'declined', { expires: COOKIE_EXPIRES, sameSite: 'lax' });
-    setConsent('declined');
+    Cookies.set(COOKIE_CONSENT, COOKIE_CONSENT_VALUE_DECLINED, {
+      expires: COOKIE_CONSENT_EXPIRES,
+      sameSite: 'lax',
+    });
+    setConsent(COOKIE_CONSENT_VALUE_DECLINED);
   }, []);
 
   return (
