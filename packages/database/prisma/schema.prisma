@@ -476,7 +476,7 @@ model NotificationSetting {
 
  // goals
  goalsAlertMail    Boolean    @default(true)
- gaolsAlertApp     Boolean    @default(true)
+ goalsAlertApp     Boolean    @default(true)
 
 // splits
 splitsAlertMail    Boolean    @default(true)

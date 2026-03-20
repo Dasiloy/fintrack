@@ -2,7 +2,7 @@ import '@/styles/globals.css';
 
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import { type Metadata } from 'next';
+import { type Metadata, type Viewport } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 
 import AppProviver from '@/app/providers/app_provider';
@@ -10,11 +10,11 @@ import { TRPCReactProvider as TRPCAppProvider } from '@/lib/trpc_app/client';
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fintrack.live';
 
+///! METADATA SETUP
 export const metadata: Metadata = {
   title: 'Fintrack',
   description: 'Financial and budgeting tool. Experience AI automated budgeting.',
   metadataBase: new URL(siteUrl),
-
   // --- Favicon & app icons
   icons: {
     icon: [
@@ -51,18 +51,32 @@ export const metadata: Metadata = {
   },
 };
 
+///! VIEWPORT SETUP
+export const viewport: Viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  width: 'device-width',
+  userScalable: false,
+  viewportFit: 'cover',
+  colorScheme: 'dark',
+  themeColor: '#0f0f14',
+};
+
+///! FONT SETUP
 const inetr = Inter({
   subsets: ['latin'],
   variable: '--ft-font-inter',
   display: 'swap',
 });
-
 const manrope = Manrope({
   subsets: ['latin'],
   variable: '--ft-font-manrope',
   display: 'swap',
 });
 
+// ======================
+//  MAIN COMPONENT
+// ======================
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inetr.variable} ${manrope.variable}`}>
@@ -76,5 +90,3 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
-
-// stripe steup and subscription

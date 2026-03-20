@@ -257,7 +257,7 @@ exports.Prisma.NotificationSettingScalarFieldEnum = {
   aiInsightsMail: 'aiInsightsMail',
   aiInsightsApp: 'aiInsightsApp',
   goalsAlertMail: 'goalsAlertMail',
-  gaolsAlertApp: 'gaolsAlertApp',
+  goalsAlertApp: 'goalsAlertApp',
   splitsAlertMail: 'splitsAlertMail',
   splitsAlertApp: 'splitsAlertApp',
   newsLetterAlert: 'newsLetterAlert',

@@ -35,8 +35,23 @@ export const userRouter = createTRPCRouter({
           currency: true,
           dateFormat: true,
           timezone: true,
-          setting: true,
           lastLoginAt: true,
+          setting: {
+            select: {
+              budgetAlertMail: true,
+              budgetAlertApp: true,
+              billReminderMail: true,
+              billReminderApp: true,
+              weeklyReportMail: true,
+              weeklyReportApp: true,
+              aiInsightsMail: true,
+              aiInsightsApp: true,
+              goalsAlertMail: true,
+              goalsAlertApp: true,
+              splitsAlertMail: true,
+              splitsAlertApp: true,
+            },
+          },
           subscription: {
             select: {
               plan: true,
@@ -177,11 +192,9 @@ export const userRouter = createTRPCRouter({
         aiInsightsMail: z.boolean(),
         aiInsightsApp: z.boolean(),
         goalsAlertMail: z.boolean(),
-        gaolsAlertApp: z.boolean(),
+        goalsAlertApp: z.boolean(),
         splitsAlertMail: z.boolean(),
         splitsAlertApp: z.boolean(),
-        newsLetterAlert: z.boolean(),
-        communityAlert: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
