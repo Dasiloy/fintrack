@@ -14437,7 +14437,7 @@ export namespace Prisma {
     aiInsightsMail: boolean | null
     aiInsightsApp: boolean | null
     goalsAlertMail: boolean | null
-    gaolsAlertApp: boolean | null
+    goalsAlertApp: boolean | null
     splitsAlertMail: boolean | null
     splitsAlertApp: boolean | null
     newsLetterAlert: boolean | null
@@ -14458,7 +14458,7 @@ export namespace Prisma {
     aiInsightsMail: boolean | null
     aiInsightsApp: boolean | null
     goalsAlertMail: boolean | null
-    gaolsAlertApp: boolean | null
+    goalsAlertApp: boolean | null
     splitsAlertMail: boolean | null
     splitsAlertApp: boolean | null
     newsLetterAlert: boolean | null
@@ -14479,7 +14479,7 @@ export namespace Prisma {
     aiInsightsMail: number
     aiInsightsApp: number
     goalsAlertMail: number
-    gaolsAlertApp: number
+    goalsAlertApp: number
     splitsAlertMail: number
     splitsAlertApp: number
     newsLetterAlert: number
@@ -14502,7 +14502,7 @@ export namespace Prisma {
     aiInsightsMail?: true
     aiInsightsApp?: true
     goalsAlertMail?: true
-    gaolsAlertApp?: true
+    goalsAlertApp?: true
     splitsAlertMail?: true
     splitsAlertApp?: true
     newsLetterAlert?: true
@@ -14523,7 +14523,7 @@ export namespace Prisma {
     aiInsightsMail?: true
     aiInsightsApp?: true
     goalsAlertMail?: true
-    gaolsAlertApp?: true
+    goalsAlertApp?: true
     splitsAlertMail?: true
     splitsAlertApp?: true
     newsLetterAlert?: true
@@ -14544,7 +14544,7 @@ export namespace Prisma {
     aiInsightsMail?: true
     aiInsightsApp?: true
     goalsAlertMail?: true
-    gaolsAlertApp?: true
+    goalsAlertApp?: true
     splitsAlertMail?: true
     splitsAlertApp?: true
     newsLetterAlert?: true
@@ -14638,7 +14638,7 @@ export namespace Prisma {
     aiInsightsMail: boolean
     aiInsightsApp: boolean
     goalsAlertMail: boolean
-    gaolsAlertApp: boolean
+    goalsAlertApp: boolean
     splitsAlertMail: boolean
     splitsAlertApp: boolean
     newsLetterAlert: boolean
@@ -14676,7 +14676,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -14698,7 +14698,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -14720,7 +14720,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -14742,7 +14742,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -14752,7 +14752,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "gaolsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
+  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "goalsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
   export type NotificationSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -14779,7 +14779,7 @@ export namespace Prisma {
       aiInsightsMail: boolean
       aiInsightsApp: boolean
       goalsAlertMail: boolean
-      gaolsAlertApp: boolean
+      goalsAlertApp: boolean
       splitsAlertMail: boolean
       splitsAlertApp: boolean
       newsLetterAlert: boolean
@@ -15221,7 +15221,7 @@ export namespace Prisma {
     readonly aiInsightsMail: FieldRef<"NotificationSetting", 'Boolean'>
     readonly aiInsightsApp: FieldRef<"NotificationSetting", 'Boolean'>
     readonly goalsAlertMail: FieldRef<"NotificationSetting", 'Boolean'>
-    readonly gaolsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly goalsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
     readonly splitsAlertMail: FieldRef<"NotificationSetting", 'Boolean'>
     readonly splitsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
     readonly newsLetterAlert: FieldRef<"NotificationSetting", 'Boolean'>
@@ -15827,7 +15827,7 @@ export namespace Prisma {
     aiInsightsMail: 'aiInsightsMail',
     aiInsightsApp: 'aiInsightsApp',
     goalsAlertMail: 'goalsAlertMail',
-    gaolsAlertApp: 'gaolsAlertApp',
+    goalsAlertApp: 'goalsAlertApp',
     splitsAlertMail: 'splitsAlertMail',
     splitsAlertApp: 'splitsAlertApp',
     newsLetterAlert: 'newsLetterAlert',
@@ -16914,7 +16914,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFilter<"NotificationSetting"> | boolean
     aiInsightsApp?: BoolFilter<"NotificationSetting"> | boolean
     goalsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
-    gaolsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    goalsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     splitsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
     splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
@@ -16936,7 +16936,7 @@ export namespace Prisma {
     aiInsightsMail?: SortOrder
     aiInsightsApp?: SortOrder
     goalsAlertMail?: SortOrder
-    gaolsAlertApp?: SortOrder
+    goalsAlertApp?: SortOrder
     splitsAlertMail?: SortOrder
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
@@ -16962,7 +16962,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFilter<"NotificationSetting"> | boolean
     aiInsightsApp?: BoolFilter<"NotificationSetting"> | boolean
     goalsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
-    gaolsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
+    goalsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     splitsAlertMail?: BoolFilter<"NotificationSetting"> | boolean
     splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
@@ -16983,7 +16983,7 @@ export namespace Prisma {
     aiInsightsMail?: SortOrder
     aiInsightsApp?: SortOrder
     goalsAlertMail?: SortOrder
-    gaolsAlertApp?: SortOrder
+    goalsAlertApp?: SortOrder
     splitsAlertMail?: SortOrder
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
@@ -17010,7 +17010,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     aiInsightsApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     goalsAlertMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
-    gaolsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    goalsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     splitsAlertMail?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     splitsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
@@ -17935,7 +17935,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -17956,7 +17956,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -17977,7 +17977,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
@@ -17998,7 +17998,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
@@ -18019,7 +18019,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -18040,7 +18040,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
@@ -18060,7 +18060,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
@@ -18947,7 +18947,7 @@ export namespace Prisma {
     aiInsightsMail?: SortOrder
     aiInsightsApp?: SortOrder
     goalsAlertMail?: SortOrder
-    gaolsAlertApp?: SortOrder
+    goalsAlertApp?: SortOrder
     splitsAlertMail?: SortOrder
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
@@ -18968,7 +18968,7 @@ export namespace Prisma {
     aiInsightsMail?: SortOrder
     aiInsightsApp?: SortOrder
     goalsAlertMail?: SortOrder
-    gaolsAlertApp?: SortOrder
+    goalsAlertApp?: SortOrder
     splitsAlertMail?: SortOrder
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
@@ -18989,7 +18989,7 @@ export namespace Prisma {
     aiInsightsMail?: SortOrder
     aiInsightsApp?: SortOrder
     goalsAlertMail?: SortOrder
-    gaolsAlertApp?: SortOrder
+    goalsAlertApp?: SortOrder
     splitsAlertMail?: SortOrder
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
@@ -20037,7 +20037,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -20057,7 +20057,7 @@ export namespace Prisma {
     aiInsightsMail?: boolean
     aiInsightsApp?: boolean
     goalsAlertMail?: boolean
-    gaolsAlertApp?: boolean
+    goalsAlertApp?: boolean
     splitsAlertMail?: boolean
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
@@ -20284,7 +20284,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
@@ -20304,7 +20304,7 @@ export namespace Prisma {
     aiInsightsMail?: BoolFieldUpdateOperationsInput | boolean
     aiInsightsApp?: BoolFieldUpdateOperationsInput | boolean
     goalsAlertMail?: BoolFieldUpdateOperationsInput | boolean
-    gaolsAlertApp?: BoolFieldUpdateOperationsInput | boolean
+    goalsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertMail?: BoolFieldUpdateOperationsInput | boolean
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
