@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@ui/lib/utils';
 import type { Session } from '@fintrack/database/types';
 import { parseUserAgent } from '@/utils/helpers';
 import { Badge } from '@ui/components/atoms/badge';
@@ -28,9 +29,10 @@ export function UiSession({
   return (
     <li
       {...rest}
-      className={`flex items-center justify-between rounded-lg p-3 ${
-        isCurrent ? 'bg-primary/5 border-primary/15 border' : 'bg-bg-surface-hover'
-      }`}
+      className={cn(
+        'flex items-center justify-between rounded-lg p-3',
+        isCurrent ? 'bg-primary/5 border-primary/15 border' : 'bg-bg-surface-hover',
+      )}
     >
       <div className="flex min-w-0 items-center gap-3">
         <div
@@ -49,10 +51,13 @@ export function UiSession({
               </Badge>
             )}
           </div>
+          <p className="text-text-disabled truncate text-[11px]">{browser}</p>
           <p className="text-text-disabled truncate text-[11px]">
-            {browser}
             {session.location ? ` · ${session.location}` : ''}
             {` · ${maskIp(session.ipAddress)}`}
+          </p>
+          <p className="text-text-disabled truncate text-[11px]">
+            {session.location ? ` · ${session.location}` : ''}
             {!isCurrent && ` · ${getTimeFromNow(session.lastUsedAt)}`}
           </p>
         </div>
