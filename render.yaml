@@ -84,6 +84,8 @@ services:
         sync: false
       - key: NEXT_PUBLIC_APP_URL
         sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
 
   # ── Private gRPC service: Auth ──────────────────────────────────────────────
   - type: pserv
@@ -208,4 +210,10 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRO_MONTHLY_PRICE_ID
         sync: false
