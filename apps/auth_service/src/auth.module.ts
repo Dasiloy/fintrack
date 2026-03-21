@@ -42,6 +42,7 @@ import { CleanupProcessor } from './cleanup/cleanup.processor';
         JWT_2FA_TOKEN_EXPIRATION: Joi.string().required(),
         AUTH_GOOGLE_ID: Joi.string().required(),
         AES_KEY: Joi.string().required(),
+        MICROSERVICE_NAME: Joi.string().required(),
       }),
     }),
     JwtModule.registerAsync({
