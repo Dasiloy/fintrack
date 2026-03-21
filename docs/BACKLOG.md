@@ -16,6 +16,7 @@ Items are grouped by type. Each entry follows the format:
 ## 🗂️ Backlog
 
 ### [BL-001] Use Mailtrap sandbox API in dev and Mailtrap sending API in production
+
 - **Type**: Improvement
 - **Priority**: High
 - **Status**: Pending
@@ -26,6 +27,16 @@ Items are grouped by type. Each entry follows the format:
   - Add `MAIL_ENV` (or rely on `NODE_ENV`) and separate env vars `MAIL_TOKEN_SANDBOX` / `MAIL_TOKEN_PROD` (or a single `MAIL_TOKEN` set per environment) to `apps/notification_service/.env.example`.
   - The `MAIL_FROM` address must match the verified sending domain configured in the Mailtrap account.
   - Related files: `apps/notification_service/src/notification.module.ts`, `apps/notification_service/.env.example`.
+
+### [BL-002] Introduce Export data functionalityfor high qulity pdf and csv files
+
+- **Type**: Ferature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users need to be able to download and export high quality csv and pdf files containing account information, Should be ideally just past 7 days, and contains account statement. Intense export will be in dashboard screen
+  **Notes**:
+- Exports need to beautiful high ressolution pdfs and csv files
+- multi sheet csv and excels should be possible
 
 ---
 

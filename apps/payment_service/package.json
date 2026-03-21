@@ -27,13 +27,15 @@
     "@grpc/proto-loader": "^0.8.0",
     "@grpc/reflection": "^1.0.4",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/platform-express": "^11.0.1",
     "grpc-health-check": "^2.1.0",
     "joi": "^18.0.2",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

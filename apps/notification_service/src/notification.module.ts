@@ -31,6 +31,7 @@ import { TokenNotification } from './processors/token_notification.pro';
         DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MAIL_TOKEN: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),
+        MICROSERVICE_NAME: Joi.string().required(),
       }),
     }),
     MailerModule.forRootAsync({
