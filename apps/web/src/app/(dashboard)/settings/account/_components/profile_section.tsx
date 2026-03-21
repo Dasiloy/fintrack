@@ -17,6 +17,7 @@ interface ProfileSectionProps extends PropsWithChildren {
   Icon: React.ReactNode;
   saving?: boolean;
   onSave?: () => void;
+  showSave?: boolean;
 }
 
 export function ProfileSection({
@@ -26,6 +27,7 @@ export function ProfileSection({
   onSave,
   children,
   saving = false,
+  showSave = true,
 }: ProfileSectionProps) {
   return (
     <Card>
@@ -37,12 +39,14 @@ export function ProfileSection({
           </div>
         </CardTitle>
         <CardDescription>{description}</CardDescription>
-        <CardAction>
-          <Button size="xs" variant={'secondary'} loading={saving} onClick={onSave}>
-            Save
-          </Button>
-        </CardAction>
-      </CardHeader>{' '}
+        {showSave && (
+          <CardAction>
+            <Button size="xs" variant={'secondary'} loading={saving} onClick={onSave}>
+              Save
+            </Button>
+          </CardAction>
+        )}
+      </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
   );

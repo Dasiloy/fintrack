@@ -63,8 +63,11 @@ import { UploadModule } from './upload/upload.module';
         PAYMENT_SERVICE_PORT: Joi.string().required(),
         NOTIFICATION_SERVICE_HOST: Joi.string().required(),
         NOTIFICATION_SERVICE_PORT: Joi.string().required(),
+        STRIPE_WEBHOOK_SECRET: Joi.string().required(),
       }),
     }),
+
+    // Register Microservices
     ClientsModule.registerAsync({
       isGlobal: true,
       clients: [
