@@ -437,7 +437,7 @@ model UsageTracker {
 model BackupCodes {
   id        String   @id @default(cuid())
   usedAt    DateTime?
-  code      String   // Hashed Code For Security
+  code      String   // Hashed Code For Security, Contains the secret andiv as secret:iv
   userId    String
   user      User    @relation(fields: [userId], references: [id],onDelete: Cascade)
 
