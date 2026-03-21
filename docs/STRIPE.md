@@ -3,6 +3,7 @@
 FinTrack uses a **Free + Pro** model. All users sign up as Free — no plan selection at registration. Upgrade is contextual: triggered by hitting a quota limit, reaching 80% of a limit, or clicking the persistent sidebar badge. Pro costs $5/month, billed via Stripe.
 
 **Key principles:**
+
 - Plan state lives in the database (`User.plan`), NOT in the JWT — stale JWT risk on downgrade is too high
 - Server-side quota checks are mandatory; client-side UI gates (disabled buttons, hidden elements) are UX only
 - Existing user data is NEVER deleted on downgrade — only creation of new items is blocked
@@ -13,11 +14,11 @@ FinTrack uses a **Free + Pro** model. All users sign up as Free — no plan sele
 
 FinTrack uses three Stripe touch-points:
 
-| Service | Role | Key |
-|---|---|---|
-| `apps/payment_service` | Server-side SDK — customer creation, checkout sessions, webhook handling | `STRIPE_SECRET_KEY` |
-| `apps/api_gateway` | Webhook endpoint — receives and verifies Stripe events | `STRIPE_WEBHOOK_SECRET` |
-| `apps/web` | Redirect to hosted Checkout — needs publishable key for client | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
+| Service                | Role                                                                     | Key                                  |
+| ---------------------- | ------------------------------------------------------------------------ | ------------------------------------ |
+| `apps/payment_service` | Server-side SDK — customer creation, checkout sessions, webhook handling | `STRIPE_SECRET_KEY`                  |
+| `apps/api_gateway`     | Webhook endpoint — receives and verifies Stripe events                   | `STRIPE_WEBHOOK_SECRET`              |
+| `apps/web`             | Redirect to hosted Checkout — needs publishable key for client           | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` |
 
 The secret key **never** touches the browser. Only the publishable key is safe to expose.
 
@@ -25,20 +26,20 @@ The secret key **never** touches the browser. Only the publishable key is safe t
 
 ## Plan Feature Matrix
 
-| Feature | Free | Pro |
-|---|---|---|
-| Transactions | Unlimited, full history | Unlimited, full history |
-| Custom categories | 3 | Unlimited |
-| Budgets | 5 | Unlimited |
-| Bills & Recurring items | 5 | Unlimited |
-| Goals | 3 | Unlimited |
-| Active splits | 3 (max 3 people/split) | Unlimited |
-| Analytics history | Last 6 months | All-time |
-| AI Insights queries | 20/month | Unlimited |
-| AI Chat messages | 10/month | Unlimited |
-| Receipt uploads | 10/month | Unlimited |
-| PDF Reports | No | Yes |
-| CSV Export | No | Yes |
+| Feature                 | Free                    | Pro                     |
+| ----------------------- | ----------------------- | ----------------------- |
+| Transactions            | Unlimited, full history | Unlimited, full history |
+| Custom categories       | 3                       | Unlimited               |
+| Budgets                 | 5                       | Unlimited               |
+| Bills & Recurring items | 5                       | Unlimited               |
+| Goals                   | 3                       | Unlimited               |
+| Active splits           | 3 (max 3 people/split)  | Unlimited               |
+| Analytics history       | Last 6 months           | All-time                |
+| AI Insights queries     | 20/month                | Unlimited               |
+| AI Chat messages        | 10/month                | Unlimited               |
+| Receipt uploads         | 10/month                | Unlimited               |
+| PDF Reports             | No                      | Yes                     |
+| CSV Export              | No                      | Yes                     |
 
 ---
 
@@ -189,6 +190,7 @@ export type PlanLimits = (typeof PLAN_LIMITS)[PlanName];
 > Docs: [https://docs.stripe.com/products-prices/overview](https://docs.stripe.com/products-prices/overview)
 
 **Create the Product:**
+
 1. Dashboard → **Product catalogue** → **Add product**
 2. Fill in:
    - **Name:** `FinTrack Pro`
@@ -196,6 +198,7 @@ export type PlanLimits = (typeof PLAN_LIMITS)[PlanName];
 3. Click **Save product**
 
 **Create the Price** (still on the product page):
+
 1. Click **Add price**
 2. Set:
    - **Pricing model:** Standard pricing
@@ -217,6 +220,9 @@ export type PlanLimits = (typeof PLAN_LIMITS)[PlanName];
 > **Security rule:** If `STRIPE_SECRET_KEY` ever appears in a `NEXT_PUBLIC_*` variable or client bundle, rotate it immediately.
 
 ### 4. Enable the Customer Portal
+
+bpc_1TDOQ8BDi00p45VrmPu5ZGUi
+https://billing.stripe.com/p/login/test_6oU00igKndoG6DC7mC7g400
 
 > Docs: [https://docs.stripe.com/customer-management/activate-no-code-customer-portal](https://docs.stripe.com/customer-management/activate-no-code-customer-portal)
 
@@ -303,6 +309,7 @@ stripe listen \
 ```
 
 The CLI prints a webhook signing secret:
+
 ```
 > Ready! Your webhook signing secret is whsec_abc123... (^C to quit)
 ```
@@ -350,13 +357,13 @@ try {
 
 ### Webhook Event Handlers
 
-| Stripe Event | Action |
-|---|---|
-| `checkout.session.completed` | Set `User.plan = PRO`. Upsert `Subscription` with `customerId`, `subscriptionId`, `status = ACTIVE`, period dates. Queue `SUBSCRIPTION_UPGRADED` email job. |
-| `customer.subscription.updated` | Update `Subscription.status`, `cancelAtPeriodEnd`, period dates. Re-set `User.plan = PRO` if returning from `CANCELED`. |
-| `customer.subscription.deleted` | Set `User.plan = FREE`. Set `Subscription.status = CANCELED`. Do NOT delete user data. Queue `SUBSCRIPTION_CANCELED` email. |
-| `invoice.payment_succeeded` | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
-| `invoice.payment_failed` | Set `Subscription.status = PAST_DUE`. Queue `PAYMENT_FAILED` email. Do NOT downgrade immediately — Stripe retries before deleting the subscription. |
+| Stripe Event                    | Action                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `checkout.session.completed`    | Set `User.plan = PRO`. Upsert `Subscription` with `customerId`, `subscriptionId`, `status = ACTIVE`, period dates. Queue `SUBSCRIPTION_UPGRADED` email job.                     |
+| `customer.subscription.updated` | Update `Subscription.status`, `cancelAtPeriodEnd`, period dates. Re-set `User.plan = PRO` if returning from `CANCELED`.                                                         |
+| `customer.subscription.deleted` | Set `User.plan = FREE`. Set `Subscription.status = CANCELED`. Do NOT delete user data. Queue `SUBSCRIPTION_CANCELED` email.                                                     |
+| `invoice.payment_succeeded`     | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
+| `invoice.payment_failed`        | Set `Subscription.status = PAST_DUE`. Queue `PAYMENT_FAILED` email. Do NOT downgrade immediately — Stripe retries before deleting the subscription.                             |
 
 ### Production Webhook — Dashboard
 
@@ -574,20 +581,20 @@ function assertFeatureEnabled(plan: PlanName, feature: 'PDF_REPORTS' | 'CSV_EXPO
 
 ### Endpoints Requiring Quota Checks
 
-| tRPC Endpoint | Check Type | Limit Constant |
-|---|---|---|
-| `category.create` (custom only) | Structural | `MAX_CUSTOM_CATEGORIES` |
-| `budget.create` | Structural | `MAX_BUDGETS` |
-| `recurring.create` | Structural | `MAX_RECURRING_ITEMS` |
-| `goal.create` | Structural | `MAX_GOALS` |
-| `split.create` | Structural | `MAX_ACTIVE_SPLITS` |
-| `split.addParticipant` | Structural | `MAX_PEOPLE_PER_SPLIT` |
-| `ai.queryInsight` | Usage + Increment | `AI_INSIGHTS_QUERIES_PER_MONTH` |
-| `ai.sendChatMessage` | Usage + Increment | `AI_CHAT_MESSAGES_PER_MONTH` |
-| `receipt.upload` | Usage + Increment | `RECEIPT_UPLOADS_PER_MONTH` |
-| `report.generatePdf` | Feature flag | `PDF_REPORTS` |
-| `report.exportCsv` | Feature flag | `CSV_EXPORT` |
-| `analytics.query` | Conditional date filter | `ANALYTICS_MONTHS_LIMIT` — apply `WHERE date >= cutoff`, not a hard block |
+| tRPC Endpoint                   | Check Type              | Limit Constant                                                            |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------------------- |
+| `category.create` (custom only) | Structural              | `MAX_CUSTOM_CATEGORIES`                                                   |
+| `budget.create`                 | Structural              | `MAX_BUDGETS`                                                             |
+| `recurring.create`              | Structural              | `MAX_RECURRING_ITEMS`                                                     |
+| `goal.create`                   | Structural              | `MAX_GOALS`                                                               |
+| `split.create`                  | Structural              | `MAX_ACTIVE_SPLITS`                                                       |
+| `split.addParticipant`          | Structural              | `MAX_PEOPLE_PER_SPLIT`                                                    |
+| `ai.queryInsight`               | Usage + Increment       | `AI_INSIGHTS_QUERIES_PER_MONTH`                                           |
+| `ai.sendChatMessage`            | Usage + Increment       | `AI_CHAT_MESSAGES_PER_MONTH`                                              |
+| `receipt.upload`                | Usage + Increment       | `RECEIPT_UPLOADS_PER_MONTH`                                               |
+| `report.generatePdf`            | Feature flag            | `PDF_REPORTS`                                                             |
+| `report.exportCsv`              | Feature flag            | `CSV_EXPORT`                                                              |
+| `analytics.query`               | Conditional date filter | `ANALYTICS_MONTHS_LIMIT` — apply `WHERE date >= cutoff`, not a hard block |
 
 **Note on analytics:** For Free users, add a date filter `WHERE date >= (NOW() - INTERVAL '6 months')` to the query. Do not throw an error — just silently limit the data range.
 
@@ -663,11 +670,11 @@ Same pattern, wrapping `(app)/_layout.tsx` in the Expo router.
 Add to `packages/types/src/constants/queues.constants.ts`:
 
 ```typescript
-CREATE_STRIPE_CUSTOMER  // Worker: create Stripe customer, write stripeCustomerId to Subscription
-SUBSCRIPTION_UPGRADED   // Worker: send upgrade confirmation email
-SUBSCRIPTION_CANCELED   // Worker: send cancellation confirmation + downgrade notice email
-PAYMENT_FAILED          // Worker: send payment failure email with portal link
-USAGE_RESET             // Worker: (optional) Pro user UsageTracker reset on renewal
+CREATE_STRIPE_CUSTOMER; // Worker: create Stripe customer, write stripeCustomerId to Subscription
+SUBSCRIPTION_UPGRADED; // Worker: send upgrade confirmation email
+SUBSCRIPTION_CANCELED; // Worker: send cancellation confirmation + downgrade notice email
+PAYMENT_FAILED; // Worker: send payment failure email with portal link
+USAGE_RESET; // Worker: (optional) Pro user UsageTracker reset on renewal
 ```
 
 ---
@@ -678,12 +685,12 @@ USAGE_RESET             // Worker: (optional) Pro user UsageTracker reset on ren
 
 > Docs: [https://docs.stripe.com/testing#cards](https://docs.stripe.com/testing#cards)
 
-| Card number | Behaviour |
-|---|---|
-| `4242 4242 4242 4242` | Payment succeeds |
-| `4000 0000 0000 0002` | Card declined |
+| Card number           | Behaviour                         |
+| --------------------- | --------------------------------- |
+| `4242 4242 4242 4242` | Payment succeeds                  |
+| `4000 0000 0000 0002` | Card declined                     |
 | `4000 0025 0000 3155` | Requires 3D Secure authentication |
-| `4000 0000 0000 9995` | Insufficient funds |
+| `4000 0000 0000 9995` | Insufficient funds                |
 
 Use any future expiry date and any 3-digit CVC.
 
@@ -732,13 +739,13 @@ stripe trigger invoice.payment_failed
 
 ## Quick Reference
 
-| Item | Where to find it |
-|---|---|
-| Publishable key | Dashboard → Developers → API keys |
-| Secret key | Dashboard → Developers → API keys (click Reveal) |
-| Price ID | Dashboard → Product catalogue → your product → price row |
-| Webhook signing secret (local) | Printed by `stripe listen` |
-| Webhook signing secret (prod) | Dashboard → Developers → Webhooks → your endpoint → Reveal |
-| Test cards | [https://docs.stripe.com/testing#cards](https://docs.stripe.com/testing#cards) |
-| Stripe CLI install | [https://docs.stripe.com/stripe-cli](https://docs.stripe.com/stripe-cli) |
-| Node.js SDK reference | [https://docs.stripe.com/api?lang=node](https://docs.stripe.com/api?lang=node) |
+| Item                           | Where to find it                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| Publishable key                | Dashboard → Developers → API keys                                              |
+| Secret key                     | Dashboard → Developers → API keys (click Reveal)                               |
+| Price ID                       | Dashboard → Product catalogue → your product → price row                       |
+| Webhook signing secret (local) | Printed by `stripe listen`                                                     |
+| Webhook signing secret (prod)  | Dashboard → Developers → Webhooks → your endpoint → Reveal                     |
+| Test cards                     | [https://docs.stripe.com/testing#cards](https://docs.stripe.com/testing#cards) |
+| Stripe CLI install             | [https://docs.stripe.com/stripe-cli](https://docs.stripe.com/stripe-cli)       |
+| Node.js SDK reference          | [https://docs.stripe.com/api?lang=node](https://docs.stripe.com/api?lang=node) |
