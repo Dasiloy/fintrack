@@ -7,8 +7,10 @@ export const OriginUrl = createParamDecorator(
     let url = req.get('origin') || req.get('host') || req.headers.origin;
     const isProd = process.env.NODE_ENV === 'production';
 
-    if (!isProd) {
-      url = 'http://localhost:3000';
+    if (isProd) {
+      url = url.startsWith('https') ? url : `https://${url}`;
+    } else {
+      url = url.startsWith('http') ? url : `http://${url}`;
     }
 
     return url;
