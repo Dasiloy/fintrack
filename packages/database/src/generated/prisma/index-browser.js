@@ -223,6 +223,13 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StripeWebhookEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  eventType: 'eventType',
+  processedAt: 'processedAt'
+};
+
 exports.Prisma.UsageTrackerScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -539,6 +546,7 @@ exports.Prisma.ModelName = {
   LoginActivity: 'LoginActivity',
   VerificationToken: 'VerificationToken',
   Subscription: 'Subscription',
+  StripeWebhookEvent: 'StripeWebhookEvent',
   UsageTracker: 'UsageTracker',
   BackupCodes: 'BackupCodes',
   ActivityLogs: 'ActivityLogs',

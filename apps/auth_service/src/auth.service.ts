@@ -7,9 +7,9 @@ import { status } from '@grpc/grpc-js';
 import * as bcrypt from 'bcrypt';
 
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RpcException } from '@nestjs/microservices';
+import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
 import {
@@ -69,6 +69,7 @@ import {
   DeviceInfo,
   CreateSessionOptions,
 } from '@fintrack/types/interfaces/device';
+import { PAYMENT_PACKAGE_NAME } from '@fintrack/types/protos/payment/payment';
 
 /**
  * Service responsible for managing user authentication.
@@ -90,6 +91,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
+    @Inject(PAYMENT_PACKAGE_NAME) private client: ClientGrpc,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE) private readonly tokenQueue: Queue,
     @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
   ) {}
@@ -370,6 +372,7 @@ export class AuthService {
       );
 
       this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+        id: result.user.id,
         email: result.user.email,
         firstName: result.user.firstName,
         lastName: result.user.lastName,
@@ -1307,8 +1310,8 @@ export class AuthService {
             });
           }
 
-          const isNewUser = !user.subscription;
-          if (isNewUser) {
+          const hasNoSubscription = !user.subscription;
+          if (hasNoSubscription) {
             await tx.subscription.upsert({
               where: { userId: user.id },
               create: { userId: user.id, plan: 'FREE', status: 'ACTIVE' },
@@ -1353,7 +1356,7 @@ export class AuthService {
             },
           });
 
-          return { user, session, isNewUser };
+          return { user, session, isNewUser: !existingUser };
         },
         {
           maxWait: 10000, // Wait up to 10 seconds for a connection
@@ -1365,6 +1368,7 @@ export class AuthService {
       // ==> After successful commit: dispatch welcome email for new users, sign tokens
       if (result.isNewUser) {
         this.tokenQueue.add(WELCOME_EMAIL_JOB, {
+          id: result.user.id,
           email: result.user.email,
           firstName: result.user.firstName,
           lastName: result.user.lastName,
@@ -2332,13 +2336,9 @@ export class AuthService {
         subscription?.stripeSubscriptionId &&
         subscription.status === 'ACTIVE'
       ) {
-        void this.cleanupQueue
-          .add(CANCEL_STRIPE_SUBSCRIPTION_JOB, {
-            stripeSubscriptionId: subscription.stripeSubscriptionId,
-          })
-          .catch((err) =>
-            this.logger.error('Failed to queue Stripe cancellation:', err),
-          );
+        void this.cleanupQueue.add(CANCEL_STRIPE_SUBSCRIPTION_JOB, {
+          stripeSubscriptionId: subscription.stripeSubscriptionId,
+        });
       }
 
       // ── Fire-and-forget: deletion confirmation email ───────────────────────

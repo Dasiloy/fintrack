@@ -14,7 +14,9 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   // create app
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
 
   // logger for dbug purposes
   const logger = new Logger('API_GATEWAY');

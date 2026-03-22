@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import { BullModule } from '@nestjs/bullmq';
 
 import {
   MiddlewareConsumer,
@@ -6,12 +7,10 @@ import {
   NestModule,
   ValidationPipe,
 } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-
-import { DeviceMiddleware } from './middleware/device.middleware';
 
 import {
   getServiceUrl,
@@ -19,7 +18,9 @@ import {
 } from '@fintrack/common/config/services';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
 import { DatabaseModule } from '@fintrack/database/nest';
+import { PAYMENT_QUEUE } from '@fintrack/types/constants/queus.constants';
 
+import { DeviceMiddleware } from './middleware/device.middleware';
 import { AppExceptionFilter } from './filters/rpc-exception.filter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -64,6 +65,7 @@ import { UploadModule } from './upload/upload.module';
         NOTIFICATION_SERVICE_HOST: Joi.string().required(),
         NOTIFICATION_SERVICE_PORT: Joi.string().required(),
         STRIPE_WEBHOOK_SECRET: Joi.string().required(),
+        STRIPE_SECRET_KEY: Joi.string().required(),
       }),
     }),
 
@@ -101,6 +103,19 @@ import { UploadModule } from './upload/upload.module';
         },
       ],
     }),
+    // Queue Registry
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          connection: {
+            url: configService.getOrThrow('REDIS_URL'),
+          },
+        };
+      },
+    }),
+
     DatabaseModule,
     LoggerModule,
 

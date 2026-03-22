@@ -24,7 +24,6 @@ export const axiosClient: AxiosInstance = axios.create({
   },
 });
 
-// Attach Bearer token from current session (jwt callback is now a pass-through — no refresh triggered)
 axiosClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const online = await isOnline();
