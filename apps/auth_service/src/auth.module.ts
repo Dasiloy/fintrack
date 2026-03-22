@@ -1,14 +1,19 @@
 import * as Joi from 'joi';
+import { Queue } from 'bullmq';
 
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { BullModule, InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import { DatabaseModule } from '@fintrack/database/nest';
+import {
+  getServiceConfig,
+  getServiceUrl,
+} from '@fintrack/common/config/services';
 import {
   TOKEN_NOTIFICATION_QUEUE,
   ACCOUNT_CLEANUP_QUEUE,
@@ -61,6 +66,26 @@ import { CleanupProcessor } from './cleanup/cleanup.processor';
           },
         };
       },
+    }),
+    // Register Microservices
+    ClientsModule.registerAsync({
+      isGlobal: true,
+      clients: [
+        {
+          name: getServiceConfig()['PAYMENT_SERVICE'].PACKAGE_NAME,
+          useFactory: async () => {
+            const config = getServiceConfig()['PAYMENT_SERVICE'];
+            return {
+              transport: Transport.GRPC,
+              options: {
+                package: config.NAME,
+                url: getServiceUrl('PAYMENT_SERVICE'),
+                protoPath: require.resolve(config.PROTO_PATH),
+              },
+            };
+          },
+        },
+      ],
     }),
     DatabaseModule,
     BullModule.forRootAsync({

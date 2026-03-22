@@ -1,4 +1,3 @@
-import { join } from 'node:path';
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 

@@ -8,18 +8,15 @@ import {
   Logger,
 } from '@nestjs/common';
 
-import { type User } from '@fintrack/database/src/generated/prisma';
+import { type User } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
 import { ConfigService } from '@nestjs/config';
-
-import { parseJwtExpiration } from '@fintrack/utils/jwt';
 
 /**
  * Service responsible for uploading and fetching files from Cloudinary
  *
  * @class UploadService
  */
-
 @Injectable()
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);

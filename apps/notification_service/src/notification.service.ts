@@ -1,4 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
+
 import { Injectable, Logger } from '@nestjs/common';
 
 import {
@@ -8,6 +9,7 @@ import {
   PasswordChangeEmailPayload,
   EmailChangePayload,
   EmailChangedPayload,
+  CheckoutSessionEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
 @Injectable()
@@ -60,6 +62,16 @@ export class NotificationService {
         },
       });
       this.logger.log(`Welcome email sent to ${data.email}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to create stripe customer for user ${data.id}`,
+        error.stack,
+      );
+      throw error;
+    }
+
+    //2. Send a welcome email to the user
+    try {
     } catch (error) {
       this.logger.error(
         `Failed to send welcome email to ${data.email}`,
@@ -165,6 +177,33 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send password change confirmation to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a checkout session email
+   * @param {CheckoutSessionEmailPayload} data email, firstName, lastName
+   */
+  async sendCheckoutSessionEmail(data: CheckoutSessionEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Subscription Activated - Fintrack',
+        template: './stripe_checkout',
+        context: {
+          firstName: data.firstName,
+          planName: data.planName,
+          billingInterval: data.billingInterval,
+          currency: data.currency,
+          amount: data.amount,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send checkout session email to ${data.email}`,
         error.stack,
       );
       throw error;

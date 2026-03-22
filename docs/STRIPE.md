@@ -305,7 +305,7 @@ stripe login
 ```bash
 stripe listen \
   --events checkout.session.completed,customer.subscription.updated,customer.subscription.deleted,invoice.payment_succeeded,invoice.payment_failed \
-  --forward-to localhost:3001/api/payment/webhook
+  --forward-to localhost:4001/api/payment/webhook
 ```
 
 The CLI prints a webhook signing secret:
@@ -670,7 +670,6 @@ Same pattern, wrapping `(app)/_layout.tsx` in the Expo router.
 Add to `packages/types/src/constants/queues.constants.ts`:
 
 ```typescript
-CREATE_STRIPE_CUSTOMER; // Worker: create Stripe customer, write stripeCustomerId to Subscription
 SUBSCRIPTION_UPGRADED; // Worker: send upgrade confirmation email
 SUBSCRIPTION_CANCELED; // Worker: send cancellation confirmation + downgrade notice email
 PAYMENT_FAILED; // Worker: send payment failure email with portal link
@@ -710,7 +709,7 @@ stripe trigger invoice.payment_failed
 
 ### Full Upgrade Flow End-to-End
 
-1. `stripe listen --forward-to localhost:3001/api/payment/webhook`
+1. `stripe listen --forward-to localhost:4001/api/payment/webhook`
 2. Register a new user and verify their email → confirm Stripe customer is created in Dashboard → Customers
 3. Click "Upgrade to Pro" → redirected to Stripe Checkout
 4. Enter card `4242 4242 4242 4242`, any expiry, any CVC

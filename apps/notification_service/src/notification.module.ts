@@ -12,11 +12,15 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import { DatabaseModule } from '@fintrack/database/nest';
-import { TOKEN_NOTIFICATION_QUEUE } from '@fintrack/types/constants/queus.constants';
+import {
+  PAYMENT_QUEUE,
+  TOKEN_NOTIFICATION_QUEUE,
+} from '@fintrack/types/constants/queus.constants';
 
 import { AppController } from './notification.controller';
 import { NotificationService } from './notification.service';
 import { TokenNotification } from './processors/token_notification.pro';
+import { PaymentNotification } from './processors/payment_notification.pro';
 
 @Module({
   imports: [
@@ -68,11 +72,15 @@ import { TokenNotification } from './processors/token_notification.pro';
     BullModule.registerQueue({
       name: TOKEN_NOTIFICATION_QUEUE,
     }),
+    BullModule.registerQueue({
+      name: PAYMENT_QUEUE,
+    }),
   ],
   controllers: [AppController],
   providers: [
     TokenNotification,
     NotificationService,
+    PaymentNotification,
     {
       provide: APP_INTERCEPTOR,
       useClass: GrpcLoggingInterceptor,

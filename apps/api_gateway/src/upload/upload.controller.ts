@@ -28,7 +28,7 @@ import {
 import { UploadService } from './upload.service';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
-import { type User } from '@fintrack/database/src/generated/prisma';
+import { type User } from '@fintrack/database/types';
 
 /**
  * Controller responsible for managing user uploads

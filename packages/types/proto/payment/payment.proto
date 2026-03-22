@@ -3,13 +3,23 @@ syntax= "proto3";
 package payment;
 
 service PaymentService {
-    rpc subscribe (SubscribeReq) returns (SubscribeRes) {}
+   rpc CreateCheckoutSession(OriginUrlReq) returns (CreateCheckoutSessionResponse) {}
+   rpc CreatePortalSession(OriginUrlReq) returns (CreatePortalSessionResponse) {}
 }
 
-message SubscribeReq {
-    string id= 1;
+
+message Empty {}
+
+message OriginUrlReq {
+  string origin_url =1;
 }
 
-message SubscribeRes {
-    string message= 1;
+message CreateCheckoutSessionResponse {
+    string checkout_session_url= 1;
 }
+
+
+message CreatePortalSessionResponse {
+    string portal_session_url= 1;
+}
+

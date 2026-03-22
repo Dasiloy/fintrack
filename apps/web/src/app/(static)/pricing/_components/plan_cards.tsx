@@ -1,15 +1,40 @@
-import Link from 'next/link';
+'use client';
 import { Check, X, Sparkles } from 'lucide-react';
 
-import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { cn } from '@ui/lib/utils';
 import { PRICING_PLANS } from '../_data';
+import { useRouter } from '@bprogress/next';
+import type { Session } from 'next-auth';
+import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { api_client } from '@/lib/trpc_app/api_client';
+import { Button, toast } from '@ui/components';
+
+interface PlanCardsProps {
+  session: Session | null;
+}
 
 /**
  * Side-by-side plan cards (Free & Pro).
  * Animates in with a staggered slide-up via an inline keyframe style block.
  */
-export function PlanCards() {
+
+export function PlanCards({ session }: PlanCardsProps) {
+  const router = useRouter();
+
+  // mutation
+  const subscribe = api_client.subscription.createSubscription.useMutation({
+    onSuccess: (data) => {
+      if (data.success) {
+        router.push(data.data!.checkoutSessionUrl!);
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error('Error', {
+        description: error.message,
+      });
+    },
+  });
   return (
     <section className="mx-auto max-w-[900px] px-4 pb-16 md:px-6">
       <style>{`
@@ -28,9 +53,9 @@ export function PlanCards() {
           <div
             key={plan.key}
             className={cn(
-              'ft-plan-card rounded-card border p-7 flex flex-col transition-all duration-smooth',
+              'ft-plan-card rounded-card duration-smooth flex flex-col border p-7 transition-all',
               plan.popular
-                ? 'bg-bg-elevated border-primary/40 shadow-[0_0_40px_rgba(124,122,255,0.14)] relative overflow-hidden'
+                ? 'bg-bg-elevated border-primary/40 relative overflow-hidden shadow-[0_0_40px_rgba(124,122,255,0.14)]'
                 : 'bg-bg-elevated border-border-subtle',
             )}
             style={{ animationDelay: `${idx * 120}ms` }}
@@ -39,14 +64,14 @@ export function PlanCards() {
             {plan.popular && (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/8 to-transparent"
+                className="from-primary/8 pointer-events-none absolute inset-0 bg-linear-to-br to-transparent"
               />
             )}
 
-            <div className="relative z-10 flex flex-col flex-1">
+            <div className="relative z-10 flex flex-1 flex-col">
               {/* Badge */}
               {plan.badge && (
-                <span className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-primary">
+                <span className="bg-primary/15 text-primary mb-4 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
                   <Sparkles size={11} aria-hidden="true" />
                   {plan.badge}
                 </span>
@@ -54,7 +79,7 @@ export function PlanCards() {
 
               {/* Plan name + price */}
               <div className="mb-2 flex items-end gap-1">
-                <span className="font-manrope text-text-primary text-4xl font-bold leading-none">
+                <span className="font-manrope text-text-primary text-4xl leading-none font-bold">
                   {plan.price === 0 ? 'Free' : `$${plan.price}`}
                 </span>
                 {plan.price > 0 && (
@@ -65,7 +90,7 @@ export function PlanCards() {
               <p className="text-body-sm text-text-tertiary mb-6 leading-relaxed">{plan.tagline}</p>
 
               {/* Feature list */}
-              <ul className="mb-8 flex flex-col gap-2.5 flex-1">
+              <ul className="mb-8 flex flex-1 flex-col gap-2.5">
                 {plan.highlights.map((feat) => (
                   <li key={feat.label} className="flex items-start gap-2.5">
                     {feat.included ? (
@@ -94,17 +119,21 @@ export function PlanCards() {
               </ul>
 
               {/* CTA */}
-              <Link
-                href={AUTH_ROUTES.SIGNUP}
-                className={cn(
-                  'rounded-button text-body text-center font-bold px-6 py-2.5 transition-all duration-smooth',
-                  plan.popular
-                    ? 'glossy-button text-text-primary shadow-glow'
-                    : 'border border-border-light text-text-secondary hover:text-text-primary hover:border-primary/50 hover:bg-primary/5',
-                )}
+              <Button
+                type="button"
+                variant={plan.popular ? 'default' : 'outline'}
+                disabled={subscribe.isPending}
+                loading={subscribe.isPending}
+                onClick={() => {
+                  if (plan.price === 0 || !session || !session.user) {
+                    void router.push(AUTH_ROUTES.SIGNUP);
+                    return;
+                  }
+                  subscribe.mutate();
+                }}
               >
                 {plan.ctaLabel}
-              </Link>
+              </Button>
             </div>
           </div>
         ))}
