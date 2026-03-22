@@ -8,10 +8,11 @@ import type { Session } from 'next-auth';
 export default function DashboardLayout({
   children,
   session,
-}: React.PropsWithChildren & { session: Session }) {
+  isPro,
+}: React.PropsWithChildren & { session: Session; isPro: boolean }) {
   return (
     <SidebarProvider>
-      <AppSidebar session={session} />
+      <AppSidebar session={session} isPro={isPro} />
       <SidebarInset className="bg-bg-deep flex flex-col">{children}</SidebarInset>
     </SidebarProvider>
   );

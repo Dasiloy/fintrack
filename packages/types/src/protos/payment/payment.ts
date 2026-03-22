@@ -11,30 +11,44 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "payment";
 
-export interface SubscribeReq {
-  id: string;
+export interface Empty {
 }
 
-export interface SubscribeRes {
-  message: string;
+export interface OriginUrlReq {
+  originUrl: string;
+}
+
+export interface CreateCheckoutSessionResponse {
+  checkoutSessionUrl: string;
+}
+
+export interface CreatePortalSessionResponse {
+  portalSessionUrl: string;
 }
 
 export const PAYMENT_PACKAGE_NAME = "payment";
 
 export interface PaymentServiceClient {
-  subscribe(request: SubscribeReq, metadata?: Metadata): Observable<SubscribeRes>;
+  createCheckoutSession(request: OriginUrlReq, metadata?: Metadata): Observable<CreateCheckoutSessionResponse>;
+
+  createPortalSession(request: OriginUrlReq, metadata?: Metadata): Observable<CreatePortalSessionResponse>;
 }
 
 export interface PaymentServiceController {
-  subscribe(
-    request: SubscribeReq,
+  createCheckoutSession(
+    request: OriginUrlReq,
     metadata?: Metadata,
-  ): Promise<SubscribeRes> | Observable<SubscribeRes> | SubscribeRes;
+  ): Promise<CreateCheckoutSessionResponse> | Observable<CreateCheckoutSessionResponse> | CreateCheckoutSessionResponse;
+
+  createPortalSession(
+    request: OriginUrlReq,
+    metadata?: Metadata,
+  ): Promise<CreatePortalSessionResponse> | Observable<CreatePortalSessionResponse> | CreatePortalSessionResponse;
 }
 
 export function PaymentServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["subscribe"];
+    const grpcMethods: string[] = ["createCheckoutSession", "createPortalSession"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentService", method)(constructor.prototype[method], method, descriptor);

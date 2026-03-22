@@ -7,6 +7,7 @@ export interface EmailVerificationPayload {
 
 export interface WelcomeEmailPayload {
   email: string;
+  id: string;
   firstName: string;
   lastName: string;
 }
@@ -36,4 +37,13 @@ export interface EmailChangedPayload {
   newEmail: string;
   firstName: string;
   lastName: string;
+}
+
+export interface CheckoutSessionEmailPayload {
+  email: string;
+  firstName: string;
+  planName: string;
+  billingInterval: string;
+  currency: string;
+  amount: number;
 }

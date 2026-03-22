@@ -6,6 +6,11 @@ import {
 
 import { PrismaService } from '@fintrack/database/nest';
 
+/**
+ * Service responsible for handling the health check of the API Gateway
+ *
+ * @class AppService
+ */
 @Injectable()
 export class AppService {
   private logger = new Logger(AppService.name);
