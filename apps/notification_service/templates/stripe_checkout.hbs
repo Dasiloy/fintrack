@@ -2,7 +2,7 @@
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Your email address was changed - Fintrack</title>
+    <title>You're on Pro - Fintrack</title>
     <style>
       body {
         font-family:
@@ -53,31 +53,30 @@
 
       .content {
         padding: 32px 40px 40px 40px;
-        text-align: center;
       }
 
       .greeting {
         font-size: 16px;
         font-weight: 600;
         color: #18181b;
-        margin: 0 0 16px 0;
+        margin: 0 0 12px 0;
       }
 
       .text {
         font-size: 14px;
         color: #71717a;
-        margin: 0 0 20px 0;
+        margin: 0 0 24px 0;
         line-height: 1.6;
       }
 
-      .status-badge {
+      .plan-badge {
         display: inline-block;
         background-color: #ede9fe;
         color: #6d28d9;
         padding: 6px 14px;
         font-size: 11px;
         font-weight: 700;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         border: 1px solid #ddd6fe;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -86,34 +85,62 @@
       .detail-box {
         background-color: #fafafa;
         border: 1px solid #e4e4e7;
-        padding: 16px 20px;
-        margin: 16px 0;
-        text-align: left;
+        padding: 20px;
+        margin: 0 0 24px 0;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .detail-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .detail-row:first-child {
+        padding-top: 0;
       }
 
       .detail-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
+        font-size: 12px;
         color: #a1a1aa;
-        font-weight: 700;
-        margin: 0 0 4px 0;
+        font-weight: 500;
       }
 
       .detail-value {
         font-size: 13px;
         color: #18181b;
         font-weight: 600;
-        margin: 0;
-        word-break: break-all;
+        text-align: right;
       }
 
-      .warning {
-        font-size: 12px;
-        color: #71717a;
-        margin-top: 20px;
-        margin-bottom: 0;
-        line-height: 1.6;
+      .btn {
+        display: block;
+        background-color: #7c7aff;
+        color: #ffffff !important;
+        text-decoration: none;
+        padding: 14px 32px;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 12px;
+      }
+
+      .btn-secondary {
+        display: block;
+        background-color: #ffffff;
+        color: #3f3f46 !important;
+        text-decoration: none;
+        padding: 13px 32px;
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+        border: 1px solid #e4e4e7;
       }
 
       .footer {
@@ -123,6 +150,7 @@
         background-color: #fafafa;
         font-size: 11px;
         color: #a1a1aa;
+        line-height: 1.7;
       }
 
       .footer a {
@@ -145,25 +173,37 @@
         </div>
 
         <div class='content'>
-          <p class='greeting'>Hello {{firstName}},</p>
-          <div class='status-badge'>Security Update</div>
-          <p class='text'>The email address on your Fintrack account has been
-            successfully changed.</p>
+          <p class='greeting'>Welcome to Pro, {{firstName}}.</p>
+          <div class='plan-badge'>{{planName}} Plan</div>
+          <p class='text'>Your subscription is active. Here's a summary of your
+            plan.</p>
 
           <div class='detail-box'>
-            <p class='detail-label'>New email address</p>
-            <p class='detail-value'>{{newEmail}}</p>
+            <div class='detail-row'>
+              <span class='detail-label'>Plan:</span>
+              <span class='detail-value'>&nbsp;{{planName}}
+                ·
+                {{billingInterval}}ly</span>
+            </div>
+            <div class='detail-row'>
+              <span class='detail-label'>Amount:</span>
+              <span class='detail-value'>{{currency}}
+                &nbsp;{{amount}}
+                /
+                {{billingInterval}}</span>
+            </div>
           </div>
 
-          <p class='warning'>If you did not make this change, your account may
-            be compromised. Please contact our security team immediately at
-            <a
-              href='https://fintrack.live/support'
-              style='color:#7c7aff;'
-            >fintrack.live</a>.</p>
+          <a href='https://fintrack.live/dashboard' class='btn'>Go to Dashboard</a>
+          <a
+            href='https://fintrack.live/api/billing/portal'
+            class='btn-secondary'
+          >Manage Billing</a>
         </div>
 
         <div class='footer'>
+          <p>Questions? Reach us at
+            <a href='https://www.fintrack.live/support'>Support</a></p>
           <p>&copy; 2026 Fintrack Inc. &bull;
             <a href='https://fintrack.live'>fintrack.live</a></p>
         </div>

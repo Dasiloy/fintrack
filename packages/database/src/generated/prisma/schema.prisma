@@ -407,6 +407,13 @@ model Subscription {
   updatedAt DateTime @updatedAt
 }
 
+model StripeWebhookEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique // Stripe event.id
+  eventType   String
+  processedAt DateTime @default(now())
+}
+
 enum UsageFeature {
   AI_INSIGHTS_QUERIES
   AI_CHAT_MESSAGES

@@ -41,6 +41,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarSeparator,
+  toast,
   useSidebar,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
@@ -60,6 +61,8 @@ import {
 import { signOut } from 'next-auth/react';
 import { Logo } from '@/app/_components/logo';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { useProgress } from '@bprogress/next';
+import { promisify } from '@fintrack/utils/promise';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -246,15 +249,49 @@ function NavGroupSection({
 }
 
 /** User profile footer with dropdown */
-function NavUser({ user }: { user: SessionUser }) {
+function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
+  // hooks
   const { isMobile } = useSidebar();
+  const { start, stop, set, setOptions } = useProgress();
 
+  // helpers
   const initials = user.name
     .split(' ')
     .map((n) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
+
+  // mutations
+  const createPortalSession = api_client.subscription.createPortalSession.useMutation({
+    onSuccess: async (data) => {
+      await promisify(() => {
+        stop();
+        window.location.href = data?.data?.portalSessionUrl ?? '';
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error('Error', {
+        description: error.message,
+      });
+    },
+    onSettled: () => {
+      stop();
+    },
+  });
+
+  const onClickBilling = () => {
+    createPortalSession.mutate();
+    setOptions({
+      trickle: true,
+      trickleSpeed: 350,
+      showSpinner: true,
+      easing: 'ease-in-out',
+      speed: 200,
+    });
+    start(0, 0, true);
+  };
 
   return (
     <SidebarMenu className="mt-auto mb-3 px-2 group-data-[collapsible=icon]:px-0">
@@ -316,12 +353,18 @@ function NavUser({ user }: { user: SessionUser }) {
                 <span className="text-body-sm">Account settings</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="py-space-1 cursor-pointer">
-              <Link href={STATIC_ROUTES.PRICING} className="gap-space-2 flex items-center">
-                <CreditCard className="text-text-secondary size-4 shrink-0" />
-                <span className="text-body-sm">Billing</span>
-              </Link>
-            </DropdownMenuItem>
+            {isPro && (
+              <DropdownMenuItem asChild className="py-space-1 cursor-pointer">
+                <button
+                  type="button"
+                  onClick={onClickBilling}
+                  className="gap-space-2 flex items-center"
+                >
+                  <CreditCard className="text-text-secondary size-4 shrink-0" />
+                  <span className="text-body-sm">Billing</span>
+                </button>
+              </DropdownMenuItem>
+            )}
 
             <DropdownMenuSeparator className="bg-border-subtle" />
 
@@ -348,11 +391,10 @@ function NavUser({ user }: { user: SessionUser }) {
 // AppSidebar (main export)
 // ---------------------------------------------------------------------------
 
-export function AppSidebar({ session }: { session: Session }) {
+export function AppSidebar({ session, isPro }: { session: Session; isPro: boolean }) {
   const pathname = usePathname();
   const { data, isLoading } = api_client.user.getMe.useQuery();
 
-  const isPro = React.useMemo(() => data?.data?.subscription?.plan === 'PRO', [data]);
   const user: SessionUser = React.useMemo(
     () => ({
       id: data?.data?.id ?? '',
@@ -408,7 +450,7 @@ export function AppSidebar({ session }: { session: Session }) {
 
         {/* User profile at bottom of scroll (no footer; nothing gets cut off) */}
         <SidebarSeparator />
-        <NavUser user={isLoading ? session.user : user} />
+        <NavUser user={isLoading ? session.user : user} isPro={isPro} />
       </SidebarContent>
     </Sidebar>
   );

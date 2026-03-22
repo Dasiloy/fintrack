@@ -25,39 +25,44 @@ export class TokenNotification extends WorkerHost {
 
   @OnWorkerEvent('ready')
   onReady() {
-    this.logger.log(`Worker connected and listening for jobs`);
+    this.logger.log(`${TOKEN_NOTIFICATION_QUEUE} queue is ready`);
   }
 
   @OnWorkerEvent('active')
   onActive(job: Job) {
     this.logger.log(
-      `Job ${job.id} [${job.name}] started. Data: ${JSON.stringify(job.data)}`,
+      `${TOKEN_NOTIFICATION_QUEUE} queue: Job ${job.id} [${job.name}] started. Data: ${JSON.stringify(job.data)}`,
     );
   }
 
   @OnWorkerEvent('completed')
   onCompleted(job: Job, result: any) {
     this.logger.log(
-      `Job ${job.id} [${job.name}] completed. Result: ${JSON.stringify(result)}`,
+      `${TOKEN_NOTIFICATION_QUEUE} queue: ${job.name} is completed. Job ${job.id} completed. Result: ${JSON.stringify(result)}`,
     );
   }
 
   @OnWorkerEvent('failed')
   onFail(job: Job, err: Error) {
     this.logger.error(
-      `Job ${job.id} [${job.name}] failed: ${err.message}`,
+      `${TOKEN_NOTIFICATION_QUEUE} queue: Job ${job.id} [${job.name}] failed: ${err.message}`,
       err.stack,
     );
   }
 
   @OnWorkerEvent('drained')
   onDrained() {
-    this.logger.log(`Queue is drained. No more jobs to process.`);
+    this.logger.log(
+      `${TOKEN_NOTIFICATION_QUEUE} queue is drained. No more jobs to process.`,
+    );
   }
 
   @OnWorkerEvent('error')
   onError(err: Error) {
-    this.logger.error(`Worker encountered an error: ${err.message}`, err.stack);
+    this.logger.error(
+      `${TOKEN_NOTIFICATION_QUEUE} queue: Worker encountered an error: ${err.message}`,
+      err.stack,
+    );
   }
 
   async process(job: Job<any, any, string>): Promise<any> {

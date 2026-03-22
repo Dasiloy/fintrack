@@ -89,5 +89,9 @@ export function gatewayHeaders(incomingHeaders: Headers, contentType?: ContentTy
   const cookie = incomingHeaders.get('cookie');
   if (cookie) headers['Cookie'] = cookie;
 
+  //grab origin
+  const origin = incomingHeaders.get('origin');
+  if (origin) headers['Origin'] = origin;
+
   return headers;
 }
