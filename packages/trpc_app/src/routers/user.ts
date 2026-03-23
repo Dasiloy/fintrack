@@ -3,8 +3,8 @@ import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, protectedProcedure } from '../setup';
 import { Currency, DateFormat, Language, Prisma, type User } from '@fintrack/database/types';
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
-import { MAX_FILE_SIZE, IMAGE_FILE_TYPE } from '@fintrack/types/constants/file.constants';
-import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import { MAX_FILE_SIZE } from '@fintrack/types/constants/file.constants';
+import { GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 import { base64ToBufferingString } from '@fintrack/utils/file';
 
 export const userRouter = createTRPCRouter({
@@ -56,7 +56,8 @@ export const userRouter = createTRPCRouter({
             select: {
               plan: true,
               status: true,
-              createdAt: true,
+              stripeCurrentPeriodStart: true,
+              stripeCurrentPeriodEnd: true,
             },
           },
         },

@@ -47,3 +47,57 @@ export interface CheckoutSessionEmailPayload {
   currency: string;
   amount: number;
 }
+
+export interface InvoicePaidEmailPayload {
+  firstName: string;
+  currency: string;
+  amountPaid: string;
+  invoiceNumber: string;
+  planName: string;
+  periodStart: string;
+  periodEnd: string;
+  paymentDate: string;
+  email: string;
+  hostedInvoiceUrl: string;
+}
+
+export interface PaymentFailedEmailPayload {
+  firstName: string;
+  currency: string;
+  amountDue: string;
+  email: string;
+}
+
+export interface SubscriptionActivatedEmailPayload {
+  firstName: string;
+  planName: string;
+  nextBillingDate: string;
+  email: string;
+}
+
+export interface SubscriptionCancelledEmailPayload {
+  firstName: string;
+  planName: string;
+  accessEndsAt: string;
+  email: string;
+}
+
+export interface SubscriptionEndedEmailPayload {
+  firstName: string;
+  previousPlanName: string;
+  endedAt: string;
+  email: string;
+}
+
+export interface NewUsageTrackersCreatedEmailPayload {
+  firstName: string;
+  email: string;
+  periodStart: string;
+  periodEnd: string;
+}
+
+export interface AccountDeletionEmailPayload {
+  firstName: string;
+  email: string;
+  deletionDate: string;
+}

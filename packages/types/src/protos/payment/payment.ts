@@ -32,6 +32,8 @@ export interface PaymentServiceClient {
   createCheckoutSession(request: OriginUrlReq, metadata?: Metadata): Observable<CreateCheckoutSessionResponse>;
 
   createPortalSession(request: OriginUrlReq, metadata?: Metadata): Observable<CreatePortalSessionResponse>;
+
+  cancelSubscription(request: Empty, metadata?: Metadata): Observable<Empty>;
 }
 
 export interface PaymentServiceController {
@@ -44,11 +46,13 @@ export interface PaymentServiceController {
     request: OriginUrlReq,
     metadata?: Metadata,
   ): Promise<CreatePortalSessionResponse> | Observable<CreatePortalSessionResponse> | CreatePortalSessionResponse;
+
+  cancelSubscription(request: Empty, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function PaymentServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createCheckoutSession", "createPortalSession"];
+    const grpcMethods: string[] = ["createCheckoutSession", "createPortalSession", "cancelSubscription"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("PaymentService", method)(constructor.prototype[method], method, descriptor);

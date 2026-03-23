@@ -162,7 +162,6 @@
   </head>
   <body>
 
-    {{! firstName, currency, amountDue, billingPortalUrl, dashboardUrl, supportEmail. }}
     <div class='wrapper'>
       <div class='container'>
         <div class='header'>
@@ -188,13 +187,17 @@
 
           </div>
 
-          <a href='{{billingPortalUrl}}' class='btn'>Update Payment Method</a>
-          <a href='{{dashboardUrl}}' class='btn-secondary'>Go to Dashboard</a>
+          <a
+            href='https://fintrack.live/api/billing/portal'
+            class='btn-secondary'
+          >Update Payment Method</a>
+          <a href='https://fintrack.live/dashboard' class='btn-secondary'>Go to
+            Dashboard</a>
         </div>
 
         <div class='footer'>
           <p>Questions? Reach us at
-            <a href='mailto:{{supportEmail}}'>{{supportEmail}}</a></p>
+            <a href='https://www.fintrack.live/support'>Support</a></p>
           <p>&copy; 2026 Fintrack Inc. &bull;
             <a href='https://fintrack.live'>fintrack.live</a></p>
         </div>

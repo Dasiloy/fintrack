@@ -3,11 +3,11 @@ import * as crypto from 'crypto';
 import { OTP } from 'otplib';
 import { OAuth2Client } from 'google-auth-library';
 import { Queue } from 'bullmq';
-import { status } from '@grpc/grpc-js';
+import { Metadata, status } from '@grpc/grpc-js';
 import * as bcrypt from 'bcrypt';
-
+import { lastValueFrom, timeout } from 'rxjs';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
@@ -58,9 +58,9 @@ import {
   PASSWORD_CHANGE_JOB,
   EMAIL_CHANGE_JOB,
   EMAIL_CHANGED_JOB,
-  ACCOUNT_CLEANUP_QUEUE,
-  CANCEL_STRIPE_SUBSCRIPTION_JOB,
   ACCOUNT_DELETION_EMAIL_JOB,
+  SUBSCRIPTION_DEACTIVATED_JOB,
+  PAYMENT_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
 import dayjs from '@fintrack/utils/date';
@@ -69,7 +69,11 @@ import {
   DeviceInfo,
   CreateSessionOptions,
 } from '@fintrack/types/interfaces/device';
-import { PAYMENT_PACKAGE_NAME } from '@fintrack/types/protos/payment/payment';
+import {
+  PAYMENT_PACKAGE_NAME,
+  PAYMENT_SERVICE_NAME,
+  PaymentServiceClient,
+} from '@fintrack/types/protos/payment/payment';
 
 /**
  * Service responsible for managing user authentication.
@@ -80,7 +84,9 @@ import { PAYMENT_PACKAGE_NAME } from '@fintrack/types/protos/payment/payment';
  */
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
+  private paymentService: PaymentServiceClient;
+
   // 2fa otp generator / lib
   private readonly otp = new OTP({
     strategy: 'totp',
@@ -91,10 +97,15 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-    @Inject(PAYMENT_PACKAGE_NAME) private client: ClientGrpc,
+    @Inject(PAYMENT_PACKAGE_NAME) private paymentClient: ClientGrpc,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE) private readonly tokenQueue: Queue,
-    @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
+    @InjectQueue(PAYMENT_QUEUE) private readonly paymentQueue: Queue,
   ) {}
+
+  onModuleInit() {
+    this.paymentService =
+      this.paymentClient.getService<PaymentServiceClient>(PAYMENT_SERVICE_NAME);
+  }
 
   /**
    * @description Register a new user locally,
@@ -2315,7 +2326,12 @@ export class AuthService {
       // ── Fetch active Stripe subscription for async cancellation ───────────
       const subscription = await this.prismaService.subscription.findUnique({
         where: { userId },
-        select: { stripeSubscriptionId: true, status: true },
+        select: {
+          stripeSubscriptionId: true,
+          status: true,
+          plan: true,
+          stripeCurrentPeriodEnd: true,
+        },
       });
 
       // ── Atomic: schedule deletion + revoke all sessions ───────────────────
@@ -2331,23 +2347,35 @@ export class AuthService {
         }),
       ]);
 
-      // ── Fire-and-forget: cancel Stripe subscription (stub) ────────────────
+      // ── Call stripe api to cancel subscription ────────────────
       if (
         subscription?.stripeSubscriptionId &&
         subscription.status === 'ACTIVE'
       ) {
-        void this.cleanupQueue.add(CANCEL_STRIPE_SUBSCRIPTION_JOB, {
-          stripeSubscriptionId: subscription.stripeSubscriptionId,
+        // call payment service to cancel subscription
+        const metaData = new Metadata();
+        metaData.add('x-user-id', userId);
+        await lastValueFrom(
+          this.paymentService
+            .cancelSubscription({}, metaData)
+            .pipe(timeout(10000)),
+        );
+        this.paymentQueue.add(SUBSCRIPTION_DEACTIVATED_JOB, {
+          firstName: user.firstName,
+          planName: subscription.plan,
+          accessEndsAt: dayjs(subscription.stripeCurrentPeriodEnd).format(
+            'YYYY-MM-DD',
+          ),
+          email: user.email,
         });
       }
 
       // ── Fire-and-forget: deletion confirmation email ───────────────────────
       void this.tokenQueue
         .add(ACCOUNT_DELETION_EMAIL_JOB, {
-          email: user.email,
           firstName: user.firstName,
-          lastName: user.lastName,
-          scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+          email: user.email,
+          deletionDate: dayjs(scheduledDeletionAt).format('YYYY-MM-DD'),
         })
         .catch((err) =>
           this.logger.error('Failed to queue deletion email:', err),

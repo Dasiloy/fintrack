@@ -10,6 +10,13 @@ import {
   EmailChangePayload,
   EmailChangedPayload,
   CheckoutSessionEmailPayload,
+  InvoicePaidEmailPayload,
+  PaymentFailedEmailPayload,
+  SubscriptionActivatedEmailPayload,
+  SubscriptionCancelledEmailPayload,
+  SubscriptionEndedEmailPayload,
+  NewUsageTrackersCreatedEmailPayload,
+  AccountDeletionEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
 @Injectable()
@@ -204,6 +211,194 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send checkout session email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a invoice paid email
+   * @param {InvoicePaidEmailPayload} data email, firstName, lastName
+   */
+  async sendInvoicePaidEmail(data: InvoicePaidEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Invoice Paid - Fintrack',
+        template: './invoice_paid',
+        context: {
+          firstName: data.firstName,
+          currency: data.currency,
+          amountPaid: data.amountPaid,
+          invoiceNumber: data.invoiceNumber,
+          planName: data.planName,
+          periodStart: data.periodStart,
+          periodEnd: data.periodEnd,
+          paymentDate: data.paymentDate,
+          hostedInvoiceUrl: data.hostedInvoiceUrl,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send invoice paid email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a payment failed email
+   * @param {PaymentFailedEmailPayload} data email, firstName, lastName
+   */
+  async sendPaymentFailedEmail(data: PaymentFailedEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Payment Failed - Fintrack',
+        template: './payment_failed',
+        context: {
+          firstName: data.firstName,
+          currency: data.currency,
+          amountDue: data.amountDue,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send payment failed email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a subscription activated email
+   * @param {SubscriptionActivatedEmailPayload} data email, firstName, lastName
+   */
+  async sendSubscriptionActivatedEmail(
+    data: SubscriptionActivatedEmailPayload,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Subscription Activated - Fintrack',
+        template: './subscription_activated',
+        context: {
+          firstName: data.firstName,
+          planName: data.planName,
+          nextBillingDate: data.nextBillingDate,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send subscription activated email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a subscription cancelled email
+   * @param {SubscriptionCancelledEmailPayload} data email, firstName, lastName
+   */
+  async sendSubscriptionCancelledEmail(
+    data: SubscriptionCancelledEmailPayload,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Subscription Cancelled - Fintrack',
+        template: './subscription_cancelled',
+        context: {
+          firstName: data.firstName,
+          planName: data.planName,
+          accessEndsAt: data.accessEndsAt,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send subscription cancelled email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a subscription ended email
+   * @param {SubscriptionEndedEmailPayload} data email, firstName, lastName
+   */
+  async sendSubscriptionEndedEmail(data: SubscriptionEndedEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Subscription Ended - Fintrack',
+        template: './subscription_ended',
+        context: {
+          firstName: data.firstName,
+          previousPlanName: data.previousPlanName,
+          endedAt: data.endedAt,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send subscription ended email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a new usage trackers created email
+   * @param {NewUsageTrackersCreatedEmailPayload} data email, firstName, lastName
+   */
+  async sendNewUsageTrackersCreatedEmail(
+    data: NewUsageTrackersCreatedEmailPayload,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'New usage trackers created - Fintrack',
+        template: './new_usage_trackers_created',
+        context: {
+          firstName: data.firstName,
+          email: data.email,
+          periodStart: data.periodStart,
+          periodEnd: data.periodEnd,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send new usage trackers created email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a account deletion email
+   * @param {AccountDeletionEmailPayload} data email, firstName, lastName
+   */
+  async sendAccountDeletionEmail(data: AccountDeletionEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Account Deletion - Fintrack',
+        template: './account_deletion',
+        context: {
+          firstName: data.firstName,
+          email: data.email,
+          deletionDate: data.deletionDate,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send account deletion email to ${data.email}`,
         error.stack,
       );
       throw error;

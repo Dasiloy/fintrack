@@ -8,6 +8,7 @@ import type { Session } from 'next-auth';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { Button, toast } from '@ui/components';
+import { useMemo } from 'react';
 
 interface PlanCardsProps {
   session: Session | null;
@@ -20,6 +21,8 @@ interface PlanCardsProps {
 
 export function PlanCards({ session }: PlanCardsProps) {
   const router = useRouter();
+  const userData = api_client.user.getMe.useQuery();
+  const user = useMemo(() => userData.data?.data, [userData.data]);
 
   // mutation
   const subscribe = api_client.subscription.createSubscription.useMutation({
@@ -122,7 +125,9 @@ export function PlanCards({ session }: PlanCardsProps) {
               <Button
                 type="button"
                 variant={plan.popular ? 'default' : 'outline'}
-                disabled={subscribe.isPending}
+                disabled={
+                  subscribe.isPending || userData.isPending || user?.subscription?.plan === 'PRO'
+                }
                 loading={subscribe.isPending}
                 onClick={() => {
                   if (plan.price === 0 || !session || !session.user) {

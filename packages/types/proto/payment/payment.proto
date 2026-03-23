@@ -5,6 +5,7 @@ package payment;
 service PaymentService {
    rpc CreateCheckoutSession(OriginUrlReq) returns (CreateCheckoutSessionResponse) {}
    rpc CreatePortalSession(OriginUrlReq) returns (CreatePortalSessionResponse) {}
+   rpc CancelSubscription(Empty) returns (Empty) {}
 }
 
 
