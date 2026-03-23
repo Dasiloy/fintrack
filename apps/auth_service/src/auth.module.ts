@@ -18,6 +18,7 @@ import {
   TOKEN_NOTIFICATION_QUEUE,
   ACCOUNT_CLEANUP_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
+  PAYMENT_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { AuthController } from './auth.controller';
@@ -101,6 +102,7 @@ import { CleanupProcessor } from './cleanup/cleanup.processor';
     }),
     BullModule.registerQueue({ name: TOKEN_NOTIFICATION_QUEUE }),
     BullModule.registerQueue({ name: ACCOUNT_CLEANUP_QUEUE }),
+    BullModule.registerQueue({ name: PAYMENT_QUEUE }),
   ],
   controllers: [AuthController],
   providers: [

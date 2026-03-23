@@ -263,13 +263,19 @@ model User {
   dateFormat DateFormat @default(DMY)
 
   // reverse relationship
-  accounts      Account[]
-  sessions      Session[]
-  subscription  Subscription?
-  usageTrackers UsageTracker[]
-  backupCodes   BackupCodes[]
-  loginActivity LoginActivity[]
-  setting       NotificationSetting?
+  accounts       Account[]
+  sessions       Session[]
+  subscription   Subscription?
+  usageTrackers  UsageTracker[]
+  backupCodes    BackupCodes[]
+  loginActivity  LoginActivity[]
+  setting        NotificationSetting?
+  categories     Category[]
+  transactions   Transaction[]
+  budgets        Budget[]
+  recurringItems RecurringItem[]
+  goals          Goal[]
+  splits         Split[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -493,4 +499,92 @@ model NotificationSetting {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  color       String?
+  isSystem    Boolean @default(false) // true = generic, false = user-created
+
+  // nullable relation — null means it's a system/generic category
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  transactions Transaction[]
+
+  @@unique([name, userId]) // prevents duplicate names per user, but allows
+  // same name across different users or system
+  @@index([userId])
+  @@index([isSystem])
+}
+
+model Budget {
+  id          String  @id @default(cuid())
+  name        String
+  amount      Float
+  description String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  amount      Float
+  date        DateTime
+  type        TransactionType
+  description String?
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, categoryId, userId])
+  @@index([userId])
+}
+
+model RecurringItem {
+  id   String @id @default(cuid())
+  name String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id   String @id @default(cuid())
+  name String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Split {
+  id   String @id @default(cuid())
+  name String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

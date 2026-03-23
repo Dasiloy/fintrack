@@ -9,10 +9,12 @@
 
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
-import { ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 
 import { auth } from '@fintrack/next_auth';
 import { prisma as db } from '@fintrack/database/client';
+import { Usage, PLAN_LIMITS } from '@fintrack/types/constants/plan.constants';
+import { UsageFeature } from '@fintrack/database/types';
 
 /**
  * 1. CONTEXT
@@ -105,3 +107,185 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+/**
+ * Protected (authenticated) procedure with plan limits
+ *
+ * This procedure checks if the user has reached the plan limits and throws an error if they have.
+ * If the user has not reached the plan limits, it returns the next procedure.
+ *
+ * CRUCIAL!!! This can assert for monthly limits, all-time limits and boolean limits.
+ *
+ * @param ctx The context object
+ * @param next The next procedure to call
+ * @returns The result of the next procedure
+ */
+export const protectedProcedureWithPlanLimits = protectedProcedure
+  .input(
+    z.object({
+      feature: z.nativeEnum(Usage).describe('The feature to check the limit for'),
+    }),
+  )
+  .use(async ({ ctx, input, next }) => {
+    try {
+      const { feature } = input;
+
+      const subscription = await ctx.db.subscription.findFirst({
+        where: {
+          userId: ctx.session?.user.id,
+        },
+        select: {
+          plan: true,
+        },
+      });
+
+      if (!subscription) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'subscription not found',
+        });
+      }
+
+      //? Short circut for PRO users  ===> Access granted
+      if (subscription.plan === 'PRO') {
+        return next({
+          ctx: {
+            // infers the `session` as non-nullable
+            session: { ...ctx.session, user: ctx.session.user },
+          },
+        });
+      }
+
+      //? Get the feature limit
+      const featureLimit = PLAN_LIMITS[subscription.plan][feature] as any;
+
+      //* 1. Feature is a boolean limit ==> Privilege based access
+      if (['PDF_REPORTS', 'CSV_EXPORT'].includes(feature)) {
+        //? Free plan users are not allowed to access this feature
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'feature not allowed',
+        });
+      }
+
+      //*2.  Feature is a resource limit ==> Resource based access
+      if (feature.startsWith('MAX')) {
+        let count: number = Infinity;
+
+        //? switch between the catual feature and get the current count in db
+        switch (feature) {
+          case Usage.MAX_ACTIVE_SPLITS:
+            count = await ctx.db.split.count({
+              where: {
+                userId: ctx.session?.user.id,
+              },
+            });
+            break;
+          case Usage.MAX_GOALS:
+            count = await ctx.db.goal.count({
+              where: {
+                userId: ctx.session?.user.id,
+              },
+            });
+            break;
+          case Usage.MAX_BUDGETS:
+            count = await ctx.db.budget.count({
+              where: {
+                userId: ctx.session?.user.id,
+              },
+            });
+            break;
+
+          case Usage.MAX_CUSTOM_CATEGORIES:
+            count = await ctx.db.category.count({
+              where: {
+                userId: ctx.session?.user.id,
+                isSystem: false,
+              },
+            });
+            break;
+
+          case Usage.MAX_RECURRING_ITEMS:
+            count = await ctx.db.recurringItem.count({
+              where: {
+                userId: ctx.session?.user.id,
+              },
+            });
+            break;
+
+          default:
+            count = Infinity;
+            break;
+        }
+
+        //? Check if the user has reached the limit
+        if (count >= featureLimit) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'feature usage limit reached',
+          });
+        }
+
+        ///!!!! CRITICAL => INCREASE THE USAGE COUNT ONLY ON SUCCESSFUL CREATION OF THE RESOURCE, IN NEXT STEP
+        return next({
+          ctx: {
+            // infers the `session` as non-nullable
+            session: { ...ctx.session, user: ctx.session.user },
+          },
+        });
+      }
+
+      //* 3. Feature is a monthly limit ==> Usage based access
+      if (feature.endsWith('_PER_MONTH')) {
+        //? Get the usage feature
+        const usageFeature = feature.replace('_PER_MONTH', '') as UsageFeature;
+
+        //? Get the current usage tracker
+        const currentTracker = await ctx.db.usageTracker.findFirst({
+          where: {
+            userId: ctx.session?.user.id,
+            feature: usageFeature,
+            periodStart: {
+              lte: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+            },
+          },
+          select: {
+            id: true,
+            count: true,
+          },
+        });
+
+        if (!currentTracker) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'feature usage limit reached',
+          });
+        }
+
+        //? Check if the user has reached the limit
+        if (currentTracker.count >= featureLimit) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'feature usage limit reached',
+          });
+        }
+
+        //!!!! CRITICAL POINT ==> Update the usage tracker ONLY ON SUCCESSFUL CREATION OF THE RESOURCE, IN NEXT STEP
+        return next({
+          ctx: {
+            // infers the `session` as non-nullable
+            session: { ...ctx.session, user: ctx.session.user },
+          },
+        });
+      }
+
+      //* 4. Feature is not valid
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'invalid feature',
+      });
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+      throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'an error occured' });
+    }
+  });

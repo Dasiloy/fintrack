@@ -175,7 +175,6 @@
   </head>
   <body>
 
-    {{! firstName, currency, amountPaid, invoiceNumber, planName, periodStart, periodEnd, paymentDate, email, hostedInvoiceUrl, invoicePdfUrl, billingPortalUrl, supportEmail }}
     <div class='wrapper'>
       <div class='container'>
         <div class='header'>
@@ -189,45 +188,43 @@
 
         <div class='content'>
           <p class='greeting'>Payment received, {{firstName}}.</p>
-          <p class='text'>Thanks for your continued subscription. Here's your
-            receipt for this billing cycle.</p>
+          <p class='text'>Thanks for your subscription. Here's your receipt for
+            this billing cycle.</p>
 
           <div class='amount-block'>
-            <p class='amount-label'>Amount Paid</p>
+            <p class='amount-label'>Amount Paid: &nbsp;</p>
             <p class='amount-value'>{{currency}} {{amountPaid}}</p>
           </div>
 
           <div class='detail-box'>
             <div class='detail-row'>
-              <span class='detail-label'>Invoice</span>
+              <span class='detail-label'>Invoice: &nbsp;</span>
               <span class='detail-value'>{{invoiceNumber}}</span>
             </div>
             <div class='detail-row'>
-              <span class='detail-label'>Plan</span>
+              <span class='detail-label'>Plan: &nbsp;</span>
               <span class='detail-value'>{{planName}}</span>
             </div>
             <div class='detail-row'>
-              <span class='detail-label'>Billing period</span>
+              <span class='detail-label'>Billing period: &nbsp;</span>
               <span class='detail-value'>{{periodStart}} – {{periodEnd}}</span>
             </div>
             <div class='detail-row'>
-              <span class='detail-label'>Payment date</span>
+              <span class='detail-label'>Payment date: &nbsp;</span>
               <span class='detail-value'>{{paymentDate}}</span>
-            </div>
-            <div class='detail-row'>
-              <span class='detail-label'>Billed to</span>
-              <span class='detail-value'>{{email}}</span>
             </div>
           </div>
 
           <a href='{{hostedInvoiceUrl}}' class='btn'>View Invoice</a>
-          <a href='{{invoicePdfUrl}}' class='btn-secondary'>Download PDF</a>
-          <a href='{{billingPortalUrl}}' class='btn-secondary'>Manage Billing</a>
+          <a
+            href='https://fintrack.live/api/billing/portal'
+            class='btn-secondary'
+          >Manage Billing</a>
         </div>
 
         <div class='footer'>
           <p>Questions? Reach us at
-            <a href='mailto:{{supportEmail}}'>{{supportEmail}}</a></p>
+            <a href='https://www.fintrack.live/support'>Support</a></p>
           <p>&copy; 2026 Fintrack Inc. &bull;
             <a href='https://fintrack.live'>fintrack.live</a></p>
         </div>
