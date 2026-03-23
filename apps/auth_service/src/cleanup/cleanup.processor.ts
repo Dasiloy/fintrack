@@ -7,7 +7,6 @@ import { PrismaService } from '@fintrack/database/nest';
 import {
   ACCOUNT_CLEANUP_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
-  CANCEL_STRIPE_SUBSCRIPTION_JOB,
 } from '@fintrack/types/constants/queus.constants';
 
 @Injectable()
@@ -22,14 +21,6 @@ export class CleanupProcessor extends WorkerHost {
   async process(job: Job): Promise<void> {
     if (job.name === PURGE_SCHEDULED_DELETIONS_JOB) {
       await this.purgeScheduledDeletions();
-      return;
-    }
-
-    if (job.name === CANCEL_STRIPE_SUBSCRIPTION_JOB) {
-      // TODO: call Stripe subscriptions.cancel(job.data.stripeSubscriptionId)
-      this.logger.log(
-        `[stub] Would cancel Stripe subscription: ${job.data.stripeSubscriptionId}`,
-      );
       return;
     }
   }

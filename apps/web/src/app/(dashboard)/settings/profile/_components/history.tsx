@@ -119,7 +119,7 @@ export function History() {
                 {user?.subscription?.plan}
               </Text>
               <Text variant={'body'} color="tertiary">
-                Annual Member
+                {user?.subscription?.plan === 'FREE' ? 'Free Account' : 'Monthly Member'}
               </Text>
             </div>
           </SkeletonWrapper>
@@ -128,8 +128,8 @@ export function History() {
               <CheckCircle2 className="text-success size-4" />
               <Text variant={'body-sm'} color="success">
                 Active until{' '}
-                {user?.subscription
-                  ? dayjs(user.subscription.createdAt).add(1, 'year').format('MMM YYYY')
+                {user?.subscription?.stripeCurrentPeriodEnd
+                  ? dayjs(user.subscription.stripeCurrentPeriodEnd).format('dddd, MMMM DD YYYY')
                   : '...'}
               </Text>
             </div>

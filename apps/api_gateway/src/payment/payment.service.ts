@@ -12,6 +12,7 @@ import {
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { ClientGrpc } from '@nestjs/microservices';
 
@@ -24,10 +25,15 @@ import {
 } from '@fintrack/types/protos/payment/payment';
 import { PrismaService } from '@fintrack/database/service';
 import { Prisma } from '@fintrack/database/types';
-import { InjectQueue } from '@nestjs/bullmq';
+import dayjs from '@fintrack/utils/date';
 import {
   CREATE_CHECKOUT_SESSION_JOB,
   PAYMENT_QUEUE,
+  INVOICE_PAID_JOB,
+  INVOICE_PAYMENT_FAILED_JOB,
+  SUBSCRIPTION_ACTIVATED_JOB,
+  SUBSCRIPTION_DEACTIVATED_JOB,
+  SUBSCRIPTION_DELETED_JOB,
 } from '@fintrack/types/constants/queus.constants';
 
 /**
@@ -164,7 +170,7 @@ export class PaymentService implements OnModuleInit {
       case 'checkout.session.completed':
         await this.handleCheckoutSessionCompleted(event);
         break;
-      case 'invoice.paid':
+      case 'invoice.payment_succeeded':
         await this.handleInvoicePaid(event);
         break;
       case 'invoice.payment_failed':
@@ -177,7 +183,8 @@ export class PaymentService implements OnModuleInit {
         await this.handleSubscriptionDeleted(event);
         break;
       default:
-        throw new BadRequestException(`Unsupported event type: ${event.type}`);
+        this.logger.warn(`Unsupported event type: ${event.type}`);
+        break;
     }
   }
 
@@ -232,7 +239,6 @@ export class PaymentService implements OnModuleInit {
             select: {
               email: true,
               firstName: true,
-              lastName: true,
             },
           },
         },
@@ -245,7 +251,6 @@ export class PaymentService implements OnModuleInit {
       this.paymentQueue.add(CREATE_CHECKOUT_SESSION_JOB, {
         email: subscription.user.email,
         firstName: subscription.user.firstName,
-        lastName: subscription.user.lastName,
         planName: subscription.plan,
         billingInterval: 'month',
         currency: 'USD',
@@ -272,70 +277,101 @@ export class PaymentService implements OnModuleInit {
    * @returns {Promise<void>} void
    */
   private async handleInvoicePaid(event: Stripe.Event): Promise<void> {
-    const invoice = event.data.object as Stripe.Invoice;
+    try {
+      const invoice = event.data.object as Stripe.Invoice;
 
-    // early return if status is not paid
-    const status = invoice.status;
-    if (status !== 'paid') {
-      return;
+      // early return if status is not paid
+      const status = invoice.status;
+      if (status !== 'paid') {
+        return;
+      }
+
+      // get line item => we only need the first one, early return if not found
+      const lineItem = invoice.lines.data?.[0] as Stripe.InvoiceLineItem;
+      if (!lineItem) {
+        return;
+      }
+
+      // get period start and end
+      const periodStart = new Date(lineItem.period.start * 1000);
+      const periodEnd = new Date(lineItem.period.end * 1000);
+
+      // atomically update subscription, drop current usage trackers, create new ones in line with stripe billing cycle
+      const [subscription] = await this.prisma.$transaction([
+        this.prisma.subscription.update({
+          where: {
+            userId: lineItem.metadata.userId,
+          },
+          data: {
+            status: 'ACTIVE',
+            stripeCancelAtPeriodEnd: false,
+            stripeCurrentPeriodStart: periodStart,
+            stripeCurrentPeriodEnd: periodEnd,
+            stripePriceId: (lineItem as any).price.id,
+          },
+          include: {
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+              },
+            },
+          },
+        }),
+        this.prisma.usageTracker.deleteMany({
+          where: {
+            userId: lineItem.metadata.userId,
+          },
+        }),
+        this.prisma.usageTracker.createMany({
+          data: [
+            {
+              userId: lineItem.metadata.userId,
+              feature: 'AI_INSIGHTS_QUERIES',
+              count: 0,
+              periodStart,
+              periodEnd,
+            },
+            {
+              userId: lineItem.metadata.userId,
+              feature: 'AI_CHAT_MESSAGES',
+              count: 0,
+              periodStart,
+              periodEnd,
+            },
+            {
+              userId: lineItem.metadata.userId,
+              feature: 'RECEIPT_UPLOADS',
+              count: 0,
+              periodStart,
+              periodEnd,
+            },
+          ],
+          skipDuplicates: true,
+        }),
+      ]);
+
+      this.paymentQueue.add(INVOICE_PAID_JOB, {
+        firstName: subscription.user.firstName,
+        currency: 'USD',
+        amountPaid: parseFloat(String(lineItem.amount / 100)).toFixed(2),
+        invoiceNumber: invoice.number,
+        planName: subscription.plan,
+        periodStart: dayjs(periodStart).format('YYYY-MM-DD'),
+        periodEnd: dayjs(periodEnd).format('YYYY-MM-DD'),
+        paymentDate: dayjs(new Date(invoice.created * 1000)).format(
+          'YYYY-MM-DD',
+        ),
+        email: subscription.user.email,
+        hostedInvoiceUrl: invoice.hosted_invoice_url,
+      });
+    } catch (error) {
+      this.logger.error('Failed to handle invoice paid event', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        'Failed to handle invoice paid event',
+      );
     }
-
-    // get line item => we only need the first one, early return if not found
-    const lineItem = invoice.lines.data?.[0] as Stripe.InvoiceLineItem;
-    if (!lineItem) {
-      return;
-    }
-
-    // get period start and end
-    const periodStart = new Date(lineItem.period.start * 1000);
-    const periodEnd = new Date(lineItem.period.end * 1000);
-
-    // atomically update subscription, drop current usage trackers, create new ones in line with stripe billing cycle
-    await this.prisma.$transaction([
-      this.prisma.subscription.update({
-        where: {
-          userId: lineItem.metadata.userId,
-        },
-        data: {
-          status: 'ACTIVE',
-          stripeCancelAtPeriodEnd: false,
-          stripeCurrentPeriodStart: periodStart,
-          stripeCurrentPeriodEnd: periodEnd,
-          stripePriceId: (lineItem as any).price.id,
-        },
-      }),
-      this.prisma.usageTracker.deleteMany({
-        where: {
-          userId: lineItem.metadata.userId,
-        },
-      }),
-      this.prisma.usageTracker.createMany({
-        data: [
-          {
-            userId: lineItem.metadata.userId,
-            feature: 'AI_INSIGHTS_QUERIES',
-            count: 0,
-            periodStart,
-            periodEnd,
-          },
-          {
-            userId: lineItem.metadata.userId,
-            feature: 'AI_CHAT_MESSAGES',
-            count: 0,
-            periodStart,
-            periodEnd,
-          },
-          {
-            userId: lineItem.metadata.userId,
-            feature: 'RECEIPT_UPLOADS',
-            count: 0,
-            periodStart,
-            periodEnd,
-          },
-        ],
-        skipDuplicates: true,
-      }),
-    ]);
   }
 
   /**
@@ -347,25 +383,48 @@ export class PaymentService implements OnModuleInit {
    * @returns {Promise<void>} void
    */
   private async handleInvoicePaymentFailed(event: Stripe.Event): Promise<void> {
-    const invoice = event.data.object as Stripe.Invoice;
+    try {
+      const invoice = event.data.object as Stripe.Invoice;
 
-    // get line item => we only need the first one, early return if not found
-    const lineItem = invoice.lines.data?.[0] as Stripe.InvoiceLineItem;
-    if (!lineItem) {
-      return;
+      // get line item => we only need the first one, early return if not found
+      const lineItem = invoice.lines.data?.[0] as Stripe.InvoiceLineItem;
+      if (!lineItem) {
+        return;
+      }
+
+      // get metadata
+      const metadata = lineItem.metadata as { userId: string };
+
+      const subscription = await this.prisma.subscription.update({
+        where: {
+          userId: metadata.userId,
+        },
+        data: {
+          status: 'PAST_DUE',
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+            },
+          },
+        },
+      });
+
+      this.paymentQueue.add(INVOICE_PAYMENT_FAILED_JOB, {
+        firstName: subscription.user.firstName,
+        currency: 'USD',
+        amountDue: parseFloat(String(lineItem.amount / 100)).toFixed(2),
+        email: subscription.user.email,
+      });
+    } catch (error) {
+      this.logger.error('Failed to handle invoice payment failed event', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        'Failed to handle invoice payment failed event',
+      );
     }
-
-    // get metadata
-    const metadata = lineItem.metadata as { userId: string };
-
-    await this.prisma.subscription.update({
-      where: {
-        userId: metadata.userId,
-      },
-      data: {
-        status: 'PAST_DUE',
-      },
-    });
   }
 
   /**
@@ -377,41 +436,90 @@ export class PaymentService implements OnModuleInit {
    * @returns {Promise<void>} void
    */
   private async handleSubscriptionUpdated(event: Stripe.Event): Promise<void> {
-    const subscription = event.data.object as Stripe.Subscription;
+    try {
+      const subscription = event.data.object as Stripe.Subscription;
 
-    const userId = subscription.metadata.userId;
-    if (!userId) return;
+      const userId = subscription.metadata.userId;
+      if (!userId) return;
 
-    const currentDbSub = await this.prisma.subscription.findUnique({
-      where: { userId },
-    });
-
-    // Cancellation flag set
-    if (
-      subscription.cancel_at_period_end &&
-      !currentDbSub?.stripeCancelAtPeriodEnd
-    ) {
-      await this.prisma.subscription.update({
+      const currentDbSub = await this.prisma.subscription.findUnique({
         where: { userId },
-        data: { stripeCancelAtPeriodEnd: true },
       });
-      this.logger.log(
-        `User ${userId} scheduled for cancellation at ${new Date(subscription.cancel_at! * 1000).toISOString()}`,
+
+      // Cancellation flag set
+      if (subscription.cancel_at && !currentDbSub?.stripeCancelAtPeriodEnd) {
+        const sub = await this.prisma.subscription.update({
+          where: { userId },
+          data: { stripeCancelAtPeriodEnd: true },
+          include: {
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+              },
+            },
+          },
+        });
+
+        if (!sub) {
+          throw new InternalServerErrorException(
+            'Failed to update subscription',
+          );
+        }
+
+        this.paymentQueue.add(SUBSCRIPTION_DEACTIVATED_JOB, {
+          firstName: sub.user.firstName,
+          planName: sub.plan,
+          accessEndsAt: dayjs(currentDbSub?.stripeCurrentPeriodEnd).format(
+            'YYYY-MM-DD',
+          ),
+          email: sub.user.email,
+        });
+
+        this.logger.log(
+          `User ${userId} scheduled for cancellation at ${new Date(subscription.cancel_at! * 1000).toISOString()}`,
+        );
+        return;
+      }
+
+      // Reactivation (flag cleared)
+      if (!subscription.cancel_at && currentDbSub?.stripeCancelAtPeriodEnd) {
+        const sub = await this.prisma.subscription.update({
+          where: { userId },
+          data: {
+            stripeCancelAtPeriodEnd: false,
+          },
+          include: {
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+              },
+            },
+          },
+        });
+
+        if (!sub) {
+          throw new InternalServerErrorException(
+            'Failed to update subscription',
+          );
+        }
+
+        this.paymentQueue.add(SUBSCRIPTION_ACTIVATED_JOB, {
+          firstName: sub.user.firstName,
+          planName: currentDbSub.plan,
+          nextBillingDate: dayjs(
+            new Date((subscription as any).current_period_end * 1000),
+          ).format('YYYY-MM-DD'),
+          email: sub.user.email,
+        });
+      }
+    } catch (error) {
+      this.logger.error('Failed to handle subscription updated event', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        'Failed to handle subscription updated event',
       );
-      return;
-    }
-
-    // Reactivation (flag cleared)
-    if (
-      !subscription.cancel_at_period_end &&
-      currentDbSub?.stripeCancelAtPeriodEnd
-    ) {
-      await this.prisma.subscription.update({
-        where: { userId },
-        data: {
-          stripeCancelAtPeriodEnd: false,
-        },
-      });
     }
   }
 
@@ -424,31 +532,52 @@ export class PaymentService implements OnModuleInit {
    * @returns {Promise<void>} void
    */
   private async handleSubscriptionDeleted(event: Stripe.Event): Promise<void> {
-    const subscription = event.data.object as Stripe.Subscription;
+    try {
+      const subscription = event.data.object as Stripe.Subscription;
 
-    // get metadata
-    const metadata = subscription.metadata as { userId: string };
+      // get metadata
+      const metadata = subscription.metadata as { userId: string };
 
-    await this.prisma.subscription.update({
-      where: {
-        userId: metadata.userId,
-      },
-      data: {
-        plan: 'FREE',
-        status: 'ACTIVE',
-        stripeCancelAtPeriodEnd: false,
-        stripeCurrentPeriodStart: null,
-        stripeCurrentPeriodEnd: null,
-        stripePriceId: null,
-        stripeCustomerId: null,
-        stripeSubscriptionId: null,
-      },
-    });
+      const sub = await this.prisma.subscription.update({
+        where: {
+          userId: metadata.userId,
+        },
+        data: {
+          plan: 'FREE',
+          status: 'ACTIVE',
+          stripeCancelAtPeriodEnd: false,
+          stripeCurrentPeriodStart: null,
+          stripeCurrentPeriodEnd: null,
+          stripePriceId: null,
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+            },
+          },
+        },
+      });
+
+      if (!sub) {
+        throw new InternalServerErrorException('Failed to update subscription');
+      }
+
+      this.paymentQueue.add(SUBSCRIPTION_DELETED_JOB, {
+        firstName: sub.user.firstName,
+        planName: sub.plan,
+        endedAt: dayjs(new Date()).format('YYYY-MM-DD'),
+        email: sub.user.email,
+      });
+    } catch (error) {
+      this.logger.error('Failed to handle subscription deleted event', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        'Failed to handle subscription deleted event',
+      );
+    }
   }
 }
-
-// mails for the payment service events
-// pdf for invoice payment succesful receipt
-// downgrade and upgrade plan
-// ability to cancel a subscription => set deleteAtsubscriptionend to true?
-// add cron jobs for removing and adding uasage trackers for free plan at the start and end of the month

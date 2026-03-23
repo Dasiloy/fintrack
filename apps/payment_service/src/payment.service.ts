@@ -9,6 +9,7 @@ import { PrismaService } from '@fintrack/database/service';
 import {
   CreateCheckoutSessionResponse,
   CreatePortalSessionResponse,
+  Empty,
   OriginUrlReq,
 } from '@fintrack/types/protos/payment/payment';
 
@@ -77,14 +78,16 @@ export class PaymentService implements OnModuleInit {
         });
       }
 
-      const customer = await this.stripe.customers.create(
-        {
-          email: subscription.user.email,
-        },
-        {
-          idempotencyKey: subscription.user.email,
-        },
-      );
+      if (subscription.stripeSubscriptionId) {
+        throw new RpcException({
+          code: status.INVALID_ARGUMENT,
+          message: 'Customer already has a subscription',
+        });
+      }
+
+      const customer = await this.stripe.customers.create({
+        email: subscription.user.email,
+      });
 
       const checkoutSession = await this.stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -166,6 +169,58 @@ export class PaymentService implements OnModuleInit {
       throw new RpcException({
         code: status.INTERNAL,
         message: 'Failed to create portal session',
+      });
+    }
+  }
+
+  /**
+   * @description Cancel a subscription for a user
+   *
+   * @async
+   * @public
+   * @param {string} userId The user id
+   * @returns {Promise<void>} void
+   * @throws {RpcException} If the subscription cancellation fails
+   */
+  async cancelSubscription(userId: string): Promise<Empty> {
+    try {
+      const subscription = await this.prismaService.subscription.findUnique({
+        where: { userId: userId },
+      });
+
+      if (!subscription) {
+        throw new RpcException({
+          code: status.INVALID_ARGUMENT,
+          message: 'Subscription not found',
+        });
+      }
+
+      if (!subscription.stripeSubscriptionId) {
+        throw new RpcException({
+          code: status.INVALID_ARGUMENT,
+          message: 'Subscription ID not found',
+        });
+      }
+
+      await this.stripe.subscriptions.cancel(
+        subscription.stripeSubscriptionId,
+        {
+          cancellation_details: {
+            feedback: 'customer_service',
+          },
+        },
+        {
+          idempotencyKey: subscription.stripeSubscriptionId,
+        },
+      );
+
+      return {};
+    } catch (error) {
+      console.log('error in cancelSubscription', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Failed to cancel subscription',
       });
     }
   }
