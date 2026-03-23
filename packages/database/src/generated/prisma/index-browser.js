@@ -274,6 +274,58 @@ exports.Prisma.NotificationSettingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  isSystem: 'isSystem',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BudgetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  description: 'description',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TransactionScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  date: 'date',
+  type: 'type',
+  description: 'description',
+  categoryId: 'categoryId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RecurringItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  userId: 'userId'
+};
+
+exports.Prisma.GoalScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  userId: 'userId'
+};
+
+exports.Prisma.SplitScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -537,6 +589,11 @@ exports.UsageFeature = exports.$Enums.UsageFeature = {
   RECEIPT_UPLOADS: 'RECEIPT_UPLOADS'
 };
 
+exports.TransactionType = exports.$Enums.TransactionType = {
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE'
+};
+
 exports.Prisma.ModelName = {
   Currencies: 'Currencies',
   Locale: 'Locale',
@@ -550,7 +607,13 @@ exports.Prisma.ModelName = {
   UsageTracker: 'UsageTracker',
   BackupCodes: 'BackupCodes',
   ActivityLogs: 'ActivityLogs',
-  NotificationSetting: 'NotificationSetting'
+  NotificationSetting: 'NotificationSetting',
+  Category: 'Category',
+  Budget: 'Budget',
+  Transaction: 'Transaction',
+  RecurringItem: 'RecurringItem',
+  Goal: 'Goal',
+  Split: 'Split'
 };
 
 /**

@@ -11,6 +11,7 @@ import {
   SUBSCRIPTION_DEACTIVATED_JOB,
   SUBSCRIPTION_DELETED_JOB,
   PAYMENT_QUEUE,
+  NEW_USAGE_TRACKERS_CREATED_JOB,
 } from '@fintrack/types/constants/queus.constants';
 
 import { NotificationService } from '../notification.service';
@@ -69,16 +70,22 @@ export class PaymentNotification extends WorkerHost {
     switch (job.name) {
       case CREATE_CHECKOUT_SESSION_JOB:
         return this.notificationService.sendCheckoutSessionEmail(job.data);
-      // case INVOICE_PAID_JOB:
-      //   return this.notificationService.sendInvoicePaidEmail(job.data);
-      // case INVOICE_PAYMENT_FAILED_JOB:
-      //   return this.notificationService.sendInvoicePaymentFailedEmail(job.data);
-      // case SUBSCRIPTION_ACTIVATED_JOB:
-      //   return this.notificationService.sendSubscriptionActivatedEmail(job.data);
-      // case SUBSCRIPTION_DEACTIVATED_JOB:
-      //   return this.notificationService.sendSubscriptionDeactivatedEmail(job.data);
-      // case SUBSCRIPTION_DELETED_JOB:
-      //   return this.notificationService.sendSubscriptionDeletedEmail(job.data);
+      case INVOICE_PAID_JOB:
+        return this.notificationService.sendInvoicePaidEmail(job.data);
+      case INVOICE_PAYMENT_FAILED_JOB:
+        return this.notificationService.sendPaymentFailedEmail(job.data);
+      case SUBSCRIPTION_ACTIVATED_JOB:
+        return this.notificationService.sendSubscriptionActivatedEmail(
+          job.data,
+        );
+      case SUBSCRIPTION_DEACTIVATED_JOB:
+        return this.notificationService.sendSubscriptionCancelledEmail(
+          job.data,
+        );
+      case NEW_USAGE_TRACKERS_CREATED_JOB:
+        return this.notificationService.sendAccountDeletionEmail(job.data);
+      case SUBSCRIPTION_DELETED_JOB:
+        return this.notificationService.sendSubscriptionEndedEmail(job.data);
       default:
         return;
     }

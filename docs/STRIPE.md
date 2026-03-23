@@ -362,7 +362,7 @@ try {
 | `checkout.session.completed`    | Set `User.plan = PRO`. Upsert `Subscription` with `customerId`, `subscriptionId`, `status = ACTIVE`, period dates. Queue `SUBSCRIPTION_UPGRADED` email job.                     |
 | `customer.subscription.updated` | Update `Subscription.status`, `cancelAtPeriodEnd`, period dates. Re-set `User.plan = PRO` if returning from `CANCELED`.                                                         |
 | `customer.subscription.deleted` | Set `User.plan = FREE`. Set `Subscription.status = CANCELED`. Do NOT delete user data. Queue `SUBSCRIPTION_CANCELED` email.                                                     |
-| `invoice.payment_succeeded`     | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
+| `invoice.paid`                  | Update `Subscription` period dates, set `status = ACTIVE`. Create fresh `UsageTracker` rows for the new billing period (Pro users reset with Stripe cycle, not calendar month). |
 | `invoice.payment_failed`        | Set `Subscription.status = PAST_DUE`. Queue `PAYMENT_FAILED` email. Do NOT downgrade immediately — Stripe retries before deleting the subscription.                             |
 
 ### Production Webhook — Dashboard
@@ -379,60 +379,9 @@ try {
 
 ## Stripe Customer Creation
 
-FinTrack eagerly creates a Stripe customer for every user when their email is verified. This makes the upgrade checkout flow instant (no customer creation delay at checkout time).
-
-**Queue-based pattern** — Stripe API calls are HTTP. Running them inside a Prisma `$transaction` risks timeout and partial commits. The queue decouples the Stripe call from the database transaction.
-
-**Trigger point** — `apps/auth_service/src/auth.service.ts`, inside the `verifyEmail()` Prisma transaction:
-
-```typescript
-// After emailVerified: true is set inside tx:
-
-// 1. Queue Stripe customer creation (keeps the transaction fast — no external HTTP in tx)
-this.tokenQueue.add('CREATE_STRIPE_CUSTOMER', { userId: user.id, email: user.email });
-
-// 2. Seed UsageTrackers for this month (creates the initial quota rows)
-const now = new Date();
-const periodStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-
-await tx.usageTracker.createMany({
-  data: [
-    { userId: user.id, feature: 'AI_INSIGHTS_QUERIES', count: 0, periodStart, periodEnd },
-    { userId: user.id, feature: 'AI_CHAT_MESSAGES', count: 0, periodStart, periodEnd },
-    { userId: user.id, feature: 'RECEIPT_UPLOADS', count: 0, periodStart, periodEnd },
-  ],
-  skipDuplicates: true,
-});
+Customer is created at the point of creating subscription.
 
 // User.plan defaults to FREE in schema — no explicit set needed
-```
-
-**The worker** (`apps/payment_service`):
-
-```typescript
-@Processor(TOKEN_NOTIFICATION_QUEUE)
-export class StripeCustomerWorker {
-  @Process('CREATE_STRIPE_CUSTOMER')
-  async handle(job: Job<{ userId: string; email: string }>) {
-    const { userId, email } = job.data;
-
-    const customer = await stripe.customers.create({
-      email,
-      metadata: { userId }, // critical — ties Stripe customer back to your DB user
-    });
-
-    await db.subscription.create({
-      data: {
-        userId,
-        stripeCustomerId: customer.id,
-        plan: 'FREE',
-        status: 'ACTIVE',
-      },
-    });
-  }
-}
-```
 
 ---
 
@@ -621,8 +570,7 @@ Delete `UsageTracker` rows where `periodEnd < NOW() - 90 days` to prevent table 
 When `customer.subscription.deleted` fires and `User.plan` is set to `FREE`:
 
 - **Data preservation:** All existing records (budgets, goals, splits, categories, etc.) are kept. Users can view and use all existing data.
-- **Creation blocked:** Any new item that would exceed the Free limit throws `FORBIDDEN`. Example: user with 8 budgets can view all 8 but cannot create a 9th (Free limit is 5).
-- **Banner:** Show inline banner: `"You have 8 budgets. Free plan includes 5. Existing budgets are preserved."`
+- **Creation blocked:** Any new item that would exceed the Free limit throws `FORBIDDEN`. Example: user with 8 budgets can view all 8 but cannot create a 9th (Free limit is 5).`
 - **Analytics:** Apply 6-month cutoff filter from the moment of downgrade (not retroactive deletion).
 - **AI quotas:** Apply immediately — `assertAndIncrementUsageQuota` reads `User.plan` live on each request.
 
@@ -748,3 +696,7 @@ stripe trigger invoice.payment_failed
 | Test cards                     | [https://docs.stripe.com/testing#cards](https://docs.stripe.com/testing#cards) |
 | Stripe CLI install             | [https://docs.stripe.com/stripe-cli](https://docs.stripe.com/stripe-cli)       |
 | Node.js SDK reference          | [https://docs.stripe.com/api?lang=node](https://docs.stripe.com/api?lang=node) |
+
+```
+
+```

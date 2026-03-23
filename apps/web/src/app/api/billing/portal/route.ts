@@ -16,7 +16,11 @@ export async function GET(request: Request) {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      returnUrl: env.NEXT_PUBLIC_APP_URL,
+    }),
   });
 
   if (!response.ok) {

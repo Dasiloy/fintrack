@@ -162,7 +162,7 @@
   </head>
   <body>
 
-    {{! firstName, previousPlanName, endedAt, upgradeUrl, dashboardUrl, supportEmail }}
+    {{! firstName, previousPlanName, endedAt,  }}
     <div class='wrapper'>
       <div class='container'>
         <div class='header'>
@@ -184,22 +184,26 @@
 
           <div class='detail-box'>
             <div class='detail-row'>
-              <span class='detail-label'>Previous plan</span>
+              <span class='detail-label'>Previous plan: &nbsp;</span>
               <span class='detail-value'>{{previousPlanName}}</span>
             </div>
             <div class='detail-row'>
-              <span class='detail-label'>Ended on</span>
+              <span class='detail-label'>Ended on: &nbsp;</span>
               <span class='detail-value'>{{endedAt}}</span>
             </div>
           </div>
 
-          <a href='{{upgradeUrl}}' class='btn'>Resubscribe</a>
-          <a href='{{dashboardUrl}}' class='btn-secondary'>Go to Dashboard</a>
+          <a
+            href='https://fintrack.live/api/billing/portal'
+            class='btn'
+          >Resubscribe</a>
+          <a href='https://fintrack.live/dashboard' class='btn-secondary'>Go to
+            Dashboard</a>
         </div>
 
         <div class='footer'>
           <p>Questions? Reach us at
-            <a href='mailto:{{supportEmail}}'>{{supportEmail}}</a></p>
+            <a href='https://www.fintrack.live/support'>Support</a></p>
           <p>&copy; 2026 Fintrack Inc. &bull;
             <a href='https://fintrack.live'>fintrack.live</a></p>
         </div>

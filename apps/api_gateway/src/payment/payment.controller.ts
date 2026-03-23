@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -27,6 +28,8 @@ import { StripeSig } from '../decorators/stripe_decorator';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
 import { OriginUrl } from '../decorators/origin_decorator';
+import { CreatePortalSessionDto } from './dtos/portal.dto';
+import { Throttle } from '@nestjs/throttler';
 
 /**
  * Controller responsible for managing user payment and subscriptions
@@ -178,10 +181,11 @@ export class PaymentController {
   async createPortalSession(
     @CurrentUser() user: User,
     @OriginUrl() originUrl: string,
+    @Body() body: CreatePortalSessionDto,
   ): Promise<StandardResponse<CreatePortalSessionResponse>> {
     const portalSession = await this.paymentService.createPortalSession({
       userId: user.id,
-      originUrl,
+      originUrl: body.returnUrl || originUrl,
     });
     return {
       success: true,
@@ -194,6 +198,7 @@ export class PaymentController {
   //. Webhook to handle stripe events
   // ================================================================
   @Post('webhook')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Webhook to handle stripe events' })
   @ApiResponse({

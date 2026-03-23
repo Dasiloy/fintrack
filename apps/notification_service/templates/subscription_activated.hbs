@@ -161,7 +161,6 @@
     </style>
   </head>
   <body>
-    {{! firstName, planName, nextBillingDate, billingPortalUrl, dashboardUrl, supportEmail }}
 
     <div class='wrapper'>
       <div class='container'>
@@ -184,22 +183,25 @@
 
           <div class='detail-box'>
             <div class='detail-row'>
-              <span class='detail-label'>Plan</span>
+              <span class='detail-label'>Plan: &nbsp;</span>
               <span class='detail-value'>{{planName}}</span>
             </div>
             <div class='detail-row'>
-              <span class='detail-label'>Next billing date</span>
+              <span class='detail-label'>Next billing date: &nbsp;</span>
               <span class='detail-value'>{{nextBillingDate}}</span>
             </div>
           </div>
 
-          <a href='{{dashboardUrl}}' class='btn'>Go to Dashboard</a>
-          <a href='{{billingPortalUrl}}' class='btn-secondary'>Manage Billing</a>
+          <a href='https://fintrack.live/dashboard' class='btn'>Go to Dashboard</a>
+          <a
+            href='https://fintrack.live/api/billing/portal'
+            class='btn-secondary'
+          >Manage Billing</a>
         </div>
 
         <div class='footer'>
           <p>Questions? Reach us at
-            <a href='mailto:{{supportEmail}}'>{{supportEmail}}</a></p>
+            <a href='https://www.fintrack.live/support'>Support</a></p>
           <p>&copy; 2026 Fintrack Inc. &bull;
             <a href='https://fintrack.live'>fintrack.live</a></p>
         </div>
