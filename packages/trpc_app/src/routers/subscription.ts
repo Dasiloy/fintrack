@@ -95,7 +95,7 @@ export const subscriptionRouter = createTRPCRouter({
           limits: PLAN_LIMITS[userCount.subscription!.plan],
           resourceCounts: userCount._count,
         };
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
           throw new TRPCError({
             code: 'NOT_FOUND',
