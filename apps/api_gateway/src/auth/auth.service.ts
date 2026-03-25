@@ -454,7 +454,11 @@ export class AuthService implements OnModuleInit {
     return lastValueFrom(
       this.authService
         .initiateEmailChange(
-          { newEmail: data.newEmail, currentPassword: data.currentPassword, otpCode: data.otpCode },
+          {
+            newEmail: data.newEmail,
+            currentPassword: data.currentPassword,
+            otpCode: data.otpCode,
+          },
           metadata,
         )
         .pipe(timeout(25000)),
@@ -501,7 +505,10 @@ export class AuthService implements OnModuleInit {
     metadata.add('x-token', token);
     return lastValueFrom(
       this.authService
-        .deleteAccount({ password: data.password, otpCode: data.otpCode }, metadata)
+        .deleteAccount(
+          { password: data.password, otpCode: data.otpCode },
+          metadata,
+        )
         .pipe(timeout(25000)),
     );
   }

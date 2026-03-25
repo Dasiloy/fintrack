@@ -1,6 +1,6 @@
 {
   "__comment": "Auth Controller API Documentation — apps/api_gateway/src/auth/auth.controller.ts",
-  "meta_note": "All routes are prefixed with /api/v1/auth. Authentication tokens are JWT-based. See conventions below.",
+  "meta_note": "All routes are prefixed with /api/auth. Authentication tokens are JWT-based. See conventions below.",
   "conventions": {
     "access_token": "Authorization: Bearer <accessToken>  — short-lived JWT, default 1h",
     "refresh_token": "Passed in the request body as refreshToken",
@@ -15,7 +15,7 @@
   },
 
   "auth_register": {
-    "route": "POST /api/v1/auth/register",
+    "route": "POST /api/auth/register",
     "method": "POST",
     "description": "Register a new user with email and password. Returns the user record and a short-lived emailToken (otp_token) to pass as x-token when calling /auth/verify.",
     "authentication": "None",
@@ -48,10 +48,10 @@
   },
 
   "auth_verifyEmail": {
-    "route": "POST /api/v1/auth/verify",
+    "route": "POST /api/auth/verify",
     "method": "POST",
     "description": "Verify the user's email using the OTP sent to their inbox. Requires the emailToken from /auth/register as the x-token header. Creates the first session and returns access + refresh tokens.",
-    "authentication": "x-token: <emailToken>  (otp_token)",
+    "authentication": "x-token: <emailToken>",
     "input": {
       "otp": "string (required) — 6-digit code from the verification email"
     },
@@ -77,7 +77,7 @@
   },
 
   "auth_resendVerifyEmail": {
-    "route": "POST /api/v1/auth/resend-verify",
+    "route": "POST /api/auth/resend-verify",
     "method": "POST",
     "description": "Resend the email verification OTP. Deletes the previous pending token and issues a new emailToken.",
     "authentication": "None",
@@ -99,7 +99,7 @@
   },
 
   "auth_login": {
-    "route": "POST /api/v1/auth/login",
+    "route": "POST /api/auth/login",
     "method": "POST",
     "description": "Authenticate with email and password. Returns access + refresh tokens on success. If the account has 2FA enabled, returns a twoFactorToken and requiresTwoFactor:true instead — the client must then call POST /auth/2fa/verify.",
     "authentication": "None",
@@ -140,7 +140,7 @@
   },
 
   "auth_forgotPassword": {
-    "route": "POST /api/v1/auth/forgot-password",
+    "route": "POST /api/auth/forgot-password",
     "method": "POST",
     "description": "Initiate a password reset. Dispatches a 6-digit OTP to the user's email. Always returns 200 to prevent user enumeration.",
     "authentication": "None",
@@ -161,7 +161,7 @@
   },
 
   "auth_resendForgotPassword": {
-    "route": "POST /api/v1/auth/resend-forgot-password",
+    "route": "POST /api/auth/resend-forgot-password",
     "method": "POST",
     "description": "Resend the password reset OTP after the previous one has expired.",
     "authentication": "None",
@@ -181,7 +181,7 @@
   },
 
   "auth_verifyPasswordToken": {
-    "route": "POST /api/v1/auth/verify-password-token",
+    "route": "POST /api/auth/verify-password-token",
     "method": "POST",
     "description": "Verify the 6-digit OTP from the forgot-password email. Returns a passwordToken (otp_token JWT) to pass as x-token when calling /auth/reset-password.",
     "authentication": "None",
@@ -204,7 +204,7 @@
   },
 
   "auth_resetPassword": {
-    "route": "POST /api/v1/auth/reset-password",
+    "route": "POST /api/auth/reset-password",
     "method": "POST",
     "description": "Set a new password using the passwordToken from /auth/verify-password-token. Pass the token as the x-token header.",
     "authentication": "x-token: <passwordToken>  (otp_token)",
@@ -225,7 +225,7 @@
   },
 
   "auth_refreshToken": {
-    "route": "POST /api/v1/auth/refresh",
+    "route": "POST /api/auth/refresh",
     "method": "POST",
     "description": "Exchange a valid refresh token for a new access + refresh token pair. The old refresh token is invalidated (rotation).",
     "authentication": "None — refreshToken passed in request body",
@@ -248,7 +248,7 @@
   },
 
   "auth_loginWithGoogle": {
-    "route": "POST /api/v1/auth/oauth/google",
+    "route": "POST /api/auth/oauth/google",
     "method": "POST",
     "description": "Sign in or register using a Google id_token from the client-side OAuth flow. The server verifies the token against Google's public keys. Creates or signs in the user and returns access + refresh tokens.",
     "authentication": "None",
@@ -277,7 +277,7 @@
   },
 
   "auth_init2fa": {
-    "route": "POST /api/v1/auth/2fa/init",
+    "route": "POST /api/auth/2fa/init",
     "method": "POST",
     "description": "Generate a TOTP secret and otpauth URI for the authenticated user. Render the URI as a QR code for the user to scan. 2FA is not yet active until /auth/2fa/confirm succeeds.",
     "authentication": "Bearer <accessToken>",
@@ -298,7 +298,7 @@
   },
 
   "auth_confirm2fa": {
-    "route": "POST /api/v1/auth/2fa/confirm",
+    "route": "POST /api/auth/2fa/confirm",
     "method": "POST",
     "description": "Confirm 2FA setup by verifying the first TOTP code from the authenticator app. Activates 2FA and returns 10 one-time backup codes — shown only once; the client must display them immediately.",
     "authentication": "Bearer <accessToken>",
@@ -320,7 +320,7 @@
   },
 
   "auth_verify2fa": {
-    "route": "POST /api/v1/auth/2fa/verify",
+    "route": "POST /api/auth/2fa/verify",
     "method": "POST",
     "description": "Complete a 2FA login challenge with a TOTP code or backup code. Rate limited to 5 attempts per 15 minutes to prevent brute-force attacks. Backup codes are single-use.",
     "authentication": "None — identity proven via twoFactorToken in the body",
@@ -352,7 +352,7 @@
   },
 
   "auth_disable2fa": {
-    "route": "DELETE /api/v1/auth/2fa",
+    "route": "DELETE /api/auth/2fa",
     "method": "DELETE",
     "description": "Disable TOTP 2FA on the account. Requires the current TOTP code. Wipes the stored secret and all backup codes.",
     "authentication": "Bearer <accessToken>",
@@ -372,7 +372,7 @@
   },
 
   "auth_changePassword": {
-    "route": "POST /api/v1/auth/change-password",
+    "route": "POST /api/auth/change-password",
     "method": "POST",
     "description": "Change the authenticated user's password. Verifies the current password first. Drops all active sessions on success and sends a security alert email.",
     "authentication": "Bearer <accessToken>",
@@ -394,7 +394,7 @@
   },
 
   "auth_initiateEmailChange": {
-    "route": "POST /api/v1/auth/email/initiate",
+    "route": "POST /api/auth/email/initiate",
     "method": "POST",
     "description": "Begin an email change. Verifies password ownership, checks the new email is available, and dispatches a 6-digit OTP to the new address. Submit the OTP to /auth/email/verify to complete the change.",
     "authentication": "Bearer <accessToken>",
@@ -418,7 +418,7 @@
   },
 
   "auth_verifyEmailChange": {
-    "route": "POST /api/v1/auth/email/verify",
+    "route": "POST /api/auth/email/verify",
     "method": "POST",
     "description": "Complete an email change by submitting the OTP sent to the new address. Updates the email, deletes the pending token, drops all sessions, and sends a security alert to the old address.",
     "authentication": "Bearer <accessToken>",
@@ -435,6 +435,50 @@
       "200": "Email changed — all sessions invalidated",
       "401": "Access token invalid, or OTP incorrect / expired",
       "409": "Target email was claimed by another account between initiation and verification"
+    }
+  },
+  "auth_regenerateBackupCodes": {
+    "route": "POST /api/auth/2fa/backup-codes/regenerate",
+    "method": "POST",
+    "description": "Regenerate 2FA backup recovery codes for the authenticated user. Requires a current TOTP code. Previously issued backup codes are invalidated.",
+    "authentication": "Bearer <accessToken>",
+    "rate_limit": "5 requests per 15 minutes per IP",
+    "input": {
+      "code": "string (required) — current 6-digit TOTP code"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Backup codes regenerated",
+      "data": {
+        "backupCodes": ["string — 10 × 8-character codes, shown once only"]
+      }
+    },
+    "responses": {
+      "200": "Backup codes regenerated",
+      "401": "Access token invalid or TOTP code incorrect",
+      "429": "Too many attempts — rate limit exceeded"
+    }
+  },
+  "auth_deleteAccount": {
+    "route": "DELETE /api/auth/account",
+    "method": "DELETE",
+    "description": "Schedule the authenticated account for permanent deletion after a 30-day grace window, revoke sessions immediately, and optionally cancel active subscription access at period end.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "password": "string (optional, required for local/password accounts)",
+      "otpCode": "string (optional, required when 2FA is enabled)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Account scheduled for deletion",
+      "data": null
+    },
+    "responses": {
+      "200": "Account scheduled for deletion",
+      "401": "Access token invalid, password invalid, or TOTP code invalid",
+      "429": "Too many failed verification attempts"
     }
   }
 }

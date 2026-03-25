@@ -77,7 +77,7 @@ export function SignupForm({ className, email }: SignupFormProps) {
     }
   };
 
-  http: return (
+  return (
     <form className={cn('pt-6', className)} onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <Field orientation={'horizontal'} className="items-start gap-4">

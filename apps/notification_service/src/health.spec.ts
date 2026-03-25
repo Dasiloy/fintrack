@@ -7,7 +7,7 @@ describe('Notification Service — smoke', () => {
   });
 
   it('default notification service port is a valid port number', () => {
-    const port = Number(process.env.NOTIFICATION_SERVICE_PORT ?? 4009);
+    const port = Number(process.env.NOTIFICATION_SERVICE_PORT ?? 4007);
     expect(port).toBeGreaterThan(0);
     expect(port).toBeLessThan(65536);
   });

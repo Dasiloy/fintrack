@@ -11,7 +11,6 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "build": "tsc && cp -r src/generated dist",
-    "dev": "tsc --watch",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "lint": "eslint . --fix",
     "check-types": "tsc --noEmit"

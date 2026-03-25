@@ -15,11 +15,13 @@ import {
 import {
   getServiceUrl,
   getServiceConfig,
+  type Service,
 } from '@fintrack/common/config/services';
 
 async function bootstrap() {
+  const serviceName: any = process.env.MICROSERVICE_NAME!;
   // Get Service config
-  const serviceConfig = getServiceConfig()['AUTH_SERVICE'];
+  const serviceConfig = getServiceConfig()[serviceName as Service];
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AuthModule,
@@ -27,7 +29,7 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         package: serviceConfig.NAME,
-        url: getServiceUrl('AUTH_SERVICE'),
+        url: getServiceUrl(serviceName),
         protoPath: [
           healthCheckProtoPath,
           require.resolve(serviceConfig.PROTO_PATH),
@@ -47,7 +49,7 @@ async function bootstrap() {
       },
     },
   );
-  const logger = new Logger('AUTH_SERVICE');
+  const logger = new Logger(serviceName);
 
   // start microservice
   app.enableShutdownHooks();

@@ -54,14 +54,26 @@ services:
         value: fintrack-auth-service
       - key: AUTH_SERVICE_PORT
         value: 4002
-      - key: NOTIFICATION_SERVICE_HOST
-        value: fintrack-notification-service
-      - key: NOTIFICATION_SERVICE_PORT
-        value: 4009
+      - key: FINANCE_SERVICE_HOST
+        value: fintrack-finance-service
+      - key: FINANCE_SERVICE_PORT
+        value: 4003
+      - key: AI_SERVICE_HOST
+        value: fintrack-ai-service
+      - key: AI_SERVICE_PORT
+        value: 4004
       - key: PAYMENT_SERVICE_HOST
         value: fintrack-payment-service
       - key: PAYMENT_SERVICE_PORT
-        value: 4008
+        value: 4005
+      - key: SCHEDULER_SERVICE_HOST
+        value: fintrack-scheduler-service
+      - key: SCHEDULER_SERVICE_PORT
+        value: 4006
+      - key: NOTIFICATION_SERVICE_HOST
+        value: fintrack-notification-service
+      - key: NOTIFICATION_SERVICE_PORT
+        value: 4007
 
       # Secrets — set in Render → fintrack-api-gateway → Settings → Environment
       - key: DATABASE_URL
@@ -88,6 +100,7 @@ services:
         sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
+
 
   # ── Private gRPC service: Auth ──────────────────────────────────────────────
   - type: pserv
@@ -129,6 +142,10 @@ services:
       # Secrets — set in Render → fintrack-auth-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
+      - key: DATABASE_CA_CERTIFICATE
+        sync: false
+      - key: REDIS_URL
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: JWT_REFRESH_SECRET
@@ -140,17 +157,18 @@ services:
       - key: AES_KEY
         sync: false
 
-  # ── Private gRPC service: Notification ─────────────────────────────────────
-  - type: pserv
-    name: fintrack-notification-service
+
+# ── Private gRPC service: Finance ──────────────────────────────────────────────
+- type: pserv
+    name: fintrack-finance-service
     runtime: node
     buildCommand: >-
       pnpm install --frozen-lockfile --prod=false &&
-      pnpm turbo build --filter=notification_service
-    startCommand: cd apps/notification_service && node dist/main.js
+      pnpm turbo build --filter=finance_service
+    startCommand: cd apps/finance_service && node dist/main.js
     buildFilter:
       paths:
-        - apps/notification_service/**
+        - apps/finance_service/**
         - packages/common/**
         - packages/database/**
         - packages/utils/**
@@ -163,21 +181,66 @@ services:
       - key: NODE_ENV
         value: production
       - key: MICROSERVICE_NAME
-        value: NOTIFICATION_SERVICE
-      - key: NOTIFICATION_SERVICE_HOST
+        value: FINANCE_SERVICE
+      - key: FINANCE_SERVICE_HOST
         value: 0.0.0.0
-      - key: NOTIFICATION_SERVICE_PORT
-        value: 4009
+      - key: FINANCE_SERVICE_PORT
+        value: 4003
 
-      # Secrets — set in Render → fintrack-notification-service → Settings → Environment
+      # Secrets — set in Render → fintrack-finance-service → Settings → Environment
       - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_CA_CERTIFICATE
         sync: false
       - key: REDIS_URL
         sync: false
-      - key: MAIL_FROM
+
+
+  # ── Private gRPC service: AI ──────────────────────────────────────────────
+  - type: pserv
+    name: fintrack-ai-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile --prod=false &&
+      pnpm turbo build --filter=ai_service
+    startCommand: cd apps/ai_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/ai_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: AI_SERVICE
+      - key: AI_SERVICE_HOST
+        value: 0.0.0.0
+      - key: AI_SERVICE_PORT
+        value: 4004
+
+      # Secrets — set in Render → fintrack-ai-service → Settings → Environment
+      - key: DATABASE_URL
         sync: false
-      - key: MAIL_TOKEN
+      - key: DATABASE_CA_CERTIFICATE
         sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_API_BASE
+        sync: false
+      - key: OPENAI_API_MODEL
+        sync: false
+      - key: OPENAI_API_VERSION
+        sync: false
+
 
   # ── Private gRPC service: Payment ──────────────────────────────────────────
   - type: pserv
@@ -206,10 +269,12 @@ services:
       - key: PAYMENT_SERVICE_HOST
         value: 0.0.0.0
       - key: PAYMENT_SERVICE_PORT
-        value: 4008
+        value: 4005
 
       # Secrets — set in Render → fintrack-payment-service → Settings → Environment
       - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_CA_CERTIFICATE
         sync: false
       - key: REDIS_URL
         sync: false
@@ -218,4 +283,84 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: STRIPE_PRO_MONTHLY_PRICE_ID
+        sync: false
+
+
+  # ── Private gRPC service: Scheduler ────────────────────────────────────────
+  - type: pserv
+    name: fintrack-scheduler-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile --prod=false &&
+      pnpm turbo build --filter=scheduler_service
+    startCommand: cd apps/scheduler_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/scheduler_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: SCHEDULER_SERVICE
+      - key: SCHEDULER_SERVICE_HOST
+        value: 0.0.0.0
+      - key: SCHEDULER_SERVICE_PORT
+        value: 4006
+
+      # Secrets — set in Render → fintrack-scheduler-service → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_CA_CERTIFICATE
+        sync: false
+      - key: REDIS_URL
+        sync: false
+
+
+  # ── Private gRPC service: Notification ─────────────────────────────────────
+  - type: pserv
+    name: fintrack-notification-service
+    runtime: node
+    buildCommand: >-
+      pnpm install --frozen-lockfile --prod=false &&
+      pnpm turbo build --filter=notification_service
+    startCommand: cd apps/notification_service && node dist/main.js
+    buildFilter:
+      paths:
+        - apps/notification_service/**
+        - packages/common/**
+        - packages/database/**
+        - packages/utils/**
+        - packages/types/**
+        - render.yaml
+        - pnpm-lock.yaml
+        - turbo.json
+        - .npmrc
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MICROSERVICE_NAME
+        value: NOTIFICATION_SERVICE
+      - key: NOTIFICATION_SERVICE_HOST
+        value: 0.0.0.0
+      - key: NOTIFICATION_SERVICE_PORT
+        value: 4007
+
+      # Secrets — set in Render → fintrack-notification-service → Settings → Environment
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_CA_CERTIFICATE
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_TOKEN
         sync: false
