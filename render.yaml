@@ -16,7 +16,6 @@
 #
 # See docs/RENDER.md for the full setup guide.
 # =============================================================================
-
 services:
   # ── Public HTTP service: API Gateway ────────────────────────────────────────
   - type: web
@@ -46,7 +45,6 @@ services:
         value: 0.0.0.0
       - key: API_GATEWAY_PORT
         value: 4001
-
       # Internal hostnames for the private gRPC services (Render private DNS).
       # After first deploy confirm these match each service's Internal Address
       # in Render → <service> → Settings → Internal Address.
@@ -74,7 +72,6 @@ services:
         value: fintrack-notification-service
       - key: NOTIFICATION_SERVICE_PORT
         value: 4007
-
       # Secrets — set in Render → fintrack-api-gateway → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -100,8 +97,6 @@ services:
         sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
-
-
   # ── Private gRPC service: Auth ──────────────────────────────────────────────
   - type: pserv
     name: fintrack-auth-service
@@ -138,7 +133,6 @@ services:
         value: 5
       - key: MAX_LOGIN_ATTEMPTS
         value: 3
-
       # Secrets — set in Render → fintrack-auth-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -156,10 +150,8 @@ services:
         sync: false
       - key: AES_KEY
         sync: false
-
-
-# ── Private gRPC service: Finance ──────────────────────────────────────────────
-- type: pserv
+  # ── Private gRPC service: Finance ──────────────────────────────────────────
+  - type: pserv
     name: fintrack-finance-service
     runtime: node
     buildCommand: >-
@@ -186,7 +178,6 @@ services:
         value: 0.0.0.0
       - key: FINANCE_SERVICE_PORT
         value: 4003
-
       # Secrets — set in Render → fintrack-finance-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -194,8 +185,6 @@ services:
         sync: false
       - key: REDIS_URL
         sync: false
-
-
   # ── Private gRPC service: AI ──────────────────────────────────────────────
   - type: pserv
     name: fintrack-ai-service
@@ -224,7 +213,6 @@ services:
         value: 0.0.0.0
       - key: AI_SERVICE_PORT
         value: 4004
-
       # Secrets — set in Render → fintrack-ai-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -240,8 +228,6 @@ services:
         sync: false
       - key: OPENAI_API_VERSION
         sync: false
-
-
   # ── Private gRPC service: Payment ──────────────────────────────────────────
   - type: pserv
     name: fintrack-payment-service
@@ -270,7 +256,6 @@ services:
         value: 0.0.0.0
       - key: PAYMENT_SERVICE_PORT
         value: 4005
-
       # Secrets — set in Render → fintrack-payment-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -284,8 +269,6 @@ services:
         sync: false
       - key: STRIPE_PRO_MONTHLY_PRICE_ID
         sync: false
-
-
   # ── Private gRPC service: Scheduler ────────────────────────────────────────
   - type: pserv
     name: fintrack-scheduler-service
@@ -314,7 +297,6 @@ services:
         value: 0.0.0.0
       - key: SCHEDULER_SERVICE_PORT
         value: 4006
-
       # Secrets — set in Render → fintrack-scheduler-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
@@ -322,8 +304,6 @@ services:
         sync: false
       - key: REDIS_URL
         sync: false
-
-
   # ── Private gRPC service: Notification ─────────────────────────────────────
   - type: pserv
     name: fintrack-notification-service
@@ -352,7 +332,6 @@ services:
         value: 0.0.0.0
       - key: NOTIFICATION_SERVICE_PORT
         value: 4007
-
       # Secrets — set in Render → fintrack-notification-service → Settings → Environment
       - key: DATABASE_URL
         sync: false
