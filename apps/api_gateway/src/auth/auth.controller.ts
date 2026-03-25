@@ -812,7 +812,10 @@ export class AuthController {
     summary: 'Regenerate Backup Codes',
     description: 'Regenerate 2FA backup codes. Requires current TOTP code.',
   })
-  @ApiBody({ description: 'Current 6-digit TOTP code', type: RegenerateBackupCodesDto })
+  @ApiBody({
+    description: 'Current 6-digit TOTP code',
+    type: RegenerateBackupCodesDto,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: '10 new backup codes generated',
@@ -995,10 +998,14 @@ export class AuthController {
       'Password is required for email/password accounts; omit for social-only accounts. ' +
       'otpCode is required when 2FA is active.',
   })
-  @ApiBody({ description: 'Optional password and OTP code for ownership verification', type: DeleteAccountDto })
+  @ApiBody({
+    description: 'Optional password and OTP code for ownership verification',
+    type: DeleteAccountDto,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Account scheduled for deletion — sessions revoked immediately',
+    description:
+      'Account scheduled for deletion — sessions revoked immediately',
     schema: {
       example: {
         success: true,
@@ -1008,8 +1015,14 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid token, password, or TOTP code' })
-  @ApiResponse({ status: HttpStatus.TOO_MANY_REQUESTS, description: 'Too many failed verification attempts' })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid token, password, or TOTP code',
+  })
+  @ApiResponse({
+    status: HttpStatus.TOO_MANY_REQUESTS,
+    description: 'Too many failed verification attempts',
+  })
   @HttpCode(HttpStatus.OK)
   async deleteAccount(
     @AccessToken() token: string,

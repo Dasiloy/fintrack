@@ -11,8 +11,24 @@ import {
   NOTIFICATION_PACKAGE_NAME,
   protobufPackage as NOTIFICATION,
 } from '@fintrack/types/protos/notification/notification';
+import { AI_PACKAGE_NAME, protobufPackage as AI } from '@fintrack/types/protos/ai/ai';
+import {
+  FINANCE_PACKAGE_NAME,
+  protobufPackage as FINANCE,
+} from '@fintrack/types/protos/finance/finance';
+import {
+  SCHEDULER_PACKAGE_NAME,
+  protobufPackage as SCHEDULER,
+} from '@fintrack/types/protos/scheduler/scheduler';
 
-type Service = 'API_GATEWAY' | 'AUTH_SERVICE' | 'PAYMENT_SERVICE' | 'NOTIFICATION_SERVICE';
+export type Service =
+  | 'API_GATEWAY'
+  | 'AUTH_SERVICE'
+  | 'PAYMENT_SERVICE'
+  | 'NOTIFICATION_SERVICE'
+  | 'AI_SERVICE'
+  | 'FINANCE_SERVICE'
+  | 'SCHEDULER_SERVICE';
 
 interface IService {
   NAME: string;
@@ -45,6 +61,21 @@ export const getServiceConfig = (): Record<Service, IService> => ({
       '..',
       'packages/types/proto/notification/notification.proto',
     ),
+  },
+  AI_SERVICE: {
+    NAME: AI,
+    PACKAGE_NAME: AI_PACKAGE_NAME,
+    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/ai/ai.proto'),
+  },
+  FINANCE_SERVICE: {
+    NAME: FINANCE,
+    PACKAGE_NAME: FINANCE_PACKAGE_NAME,
+    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/finance/finance.proto'),
+  },
+  SCHEDULER_SERVICE: {
+    NAME: SCHEDULER,
+    PACKAGE_NAME: SCHEDULER_PACKAGE_NAME,
+    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/scheduler/scheduler.proto'),
   },
 });
 

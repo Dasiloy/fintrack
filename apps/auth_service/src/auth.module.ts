@@ -1,11 +1,10 @@
 import * as Joi from 'joi';
-import { Queue } from 'bullmq';
 
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { BullModule, InjectQueue } from '@nestjs/bullmq';
+import { BullModule } from '@nestjs/bullmq';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
@@ -17,13 +16,11 @@ import {
 import {
   TOKEN_NOTIFICATION_QUEUE,
   ACCOUNT_CLEANUP_QUEUE,
-  PURGE_SCHEDULED_DELETIONS_JOB,
   PAYMENT_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CleanupProcessor } from './cleanup/cleanup.processor';
 
 @Module({
   imports: [
@@ -107,24 +104,10 @@ import { CleanupProcessor } from './cleanup/cleanup.processor';
   controllers: [AuthController],
   providers: [
     AuthService,
-    CleanupProcessor,
     {
       provide: APP_INTERCEPTOR,
       useClass: GrpcLoggingInterceptor,
     },
   ],
 })
-export class AuthModule implements OnModuleInit {
-  constructor(
-    @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
-  ) {}
-
-  async onModuleInit(): Promise<void> {
-    // Schedule the daily purge job (idempotent — BullMQ deduplicates by pattern)
-    await this.cleanupQueue.add(
-      PURGE_SCHEDULED_DELETIONS_JOB,
-      {},
-      { repeat: { pattern: '0 3 * * *' } }, // runs daily at 03:00 UTC
-    );
-  }
-}
+export class AuthModule {}

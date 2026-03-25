@@ -1,0 +1,57 @@
+{
+  "__comment": "Payment Service gRPC Documentation — apps/payment_service/src/payment.controller.ts",
+  "meta_note": "All methods are gRPC procedures exposed by PaymentService. API Gateway is the primary caller.",
+  "conventions": {
+    "transport": "gRPC (NestJS microservice, @PaymentServiceControllerMethods)",
+    "metadata_user_id": "x-user-id: <userId> is required and extracted by RpcAuthGuard",
+    "rpc_errors": {
+      "INVALID_ARGUMENT": "Missing subscription/customer context or invalid business preconditions",
+      "UNAUTHENTICATED": "Missing or invalid metadata identity",
+      "INTERNAL": "Unexpected server error while calling Stripe or database operations"
+    }
+  },
+  "createCheckoutSession": {
+    "rpc": "CreateCheckoutSession",
+    "proto_method": "rpc CreateCheckoutSession (OriginUrlReq) returns (CreateCheckoutSessionResponse)",
+    "description": "Create a Stripe Checkout session for an authenticated user who does not already have an active Stripe subscription.",
+    "authentication": "x-user-id metadata required",
+    "input": {
+      "originUrl": "string (required) — frontend origin used to build success/cancel URLs"
+    },
+    "output": {
+      "checkoutSessionUrl": "string"
+    },
+    "throws": {
+      "INVALID_ARGUMENT": "Subscription record missing or user already has a Stripe subscription",
+      "INTERNAL": "Failed to create checkout session"
+    }
+  },
+  "createPortalSession": {
+    "rpc": "CreatePortalSession",
+    "proto_method": "rpc CreatePortalSession (OriginUrlReq) returns (CreatePortalSessionResponse)",
+    "description": "Create a Stripe Billing Portal session for users who already have an associated Stripe customer.",
+    "authentication": "x-user-id metadata required",
+    "input": {
+      "originUrl": "string (required) — return URL after completing actions in Stripe portal"
+    },
+    "output": {
+      "portalSessionUrl": "string"
+    },
+    "throws": {
+      "INVALID_ARGUMENT": "Subscription/customer details missing",
+      "INTERNAL": "Failed to create portal session"
+    }
+  },
+  "cancelSubscription": {
+    "rpc": "CancelSubscription",
+    "proto_method": "rpc CancelSubscription (Empty) returns (Empty)",
+    "description": "Cancel the authenticated user's Stripe subscription using the persisted stripeSubscriptionId.",
+    "authentication": "x-user-id metadata required",
+    "input": "Empty",
+    "output": "Empty",
+    "throws": {
+      "INVALID_ARGUMENT": "Subscription or stripeSubscriptionId not found",
+      "INTERNAL": "Failed to cancel subscription"
+    }
+  }
+}

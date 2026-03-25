@@ -277,6 +277,7 @@ exports.Prisma.NotificationSettingScalarFieldEnum = {
 exports.Prisma.CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  slug: 'slug',
   description: 'description',
   icon: 'icon',
   color: 'color',
@@ -291,6 +292,37 @@ exports.Prisma.BudgetScalarFieldEnum = {
   name: 'name',
   amount: 'amount',
   description: 'description',
+  period: 'period',
+  carryOver: 'carryOver',
+  alertThreshold: 'alertThreshold',
+  categoryId: 'categoryId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BudgetHistoryScalarFieldEnum = {
+  id: 'id',
+  limit: 'limit',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  budgetId: 'budgetId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OCRDraftScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  date: 'date',
+  description: 'description',
+  notes: 'notes',
+  merchant: 'merchant',
+  imageKey: 'imageKey',
+  status: 'status',
+  confidence: 'confidence',
+  faliureReason: 'faliureReason',
+  rawData: 'rawData',
+  confirmedAt: 'confirmedAt',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -302,33 +334,120 @@ exports.Prisma.TransactionScalarFieldEnum = {
   date: 'date',
   type: 'type',
   description: 'description',
+  notes: 'notes',
+  merchant: 'merchant',
+  categoryId: 'categoryId',
+  userId: 'userId',
+  source: 'source',
+  sourceId: 'sourceId',
+  sourceData: 'sourceData',
+  bankTransactionId: 'bankTransactionId',
+  bankTransactionStatus: 'bankTransactionStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  monoBankAccountId: 'monoBankAccountId'
+};
+
+exports.Prisma.RecurringItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  type: 'type',
+  frequency: 'frequency',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  description: 'description',
+  notes: 'notes',
+  merchant: 'merchant',
+  lastRunAt: 'lastRunAt',
+  nextRunAt: 'nextRunAt',
+  isActive: 'isActive',
   categoryId: 'categoryId',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.RecurringItemScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  userId: 'userId'
-};
-
 exports.Prisma.GoalScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  userId: 'userId'
+  targetAmount: 'targetAmount',
+  targetDate: 'targetDate',
+  status: 'status',
+  description: 'description',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GoalContributionScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  date: 'date',
+  description: 'description',
+  notes: 'notes',
+  goalId: 'goalId',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SplitScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  userId: 'userId'
+  amount: 'amount',
+  status: 'status',
+  userId: 'userId',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SplitParticipantScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  amount: 'amount',
+  splitId: 'splitId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SplitSettlementScalarFieldEnum = {
+  id: 'id',
+  paidAt: 'paidAt',
+  paidAmount: 'paidAmount',
+  splitId: 'splitId',
+  participantId: 'participantId',
+  transactionId: 'transactionId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.MonoBankAccountScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  bankId: 'bankId',
+  bankLogoUrl: 'bankLogoUrl',
+  accountNumber: 'accountNumber',
+  accountName: 'accountName',
+  accountType: 'accountType',
+  accountBalance: 'accountBalance',
+  accountCurrency: 'accountCurrency',
+  isActive: 'isActive',
+  lastSyncedAt: 'lastSyncedAt',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -339,6 +458,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.Currency = exports.$Enums.Currency = {
   AFN: 'AFN',
@@ -589,9 +714,57 @@ exports.UsageFeature = exports.$Enums.UsageFeature = {
   RECEIPT_UPLOADS: 'RECEIPT_UPLOADS'
 };
 
+exports.BudgetPeriod = exports.$Enums.BudgetPeriod = {
+  MONTHLY: 'MONTHLY'
+};
+
+exports.OCRDraftStatus = exports.$Enums.OCRDraftStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
 exports.TransactionType = exports.$Enums.TransactionType = {
   INCOME: 'INCOME',
   EXPENSE: 'EXPENSE'
+};
+
+exports.TransactionSource = exports.$Enums.TransactionSource = {
+  MANUAL: 'MANUAL',
+  BANK: 'BANK',
+  RECURRING: 'RECURRING',
+  OCR: 'OCR',
+  SPLIT: 'SPLIT'
+};
+
+exports.BankTransactionStatus = exports.$Enums.BankTransactionStatus = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.RecurringItemFrequency = exports.$Enums.RecurringItemFrequency = {
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  BIWEEKLY: 'BIWEEKLY',
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.Goalstatus = exports.$Enums.Goalstatus = {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.SplitStatus = exports.$Enums.SplitStatus = {
+  OPEN: 'OPEN',
+  PARTIALLY_SETTLED: 'PARTIALLY_SETTLED',
+  SETTLED: 'SETTLED'
 };
 
 exports.Prisma.ModelName = {
@@ -610,10 +783,16 @@ exports.Prisma.ModelName = {
   NotificationSetting: 'NotificationSetting',
   Category: 'Category',
   Budget: 'Budget',
+  BudgetHistory: 'BudgetHistory',
+  OCRDraft: 'OCRDraft',
   Transaction: 'Transaction',
   RecurringItem: 'RecurringItem',
   Goal: 'Goal',
-  Split: 'Split'
+  GoalContribution: 'GoalContribution',
+  Split: 'Split',
+  SplitParticipant: 'SplitParticipant',
+  SplitSettlement: 'SplitSettlement',
+  MonoBankAccount: 'MonoBankAccount'
 };
 
 /**

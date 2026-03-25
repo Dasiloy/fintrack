@@ -19,6 +19,6 @@ export function fileToBase64(file: File): Promise<string> {
  * @param base64 base64 string to convert to file
  * @returns file
  */
-export function base64ToBufferingString(base64: string): String {
+export function base64ToBufferingString(base64: string): string {
   return base64.replace(/^data:image\/\w+;base64,/, '');
 }
