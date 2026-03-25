@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package finance;
+
+service TransactionService {
+    rpc CreateTransaction(CreateTransactionReq) returns (CreateTransactionRes) {}
+}
+
+message CreateTransactionReq {
+    string name = 1;
+    string description = 2;
+    string amount = 3;
+    string frequency = 4;
+}
+
+message CreateTransactionRes {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string amount = 4;
+    string frequency = 5;
+}

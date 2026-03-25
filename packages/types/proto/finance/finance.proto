@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package finance;
+
+ // import all finance related proto files
+import "budget.proto";
+import "transaction.proto";
+import "recurring.proto";
+
+
+

@@ -7,7 +7,7 @@ describe('Payment Service — smoke', () => {
   });
 
   it('default payment service port is a valid port number', () => {
-    const port = Number(process.env.PAYMENT_SERVICE_PORT ?? 4008);
+    const port = Number(process.env.PAYMENT_SERVICE_PORT ?? 4005);
     expect(port).toBeGreaterThan(0);
     expect(port).toBeLessThan(65536);
   });

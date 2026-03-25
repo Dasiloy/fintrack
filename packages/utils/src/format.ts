@@ -39,7 +39,7 @@ export function capitalize(str: string): string {
  * @returns { Record<string, any> } flattened object
  */
 export function flattenObject(obj: Record<string, any>): Record<string, any> {
-  let result: Record<string, any> = {};
+  const result: Record<string, any> = {};
   for (const key in obj) {
     const isValueObject = typeof obj[key] === 'object' && obj[key] !== null;
     if (isValueObject) {

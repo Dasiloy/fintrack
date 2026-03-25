@@ -1,0 +1,9 @@
+{
+  "__comment": "Notification Service Documentation — apps/notification_service/src/notification.controller.ts",
+  "meta_note": "The notification service currently exposes no public HTTP or gRPC controller endpoints. Work is queue/processor-driven.",
+  "controller_status": {
+    "controller": "AppController",
+    "endpoints": [],
+    "description": "No externally callable endpoints are defined in the notification controller at this time."
+  }
+}

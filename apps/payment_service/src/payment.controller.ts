@@ -1,4 +1,3 @@
-import { status } from '@grpc/grpc-js';
 import { Observable } from 'rxjs';
 
 import { Controller, Logger, UseGuards } from '@nestjs/common';

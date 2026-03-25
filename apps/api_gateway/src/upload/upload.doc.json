@@ -1,0 +1,25 @@
+{
+  "__comment": "Upload Controller API Documentation — apps/api_gateway/src/upload/upload.controller.ts",
+  "meta_note": "All routes are prefixed with /api/upload. Authentication is required for all routes.",
+  "upload_profileImage": {
+    "route": "POST /api/upload/profile-image",
+    "method": "POST",
+    "description": "Upload and store a new profile image for the authenticated user.",
+    "authentication": "Bearer token required",
+    "input": {
+      "file": "multipart/form-data binary file (required, image only, size limited by MAX_FILE_SIZE)"
+    },
+    "output": {
+      "statusCode": 200,
+      "message": "Profile image uploaded successfully",
+      "success": true,
+      "data": null
+    },
+    "responses": {
+      "200": "Profile image uploaded successfully",
+      "400": "Invalid file type or file too large",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  }
+}
