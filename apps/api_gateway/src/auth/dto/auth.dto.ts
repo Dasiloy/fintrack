@@ -204,7 +204,8 @@ export class GoogleOAuthDto {
 export class ChangePasswordDto {
   @ApiPropertyOptional({
     type: 'string',
-    description: 'Current account password — omitted when creating a password for the first time (social users)',
+    description:
+      'Current account password — omitted when creating a password for the first time (social users)',
     example: '&45367tDewgbck',
   })
   @IsOptional()
@@ -227,7 +228,8 @@ export class ChangePasswordDto {
 
   @ApiPropertyOptional({
     type: 'string',
-    description: '6-digit TOTP code — required when the account has 2FA enabled',
+    description:
+      '6-digit TOTP code — required when the account has 2FA enabled',
     example: '123456',
   })
   @IsOptional()
@@ -257,7 +259,8 @@ export class ChangeEmailDto {
 
   @ApiPropertyOptional({
     type: 'string',
-    description: '6-digit TOTP code — required when 2FA is enabled on the account',
+    description:
+      '6-digit TOTP code — required when 2FA is enabled on the account',
     example: '123456',
   })
   @IsOptional()
@@ -291,7 +294,8 @@ export class Disable2faDto {
 export class Confirm2faDto {
   @ApiProperty({
     type: 'string',
-    description: '6-digit TOTP code from the authenticator app after scanning the QR code',
+    description:
+      '6-digit TOTP code from the authenticator app after scanning the QR code',
     example: '482910',
   })
   @IsString()
@@ -302,7 +306,8 @@ export class Confirm2faDto {
 export class VerifyTwoFactorDto {
   @ApiProperty({
     type: 'string',
-    description: 'Short-lived 2FA challenge JWT returned by login when 2FA is required',
+    description:
+      'Short-lived 2FA challenge JWT returned by login when 2FA is required',
   })
   @IsString()
   twoFactorToken: string;
@@ -331,7 +336,8 @@ export class RegenerateBackupCodesDto {
 export class DeleteAccountDto {
   @ApiPropertyOptional({
     type: 'string',
-    description: 'Current account password — required for email/password accounts; omit for social-only accounts',
+    description:
+      'Current account password — required for email/password accounts; omit for social-only accounts',
     example: 'MyP@ssw0rd!',
   })
   @IsOptional()
@@ -341,7 +347,8 @@ export class DeleteAccountDto {
 
   @ApiPropertyOptional({
     type: 'string',
-    description: '6-digit TOTP code from the authenticator app — required when 2FA is active',
+    description:
+      '6-digit TOTP code from the authenticator app — required when 2FA is active',
     example: '123456',
   })
   @IsOptional()

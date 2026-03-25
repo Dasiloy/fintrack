@@ -15,11 +15,14 @@ import {
 import {
   getServiceUrl,
   getServiceConfig,
+  type Service,
 } from '@fintrack/common/config/services';
 
 async function bootstrap() {
+  const serviceName: any = process.env.MICROSERVICE_NAME!;
+
   // Get Service config
-  const config = getServiceConfig()['PAYMENT_SERVICE'];
+  const config = getServiceConfig()[serviceName as Service];
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     PaymentModule,
@@ -27,7 +30,7 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         package: config.NAME,
-        url: getServiceUrl('PAYMENT_SERVICE'),
+        url: getServiceUrl(serviceName),
         protoPath: [healthCheckProtoPath, require.resolve(config.PROTO_PATH)],
         onLoadPackageDefinition: (pkg, server) => {
           new ReflectionService(pkg).addToServer(server);
@@ -44,7 +47,7 @@ async function bootstrap() {
       },
     },
   );
-  const logger = new Logger('PAYMENT_SERVICE');
+  const logger = new Logger(serviceName);
 
   // start microservice
   await app.listen();

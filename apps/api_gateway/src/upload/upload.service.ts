@@ -10,7 +10,6 @@ import {
 
 import { type User } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
-import { ConfigService } from '@nestjs/config';
 
 /**
  * Service responsible for uploading and fetching files from Cloudinary
@@ -21,10 +20,7 @@ import { ConfigService } from '@nestjs/config';
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly prisma: PrismaService) {
     cloudinary.v2.config({
       secure: true,
       sign_url: true,

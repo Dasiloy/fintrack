@@ -335,5 +335,36 @@
       "UNAUTHENTICATED": "Access token invalid, or OTP incorrect/expired",
       "ALREADY_EXISTS": "Target email was claimed by another account between initiation and verification"
     }
+  },
+  "regenerateBackupCodes": {
+    "rpc": "RegenerateBackupCodes",
+    "proto_method": "rpc RegenerateBackupCodes (ConfirmTwoFactorSetupReq) returns (ConfirmTwoFactorSetupRes)",
+    "description": "Regenerate backup codes for an authenticated user with 2FA enabled. Requires the current TOTP code and invalidates existing backup codes.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "code": "string (required) — current 6-digit TOTP code"
+    },
+    "output": {
+      "backupCodes": ["string — 10 × 8-character backup codes, shown once only"]
+    },
+    "throws": {
+      "FAILED_PRECONDITION": "2FA is not enabled",
+      "UNAUTHENTICATED": "Invalid token or TOTP code"
+    }
+  },
+  "deleteAccount": {
+    "rpc": "DeleteAccount",
+    "proto_method": "rpc DeleteAccount (DeleteAccountReq) returns (Empty)",
+    "description": "Schedule permanent account deletion after a 30-day grace window, revoke sessions immediately, and enqueue user/security notifications. If subscription is active, cancellation workflow is triggered.",
+    "authentication": "x-token: <accessToken>  (access_token)",
+    "input": {
+      "password": "string (optional, required for local/password accounts)",
+      "otpCode": "string (optional, required when 2FA is enabled)"
+    },
+    "output": "Empty",
+    "throws": {
+      "UNAUTHENTICATED": "Invalid token, password, or TOTP code",
+      "RESOURCE_EXHAUSTED": "Too many failed verification attempts"
+    }
   }
 }

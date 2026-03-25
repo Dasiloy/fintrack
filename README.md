@@ -349,6 +349,21 @@ npx kill-port [portnumber]
 
 Upstash requires TLS. Make sure your `REDIS_URL` starts with `rediss://` (two s's), not `redis://`. A plain `redis://` URL will fail against Upstash.
 
+run through the api_gateway and backend_services, all microservices
+
+ensure that for all controllers, we have an updated oc.json file, with updated endpoint documentation,
+
+also ensure all endpoints, all services, controlllers and functions are prpoerly documented based on my standard sepecifcations as you see in example documentations in those services and controlollers
+
+DO NOT EDIT ANY FILE that does not fall in this category
+DO NOT EDIT any lock file or change dependencies
+
+You can remove unused imports if any oinly if you are sure that those imports are realkly unused
+
+THIS IS BASICALLY A CLEANUP Process do not break any functionality or edit files you are not sure of
+
+Instructions for api doc template is in docs folder in the api-contract-template.json file
+
 ---
 
 Copyright © 2026 [dasiloy](https://github.com/dasiloy)

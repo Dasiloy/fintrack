@@ -15,13 +15,14 @@ import {
 import {
   getServiceUrl,
   getServiceConfig,
+  type Service,
 } from '@fintrack/common/config/services';
 
 async function bootstrap() {
   const serviceName: any = process.env.MICROSERVICE_NAME!;
 
   // Get Service config
-  const serviceConfig = getServiceConfig()[serviceName];
+  const serviceConfig = getServiceConfig()[serviceName as Service];
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     NotificationModule,

@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Logger,
   Post,
   RawBody,
   UseGuards,
@@ -43,7 +42,6 @@ import { Throttle } from '@nestjs/throttler';
   path: 'payment',
 })
 export class PaymentController {
-  private readonly logger = new Logger();
   constructor(private readonly paymentService: PaymentService) {}
 
   // ================================================================
