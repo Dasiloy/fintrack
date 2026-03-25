@@ -1,7 +1,7 @@
 import { env } from '@/env';
 import { cookies } from 'next/headers';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { VerifyPasswordTokenRes } from '@fintrack/types/protos/auth/auth';
 

@@ -1,0 +1,6 @@
+{
+  "extends": "@fintrack/typescript-config/nest.json",
+  "compilerOptions": {
+    "outDir": "./dist"
+  }
+}

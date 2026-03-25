@@ -61,7 +61,7 @@ const DESCRIPTIONS: Record<(typeof NOTIFICATION_TYPES)[number], string> = {
  * }>}
  */
 function groupNotifications(settings?: Partial<NotificationSetting>) {
-  let grouped: Record<
+  const grouped: Record<
     (typeof NOTIFICATION_TYPES)[number],
     Array<{ type: 'mail' | 'app'; enabled: boolean }>
   > = {

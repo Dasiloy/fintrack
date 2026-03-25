@@ -1,21 +1,70 @@
 {
   "__comment": "Payment Module API Documentation",
-  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints. all routes are prefixed with /api/v1/.",
-  "subscribeUser": {
-    "route": "POST /api/v1/payment",
+  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints. all routes are prefixed with /api/.",
+  "payment_subscribeUser": {
+    "route": "POST /api/payment/subscribe",
     "method": "POST",
-    "description": "Subscribe a user to a paid plan that provides extras such as pdf generation of reports.",
+    "description": "Create a Stripe Checkout session URL for upgrading the authenticated user to the PRO plan.",
     "authentication": "Bearer token required",
     "input": {},
     "output": {
-      "statusCode": 201,
-      "message": "Payment successful",
+      "statusCode": 200,
+      "message": "User subscribed to pro plan",
+      "success": true,
+      "data": {
+        "checkoutSessionUrl": "string"
+      }
+    },
+    "responses": {
+      "200": "Checkout session created successfully",
+      "400": "Customer information missing",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "payment_createPortalSession": {
+    "route": "POST /api/payment/portal",
+    "method": "POST",
+    "description": "Create a Stripe billing portal URL for the authenticated user to manage billing and subscription settings.",
+    "authentication": "Bearer token required",
+    "input": {
+      "returnUrl": "string (optional, fallback to request origin)"
+    },
+    "output": {
+      "statusCode": 200,
+      "message": "Portal session created",
+      "success": true,
+      "data": {
+        "portalSessionUrl": "string"
+      }
+    },
+    "responses": {
+      "200": "Portal session created successfully",
+      "400": "Customer information missing",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "payment_webhook": {
+    "route": "POST /api/payment/webhook",
+    "method": "POST",
+    "description": "Receive Stripe webhook events and process subscription/invoice lifecycle updates.",
+    "authentication": "Stripe signature header required",
+    "input": {
+      "rawBody": "Buffer (required, Stripe event payload)",
+      "stripe-signature": "string (required)"
+    },
+    "output": {
+      "statusCode": 200,
+      "message": "Webhook to handle stripe events",
       "success": true,
       "data": null
     },
     "responses": {
-      "201": "Payment successful",
-      "401": "Unauthorized"
+      "200": "Webhook accepted and processed",
+      "400": "Invalid webhook signature",
+      "429": "Too many webhook requests",
+      "500": "Internal server error"
     }
   }
 }

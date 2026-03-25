@@ -108,7 +108,7 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        let data: Partial<User> = {};
+        const data: Partial<User> = {};
         if (input.firstName) {
           data.firstName = input.firstName;
         }

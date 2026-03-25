@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 
