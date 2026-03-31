@@ -45,7 +45,6 @@ import { AiService } from './ai.service';
         };
       },
     }),
-    // BullModule.registerQueue({ name: USAGE_TRACKING_QUEUE }),
   ],
   controllers: [AiController],
   providers: [

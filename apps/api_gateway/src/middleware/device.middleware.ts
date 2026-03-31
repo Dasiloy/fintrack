@@ -5,6 +5,9 @@ import { Response, NextFunction } from 'express';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { RequestWithDevice } from '../@types/device_info.types';
 
+/**
+ * DeviceMiddleware.
+ */
 @Injectable()
 export class DeviceMiddleware implements NestMiddleware {
   use(req: RequestWithDevice, _res: Response, next: NextFunction) {

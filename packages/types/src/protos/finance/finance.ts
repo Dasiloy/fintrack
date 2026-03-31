@@ -4,8 +4,86 @@
 //   protoc               v6.33.5
 // source: finance/finance.proto
 
- 
+/* eslint-disable */
+import type { Metadata } from "@grpc/grpc-js";
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
+import {
+  CreateTransactionReq,
+  DeleteTransactionReq,
+  Empty,
+  GetTransactionReq,
+  GetTransactionsReq,
+  GetTransactionsRes,
+  Transaction,
+  UpdateTransactionReq,
+} from "./transaction";
 
 export const protobufPackage = "finance";
 
+/** finance/finance.proto */
+
 export const FINANCE_PACKAGE_NAME = "finance";
+
+export interface FinanceServiceClient {
+  /** Transactions */
+
+  createTransaction(request: CreateTransactionReq, metadata?: Metadata): Observable<Transaction>;
+
+  getTransactions(request: GetTransactionsReq, metadata?: Metadata): Observable<GetTransactionsRes>;
+
+  getTransaction(request: GetTransactionReq, metadata?: Metadata): Observable<Transaction>;
+
+  updateTransaction(request: UpdateTransactionReq, metadata?: Metadata): Observable<Transaction>;
+
+  deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Observable<Empty>;
+}
+
+export interface FinanceServiceController {
+  /** Transactions */
+
+  createTransaction(
+    request: CreateTransactionReq,
+    metadata?: Metadata,
+  ): Promise<Transaction> | Observable<Transaction> | Transaction;
+
+  getTransactions(
+    request: GetTransactionsReq,
+    metadata?: Metadata,
+  ): Promise<GetTransactionsRes> | Observable<GetTransactionsRes> | GetTransactionsRes;
+
+  getTransaction(
+    request: GetTransactionReq,
+    metadata?: Metadata,
+  ): Promise<Transaction> | Observable<Transaction> | Transaction;
+
+  updateTransaction(
+    request: UpdateTransactionReq,
+    metadata?: Metadata,
+  ): Promise<Transaction> | Observable<Transaction> | Transaction;
+
+  deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+}
+
+export function FinanceServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = [
+      "createTransaction",
+      "getTransactions",
+      "getTransaction",
+      "updateTransaction",
+      "deleteTransaction",
+    ];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("FinanceService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("FinanceService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const FINANCE_SERVICE_NAME = "FinanceService";

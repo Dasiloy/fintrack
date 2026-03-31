@@ -19,6 +19,9 @@ import {
   AccountDeletionEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
+/**
+ * NotificationService.
+ */
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);

@@ -41,7 +41,6 @@ export const authRetryLink =
                 observer.error(err);
                 return;
               }
-              // Cookie updated — retry; getSession() in headers will pick up new token
               subscribe(true);
             } else {
               observer.error(err);

@@ -1,0 +1,12 @@
+
+
+syntax = "proto3";
+
+
+message PaginateResponse {
+  int32 page = 1;
+  int32 limit = 2;
+  int32 total = 3;
+  int32 page_size = 4;
+  int32 last_page = 5;
+}

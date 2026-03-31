@@ -11,6 +11,9 @@ import { TokenPayload } from '@fintrack/types/interfaces/token_payload';
 
 import { TokenMetaKey } from '../decorators/token.decorator';
 
+/**
+ * TokenGuard.
+ */
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(

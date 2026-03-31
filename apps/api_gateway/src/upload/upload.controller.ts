@@ -42,6 +42,9 @@ import { type User } from '@fintrack/database/types';
 @Controller({
   path: 'upload',
 })
+/**
+ * UploadController.
+ */
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
