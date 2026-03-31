@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -10,6 +10,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import { DatabaseModule } from '@fintrack/database/nest';
 import {
+  getProtoIncludeDirs,
   getServiceConfig,
   getServiceUrl,
 } from '@fintrack/common/config/services';
@@ -22,6 +23,7 @@ import {
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -78,7 +80,12 @@ import { AuthService } from './auth.service';
               options: {
                 package: config.NAME,
                 url: getServiceUrl('PAYMENT_SERVICE'),
-                protoPath: require.resolve(config.PROTO_PATH),
+                protoPath: [
+                  ...config.PROTO_PATH.map((path) => require.resolve(path)),
+                ],
+                loader: {
+                  includeDirs: getProtoIncludeDirs(),
+                },
               },
             };
           },
@@ -97,9 +104,11 @@ import { AuthService } from './auth.service';
         };
       },
     }),
-    BullModule.registerQueue({ name: TOKEN_NOTIFICATION_QUEUE }),
-    BullModule.registerQueue({ name: ACCOUNT_CLEANUP_QUEUE }),
-    BullModule.registerQueue({ name: PAYMENT_QUEUE }),
+    BullModule.registerQueue(
+      { name: TOKEN_NOTIFICATION_QUEUE },
+      { name: ACCOUNT_CLEANUP_QUEUE },
+      { name: PAYMENT_QUEUE },
+    ),
   ],
   controllers: [AuthController],
   providers: [

@@ -83,6 +83,13 @@ import {
  * @class AuthService
  */
 
+/**
+ * Service responsible for managing user authentication.
+ * Interacts with Prisma.
+ * Manages User, Account, Session, and VerificationToken.
+ *
+ * @class AuthService
+ */
 @Injectable()
 export class AuthService implements OnModuleInit {
   private paymentService: PaymentServiceClient;

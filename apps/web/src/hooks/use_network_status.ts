@@ -25,7 +25,7 @@ export function useNetworkStatus() {
     window.addEventListener('online', handleOnline);
 
     // Periodic background check every 300 s (catches silent failures)
-    const interval = setInterval(check, 30_000);
+    const interval = setInterval(check, 180_000); // 3 minutes
 
     return () => {
       window.removeEventListener('offline', handleOffline);

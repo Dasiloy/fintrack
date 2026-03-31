@@ -11,6 +11,9 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import dayjs, { getPeriodRange } from '@fintrack/utils/date';
 
+/**
+ * UsageProcessor.
+ */
 @Processor(USAGE_TRACKING_QUEUE)
 export class UsageProcessor extends WorkerHost {
   private readonly logger = new Logger(UsageProcessor.name);

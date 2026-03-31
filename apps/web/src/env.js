@@ -29,6 +29,8 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
     NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME: z.string(),
+    NEXT_PUBLIC_API_GATEWAY_URL: z.string().url(),
+    NEXT_PUBLIC_FIREBASE_VAPID_KEY: z.string(),
   },
 
   /**
@@ -50,6 +52,8 @@ export const env = createEnv({
     JWT_REFRESH_TOKEN_EXPIRATION: process.env.JWT_REFRESH_TOKEN_EXPIRATION,
     NODE_ENV: process.env.NODE_ENV,
     DEVICE_ID_COOKIE_MAX_AGE: process.env.DEVICE_ID_COOKIE_MAX_AGE ?? '31536000',
+    NEXT_PUBLIC_API_GATEWAY_URL: process.env.NEXT_PUBLIC_API_GATEWAY_URL,
+    NEXT_PUBLIC_FIREBASE_VAPID_KEY: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

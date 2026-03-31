@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
+/**
+ * CreatePortalSessionDto.
+ */
 export class CreatePortalSessionDto {
   @ApiProperty({
     type: 'string',

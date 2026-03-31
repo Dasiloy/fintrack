@@ -4,6 +4,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 
 import { AppService } from './app.service';
+
 /**
  *
  * Handles HTTP requests for the health check of the API Gateway
@@ -14,9 +15,15 @@ import { AppService } from './app.service';
 @Controller({
   version: VERSION_NEUTRAL,
 })
+/**
+ * AppController.
+ */
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  // ================================================================
+  //. Health Check
+  // ================================================================
   @Get('health')
   @ApiOperation({
     summary: 'Health Check',

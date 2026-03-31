@@ -48,6 +48,14 @@ import { TokenMeta } from './decorators/token.decorator';
  *
  * @class AuthController
  */
+
+/**
+ * Controller responsible for managing app-wide authentication
+ * Communicates with Api Gateway and other microservice via GCP
+ * Returns an Observable
+ *
+ * @class AuthController
+ */
 @Controller()
 @AuthServiceControllerMethods()
 export class AuthController implements AuthServiceController {

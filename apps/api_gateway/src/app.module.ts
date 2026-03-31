@@ -13,12 +13,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import {
+  getProtoIncludeDirs,
   getServiceUrl,
   getServiceConfig,
 } from '@fintrack/common/config/services';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
 import { DatabaseModule } from '@fintrack/database/nest';
-import { PAYMENT_QUEUE } from '@fintrack/types/constants/queus.constants';
 
 import { DeviceMiddleware } from './middleware/device.middleware';
 import { AppExceptionFilter } from './filters/rpc-exception.filter';
@@ -29,6 +29,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
 import { UploadModule } from './upload/upload.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { CategoryModule } from './category/category.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { ActivityModule } from './activity/activity.module';
+import { FcmModule } from './fcm/fcm.module';
 
 @Module({
   imports: [
@@ -82,7 +87,12 @@ import { UploadModule } from './upload/upload.module';
               options: {
                 package: config.NAME,
                 url: getServiceUrl('AUTH_SERVICE'),
-                protoPath: require.resolve(config.PROTO_PATH),
+                protoPath: [
+                  ...config.PROTO_PATH.map((path) => require.resolve(path)),
+                ],
+                loader: {
+                  includeDirs: getProtoIncludeDirs(),
+                },
               },
             };
           },
@@ -96,7 +106,31 @@ import { UploadModule } from './upload/upload.module';
               options: {
                 package: config.NAME,
                 url: getServiceUrl('PAYMENT_SERVICE'),
-                protoPath: require.resolve(config.PROTO_PATH),
+                protoPath: [
+                  ...config.PROTO_PATH.map((path) => require.resolve(path)),
+                ],
+                loader: {
+                  includeDirs: getProtoIncludeDirs(),
+                },
+              },
+            };
+          },
+        },
+        {
+          name: getServiceConfig()['FINANCE_SERVICE'].PACKAGE_NAME,
+          useFactory: async () => {
+            const config = getServiceConfig()['FINANCE_SERVICE'];
+            return {
+              transport: Transport.GRPC,
+              options: {
+                package: config.NAME,
+                url: getServiceUrl('FINANCE_SERVICE'),
+                protoPath: [
+                  ...config.PROTO_PATH.map((path) => require.resolve(path)),
+                ],
+                loader: {
+                  includeDirs: getProtoIncludeDirs(),
+                },
               },
             };
           },
@@ -120,9 +154,14 @@ import { UploadModule } from './upload/upload.module';
     LoggerModule,
 
     /// APP MODULES
+    FcmModule,
     AuthModule,
     PaymentModule,
     UploadModule,
+    TransactionModule,
+    CategoryModule,
+    AnalyticsModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [

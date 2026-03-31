@@ -5,6 +5,7 @@ import {
   publicRouter,
   budgetRouter,
   transactionRouter,
+  notificationRouter,
 } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   subscription: subscriptionRouter,
   budget: budgetRouter,
   transaction: transactionRouter,
+  notification: notificationRouter,
 });
 
 // Export type definition of API

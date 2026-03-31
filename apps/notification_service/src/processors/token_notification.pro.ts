@@ -16,6 +16,9 @@ import {
 
 import { NotificationService } from '../notification.service';
 
+/**
+ * TokenNotification.
+ */
 @Processor(TOKEN_NOTIFICATION_QUEUE)
 export class TokenNotification extends WorkerHost {
   private readonly logger = new Logger(TokenNotification.name);

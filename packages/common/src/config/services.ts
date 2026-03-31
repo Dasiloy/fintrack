@@ -33,49 +33,50 @@ export type Service =
 interface IService {
   NAME: string;
   PACKAGE_NAME: string;
-  PROTO_PATH: string;
+  PROTO_PATH: string[];
 }
+
+export const getProtoIncludeDirs = (): string[] => [
+  join(process.cwd(), '..', '..', 'packages/types/proto'),
+];
 
 export const getServiceConfig = (): Record<Service, IService> => ({
   API_GATEWAY: {
     NAME: 'API_GATEWAY',
     PACKAGE_NAME: 'API_GATEWAY',
-    PROTO_PATH: '',
+    PROTO_PATH: [],
   },
   AUTH_SERVICE: {
     NAME: AUTH,
     PACKAGE_NAME: AUTH_PACKAGE_NAME,
-    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/auth/auth.proto'),
+    PROTO_PATH: [join(process.cwd(), '..', '..', 'packages/types/proto/auth/auth.proto')],
   },
   PAYMENT_SERVICE: {
     NAME: PAYMENT,
     PACKAGE_NAME: PAYMENT_PACKAGE_NAME,
-    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/payment/payment.proto'),
+    PROTO_PATH: [join(process.cwd(), '..', '..', 'packages/types/proto/payment/payment.proto')],
   },
   NOTIFICATION_SERVICE: {
     NAME: NOTIFICATION,
     PACKAGE_NAME: NOTIFICATION_PACKAGE_NAME,
-    PROTO_PATH: join(
-      process.cwd(),
-      '..',
-      '..',
-      'packages/types/proto/notification/notification.proto',
-    ),
+    PROTO_PATH: [
+      join(process.cwd(), '..', '..', 'packages/types/proto/notification/notification.proto'),
+    ],
   },
   AI_SERVICE: {
     NAME: AI,
     PACKAGE_NAME: AI_PACKAGE_NAME,
-    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/ai/ai.proto'),
+    PROTO_PATH: [join(process.cwd(), '..', '..', 'packages/types/proto/ai/ai.proto')],
   },
   FINANCE_SERVICE: {
     NAME: FINANCE,
     PACKAGE_NAME: FINANCE_PACKAGE_NAME,
-    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/finance/finance.proto'),
+    PROTO_PATH: [join(process.cwd(), '..', '..', 'packages/types/proto/finance/finance.proto')],
   },
   SCHEDULER_SERVICE: {
     NAME: SCHEDULER,
     PACKAGE_NAME: SCHEDULER_PACKAGE_NAME,
-    PROTO_PATH: join(process.cwd(), '..', '..', 'packages/types/proto/scheduler/scheduler.proto'),
+    PROTO_PATH: [join(process.cwd(), '..', '..', 'packages/types/proto/scheduler/scheduler.proto')],
   },
 });
 

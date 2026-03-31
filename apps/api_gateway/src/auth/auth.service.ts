@@ -22,6 +22,7 @@ import {
   ResendVerifyEmailTokenRes,
   VerifyEmailRes,
   VerifyPasswordTokenRes,
+  ValidateTokenRes,
 } from '@fintrack/types/protos/auth/auth';
 
 import {
@@ -44,6 +45,9 @@ import {
   DeleteAccountDto,
 } from './dto/auth.dto';
 
+/**
+ * AuthService.
+ */
 @Injectable()
 export class AuthService implements OnModuleInit {
   private authService: AuthServiceClient;
@@ -119,7 +123,9 @@ export class AuthService implements OnModuleInit {
    * @param {string} token JWT token to validate
    * @returns {Promise<any | 'TOKEN_EXPIRED' | null>}
    */
-  async validateToken(token: string): Promise<any | 'TOKEN_EXPIRED' | null> {
+  async validateToken(
+    token: string,
+  ): Promise<ValidateTokenRes | 'TOKEN_EXPIRED' | null> {
     try {
       const metadata = new Metadata();
       metadata.add('x-token', token);
