@@ -40,3 +40,6 @@ yarn-error.log*
 
 ## Service Account
 **/service.json
+
+## Test Accounts
+login.txt

@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { getAnalyticsSocket } from '@/lib/socket/sockets';
-import { GET_ANALYTICS_DATA } from '@fintrack/types/constants/socket.evenets';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
 import type { Socket } from 'socket.io-client';
 
