@@ -138,6 +138,16 @@ export type SplitSettlement = $Result.DefaultSelection<Prisma.$SplitSettlementPa
  * 
  */
 export type MonoBankAccount = $Result.DefaultSelection<Prisma.$MonoBankAccountPayload>
+/**
+ * Model FcmDevice
+ * 
+ */
+export type FcmDevice = $Result.DefaultSelection<Prisma.$FcmDevicePayload>
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
 
 /**
  * Enums
@@ -945,6 +955,26 @@ export class PrismaClient<
     * ```
     */
   get monoBankAccount(): Prisma.MonoBankAccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.fcmDevice`: Exposes CRUD operations for the **FcmDevice** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FcmDevices
+    * const fcmDevices = await prisma.fcmDevice.findMany()
+    * ```
+    */
+  get fcmDevice(): Prisma.FcmDeviceDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.notification`: Exposes CRUD operations for the **Notification** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Notifications
+    * const notifications = await prisma.notification.findMany()
+    * ```
+    */
+  get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1175,7 +1205,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends BigInt
+  : T extends bigint
   ? False
   : T extends object
   ? True
@@ -1403,7 +1433,9 @@ export namespace Prisma {
     Split: 'Split',
     SplitParticipant: 'SplitParticipant',
     SplitSettlement: 'SplitSettlement',
-    MonoBankAccount: 'MonoBankAccount'
+    MonoBankAccount: 'MonoBankAccount',
+    FcmDevice: 'FcmDevice',
+    Notification: 'Notification'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1419,7 +1451,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3273,6 +3305,154 @@ export namespace Prisma {
           }
         }
       }
+      FcmDevice: {
+        payload: Prisma.$FcmDevicePayload<ExtArgs>
+        fields: Prisma.FcmDeviceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FcmDeviceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FcmDeviceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          findFirst: {
+            args: Prisma.FcmDeviceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FcmDeviceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          findMany: {
+            args: Prisma.FcmDeviceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>[]
+          }
+          create: {
+            args: Prisma.FcmDeviceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          createMany: {
+            args: Prisma.FcmDeviceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FcmDeviceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>[]
+          }
+          delete: {
+            args: Prisma.FcmDeviceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          update: {
+            args: Prisma.FcmDeviceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          deleteMany: {
+            args: Prisma.FcmDeviceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FcmDeviceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FcmDeviceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>[]
+          }
+          upsert: {
+            args: Prisma.FcmDeviceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FcmDevicePayload>
+          }
+          aggregate: {
+            args: Prisma.FcmDeviceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFcmDevice>
+          }
+          groupBy: {
+            args: Prisma.FcmDeviceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FcmDeviceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FcmDeviceCountArgs<ExtArgs>
+            result: $Utils.Optional<FcmDeviceCountAggregateOutputType> | number
+          }
+        }
+      }
+      Notification: {
+        payload: Prisma.$NotificationPayload<ExtArgs>
+        fields: Prisma.NotificationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findFirst: {
+            args: Prisma.NotificationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          findMany: {
+            args: Prisma.NotificationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          create: {
+            args: Prisma.NotificationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          createMany: {
+            args: Prisma.NotificationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NotificationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          delete: {
+            args: Prisma.NotificationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          update: {
+            args: Prisma.NotificationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          deleteMany: {
+            args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
+          upsert: {
+            args: Prisma.NotificationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
+          }
+          aggregate: {
+            args: Prisma.NotificationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNotification>
+          }
+          groupBy: {
+            args: Prisma.NotificationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NotificationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NotificationCountArgs<ExtArgs>
+            result: $Utils.Optional<NotificationCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3406,6 +3586,8 @@ export namespace Prisma {
     splitParticipant?: SplitParticipantOmit
     splitSettlement?: SplitSettlementOmit
     monoBankAccount?: MonoBankAccountOmit
+    fcmDevice?: FcmDeviceOmit
+    notification?: NotificationOmit
   }
 
   /* Types for Logging */
@@ -3498,7 +3680,10 @@ export namespace Prisma {
     goals: number
     splits: number
     ocrDrafts: number
+    fcmDevices: number
+    activityLogs: number
     monoBankAccounts: number
+    notifications: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3514,7 +3699,10 @@ export namespace Prisma {
     goals?: boolean | UserCountOutputTypeCountGoalsArgs
     splits?: boolean | UserCountOutputTypeCountSplitsArgs
     ocrDrafts?: boolean | UserCountOutputTypeCountOcrDraftsArgs
+    fcmDevices?: boolean | UserCountOutputTypeCountFcmDevicesArgs
+    activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
     monoBankAccounts?: boolean | UserCountOutputTypeCountMonoBankAccountsArgs
+    notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   }
 
   // Custom InputTypes
@@ -3615,8 +3803,29 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
+  export type UserCountOutputTypeCountFcmDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FcmDeviceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountActivityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ActivityLogsWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
   export type UserCountOutputTypeCountMonoBankAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonoBankAccountWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
   }
 
 
@@ -6202,7 +6411,10 @@ export namespace Prisma {
     goals?: boolean | User$goalsArgs<ExtArgs>
     splits?: boolean | User$splitsArgs<ExtArgs>
     ocrDrafts?: boolean | User$ocrDraftsArgs<ExtArgs>
+    fcmDevices?: boolean | User$fcmDevicesArgs<ExtArgs>
+    activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     monoBankAccounts?: boolean | User$monoBankAccountsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6294,7 +6506,10 @@ export namespace Prisma {
     goals?: boolean | User$goalsArgs<ExtArgs>
     splits?: boolean | User$splitsArgs<ExtArgs>
     ocrDrafts?: boolean | User$ocrDraftsArgs<ExtArgs>
+    fcmDevices?: boolean | User$fcmDevicesArgs<ExtArgs>
+    activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     monoBankAccounts?: boolean | User$monoBankAccountsArgs<ExtArgs>
+    notifications?: boolean | User$notificationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6317,7 +6532,10 @@ export namespace Prisma {
       goals: Prisma.$GoalPayload<ExtArgs>[]
       splits: Prisma.$SplitPayload<ExtArgs>[]
       ocrDrafts: Prisma.$OCRDraftPayload<ExtArgs>[]
+      fcmDevices: Prisma.$FcmDevicePayload<ExtArgs>[]
+      activityLogs: Prisma.$ActivityLogsPayload<ExtArgs>[]
       monoBankAccounts: Prisma.$MonoBankAccountPayload<ExtArgs>[]
+      notifications: Prisma.$NotificationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6749,7 +6967,10 @@ export namespace Prisma {
     goals<T extends User$goalsArgs<ExtArgs> = {}>(args?: Subset<T, User$goalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     splits<T extends User$splitsArgs<ExtArgs> = {}>(args?: Subset<T, User$splitsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SplitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     ocrDrafts<T extends User$ocrDraftsArgs<ExtArgs> = {}>(args?: Subset<T, User$ocrDraftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OCRDraftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    fcmDevices<T extends User$fcmDevicesArgs<ExtArgs> = {}>(args?: Subset<T, User$fcmDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monoBankAccounts<T extends User$monoBankAccountsArgs<ExtArgs> = {}>(args?: Subset<T, User$monoBankAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonoBankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7514,6 +7735,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.fcmDevices
+   */
+  export type User$fcmDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    where?: FcmDeviceWhereInput
+    orderBy?: FcmDeviceOrderByWithRelationInput | FcmDeviceOrderByWithRelationInput[]
+    cursor?: FcmDeviceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FcmDeviceScalarFieldEnum | FcmDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * User.activityLogs
+   */
+  export type User$activityLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityLogs
+     */
+    select?: ActivityLogsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ActivityLogs
+     */
+    omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
+    where?: ActivityLogsWhereInput
+    orderBy?: ActivityLogsOrderByWithRelationInput | ActivityLogsOrderByWithRelationInput[]
+    cursor?: ActivityLogsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityLogsScalarFieldEnum | ActivityLogsScalarFieldEnum[]
+  }
+
+  /**
    * User.monoBankAccounts
    */
   export type User$monoBankAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7535,6 +7804,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MonoBankAccountScalarFieldEnum | MonoBankAccountScalarFieldEnum[]
+  }
+
+  /**
+   * User.notifications
+   */
+  export type User$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    cursor?: NotificationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
   }
 
   /**
@@ -16299,28 +16592,60 @@ export namespace Prisma {
 
   export type ActivityLogsMinAggregateOutputType = {
     id: string | null
+    event: string | null
+    entityId: string | null
+    entityType: string | null
+    userId: string | null
+    createdAt: Date | null
   }
 
   export type ActivityLogsMaxAggregateOutputType = {
     id: string | null
+    event: string | null
+    entityId: string | null
+    entityType: string | null
+    userId: string | null
+    createdAt: Date | null
   }
 
   export type ActivityLogsCountAggregateOutputType = {
     id: number
+    event: number
+    entityId: number
+    entityType: number
+    data: number
+    userId: number
+    createdAt: number
     _all: number
   }
 
 
   export type ActivityLogsMinAggregateInputType = {
     id?: true
+    event?: true
+    entityId?: true
+    entityType?: true
+    userId?: true
+    createdAt?: true
   }
 
   export type ActivityLogsMaxAggregateInputType = {
     id?: true
+    event?: true
+    entityId?: true
+    entityType?: true
+    userId?: true
+    createdAt?: true
   }
 
   export type ActivityLogsCountAggregateInputType = {
     id?: true
+    event?: true
+    entityId?: true
+    entityType?: true
+    data?: true
+    userId?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -16398,6 +16723,12 @@ export namespace Prisma {
 
   export type ActivityLogsGroupByOutputType = {
     id: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonValue
+    userId: string
+    createdAt: Date
     _count: ActivityLogsCountAggregateOutputType | null
     _min: ActivityLogsMinAggregateOutputType | null
     _max: ActivityLogsMaxAggregateOutputType | null
@@ -16419,27 +16750,71 @@ export namespace Prisma {
 
   export type ActivityLogsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    event?: boolean
+    entityId?: boolean
+    entityType?: boolean
+    data?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["activityLogs"]>
 
   export type ActivityLogsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    event?: boolean
+    entityId?: boolean
+    entityType?: boolean
+    data?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["activityLogs"]>
 
   export type ActivityLogsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    event?: boolean
+    entityId?: boolean
+    entityType?: boolean
+    data?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["activityLogs"]>
 
   export type ActivityLogsSelectScalar = {
     id?: boolean
+    event?: boolean
+    entityId?: boolean
+    entityType?: boolean
+    data?: boolean
+    userId?: boolean
+    createdAt?: boolean
   }
 
-  export type ActivityLogsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id", ExtArgs["result"]["activityLogs"]>
+  export type ActivityLogsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event" | "entityId" | "entityType" | "data" | "userId" | "createdAt", ExtArgs["result"]["activityLogs"]>
+  export type ActivityLogsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ActivityLogsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ActivityLogsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
 
   export type $ActivityLogsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ActivityLogs"
-    objects: {}
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      event: string
+      entityId: string
+      entityType: string
+      data: Prisma.JsonValue
+      userId: string
+      createdAt: Date
     }, ExtArgs["result"]["activityLogs"]>
     composites: {}
   }
@@ -16834,6 +17209,7 @@ export namespace Prisma {
    */
   export interface Prisma__ActivityLogsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16864,6 +17240,12 @@ export namespace Prisma {
    */
   interface ActivityLogsFieldRefs {
     readonly id: FieldRef<"ActivityLogs", 'String'>
+    readonly event: FieldRef<"ActivityLogs", 'String'>
+    readonly entityId: FieldRef<"ActivityLogs", 'String'>
+    readonly entityType: FieldRef<"ActivityLogs", 'String'>
+    readonly data: FieldRef<"ActivityLogs", 'Json'>
+    readonly userId: FieldRef<"ActivityLogs", 'String'>
+    readonly createdAt: FieldRef<"ActivityLogs", 'DateTime'>
   }
     
 
@@ -16880,6 +17262,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
     /**
      * Filter, which ActivityLogs to fetch.
      */
@@ -16899,6 +17285,10 @@ export namespace Prisma {
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
+    /**
      * Filter, which ActivityLogs to fetch.
      */
     where: ActivityLogsWhereUniqueInput
@@ -16916,6 +17306,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
     /**
      * Filter, which ActivityLogs to fetch.
      */
@@ -16965,6 +17359,10 @@ export namespace Prisma {
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
+    /**
      * Filter, which ActivityLogs to fetch.
      */
     where?: ActivityLogsWhereInput
@@ -17013,6 +17411,10 @@ export namespace Prisma {
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
+    /**
      * Filter, which ActivityLogs to fetch.
      */
     where?: ActivityLogsWhereInput
@@ -17056,9 +17458,13 @@ export namespace Prisma {
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
+    /**
      * The data needed to create a ActivityLogs.
      */
-    data?: XOR<ActivityLogsCreateInput, ActivityLogsUncheckedCreateInput>
+    data: XOR<ActivityLogsCreateInput, ActivityLogsUncheckedCreateInput>
   }
 
   /**
@@ -17089,6 +17495,10 @@ export namespace Prisma {
      */
     data: ActivityLogsCreateManyInput | ActivityLogsCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -17103,6 +17513,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
     /**
      * The data needed to update a ActivityLogs.
      */
@@ -17155,6 +17569,10 @@ export namespace Prisma {
      * Limit how many ActivityLogs to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -17169,6 +17587,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
     /**
      * The filter to search for the ActivityLogs to update in case it exists.
      */
@@ -17195,6 +17617,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
     /**
      * Filter which ActivityLogs to delete.
      */
@@ -17227,6 +17653,10 @@ export namespace Prisma {
      * Omit specific fields from the ActivityLogs
      */
     omit?: ActivityLogsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ActivityLogsInclude<ExtArgs> | null
   }
 
 
@@ -23468,7 +23898,7 @@ export namespace Prisma {
     categoryId: string
     userId: string | null
     source: $Enums.TransactionSource
-    sourceId: string | null
+    sourceId: string
     sourceData: JsonValue | null
     bankTransactionId: string | null
     bankTransactionStatus: $Enums.BankTransactionStatus
@@ -23516,8 +23946,8 @@ export namespace Prisma {
     monoBankAccountId?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
-    splits?: boolean | Transaction$splitsArgs<ExtArgs>
-    goalContributions?: boolean | Transaction$goalContributionsArgs<ExtArgs>
+    split?: boolean | Transaction$splitArgs<ExtArgs>
+    goalContribution?: boolean | Transaction$goalContributionArgs<ExtArgs>
     settlements?: boolean | Transaction$settlementsArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
     _count?: boolean | TransactionCountOutputTypeDefaultArgs<ExtArgs>
@@ -23593,8 +24023,8 @@ export namespace Prisma {
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
-    splits?: boolean | Transaction$splitsArgs<ExtArgs>
-    goalContributions?: boolean | Transaction$goalContributionsArgs<ExtArgs>
+    split?: boolean | Transaction$splitArgs<ExtArgs>
+    goalContribution?: boolean | Transaction$goalContributionArgs<ExtArgs>
     settlements?: boolean | Transaction$settlementsArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
     _count?: boolean | TransactionCountOutputTypeDefaultArgs<ExtArgs>
@@ -23615,8 +24045,8 @@ export namespace Prisma {
     objects: {
       category: Prisma.$CategoryPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs> | null
-      splits: Prisma.$SplitPayload<ExtArgs> | null
-      goalContributions: Prisma.$GoalContributionPayload<ExtArgs> | null
+      split: Prisma.$SplitPayload<ExtArgs> | null
+      goalContribution: Prisma.$GoalContributionPayload<ExtArgs> | null
       settlements: Prisma.$SplitSettlementPayload<ExtArgs>[]
       monoBankAccount: Prisma.$MonoBankAccountPayload<ExtArgs> | null
     }
@@ -23631,7 +24061,7 @@ export namespace Prisma {
       categoryId: string
       userId: string | null
       source: $Enums.TransactionSource
-      sourceId: string | null
+      sourceId: string
       sourceData: Prisma.JsonValue | null
       bankTransactionId: string | null
       bankTransactionStatus: $Enums.BankTransactionStatus
@@ -24034,8 +24464,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     category<T extends CategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CategoryDefaultArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends Transaction$userArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    splits<T extends Transaction$splitsArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$splitsArgs<ExtArgs>>): Prisma__SplitClient<$Result.GetResult<Prisma.$SplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    goalContributions<T extends Transaction$goalContributionsArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$goalContributionsArgs<ExtArgs>>): Prisma__GoalContributionClient<$Result.GetResult<Prisma.$GoalContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    split<T extends Transaction$splitArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$splitArgs<ExtArgs>>): Prisma__SplitClient<$Result.GetResult<Prisma.$SplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    goalContribution<T extends Transaction$goalContributionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$goalContributionArgs<ExtArgs>>): Prisma__GoalContributionClient<$Result.GetResult<Prisma.$GoalContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     settlements<T extends Transaction$settlementsArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$settlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SplitSettlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monoBankAccount<T extends Transaction$monoBankAccountArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$monoBankAccountArgs<ExtArgs>>): Prisma__MonoBankAccountClient<$Result.GetResult<Prisma.$MonoBankAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
@@ -24499,9 +24929,9 @@ export namespace Prisma {
   }
 
   /**
-   * Transaction.splits
+   * Transaction.split
    */
-  export type Transaction$splitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Transaction$splitArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Split
      */
@@ -24518,9 +24948,9 @@ export namespace Prisma {
   }
 
   /**
-   * Transaction.goalContributions
+   * Transaction.goalContribution
    */
-  export type Transaction$goalContributionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Transaction$goalContributionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the GoalContribution
      */
@@ -32937,6 +33367,2209 @@ export namespace Prisma {
 
 
   /**
+   * Model FcmDevice
+   */
+
+  export type AggregateFcmDevice = {
+    _count: FcmDeviceCountAggregateOutputType | null
+    _min: FcmDeviceMinAggregateOutputType | null
+    _max: FcmDeviceMaxAggregateOutputType | null
+  }
+
+  export type FcmDeviceMinAggregateOutputType = {
+    id: string | null
+    fcmToken: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FcmDeviceMaxAggregateOutputType = {
+    id: string | null
+    fcmToken: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FcmDeviceCountAggregateOutputType = {
+    id: number
+    fcmToken: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type FcmDeviceMinAggregateInputType = {
+    id?: true
+    fcmToken?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FcmDeviceMaxAggregateInputType = {
+    id?: true
+    fcmToken?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FcmDeviceCountAggregateInputType = {
+    id?: true
+    fcmToken?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type FcmDeviceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FcmDevice to aggregate.
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FcmDevices to fetch.
+     */
+    orderBy?: FcmDeviceOrderByWithRelationInput | FcmDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FcmDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FcmDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FcmDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FcmDevices
+    **/
+    _count?: true | FcmDeviceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FcmDeviceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FcmDeviceMaxAggregateInputType
+  }
+
+  export type GetFcmDeviceAggregateType<T extends FcmDeviceAggregateArgs> = {
+        [P in keyof T & keyof AggregateFcmDevice]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFcmDevice[P]>
+      : GetScalarType<T[P], AggregateFcmDevice[P]>
+  }
+
+
+
+
+  export type FcmDeviceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FcmDeviceWhereInput
+    orderBy?: FcmDeviceOrderByWithAggregationInput | FcmDeviceOrderByWithAggregationInput[]
+    by: FcmDeviceScalarFieldEnum[] | FcmDeviceScalarFieldEnum
+    having?: FcmDeviceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FcmDeviceCountAggregateInputType | true
+    _min?: FcmDeviceMinAggregateInputType
+    _max?: FcmDeviceMaxAggregateInputType
+  }
+
+  export type FcmDeviceGroupByOutputType = {
+    id: string
+    fcmToken: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: FcmDeviceCountAggregateOutputType | null
+    _min: FcmDeviceMinAggregateOutputType | null
+    _max: FcmDeviceMaxAggregateOutputType | null
+  }
+
+  type GetFcmDeviceGroupByPayload<T extends FcmDeviceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FcmDeviceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FcmDeviceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FcmDeviceGroupByOutputType[P]>
+            : GetScalarType<T[P], FcmDeviceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FcmDeviceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fcmToken?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fcmDevice"]>
+
+  export type FcmDeviceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fcmToken?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fcmDevice"]>
+
+  export type FcmDeviceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fcmToken?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fcmDevice"]>
+
+  export type FcmDeviceSelectScalar = {
+    id?: boolean
+    fcmToken?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type FcmDeviceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fcmToken" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["fcmDevice"]>
+  export type FcmDeviceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FcmDeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FcmDeviceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $FcmDevicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FcmDevice"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      fcmToken: string
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["fcmDevice"]>
+    composites: {}
+  }
+
+  type FcmDeviceGetPayload<S extends boolean | null | undefined | FcmDeviceDefaultArgs> = $Result.GetResult<Prisma.$FcmDevicePayload, S>
+
+  type FcmDeviceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FcmDeviceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FcmDeviceCountAggregateInputType | true
+    }
+
+  export interface FcmDeviceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FcmDevice'], meta: { name: 'FcmDevice' } }
+    /**
+     * Find zero or one FcmDevice that matches the filter.
+     * @param {FcmDeviceFindUniqueArgs} args - Arguments to find a FcmDevice
+     * @example
+     * // Get one FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FcmDeviceFindUniqueArgs>(args: SelectSubset<T, FcmDeviceFindUniqueArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FcmDevice that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FcmDeviceFindUniqueOrThrowArgs} args - Arguments to find a FcmDevice
+     * @example
+     * // Get one FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FcmDeviceFindUniqueOrThrowArgs>(args: SelectSubset<T, FcmDeviceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FcmDevice that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceFindFirstArgs} args - Arguments to find a FcmDevice
+     * @example
+     * // Get one FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FcmDeviceFindFirstArgs>(args?: SelectSubset<T, FcmDeviceFindFirstArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FcmDevice that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceFindFirstOrThrowArgs} args - Arguments to find a FcmDevice
+     * @example
+     * // Get one FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FcmDeviceFindFirstOrThrowArgs>(args?: SelectSubset<T, FcmDeviceFindFirstOrThrowArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FcmDevices that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FcmDevices
+     * const fcmDevices = await prisma.fcmDevice.findMany()
+     * 
+     * // Get first 10 FcmDevices
+     * const fcmDevices = await prisma.fcmDevice.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fcmDeviceWithIdOnly = await prisma.fcmDevice.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FcmDeviceFindManyArgs>(args?: SelectSubset<T, FcmDeviceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FcmDevice.
+     * @param {FcmDeviceCreateArgs} args - Arguments to create a FcmDevice.
+     * @example
+     * // Create one FcmDevice
+     * const FcmDevice = await prisma.fcmDevice.create({
+     *   data: {
+     *     // ... data to create a FcmDevice
+     *   }
+     * })
+     * 
+     */
+    create<T extends FcmDeviceCreateArgs>(args: SelectSubset<T, FcmDeviceCreateArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FcmDevices.
+     * @param {FcmDeviceCreateManyArgs} args - Arguments to create many FcmDevices.
+     * @example
+     * // Create many FcmDevices
+     * const fcmDevice = await prisma.fcmDevice.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FcmDeviceCreateManyArgs>(args?: SelectSubset<T, FcmDeviceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FcmDevices and returns the data saved in the database.
+     * @param {FcmDeviceCreateManyAndReturnArgs} args - Arguments to create many FcmDevices.
+     * @example
+     * // Create many FcmDevices
+     * const fcmDevice = await prisma.fcmDevice.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FcmDevices and only return the `id`
+     * const fcmDeviceWithIdOnly = await prisma.fcmDevice.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FcmDeviceCreateManyAndReturnArgs>(args?: SelectSubset<T, FcmDeviceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FcmDevice.
+     * @param {FcmDeviceDeleteArgs} args - Arguments to delete one FcmDevice.
+     * @example
+     * // Delete one FcmDevice
+     * const FcmDevice = await prisma.fcmDevice.delete({
+     *   where: {
+     *     // ... filter to delete one FcmDevice
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FcmDeviceDeleteArgs>(args: SelectSubset<T, FcmDeviceDeleteArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FcmDevice.
+     * @param {FcmDeviceUpdateArgs} args - Arguments to update one FcmDevice.
+     * @example
+     * // Update one FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FcmDeviceUpdateArgs>(args: SelectSubset<T, FcmDeviceUpdateArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FcmDevices.
+     * @param {FcmDeviceDeleteManyArgs} args - Arguments to filter FcmDevices to delete.
+     * @example
+     * // Delete a few FcmDevices
+     * const { count } = await prisma.fcmDevice.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FcmDeviceDeleteManyArgs>(args?: SelectSubset<T, FcmDeviceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FcmDevices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FcmDevices
+     * const fcmDevice = await prisma.fcmDevice.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FcmDeviceUpdateManyArgs>(args: SelectSubset<T, FcmDeviceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FcmDevices and returns the data updated in the database.
+     * @param {FcmDeviceUpdateManyAndReturnArgs} args - Arguments to update many FcmDevices.
+     * @example
+     * // Update many FcmDevices
+     * const fcmDevice = await prisma.fcmDevice.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FcmDevices and only return the `id`
+     * const fcmDeviceWithIdOnly = await prisma.fcmDevice.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FcmDeviceUpdateManyAndReturnArgs>(args: SelectSubset<T, FcmDeviceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FcmDevice.
+     * @param {FcmDeviceUpsertArgs} args - Arguments to update or create a FcmDevice.
+     * @example
+     * // Update or create a FcmDevice
+     * const fcmDevice = await prisma.fcmDevice.upsert({
+     *   create: {
+     *     // ... data to create a FcmDevice
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FcmDevice we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FcmDeviceUpsertArgs>(args: SelectSubset<T, FcmDeviceUpsertArgs<ExtArgs>>): Prisma__FcmDeviceClient<$Result.GetResult<Prisma.$FcmDevicePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FcmDevices.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceCountArgs} args - Arguments to filter FcmDevices to count.
+     * @example
+     * // Count the number of FcmDevices
+     * const count = await prisma.fcmDevice.count({
+     *   where: {
+     *     // ... the filter for the FcmDevices we want to count
+     *   }
+     * })
+    **/
+    count<T extends FcmDeviceCountArgs>(
+      args?: Subset<T, FcmDeviceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FcmDeviceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FcmDevice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FcmDeviceAggregateArgs>(args: Subset<T, FcmDeviceAggregateArgs>): Prisma.PrismaPromise<GetFcmDeviceAggregateType<T>>
+
+    /**
+     * Group by FcmDevice.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FcmDeviceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FcmDeviceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FcmDeviceGroupByArgs['orderBy'] }
+        : { orderBy?: FcmDeviceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FcmDeviceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFcmDeviceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FcmDevice model
+   */
+  readonly fields: FcmDeviceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FcmDevice.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FcmDeviceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FcmDevice model
+   */
+  interface FcmDeviceFieldRefs {
+    readonly id: FieldRef<"FcmDevice", 'String'>
+    readonly fcmToken: FieldRef<"FcmDevice", 'String'>
+    readonly userId: FieldRef<"FcmDevice", 'String'>
+    readonly createdAt: FieldRef<"FcmDevice", 'DateTime'>
+    readonly updatedAt: FieldRef<"FcmDevice", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FcmDevice findUnique
+   */
+  export type FcmDeviceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which FcmDevice to fetch.
+     */
+    where: FcmDeviceWhereUniqueInput
+  }
+
+  /**
+   * FcmDevice findUniqueOrThrow
+   */
+  export type FcmDeviceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which FcmDevice to fetch.
+     */
+    where: FcmDeviceWhereUniqueInput
+  }
+
+  /**
+   * FcmDevice findFirst
+   */
+  export type FcmDeviceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which FcmDevice to fetch.
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FcmDevices to fetch.
+     */
+    orderBy?: FcmDeviceOrderByWithRelationInput | FcmDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FcmDevices.
+     */
+    cursor?: FcmDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FcmDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FcmDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FcmDevices.
+     */
+    distinct?: FcmDeviceScalarFieldEnum | FcmDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * FcmDevice findFirstOrThrow
+   */
+  export type FcmDeviceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which FcmDevice to fetch.
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FcmDevices to fetch.
+     */
+    orderBy?: FcmDeviceOrderByWithRelationInput | FcmDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FcmDevices.
+     */
+    cursor?: FcmDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FcmDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FcmDevices.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FcmDevices.
+     */
+    distinct?: FcmDeviceScalarFieldEnum | FcmDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * FcmDevice findMany
+   */
+  export type FcmDeviceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter, which FcmDevices to fetch.
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FcmDevices to fetch.
+     */
+    orderBy?: FcmDeviceOrderByWithRelationInput | FcmDeviceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FcmDevices.
+     */
+    cursor?: FcmDeviceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FcmDevices from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FcmDevices.
+     */
+    skip?: number
+    distinct?: FcmDeviceScalarFieldEnum | FcmDeviceScalarFieldEnum[]
+  }
+
+  /**
+   * FcmDevice create
+   */
+  export type FcmDeviceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FcmDevice.
+     */
+    data: XOR<FcmDeviceCreateInput, FcmDeviceUncheckedCreateInput>
+  }
+
+  /**
+   * FcmDevice createMany
+   */
+  export type FcmDeviceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FcmDevices.
+     */
+    data: FcmDeviceCreateManyInput | FcmDeviceCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FcmDevice createManyAndReturn
+   */
+  export type FcmDeviceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * The data used to create many FcmDevices.
+     */
+    data: FcmDeviceCreateManyInput | FcmDeviceCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FcmDevice update
+   */
+  export type FcmDeviceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FcmDevice.
+     */
+    data: XOR<FcmDeviceUpdateInput, FcmDeviceUncheckedUpdateInput>
+    /**
+     * Choose, which FcmDevice to update.
+     */
+    where: FcmDeviceWhereUniqueInput
+  }
+
+  /**
+   * FcmDevice updateMany
+   */
+  export type FcmDeviceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FcmDevices.
+     */
+    data: XOR<FcmDeviceUpdateManyMutationInput, FcmDeviceUncheckedUpdateManyInput>
+    /**
+     * Filter which FcmDevices to update
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * Limit how many FcmDevices to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FcmDevice updateManyAndReturn
+   */
+  export type FcmDeviceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * The data used to update FcmDevices.
+     */
+    data: XOR<FcmDeviceUpdateManyMutationInput, FcmDeviceUncheckedUpdateManyInput>
+    /**
+     * Filter which FcmDevices to update
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * Limit how many FcmDevices to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FcmDevice upsert
+   */
+  export type FcmDeviceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FcmDevice to update in case it exists.
+     */
+    where: FcmDeviceWhereUniqueInput
+    /**
+     * In case the FcmDevice found by the `where` argument doesn't exist, create a new FcmDevice with this data.
+     */
+    create: XOR<FcmDeviceCreateInput, FcmDeviceUncheckedCreateInput>
+    /**
+     * In case the FcmDevice was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FcmDeviceUpdateInput, FcmDeviceUncheckedUpdateInput>
+  }
+
+  /**
+   * FcmDevice delete
+   */
+  export type FcmDeviceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+    /**
+     * Filter which FcmDevice to delete.
+     */
+    where: FcmDeviceWhereUniqueInput
+  }
+
+  /**
+   * FcmDevice deleteMany
+   */
+  export type FcmDeviceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FcmDevices to delete
+     */
+    where?: FcmDeviceWhereInput
+    /**
+     * Limit how many FcmDevices to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FcmDevice without action
+   */
+  export type FcmDeviceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FcmDevice
+     */
+    select?: FcmDeviceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FcmDevice
+     */
+    omit?: FcmDeviceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FcmDeviceInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Notification
+   */
+
+  export type AggregateNotification = {
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  export type NotificationMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    body: string | null
+    readAt: Date | null
+    read: boolean | null
+    archivedAt: Date | null
+    archived: boolean | null
+    notificationId: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NotificationMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    body: string | null
+    readAt: Date | null
+    read: boolean | null
+    archivedAt: Date | null
+    archived: boolean | null
+    notificationId: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type NotificationCountAggregateOutputType = {
+    id: number
+    title: number
+    body: number
+    data: number
+    readAt: number
+    read: number
+    archivedAt: number
+    archived: number
+    notificationId: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type NotificationMinAggregateInputType = {
+    id?: true
+    title?: true
+    body?: true
+    readAt?: true
+    read?: true
+    archivedAt?: true
+    archived?: true
+    notificationId?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NotificationMaxAggregateInputType = {
+    id?: true
+    title?: true
+    body?: true
+    readAt?: true
+    read?: true
+    archivedAt?: true
+    archived?: true
+    notificationId?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type NotificationCountAggregateInputType = {
+    id?: true
+    title?: true
+    body?: true
+    data?: true
+    readAt?: true
+    read?: true
+    archivedAt?: true
+    archived?: true
+    notificationId?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type NotificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notification to aggregate.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Notifications
+    **/
+    _count?: true | NotificationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NotificationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type GetNotificationAggregateType<T extends NotificationAggregateArgs> = {
+        [P in keyof T & keyof AggregateNotification]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNotification[P]>
+      : GetScalarType<T[P], AggregateNotification[P]>
+  }
+
+
+
+
+  export type NotificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NotificationWhereInput
+    orderBy?: NotificationOrderByWithAggregationInput | NotificationOrderByWithAggregationInput[]
+    by: NotificationScalarFieldEnum[] | NotificationScalarFieldEnum
+    having?: NotificationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NotificationCountAggregateInputType | true
+    _min?: NotificationMinAggregateInputType
+    _max?: NotificationMaxAggregateInputType
+  }
+
+  export type NotificationGroupByOutputType = {
+    id: string
+    title: string
+    body: string
+    data: JsonValue | null
+    readAt: Date | null
+    read: boolean
+    archivedAt: Date | null
+    archived: boolean
+    notificationId: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: NotificationCountAggregateOutputType | null
+    _min: NotificationMinAggregateOutputType | null
+    _max: NotificationMaxAggregateOutputType | null
+  }
+
+  type GetNotificationGroupByPayload<T extends NotificationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NotificationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NotificationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+            : GetScalarType<T[P], NotificationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NotificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    body?: boolean
+    data?: boolean
+    readAt?: boolean
+    read?: boolean
+    archivedAt?: boolean
+    archived?: boolean
+    notificationId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    body?: boolean
+    data?: boolean
+    readAt?: boolean
+    read?: boolean
+    archivedAt?: boolean
+    archived?: boolean
+    notificationId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    body?: boolean
+    data?: boolean
+    readAt?: boolean
+    read?: boolean
+    archivedAt?: boolean
+    archived?: boolean
+    notificationId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
+  export type NotificationSelectScalar = {
+    id?: boolean
+    title?: boolean
+    body?: boolean
+    data?: boolean
+    readAt?: boolean
+    read?: boolean
+    archivedAt?: boolean
+    archived?: boolean
+    notificationId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "body" | "data" | "readAt" | "read" | "archivedAt" | "archived" | "notificationId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notification"]>
+  export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type NotificationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $NotificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Notification"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      body: string
+      data: Prisma.JsonValue | null
+      readAt: Date | null
+      read: boolean
+      archivedAt: Date | null
+      archived: boolean
+      notificationId: string
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["notification"]>
+    composites: {}
+  }
+
+  type NotificationGetPayload<S extends boolean | null | undefined | NotificationDefaultArgs> = $Result.GetResult<Prisma.$NotificationPayload, S>
+
+  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NotificationCountAggregateInputType | true
+    }
+
+  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Notification'], meta: { name: 'Notification' } }
+    /**
+     * Find zero or one Notification that matches the filter.
+     * @param {NotificationFindUniqueArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Notification that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NotificationFindUniqueOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Notification that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindFirstOrThrowArgs} args - Arguments to find a Notification
+     * @example
+     * // Get one Notification
+     * const notification = await prisma.notification.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Notifications that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Notifications
+     * const notifications = await prisma.notification.findMany()
+     * 
+     * // Get first 10 Notifications
+     * const notifications = await prisma.notification.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Notification.
+     * @param {NotificationCreateArgs} args - Arguments to create a Notification.
+     * @example
+     * // Create one Notification
+     * const Notification = await prisma.notification.create({
+     *   data: {
+     *     // ... data to create a Notification
+     *   }
+     * })
+     * 
+     */
+    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Notifications.
+     * @param {NotificationCreateManyArgs} args - Arguments to create many Notifications.
+     * @example
+     * // Create many Notifications
+     * const notification = await prisma.notification.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NotificationCreateManyArgs>(args?: SelectSubset<T, NotificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Notifications and returns the data saved in the database.
+     * @param {NotificationCreateManyAndReturnArgs} args - Arguments to create many Notifications.
+     * @example
+     * // Create many Notifications
+     * const notification = await prisma.notification.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Notifications and only return the `id`
+     * const notificationWithIdOnly = await prisma.notification.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Notification.
+     * @param {NotificationDeleteArgs} args - Arguments to delete one Notification.
+     * @example
+     * // Delete one Notification
+     * const Notification = await prisma.notification.delete({
+     *   where: {
+     *     // ... filter to delete one Notification
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Notification.
+     * @param {NotificationUpdateArgs} args - Arguments to update one Notification.
+     * @example
+     * // Update one Notification
+     * const notification = await prisma.notification.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Notifications.
+     * @param {NotificationDeleteManyArgs} args - Arguments to filter Notifications to delete.
+     * @example
+     * // Delete a few Notifications
+     * const { count } = await prisma.notification.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NotificationDeleteManyArgs>(args?: SelectSubset<T, NotificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NotificationUpdateManyArgs>(args: SelectSubset<T, NotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Notifications and returns the data updated in the database.
+     * @param {NotificationUpdateManyAndReturnArgs} args - Arguments to update many Notifications.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Notifications and only return the `id`
+     * const notificationWithIdOnly = await prisma.notification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NotificationUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Notification.
+     * @param {NotificationUpsertArgs} args - Arguments to update or create a Notification.
+     * @example
+     * // Update or create a Notification
+     * const notification = await prisma.notification.upsert({
+     *   create: {
+     *     // ... data to create a Notification
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Notification we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Notifications.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationCountArgs} args - Arguments to filter Notifications to count.
+     * @example
+     * // Count the number of Notifications
+     * const count = await prisma.notification.count({
+     *   where: {
+     *     // ... the filter for the Notifications we want to count
+     *   }
+     * })
+    **/
+    count<T extends NotificationCountArgs>(
+      args?: Subset<T, NotificationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NotificationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NotificationAggregateArgs>(args: Subset<T, NotificationAggregateArgs>): Prisma.PrismaPromise<GetNotificationAggregateType<T>>
+
+    /**
+     * Group by Notification.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NotificationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NotificationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NotificationGroupByArgs['orderBy'] }
+        : { orderBy?: NotificationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NotificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNotificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Notification model
+   */
+  readonly fields: NotificationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Notification.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Notification model
+   */
+  interface NotificationFieldRefs {
+    readonly id: FieldRef<"Notification", 'String'>
+    readonly title: FieldRef<"Notification", 'String'>
+    readonly body: FieldRef<"Notification", 'String'>
+    readonly data: FieldRef<"Notification", 'Json'>
+    readonly readAt: FieldRef<"Notification", 'DateTime'>
+    readonly read: FieldRef<"Notification", 'Boolean'>
+    readonly archivedAt: FieldRef<"Notification", 'DateTime'>
+    readonly archived: FieldRef<"Notification", 'Boolean'>
+    readonly notificationId: FieldRef<"Notification", 'String'>
+    readonly userId: FieldRef<"Notification", 'String'>
+    readonly createdAt: FieldRef<"Notification", 'DateTime'>
+    readonly updatedAt: FieldRef<"Notification", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Notification findUnique
+   */
+  export type NotificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findUniqueOrThrow
+   */
+  export type NotificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification findFirst
+   */
+  export type NotificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findFirstOrThrow
+   */
+  export type NotificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notification to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Notifications.
+     */
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification findMany
+   */
+  export type NotificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter, which Notifications to fetch.
+     */
+    where?: NotificationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Notifications to fetch.
+     */
+    orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Notifications.
+     */
+    cursor?: NotificationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Notifications from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Notifications.
+     */
+    skip?: number
+    distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * Notification create
+   */
+  export type NotificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Notification.
+     */
+    data: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+  }
+
+  /**
+   * Notification createMany
+   */
+  export type NotificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Notifications.
+     */
+    data: NotificationCreateManyInput | NotificationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Notification createManyAndReturn
+   */
+  export type NotificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * The data used to create many Notifications.
+     */
+    data: NotificationCreateManyInput | NotificationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Notification update
+   */
+  export type NotificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Notification.
+     */
+    data: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+    /**
+     * Choose, which Notification to update.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification updateMany
+   */
+  export type NotificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification updateManyAndReturn
+   */
+  export type NotificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Notification upsert
+   */
+  export type NotificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Notification to update in case it exists.
+     */
+    where: NotificationWhereUniqueInput
+    /**
+     * In case the Notification found by the `where` argument doesn't exist, create a new Notification with this data.
+     */
+    create: XOR<NotificationCreateInput, NotificationUncheckedCreateInput>
+    /**
+     * In case the Notification was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NotificationUpdateInput, NotificationUncheckedUpdateInput>
+  }
+
+  /**
+   * Notification delete
+   */
+  export type NotificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+    /**
+     * Filter which Notification to delete.
+     */
+    where: NotificationWhereUniqueInput
+  }
+
+  /**
+   * Notification deleteMany
+   */
+  export type NotificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Notifications to delete
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification without action
+   */
+  export type NotificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -33113,7 +35746,13 @@ export namespace Prisma {
 
 
   export const ActivityLogsScalarFieldEnum: {
-    id: 'id'
+    id: 'id',
+    event: 'event',
+    entityId: 'entityId',
+    entityType: 'entityType',
+    data: 'data',
+    userId: 'userId',
+    createdAt: 'createdAt'
   };
 
   export type ActivityLogsScalarFieldEnum = (typeof ActivityLogsScalarFieldEnum)[keyof typeof ActivityLogsScalarFieldEnum]
@@ -33345,12 +35984,48 @@ export namespace Prisma {
   export type MonoBankAccountScalarFieldEnum = (typeof MonoBankAccountScalarFieldEnum)[keyof typeof MonoBankAccountScalarFieldEnum]
 
 
+  export const FcmDeviceScalarFieldEnum: {
+    id: 'id',
+    fcmToken: 'fcmToken',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type FcmDeviceScalarFieldEnum = (typeof FcmDeviceScalarFieldEnum)[keyof typeof FcmDeviceScalarFieldEnum]
+
+
+  export const NotificationScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    body: 'body',
+    data: 'data',
+    readAt: 'readAt',
+    read: 'read',
+    archivedAt: 'archivedAt',
+    archived: 'archived',
+    notificationId: 'notificationId',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const NullableJsonNullValueInput: {
@@ -33595,6 +36270,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -33633,20 +36322,6 @@ export namespace Prisma {
    * Reference to a field of type 'OCRDraftStatus[]'
    */
   export type ListEnumOCRDraftStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OCRDraftStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -33880,7 +36555,10 @@ export namespace Prisma {
     goals?: GoalListRelationFilter
     splits?: SplitListRelationFilter
     ocrDrafts?: OCRDraftListRelationFilter
+    fcmDevices?: FcmDeviceListRelationFilter
+    activityLogs?: ActivityLogsListRelationFilter
     monoBankAccounts?: MonoBankAccountListRelationFilter
+    notifications?: NotificationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -33919,7 +36597,10 @@ export namespace Prisma {
     goals?: GoalOrderByRelationAggregateInput
     splits?: SplitOrderByRelationAggregateInput
     ocrDrafts?: OCRDraftOrderByRelationAggregateInput
+    fcmDevices?: FcmDeviceOrderByRelationAggregateInput
+    activityLogs?: ActivityLogsOrderByRelationAggregateInput
     monoBankAccounts?: MonoBankAccountOrderByRelationAggregateInput
+    notifications?: NotificationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -33961,7 +36642,10 @@ export namespace Prisma {
     goals?: GoalListRelationFilter
     splits?: SplitListRelationFilter
     ocrDrafts?: OCRDraftListRelationFilter
+    fcmDevices?: FcmDeviceListRelationFilter
+    activityLogs?: ActivityLogsListRelationFilter
     monoBankAccounts?: MonoBankAccountListRelationFilter
+    notifications?: NotificationListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -34592,10 +37276,24 @@ export namespace Prisma {
     OR?: ActivityLogsWhereInput[]
     NOT?: ActivityLogsWhereInput | ActivityLogsWhereInput[]
     id?: StringFilter<"ActivityLogs"> | string
+    event?: StringFilter<"ActivityLogs"> | string
+    entityId?: StringFilter<"ActivityLogs"> | string
+    entityType?: StringFilter<"ActivityLogs"> | string
+    data?: JsonFilter<"ActivityLogs">
+    userId?: StringFilter<"ActivityLogs"> | string
+    createdAt?: DateTimeFilter<"ActivityLogs"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ActivityLogsOrderByWithRelationInput = {
     id?: SortOrder
+    event?: SortOrder
+    entityId?: SortOrder
+    entityType?: SortOrder
+    data?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
   }
 
   export type ActivityLogsWhereUniqueInput = Prisma.AtLeast<{
@@ -34603,10 +37301,23 @@ export namespace Prisma {
     AND?: ActivityLogsWhereInput | ActivityLogsWhereInput[]
     OR?: ActivityLogsWhereInput[]
     NOT?: ActivityLogsWhereInput | ActivityLogsWhereInput[]
+    event?: StringFilter<"ActivityLogs"> | string
+    entityId?: StringFilter<"ActivityLogs"> | string
+    entityType?: StringFilter<"ActivityLogs"> | string
+    data?: JsonFilter<"ActivityLogs">
+    userId?: StringFilter<"ActivityLogs"> | string
+    createdAt?: DateTimeFilter<"ActivityLogs"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ActivityLogsOrderByWithAggregationInput = {
     id?: SortOrder
+    event?: SortOrder
+    entityId?: SortOrder
+    entityType?: SortOrder
+    data?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
     _count?: ActivityLogsCountOrderByAggregateInput
     _max?: ActivityLogsMaxOrderByAggregateInput
     _min?: ActivityLogsMinOrderByAggregateInput
@@ -34617,6 +37328,12 @@ export namespace Prisma {
     OR?: ActivityLogsScalarWhereWithAggregatesInput[]
     NOT?: ActivityLogsScalarWhereWithAggregatesInput | ActivityLogsScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ActivityLogs"> | string
+    event?: StringWithAggregatesFilter<"ActivityLogs"> | string
+    entityId?: StringWithAggregatesFilter<"ActivityLogs"> | string
+    entityType?: StringWithAggregatesFilter<"ActivityLogs"> | string
+    data?: JsonWithAggregatesFilter<"ActivityLogs">
+    userId?: StringWithAggregatesFilter<"ActivityLogs"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ActivityLogs"> | Date | string
   }
 
   export type NotificationSettingWhereInput = {
@@ -35105,7 +37822,7 @@ export namespace Prisma {
     categoryId?: StringFilter<"Transaction"> | string
     userId?: StringNullableFilter<"Transaction"> | string | null
     source?: EnumTransactionSourceFilter<"Transaction"> | $Enums.TransactionSource
-    sourceId?: StringNullableFilter<"Transaction"> | string | null
+    sourceId?: StringFilter<"Transaction"> | string
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
@@ -35114,8 +37831,8 @@ export namespace Prisma {
     monoBankAccountId?: StringNullableFilter<"Transaction"> | string | null
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    splits?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
-    goalContributions?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
+    split?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
+    goalContribution?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
     settlements?: SplitSettlementListRelationFilter
     monoBankAccount?: XOR<MonoBankAccountNullableScalarRelationFilter, MonoBankAccountWhereInput> | null
   }
@@ -35131,7 +37848,7 @@ export namespace Prisma {
     categoryId?: SortOrder
     userId?: SortOrderInput | SortOrder
     source?: SortOrder
-    sourceId?: SortOrderInput | SortOrder
+    sourceId?: SortOrder
     sourceData?: SortOrderInput | SortOrder
     bankTransactionId?: SortOrderInput | SortOrder
     bankTransactionStatus?: SortOrder
@@ -35140,8 +37857,8 @@ export namespace Prisma {
     monoBankAccountId?: SortOrderInput | SortOrder
     category?: CategoryOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    splits?: SplitOrderByWithRelationInput
-    goalContributions?: GoalContributionOrderByWithRelationInput
+    split?: SplitOrderByWithRelationInput
+    goalContribution?: GoalContributionOrderByWithRelationInput
     settlements?: SplitSettlementOrderByRelationAggregateInput
     monoBankAccount?: MonoBankAccountOrderByWithRelationInput
   }
@@ -35149,6 +37866,8 @@ export namespace Prisma {
   export type TransactionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     monoBankAccountId?: string
+    userId_source_sourceId?: TransactionUserIdSourceSourceIdCompoundUniqueInput
+    userId_bankTransactionId_monoBankAccountId?: TransactionUserIdBankTransactionIdMonoBankAccountIdCompoundUniqueInput
     AND?: TransactionWhereInput | TransactionWhereInput[]
     OR?: TransactionWhereInput[]
     NOT?: TransactionWhereInput | TransactionWhereInput[]
@@ -35161,7 +37880,7 @@ export namespace Prisma {
     categoryId?: StringFilter<"Transaction"> | string
     userId?: StringNullableFilter<"Transaction"> | string | null
     source?: EnumTransactionSourceFilter<"Transaction"> | $Enums.TransactionSource
-    sourceId?: StringNullableFilter<"Transaction"> | string | null
+    sourceId?: StringFilter<"Transaction"> | string
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
@@ -35169,11 +37888,11 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-    splits?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
-    goalContributions?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
+    split?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
+    goalContribution?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
     settlements?: SplitSettlementListRelationFilter
     monoBankAccount?: XOR<MonoBankAccountNullableScalarRelationFilter, MonoBankAccountWhereInput> | null
-  }, "id" | "monoBankAccountId">
+  }, "id" | "monoBankAccountId" | "userId_source_sourceId" | "userId_bankTransactionId_monoBankAccountId">
 
   export type TransactionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -35186,7 +37905,7 @@ export namespace Prisma {
     categoryId?: SortOrder
     userId?: SortOrderInput | SortOrder
     source?: SortOrder
-    sourceId?: SortOrderInput | SortOrder
+    sourceId?: SortOrder
     sourceData?: SortOrderInput | SortOrder
     bankTransactionId?: SortOrderInput | SortOrder
     bankTransactionStatus?: SortOrder
@@ -35214,7 +37933,7 @@ export namespace Prisma {
     categoryId?: StringWithAggregatesFilter<"Transaction"> | string
     userId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     source?: EnumTransactionSourceWithAggregatesFilter<"Transaction"> | $Enums.TransactionSource
-    sourceId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    sourceId?: StringWithAggregatesFilter<"Transaction"> | string
     sourceData?: JsonNullableWithAggregatesFilter<"Transaction">
     bankTransactionId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.BankTransactionStatus
@@ -35832,6 +38551,152 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"MonoBankAccount"> | Date | string
   }
 
+  export type FcmDeviceWhereInput = {
+    AND?: FcmDeviceWhereInput | FcmDeviceWhereInput[]
+    OR?: FcmDeviceWhereInput[]
+    NOT?: FcmDeviceWhereInput | FcmDeviceWhereInput[]
+    id?: StringFilter<"FcmDevice"> | string
+    fcmToken?: StringFilter<"FcmDevice"> | string
+    userId?: StringFilter<"FcmDevice"> | string
+    createdAt?: DateTimeFilter<"FcmDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"FcmDevice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type FcmDeviceOrderByWithRelationInput = {
+    id?: SortOrder
+    fcmToken?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type FcmDeviceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_fcmToken?: FcmDeviceUserIdFcmTokenCompoundUniqueInput
+    AND?: FcmDeviceWhereInput | FcmDeviceWhereInput[]
+    OR?: FcmDeviceWhereInput[]
+    NOT?: FcmDeviceWhereInput | FcmDeviceWhereInput[]
+    fcmToken?: StringFilter<"FcmDevice"> | string
+    userId?: StringFilter<"FcmDevice"> | string
+    createdAt?: DateTimeFilter<"FcmDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"FcmDevice"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_fcmToken">
+
+  export type FcmDeviceOrderByWithAggregationInput = {
+    id?: SortOrder
+    fcmToken?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: FcmDeviceCountOrderByAggregateInput
+    _max?: FcmDeviceMaxOrderByAggregateInput
+    _min?: FcmDeviceMinOrderByAggregateInput
+  }
+
+  export type FcmDeviceScalarWhereWithAggregatesInput = {
+    AND?: FcmDeviceScalarWhereWithAggregatesInput | FcmDeviceScalarWhereWithAggregatesInput[]
+    OR?: FcmDeviceScalarWhereWithAggregatesInput[]
+    NOT?: FcmDeviceScalarWhereWithAggregatesInput | FcmDeviceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FcmDevice"> | string
+    fcmToken?: StringWithAggregatesFilter<"FcmDevice"> | string
+    userId?: StringWithAggregatesFilter<"FcmDevice"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"FcmDevice"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"FcmDevice"> | Date | string
+  }
+
+  export type NotificationWhereInput = {
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    body?: StringFilter<"Notification"> | string
+    data?: JsonNullableFilter<"Notification">
+    readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    read?: BoolFilter<"Notification"> | boolean
+    archivedAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    archived?: BoolFilter<"Notification"> | boolean
+    notificationId?: StringFilter<"Notification"> | string
+    userId?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    updatedAt?: DateTimeFilter<"Notification"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type NotificationOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    body?: SortOrder
+    data?: SortOrderInput | SortOrder
+    readAt?: SortOrderInput | SortOrder
+    read?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
+    archived?: SortOrder
+    notificationId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type NotificationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    notificationId?: string
+    AND?: NotificationWhereInput | NotificationWhereInput[]
+    OR?: NotificationWhereInput[]
+    NOT?: NotificationWhereInput | NotificationWhereInput[]
+    title?: StringFilter<"Notification"> | string
+    body?: StringFilter<"Notification"> | string
+    data?: JsonNullableFilter<"Notification">
+    readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    read?: BoolFilter<"Notification"> | boolean
+    archivedAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    archived?: BoolFilter<"Notification"> | boolean
+    userId?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    updatedAt?: DateTimeFilter<"Notification"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "notificationId">
+
+  export type NotificationOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    body?: SortOrder
+    data?: SortOrderInput | SortOrder
+    readAt?: SortOrderInput | SortOrder
+    read?: SortOrder
+    archivedAt?: SortOrderInput | SortOrder
+    archived?: SortOrder
+    notificationId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: NotificationCountOrderByAggregateInput
+    _max?: NotificationMaxOrderByAggregateInput
+    _min?: NotificationMinOrderByAggregateInput
+  }
+
+  export type NotificationScalarWhereWithAggregatesInput = {
+    AND?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    OR?: NotificationScalarWhereWithAggregatesInput[]
+    NOT?: NotificationScalarWhereWithAggregatesInput | NotificationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Notification"> | string
+    title?: StringWithAggregatesFilter<"Notification"> | string
+    body?: StringWithAggregatesFilter<"Notification"> | string
+    data?: JsonNullableWithAggregatesFilter<"Notification">
+    readAt?: DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
+    read?: BoolWithAggregatesFilter<"Notification"> | boolean
+    archivedAt?: DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
+    archived?: BoolWithAggregatesFilter<"Notification"> | boolean
+    notificationId?: StringWithAggregatesFilter<"Notification"> | string
+    userId?: StringWithAggregatesFilter<"Notification"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
+  }
+
   export type CurrenciesCreateInput = {
     id?: string
     currency: $Enums.Currency
@@ -35980,7 +38845,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -36019,7 +38887,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -36058,7 +38929,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -36097,7 +38971,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -36791,30 +39668,71 @@ export namespace Prisma {
 
   export type ActivityLogsCreateInput = {
     id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutActivityLogsInput
   }
 
   export type ActivityLogsUncheckedCreateInput = {
     id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    userId: string
+    createdAt?: Date | string
   }
 
   export type ActivityLogsUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutActivityLogsNestedInput
   }
 
   export type ActivityLogsUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ActivityLogsCreateManyInput = {
     id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    userId: string
+    createdAt?: Date | string
   }
 
   export type ActivityLogsUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ActivityLogsUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificationSettingCreateInput = {
@@ -37361,7 +40279,7 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -37369,8 +40287,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
@@ -37386,15 +40304,15 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
@@ -37407,7 +40325,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -37415,8 +40333,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
@@ -37432,15 +40350,15 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -37455,7 +40373,7 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -37473,7 +40391,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -37492,7 +40410,7 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -37735,7 +40653,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     goal: GoalCreateNestedOneWithoutContributionsInput
-    transaction?: TransactionCreateNestedOneWithoutGoalContributionsInput
+    transaction?: TransactionCreateNestedOneWithoutGoalContributionInput
   }
 
   export type GoalContributionUncheckedCreateInput = {
@@ -37759,7 +40677,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     goal?: GoalUpdateOneRequiredWithoutContributionsNestedInput
-    transaction?: TransactionUpdateOneWithoutGoalContributionsNestedInput
+    transaction?: TransactionUpdateOneWithoutGoalContributionNestedInput
   }
 
   export type GoalContributionUncheckedUpdateInput = {
@@ -37816,7 +40734,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSplitsInput
-    transaction?: TransactionCreateNestedOneWithoutSplitsInput
+    transaction?: TransactionCreateNestedOneWithoutSplitInput
     participants?: SplitParticipantCreateNestedManyWithoutSplitInput
     settlements?: SplitSettlementCreateNestedManyWithoutSplitInput
   }
@@ -37842,7 +40760,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSplitsNestedInput
-    transaction?: TransactionUpdateOneWithoutSplitsNestedInput
+    transaction?: TransactionUpdateOneWithoutSplitNestedInput
     participants?: SplitParticipantUpdateManyWithoutSplitNestedInput
     settlements?: SplitSettlementUpdateManyWithoutSplitNestedInput
   }
@@ -38153,6 +41071,165 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FcmDeviceCreateInput = {
+    id?: string
+    fcmToken: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutFcmDevicesInput
+  }
+
+  export type FcmDeviceUncheckedCreateInput = {
+    id?: string
+    fcmToken: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FcmDeviceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutFcmDevicesNestedInput
+  }
+
+  export type FcmDeviceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FcmDeviceCreateManyInput = {
+    id?: string
+    fcmToken: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FcmDeviceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FcmDeviceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationCreateInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutNotificationsInput
+  }
+
+  export type NotificationUncheckedCreateInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutNotificationsNestedInput
+  }
+
+  export type NotificationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationCreateManyInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -38424,10 +41501,28 @@ export namespace Prisma {
     none?: OCRDraftWhereInput
   }
 
+  export type FcmDeviceListRelationFilter = {
+    every?: FcmDeviceWhereInput
+    some?: FcmDeviceWhereInput
+    none?: FcmDeviceWhereInput
+  }
+
+  export type ActivityLogsListRelationFilter = {
+    every?: ActivityLogsWhereInput
+    some?: ActivityLogsWhereInput
+    none?: ActivityLogsWhereInput
+  }
+
   export type MonoBankAccountListRelationFilter = {
     every?: MonoBankAccountWhereInput
     some?: MonoBankAccountWhereInput
     none?: MonoBankAccountWhereInput
+  }
+
+  export type NotificationListRelationFilter = {
+    every?: NotificationWhereInput
+    some?: NotificationWhereInput
+    none?: NotificationWhereInput
   }
 
   export type SortOrderInput = {
@@ -38483,7 +41578,19 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type FcmDeviceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ActivityLogsOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type MonoBankAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type NotificationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -39107,17 +42214,82 @@ export namespace Prisma {
     userId?: SortOrder
     createdAt?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type ActivityLogsCountOrderByAggregateInput = {
     id?: SortOrder
+    event?: SortOrder
+    entityId?: SortOrder
+    entityType?: SortOrder
+    data?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ActivityLogsMaxOrderByAggregateInput = {
     id?: SortOrder
+    event?: SortOrder
+    entityId?: SortOrder
+    entityType?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ActivityLogsMinOrderByAggregateInput = {
     id?: SortOrder
+    event?: SortOrder
+    entityId?: SortOrder
+    entityType?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type NotificationSettingCountOrderByAggregateInput = {
@@ -39582,6 +42754,18 @@ export namespace Prisma {
 
   export type SplitSettlementOrderByRelationAggregateInput = {
     _count?: SortOrder
+  }
+
+  export type TransactionUserIdSourceSourceIdCompoundUniqueInput = {
+    userId: string
+    source: $Enums.TransactionSource
+    sourceId: string
+  }
+
+  export type TransactionUserIdBankTransactionIdMonoBankAccountIdCompoundUniqueInput = {
+    userId: string
+    bankTransactionId: string
+    monoBankAccountId: string
   }
 
   export type TransactionCountOrderByAggregateInput = {
@@ -40108,6 +43292,78 @@ export namespace Prisma {
     accountBalance?: SortOrder
   }
 
+  export type FcmDeviceUserIdFcmTokenCompoundUniqueInput = {
+    userId: string
+    fcmToken: string
+  }
+
+  export type FcmDeviceCountOrderByAggregateInput = {
+    id?: SortOrder
+    fcmToken?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FcmDeviceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fcmToken?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FcmDeviceMinOrderByAggregateInput = {
+    id?: SortOrder
+    fcmToken?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NotificationCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    body?: SortOrder
+    data?: SortOrder
+    readAt?: SortOrder
+    read?: SortOrder
+    archivedAt?: SortOrder
+    archived?: SortOrder
+    notificationId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NotificationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    body?: SortOrder
+    readAt?: SortOrder
+    read?: SortOrder
+    archivedAt?: SortOrder
+    archived?: SortOrder
+    notificationId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type NotificationMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    body?: SortOrder
+    readAt?: SortOrder
+    read?: SortOrder
+    archivedAt?: SortOrder
+    archived?: SortOrder
+    notificationId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -40220,11 +43476,32 @@ export namespace Prisma {
     connect?: OCRDraftWhereUniqueInput | OCRDraftWhereUniqueInput[]
   }
 
+  export type FcmDeviceCreateNestedManyWithoutUserInput = {
+    create?: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput> | FcmDeviceCreateWithoutUserInput[] | FcmDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FcmDeviceCreateOrConnectWithoutUserInput | FcmDeviceCreateOrConnectWithoutUserInput[]
+    createMany?: FcmDeviceCreateManyUserInputEnvelope
+    connect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+  }
+
+  export type ActivityLogsCreateNestedManyWithoutUserInput = {
+    create?: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput> | ActivityLogsCreateWithoutUserInput[] | ActivityLogsUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogsCreateOrConnectWithoutUserInput | ActivityLogsCreateOrConnectWithoutUserInput[]
+    createMany?: ActivityLogsCreateManyUserInputEnvelope
+    connect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+  }
+
   export type MonoBankAccountCreateNestedManyWithoutUserInput = {
     create?: XOR<MonoBankAccountCreateWithoutUserInput, MonoBankAccountUncheckedCreateWithoutUserInput> | MonoBankAccountCreateWithoutUserInput[] | MonoBankAccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonoBankAccountCreateOrConnectWithoutUserInput | MonoBankAccountCreateOrConnectWithoutUserInput[]
     createMany?: MonoBankAccountCreateManyUserInputEnvelope
     connect?: MonoBankAccountWhereUniqueInput | MonoBankAccountWhereUniqueInput[]
+  }
+
+  export type NotificationCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
@@ -40323,11 +43600,32 @@ export namespace Prisma {
     connect?: OCRDraftWhereUniqueInput | OCRDraftWhereUniqueInput[]
   }
 
+  export type FcmDeviceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput> | FcmDeviceCreateWithoutUserInput[] | FcmDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FcmDeviceCreateOrConnectWithoutUserInput | FcmDeviceCreateOrConnectWithoutUserInput[]
+    createMany?: FcmDeviceCreateManyUserInputEnvelope
+    connect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+  }
+
+  export type ActivityLogsUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput> | ActivityLogsCreateWithoutUserInput[] | ActivityLogsUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogsCreateOrConnectWithoutUserInput | ActivityLogsCreateOrConnectWithoutUserInput[]
+    createMany?: ActivityLogsCreateManyUserInputEnvelope
+    connect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+  }
+
   export type MonoBankAccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<MonoBankAccountCreateWithoutUserInput, MonoBankAccountUncheckedCreateWithoutUserInput> | MonoBankAccountCreateWithoutUserInput[] | MonoBankAccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonoBankAccountCreateOrConnectWithoutUserInput | MonoBankAccountCreateOrConnectWithoutUserInput[]
     createMany?: MonoBankAccountCreateManyUserInputEnvelope
     connect?: MonoBankAccountWhereUniqueInput | MonoBankAccountWhereUniqueInput[]
+  }
+
+  export type NotificationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -40542,6 +43840,34 @@ export namespace Prisma {
     deleteMany?: OCRDraftScalarWhereInput | OCRDraftScalarWhereInput[]
   }
 
+  export type FcmDeviceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput> | FcmDeviceCreateWithoutUserInput[] | FcmDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FcmDeviceCreateOrConnectWithoutUserInput | FcmDeviceCreateOrConnectWithoutUserInput[]
+    upsert?: FcmDeviceUpsertWithWhereUniqueWithoutUserInput | FcmDeviceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FcmDeviceCreateManyUserInputEnvelope
+    set?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    disconnect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    delete?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    connect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    update?: FcmDeviceUpdateWithWhereUniqueWithoutUserInput | FcmDeviceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FcmDeviceUpdateManyWithWhereWithoutUserInput | FcmDeviceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FcmDeviceScalarWhereInput | FcmDeviceScalarWhereInput[]
+  }
+
+  export type ActivityLogsUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput> | ActivityLogsCreateWithoutUserInput[] | ActivityLogsUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogsCreateOrConnectWithoutUserInput | ActivityLogsCreateOrConnectWithoutUserInput[]
+    upsert?: ActivityLogsUpsertWithWhereUniqueWithoutUserInput | ActivityLogsUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ActivityLogsCreateManyUserInputEnvelope
+    set?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    disconnect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    delete?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    connect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    update?: ActivityLogsUpdateWithWhereUniqueWithoutUserInput | ActivityLogsUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ActivityLogsUpdateManyWithWhereWithoutUserInput | ActivityLogsUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ActivityLogsScalarWhereInput | ActivityLogsScalarWhereInput[]
+  }
+
   export type MonoBankAccountUpdateManyWithoutUserNestedInput = {
     create?: XOR<MonoBankAccountCreateWithoutUserInput, MonoBankAccountUncheckedCreateWithoutUserInput> | MonoBankAccountCreateWithoutUserInput[] | MonoBankAccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonoBankAccountCreateOrConnectWithoutUserInput | MonoBankAccountCreateOrConnectWithoutUserInput[]
@@ -40554,6 +43880,20 @@ export namespace Prisma {
     update?: MonoBankAccountUpdateWithWhereUniqueWithoutUserInput | MonoBankAccountUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MonoBankAccountUpdateManyWithWhereWithoutUserInput | MonoBankAccountUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MonoBankAccountScalarWhereInput | MonoBankAccountScalarWhereInput[]
+  }
+
+  export type NotificationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
@@ -40744,6 +44084,34 @@ export namespace Prisma {
     deleteMany?: OCRDraftScalarWhereInput | OCRDraftScalarWhereInput[]
   }
 
+  export type FcmDeviceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput> | FcmDeviceCreateWithoutUserInput[] | FcmDeviceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FcmDeviceCreateOrConnectWithoutUserInput | FcmDeviceCreateOrConnectWithoutUserInput[]
+    upsert?: FcmDeviceUpsertWithWhereUniqueWithoutUserInput | FcmDeviceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FcmDeviceCreateManyUserInputEnvelope
+    set?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    disconnect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    delete?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    connect?: FcmDeviceWhereUniqueInput | FcmDeviceWhereUniqueInput[]
+    update?: FcmDeviceUpdateWithWhereUniqueWithoutUserInput | FcmDeviceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FcmDeviceUpdateManyWithWhereWithoutUserInput | FcmDeviceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FcmDeviceScalarWhereInput | FcmDeviceScalarWhereInput[]
+  }
+
+  export type ActivityLogsUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput> | ActivityLogsCreateWithoutUserInput[] | ActivityLogsUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ActivityLogsCreateOrConnectWithoutUserInput | ActivityLogsCreateOrConnectWithoutUserInput[]
+    upsert?: ActivityLogsUpsertWithWhereUniqueWithoutUserInput | ActivityLogsUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ActivityLogsCreateManyUserInputEnvelope
+    set?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    disconnect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    delete?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    connect?: ActivityLogsWhereUniqueInput | ActivityLogsWhereUniqueInput[]
+    update?: ActivityLogsUpdateWithWhereUniqueWithoutUserInput | ActivityLogsUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ActivityLogsUpdateManyWithWhereWithoutUserInput | ActivityLogsUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ActivityLogsScalarWhereInput | ActivityLogsScalarWhereInput[]
+  }
+
   export type MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<MonoBankAccountCreateWithoutUserInput, MonoBankAccountUncheckedCreateWithoutUserInput> | MonoBankAccountCreateWithoutUserInput[] | MonoBankAccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MonoBankAccountCreateOrConnectWithoutUserInput | MonoBankAccountCreateOrConnectWithoutUserInput[]
@@ -40756,6 +44124,20 @@ export namespace Prisma {
     update?: MonoBankAccountUpdateWithWhereUniqueWithoutUserInput | MonoBankAccountUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MonoBankAccountUpdateManyWithWhereWithoutUserInput | MonoBankAccountUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MonoBankAccountScalarWhereInput | MonoBankAccountScalarWhereInput[]
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput> | NotificationCreateWithoutUserInput[] | NotificationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
+    upsert?: NotificationUpsertWithWhereUniqueWithoutUserInput | NotificationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: NotificationCreateManyUserInputEnvelope
+    set?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    disconnect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    delete?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+    update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -40880,6 +44262,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutBackupCodesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBackupCodesInput, UserUpdateWithoutBackupCodesInput>, UserUncheckedUpdateWithoutBackupCodesInput>
+  }
+
+  export type UserCreateNestedOneWithoutActivityLogsInput = {
+    create?: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutActivityLogsNestedInput = {
+    create?: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutActivityLogsInput
+    upsert?: UserUpsertWithoutActivityLogsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutActivityLogsInput, UserUpdateWithoutActivityLogsInput>, UserUncheckedUpdateWithoutActivityLogsInput>
   }
 
   export type UserCreateNestedOneWithoutSettingInput = {
@@ -41422,9 +44818,9 @@ export namespace Prisma {
     connect?: GoalWhereUniqueInput
   }
 
-  export type TransactionCreateNestedOneWithoutGoalContributionsInput = {
-    create?: XOR<TransactionCreateWithoutGoalContributionsInput, TransactionUncheckedCreateWithoutGoalContributionsInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutGoalContributionsInput
+  export type TransactionCreateNestedOneWithoutGoalContributionInput = {
+    create?: XOR<TransactionCreateWithoutGoalContributionInput, TransactionUncheckedCreateWithoutGoalContributionInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutGoalContributionInput
     connect?: TransactionWhereUniqueInput
   }
 
@@ -41436,14 +44832,14 @@ export namespace Prisma {
     update?: XOR<XOR<GoalUpdateToOneWithWhereWithoutContributionsInput, GoalUpdateWithoutContributionsInput>, GoalUncheckedUpdateWithoutContributionsInput>
   }
 
-  export type TransactionUpdateOneWithoutGoalContributionsNestedInput = {
-    create?: XOR<TransactionCreateWithoutGoalContributionsInput, TransactionUncheckedCreateWithoutGoalContributionsInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutGoalContributionsInput
-    upsert?: TransactionUpsertWithoutGoalContributionsInput
+  export type TransactionUpdateOneWithoutGoalContributionNestedInput = {
+    create?: XOR<TransactionCreateWithoutGoalContributionInput, TransactionUncheckedCreateWithoutGoalContributionInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutGoalContributionInput
+    upsert?: TransactionUpsertWithoutGoalContributionInput
     disconnect?: TransactionWhereInput | boolean
     delete?: TransactionWhereInput | boolean
     connect?: TransactionWhereUniqueInput
-    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutGoalContributionsInput, TransactionUpdateWithoutGoalContributionsInput>, TransactionUncheckedUpdateWithoutGoalContributionsInput>
+    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutGoalContributionInput, TransactionUpdateWithoutGoalContributionInput>, TransactionUncheckedUpdateWithoutGoalContributionInput>
   }
 
   export type UserCreateNestedOneWithoutSplitsInput = {
@@ -41452,9 +44848,9 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type TransactionCreateNestedOneWithoutSplitsInput = {
-    create?: XOR<TransactionCreateWithoutSplitsInput, TransactionUncheckedCreateWithoutSplitsInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutSplitsInput
+  export type TransactionCreateNestedOneWithoutSplitInput = {
+    create?: XOR<TransactionCreateWithoutSplitInput, TransactionUncheckedCreateWithoutSplitInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutSplitInput
     connect?: TransactionWhereUniqueInput
   }
 
@@ -41498,14 +44894,14 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSplitsInput, UserUpdateWithoutSplitsInput>, UserUncheckedUpdateWithoutSplitsInput>
   }
 
-  export type TransactionUpdateOneWithoutSplitsNestedInput = {
-    create?: XOR<TransactionCreateWithoutSplitsInput, TransactionUncheckedCreateWithoutSplitsInput>
-    connectOrCreate?: TransactionCreateOrConnectWithoutSplitsInput
-    upsert?: TransactionUpsertWithoutSplitsInput
+  export type TransactionUpdateOneWithoutSplitNestedInput = {
+    create?: XOR<TransactionCreateWithoutSplitInput, TransactionUncheckedCreateWithoutSplitInput>
+    connectOrCreate?: TransactionCreateOrConnectWithoutSplitInput
+    upsert?: TransactionUpsertWithoutSplitInput
     disconnect?: TransactionWhereInput | boolean
     delete?: TransactionWhereInput | boolean
     connect?: TransactionWhereUniqueInput
-    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutSplitsInput, TransactionUpdateWithoutSplitsInput>, TransactionUncheckedUpdateWithoutSplitsInput>
+    update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutSplitInput, TransactionUpdateWithoutSplitInput>, TransactionUncheckedUpdateWithoutSplitInput>
   }
 
   export type SplitParticipantUpdateManyWithoutSplitNestedInput = {
@@ -41716,6 +45112,34 @@ export namespace Prisma {
     update?: TransactionUpdateWithWhereUniqueWithoutMonoBankAccountInput | TransactionUpdateWithWhereUniqueWithoutMonoBankAccountInput[]
     updateMany?: TransactionUpdateManyWithWhereWithoutMonoBankAccountInput | TransactionUpdateManyWithWhereWithoutMonoBankAccountInput[]
     deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutFcmDevicesInput = {
+    create?: XOR<UserCreateWithoutFcmDevicesInput, UserUncheckedCreateWithoutFcmDevicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFcmDevicesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutFcmDevicesNestedInput = {
+    create?: XOR<UserCreateWithoutFcmDevicesInput, UserUncheckedCreateWithoutFcmDevicesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFcmDevicesInput
+    upsert?: UserUpsertWithoutFcmDevicesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFcmDevicesInput, UserUpdateWithoutFcmDevicesInput>, UserUncheckedUpdateWithoutFcmDevicesInput>
+  }
+
+  export type UserCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
+    create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
+    upsert?: UserUpsertWithoutNotificationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -42104,6 +45528,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUsageFeatureFilter<$PrismaModel>
     _max?: NestedEnumUsageFeatureFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumBudgetPeriodFilter<$PrismaModel = never> = {
@@ -42578,15 +46025,15 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
@@ -42601,15 +46048,15 @@ export namespace Prisma {
     merchant?: string | null
     categoryId: string
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
@@ -42750,7 +46197,7 @@ export namespace Prisma {
     status?: $Enums.SplitStatus
     createdAt?: Date | string
     updatedAt?: Date | string
-    transaction?: TransactionCreateNestedOneWithoutSplitsInput
+    transaction?: TransactionCreateNestedOneWithoutSplitInput
     participants?: SplitParticipantCreateNestedManyWithoutSplitInput
     settlements?: SplitSettlementCreateNestedManyWithoutSplitInput
   }
@@ -42821,6 +46268,58 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FcmDeviceCreateWithoutUserInput = {
+    id?: string
+    fcmToken: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FcmDeviceUncheckedCreateWithoutUserInput = {
+    id?: string
+    fcmToken: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FcmDeviceCreateOrConnectWithoutUserInput = {
+    where: FcmDeviceWhereUniqueInput
+    create: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput>
+  }
+
+  export type FcmDeviceCreateManyUserInputEnvelope = {
+    data: FcmDeviceCreateManyUserInput | FcmDeviceCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ActivityLogsCreateWithoutUserInput = {
+    id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ActivityLogsUncheckedCreateWithoutUserInput = {
+    id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ActivityLogsCreateOrConnectWithoutUserInput = {
+    where: ActivityLogsWhereUniqueInput
+    create: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput>
+  }
+
+  export type ActivityLogsCreateManyUserInputEnvelope = {
+    data: ActivityLogsCreateManyUserInput | ActivityLogsCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type MonoBankAccountCreateWithoutUserInput = {
     id?: string
     accountId: string
@@ -42862,6 +46361,44 @@ export namespace Prisma {
 
   export type MonoBankAccountCreateManyUserInputEnvelope = {
     data: MonoBankAccountCreateManyUserInput | MonoBankAccountCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NotificationCreateWithoutUserInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationUncheckedCreateWithoutUserInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationCreateOrConnectWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationCreateManyUserInputEnvelope = {
+    data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -43169,7 +46706,7 @@ export namespace Prisma {
     categoryId?: StringFilter<"Transaction"> | string
     userId?: StringNullableFilter<"Transaction"> | string | null
     source?: EnumTransactionSourceFilter<"Transaction"> | $Enums.TransactionSource
-    sourceId?: StringNullableFilter<"Transaction"> | string | null
+    sourceId?: StringFilter<"Transaction"> | string
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
@@ -43348,6 +46885,62 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"OCRDraft"> | Date | string
   }
 
+  export type FcmDeviceUpsertWithWhereUniqueWithoutUserInput = {
+    where: FcmDeviceWhereUniqueInput
+    update: XOR<FcmDeviceUpdateWithoutUserInput, FcmDeviceUncheckedUpdateWithoutUserInput>
+    create: XOR<FcmDeviceCreateWithoutUserInput, FcmDeviceUncheckedCreateWithoutUserInput>
+  }
+
+  export type FcmDeviceUpdateWithWhereUniqueWithoutUserInput = {
+    where: FcmDeviceWhereUniqueInput
+    data: XOR<FcmDeviceUpdateWithoutUserInput, FcmDeviceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FcmDeviceUpdateManyWithWhereWithoutUserInput = {
+    where: FcmDeviceScalarWhereInput
+    data: XOR<FcmDeviceUpdateManyMutationInput, FcmDeviceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FcmDeviceScalarWhereInput = {
+    AND?: FcmDeviceScalarWhereInput | FcmDeviceScalarWhereInput[]
+    OR?: FcmDeviceScalarWhereInput[]
+    NOT?: FcmDeviceScalarWhereInput | FcmDeviceScalarWhereInput[]
+    id?: StringFilter<"FcmDevice"> | string
+    fcmToken?: StringFilter<"FcmDevice"> | string
+    userId?: StringFilter<"FcmDevice"> | string
+    createdAt?: DateTimeFilter<"FcmDevice"> | Date | string
+    updatedAt?: DateTimeFilter<"FcmDevice"> | Date | string
+  }
+
+  export type ActivityLogsUpsertWithWhereUniqueWithoutUserInput = {
+    where: ActivityLogsWhereUniqueInput
+    update: XOR<ActivityLogsUpdateWithoutUserInput, ActivityLogsUncheckedUpdateWithoutUserInput>
+    create: XOR<ActivityLogsCreateWithoutUserInput, ActivityLogsUncheckedCreateWithoutUserInput>
+  }
+
+  export type ActivityLogsUpdateWithWhereUniqueWithoutUserInput = {
+    where: ActivityLogsWhereUniqueInput
+    data: XOR<ActivityLogsUpdateWithoutUserInput, ActivityLogsUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ActivityLogsUpdateManyWithWhereWithoutUserInput = {
+    where: ActivityLogsScalarWhereInput
+    data: XOR<ActivityLogsUpdateManyMutationInput, ActivityLogsUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ActivityLogsScalarWhereInput = {
+    AND?: ActivityLogsScalarWhereInput | ActivityLogsScalarWhereInput[]
+    OR?: ActivityLogsScalarWhereInput[]
+    NOT?: ActivityLogsScalarWhereInput | ActivityLogsScalarWhereInput[]
+    id?: StringFilter<"ActivityLogs"> | string
+    event?: StringFilter<"ActivityLogs"> | string
+    entityId?: StringFilter<"ActivityLogs"> | string
+    entityType?: StringFilter<"ActivityLogs"> | string
+    data?: JsonFilter<"ActivityLogs">
+    userId?: StringFilter<"ActivityLogs"> | string
+    createdAt?: DateTimeFilter<"ActivityLogs"> | Date | string
+  }
+
   export type MonoBankAccountUpsertWithWhereUniqueWithoutUserInput = {
     where: MonoBankAccountWhereUniqueInput
     update: XOR<MonoBankAccountUpdateWithoutUserInput, MonoBankAccountUncheckedUpdateWithoutUserInput>
@@ -43382,6 +46975,40 @@ export namespace Prisma {
     userId?: StringFilter<"MonoBankAccount"> | string
     createdAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
     updatedAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
+  }
+
+  export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    update: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+    create: XOR<NotificationCreateWithoutUserInput, NotificationUncheckedCreateWithoutUserInput>
+  }
+
+  export type NotificationUpdateWithWhereUniqueWithoutUserInput = {
+    where: NotificationWhereUniqueInput
+    data: XOR<NotificationUpdateWithoutUserInput, NotificationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type NotificationUpdateManyWithWhereWithoutUserInput = {
+    where: NotificationScalarWhereInput
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type NotificationScalarWhereInput = {
+    AND?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    OR?: NotificationScalarWhereInput[]
+    NOT?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+    id?: StringFilter<"Notification"> | string
+    title?: StringFilter<"Notification"> | string
+    body?: StringFilter<"Notification"> | string
+    data?: JsonNullableFilter<"Notification">
+    readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    read?: BoolFilter<"Notification"> | boolean
+    archivedAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
+    archived?: BoolFilter<"Notification"> | boolean
+    notificationId?: StringFilter<"Notification"> | string
+    userId?: StringFilter<"Notification"> | string
+    createdAt?: DateTimeFilter<"Notification"> | Date | string
+    updatedAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -43419,7 +47046,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -43457,7 +47087,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -43511,7 +47144,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -43549,7 +47185,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -43587,7 +47226,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -43625,7 +47267,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -43679,7 +47324,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -43717,7 +47365,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -43755,7 +47406,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -43793,7 +47447,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -43847,7 +47504,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -43885,7 +47545,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -43923,7 +47586,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -43961,7 +47627,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -44015,7 +47684,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -44053,7 +47725,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -44091,7 +47766,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -44129,7 +47807,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -44183,7 +47864,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -44221,7 +47905,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -44259,7 +47946,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -44297,7 +47987,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -44351,7 +48044,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -44389,7 +48085,190 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutActivityLogsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutActivityLogsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutActivityLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+  }
+
+  export type UserUpsertWithoutActivityLogsInput = {
+    update: XOR<UserUpdateWithoutActivityLogsInput, UserUncheckedUpdateWithoutActivityLogsInput>
+    create: XOR<UserCreateWithoutActivityLogsInput, UserUncheckedCreateWithoutActivityLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutActivityLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutActivityLogsInput, UserUncheckedUpdateWithoutActivityLogsInput>
+  }
+
+  export type UserUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutActivityLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingInput = {
@@ -44427,7 +48306,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingInput = {
@@ -44465,7 +48347,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingInput = {
@@ -44519,7 +48404,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingInput = {
@@ -44557,7 +48445,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCategoriesInput = {
@@ -44595,7 +48486,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -44633,7 +48527,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -44650,15 +48547,15 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
@@ -44673,15 +48570,15 @@ export namespace Prisma {
     merchant?: string | null
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
@@ -44827,7 +48724,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -44865,7 +48765,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -44986,7 +48889,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -45024,7 +48930,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -45145,7 +49054,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -45183,7 +49095,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetHistoryUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -45321,7 +49236,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOcrDraftsInput = {
@@ -45359,7 +49277,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOcrDraftsInput = {
@@ -45413,7 +49334,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOcrDraftsInput = {
@@ -45451,7 +49375,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutTransactionsInput = {
@@ -45524,7 +49451,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -45562,7 +49492,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -45780,7 +49713,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -45818,7 +49754,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type SplitUpsertWithoutTransactionInput = {
@@ -46033,7 +49972,10 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRecurringItemsInput = {
@@ -46071,7 +50013,10 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRecurringItemsInput = {
@@ -46166,7 +50111,10 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRecurringItemsInput = {
@@ -46204,7 +50152,10 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutGoalsInput = {
@@ -46242,7 +50193,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -46280,7 +50234,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -46296,7 +50253,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    transaction?: TransactionCreateNestedOneWithoutGoalContributionsInput
+    transaction?: TransactionCreateNestedOneWithoutGoalContributionInput
   }
 
   export type GoalContributionUncheckedCreateWithoutGoalInput = {
@@ -46366,7 +50323,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -46404,7 +50364,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type GoalContributionUpsertWithWhereUniqueWithoutGoalInput = {
@@ -46467,7 +50430,7 @@ export namespace Prisma {
     create: XOR<GoalCreateWithoutContributionsInput, GoalUncheckedCreateWithoutContributionsInput>
   }
 
-  export type TransactionCreateWithoutGoalContributionsInput = {
+  export type TransactionCreateWithoutGoalContributionInput = {
     id?: string
     amount: number
     date: Date | string
@@ -46476,7 +50439,7 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -46484,12 +50447,12 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
 
-  export type TransactionUncheckedCreateWithoutGoalContributionsInput = {
+  export type TransactionUncheckedCreateWithoutGoalContributionInput = {
     id?: string
     amount: number
     date: Date | string
@@ -46500,20 +50463,20 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
-  export type TransactionCreateOrConnectWithoutGoalContributionsInput = {
+  export type TransactionCreateOrConnectWithoutGoalContributionInput = {
     where: TransactionWhereUniqueInput
-    create: XOR<TransactionCreateWithoutGoalContributionsInput, TransactionUncheckedCreateWithoutGoalContributionsInput>
+    create: XOR<TransactionCreateWithoutGoalContributionInput, TransactionUncheckedCreateWithoutGoalContributionInput>
   }
 
   export type GoalUpsertWithoutContributionsInput = {
@@ -46551,18 +50514,18 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TransactionUpsertWithoutGoalContributionsInput = {
-    update: XOR<TransactionUpdateWithoutGoalContributionsInput, TransactionUncheckedUpdateWithoutGoalContributionsInput>
-    create: XOR<TransactionCreateWithoutGoalContributionsInput, TransactionUncheckedCreateWithoutGoalContributionsInput>
+  export type TransactionUpsertWithoutGoalContributionInput = {
+    update: XOR<TransactionUpdateWithoutGoalContributionInput, TransactionUncheckedUpdateWithoutGoalContributionInput>
+    create: XOR<TransactionCreateWithoutGoalContributionInput, TransactionUncheckedCreateWithoutGoalContributionInput>
     where?: TransactionWhereInput
   }
 
-  export type TransactionUpdateToOneWithWhereWithoutGoalContributionsInput = {
+  export type TransactionUpdateToOneWithWhereWithoutGoalContributionInput = {
     where?: TransactionWhereInput
-    data: XOR<TransactionUpdateWithoutGoalContributionsInput, TransactionUncheckedUpdateWithoutGoalContributionsInput>
+    data: XOR<TransactionUpdateWithoutGoalContributionInput, TransactionUncheckedUpdateWithoutGoalContributionInput>
   }
 
-  export type TransactionUpdateWithoutGoalContributionsInput = {
+  export type TransactionUpdateWithoutGoalContributionInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46571,7 +50534,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -46579,12 +50542,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
 
-  export type TransactionUncheckedUpdateWithoutGoalContributionsInput = {
+  export type TransactionUncheckedUpdateWithoutGoalContributionInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46595,14 +50558,14 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -46641,7 +50604,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
     goals?: GoalCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSplitsInput = {
@@ -46679,7 +50645,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSplitsInput = {
@@ -46687,7 +50656,7 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutSplitsInput, UserUncheckedCreateWithoutSplitsInput>
   }
 
-  export type TransactionCreateWithoutSplitsInput = {
+  export type TransactionCreateWithoutSplitInput = {
     id?: string
     amount: number
     date: Date | string
@@ -46696,7 +50665,7 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -46704,12 +50673,12 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
 
-  export type TransactionUncheckedCreateWithoutSplitsInput = {
+  export type TransactionUncheckedCreateWithoutSplitInput = {
     id?: string
     amount: number
     date: Date | string
@@ -46720,20 +50689,20 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
-  export type TransactionCreateOrConnectWithoutSplitsInput = {
+  export type TransactionCreateOrConnectWithoutSplitInput = {
     where: TransactionWhereUniqueInput
-    create: XOR<TransactionCreateWithoutSplitsInput, TransactionUncheckedCreateWithoutSplitsInput>
+    create: XOR<TransactionCreateWithoutSplitInput, TransactionUncheckedCreateWithoutSplitInput>
   }
 
   export type SplitParticipantCreateWithoutSplitInput = {
@@ -46840,7 +50809,10 @@ export namespace Prisma {
     recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
     goals?: GoalUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSplitsInput = {
@@ -46878,21 +50850,24 @@ export namespace Prisma {
     recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type TransactionUpsertWithoutSplitsInput = {
-    update: XOR<TransactionUpdateWithoutSplitsInput, TransactionUncheckedUpdateWithoutSplitsInput>
-    create: XOR<TransactionCreateWithoutSplitsInput, TransactionUncheckedCreateWithoutSplitsInput>
+  export type TransactionUpsertWithoutSplitInput = {
+    update: XOR<TransactionUpdateWithoutSplitInput, TransactionUncheckedUpdateWithoutSplitInput>
+    create: XOR<TransactionCreateWithoutSplitInput, TransactionUncheckedCreateWithoutSplitInput>
     where?: TransactionWhereInput
   }
 
-  export type TransactionUpdateToOneWithWhereWithoutSplitsInput = {
+  export type TransactionUpdateToOneWithWhereWithoutSplitInput = {
     where?: TransactionWhereInput
-    data: XOR<TransactionUpdateWithoutSplitsInput, TransactionUncheckedUpdateWithoutSplitsInput>
+    data: XOR<TransactionUpdateWithoutSplitInput, TransactionUncheckedUpdateWithoutSplitInput>
   }
 
-  export type TransactionUpdateWithoutSplitsInput = {
+  export type TransactionUpdateWithoutSplitInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46901,7 +50876,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -46909,12 +50884,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
 
-  export type TransactionUncheckedUpdateWithoutSplitsInput = {
+  export type TransactionUncheckedUpdateWithoutSplitInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -46925,14 +50900,14 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -46989,7 +50964,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSplitsInput
-    transaction?: TransactionCreateNestedOneWithoutSplitsInput
+    transaction?: TransactionCreateNestedOneWithoutSplitInput
     settlements?: SplitSettlementCreateNestedManyWithoutSplitInput
   }
 
@@ -47057,7 +51032,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSplitsNestedInput
-    transaction?: TransactionUpdateOneWithoutSplitsNestedInput
+    transaction?: TransactionUpdateOneWithoutSplitNestedInput
     settlements?: SplitSettlementUpdateManyWithoutSplitNestedInput
   }
 
@@ -47097,7 +51072,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSplitsInput
-    transaction?: TransactionCreateNestedOneWithoutSplitsInput
+    transaction?: TransactionCreateNestedOneWithoutSplitInput
     participants?: SplitParticipantCreateNestedManyWithoutSplitInput
   }
 
@@ -47152,7 +51127,7 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -47160,8 +51135,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
   }
 
@@ -47176,15 +51151,15 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     monoBankAccountId?: string | null
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
   }
 
   export type TransactionCreateOrConnectWithoutSettlementsInput = {
@@ -47211,7 +51186,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSplitsNestedInput
-    transaction?: TransactionUpdateOneWithoutSplitsNestedInput
+    transaction?: TransactionUpdateOneWithoutSplitNestedInput
     participants?: SplitParticipantUpdateManyWithoutSplitNestedInput
   }
 
@@ -47278,7 +51253,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -47286,8 +51261,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
 
@@ -47302,15 +51277,15 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
   }
 
   export type UserCreateWithoutMonoBankAccountsInput = {
@@ -47349,6 +51324,9 @@ export namespace Prisma {
     goals?: GoalCreateNestedManyWithoutUserInput
     splits?: SplitCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonoBankAccountsInput = {
@@ -47387,6 +51365,9 @@ export namespace Prisma {
     goals?: GoalUncheckedCreateNestedManyWithoutUserInput
     splits?: SplitUncheckedCreateNestedManyWithoutUserInput
     ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonoBankAccountsInput = {
@@ -47403,7 +51384,7 @@ export namespace Prisma {
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -47411,8 +51392,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
-    splits?: SplitCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionCreateNestedOneWithoutTransactionInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
   }
 
@@ -47427,14 +51408,14 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
-    splits?: SplitUncheckedCreateNestedOneWithoutTransactionInput
-    goalContributions?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
   }
 
@@ -47495,6 +51476,9 @@ export namespace Prisma {
     goals?: GoalUpdateManyWithoutUserNestedInput
     splits?: SplitUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonoBankAccountsInput = {
@@ -47533,6 +51517,9 @@ export namespace Prisma {
     goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
     splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
     ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutMonoBankAccountInput = {
@@ -47549,6 +51536,366 @@ export namespace Prisma {
   export type TransactionUpdateManyWithWhereWithoutMonoBankAccountInput = {
     where: TransactionScalarWhereInput
     data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyWithoutMonoBankAccountInput>
+  }
+
+  export type UserCreateWithoutFcmDevicesInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFcmDevicesInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFcmDevicesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFcmDevicesInput, UserUncheckedCreateWithoutFcmDevicesInput>
+  }
+
+  export type UserUpsertWithoutFcmDevicesInput = {
+    update: XOR<UserUpdateWithoutFcmDevicesInput, UserUncheckedUpdateWithoutFcmDevicesInput>
+    create: XOR<UserCreateWithoutFcmDevicesInput, UserUncheckedCreateWithoutFcmDevicesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFcmDevicesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFcmDevicesInput, UserUncheckedUpdateWithoutFcmDevicesInput>
+  }
+
+  export type UserUpdateWithoutFcmDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFcmDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutNotificationsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutNotificationsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutNotificationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+  }
+
+  export type UserUpsertWithoutNotificationsInput = {
+    update: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutNotificationsInput, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type UserUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutNotificationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -47625,7 +51972,7 @@ export namespace Prisma {
     merchant?: string | null
     categoryId: string
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -47704,6 +52051,22 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type FcmDeviceCreateManyUserInput = {
+    id?: string
+    fcmToken: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ActivityLogsCreateManyUserInput = {
+    id?: string
+    event: string
+    entityId: string
+    entityType: string
+    data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
   export type MonoBankAccountCreateManyUserInput = {
     id?: string
     accountId: string
@@ -47716,6 +52079,20 @@ export namespace Prisma {
     accountCurrency: $Enums.Currency
     isActive?: boolean
     lastSyncedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type NotificationCreateManyUserInput = {
+    id?: string
+    title: string
+    body: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: Date | string | null
+    read?: boolean
+    archivedAt?: Date | string | null
+    archived?: boolean
+    notificationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47927,15 +52304,15 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
@@ -47950,15 +52327,15 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -47972,7 +52349,7 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -48121,7 +52498,7 @@ export namespace Prisma {
     status?: EnumSplitStatusFieldUpdateOperationsInput | $Enums.SplitStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transaction?: TransactionUpdateOneWithoutSplitsNestedInput
+    transaction?: TransactionUpdateOneWithoutSplitNestedInput
     participants?: SplitParticipantUpdateManyWithoutSplitNestedInput
     settlements?: SplitSettlementUpdateManyWithoutSplitNestedInput
   }
@@ -48199,6 +52576,54 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FcmDeviceUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FcmDeviceUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FcmDeviceUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fcmToken?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ActivityLogsUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ActivityLogsUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ActivityLogsUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    entityId?: StringFieldUpdateOperationsInput | string
+    entityType?: StringFieldUpdateOperationsInput | string
+    data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MonoBankAccountUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     accountId?: StringFieldUpdateOperationsInput | string
@@ -48249,6 +52674,48 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type NotificationUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NotificationUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    read?: BoolFieldUpdateOperationsInput | boolean
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    archived?: BoolFieldUpdateOperationsInput | boolean
+    notificationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TransactionCreateManyCategoryInput = {
     id?: string
     amount: number
@@ -48259,7 +52726,7 @@ export namespace Prisma {
     merchant?: string | null
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -48309,15 +52776,15 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
   }
@@ -48332,15 +52799,15 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -48354,7 +52821,7 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -48548,7 +53015,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    transaction?: TransactionUpdateOneWithoutGoalContributionsNestedInput
+    transaction?: TransactionUpdateOneWithoutGoalContributionNestedInput
   }
 
   export type GoalContributionUncheckedUpdateWithoutGoalInput = {
@@ -48694,7 +53161,7 @@ export namespace Prisma {
     categoryId: string
     userId?: string | null
     source?: $Enums.TransactionSource
-    sourceId?: string | null
+    sourceId: string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
@@ -48711,7 +53178,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
@@ -48719,8 +53186,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
-    splits?: SplitUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
   }
 
@@ -48735,14 +53202,14 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    splits?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
-    goalContributions?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
   }
 
@@ -48757,7 +53224,7 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
-    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: StringFieldUpdateOperationsInput | string
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus

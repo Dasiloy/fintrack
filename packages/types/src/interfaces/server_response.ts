@@ -1,20 +1,22 @@
-export interface PaginateDto {
-  /** number of total records in db */
-  total: number;
-
+export interface PaginateQuery {
   /** page number requested */
   page: number;
 
   /** records per page requested */
   limit: number;
+}
+
+export interface PaginateDto extends PaginateQuery {
+  /** number of total records in db */
+  total: number;
 
   /** number of records in the current page requested */
-  page_size: number;
+  pageSize: number;
 }
 
 export interface PaginateResponse extends PaginateDto {
   /** the very last page available for fetch */
-  last_page: number;
+  lastPage: number;
 }
 
 export interface StandardResponse<T> {

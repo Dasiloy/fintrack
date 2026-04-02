@@ -68,6 +68,9 @@ import { DeviceInfo } from '@fintrack/types/interfaces/device';
 @Controller({
   path: 'auth',
 })
+/**
+ * AuthController.
+ */
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

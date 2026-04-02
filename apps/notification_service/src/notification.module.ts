@@ -69,12 +69,10 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         };
       },
     }),
-    BullModule.registerQueue({
-      name: TOKEN_NOTIFICATION_QUEUE,
-    }),
-    BullModule.registerQueue({
-      name: PAYMENT_QUEUE,
-    }),
+    BullModule.registerQueue(
+      { name: TOKEN_NOTIFICATION_QUEUE },
+      { name: PAYMENT_QUEUE },
+    ),
   ],
   controllers: [AppController],
   providers: [

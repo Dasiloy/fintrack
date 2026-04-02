@@ -7,10 +7,24 @@ import {
 
 import { AuthService } from '../auth/auth.service';
 
+/**
+ * @description Checks if the user is authenticated
+ * This is a native NestJS guard method
+ *
+ * @class ApiGuard
+ * @implements {CanActivate}
+ */
 @Injectable()
 export class ApiGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
 
+  /**
+   * @description Checks if the user is authenticated
+   * This is a native NestJS guard method
+   *
+   * @param {ExecutionContext} context - The execution context
+   * @returns {boolean} True if the user is authenticated, false otherwise
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 

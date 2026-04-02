@@ -1,6 +1,6 @@
 import { Job } from 'bullmq';
 
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 
 import {
@@ -16,6 +16,9 @@ import {
 
 import { NotificationService } from '../notification.service';
 
+/**
+ * PaymentNotification.
+ */
 @Processor(PAYMENT_QUEUE)
 export class PaymentNotification extends WorkerHost {
   private readonly logger = new Logger(PaymentNotification.name);

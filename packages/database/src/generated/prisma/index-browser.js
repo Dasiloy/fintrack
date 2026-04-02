@@ -250,7 +250,13 @@ exports.Prisma.BackupCodesScalarFieldEnum = {
 };
 
 exports.Prisma.ActivityLogsScalarFieldEnum = {
-  id: 'id'
+  id: 'id',
+  event: 'event',
+  entityId: 'entityId',
+  entityType: 'entityType',
+  data: 'data',
+  userId: 'userId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.NotificationSettingScalarFieldEnum = {
@@ -440,9 +446,36 @@ exports.Prisma.MonoBankAccountScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FcmDeviceScalarFieldEnum = {
+  id: 'id',
+  fcmToken: 'fcmToken',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  data: 'data',
+  readAt: 'readAt',
+  read: 'read',
+  archivedAt: 'archivedAt',
+  archived: 'archived',
+  notificationId: 'notificationId',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.NullableJsonNullValueInput = {
@@ -792,7 +825,9 @@ exports.Prisma.ModelName = {
   Split: 'Split',
   SplitParticipant: 'SplitParticipant',
   SplitSettlement: 'SplitSettlement',
-  MonoBankAccount: 'MonoBankAccount'
+  MonoBankAccount: 'MonoBankAccount',
+  FcmDevice: 'FcmDevice',
+  Notification: 'Notification'
 };
 
 /**

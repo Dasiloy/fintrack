@@ -9,6 +9,9 @@ import {
 import { Response } from 'express';
 import { TimeoutError } from 'rxjs';
 
+/**
+ * AppExceptionFilter.
+ */
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(AppExceptionFilter.name);
