@@ -1,8 +1,11 @@
 'use client';
 
 import { PageHeader } from '@/app/_components/page-header';
+import { useAnalytics } from '@/hooks/use_analytics';
 
 export default function DashboardPage() {
+  useAnalytics(2, 2026);
+
   return (
     <div className="flex h-full min-h-[200vh] flex-col">
       <PageHeader breadcrumbs={[{ label: 'Dashboard' }]} />

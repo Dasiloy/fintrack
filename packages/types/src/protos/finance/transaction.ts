@@ -5,53 +5,139 @@
 // source: finance/transaction.proto
 
 /* eslint-disable */
-import type { Metadata } from "@grpc/grpc-js";
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { PaginateResponse } from "../paginate";
 
 export const protobufPackage = "finance";
 
-export interface CreateTransactionReq {
-  name: string;
-  description: string;
-  amount: string;
-  frequency: string;
+export enum TransactionType {
+  INCOME = 0,
+  EXPENSE = 1,
+  UNRECOGNIZED = -1,
 }
 
-export interface CreateTransactionRes {
+export enum TransactionSource {
+  MANUAL = 0,
+  BANK = 1,
+  RECURRING = 2,
+  OCR = 3,
+  SPLIT = 4,
+  UNRECOGNIZED = -1,
+}
+
+export interface Empty {
+}
+
+export interface Category {
+  name: string;
+  slug: string;
+  color: string;
+  icon: string;
+}
+
+export interface Bank {
+  bankId: string;
+  bankLogoUrl: string;
+  accountNumber: string;
+  accountName: string;
+}
+
+export interface Split {
   id: string;
   name: string;
-  description: string;
+  /** string — preserves decimals */
   amount: string;
-  frequency: string;
+  status: string;
+}
+
+export interface GoalContribution {
+  id: string;
+  /** string — preserves decimals */
+  amount: string;
+  date: string;
+  description: string;
+  notes: string;
+}
+
+export interface SplitSettlement {
+  id: string;
+  name: string;
+  /** string — preserves decimals */
+  amount: string;
+  email: string;
+}
+
+export interface CreateTransactionReq {
+  /** string e.g. "5000.50" */
+  amount: string;
+  /** ISO string e.g. "2026-03-20" */
+  date: string;
+  type: TransactionType;
+  description?: string | undefined;
+  merchant?: string | undefined;
+  categorySlug: string;
+  source: TransactionSource;
+  sourceId: string;
+}
+
+export interface Transaction {
+  id: string;
+  /** string — preserves decimals */
+  amount: string;
+  date: string;
+  type: string;
+  source: string;
+  category: Category | undefined;
+  createdAt: string;
+  updatedAt: string;
+  merchant?: string | undefined;
+  sourceId?: string | undefined;
+  sourceData?: string | undefined;
+  description?: string | undefined;
+  notes?: string | undefined;
+  bankTransactionId?: string | undefined;
+  bankTransactionStatus?: string | undefined;
+  bank?: Bank | undefined;
+  split?: Split | undefined;
+  goalContribution?: GoalContribution | undefined;
+}
+
+export interface GetTransactionsReq {
+  startDate?: string | undefined;
+  endDate?: string | undefined;
+  page: number;
+  limit: number;
+  /** empty array = not filtered */
+  categorySlug: string[];
+  /** empty array = not filtered */
+  type: TransactionType[];
+  /** empty array = not filtered */
+  source: TransactionSource[];
+  sourceId?: string | undefined;
+  bankTransactionId?: string | undefined;
+  bankAccountId?: string | undefined;
+}
+
+export interface GetTransactionsRes {
+  transactions: Transaction[];
+  meta: PaginateResponse | undefined;
+}
+
+export interface GetTransactionReq {
+  id: string;
+}
+
+export interface UpdateTransactionReq {
+  id: string;
+  amount?: string | undefined;
+  date?: string | undefined;
+  type?: TransactionType | undefined;
+  description?: string | undefined;
+  merchant?: string | undefined;
+  categorySlug?: string | undefined;
+}
+
+export interface DeleteTransactionReq {
+  id: string;
 }
 
 export const FINANCE_PACKAGE_NAME = "finance";
-
-export interface TransactionServiceClient {
-  createTransaction(request: CreateTransactionReq, metadata?: Metadata): Observable<CreateTransactionRes>;
-}
-
-export interface TransactionServiceController {
-  createTransaction(
-    request: CreateTransactionReq,
-    metadata?: Metadata,
-  ): Promise<CreateTransactionRes> | Observable<CreateTransactionRes> | CreateTransactionRes;
-}
-
-export function TransactionServiceControllerMethods() {
-  return function (constructor: Function) {
-    const grpcMethods: string[] = ["createTransaction"];
-    for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("TransactionService", method)(constructor.prototype[method], method, descriptor);
-    }
-    const grpcStreamMethods: string[] = [];
-    for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("TransactionService", method)(constructor.prototype[method], method, descriptor);
-    }
-  };
-}
-
-export const TRANSACTION_SERVICE_NAME = "TransactionService";

@@ -78,7 +78,7 @@ export class UploadService {
     options: cloudinary.UploadApiOptions,
   ): Promise<cloudinary.UploadApiResponse> {
     return new Promise((resolve, reject) => {
-      const streamPipieLine = cloudinary.v2.uploader.upload_stream(
+      const writeableStream = cloudinary.v2.uploader.upload_stream(
         options,
         (error, result) => {
           if (error) reject(error);
@@ -86,7 +86,8 @@ export class UploadService {
           else reject(new Error('Failed to upload file'));
         },
       );
-      Readable.from(buffer).pipe(streamPipieLine);
+      const readable = Readable.from(buffer);
+      readable.pipe(writeableStream);
     });
   }
 }

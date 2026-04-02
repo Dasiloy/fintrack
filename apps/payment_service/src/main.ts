@@ -13,6 +13,7 @@ import {
   protoPath as healthCheckProtoPath,
 } from 'grpc-health-check';
 import {
+  getProtoIncludeDirs,
   getServiceUrl,
   getServiceConfig,
   type Service,
@@ -31,7 +32,13 @@ async function bootstrap() {
       options: {
         package: config.NAME,
         url: getServiceUrl(serviceName),
-        protoPath: [healthCheckProtoPath, require.resolve(config.PROTO_PATH)],
+        protoPath: [
+          healthCheckProtoPath,
+          ...config.PROTO_PATH.map((path) => require.resolve(path)),
+        ],
+        loader: {
+          includeDirs: getProtoIncludeDirs(),
+        },
         onLoadPackageDefinition: (pkg, server) => {
           new ReflectionService(pkg).addToServer(server);
 

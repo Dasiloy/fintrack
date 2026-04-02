@@ -1,11 +1,41 @@
+// finance/finance.proto
 syntax = "proto3";
-
 package finance;
 
- // import all finance related proto files
-import "budget.proto";
-import "transaction.proto";
-import "recurring.proto";
+import "finance/transaction.proto";
+import "finance/budget.proto";
+import "finance/recurring.proto";
+// import "finance/split.proto";
+// import "finance/goal.proto";
 
+service FinanceService {
+  // Transactions
+    rpc CreateTransaction(CreateTransactionReq) returns (Transaction) {}
+    rpc GetTransactions(GetTransactionsReq) returns (GetTransactionsRes) {}
+    rpc GetTransaction(GetTransactionReq) returns (Transaction) {}
+    rpc UpdateTransaction(UpdateTransactionReq) returns (Transaction) {}
+    rpc DeleteTransaction(DeleteTransactionReq) returns (Empty) {}
 
+  // Budgets
+  // rpc CreateBudget(CreateBudgetReq)           returns (Budget) {}
+  // rpc GetBudgets(GetBudgetsReq)               returns (GetBudgetsRes) {}
+  // rpc UpdateBudget(UpdateBudgetReq)           returns (Budget) {}
+  // rpc DeleteBudget(DeleteBudgetReq)           returns (Empty) {}
+
+  // Recurring
+  // rpc CreateRecurring(CreateRecurringReq)     returns (Recurring) {}
+  // rpc GetRecurring(GetRecurringReq)           returns (GetRecurringRes) {}
+  // rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurring) {}
+  // rpc DeleteRecurring(DeleteRecurringReq)     returns (Empty) {}
+
+  // Splits
+  // rpc CreateSplit(CreateSplitReq)             returns (Split) {}
+  // rpc GetSplits(GetSplitsReq)                 returns (GetSplitsRes) {}
+  // rpc SettleSplit(SettleSplitReq)             returns (Split) {}
+
+  // Goals
+  // rpc CreateGoal(CreateGoalReq)               returns (Goal) {}
+  // rpc GetGoals(GetGoalsReq)                   returns (GetGoalsRes) {}
+  // rpc ContributeToGoal(ContributeToGoalReq)   returns (Goal) {}
+}
 

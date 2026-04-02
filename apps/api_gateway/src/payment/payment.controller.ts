@@ -41,6 +41,9 @@ import { Throttle } from '@nestjs/throttler';
 @Controller({
   path: 'payment',
 })
+/**
+ * PaymentController.
+ */
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
