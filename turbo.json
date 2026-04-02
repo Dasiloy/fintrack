@@ -54,7 +54,9 @@
     "STRIPE_PRO_MONTHLY_PRICE_ID",
 
     "SWAGGER_DOC_USER",
-    "SWAGGER_DOC_PASS"
+    "SWAGGER_DOC_PASS",
+
+    "NEXT_PUBLIC_FIREBASE_VAPID_KEY"
   ],
   "globalPassThroughEnv": [
     "AWS_SECRET_KEY",
