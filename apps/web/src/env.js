@@ -32,6 +32,7 @@ export const env = createEnv({
     NEXT_PUBLIC_API_GATEWAY_URL: z.string().url(),
     NEXT_PUBLIC_FIREBASE_VAPID_KEY: z
       .string()
+      .optional()
       .default(
         'BNEZGE8Kuk7mOmkmtdT2hOR71dzjbwz6X7WRLMC3q7zDUOgGZPDlIrg_ofYonUHnviKgcnZUOuawl7UhjlDT5jM',
       ),
