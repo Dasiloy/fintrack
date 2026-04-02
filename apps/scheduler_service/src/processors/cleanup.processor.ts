@@ -9,6 +9,9 @@ import {
   PURGE_SCHEDULED_DELETIONS_JOB,
 } from '@fintrack/types/constants/queus.constants';
 
+/**
+ * CleanupProcessor.
+ */
 @Injectable()
 @Processor(ACCOUNT_CLEANUP_QUEUE)
 export class CleanupProcessor extends WorkerHost {

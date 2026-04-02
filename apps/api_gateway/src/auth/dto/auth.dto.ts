@@ -20,6 +20,9 @@ import {
   VerifyPasswordTokenReq,
 } from '@fintrack/types/protos/auth/auth';
 
+/**
+ * RegisterUserDto.
+ */
 export class RegisterUserDto implements RegisterReq {
   /** email of new user */
   @ApiProperty({
@@ -76,6 +79,9 @@ export class RegisterUserDto implements RegisterReq {
   password: string;
 }
 
+/**
+ * VerifyEmailDto.
+ */
 export class VerifyEmailDto {
   /** otp token  */
   @ApiProperty({
@@ -95,6 +101,9 @@ export class VerifyEmailDto {
   otp: string;
 }
 
+/**
+ * ResendVerifyEmailDto.
+ */
 export class ResendVerifyEmailDto implements ResendVerifyEmailTokenReq {
   @ApiProperty({
     type: 'string',
@@ -106,6 +115,9 @@ export class ResendVerifyEmailDto implements ResendVerifyEmailTokenReq {
   email: string;
 }
 
+/**
+ * LoginDto.
+ */
 export class LoginDto {
   @ApiProperty({
     type: 'string',
@@ -126,6 +138,9 @@ export class LoginDto {
   password: string;
 }
 
+/**
+ * ForgotPasswordDto.
+ */
 export class ForgotPasswordDto implements ForgotPasswordReq {
   @ApiProperty({
     type: 'string',
@@ -137,6 +152,9 @@ export class ForgotPasswordDto implements ForgotPasswordReq {
   email: string;
 }
 
+/**
+ * ResendForgotPasswordDto.
+ */
 export class ResendForgotPasswordDto implements ResendForgotPasswordTokenReq {
   @ApiProperty({
     type: 'string',
@@ -148,6 +166,9 @@ export class ResendForgotPasswordDto implements ResendForgotPasswordTokenReq {
   email: string;
 }
 
+/**
+ * VerifyPasswordTokenReqDto.
+ */
 export class VerifyPasswordTokenReqDto implements VerifyPasswordTokenReq {
   @ApiProperty({
     type: 'string',
@@ -167,6 +188,9 @@ export class VerifyPasswordTokenReqDto implements VerifyPasswordTokenReq {
   @Transform(({ value }) => (value as string).toLocaleLowerCase())
   email: string;
 }
+/**
+ * ResetPasswordDto.
+ */
 export class ResetPasswordDto implements ResetPasswordReq {
   @ApiProperty({
     type: 'string',
@@ -182,6 +206,9 @@ export class ResetPasswordDto implements ResetPasswordReq {
   newPassword: string;
 }
 
+/**
+ * RefreshTokenDto.
+ */
 export class RefreshTokenDto {
   @ApiProperty({
     type: 'string',
@@ -191,6 +218,9 @@ export class RefreshTokenDto {
   refreshToken: string;
 }
 
+/**
+ * GoogleOAuthDto.
+ */
 export class GoogleOAuthDto {
   @ApiProperty({
     type: 'string',
@@ -201,6 +231,9 @@ export class GoogleOAuthDto {
   idToken: string;
 }
 
+/**
+ * ChangePasswordDto.
+ */
 export class ChangePasswordDto {
   @ApiPropertyOptional({
     type: 'string',
@@ -238,6 +271,9 @@ export class ChangePasswordDto {
   otpCode?: string;
 }
 
+/**
+ * ChangeEmailDto.
+ */
 export class ChangeEmailDto {
   @ApiProperty({
     type: 'string',
@@ -269,6 +305,9 @@ export class ChangeEmailDto {
   otpCode?: string;
 }
 
+/**
+ * VerifyEmailChangeDto.
+ */
 export class VerifyEmailChangeDto {
   @ApiProperty({
     type: 'string',
@@ -280,6 +319,9 @@ export class VerifyEmailChangeDto {
   otp: string;
 }
 
+/**
+ * Disable2faDto.
+ */
 export class Disable2faDto {
   @ApiProperty({
     type: 'string',
@@ -291,6 +333,9 @@ export class Disable2faDto {
   code: string;
 }
 
+/**
+ * Confirm2faDto.
+ */
 export class Confirm2faDto {
   @ApiProperty({
     type: 'string',
@@ -303,6 +348,9 @@ export class Confirm2faDto {
   code: string;
 }
 
+/**
+ * VerifyTwoFactorDto.
+ */
 export class VerifyTwoFactorDto {
   @ApiProperty({
     type: 'string',
@@ -322,6 +370,9 @@ export class VerifyTwoFactorDto {
   code: string;
 }
 
+/**
+ * RegenerateBackupCodesDto.
+ */
 export class RegenerateBackupCodesDto {
   @ApiProperty({
     type: 'string',
@@ -333,6 +384,9 @@ export class RegenerateBackupCodesDto {
   code: string;
 }
 
+/**
+ * DeleteAccountDto.
+ */
 export class DeleteAccountDto {
   @ApiPropertyOptional({
     type: 'string',

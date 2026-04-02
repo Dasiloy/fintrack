@@ -277,7 +277,10 @@ model User {
   goals            Goal[]
   splits           Split[]
   ocrDrafts        OCRDraft[]
+  fcmDevices       FcmDevice[]
+  activityLogs     ActivityLogs[]
   monoBankAccounts MonoBankAccount[]
+  notifications    Notification[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -454,11 +457,18 @@ model BackupCodes {
 }
 
 model ActivityLogs {
-  id String @id @default(cuid())
-  // track transactyions and crud operations
-  // track budget and crud operations
-  // track biiklings and subscriptions an crud and crons
-  // track gaols and splist
+  id         String @id @default(cuid())
+  event      String // transaction.created, budget.created, goal.created, split.created, etc.
+  entityId   String
+  entityType String // transaction, budget, goal, split, etc.
+  data       Json //{source: "manual", sourceId: "123", old: {amount: 100, date: "2021-01-01"}, new: {amount: 200, date: "2021-01-01"}} depnds on the event, transaction data are encoded in the data field
+
+  // relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamp
+  createdAt DateTime @default(now())
 }
 
 model NotificationSetting {
@@ -648,7 +658,7 @@ model Transaction {
 
   // source metadata
   source     TransactionSource @default(MANUAL)
-  sourceId   String? // OCR Jobid, Mono TransactionID
+  sourceId   String // OCR Jobid, Mono TransactionID
   sourceData Json? // JSON blob for OCR/Split/mono/etc. metadata
 
   // mono bank data
@@ -656,17 +666,20 @@ model Transaction {
   bankTransactionStatus BankTransactionStatus @default(COMPLETED) // Only Completed transactions are supported in V1
 
   // relations
-  splits            Split?
-  goalContributions GoalContribution?
-  settlements       SplitSettlement[]
+  split            Split?
+  goalContribution GoalContribution?
+  settlements      SplitSettlement[]
   // goals contribution
 
   // timestamp
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id])
-  monoBankAccountId String?          @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  monoBankAccountId String?          @unique // ensure idempotency
+  monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id])
+
+  @@unique([userId, source, sourceId])
+  @@unique([userId, bankTransactionId, monoBankAccountId])
   @@index([userId, date])
   @@index([userId, source])
   @@index([userId, categoryId])
@@ -844,4 +857,39 @@ model MonoBankAccount {
   updatedAt DateTime @updatedAt
 
   @@index([userId, accountId])
+}
+
+model FcmDevice {
+  id       String @id @default(cuid())
+  fcmToken String
+
+  //relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, fcmToken])
+}
+
+model Notification {
+  id             String    @id @default(cuid())
+  title          String
+  body           String
+  data           Json?
+  readAt         DateTime?
+  read           Boolean   @default(false)
+  archivedAt     DateTime?
+  archived       Boolean   @default(false)
+  notificationId String    @unique
+
+  // ownership
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

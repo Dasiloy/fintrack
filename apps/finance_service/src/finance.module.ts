@@ -13,6 +13,8 @@ import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.int
 import { FinanceController } from './finance.controller';
 import { FinanceService } from './finance.service';
 
+import { TransactionModule } from './transaction/transaction.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,7 +43,8 @@ import { FinanceService } from './finance.service';
         };
       },
     }),
-    // BullModule.registerQueue({ name: USAGE_TRACKING_QUEUE }),
+
+    TransactionModule,
   ],
   controllers: [FinanceController],
   providers: [
