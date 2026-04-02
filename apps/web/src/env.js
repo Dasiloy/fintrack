@@ -30,7 +30,11 @@ export const env = createEnv({
     NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
     NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME: z.string(),
     NEXT_PUBLIC_API_GATEWAY_URL: z.string().url(),
-    NEXT_PUBLIC_FIREBASE_VAPID_KEY: z.string(),
+    NEXT_PUBLIC_FIREBASE_VAPID_KEY: z
+      .string()
+      .default(
+        'BNEZGE8Kuk7mOmkmtdT2hOR71dzjbwz6X7WRLMC3q7zDUOgGZPDlIrg_ofYonUHnviKgcnZUOuawl7UhjlDT5jM',
+      ),
   },
 
   /**
