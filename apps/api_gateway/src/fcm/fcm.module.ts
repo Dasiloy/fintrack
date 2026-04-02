@@ -7,8 +7,7 @@ import { FcmService } from './fcm.service';
 import { FCM_ADMIN } from '@fintrack/types/constants/fcm.constants';
 import { FCM_NOTIFICATION_QUEUE } from '@fintrack/types/constants/queus.constants';
 
-//fcm keys
-import * as serviceAccount from './service.json';
+//fcm keys';
 import { FcmProcessor } from './fcm.processor';
 
 @Module({
@@ -23,7 +22,7 @@ import { FcmProcessor } from './fcm.processor';
       useFactory: () => {
         return admin.initializeApp({
           credential: admin.credential.cert(
-            serviceAccount as admin.ServiceAccount,
+            require.resolve('../../../../service.json') as admin.ServiceAccount,
           ),
         });
       },

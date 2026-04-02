@@ -1,4 +1,0 @@
-{
-  "email": "oyewoledamilare00@gmail.com",
-  "password": "$159357280Dio"
-}

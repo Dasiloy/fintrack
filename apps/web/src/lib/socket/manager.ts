@@ -2,7 +2,7 @@
 import { env } from '@/env';
 import { Manager } from 'socket.io-client';
 
-let manager = new Manager(env.NEXT_PUBLIC_API_GATEWAY_URL, {
+const manager = new Manager(env.NEXT_PUBLIC_API_GATEWAY_URL, {
   autoConnect: false,
   reconnection: true,
   reconnectionAttempts: 5,

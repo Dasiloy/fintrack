@@ -50,6 +50,7 @@ export function usePushNotifications() {
           title: payload.notification?.title,
           body: payload.notification?.body,
           data: payload.data,
+          read: false,
           createdAt: new Date(payload.data?.createdAt),
           notificationId: payload.data?.notificationId,
         };
