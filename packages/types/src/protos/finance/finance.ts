@@ -8,6 +8,15 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { Budget, CreateBudgetReq, DeleteBudgetReq, UpdateBudgetReq } from "./budget";
+import {
+  CreateRecurringReq,
+  GetRecurringsReq,
+  GetRecurringsRes,
+  Recurinrg,
+  RecurringReq,
+  UpdateRecurringReq,
+} from "./recurring";
 import {
   CreateTransactionReq,
   DeleteTransactionReq,
@@ -37,6 +46,28 @@ export interface FinanceServiceClient {
   updateTransaction(request: UpdateTransactionReq, metadata?: Metadata): Observable<Transaction>;
 
   deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Observable<Empty>;
+
+  /** Budgets */
+
+  createBudget(request: CreateBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Observable<Empty>;
+
+  /** Recurring */
+
+  createRecurring(request: CreateRecurringReq, metadata?: Metadata): Observable<Recurinrg>;
+
+  getRecurrings(request: GetRecurringsReq, metadata?: Metadata): Observable<GetRecurringsRes>;
+
+  getRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
+
+  updateRecurring(request: UpdateRecurringReq, metadata?: Metadata): Observable<Recurinrg>;
+
+  toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
+
+  deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
 }
 
 export interface FinanceServiceController {
@@ -63,6 +94,37 @@ export interface FinanceServiceController {
   ): Promise<Transaction> | Observable<Transaction> | Transaction;
 
   deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** Budgets */
+
+  createBudget(request: CreateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** Recurring */
+
+  createRecurring(
+    request: CreateRecurringReq,
+    metadata?: Metadata,
+  ): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
+
+  getRecurrings(
+    request: GetRecurringsReq,
+    metadata?: Metadata,
+  ): Promise<GetRecurringsRes> | Observable<GetRecurringsRes> | GetRecurringsRes;
+
+  getRecurring(request: RecurringReq, metadata?: Metadata): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
+
+  updateRecurring(
+    request: UpdateRecurringReq,
+    metadata?: Metadata,
+  ): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
+
+  toggleRecurring(request: RecurringReq, metadata?: Metadata): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
+
+  deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function FinanceServiceControllerMethods() {
@@ -73,6 +135,15 @@ export function FinanceServiceControllerMethods() {
       "getTransaction",
       "updateTransaction",
       "deleteTransaction",
+      "createBudget",
+      "updateBudget",
+      "deleteBudget",
+      "createRecurring",
+      "getRecurrings",
+      "getRecurring",
+      "updateRecurring",
+      "toggleRecurring",
+      "deleteRecurring",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

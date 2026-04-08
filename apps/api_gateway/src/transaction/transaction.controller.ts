@@ -46,9 +46,6 @@ import { TransactionQueryDto } from './dto/transaction_query.dto';
 @Controller({
   path: 'transaction',
 })
-/**
- * TransactionController.
- */
 @UseGuards(ApiGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}

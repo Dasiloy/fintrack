@@ -6,8 +6,10 @@ import { Cron } from '@nestjs/schedule';
 
 import {
   ACCOUNT_CLEANUP_QUEUE,
+  CREATE_RECURRING_TRANSACTION,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
+  RECURRING_QUEUE,
   USAGE_TRACKING_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
@@ -20,6 +22,7 @@ export class SchedulerService {
     @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
     @InjectQueue(USAGE_TRACKING_QUEUE)
     private readonly usageTrackingQueue: Queue,
+    @InjectQueue(RECURRING_QUEUE) private readonly reccuringQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
@@ -29,6 +32,17 @@ export class SchedulerService {
       {},
       {
         jobId: PURGE_SCHEDULED_DELETIONS_JOB,
+      },
+    );
+  }
+
+  @Cron('0 * * * *') // every 1hr
+  createRecurringTransactions() {
+    this.reccuringQueue.add(
+      CREATE_RECURRING_TRANSACTION,
+      {},
+      {
+        jobId: CREATE_RECURRING_TRANSACTION,
       },
     );
   }

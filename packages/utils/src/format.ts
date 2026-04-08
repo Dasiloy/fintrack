@@ -53,3 +53,23 @@ export function flattenObject(obj: Record<string, any>): Record<string, any> {
   }
   return result;
 }
+
+export function omit<T>(obj: T, ...keys: (keyof T)[]): T {
+  const result = {} as T;
+  for (const key in obj) {
+    if (!keys.includes(key)) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
+
+export function pick<T>(obj: T, ...keys: (keyof T)[]): T {
+  const result = {} as T;
+  for (const key in obj) {
+    if (keys.includes(key)) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}

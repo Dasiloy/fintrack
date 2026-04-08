@@ -542,6 +542,9 @@ model Category {
 
 enum BudgetPeriod {
   MONTHLY
+  WEEKLY
+  QUARTERLY
+  YEARLY
 }
 
 model Budget {
@@ -568,7 +571,7 @@ model Budget {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId, categoryId, period])
+  @@unique([userId, categoryId, period])
 }
 
 // SCD => Slowly Changing Dimension Tracking Limit changes over time
@@ -584,8 +587,9 @@ model BudgetHistory {
 
   // timestamp
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([budgetId, startDate])
+  @@unique([budgetId, startDate])
 }
 
 enum OCRDraftStatus {
@@ -668,7 +672,7 @@ model Transaction {
   // relations
   split            Split?
   goalContribution GoalContribution?
-  settlements       SplitSettlement[]
+  settlements      SplitSettlement[]
   // goals contribution
 
   // timestamp
@@ -678,9 +682,8 @@ model Transaction {
   monoBankAccountId String?          @unique // ensure idempotency
   monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id])
 
-  @@unique([userId,source,sourceId])
-  @@unique([userId,bankTransactionId,monoBankAccountId])
-
+  @@unique([userId, source, sourceId])
+  @@unique([userId, bankTransactionId, monoBankAccountId])
   @@index([userId, date])
   @@index([userId, source])
   @@index([userId, categoryId])

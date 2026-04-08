@@ -1,0 +1,242 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Recurring Transactions Processed - Fintrack</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f4f5;
+        color: #3f3f46;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrapper {
+        background-color: #f4f4f5;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 520px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e4e4e7;
+      }
+
+      .header {
+        padding: 40px 40px 28px 40px;
+        text-align: center;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .logo {
+        height: 48px;
+        width: 48px;
+        display: inline-block;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .hero-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #18181b;
+        letter-spacing: -0.02em;
+        margin: 0 0 10px 0;
+        line-height: 1.3;
+      }
+
+      .hero-subtitle {
+        font-size: 14px;
+        color: #71717a;
+        margin: 0;
+      }
+
+      .content {
+        padding: 32px 40px 40px 40px;
+      }
+
+      .greeting {
+        font-size: 16px;
+        font-weight: 600;
+        color: #18181b;
+        margin: 0 0 8px 0;
+      }
+
+      .intro {
+        font-size: 14px;
+        color: #52525b;
+        margin: 0 0 24px 0;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: #ede9fe;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6d28d9;
+        margin-bottom: 20px;
+      }
+
+      .transaction-list {
+        margin: 0 0 24px 0;
+        border: 1px solid #e4e4e7;
+      }
+
+      .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .transaction-item:last-child {
+        border-bottom: none;
+      }
+
+      .transaction-item:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      .tx-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #18181b;
+        margin: 0 0 3px 0;
+      }
+
+      .tx-meta {
+        font-size: 12px;
+        color: #71717a;
+      }
+
+      .tx-amount {
+        font-size: 15px;
+        font-weight: 700;
+        text-align: right;
+        white-space: nowrap;
+        padding-left: 12px;
+      }
+
+      .tx-amount.expense {
+        color: #dc2626;
+      }
+
+      .tx-amount.income {
+        color: #16a34a;
+      }
+
+      .note {
+        font-size: 13px;
+        color: #71717a;
+        background-color: #f4f4f5;
+        border-left: 3px solid #7c7aff;
+        padding: 12px 16px;
+        margin: 0 0 8px 0;
+      }
+
+      .footer {
+        padding: 28px 40px;
+        text-align: center;
+        border-top: 1px solid #e4e4e7;
+        background-color: #fafafa;
+      }
+
+      .footer-text {
+        font-size: 13px;
+        color: #71717a;
+        margin: 0 0 12px 0;
+      }
+
+      .social-links {
+        margin-bottom: 16px;
+      }
+
+      .social-links a {
+        color: #7c7aff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        margin: 0 10px;
+      }
+
+      .legal {
+        font-size: 11px;
+        color: #a1a1aa;
+        margin: 0;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='wrapper'>
+      <div class='container'>
+        <div class='header'>
+          <img
+            src='https://res.cloudinary.com/fintrack/image/upload/v1771540001/static/logo_qtfjng.jpg'
+            alt='Fintrack'
+            class='logo'
+          />
+          <h1 class='hero-title'>Recurring Transactions Processed</h1>
+          <p class='hero-subtitle'>Your scheduled transactions have been
+            automatically recorded.</p>
+        </div>
+
+        <div class='content'>
+          <p class='greeting'>Hi {{firstName}},</p>
+          <p class='intro'>
+            We've automatically processed your recurring transactions. Here's a
+            summary of what was recorded today.
+          </p>
+
+          <div class='badge'>{{count}}
+            {{#if (eq count 1)}}transaction{{else}}transactions{{/if}}
+            processed</div>
+
+          <div class='transaction-list'>
+            {{#each items}}
+              <div class='transaction-item'>
+                <div>
+                  <p class='tx-name'>{{this.name}}</p>
+                  <span class='tx-meta'>{{this.frequency}}</span>
+                </div>
+                <div
+                  class='tx-amount {{#if (eq this.type "EXPENSE")}}expense{{else}}income{{/if}}'
+                >
+                  {{#if (eq this.type "EXPENSE")}}&minus;{{else}}+{{/if}}${{this.amount}}
+                </div>
+              </div>
+            {{/each}}
+          </div>
+
+          <p class='note'>
+            These transactions have been recorded in your Fintrack account. You
+            can view and manage your recurring items from the Recurring section
+            in your dashboard.
+          </p>
+        </div>
+
+        <div class='footer'>
+          <p class='footer-text'>The only financial tool you'll ever need.</p>
+          <div class='social-links'>
+            <a href='https://www.fintrack.live/support'>Support</a>
+            <a href='https://www.fintrack.live/community'>Community</a>
+          </div>
+          <p class='legal'>
+            &copy; 2026 Fintrack Inc. All rights reserved.<br />
+            You're receiving this because you have active recurring
+            transactions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

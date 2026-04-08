@@ -6,11 +6,12 @@ loadEnv();
 import helmet from 'helmet';
 import * as basicAuth from 'express-basic-auth';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createClient } from 'redis';
+import { Redis } from 'ioredis';
 
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
@@ -23,6 +24,7 @@ async function bootstrap() {
 
   // logger for dbug purposes
   const logger = new Logger('API_GATEWAY');
+  const configService = app.get<ConfigService>(ConfigService);
 
   /// MIDDLEWARES
   // 1. cors
@@ -82,20 +84,29 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerDoc);
   SwaggerModule.setup('docs', app, document);
 
-  // set up redis
-  const pubClient = createClient({ url: process.env.REDIS_URL });
+  // Redis Socket.io adapter
+  const pubClient = new Redis(configService.get('REDIS_URL')!, {
+    maxRetriesPerRequest: null,
+  });
   const subClient = pubClient.duplicate();
-  await Promise.all([pubClient.connect(), subClient.connect()]);
 
   class RedisIoAdapter extends IoAdapter {
+    private adapterConstructor: ReturnType<typeof createAdapter>;
+
+    async connectToRedis(): Promise<void> {
+      this.adapterConstructor = createAdapter(pubClient, subClient);
+    }
+
     createIOServer(port: number, options?: any) {
       const server = super.createIOServer(port, options);
-      server.adapter(createAdapter(pubClient, subClient));
+      server.adapter(this.adapterConstructor);
       return server;
     }
   }
 
-  app.useWebSocketAdapter(new RedisIoAdapter(app));
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   app.enableShutdownHooks();
 

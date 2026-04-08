@@ -1,18 +1,13 @@
-// activity job
-export interface ActivityNotificationPayload {
-  userId: string;
-  event: string;
-  entityId: string;
-  entityType: string;
-  data: any;
-}
-
 // analytics job
 export interface AnalyticsNotificationPayload {
   userId: string;
   event: string;
   entityId: string;
   data: Record<string, string>;
+}
+
+export interface JoinAnalyticsRoomPayload {
+  path: 'dashboard' | 'analytics';
 }
 
 // fcm job

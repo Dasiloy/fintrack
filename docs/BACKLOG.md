@@ -38,6 +38,16 @@ Items are grouped by type. Each entry follows the format:
 - Exports need to beautiful high ressolution pdfs and csv files
 - multi sheet csv and excels should be possible
 
+### [BL-002] Introduce Import Transactions data from csv files
+
+- **Type**: Ferature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users need to be able to download and export high quality csv and pdf files containing account information, Should be ideally just past 7 days, and contains account statement. Intense export will be in dashboard screen
+  **Notes**:
+- Exports need to beautiful high ressolution pdfs and csv files
+- multi sheet csv and excels should be possible
+
 ---
 
 ## 🐛 Bugs
