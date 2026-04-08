@@ -16,7 +16,6 @@ import {
   FCM_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
-  ActivityNotificationPayload,
   AnalyticsNotificationPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
@@ -33,6 +32,7 @@ import {
   TransactionSource as ProtoTransactionSource,
 } from '@fintrack/types/protos/finance/transaction';
 import {
+  ActivityLogs,
   Category,
   GoalContribution,
   MonoBankAccount,
@@ -42,6 +42,8 @@ import {
   TransactionSource,
   TransactionType,
 } from '@fintrack/database/types';
+
+import { UtilsService } from '../utils.service';
 
 type TransactionWithOptionalJoins = Transaction & {
   category?: Category | null;
@@ -70,6 +72,7 @@ export class TransactionService {
     private readonly fcmNotificationQueue: Queue,
     @InjectQueue(ANALYTICS_NOTIFICATION_QUEUE)
     private readonly analyticsNotificationQueue: Queue,
+    private readonly utils: UtilsService,
   ) {}
 
   /**
@@ -84,7 +87,10 @@ export class TransactionService {
     request: CreateTransactionReq,
   ): Promise<ProtoTransaction> {
     try {
-      const category = await this.getCategory(userId, request.categorySlug);
+      const category = await this.utils.getCategory(
+        userId,
+        request.categorySlug,
+      );
       const payload = {
         userId: userId,
         categoryId: category.id!,
@@ -108,19 +114,14 @@ export class TransactionService {
       return this.formatTransaction(createdTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new RpcException({
-            code: status.NOT_FOUND,
-            message: 'Category not found',
-          });
-        }
-        if (error.code === 'P2002') {
-          throw new RpcException({
-            code: status.ALREADY_EXISTS,
-            message: 'Transaction already exists',
-          });
-        }
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new RpcException({
+          code: status.ALREADY_EXISTS,
+          message: 'Transaction already exists',
+        });
       }
       throw new RpcException({
         code: status.INTERNAL,
@@ -266,7 +267,7 @@ export class TransactionService {
         });
       }
       const category = request.categorySlug
-        ? await this.getCategory(userId, request.categorySlug)
+        ? await this.utils.getCategory(userId, request.categorySlug)
         : undefined;
       const payload: Prisma.TransactionUpdateInput = {
         ...(request.amount !== undefined && { amount: Number(request.amount) }),
@@ -396,37 +397,6 @@ export class TransactionService {
   }
 
   /**
-   * @description Get a category by id
-   * @param userId - The user id
-   * @param categoryId - The category id
-   * @returns The category
-   */
-  private async getCategory(
-    userId: string,
-    slug: string,
-  ): Promise<Partial<Category>> {
-    const category = await this.prismaService.category.findFirstOrThrow({
-      where: {
-        OR: [
-          {
-            slug,
-            userId,
-            isSystem: false,
-          },
-          {
-            slug,
-            isSystem: true,
-          },
-        ],
-      },
-      select: {
-        id: true,
-      },
-    });
-    return category;
-  }
-
-  /**
    * @description Call side effects events
    *
    * @private
@@ -449,8 +419,10 @@ export class TransactionService {
     };
 
     // activity logs
-    const activityData: ActivityNotificationPayload = {
+    const activityData: ActivityLogs = {
       userId,
+      id: transaction.id,
+      createdAt: transaction.createdAt,
       event: event.split(' ').join('_').toLowerCase(),
       entityId: transaction.id,
       entityType: 'transaction',
@@ -483,11 +455,11 @@ export class TransactionService {
   /**
    * @description Format a transaction for the proto
    *
-   * @private
+   * @public
    * @param transaction - The transaction to format
    * @returns The formatted transaction
    */
-  private formatTransaction(
+  formatTransaction(
     transaction: TransactionWithOptionalJoins,
   ): ProtoTransaction {
     return {
@@ -507,14 +479,7 @@ export class TransactionService {
       sourceData: transaction.sourceData
         ? JSON.stringify(transaction.sourceData)
         : undefined,
-      category: transaction.category
-        ? {
-            name: transaction.category.name,
-            slug: transaction.category.slug,
-            color: transaction.category.color ?? '',
-            icon: transaction.category.icon ?? '',
-          }
-        : undefined,
+      category: this.utils.formatCategory(transaction.category),
       bank: transaction.monoBankAccount
         ? {
             bankId: transaction.monoBankAccount.bankId,

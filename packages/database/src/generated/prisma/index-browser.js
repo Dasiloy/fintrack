@@ -313,7 +313,8 @@ exports.Prisma.BudgetHistoryScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   budgetId: 'budgetId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.OCRDraftScalarFieldEnum = {
@@ -748,7 +749,10 @@ exports.UsageFeature = exports.$Enums.UsageFeature = {
 };
 
 exports.BudgetPeriod = exports.$Enums.BudgetPeriod = {
-  MONTHLY: 'MONTHLY'
+  MONTHLY: 'MONTHLY',
+  WEEKLY: 'WEEKLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
 };
 
 exports.OCRDraftStatus = exports.$Enums.OCRDraftStatus = {

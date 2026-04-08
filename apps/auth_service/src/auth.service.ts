@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import Redis from 'ioredis';
 
 import { OTP } from 'otplib';
 import { OAuth2Client } from 'google-auth-library';
@@ -64,6 +65,7 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
 import dayjs from '@fintrack/utils/date';
+import { omit } from '@fintrack/utils/format';
 import { getPeriodRange, getTimeFromNowInMinutes } from '@fintrack/utils/date';
 import {
   DeviceInfo,
@@ -74,6 +76,10 @@ import {
   PAYMENT_SERVICE_NAME,
   PaymentServiceClient,
 } from '@fintrack/types/protos/payment/payment';
+import {
+  REDIS_CLIENT,
+  USER_CACHE_TTL,
+} from '@fintrack/types/constants/redis.costants';
 
 /**
  * Service responsible for managing user authentication.
@@ -104,6 +110,7 @@ export class AuthService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @Inject(PAYMENT_PACKAGE_NAME) private paymentClient: ClientGrpc,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE) private readonly tokenQueue: Queue,
     @InjectQueue(PAYMENT_QUEUE) private readonly paymentQueue: Queue,
@@ -396,6 +403,13 @@ export class AuthService implements OnModuleInit {
         lastName: result.user.lastName,
       });
 
+      // set user in cache
+      await this.redis.setex(
+        `user:${result.user.id}`,
+        USER_CACHE_TTL,
+        JSON.stringify(omit(result.user, 'password')),
+      );
+
       return {
         user: {
           id: result.user.id,
@@ -631,6 +645,13 @@ export class AuthService implements OnModuleInit {
         location: data.location,
       });
 
+      // set user in cache
+      await this.redis.setex(
+        `user:${user.id}`,
+        USER_CACHE_TTL,
+        JSON.stringify(omit(user, 'password')),
+      );
+
       return this.completeLogin(user as User, {
         deviceId: data.deviceId,
         userAgent: data.userAgent,
@@ -751,6 +772,12 @@ export class AuthService implements OnModuleInit {
    * @throws {RpcException} UNAUTHENTICATED if the user's email has not been verified
    */
   async validateUser(userId: string): Promise<Omit<User, 'password'>> {
+    // get from cache first
+    const cached = await this.redis.get(`user:${userId}`);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
       omit: {
@@ -775,6 +802,13 @@ export class AuthService implements OnModuleInit {
         message: 'Please verify your email!',
       });
     }
+
+    // set user in cache
+    await this.redis.setex(
+      `user:${user.id}`,
+      USER_CACHE_TTL,
+      JSON.stringify(user),
+    );
 
     return user;
   }

@@ -542,6 +542,9 @@ model Category {
 
 enum BudgetPeriod {
   MONTHLY
+  WEEKLY
+  QUARTERLY
+  YEARLY
 }
 
 model Budget {
@@ -568,7 +571,7 @@ model Budget {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId, categoryId, period])
+  @@unique([userId, categoryId, period])
 }
 
 // SCD => Slowly Changing Dimension Tracking Limit changes over time
@@ -584,8 +587,9 @@ model BudgetHistory {
 
   // timestamp
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([budgetId, startDate])
+  @@unique([budgetId, startDate])
 }
 
 enum OCRDraftStatus {

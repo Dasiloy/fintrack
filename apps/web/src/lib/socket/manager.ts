@@ -4,10 +4,6 @@ import { Manager } from 'socket.io-client';
 
 const manager = new Manager(env.NEXT_PUBLIC_API_GATEWAY_URL, {
   autoConnect: false,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-  transports: ['websocket'],
 });
 
 export { manager };

@@ -129,9 +129,7 @@ export class AuthService implements OnModuleInit {
     try {
       const metadata = new Metadata();
       metadata.add('x-token', token);
-      return await lastValueFrom(
-        this.authService.validateToken({}, metadata).pipe(timeout(8000)),
-      );
+      return await lastValueFrom(this.authService.validateToken({}, metadata));
     } catch (error: any) {
       return null;
     }

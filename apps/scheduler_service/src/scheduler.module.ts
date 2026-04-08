@@ -13,6 +13,8 @@ import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.int
 import {
   ACCOUNT_CLEANUP_QUEUE,
   PAYMENT_QUEUE,
+  RECURRING_QUEUE,
+  TOKEN_NOTIFICATION_QUEUE,
   USAGE_TRACKING_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
@@ -22,6 +24,7 @@ import { SchedulerService } from './scheduler.service';
 // PROCESORS
 import { CleanupProcessor } from './processors/cleanup.processor';
 import { UsageProcessor } from './processors/usage_tracker.processor';
+import { RecurringProcessor } from './processors/recurring.processor';
 
 @Module({
   imports: [
@@ -51,23 +54,12 @@ import { UsageProcessor } from './processors/usage_tracker.processor';
         };
       },
     }),
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory(configService: ConfigService) {
-        return {
-          connection: {
-            url: configService.getOrThrow('REDIS_URL'),
-          },
-        };
-      },
-    }),
     BullModule.registerQueue(
       { name: ACCOUNT_CLEANUP_QUEUE },
-      {
-        name: USAGE_TRACKING_QUEUE,
-      },
+      { name: USAGE_TRACKING_QUEUE },
       { name: PAYMENT_QUEUE },
+      { name: RECURRING_QUEUE },
+      { name: TOKEN_NOTIFICATION_QUEUE },
     ),
   ],
   controllers: [SchedulerController],
@@ -75,6 +67,7 @@ import { UsageProcessor } from './processors/usage_tracker.processor';
     SchedulerService,
     CleanupProcessor,
     UsageProcessor,
+    RecurringProcessor,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,

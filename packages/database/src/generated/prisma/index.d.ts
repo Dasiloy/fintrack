@@ -436,7 +436,10 @@ export type UsageFeature = (typeof UsageFeature)[keyof typeof UsageFeature]
 
 
 export const BudgetPeriod: {
-  MONTHLY: 'MONTHLY'
+  MONTHLY: 'MONTHLY',
+  WEEKLY: 'WEEKLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
 };
 
 export type BudgetPeriod = (typeof BudgetPeriod)[keyof typeof BudgetPeriod]
@@ -21354,6 +21357,7 @@ export namespace Prisma {
     endDate: Date | null
     budgetId: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type BudgetHistoryMaxAggregateOutputType = {
@@ -21363,6 +21367,7 @@ export namespace Prisma {
     endDate: Date | null
     budgetId: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type BudgetHistoryCountAggregateOutputType = {
@@ -21372,6 +21377,7 @@ export namespace Prisma {
     endDate: number
     budgetId: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -21391,6 +21397,7 @@ export namespace Prisma {
     endDate?: true
     budgetId?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type BudgetHistoryMaxAggregateInputType = {
@@ -21400,6 +21407,7 @@ export namespace Prisma {
     endDate?: true
     budgetId?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type BudgetHistoryCountAggregateInputType = {
@@ -21409,6 +21417,7 @@ export namespace Prisma {
     endDate?: true
     budgetId?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -21505,6 +21514,7 @@ export namespace Prisma {
     endDate: Date | null
     budgetId: string
     createdAt: Date
+    updatedAt: Date
     _count: BudgetHistoryCountAggregateOutputType | null
     _avg: BudgetHistoryAvgAggregateOutputType | null
     _sum: BudgetHistorySumAggregateOutputType | null
@@ -21533,6 +21543,7 @@ export namespace Prisma {
     endDate?: boolean
     budgetId?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["budgetHistory"]>
 
@@ -21543,6 +21554,7 @@ export namespace Prisma {
     endDate?: boolean
     budgetId?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["budgetHistory"]>
 
@@ -21553,6 +21565,7 @@ export namespace Prisma {
     endDate?: boolean
     budgetId?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["budgetHistory"]>
 
@@ -21563,9 +21576,10 @@ export namespace Prisma {
     endDate?: boolean
     budgetId?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type BudgetHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "limit" | "startDate" | "endDate" | "budgetId" | "createdAt", ExtArgs["result"]["budgetHistory"]>
+  export type BudgetHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "limit" | "startDate" | "endDate" | "budgetId" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetHistory"]>
   export type BudgetHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     budget?: boolean | BudgetDefaultArgs<ExtArgs>
   }
@@ -21588,6 +21602,7 @@ export namespace Prisma {
       endDate: Date | null
       budgetId: string
       createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["budgetHistory"]>
     composites: {}
   }
@@ -22018,6 +22033,7 @@ export namespace Prisma {
     readonly endDate: FieldRef<"BudgetHistory", 'DateTime'>
     readonly budgetId: FieldRef<"BudgetHistory", 'String'>
     readonly createdAt: FieldRef<"BudgetHistory", 'DateTime'>
+    readonly updatedAt: FieldRef<"BudgetHistory", 'DateTime'>
   }
     
 
@@ -35821,7 +35837,8 @@ export namespace Prisma {
     startDate: 'startDate',
     endDate: 'endDate',
     budgetId: 'budgetId',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type BudgetHistoryScalarFieldEnum = (typeof BudgetHistoryScalarFieldEnum)[keyof typeof BudgetHistoryScalarFieldEnum]
@@ -37585,6 +37602,7 @@ export namespace Prisma {
 
   export type BudgetWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    userId_categoryId_period?: BudgetUserIdCategoryIdPeriodCompoundUniqueInput
     AND?: BudgetWhereInput | BudgetWhereInput[]
     OR?: BudgetWhereInput[]
     NOT?: BudgetWhereInput | BudgetWhereInput[]
@@ -37601,7 +37619,7 @@ export namespace Prisma {
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     budgetHistory?: BudgetHistoryListRelationFilter
-  }, "id">
+  }, "id" | "userId_categoryId_period">
 
   export type BudgetOrderByWithAggregationInput = {
     id?: SortOrder
@@ -37649,6 +37667,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"BudgetHistory"> | Date | string | null
     budgetId?: StringFilter<"BudgetHistory"> | string
     createdAt?: DateTimeFilter<"BudgetHistory"> | Date | string
+    updatedAt?: DateTimeFilter<"BudgetHistory"> | Date | string
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
   }
 
@@ -37659,11 +37678,13 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     budgetId?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     budget?: BudgetOrderByWithRelationInput
   }
 
   export type BudgetHistoryWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    budgetId_startDate?: BudgetHistoryBudgetIdStartDateCompoundUniqueInput
     AND?: BudgetHistoryWhereInput | BudgetHistoryWhereInput[]
     OR?: BudgetHistoryWhereInput[]
     NOT?: BudgetHistoryWhereInput | BudgetHistoryWhereInput[]
@@ -37672,8 +37693,9 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"BudgetHistory"> | Date | string | null
     budgetId?: StringFilter<"BudgetHistory"> | string
     createdAt?: DateTimeFilter<"BudgetHistory"> | Date | string
+    updatedAt?: DateTimeFilter<"BudgetHistory"> | Date | string
     budget?: XOR<BudgetScalarRelationFilter, BudgetWhereInput>
-  }, "id">
+  }, "id" | "budgetId_startDate">
 
   export type BudgetHistoryOrderByWithAggregationInput = {
     id?: SortOrder
@@ -37682,6 +37704,7 @@ export namespace Prisma {
     endDate?: SortOrderInput | SortOrder
     budgetId?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: BudgetHistoryCountOrderByAggregateInput
     _avg?: BudgetHistoryAvgOrderByAggregateInput
     _max?: BudgetHistoryMaxOrderByAggregateInput
@@ -37699,6 +37722,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableWithAggregatesFilter<"BudgetHistory"> | Date | string | null
     budgetId?: StringWithAggregatesFilter<"BudgetHistory"> | string
     createdAt?: DateTimeWithAggregatesFilter<"BudgetHistory"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BudgetHistory"> | Date | string
   }
 
   export type OCRDraftWhereInput = {
@@ -40089,6 +40113,7 @@ export namespace Prisma {
     startDate: Date | string
     endDate?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
     budget: BudgetCreateNestedOneWithoutBudgetHistoryInput
   }
 
@@ -40099,6 +40124,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     budgetId: string
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type BudgetHistoryUpdateInput = {
@@ -40107,6 +40133,7 @@ export namespace Prisma {
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     budget?: BudgetUpdateOneRequiredWithoutBudgetHistoryNestedInput
   }
 
@@ -40117,6 +40144,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budgetId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BudgetHistoryCreateManyInput = {
@@ -40126,6 +40154,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     budgetId: string
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type BudgetHistoryUpdateManyMutationInput = {
@@ -40134,6 +40163,7 @@ export namespace Prisma {
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BudgetHistoryUncheckedUpdateManyInput = {
@@ -40143,6 +40173,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     budgetId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OCRDraftCreateInput = {
@@ -42437,6 +42468,12 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type BudgetUserIdCategoryIdPeriodCompoundUniqueInput = {
+    userId: string
+    categoryId: string
+    period: $Enums.BudgetPeriod
+  }
+
   export type BudgetCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -42520,6 +42557,11 @@ export namespace Prisma {
     isNot?: BudgetWhereInput
   }
 
+  export type BudgetHistoryBudgetIdStartDateCompoundUniqueInput = {
+    budgetId: string
+    startDate: Date | string
+  }
+
   export type BudgetHistoryCountOrderByAggregateInput = {
     id?: SortOrder
     limit?: SortOrder
@@ -42527,6 +42569,7 @@ export namespace Prisma {
     endDate?: SortOrder
     budgetId?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type BudgetHistoryAvgOrderByAggregateInput = {
@@ -42540,6 +42583,7 @@ export namespace Prisma {
     endDate?: SortOrder
     budgetId?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type BudgetHistoryMinOrderByAggregateInput = {
@@ -42549,6 +42593,7 @@ export namespace Prisma {
     endDate?: SortOrder
     budgetId?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type BudgetHistorySumOrderByAggregateInput = {
@@ -48947,6 +48992,7 @@ export namespace Prisma {
     startDate: Date | string
     endDate?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type BudgetHistoryUncheckedCreateWithoutBudgetInput = {
@@ -48955,6 +49001,7 @@ export namespace Prisma {
     startDate: Date | string
     endDate?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type BudgetHistoryCreateOrConnectWithoutBudgetInput = {
@@ -49127,6 +49174,7 @@ export namespace Prisma {
     endDate?: DateTimeNullableFilter<"BudgetHistory"> | Date | string | null
     budgetId?: StringFilter<"BudgetHistory"> | string
     createdAt?: DateTimeFilter<"BudgetHistory"> | Date | string
+    updatedAt?: DateTimeFilter<"BudgetHistory"> | Date | string
   }
 
   export type BudgetCreateWithoutBudgetHistoryInput = {
@@ -52934,6 +52982,7 @@ export namespace Prisma {
     startDate: Date | string
     endDate?: Date | string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type BudgetHistoryUpdateWithoutBudgetInput = {
@@ -52942,6 +52991,7 @@ export namespace Prisma {
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BudgetHistoryUncheckedUpdateWithoutBudgetInput = {
@@ -52950,6 +53000,7 @@ export namespace Prisma {
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BudgetHistoryUncheckedUpdateManyWithoutBudgetInput = {
@@ -52958,6 +53009,7 @@ export namespace Prisma {
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SplitSettlementCreateManyTransactionInput = {

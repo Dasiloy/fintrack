@@ -1,3 +1,5 @@
+import { Server, Socket } from 'socket.io';
+
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -5,16 +7,27 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Injectable, Logger, UseGuards } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
+import { ConnectedSocket, SubscribeMessage } from '@nestjs/websockets';
 
 import {
   ACTIVITY_LOGS_NAMESPACE,
   NOTIFY_ACTIVITY,
+  GET_ACTIVITY_DATA,
 } from '@fintrack/types/constants/socket.evenets';
 
-import { Server, Socket } from 'socket.io';
+import { WsGuard } from '../guards/ws.guard';
 import { AuthService } from '../auth/auth.service';
-import { ActivityNotificationPayload } from '@fintrack/types/interfaces/finance';
+import { ActivityLogs } from '@fintrack/database/types';
+import { ActivityService } from './activity.service';
+import { WsExceptionFilter } from '../filters/ws_exception';
 
 /**
  * @description Activity Logs Realtime Service
@@ -26,14 +39,11 @@ import { ActivityNotificationPayload } from '@fintrack/types/interfaces/finance'
  */
 @WebSocketGateway({
   cors: {
-    credentials: true,
     origin: process.env.NEXT_PUBLIC_APP_URL,
   },
   namespace: ACTIVITY_LOGS_NAMESPACE,
 })
-/**
- * ActivityLogsRealtimeService.
- */
+@UseFilters(WsExceptionFilter)
 @Injectable()
 export class ActivityLogsRealtimeService
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -43,100 +53,74 @@ export class ActivityLogsRealtimeService
 
   private logger = new Logger(ActivityLogsRealtimeService.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(forwardRef(() => ActivityService))
+    private readonly activityService: ActivityService,
+  ) {}
 
   /**
-   * @description After the server is initialized, we will authenticate the user
-   * This is a native socket.io middleware, not a custom guard
-   * Attaches the user to the socket.data object
-   *
-   * @param {Server} server - The server instance
-   * @returns {void}
+   * @description Runs after Server initiation
    */
-  afterInit(server: Server): void {
-    this.logger.log(
-      `WebSocket server initialized on ${ACTIVITY_LOGS_NAMESPACE} namespace`,
-    );
-    //  lets authenticate the user
-    server.use(async (socket, next) => {
-      const token = this.extractToken(socket);
-      this.logger.debug('token', token);
-
-      if (!token) {
-        this.logger.warn('Unauthorized: No token provided');
-        return next(new Error('Unauthorized'));
-      }
-
-      try {
-        const result = await this.authService.validateToken(token);
-
-        if (!result) {
-          this.logger.warn('Unauthorized: Invalid token');
-          return next(new Error('Unauthorized'));
-        }
-
-        if (result === 'TOKEN_EXPIRED') {
-          this.logger.warn('Unauthorized: Token expired');
-          return next(new Error('TOKEN_EXPIRED')); // ← specific error FE listens for
-        }
-
-        socket.data.user = result;
-        return next();
-      } catch (error) {
-        this.logger.error('Error validating token:', error);
-        return next(new Error('Unauthorized'));
-      }
-    });
+  afterInit() {
+    this.logger.log('Activity gateway initialized');
   }
 
   /**
-   * @description Handles the connection of a client to the analytics realtime server
-   * This is a native socket.io middleware, not a custom guard
-   * Joins the user to the room => UserId;
+   * @description Runs on fisrt socket connection and reconnection
    *
-   * @param {Socket} socket - The socket instance
-   * @returns {Promise<void>}
+   * @param {Socket} client
    */
-  async handleConnection(socket: Socket): Promise<void> {
-    const user = socket.data.user;
+  async handleConnection(client: Socket) {
+    const token: string | undefined = client.handshake.auth?.token;
 
-    if (!user) {
-      this.logger.warn('Unauthorized: No user found');
-      socket.disconnect();
+    if (!token) {
+      client.disconnect();
       return;
     }
 
-    /**
-     * This is really polar.
-     * The idea is to disburse messages to all devices the user logged in with/connected to.
-     * In cases where at least one device is in the room, user is actually online => no need for offline FCM notification in such cases.
-     * FCM notifications are only sent when the user is offline.
-     */
-    await socket.join(user.id);
+    try {
+      const user = await this.authService.validateToken(token);
+      this.logger.log('user', user);
 
-    this.logger.log(
-      `Client connected on Activity Logs Realtime: ${socket.id} and user: ${user.id}`,
-    );
+      if (user === 'TOKEN_EXPIRED' || user === null) {
+        client.disconnect();
+        return;
+      }
+
+      client.data.user = user;
+      client.join(user.id);
+      this.logger.log(`Client connected: ${client.id}`);
+    } catch (err) {
+      this.logger.error(
+        `WS auth failed for client ${client.id}: ${err.message}`,
+      );
+      client.disconnect();
+    }
   }
 
   /**
-   * @description Handles the disconnection of a client from the activity logs realtime server
-   * This is a native socket.io middleware, not a custom guard
-   * Leaves the user from the room => UserId;
+   * @description Runs on socket disconnection
    *
-   * @param {Socket} socket - The socket instance
-   * @returns {Promise<void>}
+   * @param {Socket} client
    */
-  async handleDisconnect(socket: Socket): Promise<void> {
-    const user = socket.data.user;
+  async handleDisconnect(client: Socket) {
+    const userId: string | undefined = client.data.user?.id;
+    if (!userId) return;
 
-    if (!user) {
-      this.logger.warn('Unauthorized: No user found');
-      socket.disconnect();
-      return;
-    }
+    this.logger.log(
+      `Client disconnected: ${client.id} (user: ${userId}) from analytics gateway`,
+    );
 
-    await socket.leave(user.id);
+    // Mark offline + clean up socket key
+    await client.leave(userId);
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage(GET_ACTIVITY_DATA)
+  async getActivityData(@ConnectedSocket() client: Socket): Promise<any[]> {
+    const user = client.data.user;
+    return this.activityService.getActivityLogs(user.id);
   }
 
   /**
@@ -145,7 +129,7 @@ export class ActivityLogsRealtimeService
    * @param {ActivityNotificationPayload} payload - The activity payload
    * @returns {Promise<void>}
    */
-  async notifyActivity(payload: ActivityNotificationPayload): Promise<void> {
+  async notifyActivity(payload: ActivityLogs): Promise<void> {
     const isOnline = await this.getUserOnlineStatus(payload.userId);
     if (!isOnline) {
       this.logger.log(`User ${payload.userId} is not online, aborted!!!`);
@@ -165,22 +149,5 @@ export class ActivityLogsRealtimeService
   private async getUserOnlineStatus(userId: string): Promise<boolean> {
     const sockets = await this.server.in(userId).fetchSockets();
     return sockets.length > 0;
-  }
-
-  /**
-   * @description Extracts the token from the socket handshake
-   *
-   * @private
-   * @param {Socket} socket - The socket instance
-   * @returns {Promise<string | undefined>} The token or undefined if not found
-   */
-  private extractToken(socket: Socket): string | undefined {
-    const rawToken =
-      socket.handshake.auth.token || socket.handshake.headers.authorization;
-    const token =
-      typeof rawToken === 'string' && rawToken.startsWith('Bearer ')
-        ? rawToken.slice(7)
-        : rawToken;
-    return token;
   }
 }

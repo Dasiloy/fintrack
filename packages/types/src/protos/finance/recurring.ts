@@ -4,54 +4,64 @@
 //   protoc               v6.33.5
 // source: finance/recurring.proto
 
-/* eslint-disable */
-import type { Metadata } from "@grpc/grpc-js";
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+ 
+import { Category, Transaction } from "./transaction";
 
 export const protobufPackage = "finance";
 
-export interface CreateRecurringReq {
-  name: string;
-  description: string;
-  amount: string;
-  frequency: string;
-}
-
-export interface CreateRecurringRes {
+export interface Recurinrg {
   id: string;
   name: string;
-  description: string;
-  amount: string;
+  amount: number;
+  type: string;
   frequency: string;
+  startDate: string;
+  endDate?: string | undefined;
+  description?: string | undefined;
+  notes?: string | undefined;
+  merchant?: string | undefined;
+  lastRunAt?: string | undefined;
+  nextRunAt?: string | undefined;
+  isActive: boolean;
+  category: Category | undefined;
+  createdAt: string;
+  updatedAt: string;
+  transactions: Transaction[];
+}
+
+export interface CreateRecurringReq {
+  name: string;
+  amount: number;
+  frequency: string;
+  type: string;
+  startDate: string;
+  categorySlug: string;
+  endDate?: string | undefined;
+  description?: string | undefined;
+  merchant?: string | undefined;
+}
+
+export interface UpdateRecurringReq {
+  name?: string | undefined;
+  amount?: number | undefined;
+  frequency?: string | undefined;
+  endDate?: string | undefined;
+  description?: string | undefined;
+  merchant?: string | undefined;
+  id: string;
+}
+
+export interface GetRecurringsReq {
+  isActive?: boolean | undefined;
+}
+
+export interface GetRecurringsRes {
+  recurrings: Recurinrg[];
+}
+
+/** handle get by id, delete and toggle */
+export interface RecurringReq {
+  id: string;
 }
 
 export const FINANCE_PACKAGE_NAME = "finance";
-
-export interface RecurringServiceClient {
-  createRecurring(request: CreateRecurringReq, metadata?: Metadata): Observable<CreateRecurringRes>;
-}
-
-export interface RecurringServiceController {
-  createRecurring(
-    request: CreateRecurringReq,
-    metadata?: Metadata,
-  ): Promise<CreateRecurringRes> | Observable<CreateRecurringRes> | CreateRecurringRes;
-}
-
-export function RecurringServiceControllerMethods() {
-  return function (constructor: Function) {
-    const grpcMethods: string[] = ["createRecurring"];
-    for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("RecurringService", method)(constructor.prototype[method], method, descriptor);
-    }
-    const grpcStreamMethods: string[] = [];
-    for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("RecurringService", method)(constructor.prototype[method], method, descriptor);
-    }
-  };
-}
-
-export const RECURRING_SERVICE_NAME = "RecurringService";
