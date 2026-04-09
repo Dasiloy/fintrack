@@ -81,12 +81,9 @@ export const getServiceConfig = (): Record<Service, IService> => ({
 });
 
 export function getServiceUrl(serviceName: keyof ReturnType<typeof getServiceConfig>): string {
-  const config = getServiceConfig()[serviceName];
   // Convention: SERVICE_NAME_HOST (e.g. AUTH_SERVICE_HOST)
   const envHost = process.env[`${serviceName}_HOST`];
   const envPort = process.env[`${serviceName}_PORT`];
 
-  const host = envHost;
-  const port = envPort;
-  return `${host}:${port}`;
+  return `${envHost}:${envPort}`;
 }

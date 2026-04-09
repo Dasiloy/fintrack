@@ -17,6 +17,7 @@ import {
   SubscriptionEndedEmailPayload,
   NewUsageTrackersCreatedEmailPayload,
   AccountDeletionEmailPayload,
+  RecurringTransactionsEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
 /**
@@ -402,6 +403,38 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send account deletion email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Sends a summary email listing all recurring transactions created in a scheduler run
+   * @param {RecurringTransactionsEmailPayload} data email, firstName, lastName, date, items
+   */
+  async sendRecurringTransactionsEmail(
+    data: RecurringTransactionsEmailPayload,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Your recurring transactions have been processed - Fintrack',
+        template: './recurring_transactions',
+        context: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          date: data.date,
+          items: data.items,
+          count: data.items.length,
+        },
+      });
+      this.logger.log(
+        `Recurring transactions email sent to ${data.email} (${data.items.length} item(s))`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send recurring transactions email to ${data.email}`,
         error.stack,
       );
       throw error;
