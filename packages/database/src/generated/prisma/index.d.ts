@@ -498,12 +498,19 @@ export type RecurringItemFrequency = (typeof RecurringItemFrequency)[keyof typeo
 
 export const Goalstatus: {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED',
-  ON_HOLD: 'ON_HOLD',
-  CANCELLED: 'CANCELLED'
+  COMPLETED: 'COMPLETED'
 };
 
 export type Goalstatus = (typeof Goalstatus)[keyof typeof Goalstatus]
+
+
+export const GoalPriority: {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
+};
+
+export type GoalPriority = (typeof GoalPriority)[keyof typeof GoalPriority]
 
 
 export const SplitStatus: {
@@ -587,6 +594,10 @@ export const RecurringItemFrequency: typeof $Enums.RecurringItemFrequency
 export type Goalstatus = $Enums.Goalstatus
 
 export const Goalstatus: typeof $Enums.Goalstatus
+
+export type GoalPriority = $Enums.GoalPriority
+
+export const GoalPriority: typeof $Enums.GoalPriority
 
 export type SplitStatus = $Enums.SplitStatus
 
@@ -26327,6 +26338,7 @@ export namespace Prisma {
     targetDate: Date | null
     status: $Enums.Goalstatus | null
     description: string | null
+    priority: $Enums.GoalPriority | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -26339,6 +26351,7 @@ export namespace Prisma {
     targetDate: Date | null
     status: $Enums.Goalstatus | null
     description: string | null
+    priority: $Enums.GoalPriority | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -26351,6 +26364,7 @@ export namespace Prisma {
     targetDate: number
     status: number
     description: number
+    priority: number
     userId: number
     createdAt: number
     updatedAt: number
@@ -26373,6 +26387,7 @@ export namespace Prisma {
     targetDate?: true
     status?: true
     description?: true
+    priority?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -26385,6 +26400,7 @@ export namespace Prisma {
     targetDate?: true
     status?: true
     description?: true
+    priority?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -26397,6 +26413,7 @@ export namespace Prisma {
     targetDate?: true
     status?: true
     description?: true
+    priority?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -26496,6 +26513,7 @@ export namespace Prisma {
     targetDate: Date
     status: $Enums.Goalstatus
     description: string | null
+    priority: $Enums.GoalPriority
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -26527,6 +26545,7 @@ export namespace Prisma {
     targetDate?: boolean
     status?: boolean
     description?: boolean
+    priority?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -26542,6 +26561,7 @@ export namespace Prisma {
     targetDate?: boolean
     status?: boolean
     description?: boolean
+    priority?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -26555,6 +26575,7 @@ export namespace Prisma {
     targetDate?: boolean
     status?: boolean
     description?: boolean
+    priority?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -26568,12 +26589,13 @@ export namespace Prisma {
     targetDate?: boolean
     status?: boolean
     description?: boolean
+    priority?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type GoalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "targetAmount" | "targetDate" | "status" | "description" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
+  export type GoalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "targetAmount" | "targetDate" | "status" | "description" | "priority" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["goal"]>
   export type GoalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     contributions?: boolean | Goal$contributionsArgs<ExtArgs>
@@ -26599,6 +26621,7 @@ export namespace Prisma {
       targetDate: Date
       status: $Enums.Goalstatus
       description: string | null
+      priority: $Enums.GoalPriority
       userId: string
       createdAt: Date
       updatedAt: Date
@@ -27033,6 +27056,7 @@ export namespace Prisma {
     readonly targetDate: FieldRef<"Goal", 'DateTime'>
     readonly status: FieldRef<"Goal", 'Goalstatus'>
     readonly description: FieldRef<"Goal", 'String'>
+    readonly priority: FieldRef<"Goal", 'GoalPriority'>
     readonly userId: FieldRef<"Goal", 'String'>
     readonly createdAt: FieldRef<"Goal", 'DateTime'>
     readonly updatedAt: FieldRef<"Goal", 'DateTime'>
@@ -35918,6 +35942,7 @@ export namespace Prisma {
     targetDate: 'targetDate',
     status: 'status',
     description: 'description',
+    priority: 'priority',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -36409,6 +36434,20 @@ export namespace Prisma {
    * Reference to a field of type 'Goalstatus[]'
    */
   export type ListEnumGoalstatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Goalstatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'GoalPriority'
+   */
+  export type EnumGoalPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GoalPriority'>
+    
+
+
+  /**
+   * Reference to a field of type 'GoalPriority[]'
+   */
+  export type ListEnumGoalPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GoalPriority[]'>
     
 
 
@@ -38096,6 +38135,7 @@ export namespace Prisma {
     targetDate?: DateTimeFilter<"Goal"> | Date | string
     status?: EnumGoalstatusFilter<"Goal"> | $Enums.Goalstatus
     description?: StringNullableFilter<"Goal"> | string | null
+    priority?: EnumGoalPriorityFilter<"Goal"> | $Enums.GoalPriority
     userId?: StringFilter<"Goal"> | string
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
@@ -38110,6 +38150,7 @@ export namespace Prisma {
     targetDate?: SortOrder
     status?: SortOrder
     description?: SortOrderInput | SortOrder
+    priority?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38127,6 +38168,7 @@ export namespace Prisma {
     targetDate?: DateTimeFilter<"Goal"> | Date | string
     status?: EnumGoalstatusFilter<"Goal"> | $Enums.Goalstatus
     description?: StringNullableFilter<"Goal"> | string | null
+    priority?: EnumGoalPriorityFilter<"Goal"> | $Enums.GoalPriority
     userId?: StringFilter<"Goal"> | string
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
@@ -38141,6 +38183,7 @@ export namespace Prisma {
     targetDate?: SortOrder
     status?: SortOrder
     description?: SortOrderInput | SortOrder
+    priority?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38161,6 +38204,7 @@ export namespace Prisma {
     targetDate?: DateTimeWithAggregatesFilter<"Goal"> | Date | string
     status?: EnumGoalstatusWithAggregatesFilter<"Goal"> | $Enums.Goalstatus
     description?: StringNullableWithAggregatesFilter<"Goal"> | string | null
+    priority?: EnumGoalPriorityWithAggregatesFilter<"Goal"> | $Enums.GoalPriority
     userId?: StringWithAggregatesFilter<"Goal"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Goal"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Goal"> | Date | string
@@ -40595,6 +40639,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutGoalsInput
@@ -40608,6 +40653,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40621,6 +40667,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutGoalsNestedInput
@@ -40634,6 +40681,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40647,6 +40695,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40659,6 +40708,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -40670,6 +40720,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43001,6 +43052,13 @@ export namespace Prisma {
     not?: NestedEnumGoalstatusFilter<$PrismaModel> | $Enums.Goalstatus
   }
 
+  export type EnumGoalPriorityFilter<$PrismaModel = never> = {
+    equals?: $Enums.GoalPriority | EnumGoalPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumGoalPriorityFilter<$PrismaModel> | $Enums.GoalPriority
+  }
+
   export type GoalContributionListRelationFilter = {
     every?: GoalContributionWhereInput
     some?: GoalContributionWhereInput
@@ -43018,6 +43076,7 @@ export namespace Prisma {
     targetDate?: SortOrder
     status?: SortOrder
     description?: SortOrder
+    priority?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -43034,6 +43093,7 @@ export namespace Prisma {
     targetDate?: SortOrder
     status?: SortOrder
     description?: SortOrder
+    priority?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -43046,6 +43106,7 @@ export namespace Prisma {
     targetDate?: SortOrder
     status?: SortOrder
     description?: SortOrder
+    priority?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -43063,6 +43124,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumGoalstatusFilter<$PrismaModel>
     _max?: NestedEnumGoalstatusFilter<$PrismaModel>
+  }
+
+  export type EnumGoalPriorityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GoalPriority | EnumGoalPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumGoalPriorityWithAggregatesFilter<$PrismaModel> | $Enums.GoalPriority
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGoalPriorityFilter<$PrismaModel>
+    _max?: NestedEnumGoalPriorityFilter<$PrismaModel>
   }
 
   export type GoalScalarRelationFilter = {
@@ -44821,6 +44892,10 @@ export namespace Prisma {
     set?: $Enums.Goalstatus
   }
 
+  export type EnumGoalPriorityFieldUpdateOperationsInput = {
+    set?: $Enums.GoalPriority
+  }
+
   export type UserUpdateOneRequiredWithoutGoalsNestedInput = {
     create?: XOR<UserCreateWithoutGoalsInput, UserUncheckedCreateWithoutGoalsInput>
     connectOrCreate?: UserCreateOrConnectWithoutGoalsInput
@@ -45762,6 +45837,13 @@ export namespace Prisma {
     not?: NestedEnumGoalstatusFilter<$PrismaModel> | $Enums.Goalstatus
   }
 
+  export type NestedEnumGoalPriorityFilter<$PrismaModel = never> = {
+    equals?: $Enums.GoalPriority | EnumGoalPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumGoalPriorityFilter<$PrismaModel> | $Enums.GoalPriority
+  }
+
   export type NestedEnumGoalstatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.Goalstatus | EnumGoalstatusFieldRefInput<$PrismaModel>
     in?: $Enums.Goalstatus[] | ListEnumGoalstatusFieldRefInput<$PrismaModel>
@@ -45770,6 +45852,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumGoalstatusFilter<$PrismaModel>
     _max?: NestedEnumGoalstatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumGoalPriorityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GoalPriority | EnumGoalPriorityFieldRefInput<$PrismaModel>
+    in?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GoalPriority[] | ListEnumGoalPriorityFieldRefInput<$PrismaModel>
+    not?: NestedEnumGoalPriorityWithAggregatesFilter<$PrismaModel> | $Enums.GoalPriority
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGoalPriorityFilter<$PrismaModel>
+    _max?: NestedEnumGoalPriorityFilter<$PrismaModel>
   }
 
   export type NestedEnumSplitStatusFilter<$PrismaModel = never> = {
@@ -46208,6 +46300,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: GoalContributionCreateNestedManyWithoutGoalInput
@@ -46220,6 +46313,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     createdAt?: Date | string
     updatedAt?: Date | string
     contributions?: GoalContributionUncheckedCreateNestedManyWithoutGoalInput
@@ -46858,6 +46952,7 @@ export namespace Prisma {
     targetDate?: DateTimeFilter<"Goal"> | Date | string
     status?: EnumGoalstatusFilter<"Goal"> | $Enums.Goalstatus
     description?: StringNullableFilter<"Goal"> | string | null
+    priority?: EnumGoalPriorityFilter<"Goal"> | $Enums.GoalPriority
     userId?: StringFilter<"Goal"> | string
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
@@ -50456,6 +50551,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutGoalsInput
@@ -50468,6 +50564,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50545,6 +50642,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutGoalsNestedInput
@@ -50557,6 +50655,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52068,6 +52167,7 @@ export namespace Prisma {
     targetDate: Date | string
     status?: $Enums.Goalstatus
     description?: string | null
+    priority?: $Enums.GoalPriority
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -52511,6 +52611,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: GoalContributionUpdateManyWithoutGoalNestedInput
@@ -52523,6 +52624,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: GoalContributionUncheckedUpdateManyWithoutGoalNestedInput
@@ -52535,6 +52637,7 @@ export namespace Prisma {
     targetDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumGoalstatusFieldUpdateOperationsInput | $Enums.Goalstatus
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    priority?: EnumGoalPriorityFieldUpdateOperationsInput | $Enums.GoalPriority
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

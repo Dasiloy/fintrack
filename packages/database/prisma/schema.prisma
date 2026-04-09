@@ -733,8 +733,12 @@ model RecurringItem {
 enum Goalstatus {
   ACTIVE
   COMPLETED
-  ON_HOLD
-  CANCELLED
+}
+
+enum GoalPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 model Goal {
@@ -744,6 +748,8 @@ model Goal {
   targetDate   DateTime
   status       Goalstatus @default(ACTIVE)
   description  String?
+
+  priority    GoalPriority  @default(MEDIUM)
 
   // owner
   userId String
@@ -755,6 +761,8 @@ model Goal {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([id,userId])
 }
 
 model GoalContribution {
@@ -773,6 +781,8 @@ model GoalContribution {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([id,goalId])
 }
 
 enum SplitStatus {
