@@ -1,0 +1,88 @@
+syntax = "proto3";
+package finance;
+
+import "finance/transaction.proto";
+
+message Contribution  {
+    string id=1;
+    float amount=2;
+    string date=3;
+    optional  string description=4;
+    optional  string notes=5;
+    optional string created_at=6;
+    optional string updated_at=7;
+    optional Transaction transaction=8;
+}
+
+
+message Goal {
+  string id=1;
+  string name=2;
+  string target_date=3;
+  float target_amount=4;
+  string priority=5;
+  string statsu=6;
+  optional string description=7;
+  string created_at=8;
+  string updated_at=9;
+  repeated Contribution contributions=10;
+  optional float contributed_amount=11;
+}
+
+
+message  CreateGoalReq {
+  string name=1;
+  string target_date=2;
+  float target_amount=3;
+  string priority=4;
+  optional string description=5;
+}
+
+
+message GetGoalsReq {
+  repeated string status=1;
+  repeated string priority=2;
+  optional string amount=3;
+  optional string operator=4;
+}
+
+message GetGoalsRes {
+  repeated Goal goals=1;
+}
+
+
+message  UpdateGoalReq {
+           string id=1;
+  optional string name=2;
+  optional  string target_date=3;
+  optional float target_amount=4;
+  optional string description=5;
+  optional string priority=6;
+}
+
+message GoalReq {
+  string id=1;
+}
+
+
+message CreateGoalContributionReq  {
+   string goal_id=1;
+   float amount=2;
+   string date=3;
+  optional string description=4;
+  optional string transaction_id=5; // when transaction_id  is provided, we use its date
+}
+
+message UpdateGoalContributionReq  {
+               string goal_id=1;
+  string goal_contribution_id=2;
+  optional float amount=3;
+  optional string date=4;
+  optional string description=5;
+  optional string transaction_id=6;
+}
+
+message DeleteGoalContributionReq {
+                string goal_id=1;
+  string goal_contribution_id=2;
+}

@@ -10,6 +10,7 @@ import {
 
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
+import { UtilsService } from '../utils.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TransactionService } from './transaction.service';
     ),
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, PaginateService],
+  providers: [TransactionService, PaginateService, UtilsService],
+  exports: [TransactionService],
 })
 export class TransactionModule {}

@@ -6,7 +6,7 @@ import "finance/transaction.proto";
 import "finance/budget.proto";
 import "finance/recurring.proto";
 // import "finance/split.proto";
-// import "finance/goal.proto";
+import "finance/goal.proto";
 
 service FinanceService {
   // Transactions
@@ -17,16 +17,17 @@ service FinanceService {
     rpc DeleteTransaction(DeleteTransactionReq) returns (Empty) {}
 
   // Budgets
-  // rpc CreateBudget(CreateBudgetReq)           returns (Budget) {}
-  // rpc GetBudgets(GetBudgetsReq)               returns (GetBudgetsRes) {}
-  // rpc UpdateBudget(UpdateBudgetReq)           returns (Budget) {}
-  // rpc DeleteBudget(DeleteBudgetReq)           returns (Empty) {}
+   rpc CreateBudget (CreateBudgetReq) returns (Budget) {}
+   rpc UpdateBudget (UpdateBudgetReq) returns (Budget) {}
+   rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
 
   // Recurring
-  // rpc CreateRecurring(CreateRecurringReq)     returns (Recurring) {}
-  // rpc GetRecurring(GetRecurringReq)           returns (GetRecurringRes) {}
-  // rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurring) {}
-  // rpc DeleteRecurring(DeleteRecurringReq)     returns (Empty) {}
+  rpc CreateRecurring(CreateRecurringReq)     returns (Recurinrg) {}
+  rpc GetRecurrings(GetRecurringsReq)  returns (GetRecurringsRes) {}
+  rpc GetRecurring(RecurringReq)       returns (Recurinrg) {}
+  rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurinrg) {}
+  rpc ToggleRecurring(RecurringReq)     returns (Recurinrg) {}
+  rpc DeleteRecurring(RecurringReq)     returns (Empty) {}
 
   // Splits
   // rpc CreateSplit(CreateSplitReq)             returns (Split) {}
@@ -34,8 +35,13 @@ service FinanceService {
   // rpc SettleSplit(SettleSplitReq)             returns (Split) {}
 
   // Goals
-  // rpc CreateGoal(CreateGoalReq)               returns (Goal) {}
-  // rpc GetGoals(GetGoalsReq)                   returns (GetGoalsRes) {}
-  // rpc ContributeToGoal(ContributeToGoalReq)   returns (Goal) {}
+  rpc CreateGoal(CreateGoalReq)                      returns (Goal) {}
+  rpc GetGoals(GetGoalsReq)                          returns (GetGoalsRes) {}
+  rpc GetGoal(GoalReq)                               returns (Goal) {}
+  rpc UpdateGoal(UpdateGoalReq)                      returns (Goal) {}
+  rpc DeleteGoal(GoalReq)                            returns (Empty) {}
+  rpc ContributeToGoal(CreateGoalContributionReq)    returns (Contribution) {}
+  rpc UpdateGoalContribution(UpdateGoalContributionReq) returns (Contribution) {}
+  rpc DeleteContribution (DeleteGoalContributionReq)  returns (Empty) {}
 }
 

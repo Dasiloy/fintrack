@@ -1,41 +1,57 @@
-// auth/ws-jwt.guard.ts
+import { Socket } from 'socket.io';
+import { Redis } from 'ioredis';
+
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
 
-/**
- * @description Checks if the user is authenticated
- * This is a native NestJS guard method
- *
- * @class WsAuthGuard
- * @implements {CanActivate}
- */
+import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
+
+import { AuthService } from '../auth/auth.service';
+
 @Injectable()
-export class WsAuthGuard implements CanActivate {
-  private readonly logger = new Logger(WsAuthGuard.name);
+export class WsGuard implements CanActivate {
+  private readonly logger = new Logger(WsGuard.name);
 
-  /**
-   * @description Checks if the user is authenticated
-   * This is a native NestJS guard method
-   *
-   * @param {ExecutionContext} context - The execution context
-   * @returns {boolean} True if the user is authenticated, false otherwise
-   */
-  canActivate(context: ExecutionContext): boolean {
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const client: Socket = context.switchToWs().getClient();
-    const user = client.data.user;
 
-    if (!user) {
-      this.logger.warn('Unauthorized: No user found');
-      client.disconnect();
-      throw new WsException('Unauthorized');
+    if (client.data.user) {
+      return true;
     }
 
-    return true;
+    const token: string | undefined = client.handshake.auth?.token;
+
+    if (!token) {
+      client.disconnect();
+      return false;
+    }
+
+    try {
+      const user = await this.authService.validateToken(token);
+
+      if (user === 'TOKEN_EXPIRED' || user === null) {
+        client.disconnect();
+        return false;
+      }
+
+      client.data.user = user;
+      return true;
+    } catch (err) {
+      this.logger.error(
+        `WS auth failed for client ${client.id}: ${err.message}`,
+      );
+      client.disconnect();
+      return false;
+    }
   }
 }

@@ -4,54 +4,45 @@
 //   protoc               v6.33.5
 // source: finance/budget.proto
 
-/* eslint-disable */
-import type { Metadata } from "@grpc/grpc-js";
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+ 
+import { Category } from "./transaction";
 
 export const protobufPackage = "finance";
 
-export interface CreateBudgetReq {
-  name: string;
-  description: string;
-  amount: string;
-  frequency: string;
-}
-
-export interface CreateBudgetRes {
+export interface Budget {
   id: string;
   name: string;
+  amount: number;
   description: string;
-  amount: string;
-  frequency: string;
+  period: string;
+  carryOver: boolean;
+  alertThreshold: number;
+  category: Category | undefined;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBudgetReq {
+  name: string;
+  amount: number;
+  description?: string | undefined;
+  alertThreshold?: number | undefined;
+  categorySlug: string;
+  month?: number | undefined;
+  year?: number | undefined;
+  period?: string | undefined;
+}
+
+export interface UpdateBudgetReq {
+  id: string;
+  name?: string | undefined;
+  amount?: number | undefined;
+  description?: string | undefined;
+  alertThreshold?: number | undefined;
+}
+
+export interface DeleteBudgetReq {
+  id: string;
 }
 
 export const FINANCE_PACKAGE_NAME = "finance";
-
-export interface BudgetServiceClient {
-  createBudget(request: CreateBudgetReq, metadata?: Metadata): Observable<CreateBudgetRes>;
-}
-
-export interface BudgetServiceController {
-  createBudget(
-    request: CreateBudgetReq,
-    metadata?: Metadata,
-  ): Promise<CreateBudgetRes> | Observable<CreateBudgetRes> | CreateBudgetRes;
-}
-
-export function BudgetServiceControllerMethods() {
-  return function (constructor: Function) {
-    const grpcMethods: string[] = ["createBudget"];
-    for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("BudgetService", method)(constructor.prototype[method], method, descriptor);
-    }
-    const grpcStreamMethods: string[] = [];
-    for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("BudgetService", method)(constructor.prototype[method], method, descriptor);
-    }
-  };
-}
-
-export const BUDGET_SERVICE_NAME = "BudgetService";
