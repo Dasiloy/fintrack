@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@fintrack/database/client';
 import DashboardLayout from '@/app/layouts/dashboard_layout';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { SocketProvider } from '@/app/providers/socket_provider';
 
 export default async function DashboardGroupLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -27,8 +28,10 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
   }
 
   return (
-    <DashboardLayout session={session} isPro={isPro}>
-      {children}
-    </DashboardLayout>
+    <SocketProvider>
+      <DashboardLayout session={session} isPro={isPro}>
+        {children}
+      </DashboardLayout>
+    </SocketProvider>
   );
 }

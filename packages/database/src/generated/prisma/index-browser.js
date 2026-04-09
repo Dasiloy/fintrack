@@ -313,7 +313,8 @@ exports.Prisma.BudgetHistoryScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   budgetId: 'budgetId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.OCRDraftScalarFieldEnum = {
@@ -381,6 +382,7 @@ exports.Prisma.GoalScalarFieldEnum = {
   targetDate: 'targetDate',
   status: 'status',
   description: 'description',
+  priority: 'priority',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -748,7 +750,10 @@ exports.UsageFeature = exports.$Enums.UsageFeature = {
 };
 
 exports.BudgetPeriod = exports.$Enums.BudgetPeriod = {
-  MONTHLY: 'MONTHLY'
+  MONTHLY: 'MONTHLY',
+  WEEKLY: 'WEEKLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY'
 };
 
 exports.OCRDraftStatus = exports.$Enums.OCRDraftStatus = {
@@ -789,9 +794,13 @@ exports.RecurringItemFrequency = exports.$Enums.RecurringItemFrequency = {
 
 exports.Goalstatus = exports.$Enums.Goalstatus = {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED',
-  ON_HOLD: 'ON_HOLD',
-  CANCELLED: 'CANCELLED'
+  COMPLETED: 'COMPLETED'
+};
+
+exports.GoalPriority = exports.$Enums.GoalPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
 };
 
 exports.SplitStatus = exports.$Enums.SplitStatus = {

@@ -101,3 +101,18 @@ export interface AccountDeletionEmailPayload {
   email: string;
   deletionDate: string;
 }
+
+export interface RecurringTransactionItem {
+  name: string;
+  amount: string;
+  frequency: string;
+  type: string;
+}
+
+export interface RecurringTransactionsEmailPayload {
+  email: string;
+  firstName: string;
+  lastName: string;
+  date: string;
+  items: RecurringTransactionItem[];
+}
