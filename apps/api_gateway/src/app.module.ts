@@ -36,6 +36,7 @@ import { ActivityModule } from './activity/activity.module';
 import { FcmModule } from './fcm/fcm.module';
 import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
+import { GoalModule } from './goal/goal.module';
 
 @Module({
   imports: [
@@ -163,6 +164,7 @@ import { RecurringModule } from './recurring/recurring.module';
     TransactionModule,
     BudgetModule,
     RecurringModule,
+    GoalModule,
     CategoryModule,
     AnalyticsModule,
     ActivityModule,

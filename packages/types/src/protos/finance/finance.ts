@@ -10,6 +10,18 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import { Budget, CreateBudgetReq, DeleteBudgetReq, UpdateBudgetReq } from "./budget";
 import {
+  Contribution,
+  CreateGoalContributionReq,
+  CreateGoalReq,
+  DeleteGoalContributionReq,
+  GetGoalsReq,
+  GetGoalsRes,
+  Goal,
+  GoalReq,
+  UpdateGoalContributionReq,
+  UpdateGoalReq,
+} from "./goal";
+import {
   CreateRecurringReq,
   GetRecurringsReq,
   GetRecurringsRes,
@@ -68,6 +80,24 @@ export interface FinanceServiceClient {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
+
+  /** Goals */
+
+  createGoal(request: CreateGoalReq, metadata?: Metadata): Observable<Goal>;
+
+  getGoals(request: GetGoalsReq, metadata?: Metadata): Observable<GetGoalsRes>;
+
+  getGoal(request: GoalReq, metadata?: Metadata): Observable<Goal>;
+
+  updateGoal(request: UpdateGoalReq, metadata?: Metadata): Observable<Goal>;
+
+  deleteGoal(request: GoalReq, metadata?: Metadata): Observable<Empty>;
+
+  contributeToGoal(request: CreateGoalContributionReq, metadata?: Metadata): Observable<Contribution>;
+
+  updateGoalContribution(request: UpdateGoalContributionReq, metadata?: Metadata): Observable<Contribution>;
+
+  deleteContribution(request: DeleteGoalContributionReq, metadata?: Metadata): Observable<Empty>;
 }
 
 export interface FinanceServiceController {
@@ -125,6 +155,33 @@ export interface FinanceServiceController {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** Goals */
+
+  createGoal(request: CreateGoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
+
+  getGoals(request: GetGoalsReq, metadata?: Metadata): Promise<GetGoalsRes> | Observable<GetGoalsRes> | GetGoalsRes;
+
+  getGoal(request: GoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
+
+  updateGoal(request: UpdateGoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
+
+  deleteGoal(request: GoalReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  contributeToGoal(
+    request: CreateGoalContributionReq,
+    metadata?: Metadata,
+  ): Promise<Contribution> | Observable<Contribution> | Contribution;
+
+  updateGoalContribution(
+    request: UpdateGoalContributionReq,
+    metadata?: Metadata,
+  ): Promise<Contribution> | Observable<Contribution> | Contribution;
+
+  deleteContribution(
+    request: DeleteGoalContributionReq,
+    metadata?: Metadata,
+  ): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function FinanceServiceControllerMethods() {
@@ -144,6 +201,14 @@ export function FinanceServiceControllerMethods() {
       "updateRecurring",
       "toggleRecurring",
       "deleteRecurring",
+      "createGoal",
+      "getGoals",
+      "getGoal",
+      "updateGoal",
+      "deleteGoal",
+      "contributeToGoal",
+      "updateGoalContribution",
+      "deleteContribution",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

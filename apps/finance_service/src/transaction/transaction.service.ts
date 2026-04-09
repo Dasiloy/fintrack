@@ -45,7 +45,7 @@ import {
 
 import { UtilsService } from '../utils.service';
 
-type TransactionWithOptionalJoins = Transaction & {
+export type TransactionWithOptionalJoins = Transaction & {
   category?: Category | null;
   split?: Split | null;
   goalContribution?: GoalContribution | null;

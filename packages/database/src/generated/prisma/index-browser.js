@@ -382,6 +382,7 @@ exports.Prisma.GoalScalarFieldEnum = {
   targetDate: 'targetDate',
   status: 'status',
   description: 'description',
+  priority: 'priority',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -793,9 +794,13 @@ exports.RecurringItemFrequency = exports.$Enums.RecurringItemFrequency = {
 
 exports.Goalstatus = exports.$Enums.Goalstatus = {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED',
-  ON_HOLD: 'ON_HOLD',
-  CANCELLED: 'CANCELLED'
+  COMPLETED: 'COMPLETED'
+};
+
+exports.GoalPriority = exports.$Enums.GoalPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
 };
 
 exports.SplitStatus = exports.$Enums.SplitStatus = {

@@ -17,7 +17,7 @@ import {
   Prisma,
   RecurringItem,
   RecurringItemFrequency,
-} from '@fintrack/database/src/generated/prisma';
+} from '@fintrack/database/types';
 
 @Processor(RECURRING_QUEUE)
 export class RecurringProcessor extends WorkerHost {

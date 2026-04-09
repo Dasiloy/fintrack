@@ -16,6 +16,7 @@ import { FinanceService } from './finance.service';
 import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
+import { GoalModule } from './goal/goal.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { RecurringModule } from './recurring/recurring.module';
     TransactionModule,
     BudgetModule,
     RecurringModule,
+    GoalModule,
   ],
   controllers: [FinanceController],
   providers: [

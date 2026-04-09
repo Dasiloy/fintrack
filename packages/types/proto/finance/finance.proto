@@ -6,7 +6,7 @@ import "finance/transaction.proto";
 import "finance/budget.proto";
 import "finance/recurring.proto";
 // import "finance/split.proto";
-// import "finance/goal.proto";
+import "finance/goal.proto";
 
 service FinanceService {
   // Transactions
@@ -35,8 +35,13 @@ service FinanceService {
   // rpc SettleSplit(SettleSplitReq)             returns (Split) {}
 
   // Goals
-  // rpc CreateGoal(CreateGoalReq)               returns (Goal) {}
-  // rpc GetGoals(GetGoalsReq)                   returns (GetGoalsRes) {}
-  // rpc ContributeToGoal(ContributeToGoalReq)   returns (Goal) {}
+  rpc CreateGoal(CreateGoalReq)                      returns (Goal) {}
+  rpc GetGoals(GetGoalsReq)                          returns (GetGoalsRes) {}
+  rpc GetGoal(GoalReq)                               returns (Goal) {}
+  rpc UpdateGoal(UpdateGoalReq)                      returns (Goal) {}
+  rpc DeleteGoal(GoalReq)                            returns (Empty) {}
+  rpc ContributeToGoal(CreateGoalContributionReq)    returns (Contribution) {}
+  rpc UpdateGoalContribution(UpdateGoalContributionReq) returns (Contribution) {}
+  rpc DeleteContribution (DeleteGoalContributionReq)  returns (Empty) {}
 }
 
