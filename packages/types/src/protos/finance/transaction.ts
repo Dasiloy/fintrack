@@ -41,7 +41,11 @@ export interface Bank {
   accountName: string;
 }
 
-export interface Split {
+/**
+ * Lightweight split summary embedded inside a Transaction response.
+ * Not the same as the full Split message defined in split.proto.
+ */
+export interface SplitRef {
   id: string;
   name: string;
   /** string — preserves decimals */
@@ -56,14 +60,6 @@ export interface GoalContribution {
   date: string;
   description: string;
   notes: string;
-}
-
-export interface SplitSettlement {
-  id: string;
-  name: string;
-  /** string — preserves decimals */
-  amount: string;
-  email: string;
 }
 
 export interface CreateTransactionReq {
@@ -97,7 +93,7 @@ export interface Transaction {
   bankTransactionId?: string | undefined;
   bankTransactionStatus?: string | undefined;
   bank?: Bank | undefined;
-  split?: Split | undefined;
+  split?: SplitRef | undefined;
   goalContribution?: GoalContribution | undefined;
 }
 

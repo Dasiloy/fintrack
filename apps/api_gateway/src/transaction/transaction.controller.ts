@@ -218,6 +218,20 @@ export class TransactionController {
     description: 'The bank account id of the transactions',
     example: '123',
   })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Reuested page',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of records to take',
+    example: 10,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transactions fetched successfully',

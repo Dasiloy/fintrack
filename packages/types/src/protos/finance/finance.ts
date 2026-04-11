@@ -30,6 +30,22 @@ import {
   UpdateRecurringReq,
 } from "./recurring";
 import {
+  AddParticipantReq,
+  CreateSplitReq,
+  GetSplitAggregateRes,
+  GetSplitsReq,
+  GetSplitsRes,
+  ParticipantReq,
+  PaySettlementReq,
+  SettlementReq,
+  Split,
+  SplitParticipant,
+  SplitReq,
+  SplitSettlement,
+  UpdateParticipantReq,
+  UpdateSplitReq,
+} from "./split";
+import {
   CreateTransactionReq,
   DeleteTransactionReq,
   Empty,
@@ -80,6 +96,30 @@ export interface FinanceServiceClient {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
+
+  /** Splits */
+
+  createSplit(request: CreateSplitReq, metadata?: Metadata): Observable<Split>;
+
+  getSplitAggregate(request: Empty, metadata?: Metadata): Observable<GetSplitAggregateRes>;
+
+  getSplits(request: GetSplitsReq, metadata?: Metadata): Observable<GetSplitsRes>;
+
+  getSplit(request: SplitReq, metadata?: Metadata): Observable<Split>;
+
+  updateSplit(request: UpdateSplitReq, metadata?: Metadata): Observable<Split>;
+
+  deleteSplit(request: SplitReq, metadata?: Metadata): Observable<Empty>;
+
+  addParticipant(request: AddParticipantReq, metadata?: Metadata): Observable<SplitParticipant>;
+
+  updateParticipant(request: UpdateParticipantReq, metadata?: Metadata): Observable<SplitParticipant>;
+
+  deleteParticipant(request: ParticipantReq, metadata?: Metadata): Observable<Empty>;
+
+  paySettlement(request: PaySettlementReq, metadata?: Metadata): Observable<SplitSettlement>;
+
+  deleteSettlement(request: SettlementReq, metadata?: Metadata): Observable<Empty>;
 
   /** Goals */
 
@@ -156,6 +196,45 @@ export interface FinanceServiceController {
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
+  /** Splits */
+
+  createSplit(request: CreateSplitReq, metadata?: Metadata): Promise<Split> | Observable<Split> | Split;
+
+  getSplitAggregate(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GetSplitAggregateRes> | Observable<GetSplitAggregateRes> | GetSplitAggregateRes;
+
+  getSplits(
+    request: GetSplitsReq,
+    metadata?: Metadata,
+  ): Promise<GetSplitsRes> | Observable<GetSplitsRes> | GetSplitsRes;
+
+  getSplit(request: SplitReq, metadata?: Metadata): Promise<Split> | Observable<Split> | Split;
+
+  updateSplit(request: UpdateSplitReq, metadata?: Metadata): Promise<Split> | Observable<Split> | Split;
+
+  deleteSplit(request: SplitReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  addParticipant(
+    request: AddParticipantReq,
+    metadata?: Metadata,
+  ): Promise<SplitParticipant> | Observable<SplitParticipant> | SplitParticipant;
+
+  updateParticipant(
+    request: UpdateParticipantReq,
+    metadata?: Metadata,
+  ): Promise<SplitParticipant> | Observable<SplitParticipant> | SplitParticipant;
+
+  deleteParticipant(request: ParticipantReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  paySettlement(
+    request: PaySettlementReq,
+    metadata?: Metadata,
+  ): Promise<SplitSettlement> | Observable<SplitSettlement> | SplitSettlement;
+
+  deleteSettlement(request: SettlementReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
   /** Goals */
 
   createGoal(request: CreateGoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
@@ -201,6 +280,17 @@ export function FinanceServiceControllerMethods() {
       "updateRecurring",
       "toggleRecurring",
       "deleteRecurring",
+      "createSplit",
+      "getSplitAggregate",
+      "getSplits",
+      "getSplit",
+      "updateSplit",
+      "deleteSplit",
+      "addParticipant",
+      "updateParticipant",
+      "deleteParticipant",
+      "paySettlement",
+      "deleteSettlement",
       "createGoal",
       "getGoals",
       "getGoal",
