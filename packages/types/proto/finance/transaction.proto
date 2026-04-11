@@ -33,7 +33,9 @@ message Bank {
   string account_name   = 4;
 }
 
-message Split {
+// Lightweight split summary embedded inside a Transaction response.
+// Not the same as the full Split message defined in split.proto.
+message SplitRef {
   string id     = 1;
   string name   = 2;
   string amount = 3; // string — preserves decimals
@@ -46,13 +48,6 @@ message GoalContribution {
   string date        = 3;
   string description = 4;
   string notes       = 5;
-}
-
-message SplitSettlement {
-  string id     = 1;
-  string name   = 2;
-  string amount = 3; // string — preserves decimals
-  string email  = 4;
 }
 
 message CreateTransactionReq {
@@ -83,7 +78,7 @@ message Transaction {
   optional string   bank_transaction_id      = 14;
   optional string   bank_transaction_status  = 16;
   optional Bank     bank                     = 17;
-  optional Split    split                    = 18;
+  optional SplitRef split                    = 18;
   optional GoalContribution goal_contribution = 19;
 }
 message GetTransactionsReq {

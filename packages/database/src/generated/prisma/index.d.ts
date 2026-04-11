@@ -1219,7 +1219,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends bigint
+  : T extends BigInt
   ? False
   : T extends object
   ? True
@@ -31216,7 +31216,7 @@ export namespace Prisma {
     paidAmount: number
     splitId: string
     participantId: string
-    transactionId: string
+    transactionId: string | null
     createdAt: Date
     _count: SplitSettlementCountAggregateOutputType | null
     _avg: SplitSettlementAvgAggregateOutputType | null
@@ -31249,7 +31249,7 @@ export namespace Prisma {
     createdAt?: boolean
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }, ExtArgs["result"]["splitSettlement"]>
 
   export type SplitSettlementSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -31262,7 +31262,7 @@ export namespace Prisma {
     createdAt?: boolean
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }, ExtArgs["result"]["splitSettlement"]>
 
   export type SplitSettlementSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -31275,7 +31275,7 @@ export namespace Prisma {
     createdAt?: boolean
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }, ExtArgs["result"]["splitSettlement"]>
 
   export type SplitSettlementSelectScalar = {
@@ -31292,17 +31292,17 @@ export namespace Prisma {
   export type SplitSettlementInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }
   export type SplitSettlementIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }
   export type SplitSettlementIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     split?: boolean | SplitDefaultArgs<ExtArgs>
     participant?: boolean | SplitParticipantDefaultArgs<ExtArgs>
-    transaction?: boolean | TransactionDefaultArgs<ExtArgs>
+    transaction?: boolean | SplitSettlement$transactionArgs<ExtArgs>
   }
 
   export type $SplitSettlementPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -31310,7 +31310,7 @@ export namespace Prisma {
     objects: {
       split: Prisma.$SplitPayload<ExtArgs>
       participant: Prisma.$SplitParticipantPayload<ExtArgs>
-      transaction: Prisma.$TransactionPayload<ExtArgs>
+      transaction: Prisma.$TransactionPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -31318,7 +31318,7 @@ export namespace Prisma {
       paidAmount: number
       splitId: string
       participantId: string
-      transactionId: string
+      transactionId: string | null
       createdAt: Date
     }, ExtArgs["result"]["splitSettlement"]>
     composites: {}
@@ -31716,7 +31716,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     split<T extends SplitDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SplitDefaultArgs<ExtArgs>>): Prisma__SplitClient<$Result.GetResult<Prisma.$SplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     participant<T extends SplitParticipantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SplitParticipantDefaultArgs<ExtArgs>>): Prisma__SplitParticipantClient<$Result.GetResult<Prisma.$SplitParticipantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    transaction<T extends TransactionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TransactionDefaultArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transaction<T extends SplitSettlement$transactionArgs<ExtArgs> = {}>(args?: Subset<T, SplitSettlement$transactionArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32146,6 +32146,25 @@ export namespace Prisma {
      * Limit how many SplitSettlements to delete.
      */
     limit?: number
+  }
+
+  /**
+   * SplitSettlement.transaction
+   */
+  export type SplitSettlement$transactionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    where?: TransactionWhereInput
   }
 
   /**
@@ -38450,11 +38469,11 @@ export namespace Prisma {
     paidAmount?: FloatFilter<"SplitSettlement"> | number
     splitId?: StringFilter<"SplitSettlement"> | string
     participantId?: StringFilter<"SplitSettlement"> | string
-    transactionId?: StringFilter<"SplitSettlement"> | string
+    transactionId?: StringNullableFilter<"SplitSettlement"> | string | null
     createdAt?: DateTimeFilter<"SplitSettlement"> | Date | string
     split?: XOR<SplitScalarRelationFilter, SplitWhereInput>
     participant?: XOR<SplitParticipantScalarRelationFilter, SplitParticipantWhereInput>
-    transaction?: XOR<TransactionScalarRelationFilter, TransactionWhereInput>
+    transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
   }
 
   export type SplitSettlementOrderByWithRelationInput = {
@@ -38463,7 +38482,7 @@ export namespace Prisma {
     paidAmount?: SortOrder
     splitId?: SortOrder
     participantId?: SortOrder
-    transactionId?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     split?: SplitOrderByWithRelationInput
     participant?: SplitParticipantOrderByWithRelationInput
@@ -38472,6 +38491,7 @@ export namespace Prisma {
 
   export type SplitSettlementWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    transactionId?: string
     AND?: SplitSettlementWhereInput | SplitSettlementWhereInput[]
     OR?: SplitSettlementWhereInput[]
     NOT?: SplitSettlementWhereInput | SplitSettlementWhereInput[]
@@ -38479,12 +38499,11 @@ export namespace Prisma {
     paidAmount?: FloatFilter<"SplitSettlement"> | number
     splitId?: StringFilter<"SplitSettlement"> | string
     participantId?: StringFilter<"SplitSettlement"> | string
-    transactionId?: StringFilter<"SplitSettlement"> | string
     createdAt?: DateTimeFilter<"SplitSettlement"> | Date | string
     split?: XOR<SplitScalarRelationFilter, SplitWhereInput>
     participant?: XOR<SplitParticipantScalarRelationFilter, SplitParticipantWhereInput>
-    transaction?: XOR<TransactionScalarRelationFilter, TransactionWhereInput>
-  }, "id">
+    transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
+  }, "id" | "transactionId">
 
   export type SplitSettlementOrderByWithAggregationInput = {
     id?: SortOrder
@@ -38492,7 +38511,7 @@ export namespace Prisma {
     paidAmount?: SortOrder
     splitId?: SortOrder
     participantId?: SortOrder
-    transactionId?: SortOrder
+    transactionId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: SplitSettlementCountOrderByAggregateInput
     _avg?: SplitSettlementAvgOrderByAggregateInput
@@ -38510,7 +38529,7 @@ export namespace Prisma {
     paidAmount?: FloatWithAggregatesFilter<"SplitSettlement"> | number
     splitId?: StringWithAggregatesFilter<"SplitSettlement"> | string
     participantId?: StringWithAggregatesFilter<"SplitSettlement"> | string
-    transactionId?: StringWithAggregatesFilter<"SplitSettlement"> | string
+    transactionId?: StringNullableWithAggregatesFilter<"SplitSettlement"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"SplitSettlement"> | Date | string
   }
 
@@ -40971,7 +40990,7 @@ export namespace Prisma {
     createdAt?: Date | string
     split: SplitCreateNestedOneWithoutSettlementsInput
     participant: SplitParticipantCreateNestedOneWithoutSettlementsInput
-    transaction: TransactionCreateNestedOneWithoutSettlementsInput
+    transaction?: TransactionCreateNestedOneWithoutSettlementsInput
   }
 
   export type SplitSettlementUncheckedCreateInput = {
@@ -40980,7 +40999,7 @@ export namespace Prisma {
     paidAmount: number
     splitId: string
     participantId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -40991,7 +41010,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     split?: SplitUpdateOneRequiredWithoutSettlementsNestedInput
     participant?: SplitParticipantUpdateOneRequiredWithoutSettlementsNestedInput
-    transaction?: TransactionUpdateOneRequiredWithoutSettlementsNestedInput
+    transaction?: TransactionUpdateOneWithoutSettlementsNestedInput
   }
 
   export type SplitSettlementUncheckedUpdateInput = {
@@ -41000,7 +41019,7 @@ export namespace Prisma {
     paidAmount?: FloatFieldUpdateOperationsInput | number
     splitId?: StringFieldUpdateOperationsInput | string
     participantId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -41010,7 +41029,7 @@ export namespace Prisma {
     paidAmount: number
     splitId: string
     participantId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -41027,7 +41046,7 @@ export namespace Prisma {
     paidAmount?: FloatFieldUpdateOperationsInput | number
     splitId?: StringFieldUpdateOperationsInput | string
     participantId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -43306,11 +43325,6 @@ export namespace Prisma {
     isNot?: SplitParticipantWhereInput
   }
 
-  export type TransactionScalarRelationFilter = {
-    is?: TransactionWhereInput
-    isNot?: TransactionWhereInput
-  }
-
   export type SplitSettlementCountOrderByAggregateInput = {
     id?: SortOrder
     paidAt?: SortOrder
@@ -45170,10 +45184,12 @@ export namespace Prisma {
     update?: XOR<XOR<SplitParticipantUpdateToOneWithWhereWithoutSettlementsInput, SplitParticipantUpdateWithoutSettlementsInput>, SplitParticipantUncheckedUpdateWithoutSettlementsInput>
   }
 
-  export type TransactionUpdateOneRequiredWithoutSettlementsNestedInput = {
+  export type TransactionUpdateOneWithoutSettlementsNestedInput = {
     create?: XOR<TransactionCreateWithoutSettlementsInput, TransactionUncheckedCreateWithoutSettlementsInput>
     connectOrCreate?: TransactionCreateOrConnectWithoutSettlementsInput
     upsert?: TransactionUpsertWithoutSettlementsInput
+    disconnect?: TransactionWhereInput | boolean
+    delete?: TransactionWhereInput | boolean
     connect?: TransactionWhereUniqueInput
     update?: XOR<XOR<TransactionUpdateToOneWithWhereWithoutSettlementsInput, TransactionUpdateWithoutSettlementsInput>, TransactionUncheckedUpdateWithoutSettlementsInput>
   }
@@ -49996,7 +50012,7 @@ export namespace Prisma {
     paidAmount?: FloatFilter<"SplitSettlement"> | number
     splitId?: StringFilter<"SplitSettlement"> | string
     participantId?: StringFilter<"SplitSettlement"> | string
-    transactionId?: StringFilter<"SplitSettlement"> | string
+    transactionId?: StringNullableFilter<"SplitSettlement"> | string | null
     createdAt?: DateTimeFilter<"SplitSettlement"> | Date | string
   }
 
@@ -50888,7 +50904,7 @@ export namespace Prisma {
     paidAmount: number
     createdAt?: Date | string
     participant: SplitParticipantCreateNestedOneWithoutSettlementsInput
-    transaction: TransactionCreateNestedOneWithoutSettlementsInput
+    transaction?: TransactionCreateNestedOneWithoutSettlementsInput
   }
 
   export type SplitSettlementUncheckedCreateWithoutSplitInput = {
@@ -50896,7 +50912,7 @@ export namespace Prisma {
     paidAt: Date | string
     paidAmount: number
     participantId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -51138,7 +51154,7 @@ export namespace Prisma {
     paidAmount: number
     createdAt?: Date | string
     split: SplitCreateNestedOneWithoutSettlementsInput
-    transaction: TransactionCreateNestedOneWithoutSettlementsInput
+    transaction?: TransactionCreateNestedOneWithoutSettlementsInput
   }
 
   export type SplitSettlementUncheckedCreateWithoutParticipantInput = {
@@ -51146,7 +51162,7 @@ export namespace Prisma {
     paidAt: Date | string
     paidAmount: number
     splitId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -53209,7 +53225,7 @@ export namespace Prisma {
     paidAt: Date | string
     paidAmount: number
     participantId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -53248,7 +53264,7 @@ export namespace Prisma {
     paidAmount?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     participant?: SplitParticipantUpdateOneRequiredWithoutSettlementsNestedInput
-    transaction?: TransactionUpdateOneRequiredWithoutSettlementsNestedInput
+    transaction?: TransactionUpdateOneWithoutSettlementsNestedInput
   }
 
   export type SplitSettlementUncheckedUpdateWithoutSplitInput = {
@@ -53256,7 +53272,7 @@ export namespace Prisma {
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paidAmount?: FloatFieldUpdateOperationsInput | number
     participantId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -53265,7 +53281,7 @@ export namespace Prisma {
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paidAmount?: FloatFieldUpdateOperationsInput | number
     participantId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -53274,7 +53290,7 @@ export namespace Prisma {
     paidAt: Date | string
     paidAmount: number
     splitId: string
-    transactionId: string
+    transactionId?: string | null
     createdAt?: Date | string
   }
 
@@ -53284,7 +53300,7 @@ export namespace Prisma {
     paidAmount?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     split?: SplitUpdateOneRequiredWithoutSettlementsNestedInput
-    transaction?: TransactionUpdateOneRequiredWithoutSettlementsNestedInput
+    transaction?: TransactionUpdateOneWithoutSettlementsNestedInput
   }
 
   export type SplitSettlementUncheckedUpdateWithoutParticipantInput = {
@@ -53292,7 +53308,7 @@ export namespace Prisma {
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paidAmount?: FloatFieldUpdateOperationsInput | number
     splitId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -53301,7 +53317,7 @@ export namespace Prisma {
     paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
     paidAmount?: FloatFieldUpdateOperationsInput | number
     splitId?: StringFieldUpdateOperationsInput | string
-    transactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

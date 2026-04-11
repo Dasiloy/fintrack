@@ -1,0 +1,142 @@
+syntax = "proto3";
+package finance;
+
+import "paginate.proto";
+import "finance/transaction.proto";
+
+// ---- Core messages ----
+
+message SplitSettlement {
+  string id             = 1;
+  string paid_at        = 2;
+  float  paid_amount    = 3;
+  optional  Transaction transaction = 4; // transaction here must be an income transaction
+  string created_at     = 5;
+}
+
+// A participant in a split.
+// When returned from GetSplit, settlements are embedded and paid/balance are populated.
+// When returned from GetSplits (list), settlements is empty and paid/balance may be omitted.
+message SplitParticipant {
+  string id       = 1;
+  string name     = 2;
+  string email    = 3;
+  float  amount   = 4; // the share this participant owes
+
+  repeated SplitSettlement settlements = 6;
+
+  string created_at = 7;
+  string updated_at = 8;
+
+  optional float paid    = 9;  // sum of all settlements for this participant
+  optional float balance = 10; // amount - paid (remaining owed)
+}
+
+// A split expense.
+// participants is populated on GetSplit (single) only.
+// total_paid, total_owed, participant_count are populated on both list and single.
+message Split {
+  string id     = 1;
+  string name   = 2;
+  float  amount = 3;
+  string status = 4; // OPEN | PARTIALLY_SETTLED | SETTLED
+
+  optional Transaction transaction = 5; // optional linked expense transaction
+
+  string created_at = 6;
+  string updated_at = 7;
+
+  repeated SplitParticipant participants = 8;
+
+  optional float total_paid        = 9;  // sum of all settled amounts across all participants
+  optional float total_owed        = 10; // amount - total_paid (remaining across all participants)
+}
+
+// ---- Aggregate ----
+
+// Totals across all splits for the authenticated user.
+message GetSplitAggregateRes {
+  float total_owed    = 1; // sum of (amount - settled) across OPEN + PARTIALLY_SETTLED splits
+  float total_paid    = 2; // sum of all settlements across all splits
+  int32 open_count    = 3; // number of OPEN splits
+  int32 partial_count = 4; // number of PARTIALLY_SETTLED splits
+  int32 settled_count = 5; // number of SETTLED splits
+  int32 settled_amount=6;
+}
+
+// ---- List ----
+
+message GetSplitsReq {
+  // Filter by one or more statuses (OPEN, PARTIALLY_SETTLED, SETTLED).
+  // Omit or leave empty to return all.
+  repeated string status = 1;
+  int32                     page                = 2;
+  int32                     limit               = 3;
+}
+
+message GetSplitsRes {
+  repeated Split splits = 1;
+  PaginateResponse meta = 2;
+}
+
+// ---- Single ----
+
+message SplitReq {
+  string id = 1;
+}
+
+// ---- Create / Update Split ----
+
+message CreateSplitReq {
+  string          name   = 1;
+  float           amount = 2;
+  optional string transaction_id = 3; // optionally link to an existing expense transaction
+}
+
+message UpdateSplitReq {
+  string          id     = 1;
+  optional string name   = 2;
+  optional float  amount = 3;
+}
+
+// ---- Participant ----
+
+message AddParticipantReq {
+  string split_id = 1;
+  string name     = 2;
+  string email    = 3;
+  float  amount   = 4; // the share this participant owes
+}
+
+message UpdateParticipantReq {
+  string          split_id       = 1;
+  string          participant_id = 2;
+  optional string name           = 3;
+  optional string email          = 4;
+  optional float  amount         = 5;
+}
+
+message ParticipantReq {
+  string split_id       = 1;
+  string participant_id = 2;
+}
+
+// ---- Settlement ----
+
+// Records a payment from a participant toward their share.
+// Automatically re-evaluates the split status after recording:
+//   - all participants fully paid → SETTLED
+//   - at least one payment exists → PARTIALLY_SETTLED
+//   - no payments → OPEN
+message PaySettlementReq {
+  string split_id        = 1;
+  string participant_id  = 2;
+  float  paid_amount     = 3;
+  string paid_at         = 4; // ISO 8601 date string
+  optional string transaction_id  = 5; // the income transaction representing this payment
+}
+
+message SettlementReq {
+  string split_id     = 1;
+  string settlement_id = 2;
+}
