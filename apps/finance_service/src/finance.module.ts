@@ -17,6 +17,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
 import { GoalModule } from './goal/goal.module';
+import { SplitModule } from './split/split.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { GoalModule } from './goal/goal.module';
     BudgetModule,
     RecurringModule,
     GoalModule,
+    SplitModule,
   ],
   controllers: [FinanceController],
   providers: [

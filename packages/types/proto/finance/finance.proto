@@ -5,7 +5,7 @@ package finance;
 import "finance/transaction.proto";
 import "finance/budget.proto";
 import "finance/recurring.proto";
-// import "finance/split.proto";
+import "finance/split.proto";
 import "finance/goal.proto";
 
 service FinanceService {
@@ -30,9 +30,17 @@ service FinanceService {
   rpc DeleteRecurring(RecurringReq)     returns (Empty) {}
 
   // Splits
-  // rpc CreateSplit(CreateSplitReq)             returns (Split) {}
-  // rpc GetSplits(GetSplitsReq)                 returns (GetSplitsRes) {}
-  // rpc SettleSplit(SettleSplitReq)             returns (Split) {}
+  rpc CreateSplit(CreateSplitReq)                   returns (Split) {}
+  rpc GetSplitAggregate(Empty)                      returns (GetSplitAggregateRes) {}
+  rpc GetSplits(GetSplitsReq)                       returns (GetSplitsRes) {}
+  rpc GetSplit(SplitReq)                            returns (Split) {}
+  rpc UpdateSplit(UpdateSplitReq)                   returns (Split) {}
+  rpc DeleteSplit(SplitReq)                         returns (Empty) {}
+  rpc AddParticipant(AddParticipantReq)             returns (SplitParticipant) {}
+  rpc UpdateParticipant(UpdateParticipantReq)       returns (SplitParticipant) {}
+  rpc DeleteParticipant(ParticipantReq)             returns (Empty) {}
+  rpc PaySettlement(PaySettlementReq)               returns (SplitSettlement) {}
+  rpc DeleteSettlement(SettlementReq)               returns (Empty) {}
 
   // Goals
   rpc CreateGoal(CreateGoalReq)                      returns (Goal) {}
