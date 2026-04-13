@@ -36,7 +36,7 @@ export interface Category {
 
 export interface Bank {
   bankId: string;
-  bankLogoUrl: string;
+  bankName: string;
   accountNumber: string;
   accountName: string;
 }

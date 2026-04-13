@@ -23,7 +23,6 @@ import { useRouter } from '@bprogress/next';
 
 import StyledLink from '@/app/_components/styled_linkt';
 import { axiosClient } from '@/lib/axios/axios_client';
-import { useSearchParams } from 'next/navigation';
 
 const signupSchema = z
   .object({

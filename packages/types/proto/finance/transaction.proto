@@ -28,7 +28,7 @@ message Category {
 
 message Bank {
   string bank_id        = 1;
-  string bank_logo_url  = 2;
+  string bank_name  = 2;
   string account_number = 3;
   string account_name   = 4;
 }
