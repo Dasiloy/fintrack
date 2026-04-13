@@ -1,186 +1,40 @@
 import 'dotenv/config';
 import { prisma } from '../src/client';
-import { SplitStatus } from '../src/types';
+
+const SYSTEM_CATEGORIES = [
+  { name: 'Food & Dining', slug: 'cat-food-dining', color: '#F97316' },
+  { name: 'Groceries', slug: 'cat-groceries', color: '#22C55E' },
+  { name: 'Transport', slug: 'cat-transport', color: '#3B82F6' },
+  { name: 'Housing & Rent', slug: 'cat-housing', color: '#8B5CF6' },
+  { name: 'Utilities', slug: 'cat-utilities', color: '#06B6D4' },
+  { name: 'Healthcare', slug: 'cat-healthcare', color: '#EF4444' },
+  { name: 'Entertainment', slug: 'cat-entertainment', color: '#EC4899' },
+  { name: 'Shopping', slug: 'cat-shopping', color: '#F59E0B' },
+  { name: 'Education', slug: 'cat-education', color: '#10B981' },
+  { name: 'Savings & Investments', slug: 'cat-savings', color: '#14B8A6' },
+  { name: 'Travel', slug: 'cat-travel', color: '#6366F1' },
+  { name: 'Personal Care', slug: 'cat-personal-care', color: '#F472B6' },
+  { name: 'Subscriptions', slug: 'cat-subscriptions', color: '#A78BFA' },
+  { name: 'Insurance', slug: 'cat-insurance', color: '#64748B' },
+  { name: 'Fitness & Sports', slug: 'cat-fitness', color: '#84CC16' },
+  { name: 'Income', slug: 'cat-income', color: '#4ADE80' },
+  { name: 'Gifts & Donations', slug: 'cat-gifts', color: '#FB923C' },
+  { name: 'Business', slug: 'cat-business', color: '#2563EB' },
+  { name: 'Taxes & Fees', slug: 'cat-taxes', color: '#DC2626' },
+  { name: 'Miscellaneous', slug: 'cat-misc', color: '#94A3B8' },
+];
 
 async function main() {
   await prisma.$connect();
 
-  const userId = 'cmn0mekfu0000g3rq3n94391h';
+  console.log('Seeding system categories...');
 
-  const splitPayloads = [
-    {
-      id: 'seed_split_friday_night_out',
-      name: 'Friday Night Out',
-      amount: 20_000,
-      status: SplitStatus.PARTIALLY_SETTLED,
-      participants: [
-        {
-          name: 'Ada',
-          email: 'ada@example.com',
-          amount: 8_000,
-          settlements: [
-            {
-              paidAmount: 3_000,
-              paidAt: new Date('2026-04-03T20:00:00.000Z'),
-            },
-          ],
-        },
-        {
-          name: 'Musa',
-          email: 'musa@example.com',
-          amount: 7_000,
-          settlements: [
-            {
-              paidAmount: 5_000,
-              paidAt: new Date('2026-04-04T12:30:00.000Z'),
-            },
-          ],
-        },
-        {
-          name: 'Kemi',
-          email: 'kemi@example.com',
-          amount: 5_000,
-        },
-      ],
-    },
-    {
-      id: 'seed_split_weekend_beach_house',
-      name: 'Weekend Beach House',
-      amount: 60_000,
-      status: SplitStatus.OPEN,
-      participants: [
-        {
-          name: 'Tobi',
-          email: 'tobi@example.com',
-          amount: 20_000,
-        },
-        {
-          name: 'Femi',
-          email: 'femi@example.com',
-          amount: 20_000,
-        },
-        {
-          name: 'Zainab',
-          email: 'zainab@example.com',
-          amount: 20_000,
-        },
-      ],
-    },
-    {
-      id: 'seed_split_birthday_dinner',
-      name: 'Birthday Dinner',
-      amount: 15_000,
-      status: SplitStatus.SETTLED,
-      participants: [
-        {
-          name: 'Ife',
-          email: 'ife@example.com',
-          amount: 5_000,
-          settlements: [
-            {
-              paidAmount: 2_500,
-              paidAt: new Date('2026-04-05T19:10:00.000Z'),
-            },
-            {
-              paidAmount: 2_500,
-              paidAt: new Date('2026-04-06T08:00:00.000Z'),
-            },
-          ],
-        },
-        {
-          name: 'Segun',
-          email: 'segun@example.com',
-          amount: 5_000,
-          settlements: [
-            {
-              paidAmount: 5_000,
-              paidAt: new Date('2026-04-05T21:00:00.000Z'),
-            },
-          ],
-        },
-        {
-          name: 'Rita',
-          email: 'rita@example.com',
-          amount: 5_000,
-          settlements: [
-            {
-              paidAmount: 5_000,
-              paidAt: new Date('2026-04-06T10:40:00.000Z'),
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  const { count } = await prisma.category.createMany({
+    data: SYSTEM_CATEGORIES.map((c) => ({ ...c, isSystem: true })),
+    skipDuplicates: true,
+  });
 
-  for (const data of splitPayloads) {
-    await prisma.$transaction(
-      async (tx) => {
-        const split = await tx.split.upsert({
-          where: { id: data.id },
-          create: {
-            id: data.id,
-            userId,
-            name: data.name,
-            amount: data.amount,
-            status: data.status,
-          },
-          update: {
-            userId,
-            name: data.name,
-            amount: data.amount,
-            status: data.status,
-          },
-        });
-
-        await tx.splitParticipant.deleteMany({
-          where: { splitId: split.id },
-        });
-
-        if (!data.participants.length) return;
-
-        await tx.splitParticipant.createMany({
-          data: data.participants.map((participant) => ({
-            splitId: split.id,
-            name: participant.name,
-            email: participant.email,
-            amount: participant.amount,
-          })),
-        });
-
-        const createdParticipants = await tx.splitParticipant.findMany({
-          where: { splitId: split.id },
-          select: { id: true, email: true },
-        });
-
-        const participantByEmail = new Map(
-          createdParticipants.map((participant) => [participant.email, participant.id]),
-        );
-
-        const settlements = data.participants.flatMap((participant) => {
-          const participantId = participantByEmail.get(participant.email);
-          if (!participantId) return [];
-
-          return (participant.settlements ?? []).map((settlement) => ({
-            splitId: split.id,
-            participantId,
-            paidAmount: settlement.paidAmount,
-            paidAt: settlement.paidAt,
-          }));
-        });
-
-        if (!settlements.length) return;
-
-        await tx.splitSettlement.createMany({
-          data: settlements,
-        });
-      },
-      {
-        maxWait: 10_000,
-        timeout: 30_000,
-      },
-    );
-  }
+  console.log(`Seeded ${count} new system categories (${SYSTEM_CATEGORIES.length - count} already existed).`);
 }
 
 main()

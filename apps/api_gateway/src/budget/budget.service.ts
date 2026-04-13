@@ -3,6 +3,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { ClientGrpc } from '@nestjs/microservices';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { UsageService } from '../usage/usage.service';
 
 import {
   FINANCE_SERVICE_NAME,
@@ -29,6 +30,7 @@ export class BudgetService implements OnModuleInit {
   private financeService: FinanceServiceClient;
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly client: ClientGrpc,
+    private readonly usageService: UsageService,
   ) {}
 
   onModuleInit() {
@@ -39,7 +41,7 @@ export class BudgetService implements OnModuleInit {
   async createBudget(user: User, data: CreateBudgetDto): Promise<ProtoBudget> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeService.createBudget(
         {
           name: data.name,
@@ -54,6 +56,8 @@ export class BudgetService implements OnModuleInit {
         metadata,
       ),
     );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async updateBudget(
@@ -71,6 +75,8 @@ export class BudgetService implements OnModuleInit {
   async deleteBudget(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(this.financeService.deleteBudget({ id }, metadata));
+    const result = await lastValueFrom(this.financeService.deleteBudget({ id }, metadata));
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 }

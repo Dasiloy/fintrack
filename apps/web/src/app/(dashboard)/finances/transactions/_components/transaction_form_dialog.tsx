@@ -26,7 +26,11 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { Category } from '@fintrack/database/types';
+import { onlyNumbers } from '@fintrack/utils/format';
+
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
+
+const genSourceId = () => `trnx_${Math.random().toString(36).slice(2, 10)}`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -122,7 +126,7 @@ export function TransactionFormDialog({
         date: format(date, 'YYYY-MM-DD'),
         type: type as 'INCOME' | 'EXPENSE',
         source: 'MANUAL',
-        sourceId: 'manual',
+        sourceId: genSourceId(),
         categorySlug,
         merchant: merchant || undefined,
         description: description || undefined,
@@ -143,19 +147,18 @@ export function TransactionFormDialog({
             <Field>
               <Label>Amount</Label>
               <Input
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 placeholder="0.00"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmount(onlyNumbers(e.target.value))}
                 required
               />
             </Field>
             <Field>
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger size="default" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -170,7 +173,7 @@ export function TransactionFormDialog({
           <Field>
             <Label>Category</Label>
             <Select value={categorySlug} onValueChange={setCategorySlug}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>

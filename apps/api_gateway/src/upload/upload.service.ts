@@ -10,6 +10,7 @@ import {
 
 import { type User } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
+import { UserService } from '../user/user.service';
 
 /**
  * Service responsible for uploading and fetching files from Cloudinary
@@ -20,7 +21,10 @@ import { PrismaService } from '@fintrack/database/service';
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UserService,
+  ) {
     cloudinary.v2.config({
       secure: true,
       sign_url: true,
@@ -58,6 +62,7 @@ export class UploadService {
         where: { id: user.id },
         data: { avatar: result.secure_url },
       });
+      void this.userService.invalidateUserProfileCache(user.id);
     } catch (error) {
       this.logger.error(error.message);
       throw new InternalServerErrorException('Failed to upload profile image');

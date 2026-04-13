@@ -319,6 +319,7 @@ model Account {
   updatedAt DateTime @updatedAt
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -364,6 +365,8 @@ model LoginActivity {
 
   // time stamps
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 enum VerificationIdentifier {
@@ -454,6 +457,8 @@ model BackupCodes {
   user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@index([userId, usedAt])
 }
 
 model ActivityLogs {
@@ -469,6 +474,8 @@ model ActivityLogs {
 
   // timestamp
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model NotificationSetting {
@@ -685,8 +692,9 @@ model Transaction {
   @@unique([userId, source, sourceId])
   @@unique([userId, bankTransactionId, monoBankAccountId])
   @@index([userId, date])
-  @@index([userId, source])
-  @@index([userId, categoryId])
+  @@index([userId, source, date])
+  @@index([userId, categoryId, date])
+  @@index([userId, sourceId])
   @@index([monoBankAccountId, bankTransactionId]) // ensure idempotency
 }
 
@@ -728,6 +736,9 @@ model RecurringItem {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, isActive])
+  @@index([isActive, nextRunAt])
 }
 
 enum Goalstatus {
@@ -762,7 +773,7 @@ model Goal {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([id,userId])
+  @@index([userId, status])
 }
 
 model GoalContribution {
@@ -782,7 +793,7 @@ model GoalContribution {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([id,goalId])
+  @@index([goalId])
 }
 
 enum SplitStatus {
@@ -810,6 +821,8 @@ model Split {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
 }
 
 model SplitParticipant {
@@ -877,6 +890,7 @@ model MonoBankAccount {
   updatedAt DateTime @updatedAt
 
   @@index([userId, accountId])
+  @@index([userId, accountNumber])
 }
 
 model FcmDevice {
@@ -912,4 +926,6 @@ model Notification {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, archived, createdAt])
 }

@@ -46,7 +46,8 @@ export const getPeriodRange = () => {
 };
 
 export const format = (date: Date | string, format: string) => {
-  return dayjs(date).format(format);
+  const dayjsDate = dayjs(date);
+  return dayjsDate.isValid() ? dayjsDate.format(format) : '';
 };
 
 export const isDateToday = (date: Date | string) => {

@@ -111,6 +111,7 @@ message UpdateTransactionReq {
   optional string description = 5;
   optional string merchant = 6;
   optional string category_slug = 7;
+  optional string notes = 8;
 }
 
 message DeleteTransactionReq {

@@ -3,6 +3,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { UsageService } from '../usage/usage.service';
 
 import {
   FINANCE_PACKAGE_NAME,
@@ -37,6 +38,7 @@ export class GoalService implements OnModuleInit {
 
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly client: ClientGrpc,
+    private readonly usageService: UsageService,
   ) {}
 
   onModuleInit() {
@@ -54,7 +56,7 @@ export class GoalService implements OnModuleInit {
   async createGoal(user: User, data: CreateGoalDto): Promise<ProtoGoal> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeService.createGoal(
         {
           name: data.name,
@@ -66,6 +68,8 @@ export class GoalService implements OnModuleInit {
         metadata,
       ),
     );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   /**
@@ -134,7 +138,9 @@ export class GoalService implements OnModuleInit {
   async deleteGoal(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(this.financeService.deleteGoal({ id }, metadata));
+    const result = await lastValueFrom(this.financeService.deleteGoal({ id }, metadata));
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   /**
