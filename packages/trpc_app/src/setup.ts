@@ -124,6 +124,7 @@ export const protectedProcedureWithPlanLimits = protectedProcedure
   .input(
     z.object({
       feature: z.nativeEnum(Usage).describe('The feature to check the limit for'),
+      splitId: z.string().min(1).optional(),
     }),
   )
   .use(async ({ ctx, input, next }) => {
@@ -213,6 +214,22 @@ export const protectedProcedureWithPlanLimits = protectedProcedure
             });
             break;
 
+          case Usage.MAX_PEOPLE_PER_SPLIT:
+            if (!input.splitId) {
+              throw new TRPCError({
+                code: 'FORBIDDEN',
+                message: 'feature usage limit reached',
+              });
+            }
+            count = await ctx.db.splitParticipant.count({
+              where: {
+                id: input.splitId,
+                split: {
+                  userId: ctx.session.user.id,
+                },
+              },
+            });
+
           default:
             count = Infinity;
             break;
@@ -226,7 +243,7 @@ export const protectedProcedureWithPlanLimits = protectedProcedure
           });
         }
 
-        ///!!!! CRITICAL => INCREASE THE USAGE COUNT ONLY ON SUCCESSFUL CREATION OF THE RESOURCE, IN NEXT STEP
+        ///!!!! CRITICAL => NO INCREMENTAL SINCE< COUNT IS BASED ON DB RECORDS
         return next({
           ctx: {
             // infers the `session` as non-nullable
