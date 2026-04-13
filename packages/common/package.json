@@ -6,7 +6,6 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "lint": "eslint . --fix",
     "check-types": "tsc --noEmit"

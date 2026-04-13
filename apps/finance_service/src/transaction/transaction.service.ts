@@ -483,7 +483,7 @@ export class TransactionService {
       bank: transaction.monoBankAccount
         ? {
             bankId: transaction.monoBankAccount.bankId,
-            bankLogoUrl: transaction.monoBankAccount.bankLogoUrl ?? '',
+            bankName: transaction.monoBankAccount.bankName,
             accountNumber: transaction.monoBankAccount.accountNumber,
             accountName: transaction.monoBankAccount.accountName,
           }

@@ -1,25 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { Button, toast } from '@ui/components';
+import { Button } from '@ui/components';
 import { Download, File } from 'lucide-react';
-import { Usage } from '@fintrack/types/constants/plan.constants';
-import { useCanUseFeature } from '@/app/providers/plan_usage_provider';
 import { ProfileSection } from '@/app/(dashboard)/settings/account/_components/profile_section';
-import { api_client } from '@/lib/trpc_app/api_client';
 
 export function ExportAccountStatement() {
-  const canUseFeature = useCanUseFeature(Usage.MAX_BUDGETS);
-
-  const createBudget = api_client.budget.createBudget.useMutation({
-    onSuccess: () => {
-      toast.success('Budget created successfully');
-    },
-    onError: () => {
-      toast.error('Failed to create budget');
-    },
-  });
-
   return (
     <ProfileSection
       title="Data & Privacy"
@@ -36,15 +22,10 @@ export function ExportAccountStatement() {
         </div>
 
         <div className="mt-4 flex items-center gap-2">
-          <Button
-            size="default"
-            variant={'outline'}
-            disabled={!canUseFeature}
-            onClick={() => createBudget.mutate({ feature: Usage.MAX_BUDGETS })}
-          >
+          <Button size="default" variant={'outline'}>
             <Download /> CSV
           </Button>
-          <Button size="default" variant={'outline'} disabled={!canUseFeature}>
+          <Button size="default" variant={'outline'}>
             <File /> PDF
           </Button>
         </div>

@@ -4,6 +4,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { PublicMetaKey } from '@fintrack/common/decorators/public.decorator';
 
 import { AuthService } from '../auth/auth.service';
 
@@ -16,7 +18,10 @@ import { AuthService } from '../auth/auth.service';
  */
 @Injectable()
 export class ApiGuard implements CanActivate {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly reflector: Reflector,
+  ) {}
 
   /**
    * @description Checks if the user is authenticated
@@ -26,6 +31,13 @@ export class ApiGuard implements CanActivate {
    * @returns {boolean} True if the user is authenticated, false otherwise
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(PublicMetaKey, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) return true;
+
     const request = context.switchToHttp().getRequest();
 
     // Extract token from Authorization header

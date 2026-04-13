@@ -35,17 +35,15 @@ import { CurrentUser } from '../decorators/current_user.decorator';
 import { TransactionQueryDto } from './dto/transaction_query.dto';
 
 /**
- * Controller responsible for managing user transactions
+ * Controller responsible for managing user transactions.
  * Handles HTTP requests for CRUD operations on transactions
- * Forwards requests to the Transaction microservice
+ * and forwards them to the Finance microservice via gRPC.
  *
  * @class TransactionController
  */
 @ApiTags('Transactions')
 @ApiBearerAuth()
-@Controller({
-  path: 'transaction',
-})
+@Controller({ path: 'transaction' })
 @UseGuards(ApiGuard)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
@@ -53,7 +51,7 @@ export class TransactionController {
   // ================================================================
   //. Create a transaction
   // ================================================================
-  @Post('create')
+  @Post('')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a transaction' })
   @ApiBody({
@@ -67,20 +65,18 @@ export class TransactionController {
     schema: {
       example: {
         success: true,
-        statusCode: HttpStatus.OK,
+        statusCode: HttpStatus.CREATED,
         message: 'Transaction created successfully',
         data: {
-          transaction: {
-            id: '123',
-            amount: 100,
-            date: '2026-01-01',
-            type: 'INCOME',
-            description: 'Lunch',
-            merchant: 'Starbucks',
-            category: 'Food and Dining',
-            source: 'MANUAL',
-            sourceId: '123',
-          },
+          id: '123',
+          amount: 100,
+          date: '2026-01-01',
+          type: 'INCOME',
+          description: 'Lunch',
+          merchant: 'Starbucks',
+          category: 'Food and Dining',
+          source: 'MANUAL',
+          sourceId: '123',
         },
       },
     },
@@ -95,10 +91,7 @@ export class TransactionController {
         message: 'Validation error',
         data: {
           errors: [
-            {
-              field: 'amount',
-              message: 'Amount must be greater than 0',
-            },
+            { field: 'amount', message: 'Amount must be greater than 0' },
           ],
         },
       },
@@ -113,17 +106,6 @@ export class TransactionController {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
         data: null,
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.REQUEST_TIMEOUT,
-    description: 'Request timeout',
-    schema: {
-      example: {
-        success: false,
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Request timeout',
       },
     },
   })
@@ -165,73 +147,37 @@ export class TransactionController {
     name: 'startDate',
     type: String,
     required: false,
-    description: 'The start date of the transactions',
     example: '2026-01-01',
   })
   @ApiQuery({
     name: 'endDate',
     type: String,
     required: false,
-    description: 'The end date of the transactions',
-    example: '2026-01-01',
+    example: '2026-12-31',
   })
   @ApiQuery({
     name: 'categorySlug',
     type: String,
     required: false,
-    description:
-      'The category slug of the transactions as a comma separated list',
-    example: 'cat-food,cat-travel',
+    description: 'Comma-separated slugs',
+    example: 'cat-food,cat-transport',
   })
   @ApiQuery({
     name: 'type',
     type: String,
     required: false,
-    description: 'The type of the transactions as a comma separated list',
+    description: 'Comma-separated types',
     example: 'INCOME,EXPENSE',
   })
   @ApiQuery({
     name: 'source',
     type: String,
     required: false,
-    description: 'The source of the transactions as a comma separated list',
-    example: 'MANUAL,OCR',
+    description: 'Comma-separated sources',
+    example: 'MANUAL,BANK',
   })
-  @ApiQuery({
-    name: 'sourceId',
-    type: String,
-    required: false,
-    description: 'The source id of the transactions',
-    example: '123',
-  })
-  @ApiQuery({
-    name: 'bankTransactionId',
-    type: String,
-    required: false,
-    description: 'The bank transaction id of the transactions',
-    example: '123',
-  })
-  @ApiQuery({
-    name: 'bankAccountId',
-    type: String,
-    required: false,
-    description: 'The bank account id of the transactions',
-    example: '123',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Reuested page',
-    example: 1,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of records to take',
-    example: 10,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transactions fetched successfully',
@@ -240,21 +186,15 @@ export class TransactionController {
         success: true,
         statusCode: HttpStatus.OK,
         message: 'Transactions fetched successfully',
-        data: {
-          transactions: [
-            {
-              id: '123',
-              amount: 100,
-              date: '2026-01-01',
-              type: 'INCOME',
-              description: 'Lunch',
-              merchant: 'Starbucks',
-              category: 'Food and Dining',
-              source: 'MANUAL',
-              sourceId: '123',
-            },
-          ],
-        },
+        data: [
+          {
+            id: '123',
+            amount: 100,
+            date: '2026-01-01',
+            type: 'INCOME',
+            source: 'MANUAL',
+          },
+        ],
       },
     },
   })
@@ -267,17 +207,6 @@ export class TransactionController {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
         data: null,
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.REQUEST_TIMEOUT,
-    description: 'Request timeout',
-    schema: {
-      example: {
-        success: false,
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Request timeout',
       },
     },
   })
@@ -317,13 +246,7 @@ export class TransactionController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a transaction by id' })
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'The id of the transaction',
-    example: 'cuwmhfnomcjvm,vjhcn3546',
-  })
+  @ApiParam({ name: 'id', type: String, required: true, example: 'clx1234abc' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transaction fetched successfully',
@@ -333,17 +256,11 @@ export class TransactionController {
         statusCode: HttpStatus.OK,
         message: 'Transaction fetched successfully',
         data: {
-          transaction: {
-            id: '123',
-            amount: 100,
-            date: '2026-01-01',
-            type: 'INCOME',
-            description: 'Lunch',
-            merchant: 'Starbucks',
-            category: 'Food and Dining',
-            source: 'MANUAL',
-            sourceId: '123',
-          },
+          id: '123',
+          amount: 100,
+          date: '2026-01-01',
+          type: 'INCOME',
+          source: 'MANUAL',
         },
       },
     },
@@ -357,17 +274,6 @@ export class TransactionController {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
         data: null,
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.REQUEST_TIMEOUT,
-    description: 'Request timeout',
-    schema: {
-      example: {
-        success: false,
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Request timeout',
       },
     },
   })
@@ -403,18 +309,8 @@ export class TransactionController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a transaction by id' })
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'The id of the transaction',
-    example: 'cuwmhfnomcjvm,vjhcn3546',
-  })
-  @ApiBody({
-    required: true,
-    type: UpdateTransactionDto,
-    description: 'Payload for updating a transaction',
-  })
+  @ApiParam({ name: 'id', type: String, required: true, example: 'clx1234abc' })
+  @ApiBody({ required: true, type: UpdateTransactionDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transaction updated successfully',
@@ -424,17 +320,11 @@ export class TransactionController {
         statusCode: HttpStatus.OK,
         message: 'Transaction updated successfully',
         data: {
-          transaction: {
-            id: '123',
-            amount: 100,
-            date: '2026-01-01',
-            type: 'INCOME',
-            description: 'Lunch',
-            merchant: 'Starbucks',
-            category: 'Food and Dining',
-            source: 'MANUAL',
-            sourceId: '123',
-          },
+          id: '123',
+          amount: 100,
+          date: '2026-01-01',
+          type: 'INCOME',
+          source: 'MANUAL',
         },
       },
     },
@@ -448,17 +338,6 @@ export class TransactionController {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
         data: null,
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.REQUEST_TIMEOUT,
-    description: 'Request timeout',
-    schema: {
-      example: {
-        success: false,
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Request timeout',
       },
     },
   })
@@ -499,13 +378,7 @@ export class TransactionController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a transaction by id' })
-  @ApiParam({
-    name: 'id',
-    type: String,
-    required: true,
-    description: 'The id of the transaction',
-    example: 'cuwmhfnomcjvm,vjhcn3546',
-  })
+  @ApiParam({ name: 'id', type: String, required: true, example: 'clx1234abc' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Transaction deleted successfully',
@@ -514,9 +387,7 @@ export class TransactionController {
         success: true,
         statusCode: HttpStatus.OK,
         message: 'Transaction deleted successfully',
-        data: {
-          id: 'cuwmhfnomcjvm,vjhcn3546',
-        },
+        data: null,
       },
     },
   })
@@ -529,17 +400,6 @@ export class TransactionController {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
         data: null,
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.REQUEST_TIMEOUT,
-    description: 'Request timeout',
-    schema: {
-      example: {
-        success: false,
-        statusCode: HttpStatus.REQUEST_TIMEOUT,
-        message: 'Request timeout',
       },
     },
   })
@@ -558,7 +418,7 @@ export class TransactionController {
   async deleteTransactionById(
     @CurrentUser() user: User,
     @Param('id') id: string,
-  ) {
+  ): Promise<StandardResponse<null>> {
     await this.transactionService.deleteTransactionById(id, user);
 
     return {

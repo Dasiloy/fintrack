@@ -4,7 +4,12 @@ import {
   userRouter,
   publicRouter,
   budgetRouter,
+  categoryRouter,
   transactionRouter,
+  accountRouter,
+  recurringRouter,
+  goalRouter,
+  splitRouter,
   notificationRouter,
 } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
@@ -19,7 +24,12 @@ export const appRouter = createTRPCRouter({
   public: publicRouter,
   subscription: subscriptionRouter,
   budget: budgetRouter,
+  category: categoryRouter,
   transaction: transactionRouter,
+  account: accountRouter,
+  recurring: recurringRouter,
+  goal: goalRouter,
+  split: splitRouter,
   notification: notificationRouter,
 });
 

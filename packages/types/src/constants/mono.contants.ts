@@ -1,0 +1,1 @@
+export const MONO_PENDING_TTL_SECONDS = 300;
