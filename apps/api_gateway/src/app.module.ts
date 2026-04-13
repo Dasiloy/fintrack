@@ -38,6 +38,7 @@ import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
 import { GoalModule } from './goal/goal.module';
 import { SplitModule } from './split/split.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -75,6 +76,8 @@ import { SplitModule } from './split/split.module';
         NOTIFICATION_SERVICE_PORT: Joi.string().required(),
         STRIPE_WEBHOOK_SECRET: Joi.string().required(),
         STRIPE_SECRET_KEY: Joi.string().required(),
+        MONO_SECRET_KEY: Joi.string().required(),
+        MONO_WEBHOOK_SECRET: Joi.string().required(),
       }),
     }),
 
@@ -170,6 +173,7 @@ import { SplitModule } from './split/split.module';
     CategoryModule,
     AnalyticsModule,
     ActivityModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [

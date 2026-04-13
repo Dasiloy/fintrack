@@ -22,7 +22,10 @@ import {
 import { TransactionQueryDto } from './dto/transaction_query.dto';
 
 /**
- * TransactionService.
+ * API Gateway service for transaction CRUD operations.
+ * Proxies HTTP requests to the Finance microservice via gRPC.
+ *
+ * @class TransactionService
  */
 @Injectable()
 export class TransactionService implements OnModuleInit {
@@ -37,6 +40,15 @@ export class TransactionService implements OnModuleInit {
       this.financeClient.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
   }
 
+  /**
+   * Creates a new manual transaction for the authenticated user.
+   * Amount is serialized to string for gRPC transport and enum values
+   * are mapped from their DTO string form to the proto enum integer.
+   *
+   * @param user - Authenticated user
+   * @param createTransactionDto - Transaction payload
+   * @returns The created transaction
+   */
   async createTransaction(
     user: User,
     createTransactionDto: CreateTransactionDto,
@@ -57,9 +69,19 @@ export class TransactionService implements OnModuleInit {
     );
   }
 
+  /**
+   * Retrieves a paginated, filtered list of transactions for the authenticated user.
+   * type and source arrays are mapped from DTO enum strings to proto enum integers.
+   * categorySlug and date range filters are forwarded as-is.
+   *
+   * @param user - Authenticated user
+   * @param query - Pagination and filter parameters
+   * @returns Paginated transaction list with meta
+   */
   async getAllTransactions(user: User, query: TransactionQueryDto) {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
+
     return lastValueFrom(
       this.financeServiceClient.getTransactions(
         {
@@ -77,14 +99,32 @@ export class TransactionService implements OnModuleInit {
     );
   }
 
+  /**
+   * Retrieves a single transaction by ID scoped to the authenticated user.
+   *
+   * @param id - Transaction ID
+   * @param user - Authenticated user
+   * @returns The matching transaction
+   */
   async getTransactionById(id: string, user: User) {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
+
     return lastValueFrom(
       this.financeServiceClient.getTransaction({ id }, metadata),
     );
   }
 
+  /**
+   * Updates a transaction by ID.
+   * Amount and type are optional — only provided fields are forwarded.
+   * Amount is serialized to string for gRPC transport when present.
+   *
+   * @param id - Transaction ID to update
+   * @param user - Authenticated user
+   * @param updateTransactionDto - Fields to update
+   * @returns The updated transaction
+   */
   async updateTransactionById(
     id: string,
     user: User,
@@ -92,6 +132,7 @@ export class TransactionService implements OnModuleInit {
   ) {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
+
     return lastValueFrom(
       this.financeServiceClient.updateTransaction(
         {
@@ -107,9 +148,17 @@ export class TransactionService implements OnModuleInit {
     );
   }
 
+  /**
+   * Deletes a transaction by ID scoped to the authenticated user.
+   *
+   * @param id - Transaction ID to delete
+   * @param user - Authenticated user
+   * @returns Empty response on success
+   */
   async deleteTransactionById(id: string, user: User) {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
+
     return lastValueFrom(
       this.financeServiceClient.deleteTransaction({ id }, metadata),
     );

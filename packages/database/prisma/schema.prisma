@@ -846,17 +846,23 @@ model SplitSettlement {
   createdAt DateTime @default(now())
 }
 
+
+enum MonoBankAccountStatus  {
+  AVAILABLE
+  PARTIAL
+  UNAVAILABLE
+}
 model MonoBankAccount {
   id              String    @id @default(cuid())
   accountId       String    @unique
   bankId          String
-  bankLogoUrl     String?
+  bankName        String
   accountNumber   String
   accountName     String
   accountType     String
   accountBalance  Float
   accountCurrency Currency
-  isActive        Boolean   @default(true)
+  status          MonoBankAccountStatus
   lastSyncedAt    DateTime?
 
   // ownership

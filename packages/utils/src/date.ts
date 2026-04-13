@@ -1,7 +1,16 @@
 import dayjs from 'dayjs';
 
+import isToday from 'dayjs/plugin/isToday.js';
+import isYesterday from 'dayjs/plugin/isYesterday.js';
+import isoWeek from 'dayjs/plugin/isoWeek.js';
+import weekOfYear from 'dayjs/plugin/weekOfYear.js';
 import relativeTime from 'dayjs/plugin/relativeTime.js';
+
 dayjs.extend(relativeTime);
+dayjs.extend(isToday);
+dayjs.extend(isYesterday);
+dayjs.extend(isoWeek);
+dayjs.extend(weekOfYear);
 
 /**
  * @description Get elapsed time differemce between a specific date and now
@@ -34,6 +43,28 @@ export const getPeriodRange = () => {
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 
   return [start, end] as [Date, Date];
+};
+
+export const format = (date: Date | string, format: string) => {
+  return dayjs(date).format(format);
+};
+
+export const isDateToday = (date: Date | string) => {
+  return dayjs(date).isToday();
+};
+
+export const isDateYesterday = (date: Date | string) => {
+  return dayjs(date).isYesterday();
+};
+
+export const isDateThisWeek = (date: Date | string) => {
+  const dayjsDate = dayjs(date);
+  return dayjsDate.week() === dayjs().week() && dayjsDate.year() === dayjs().year();
+};
+
+export const isDateThisWeekIso = (date: Date | string) => {
+  const dayjsDate = dayjs(date);
+  return dayjsDate.isoWeek() === dayjs().isoWeek() && dayjsDate.year() === dayjs().year();
 };
 
 export default dayjs;
