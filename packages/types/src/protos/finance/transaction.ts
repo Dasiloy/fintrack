@@ -130,6 +130,7 @@ export interface UpdateTransactionReq {
   description?: string | undefined;
   merchant?: string | undefined;
   categorySlug?: string | undefined;
+  notes?: string | undefined;
 }
 
 export interface DeleteTransactionReq {

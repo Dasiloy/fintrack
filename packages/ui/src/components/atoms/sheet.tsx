@@ -1,6 +1,6 @@
 import * as React from "react"
 import { XIcon } from "lucide-react"
-import { Dialog as SheetPrimitive } from "radix-ui"
+import { Dialog as SheetPrimitive, VisuallyHidden } from "radix-ui"
 
 import { cn } from "@ui/lib/utils/cn"
 
@@ -48,10 +48,13 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  title,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
+  /** Accessible title — shown visually if provided, otherwise hidden from view but read by screen readers. */
+  title?: string
 }) {
   return (
     <SheetPortal>
@@ -74,6 +77,9 @@ function SheetContent({
         )}
         {...props}
       >
+        <VisuallyHidden.Root>
+          <SheetPrimitive.Title>{title ?? 'Sheet'}</SheetPrimitive.Title>
+        </VisuallyHidden.Root>
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close className="absolute top-space-4 right-space-4 rounded-button border border-border-subtle bg-bg-surface/80 text-text-tertiary opacity-70 hover:bg-bg-surface hover:text-text-primary hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-hidden disabled:pointer-events-none duration-smooth transition-colors">

@@ -4,6 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 
 import { ClientGrpc } from '@nestjs/microservices';
+import { UsageService } from '../usage/usage.service';
 
 import {
   FINANCE_PACKAGE_NAME,
@@ -35,6 +36,7 @@ export class RecurringService implements OnModuleInit {
 
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly client: ClientGrpc,
+    private readonly usageService: UsageService,
   ) {}
 
   onModuleInit() {
@@ -48,7 +50,7 @@ export class RecurringService implements OnModuleInit {
   ): Promise<ProtoRecurring> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeService.createRecurring(
         {
           name: data.name,
@@ -64,6 +66,8 @@ export class RecurringService implements OnModuleInit {
         metadata,
       ),
     );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async getRecurrings(
@@ -104,6 +108,8 @@ export class RecurringService implements OnModuleInit {
   async deleteRecurring(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(this.financeService.deleteRecurring({ id }, metadata));
+    const result = await lastValueFrom(this.financeService.deleteRecurring({ id }, metadata));
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 }

@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/goal.proto
 
- 
+/* eslint-disable */
 import { Transaction } from "./transaction";
 
 export const protobufPackage = "finance";

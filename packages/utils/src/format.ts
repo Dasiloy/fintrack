@@ -5,12 +5,19 @@
  * Return Properly formatted currency
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-NG', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'NGN',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+/** Strips everything except digits and a single decimal point — use as an onChange filter on text amount inputs */
+export function onlyNumbers(value: string): string {
+  const stripped = value.replace(/[^0-9.]/g, '');
+  const parts = stripped.split('.');
+  return parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : stripped;
 }
 
 /**

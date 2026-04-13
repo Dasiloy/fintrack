@@ -27,3 +27,4 @@ const helpers = createHydrationHelpers<AppRouter>(caller, getQueryClient);
 
 export const api_server = helpers.trpc;
 export const HydrateClient = helpers.HydrateClient;
+export const api_caller = caller;

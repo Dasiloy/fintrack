@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/recurring.proto
 
- 
+/* eslint-disable */
 import { Category, Transaction } from "./transaction";
 
 export const protobufPackage = "finance";

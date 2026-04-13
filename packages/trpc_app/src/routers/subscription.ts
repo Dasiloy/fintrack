@@ -6,11 +6,39 @@ import type {
   CreateCheckoutSessionResponse,
   CreatePortalSessionResponse,
 } from '@fintrack/types/protos/payment/payment';
-import { Prisma, SubscriptionPlan, SubscriptionStatus } from '@fintrack/database/types';
+import { SubscriptionPlan, SubscriptionStatus } from '@fintrack/database/types';
+import { type GatedUsageResponse } from '@fintrack/database/usage.types';
 import { TRPCError } from '@trpc/server';
-import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 
 export const subscriptionRouter = createTRPCRouter({
+  /**
+   * Lightweight check — returns whether the user is on the PRO plan.
+   */
+  isPro: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const sub = await ctx.db.subscription.findUnique({
+        where: { userId: ctx.session.user.id },
+        select: { plan: true },
+      });
+      const isPro = sub?.plan === SubscriptionPlan.PRO;
+
+      const response: StandardResponse<boolean> = {
+        data: isPro,
+        message: 'Plan data got successfully',
+        statusCode: 200,
+        success: true,
+      };
+
+      return response;
+    } catch (error) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'an error occured',
+      });
+    }
+  }),
+
   // ---------------------------------------------------------------------------
   // Queries
   // ---------------------------------------------------------------------------
@@ -43,70 +71,36 @@ export const subscriptionRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx }) => {
-      try {
-        const userCount = await ctx.db.user.findUniqueOrThrow({
-          where: { id: ctx.session.user.id },
-          select: {
-            usageTrackers: {
-              select: {
-                feature: true,
-                count: true,
-                periodStart: true,
-                periodEnd: true,
-              },
-            },
-            subscription: {
-              select: {
-                plan: true,
-                status: true,
-                stripeCancelAtPeriodEnd: true,
-                stripeCurrentPeriodEnd: true,
-              },
-            },
-            _count: {
-              select: {
-                categories: true,
-                budgets: true,
-                recurringItems: true,
-                goals: true,
-                splits: true,
-              },
-            },
-          },
-        });
+      const response = await fetch(`${GATEWAY_URL}/api/usage/gated`, {
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+      });
 
-        const map = new Map<Usage, { count: number; periodEnd: Date }>(
-          userCount.usageTrackers.map((item) => [
-            `${item.feature}_PER_MONTH` as Usage,
+      if (!response.ok) await throwGatewayError(response);
+
+      const body: StandardResponse<GatedUsageResponse> = await response.json();
+
+      const raw = body.data!;
+      return {
+        ...raw,
+        stripeCurrentPeriodEnd: raw.stripeCurrentPeriodEnd
+          ? new Date(raw.stripeCurrentPeriodEnd)
+          : null,
+        usage: Object.fromEntries(
+          (
+            Object.entries(raw.usage) as [
+              string,
+              { count: number; periodStart: string; periodEnd: string },
+            ][]
+          ).map(([key, val]) => [
+            key,
             {
-              count: item.count,
-              periodStart: item.periodStart,
-              periodEnd: item.periodEnd,
+              ...val!,
+              periodStart: new Date(val!.periodStart),
+              periodEnd: new Date(val!.periodEnd),
             },
           ]),
-        );
-
-        return {
-          plan: userCount.subscription!.plan,
-          status: userCount.subscription!.status,
-          cancelAtPeriodEnd: userCount.subscription!.stripeCancelAtPeriodEnd,
-          stripeCurrentPeriodEnd: userCount.subscription!.stripeCurrentPeriodEnd,
-          usage: Object.fromEntries(map.entries()),
-          limits: PLAN_LIMITS[userCount.subscription!.plan],
-          resourceCounts: userCount._count,
-        };
-      } catch (error: any) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Invalid request',
-          });
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'an error occured',
-        });
-      }
+        ) as Record<Usage, { count: number; periodStart: Date; periodEnd: Date }>,
+      };
     }),
   // ---------------------------------------------------------------------------
   // Mutations

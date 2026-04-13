@@ -48,6 +48,7 @@
     "server-only": "^0.0.1",
     "socket.io-client": "^4.8.3",
     "superjson": "^2.2.1",
+    "uuid": "^13.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

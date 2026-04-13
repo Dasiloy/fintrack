@@ -15,9 +15,9 @@ const sslRootCert = Buffer.from(databaseCaCertificate, 'base64').toString('utf-8
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false, ca: sslRootCert },
-  max: 3,
+  max: parseInt(process.env.DB_POOL_MAX ?? '1', 10),
   connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 10000,
+  idleTimeoutMillis: 60000,
 });
 
 export const prisma =

@@ -39,6 +39,8 @@ import { RecurringModule } from './recurring/recurring.module';
 import { GoalModule } from './goal/goal.module';
 import { SplitModule } from './split/split.module';
 import { AccountModule } from './account/account.module';
+import { UsageModule } from './usage/usage.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -174,6 +176,8 @@ import { AccountModule } from './account/account.module';
     AnalyticsModule,
     ActivityModule,
     AccountModule,
+    UsageModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [

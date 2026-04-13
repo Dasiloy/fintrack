@@ -12,6 +12,7 @@ export type ColumnDef<T> = {
   bodyClassName?: string;
   render?: (row: T, index: number) => React.ReactNode;
   skeletonClassName?: string; // used for loading state alignment
+  flex?: number | string; // flex shorthand — defaults to 1 (equal columns). Use e.g. '0 0 80px' for fixed width.
 };
 
 // ---------- Table ----------
@@ -41,7 +42,7 @@ function StyledTable<T>({
   emptyContent,
 }: StyledTableProps<T>) {
   return (
-    <div className={cn('flex w-full flex-col', className)}>
+    <div className={cn('flex h-full w-full flex-col', className)}>
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
           ? React.cloneElement(child as React.ReactElement<any>, {
@@ -78,11 +79,14 @@ function StyledTableColumn<T>({
   columnBodyClassName,
   columnHeaderClassName,
 }: StyledTableColumnProps<T>) {
+  const flexStyle = { flex: column.flex ?? 1, minWidth: 0 };
+
   if (variant === 'header') {
     return (
       <div
+        style={flexStyle}
         className={cn(
-          'text-text-disabled text-[10px] font-semibold tracking-widest uppercase text-left',
+          'text-text-disabled text-left text-[10px] font-semibold tracking-widest uppercase',
           columnHeaderClassName,
           column.headerClassName,
         )}
@@ -95,8 +99,9 @@ function StyledTableColumn<T>({
   if (variant === 'skeleton') {
     return (
       <div
+        style={flexStyle}
         className={cn(
-          'text-text-primary text-sm font-normal text-left',
+          'text-text-primary text-left text-sm font-normal',
           columnBodyClassName,
           column.bodyClassName,
           column.skeletonClassName,
@@ -109,8 +114,9 @@ function StyledTableColumn<T>({
 
   return (
     <div
+      style={flexStyle}
       className={cn(
-        'text-text-primary text-sm font-normal text-left',
+        'text-text-primary text-left text-sm font-normal',
         columnBodyClassName,
         column.bodyClassName,
       )}
@@ -200,8 +206,13 @@ function StyledTableBody<T>({
   }
 
   if (isEmpty) {
-    return <div className={cn('flex flex-col', className)}>{emptyContent}</div>;
+    return (
+      <div className={cn('flex h-full flex-1 flex-col items-center justify-center', className)}>
+        {emptyContent}
+      </div>
+    );
   }
+
   return (
     <div className={cn('divide-border-subtle/25 flex flex-col divide-y', className)}>
       {React.Children.map(children, (child) =>
@@ -297,7 +308,7 @@ function StyledTableRow<T>({
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       className={cn(
-        'flex items-center gap-4 px-5 py-2.5 border-l-[3px] border-l-transparent',
+        'flex items-center gap-4 border-l-[3px] border-l-transparent px-5 py-2.5',
         onClick && 'cursor-pointer select-none',
         className,
       )}

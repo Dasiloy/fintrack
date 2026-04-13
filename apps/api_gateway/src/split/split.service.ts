@@ -3,6 +3,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { UsageService } from '../usage/usage.service';
 
 import {
   FINANCE_PACKAGE_NAME,
@@ -40,6 +41,7 @@ export class SplitService implements OnModuleInit {
 
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly client: ClientGrpc,
+    private readonly usageService: UsageService,
   ) {}
 
   onModuleInit() {
@@ -50,7 +52,11 @@ export class SplitService implements OnModuleInit {
   async createSplit(user: User, data: CreateSplitDto): Promise<ProtoSplit> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(this.financeService.createSplit(data, metadata));
+    const result = await lastValueFrom(
+      this.financeService.createSplit(data, metadata),
+    );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async getSplitAggregate(user: User): Promise<GetSplitAggregateRes> {
@@ -91,7 +97,11 @@ export class SplitService implements OnModuleInit {
   async deleteSplit(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(this.financeService.deleteSplit({ id }, metadata));
+    const result = await lastValueFrom(
+      this.financeService.deleteSplit({ id }, metadata),
+    );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async addParticipant(
@@ -101,9 +111,11 @@ export class SplitService implements OnModuleInit {
   ): Promise<ProtoParticipant> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(
+    const result = lastValueFrom(
       this.financeService.addParticipant({ splitId, ...data }, metadata),
     );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async updateParticipant(
@@ -129,12 +141,14 @@ export class SplitService implements OnModuleInit {
   ): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    return lastValueFrom(
+    const result = lastValueFrom(
       this.financeService.deleteParticipant(
         { splitId, participantId },
         metadata,
       ),
     );
+    void this.usageService.invalidateGatedUsageCache(user.id);
+    return result;
   }
 
   async paySettlement(

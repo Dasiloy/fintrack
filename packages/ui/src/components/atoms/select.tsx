@@ -29,12 +29,12 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        'gap-space-2 rounded-button border-border-subtle bg-bg-surface px-space-3 py-space-2 text-body text-text-primary flex w-fit items-center justify-between border whitespace-nowrap outline-none',
+        'gap-space-2 rounded-button border-border-subtle bg-bg-surface px-space-4 py-space-2 text-text-primary flex w-fit items-center justify-between border text-[12px] whitespace-nowrap outline-none',
         "data-placeholder:text-text-tertiary [&_svg:not([class*='text-'])]:text-text-tertiary",
         'focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-2',
         'aria-invalid:border-error aria-invalid:ring-error/20',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        'duration-smooth transition-[color,box-shadow] data-[size=default]:h-11 data-[size=sm]:h-9',
+        'duration-smooth transition-[color,box-shadow] data-[size=default]:h-10 data-[size=sm]:h-9',
         '*:data-[slot=select-value]:gap-space-2 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center',
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
@@ -52,40 +52,45 @@ function SelectTrigger({
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', align = 'start', sideOffset = 4, ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      data-slot="select-content"
-      className={cn(
-        'bg-bg-elevated text-text-primary border-border-subtle rounded-card shadow-card border',
-        'relative z-50 max-h-(--radix-select-content-available-height) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-        'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-        'duration-smooth',
-        position === 'popper' &&
-          'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-        className,
-      )}
-      position={position}
-      align={align}
-      sideOffset={sideOffset}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
+>(
+  (
+    { className, children, position = 'popper', align = 'start', sideOffset = 4, ...props },
+    ref,
+  ) => (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        ref={ref}
+        data-slot="select-content"
         className={cn(
-          'p-space-1',
+          'bg-bg-elevated text-text-primary border-border-subtle rounded-card shadow-card border',
+          'relative z-50 max-h-(--radix-select-content-available-height) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'duration-smooth',
           position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1',
+            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
+          className,
         )}
+        position={position}
+        align={align}
+        sideOffset={sideOffset}
+        {...props}
       >
-        {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-));
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          className={cn(
+            'p-space-1',
+            position === 'popper' &&
+              'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1',
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  ),
+);
 
 function SelectLabel({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.Label>) {
   return (
@@ -106,7 +111,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        'gap-space-2 rounded-button py-space-1.5 pl-space-2 text-body-sm text-text-secondary relative flex w-full cursor-default items-center pr-8 outline-hidden select-none',
+        'gap-space-2 rounded-button text-text-secondary relative flex w-full cursor-default items-center py-1 pr-8 pl-3 text-[14px] outline-hidden select-none',
         'focus:bg-bg-surface-hover focus:text-text-primary',
         'data-disabled:pointer-events-none data-disabled:opacity-50',
         "[&_svg:not([class*='text-'])]:text-text-tertiary [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",

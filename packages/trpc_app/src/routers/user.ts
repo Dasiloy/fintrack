@@ -1,11 +1,14 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, protectedProcedure } from '../setup';
-import { Currency, DateFormat, Language, Prisma, type User } from '@fintrack/database/types';
+import { Currency, DateFormat, Language } from '@fintrack/database/types';
+import { type GetMeResponse } from '@fintrack/database/user.select';
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
 import { MAX_FILE_SIZE } from '@fintrack/types/constants/file.constants';
-import { GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 import { base64ToBufferingString } from '@fintrack/utils/file';
+
+export type { GetMeResponse };
 
 export const userRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
@@ -13,70 +16,19 @@ export const userRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
 
   /**
-   * Fetch the current user's data
-   *
-   * Also returns the base data of the user profile
-   * Use in Dahboard layout prefetched, Fetch extensively in other routes
-   *
-   * @returns {User} user data with prefrences and subscription
-   * @throws INTERNAL_SERVER_ERROR on unexpected database failure
+   * Fetch the current user's profile from the API Gateway.
+   * Response is Redis-cached in the gateway for 5 minutes.
+   * Cache is invalidated on updateMe, updateSettings, and updateProfileImage.
    */
   getMe: protectedProcedure.query(async ({ ctx }) => {
-    try {
-      const user = await ctx.db.user.findUniqueOrThrow({
-        where: { email: ctx.session.user.email },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          avatar: true,
-          language: true,
-          currency: true,
-          dateFormat: true,
-          timezone: true,
-          lastLoginAt: true,
-          setting: {
-            select: {
-              budgetAlertMail: true,
-              budgetAlertApp: true,
-              billReminderMail: true,
-              billReminderApp: true,
-              weeklyReportMail: true,
-              weeklyReportApp: true,
-              aiInsightsMail: true,
-              aiInsightsApp: true,
-              goalsAlertMail: true,
-              goalsAlertApp: true,
-              splitsAlertMail: true,
-              splitsAlertApp: true,
-            },
-          },
-          subscription: {
-            select: {
-              plan: true,
-              status: true,
-              stripeCurrentPeriodStart: true,
-              stripeCurrentPeriodEnd: true,
-            },
-          },
-        },
-      });
+    const response = await fetch(`${GATEWAY_URL}/api/user/me`, {
+      headers: gatewayHeaders(ctx.headers),
+    });
 
-      const data: StandardResponse<typeof user> = {
-        data: user,
-        message: 'Profile fetched successfully',
-        statusCode: 200,
-        success: true,
-      };
-      return data;
-    } catch (error) {
-      if (error instanceof TRPCError) throw error;
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'an error occured',
-      });
-    }
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<GetMeResponse> = await response.json();
+    return data;
   }),
 
   // ---------------------------------------------------------------------------
@@ -84,22 +36,15 @@ export const userRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
 
   /**
-   * Update the current user data
-   *
-   * Also returns the base data of the user profile
-   * Use in Profile Settings screen
-   *
-   * @returns {User} user data with prefrences and subscription
-   * @throws NOT_FOUND_ERROR on cases where user is missing
-   * @throws INTERNAL_SERVER_ERROR on unexpected database failure
+   * Update the current user's profile fields.
+   * Invalidates the Redis user profile cache in the gateway.
    */
-
   updateMe: protectedProcedure
     .input(
       z.object({
-        firstName: z.string().min(1, 'first name is required').nullable().default(null),
-        lastName: z.string().min(1, 'last name is required').nullable().default(null),
-        avatar: z.string().url('Invalid url').nullable().default(null),
+        firstName: z.string().min(1).nullable().default(null),
+        lastName: z.string().min(1).nullable().default(null),
+        avatar: z.string().url().nullable().default(null),
         language: z.nativeEnum(Language).nullable().default(null),
         currency: z.nativeEnum(Currency).nullable().default(null),
         dateFormat: z.nativeEnum(DateFormat).nullable().default(null),
@@ -107,80 +52,25 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const data: Partial<User> = {};
-        if (input.firstName) {
-          data.firstName = input.firstName;
-        }
-        if (input.lastName) {
-          data.lastName = input.lastName;
-        }
-        if (input.avatar) {
-          data.avatar = input.avatar;
-        }
-        if (input.language) {
-          data.language = input.language;
-        }
-        if (input.currency) {
-          data.currency = input.currency;
-        }
-        if (input.dateFormat) {
-          data.dateFormat = input.dateFormat;
-        }
-        if (input.timezone) {
-          data.timezone = input.timezone;
-        }
-        const newUser = await ctx.db.user.update({
-          where: { email: ctx.session.user.email },
-          data,
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            language: true,
-            currency: true,
-            dateFormat: true,
-            timezone: true,
-            setting: true,
-            lastLoginAt: true,
-            subscription: {
-              select: {
-                plan: true,
-                status: true,
-                createdAt: true,
-              },
-            },
-          },
-        });
+      // strip nulls — gateway only updates fields that are provided
+      const body = Object.fromEntries(Object.entries(input).filter(([, v]) => v !== null));
 
-        return newUser;
-      } catch (error: any) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Invalid request',
-          });
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'an error occured',
-        });
-      }
+      const response = await fetch(`${GATEWAY_URL}/api/user/me`, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<unknown> = await response.json();
+      return data;
     }),
 
   /**
-   * Update the current user notificatrion setting
-   *
-   * Also returns the updated notification setting
-   * Use in  ccount Setting screens
-   *
-   * @returns {NotificationSetting} user notification setting
-   * @throws NOT_FOUND_ERROR on cases where setting is missing
-   * @throws INTERNAL_SERVER_ERROR on unexpected database failure
+   * Update the current user's notification settings.
+   * Invalidates the Redis user profile cache in the gateway.
    */
-
   updateSettings: protectedProcedure
     .input(
       z.object({
@@ -199,34 +89,21 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const notification = await ctx.db.notificationSetting.update({
-          where: { userId: ctx.session.user.id },
-          data: input,
-        });
+      const response = await fetch(`${GATEWAY_URL}/api/user/settings`, {
+        method: 'PATCH',
+        body: JSON.stringify(input),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+      });
 
-        return notification;
-      } catch (error: any) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'Invalid request',
-          });
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'an error occured',
-        });
-      }
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<null> = await response.json();
+      return data;
     }),
 
   /**
-   * Update the current user profile image
-   *
-   * @param {File} image - The image to update the profile image with
-   * @returns {string} the updated profile image
-   * @throws BAD_REQUEST_ERROR on cases where image is missing
-   * @throws INTERNAL_SERVER_ERROR on unexpected database failure
+   * Upload a new profile image via the gateway upload endpoint.
+   * Gateway updates avatar in DB and invalidates the user profile cache.
    */
   updateProfileImage: protectedProcedure
     .input(

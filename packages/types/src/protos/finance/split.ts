@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/split.proto
 
- 
+/* eslint-disable */
 import { PaginateResponse } from "../paginate";
 import { Transaction } from "./transaction";
 

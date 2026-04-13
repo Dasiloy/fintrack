@@ -279,6 +279,7 @@ export class TransactionService {
           description: request.description,
         }),
         ...(request.merchant !== undefined && { merchant: request.merchant }),
+        ...(request.notes !== undefined && { notes: request.notes }),
         ...(category?.id && { category: { connect: { id: category.id } } }),
       };
       const updatedTransaction = await this.prismaService.transaction.update({

@@ -2,39 +2,16 @@
 
 import * as React from 'react';
 import { format } from '@fintrack/utils/date';
-import {
-  CalendarDays,
-  Download,
-  Edit2,
-  Eye,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-  SlidersHorizontal,
-  Trash2,
-  X,
-} from 'lucide-react';
-import {
-  Button,
-  Calendar,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Skeleton,
-  toast,
-} from '@ui/components';
-import { AnchoredPopover } from '@ui/components/shared';
+import { Download, Eye, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Button, Skeleton, toast, type DateRange as DateType } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { PageHeader } from '@/app/_components/page-header';
-import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 import { TransactionDrawer } from './_components/transaction_drawer';
 import { TransactionFormDialog } from './_components/transaction_form_dialog';
 import {
   TransactionFilters,
   EMPTY_FILTERS,
-  activeFilterCount,
   type FilterState,
 } from './_components/transaction_filters';
 import type { CategoryTab } from '@/app/(dashboard)/finances/transactions/types';
@@ -46,9 +23,13 @@ import {
   StyledTableHeader,
   type ColumnDef,
 } from '@/app/_components/styledTable';
-import { capitalize, formatCurrency } from '@fintrack/utils/format';
+import { capitalize, flattenObject, formatCurrency } from '@fintrack/utils/format';
+import { DateRange, Menu } from '@/app/_components';
+import { useCsv } from '@ui/hooks';
+import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 
 export default function TransactionsPage() {
+  // ── Hooks ────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = React.useState<CategoryTab>({
     kind: 'all',
     label: 'All Transactions',
@@ -56,31 +37,30 @@ export default function TransactionsPage() {
   const [drawerTxId, setDrawerTxId] = React.useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
-  const [editTx, setEditTx] = React.useState<Transaction | null>(null);
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<FilterState>(EMPTY_FILTERS);
-  const [dateRange, setDateRange] = React.useState<{ from?: Date; to?: Date }>({});
-  const [draftDateRange, setDraftDateRange] = React.useState<{ from?: Date; to?: Date }>({});
+  const [dateRange, setDateRange] = React.useState<DateType | undefined>(undefined);
+  const [draftDateRange, setDraftDateRange] = React.useState<DateType | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
 
   // ── Queries ────────────────────────────────────────────────────────────────
   const { data: categoryData, isLoading: catsLoading } = api_client.category.getAll.useQuery();
   const categories = categoryData?.data ?? [];
 
-  const queryInput = React.useMemo(
-    () => ({
+  const queryInput = React.useMemo(() => {
+    const startDate = dateRange?.from ? format(dateRange.from, 'YYYY-MM-DD') : undefined;
+    const endDate = dateRange?.to ? format(dateRange.to, 'YYYY-MM-DD') : undefined;
+    return {
       limit: 10,
-      startDate: dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
-      endDate: dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
+      startDate,
+      endDate: endDate ? (startDate === endDate ? undefined : endDate) : undefined,
       categorySlug: activeTab.kind === 'category' ? [activeTab.slug] : undefined,
       type: filters.type.length > 0 ? filters.type : undefined,
       source: filters.source.length > 0 ? filters.source : undefined,
       sourceId: filters.sourceId || undefined,
       bankTransactionId: filters.bankTransactionId || undefined,
       bankAccountId: filters.bankAccountId || undefined,
-    }),
-    [dateRange, activeTab, filters],
-  );
+    };
+  }, [dateRange, activeTab, filters]);
 
   const {
     data,
@@ -154,18 +134,6 @@ export default function TransactionsPage() {
       return tab.slug === activeTab.slug;
     return false;
   };
-
-  // ── Date label ────────────────────────────────────────────────────────────
-  const dateLabel = React.useMemo(() => {
-    if (dateRange.from && dateRange.to)
-      return `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`;
-    if (dateRange.from) return `From ${format(dateRange.from, 'MMM d')}`;
-    return 'Date range';
-  }, [dateRange]);
-
-  const hasDate = !!(dateRange.from || dateRange.to);
-  const filterCount = activeFilterCount(filters);
-  const showSkeleton = txLoading;
 
   // ── Column definitions (inside component to close over state) ─────────────
   const transactionColumns: ColumnDef<Transaction>[] = React.useMemo(
@@ -241,9 +209,10 @@ export default function TransactionsPage() {
       {
         key: 'amount',
         label: 'Amount',
-        headerClassName: 'shrink-0',
-        bodyClassName: 'shrink-0',
-        skeletonClassName: 'shrink-0 w-20',
+        flex: '0 0 90px',
+        headerClassName: 'text-right md:text-left',
+        bodyClassName: 'text-right md:text-left',
+        skeletonClassName: 'flex justify-end',
         render: (row) => {
           const expense = row.type === 'EXPENSE';
           return (
@@ -261,62 +230,49 @@ export default function TransactionsPage() {
       {
         key: 'actions',
         label: '',
-        headerClassName: 'shrink-0 w-8',
-        bodyClassName: 'shrink-0 w-8 flex justify-end',
-        skeletonClassName: 'shrink-0 w-8',
+        headerClassName: 'hidden sm:block shrink-0 w-8',
+        bodyClassName: 'hidden sm:flex shrink-0 w-8 justify-end',
+        skeletonClassName: 'hidden sm:block shrink-0 w-8',
         render: (row) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <button
-                type="button"
-                className={cn(
-                  'flex size-6 cursor-pointer items-center justify-center rounded',
-                  'text-text-disabled hover:text-text-primary hover:bg-bg-surface',
-                  'transition-all duration-150 outline-none',
-                  'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
-                )}
-              >
-                <MoreHorizontal className="size-3.5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-36 rounded-md p-1.5">
-              <DropdownMenuItem
-                className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
-                onClick={(e) => {
+          <Menu
+            menus={[
+              {
+                label: 'View',
+                Icon: <Eye className="size-3.5 shrink-0" />,
+                onClick(e) {
                   e.stopPropagation();
                   setDrawerTxId(row.id);
                   setDrawerOpen(true);
-                }}
-              >
-                <Eye className="size-3.5 shrink-0" /> View
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditTx(row);
-                }}
-              >
-                <Edit2 className="size-3.5 shrink-0" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
-                onClick={(e) => {
+                },
+              },
+              {
+                label: 'Delete',
+                variant: 'destructive',
+                Icon: <Trash2 className="size-3.5 shrink-0" />,
+                onClick(e) {
                   e.stopPropagation();
                   deleteMutation.mutate({ id: row.id });
-                }}
-              >
-                <Trash2 className="size-3.5 shrink-0" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                },
+              },
+            ]}
+          />
         ),
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
     ],
     [drawerTxId, drawerOpen, deleteMutation],
   );
+
+  // ── Csv Exports ────────────────────────────────────────────────────────────────
+  const { isDownloading, downloadTableCsv } = useCsv('transactions.csv');
+  const handleExports = async () => {
+    try {
+      const rows = allTransactions.map(flattenObject);
+      await downloadTableCsv(rows, { omit: ['icon', 'slug', 'color'] });
+    } catch {
+      toast.error('Failed to export transactions');
+    }
+  };
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -325,8 +281,9 @@ export default function TransactionsPage() {
         <Button
           variant="outline"
           size="sm"
+          loading={isDownloading}
           className="gap-1.5 px-2.5 sm:px-4"
-          onClick={() => toast.info('Export coming soon')}
+          onClick={handleExports}
         >
           <Download className="size-3.5" />
           <span className="hidden sm:inline">Export</span>
@@ -343,122 +300,48 @@ export default function TransactionsPage() {
           <h1 className="text-text-primary text-[22px] leading-7 font-semibold tracking-tight">
             Transactions
           </h1>
-          <p className="text-text-tertiary mt-1 text-[13px]">
-            {txLoading
-              ? 'Loading…'
-              : `You have ${totalCount} transaction${totalCount !== 1 ? 's' : ''} this period`}
-          </p>
+          {txLoading ? (
+            <Skeleton className="mt-1 h-5 w-40 rounded-md" />
+          ) : (
+            <p className="text-text-tertiary mt-1 text-[13px]">
+              `You have {totalCount} transaction{totalCount !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
           {/* Date range */}
-          <div className="flex items-center gap-1">
-            <AnchoredPopover
-              open={calendarOpen}
-              onOpenChange={(open) => {
-                if (!open) setDraftDateRange(dateRange);
-                setCalendarOpen(open);
-              }}
-              align="end"
-              contentClassName="w-auto p-0"
-              trigger={
-                <button
-                  type="button"
-                  className={cn(
-                    'rounded-button flex h-8 items-center gap-2 border px-3 text-[12px] transition-colors duration-150',
-                    hasDate
-                      ? 'border-border-light text-text-primary'
-                      : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-light',
-                  )}
-                >
-                  <CalendarDays className="size-3.5 shrink-0" />
-                  {dateLabel}
-                </button>
-              }
-            >
-              <Calendar
-                mode="range"
-                selected={
-                  draftDateRange.from
-                    ? { from: draftDateRange.from, to: draftDateRange.to }
-                    : undefined
-                }
-                onSelect={(range) => setDraftDateRange({ from: range?.from, to: range?.to })}
-                numberOfMonths={2}
-              />
-              <div className="border-border-subtle flex items-center justify-end gap-2 border-t px-3 py-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDraftDateRange({});
-                    setDateRange({});
-                    setCalendarOpen(false);
-                  }}
-                  className="text-text-secondary hover:text-text-primary h-7 rounded-md px-3 text-[12px] transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  type="button"
-                  disabled={!draftDateRange.from}
-                  onClick={() => {
-                    setDateRange(draftDateRange);
-                    setCalendarOpen(false);
-                  }}
-                  className={cn(
-                    'h-7 rounded-md px-4 text-[12px] font-medium text-white transition-colors',
-                    draftDateRange.from
-                      ? 'bg-primary hover:opacity-90'
-                      : 'bg-primary/40 cursor-default',
-                  )}
-                >
-                  Apply
-                </button>
-              </div>
-            </AnchoredPopover>
-
-            {hasDate && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDateRange({});
-                  setDraftDateRange({});
-                }}
-                className="text-text-disabled hover:text-text-primary hover:bg-bg-surface-hover flex size-7 items-center justify-center rounded transition-colors"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
+          <DateRange
+            showClear
+            label="Date Range"
+            date={draftDateRange}
+            rangeOpen={calendarOpen}
+            onClear={() => {
+              setDraftDateRange(undefined);
+              setDateRange(undefined);
+              setCalendarOpen(false);
+            }}
+            onApply={() => {
+              setDateRange(draftDateRange);
+              setCalendarOpen(false);
+            }}
+            onRangeOpenStateChange={(state) => {
+              if (!state) setDraftDateRange(dateRange);
+              setCalendarOpen(state);
+            }}
+            onDateSelect={(date: any) => {
+              setDraftDateRange({ from: date?.from, to: date?.to });
+            }}
+          />
 
           {/* Filters */}
-          <button
-            type="button"
-            onClick={() => setFiltersOpen(true)}
-            className={cn(
-              'rounded-button flex h-8 items-center gap-2 border px-3 text-[12px] transition-colors duration-150',
-              filterCount > 0
-                ? 'border-primary/30 text-text-primary'
-                : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-light',
-            )}
-          >
-            <SlidersHorizontal className="size-3.5 shrink-0" />
-            Filters
-            {filterCount > 0 && (
-              <span className="bg-primary flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] leading-none font-semibold text-white">
-                {filterCount}
-              </span>
-            )}
-          </button>
+          <TransactionFilters filters={filters} onChange={setFilters} />
         </div>
       </div>
 
       {/* ── Category tabs ── */}
       <div className="shrink-0 px-6 pb-4">
-        <div
-          className="overflow-x-auto"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
+        <div className="no-scrollbar overflow-x-auto">
           <div className="flex w-max items-center gap-1.5">
             {catsLoading
               ? Array.from({ length: 5 }).map((_, i) => (
@@ -496,16 +379,15 @@ export default function TransactionsPage() {
 
       {/* ── Transaction list ── */}
       <div className="flex-1 overflow-auto px-6 pb-6">
-        <div className="glass-card rounded-card border-border-subtle min-h-[480px] overflow-hidden border">
+        <div className="glass-card rounded-card border-border-subtle min-h-[480px] overflow-hidden border md:min-h-[660px] 2xl:min-h-[750px]">
           <StyledTable
             columns={transactionColumns}
-            className=""
             columnHeaderClassName="truncate"
-            isLoading={showSkeleton}
-            isEmpty={!showSkeleton && grouped.length === 0}
-            skeletonRowCount={10}
+            isLoading={txLoading}
+            isEmpty={!txLoading && grouped.length === 0}
+            skeletonRowCount={16}
             emptyContent={
-              <div className="flex flex-col items-center justify-center gap-3 py-20">
+              <div className="flex min-h-[480px] flex-col items-center justify-center gap-3 md:min-h-[660px]">
                 <p className="text-text-tertiary text-[13px]">No transactions found</p>
                 <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
                   <Plus className="size-3.5" />
@@ -547,14 +429,6 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* ── Filters sheet ── */}
-      <TransactionFilters
-        open={filtersOpen}
-        onOpenChange={setFiltersOpen}
-        filters={filters}
-        onChange={setFilters}
-      />
-
       {/* ── Drawer ── */}
       <TransactionDrawer
         transactionId={drawerTxId}
@@ -566,16 +440,6 @@ export default function TransactionsPage() {
 
       {/* ── Add ── */}
       <TransactionFormDialog open={addOpen} onOpenChange={setAddOpen} categories={categories} />
-
-      {/* ── Edit ── */}
-      {editTx && (
-        <TransactionFormDialog
-          open
-          onOpenChange={(open) => !open && setEditTx(null)}
-          categories={categories}
-          transaction={editTx}
-        />
-      )}
     </div>
   );
 }
