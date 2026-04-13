@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { ChevronDownIcon } from 'lucide-react';
 
 import { cn } from '@ui/lib/utils/cn';
@@ -32,17 +32,12 @@ export function DatePicker({
             className,
           )}
         >
-          {value ? format(value, 'PPP') : <span>{placeholder}</span>}
+          {value ? dayjs(value).format('PPP') : <span>{placeholder}</span>}
           <ChevronDownIcon className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={value}
-          onSelect={onChange}
-          defaultMonth={value}
-        />
+        <Calendar mode="single" selected={value} onSelect={onChange} defaultMonth={value} />
       </PopoverContent>
     </Popover>
   );
@@ -50,7 +45,5 @@ export function DatePicker({
 
 export function DatePickerDemo() {
   const [date, setDate] = React.useState<Date>();
-  return (
-    <DatePicker value={date} onChange={setDate} placeholder="Pick a date" />
-  );
+  return <DatePicker value={date} onChange={setDate} placeholder="Pick a date" />;
 }

@@ -435,13 +435,13 @@ exports.Prisma.MonoBankAccountScalarFieldEnum = {
   id: 'id',
   accountId: 'accountId',
   bankId: 'bankId',
-  bankLogoUrl: 'bankLogoUrl',
+  bankName: 'bankName',
   accountNumber: 'accountNumber',
   accountName: 'accountName',
   accountType: 'accountType',
   accountBalance: 'accountBalance',
   accountCurrency: 'accountCurrency',
-  isActive: 'isActive',
+  status: 'status',
   lastSyncedAt: 'lastSyncedAt',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -807,6 +807,12 @@ exports.SplitStatus = exports.$Enums.SplitStatus = {
   OPEN: 'OPEN',
   PARTIALLY_SETTLED: 'PARTIALLY_SETTLED',
   SETTLED: 'SETTLED'
+};
+
+exports.MonoBankAccountStatus = exports.$Enums.MonoBankAccountStatus = {
+  AVAILABLE: 'AVAILABLE',
+  PARTIAL: 'PARTIAL',
+  UNAVAILABLE: 'UNAVAILABLE'
 };
 
 exports.Prisma.ModelName = {
