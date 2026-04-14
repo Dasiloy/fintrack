@@ -4,6 +4,8 @@ import { Controller, UseGuards } from '@nestjs/common';
 import { GrpcMethod, Payload } from '@nestjs/microservices';
 
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
   CreateTransactionReq,
   GetTransactionsReq,
   GetTransactionReq,
@@ -51,6 +53,17 @@ export class TransactionController {
     | Observable<ProtoTransaction>
     | ProtoTransaction {
     return this.transactionService.createTransaction(user.id, request);
+  }
+
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'BatchCreateTransactions')
+  batchCreateTransactions(
+    @Payload() request: BatchCreateTransactionsReq,
+    @RpcUser() user: User,
+  ):
+    | Promise<BatchCreateTransactionsRes>
+    | Observable<BatchCreateTransactionsRes>
+    | BatchCreateTransactionsRes {
+    return this.transactionService.batchCreateTransactions(user.id, request);
   }
 
   /**

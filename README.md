@@ -368,7 +368,4 @@ Instructions for api doc template is in docs folder in the api-contract-template
 
 Copyright © 2026 [dasiloy](https://github.com/dasiloy)
 
-// mono
-// users hould be able to connect bank,
-// re-connect or sync bank
-// get transactions details from the bank
+//deployment, operations, security, ethics, management

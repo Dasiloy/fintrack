@@ -5,6 +5,7 @@ import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import {
   ArrowLeftRight,
   BarChart3,
+  Landmark,
   LayoutDashboard,
   MessageCircle,
   Repeat2,
@@ -48,6 +49,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { title: 'Transactions', url: DASHBOARD_ROUTES.FINANCES_TRANSACTIONS, icon: ArrowLeftRight },
       { title: 'Bills & Recurring', url: DASHBOARD_ROUTES.FINANCES_BILLS, icon: Repeat2 },
       { title: 'Budgets', url: DASHBOARD_ROUTES.FINANCES_BUDGETS, icon: Wallet },
+      { title: 'Accounts', url: DASHBOARD_ROUTES.FINANCES_ACCOUNTS, icon: Landmark },
     ],
   },
   {

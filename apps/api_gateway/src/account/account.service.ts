@@ -2,6 +2,7 @@ import type Redis from 'ioredis';
 import { Queue } from 'bullmq';
 
 import {
+  BadRequestException,
   HttpException,
   Inject,
   Injectable,
@@ -21,7 +22,7 @@ import {
   MonoAccountData,
   MonoAccountUpdatedPayload,
   MonoWebhookPayload,
-  MonoAccountSybJobPayload,
+  GetMonoAccountRealtimeDataRes,
 } from '@fintrack/types/interfaces/mono';
 
 import { LinkMonoAccountDto, ReLinkMonoAccountDto } from './dto/account.dto';
@@ -33,7 +34,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 
 /**
  * Service responsible for Mono bank account linking, webhook handling,
- * and MonoBankAccount record lifecycle management.
+ * and MonoBankAccount record lifecycle management
  *
  * @class AccountService
  */
@@ -65,6 +66,7 @@ export class AccountService {
       where: { userId: user.id },
       select: {
         id: true,
+        accountId: true,
         accountName: true,
         accountNumber: true,
         accountType: true,
@@ -74,6 +76,7 @@ export class AccountService {
         status: true,
         lastSyncedAt: true,
         createdAt: true,
+        bankId: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -100,24 +103,30 @@ export class AccountService {
         throw new NotFoundException('Account not found');
       }
 
-      const updatedAccount = await this.getAccountDataInRealtime(
-        account.accountId,
-      );
+      const realtime = await this.getAccountDataInRealtime(account.accountId);
+      const mapped = this.mapRealtimeToAccountData(realtime);
 
-      await this.updateMonoBankAccount(
+      if (mapped.account.status === 'UNAVAILABLE') {
+        throw new BadRequestException(
+          'Please relink your account, or contact your account provider',
+        );
+      }
+
+      await this.monoQueue.add(
+        SYNC_ACCOUNT_JOB,
         {
-          ...updatedAccount.account,
-          status: updatedAccount.meta.data_status,
+          account: mapped.account,
+          id: account.id,
+          userId: user.id,
+          startDate: account.lastSyncedAt!,
         },
-        account.id,
+        {
+          attempts: 1,
+          removeOnComplete: true,
+          removeOnFail: true,
+          jobId: account.lastSyncedAt?.toISOString(),
+        },
       );
-
-      this.monoQueue.add(SYNC_ACCOUNT_JOB, {
-        accountId: account.accountId,
-        id: account.id,
-        userId: user.id,
-        startDate: account.lastSyncedAt!,
-      });
     } catch (error) {
       if (error instanceof HttpException) throw error;
       const message =
@@ -185,9 +194,9 @@ export class AccountService {
         return null; // idempotent
       }
 
-      const bufferedAccountJson = await this.redis.getdel(
-        `mono:pending_account:${accountId}`,
-      );
+      const bufferedAccountJson = await this.redis
+        .getdel(`mono:pending_account:${accountId}`)
+        .catch((err) => this.logger.debug('err', err));
 
       if (bufferedAccountJson) {
         // Webhook arrived first — create the record now
@@ -241,17 +250,10 @@ export class AccountService {
         throw new NotFoundException('Bank account not found');
       }
 
-      const updatedAccount = await this.getAccountDataInRealtime(
-        account.accountId,
-      );
+      const realtime = await this.getAccountDataInRealtime(account.accountId);
+      const mapped = this.mapRealtimeToAccountData(realtime);
 
-      await this.updateMonoBankAccount(
-        {
-          ...updatedAccount.account,
-          status: updatedAccount.meta.data_status,
-        },
-        account.id,
-      );
+      await this.updateMonoBankAccount(mapped.account, account.id);
 
       return null;
     } catch (error) {
@@ -268,27 +270,57 @@ export class AccountService {
   /**
    * Handles `mono.events.account_connected`.
    *
-   * Mono fires this at the moment the user completes the Connect widget flow.
-   * No account data is available in this payload — the full snapshot arrives
-   * on `account_updated` shortly after, so this handler only logs receipt.
+   * Fetches full account data from Mono in real-time and coordinates with
+   * `linkAccount` via a bi-directional Redis buffer:
+   *
+   * - If `/link` has already buffered the userId  → create the record now.
+   * - Otherwise → buffer the account data so `/link` can create it on arrival.
+   *
+   * This is the sole creation path for all account statuses. Mono only sends
+   * `account_updated` for AVAILABLE accounts; PARTIAL and UNAVAILABLE never
+   * receive that event, so creation must happen here for all cases.
    *
    * @param payload - Parsed account_connected payload
    */
   private async handleAccountConnected(
     payload: MonoAccountConnectedPayload,
   ): Promise<void> {
-    this.logger.log(`Mono account connected: ${payload.data.id}`);
+    const accountId = payload.data.id;
+    this.logger.log(`Mono account connected: ${accountId}`);
+
+    try {
+      const realtime = await this.getAccountDataInRealtime(accountId);
+      const { account } = this.mapRealtimeToAccountData(
+        realtime,
+        payload.data.meta.data_status,
+      );
+
+      const pendingUserId = await this.redis.getdel(
+        `mono:pending_user:${accountId}`,
+      );
+
+      if (pendingUserId) {
+        await this.createMonoBankAccount(account, pendingUserId);
+      } else {
+        await this.redis.setex(
+          `mono:pending_account:${accountId}`,
+          MONO_PENDING_TTL_SECONDS,
+          JSON.stringify(account),
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `handleAccountConnected failed for ${accountId}: ${JSON.stringify(error)}`,
+      );
+    }
   }
 
   /**
    * Handles `mono.events.account_updated`.
    *
-   * Primary data source for MonoBankAccount creation and refresh. Checks the
-   * bi-directional Redis buffer:
-   *
-   * - If account already exists in DB → update it in-place.
-   * - If `/link` has already been called (userId buffered) → create the record.
-   * - Otherwise → buffer the account data until `/link` arrives.
+   * Mono only fires this for AVAILABLE accounts after `account_connected`.
+   * Creation is handled by the `account_connected` + `linkAccount` flow, so
+   * this handler simply updates the existing record when it arrives.
    *
    * @param payload - Parsed account_updated payload
    */
@@ -299,30 +331,32 @@ export class AccountService {
       ...payload.data.account,
       status: payload.data.meta.data_status,
     };
-    const accountId = account._id;
 
     const existing = await this.prisma.monoBankAccount.findUnique({
-      where: { accountId },
+      where: { accountId: account._id },
     });
 
     if (existing) {
-      await this.updateMonoBankAccount(account, existing.id);
-      return;
-    }
+      if (account.status === 'UNAVAILABLE') return;
 
-    const pendingUserId = await this.redis.getdel(
-      `mono:pending_user:${accountId}`,
-    );
-
-    if (pendingUserId) {
-      // /link arrived first — create the record now
-      await this.createMonoBankAccount(account, pendingUserId);
+      await this.monoQueue.add(
+        SYNC_ACCOUNT_JOB,
+        {
+          account: account,
+          id: existing.id,
+          userId: existing.userId,
+          startDate: existing.lastSyncedAt!,
+        },
+        {
+          attempts: 1,
+          removeOnComplete: true,
+          removeOnFail: true,
+          jobId: existing.lastSyncedAt?.toISOString(),
+        },
+      );
     } else {
-      // /link hasn't arrived yet — buffer the account data
-      await this.redis.setex(
-        `mono:pending_account:${accountId}`,
-        MONO_PENDING_TTL_SECONDS,
-        JSON.stringify(account),
+      this.logger.warn(
+        `account_updated received for unknown account ${account._id} — skipping`,
       );
     }
   }
@@ -377,12 +411,12 @@ export class AccountService {
    * Fetches a real-time account snapshot from Mono.
    *
    * @param id - Mono accountId
-   * @returns Full account data and meta from Mono
+   * @returns Raw realtime account data from Mono
    * @throws InternalServerErrorException if the fetch fails
    */
   private async getAccountDataInRealtime(
     id: string,
-  ): Promise<MonoAccountUpdatedPayload['data']> {
+  ): Promise<GetMonoAccountRealtimeDataRes> {
     const secretKey = this.config.getOrThrow<string>('MONO_SECRET_KEY');
 
     const response = await fetch(`https://api.withmono.com/v2/accounts/${id}`, {
@@ -404,7 +438,7 @@ export class AccountService {
     }
 
     const result = (await response.json()) as {
-      data: MonoAccountUpdatedPayload['data'];
+      data: GetMonoAccountRealtimeDataRes;
     };
 
     if (!result.data) {
@@ -417,6 +451,45 @@ export class AccountService {
   }
 
   /**
+   * Maps a raw Mono realtime account response to the shared
+   * `MonoAccountUpdatedPayload['data']` shape used across the service.
+   *
+   * The realtime endpoint returns snake_case keys and no `meta` block.
+   * `data_status` must be supplied by the caller — it is available in the
+   * `account_connected` webhook payload and defaults to `AVAILABLE` for
+   * relink/sync flows where the account is known to be active.
+   *
+   * @param data       - Raw response from `GET /v2/accounts/:id`
+   * @param data_status - Account connectivity status
+   */
+  private mapRealtimeToAccountData(
+    data: GetMonoAccountRealtimeDataRes,
+    data_status?: 'AVAILABLE' | 'PARTIAL' | 'UNAVAILABLE',
+  ): MonoAccountUpdatedPayload['data'] {
+    const status = data_status ?? data.meta.data_status;
+    return {
+      account: {
+        _id: data.account.id,
+        name: data.account.name,
+        accountNumber: data.account.account_number,
+        currency: data.account.currency,
+        balance: data.account.balance,
+        type: data.account.type,
+        status,
+        institution: {
+          name: data.account.institution.name,
+          bankCode: data.account.institution.bank_code,
+          type: data.account.institution.type,
+        },
+      },
+      meta: {
+        data_status: status,
+        auth_method: data.meta.auth_method,
+      },
+    };
+  }
+
+  /**
    * Creates a MonoBankAccount record from a Mono account snapshot.
    *
    * @param account - Raw account data from a Mono webhook or realtime fetch
@@ -426,21 +499,26 @@ export class AccountService {
     account: MonoAccountData,
     userId: string,
   ): Promise<void> {
-    await this.prisma.monoBankAccount.create({
-      data: {
-        accountId: account._id,
-        accountName: account.name,
-        accountNumber: account.accountNumber,
-        accountCurrency: account.currency as any,
-        accountBalance: account.balance,
-        accountType: account.type,
-        bankName: account.institution.name,
-        bankId: account.institution.bankCode,
-        status: account.status,
-        userId,
-        lastSyncedAt: new Date(),
-      },
-    });
+    await this.prisma.monoBankAccount
+      .create({
+        data: {
+          accountId: account._id,
+          accountName: account.name,
+          accountNumber: account.accountNumber,
+          accountCurrency: account.currency as any,
+          accountBalance: account.balance,
+          accountType: account.type,
+          bankName: account.institution.name,
+          bankId: account.institution.bankCode,
+          status: account.status,
+          userId,
+          lastSyncedAt: new Date(),
+        },
+      })
+      .catch((err) => {
+        this.logger.debug('err', err);
+        throw new InternalServerErrorException('Account could not be created');
+      });
 
     this.logger.log(
       `MonoBankAccount created: ${account._id} for user ${userId}`,
@@ -453,24 +531,29 @@ export class AccountService {
    * @param account - Raw account data from a Mono webhook or realtime fetch
    * @param id - Primary key of the existing MonoBankAccount record
    */
-  private async updateMonoBankAccount(
+  async updateMonoBankAccount(
     account: MonoAccountData,
     id: string,
   ): Promise<void> {
-    await this.prisma.monoBankAccount.update({
-      where: { id },
-      data: {
-        accountName: account.name,
-        accountNumber: account.accountNumber,
-        accountBalance: account.balance,
-        accountType: account.type,
-        accountCurrency: account.currency as any,
-        bankName: account.institution.name,
-        bankId: account.institution.bankCode,
-        status: account.status,
-        lastSyncedAt: new Date(),
-      },
-    });
+    await this.prisma.monoBankAccount
+      .update({
+        where: { id },
+        data: {
+          accountName: account.name,
+          accountNumber: account.accountNumber,
+          accountBalance: account.balance,
+          accountType: account.type,
+          accountCurrency: account.currency as any,
+          bankName: account.institution.name,
+          bankId: account.institution.bankCode,
+          status: account.status,
+          lastSyncedAt: new Date(),
+        },
+      })
+      .catch((err) => {
+        this.logger.debug('err', err);
+        throw new InternalServerErrorException('Account could not be updated');
+      });
 
     this.logger.log(`MonoBankAccount updated: ${id}`);
   }

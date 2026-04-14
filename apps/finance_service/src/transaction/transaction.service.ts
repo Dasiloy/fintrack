@@ -20,6 +20,8 @@ import {
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
   CreateTransactionReq,
   DeleteTransactionReq,
   Empty,
@@ -126,6 +128,60 @@ export class TransactionService {
       throw new RpcException({
         code: status.INTERNAL,
         message: 'An error occurred while creating the transaction',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * @description Batch-create bank transactions imported from Mono.
+   *
+   * Resolves all category slugs to IDs in a single DB query, then runs
+   * a single createMany with skipDuplicates — idempotent on re-runs.
+   * No per-transaction side-effects are fired; the caller (sync processor)
+   * sends a single FCM notification after the batch completes.
+   *
+   * @param userId - The user id
+   * @param request - Batch request with transactions array and optional monoBankAccountId
+   */
+  async batchCreateTransactions(
+    userId: string,
+    request: BatchCreateTransactionsReq,
+  ): Promise<BatchCreateTransactionsRes> {
+    try {
+      const { transactions } = request;
+      if (!transactions.length) return { created: 0, skipped: 0 };
+
+      const data = transactions.map((tx) => {
+        return {
+          userId,
+          categoryId: tx.categoryId,
+          date: new Date(tx.date),
+          amount: Number(tx.amount),
+          type: this.ressolveType(tx.type),
+          source: this.ressolveSource(tx.source),
+          sourceId: tx.sourceId,
+          description: tx.description,
+          merchant: tx.merchant,
+          monoBankAccountId: tx.monoBankAccountId,
+          bankTransactionId: tx.sourceId,
+        };
+      });
+
+      const result = await this.prismaService.transaction.createMany({
+        data,
+        skipDuplicates: true,
+      });
+
+      return {
+        created: result.count,
+        skipped: transactions.length - result.count,
+      };
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred while batch creating transactions',
         details: error.message,
       });
     }

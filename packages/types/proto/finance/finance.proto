@@ -11,6 +11,7 @@ import "finance/goal.proto";
 service FinanceService {
   // Transactions
     rpc CreateTransaction(CreateTransactionReq) returns (Transaction) {}
+    rpc BatchCreateTransactions(BatchCreateTransactionsReq) returns (BatchCreateTransactionsRes) {}
     rpc GetTransactions(GetTransactionsReq) returns (GetTransactionsRes) {}
     rpc GetTransaction(GetTransactionReq) returns (Transaction) {}
     rpc UpdateTransaction(UpdateTransactionReq) returns (Transaction) {}

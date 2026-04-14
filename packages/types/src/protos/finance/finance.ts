@@ -46,6 +46,8 @@ import {
   UpdateSplitReq,
 } from "./split";
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
   CreateTransactionReq,
   DeleteTransactionReq,
   Empty,
@@ -66,6 +68,11 @@ export interface FinanceServiceClient {
   /** Transactions */
 
   createTransaction(request: CreateTransactionReq, metadata?: Metadata): Observable<Transaction>;
+
+  batchCreateTransactions(
+    request: BatchCreateTransactionsReq,
+    metadata?: Metadata,
+  ): Observable<BatchCreateTransactionsRes>;
 
   getTransactions(request: GetTransactionsReq, metadata?: Metadata): Observable<GetTransactionsRes>;
 
@@ -147,6 +154,11 @@ export interface FinanceServiceController {
     request: CreateTransactionReq,
     metadata?: Metadata,
   ): Promise<Transaction> | Observable<Transaction> | Transaction;
+
+  batchCreateTransactions(
+    request: BatchCreateTransactionsReq,
+    metadata?: Metadata,
+  ): Promise<BatchCreateTransactionsRes> | Observable<BatchCreateTransactionsRes> | BatchCreateTransactionsRes;
 
   getTransactions(
     request: GetTransactionsReq,
@@ -267,6 +279,7 @@ export function FinanceServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createTransaction",
+      "batchCreateTransactions",
       "getTransactions",
       "getTransaction",
       "updateTransaction",

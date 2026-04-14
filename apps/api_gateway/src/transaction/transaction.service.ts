@@ -11,6 +11,9 @@ import {
   FinanceServiceClient,
 } from '@fintrack/types/protos/finance/finance';
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
+  CreateTransactionReq,
   TransactionSource,
   TransactionType,
 } from '@fintrack/types/protos/finance/transaction';
@@ -161,6 +164,25 @@ export class TransactionService implements OnModuleInit {
 
     return lastValueFrom(
       this.financeServiceClient.deleteTransaction({ id }, metadata),
+    );
+  }
+
+  /**
+   * Batch-creates bank-sourced transactions from a background sync job.
+   * Uses a single gRPC call with createMany + skipDuplicates on the finance
+   * service side — much cheaper than N individual creates.
+   *
+   * @param userId - ID of the owning user
+   * @param req - Batch request with transactions + optional monoBankAccountId
+   */
+  async batchCreateMonoTransactions(
+    userId: string,
+    req: BatchCreateTransactionsReq,
+  ): Promise<BatchCreateTransactionsRes> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', userId);
+    return lastValueFrom(
+      this.financeServiceClient.batchCreateTransactions(req, metadata),
     );
   }
 }

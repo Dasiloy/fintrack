@@ -137,4 +137,29 @@ export interface DeleteTransactionReq {
   id: string;
 }
 
+/**
+ * Used exclusively for bank sync batch imports.
+ * category_id is pre-resolved by the processor — no category lookup needed.
+ */
+export interface BankTransactionItem {
+  amount: string;
+  date: string;
+  type: TransactionType;
+  description?: string | undefined;
+  categoryId: string;
+  sourceId: string;
+  source: TransactionSource;
+  merchant?: string | undefined;
+  monoBankAccountId?: string | undefined;
+}
+
+export interface BatchCreateTransactionsReq {
+  transactions: BankTransactionItem[];
+}
+
+export interface BatchCreateTransactionsRes {
+  created: number;
+  skipped: number;
+}
+
 export const FINANCE_PACKAGE_NAME = "finance";

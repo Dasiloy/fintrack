@@ -4,18 +4,14 @@ import * as React from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { useBanks } from '@/hooks/use_banks';
+import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
 // FilterSection — labelled wrapper for a group of controls
 // ---------------------------------------------------------------------------
 
-export function FilterSection({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+export function FilterSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <p className="text-text-disabled mb-2.5 text-[10px] font-semibold tracking-widest uppercase">
@@ -60,9 +56,9 @@ export function FilterToggleGroup<V extends string>({
             type="button"
             onClick={() => toggle(opt.value)}
             className={cn(
-              'cursor-pointer flex-1 rounded-md border py-2 text-[12px] font-medium transition-all duration-150',
+              'flex-1 cursor-pointer rounded-md border py-2 text-[12px] font-medium transition-all duration-150',
               active
-                ? opt.activeClassName ?? 'bg-primary/10 border-primary/25 text-primary'
+                ? (opt.activeClassName ?? 'bg-primary/10 border-primary/25 text-primary')
                 : 'border-border-subtle text-text-secondary hover:border-border-light hover:text-text-primary',
             )}
           >
@@ -103,7 +99,7 @@ export function FilterChipList({ options, value, onChange }: FilterChipListProps
             type="button"
             onClick={() => toggle(opt.value)}
             className={cn(
-              'cursor-pointer flex w-full items-center justify-between rounded-md px-3 py-2 text-[12px] transition-all duration-150',
+              'flex w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-[12px] transition-all duration-150',
               active
                 ? 'bg-primary/8 text-primary'
                 : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary',
@@ -195,6 +191,7 @@ interface FilterAccountListProps {
 }
 
 export function FilterAccountList({ value, onChange, enabled = true }: FilterAccountListProps) {
+  const { getBank } = useBanks();
   const { data } = api_client.account.getLinkedAccounts.useQuery(undefined, { enabled });
   const accounts = data?.data ?? [];
 
@@ -207,6 +204,7 @@ export function FilterAccountList({ value, onChange, enabled = true }: FilterAcc
       <div className="space-y-1.5">
         {accounts.map((acc) => {
           const active = value === acc.id;
+          const logo = getBank(acc.bankId)?.logo;
           return (
             <button
               key={acc.id}
@@ -219,16 +217,34 @@ export function FilterAccountList({ value, onChange, enabled = true }: FilterAcc
                   : 'border-border-subtle hover:border-border-light hover:bg-bg-surface-hover/50',
               )}
             >
-              <span
-                className={cn(
-                  'flex size-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
-                  active ? 'bg-primary/15 text-primary' : 'bg-bg-surface-hover text-text-secondary',
-                )}
-              >
-                {(acc.bankName ?? 'B')[0]}
-              </span>
+              {logo ? (
+                <Image
+                  src={logo}
+                  alt={acc.bankName}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-contain"
+                />
+              ) : (
+                <span
+                  className={cn(
+                    'flex size-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
+                    active
+                      ? 'bg-primary/15 text-primary'
+                      : 'bg-bg-surface-hover text-text-secondary',
+                  )}
+                >
+                  {(acc.bankName ?? 'B')[0]}
+                </span>
+              )}
+
               <div className="min-w-0 flex-1">
-                <p className={cn('truncate text-[12px] font-medium', active ? 'text-primary' : 'text-text-primary')}>
+                <p
+                  className={cn(
+                    'truncate text-[12px] font-medium',
+                    active ? 'text-primary' : 'text-text-primary',
+                  )}
+                >
                   {acc.bankName}
                 </p>
                 <p className="text-text-tertiary truncate text-[11px]">
