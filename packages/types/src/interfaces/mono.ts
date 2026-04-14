@@ -1,3 +1,29 @@
+export interface GetMonoAccountRealtimeDataRes {
+  account: {
+    id: string;
+    name: string;
+    account_number: string;
+    currency: string;
+    balance: number;
+    type: string;
+    bvn: string;
+    institution: {
+      name: string;
+      bank_code: string;
+      type: string;
+    };
+  };
+  customer: {
+    id: string;
+  };
+  meta: {
+    data_status: 'AVAILABLE' | 'PARTIAL' | 'UNAVAILABLE';
+    auth_method: string;
+    retrieved_data: string[];
+    ref: string;
+  };
+}
+
 export interface MonoInstitution {
   name: string;
   bankCode: string;
@@ -44,7 +70,7 @@ export type MonoWebhookPayload = MonoAccountConnectedPayload | MonoAccountUpdate
 
 export interface MonoAccountSybJobPayload {
   /** mono account id */
-  accountId: string;
+  account: MonoAccountData;
 
   /** local account id */
   id: string;

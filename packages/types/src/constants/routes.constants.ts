@@ -25,6 +25,7 @@ export const DASHBOARD_ROUTES = {
   FINANCES_TRANSACTIONS: '/finances/transactions',
   FINANCES_BILLS: '/finances/bills',
   FINANCES_BUDGETS: '/finances/budgets',
+  FINANCES_ACCOUNTS: '/finances/accounts',
   ANALYTICS: '/analytics',
   ANALYTICS_INSIGHTS: '/analytics/insights',
   ANALYTICS_CHAT: '/analytics/chat',

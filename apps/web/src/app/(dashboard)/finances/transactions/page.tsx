@@ -9,6 +9,7 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { PageHeader } from '@/app/_components/page-header';
 import { TransactionDrawer } from './_components/transaction_drawer';
 import { TransactionFormDialog } from './_components/transaction_form_dialog';
+import { TransactionMethodChooser } from './_components/transaction_method_chooser';
 import {
   TransactionFilters,
   EMPTY_FILTERS,
@@ -288,10 +289,7 @@ export default function TransactionsPage() {
           <Download className="size-3.5" />
           <span className="hidden sm:inline">Export</span>
         </Button>
-        <Button size="sm" className="gap-1.5 px-2.5 sm:px-4" onClick={() => setAddOpen(true)}>
-          <Plus className="size-3.5" />
-          <span className="hidden sm:inline">Add Transaction</span>
-        </Button>
+        <TransactionMethodChooser onManual={() => setAddOpen(true)} />
       </PageHeader>
 
       {/* ── Title + controls ── */}

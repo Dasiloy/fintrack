@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -103,6 +104,27 @@ export class AccountController {
       data: accounts,
       success: true,
       message: 'Accounts fetched successfully',
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
+  //. Sync Account
+  // ================================================================
+  @Post(':id/sync')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Sync latest transactions for a linked bank account' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Sync triggered' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  async syncAccount(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.accountService.syncAccount(user, id);
+    return {
+      data: null,
+      success: true,
+      message: 'Sync triggered',
       statusCode: HttpStatus.OK,
     };
   }

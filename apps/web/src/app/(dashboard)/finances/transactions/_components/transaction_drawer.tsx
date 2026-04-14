@@ -35,6 +35,8 @@ import {
   Section,
   SectionLabel,
 } from '@/app/_components';
+import { useBanks } from '@/hooks/use_banks';
+import Image from 'next/image';
 
 // ---------------------------------------------------------------------------
 // Edit state shape
@@ -92,12 +94,14 @@ export function TransactionDrawer({
     notes: '',
   });
 
+  const { getBank } = useBanks();
   const { data, isLoading } = api_client.transaction.getById.useQuery(
     { id: transactionId! },
     { enabled: !!transactionId && open },
   );
 
   const transaction = data?.data;
+  const logo = getBank(transaction?.bank?.bankId)?.logo;
 
   React.useEffect(() => {
     if (transaction) setEdit(toEditState(transaction));
@@ -312,15 +316,27 @@ export function TransactionDrawer({
             <div className="flex flex-col gap-6 px-6 py-6">
               {/* Hero */}
               <div className="flex flex-col items-center gap-2.5">
-                <div
-                  className="flex size-16 items-center justify-center rounded-2xl text-[22px] font-bold text-white"
-                  style={{ background: `color-mix(in srgb, ${selectedCategoryColor} 85%, #000)` }}
-                >
-                  {(transaction.merchant ??
-                    transaction.description ??
-                    transaction.category?.name ??
-                    'T')[0]?.toUpperCase()}
-                </div>
+                {logo ? (
+                  <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white">
+                    <Image
+                      alt={transaction.bank?.bankName ?? ''}
+                      src={logo}
+                      width={40}
+                      height={40}
+                      className="rounded-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="flex size-16 items-center justify-center rounded-2xl text-[22px] font-bold text-white"
+                    style={{ background: `color-mix(in srgb, ${selectedCategoryColor} 85%, #000)` }}
+                  >
+                    {(transaction.merchant ??
+                      transaction.description ??
+                      transaction.category?.name ??
+                      'T')[0]?.toUpperCase()}
+                  </div>
+                )}
 
                 <div className="text-center">
                   <h2 className="text-text-primary text-[17px] leading-snug font-semibold">
