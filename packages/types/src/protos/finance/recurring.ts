@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/recurring.proto
 
-/* eslint-disable */
+ 
 import { Category, Transaction } from "./transaction";
 
 export const protobufPackage = "finance";
@@ -53,6 +53,9 @@ export interface UpdateRecurringReq {
 
 export interface GetRecurringsReq {
   isActive?: boolean | undefined;
+  sortBy?: string | undefined;
+  type: string[];
+  frequency: string[];
 }
 
 export interface GetRecurringsRes {
@@ -62,6 +65,13 @@ export interface GetRecurringsRes {
 /** handle get by id, delete and toggle */
 export interface RecurringReq {
   id: string;
+}
+
+export interface RecurringAggregateRes {
+  activeCount: number;
+  pausedCount: number;
+  monthlyExpense: number;
+  monthlyIncome: number;
 }
 
 export const FINANCE_PACKAGE_NAME = "finance";

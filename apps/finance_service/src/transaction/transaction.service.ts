@@ -14,9 +14,12 @@ import {
   ANALYTICS_NOTIFICATION_QUEUE,
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
+  CLASSIFICATION_CORRECTION_JOB,
+  CLASSIFICATION_CORRECTION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
   AnalyticsNotificationPayload,
+  ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
 import {
@@ -74,6 +77,8 @@ export class TransactionService {
     private readonly fcmNotificationQueue: Queue,
     @InjectQueue(ANALYTICS_NOTIFICATION_QUEUE)
     private readonly analyticsNotificationQueue: Queue,
+    @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
+    private readonly classificationCorrectionQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -103,6 +108,9 @@ export class TransactionService {
         sourceId: request.sourceId,
         description: request.description,
         merchant: request.merchant,
+        ...(request.sourceData && {
+          sourceData: JSON.parse(request.sourceData),
+        }),
       };
       const createdTransaction = await this.prismaService.transaction.create({
         data: payload,
@@ -162,9 +170,12 @@ export class TransactionService {
           source: this.ressolveSource(tx.source),
           sourceId: tx.sourceId,
           description: tx.description,
+          narration: tx.narration,
           merchant: tx.merchant,
           monoBankAccountId: tx.monoBankAccountId,
-          bankTransactionId: tx.sourceId,
+          bankTransactionId: tx.bankTransactionId,
+          aiClassified: tx.aiClassified ?? false,
+          ...(tx.sourceData && { sourceData: JSON.parse(tx.sourceData) }),
         };
       });
 
@@ -314,8 +325,13 @@ export class TransactionService {
         where: { id: request.id, userId },
         select: {
           id: true,
+          source: true,
+          categoryId: true,
+          narration: true,
+          aiClassified: true,
         },
       });
+
       if (!transaction) {
         throw new RpcException({
           code: status.NOT_FOUND,
@@ -345,6 +361,25 @@ export class TransactionService {
           category: true,
         },
       });
+
+      const categoryChanged =
+        category && category.id !== transaction.categoryId;
+      if (
+        transaction.source === TransactionSource.BANK &&
+        transaction.aiClassified &&
+        categoryChanged &&
+        transaction.narration
+      ) {
+        await this.classificationCorrectionQueue.add(
+          CLASSIFICATION_CORRECTION_JOB,
+          {
+            userId,
+            narration: transaction.narration,
+            correctedSlug: request.categorySlug!,
+          } satisfies ClassificationCorrectionJobPayload,
+        );
+      }
+
       // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
       return this.formatTransaction(updatedTransaction);

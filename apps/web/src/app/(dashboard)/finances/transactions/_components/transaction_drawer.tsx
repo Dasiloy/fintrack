@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { format } from '@fintrack/utils/date';
+import { format, parseLocalDate } from '@fintrack/utils/date';
 import { capitalize, formatCurrency, onlyNumbers } from '@fintrack/utils/format';
 import { Trash2 } from 'lucide-react';
 import {
@@ -55,7 +55,7 @@ interface EditState {
 function toEditState(tx: Transaction): EditState {
   return {
     amount: String(parseFloat(tx.amount)),
-    date: format(new Date(tx.date), 'YYYY-MM-DD'),
+    date: tx.date.slice(0, 10),
     type: tx.type as EditState['type'],
     categorySlug: tx.category?.slug ?? '',
     merchant: tx.merchant ?? '',
@@ -258,7 +258,7 @@ export function TransactionDrawer({
                               className={edit.date ? 'text-text-primary' : 'text-text-disabled'}
                             >
                               {edit.date
-                                ? format(new Date(edit.date), 'MMM D, YYYY')
+                                ? format(parseLocalDate(edit.date), 'MMM D, YYYY')
                                 : 'Pick a date'}
                             </span>
                           </button>
@@ -266,9 +266,9 @@ export function TransactionDrawer({
                       >
                         <Calendar
                           mode="single"
-                          selected={edit.date ? new Date(edit.date) : undefined}
+                          selected={edit.date ? parseLocalDate(edit.date) : undefined}
                           onSelect={(d) => d && setField('date', format(d, 'YYYY-MM-DD'))}
-                          defaultMonth={edit.date ? new Date(edit.date) : undefined}
+                          defaultMonth={edit.date ? parseLocalDate(edit.date) : undefined}
                         />
                       </AnchoredPopover>
                     </EditRow>
@@ -367,7 +367,7 @@ export function TransactionDrawer({
                   {formatCurrency(parseFloat(transaction.amount))}
                 </p>
                 <p className="text-text-tertiary text-[12px]">
-                  {format(new Date(transaction.date), 'MMM D, YYYY')}
+                  {format(parseLocalDate(transaction.date.slice(0, 10)), 'MMM D, YYYY')}
                 </p>
               </div>
 
@@ -390,13 +390,7 @@ export function TransactionDrawer({
                 </Row>
                 <Row label="Source">{capitalize(transaction.source)}</Row>
                 <Row label="Date">
-                  {(() => {
-                    try {
-                      return format(new Date(transaction.date), 'MMM D, YYYY');
-                    } catch {
-                      return transaction.date;
-                    }
-                  })()}
+                  {format(parseLocalDate(transaction.date.slice(0, 10)), 'MMM D, YYYY')}
                 </Row>
                 <Row label="Created">
                   {format(new Date(transaction.createdAt), 'MMM D, YYYY · HH:mm')}
@@ -454,22 +448,6 @@ export function TransactionDrawer({
                   )}
                   {transaction.goalContribution.notes && (
                     <Row label="Notes">{transaction.goalContribution.notes}</Row>
-                  )}
-                </Section>
-              )}
-
-              {/* Source metadata */}
-              {(transaction.bankTransactionId || transaction.sourceData) && (
-                <Section label="Source Metadata">
-                  {transaction.bankTransactionId && (
-                    <Row label="Bank Tx ID" mono>
-                      {transaction.bankTransactionId}
-                    </Row>
-                  )}
-                  {transaction.sourceData && (
-                    <Row label="Source Data" mono>
-                      {transaction.sourceData}
-                    </Row>
                   )}
                 </Section>
               )}

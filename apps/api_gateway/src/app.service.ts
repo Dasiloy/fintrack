@@ -4,12 +4,17 @@ import {
   HttpException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/nest';
-import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
+import {
+  REDIS_CLIENT,
+  MERCHANT_CACHE_KEY,
+  MERCHANT_CACHE_TTL,
+} from '@fintrack/types/constants/redis.costants';
 
 /**
  * Service responsible for handling the health check of the API Gateway
@@ -25,11 +30,36 @@ export class AppService {
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
-  /**
-   * Check if the API Gateway and Database are running correctly
-   * @returns {Promise<void>}
-   * @throws {ServiceUnavailableException} If the database connection fails
-   */
+  async getMerchants(): Promise<
+    { id: string; name: string; aliases: string[] }[]
+  > {
+    try {
+      const cached = await this.redis.get(MERCHANT_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+
+      const merchants = await this.prismaService.merchant.findMany({
+        select: { id: true, name: true, aliases: true },
+        orderBy: { name: 'asc' },
+      });
+
+      this.redis
+        .setex(
+          MERCHANT_CACHE_KEY,
+          MERCHANT_CACHE_TTL,
+          JSON.stringify(merchants),
+        )
+        .catch(() => {});
+      return merchants;
+    } catch (error) {
+      this.logger.log(error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('An error occured');
+    }
+  }
+
+  // ================================================================
+  //. Health Check
+  // ================================================================
   async getHealth() {
     try {
       const [pg, redis] = await Promise.allSettled([

@@ -27,7 +27,7 @@ import {
 import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { onlyNumbers } from '@fintrack/utils/format';
+import { genTransactionSourceId, onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
 import { PageHeader } from '@/app/_components/page-header';
 
@@ -47,7 +47,6 @@ const ACCEPTED_MIME = new Set([
 ]);
 const MAX_BYTES = 1 * 1024 * 1024;
 const SCAN_MS = 3_500; // swap for real BE polling when OCR endpoint is ready
-const genSourceId = () => `trnx_${Math.random().toString(36).slice(2, 10)}`;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -627,7 +626,7 @@ export function ScanView() {
       date: format(date, 'YYYY-MM-DD'),
       type,
       source: 'MANUAL',
-      sourceId: genSourceId(),
+      sourceId: genTransactionSourceId(date),
       categorySlug,
       merchant: merchant || undefined,
       description: description || undefined,

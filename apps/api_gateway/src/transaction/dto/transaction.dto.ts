@@ -99,6 +99,15 @@ export class CreateTransactionDto {
   @IsString()
   @IsNotEmpty()
   sourceId: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    required: false,
+    description: 'JSON-stringified audit blob for this transaction',
+  })
+  @IsString()
+  @IsOptional()
+  sourceData?: string;
 }
 
 /**

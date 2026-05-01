@@ -1,0 +1,157 @@
+{
+  "__comment": "Transaction Controller gRPC Documentation — apps/finance_service/src/transaction/transaction.controller.ts",
+  "meta_note": "All methods are exposed on the FinanceService gRPC server. Auth is enforced per-method via RpcAuthGuard; the authenticated user is injected via @RpcUser().",
+  "conventions": {
+    "transport": "gRPC — FinanceService (packages/types/proto/finance/transaction.proto)",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Missing or invalid JWT in gRPC metadata",
+      "NOT_FOUND": "Requested resource does not belong to the user",
+      "INVALID_ARGUMENT": "Validation failed on the request payload",
+      "INTERNAL": "Unexpected server error"
+    }
+  },
+
+  "createTransaction": {
+    "rpc": "CreateTransaction",
+    "proto_method": "rpc CreateTransaction (CreateTransactionReq) returns (Transaction)",
+    "description": "Create a new transaction for the authenticated user. Amount is a string in the proto for precision; type and source are proto enum integers.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "amount": "string — serialised decimal (e.g. '1500.00')",
+      "type": "TransactionType enum int — INCOME=0, EXPENSE=1",
+      "source": "TransactionSource enum int — MANUAL=0, BANK=1, RECURRING=2, OCR=3, SPLIT=4",
+      "date": "string — ISO date",
+      "description": "string (optional)",
+      "categoryId": "string",
+      "merchant": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "amount": "string",
+      "date": "string — ISO date",
+      "type": "TransactionType int",
+      "source": "TransactionSource int",
+      "description": "string",
+      "merchant": "string",
+      "sourceId": "string",
+      "category": "Category object",
+      "bank": "Bank object | null"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INVALID_ARGUMENT": "Amount ≤ 0 or missing required fields",
+      "NOT_FOUND": "categoryId does not exist",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "batchCreateTransactions": {
+    "rpc": "BatchCreateTransactions",
+    "proto_method": "rpc BatchCreateTransactions (BatchCreateTransactionsReq) returns (BatchCreateTransactionsRes)",
+    "description": "Bulk-create transactions for the authenticated user. Used by the account sync pipeline after AI classification.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "transactions": "array of CreateTransactionReq — each item matches the createTransaction input shape"
+    },
+    "output": {
+      "transactions": "array of Transaction objects"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INVALID_ARGUMENT": "Any item fails validation",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getTransactions": {
+    "rpc": "GetTransactions",
+    "proto_method": "rpc GetTransactions (GetTransactionsReq) returns (GetTransactionsRes)",
+    "description": "Return a paginated, filtered list of transactions for the authenticated user.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "startDate": "string (optional) — ISO date lower bound",
+      "endDate": "string (optional) — ISO date upper bound",
+      "categorySlug": "string (optional) — comma-separated category slugs",
+      "type": "repeated TransactionType int (optional)",
+      "source": "repeated TransactionSource int (optional)",
+      "page": "int32 (optional, default 1)",
+      "limit": "int32 (optional, default 10)"
+    },
+    "output": {
+      "transactions": "array of Transaction objects",
+      "meta": { "total": "int32", "page": "int32", "limit": "int32" }
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getTransaction": {
+    "rpc": "GetTransaction",
+    "proto_method": "rpc GetTransaction (GetTransactionReq) returns (Transaction)",
+    "description": "Return a single transaction by ID scoped to the authenticated user.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — transaction ID"
+    },
+    "output": {
+      "id": "string",
+      "amount": "string",
+      "date": "string",
+      "type": "TransactionType int",
+      "source": "TransactionSource int",
+      "description": "string",
+      "merchant": "string",
+      "category": "Category object",
+      "bank": "Bank object | null"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Transaction not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateTransaction": {
+    "rpc": "UpdateTransaction",
+    "proto_method": "rpc UpdateTransaction (UpdateTransactionReq) returns (Transaction)",
+    "description": "Update a transaction by ID. When a BANK transaction's category is changed and it was AI-classified, a correction feedback job is enqueued to the AI service via BullMQ.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — transaction ID",
+      "amount": "string (optional)",
+      "type": "TransactionType int (optional)",
+      "description": "string (optional)",
+      "categoryId": "string (optional)",
+      "merchant": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "amount": "string",
+      "updatedAt": "string — ISO datetime"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Transaction not found or not owned by user",
+      "INVALID_ARGUMENT": "Validation failed",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteTransaction": {
+    "rpc": "DeleteTransaction",
+    "proto_method": "rpc DeleteTransaction (DeleteTransactionReq) returns (Empty)",
+    "description": "Delete a transaction by ID scoped to the authenticated user.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — transaction ID"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Transaction not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  }
+}

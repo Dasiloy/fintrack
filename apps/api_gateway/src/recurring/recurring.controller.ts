@@ -22,7 +22,10 @@ import {
 } from '@nestjs/swagger';
 
 import { User } from '@fintrack/database/types';
-import { Recurinrg as ProtoRecurring } from '@fintrack/types/protos/finance/recurring';
+import {
+  Recurinrg as ProtoRecurring,
+  RecurringAggregateRes,
+} from '@fintrack/types/protos/finance/recurring';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 
 import { RecurringService } from './recurring.service';
@@ -71,8 +74,28 @@ const RECURRING_EXAMPLE = {
 };
 
 /**
- * Controller for managing recurring items.
- * Handles HTTP requests and forwards them to the Finance microservice via gRPC.
+ * HTTP controller for managing recurring items.
+ *
+ * ## Auth
+ * All routes are protected by `ApiGuard` (JWT bearer). The authenticated user
+ * is injected via `@CurrentUser()`.
+ *
+ * ## HTTP surface
+ * | Method | Route                         | Description                          |
+ * |--------|-------------------------------|--------------------------------------|
+ * | POST   | /api/recurring                | Create a recurring item              |
+ * | GET    | /api/recurring                | List items with filters & sorting    |
+ * | GET    | /api/recurring/aggregate      | Aggregate stats (Redis-cached 5 min) |
+ * | GET    | /api/recurring/:id            | Single item with transaction history |
+ * | PATCH  | /api/recurring/:id            | Partial update                       |
+ * | PATCH  | /api/recurring/:id/toggle     | Toggle active state                  |
+ * | DELETE | /api/recurring/:id            | Permanently delete                   |
+ *
+ * **Route ordering**: `GET /aggregate` is declared before `GET /:id` to prevent
+ * the `:id` wildcard from capturing the literal string `"aggregate"`.
+ *
+ * All requests are forwarded to the Finance microservice via gRPC through
+ * `RecurringService`.
  *
  * @class RecurringController
  */
@@ -140,8 +163,27 @@ export class RecurringController {
     name: 'isActive',
     type: Boolean,
     required: false,
-    description: 'Filter by active status. Omit to return all.',
-    example: true,
+    description: 'Filter by active status.',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    enum: ['nextRun', 'amount', 'name'],
+    required: false,
+    description: 'Sort field.',
+  })
+  @ApiQuery({
+    name: 'type',
+    enum: ['INCOME', 'EXPENSE'],
+    isArray: true,
+    required: false,
+    description: 'Filter by type.',
+  })
+  @ApiQuery({
+    name: 'frequency',
+    enum: ['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'],
+    isArray: true,
+    required: false,
+    description: 'Filter by frequency.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -168,6 +210,45 @@ export class RecurringController {
     return {
       data: res.recurrings ?? [],
       message: 'Recurring items fetched successfully',
+      success: true,
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
+  //. Get recurring aggregate stats
+  // ================================================================
+  @Get('aggregate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Get aggregate stats for recurring items (active count, paused count, monthly totals)',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Aggregate stats fetched successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Recurring aggregate fetched successfully',
+        data: {
+          activeCount: 4,
+          pausedCount: 2,
+          monthlyExpense: 120.5,
+          monthlyIncome: 0,
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getRecurringsAggregate(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<RecurringAggregateRes>> {
+    const res = await this.recurringService.getRecurringsAggregate(user);
+    return {
+      data: res,
+      message: 'Recurring aggregate fetched successfully',
       success: true,
       statusCode: HttpStatus.OK,
     };

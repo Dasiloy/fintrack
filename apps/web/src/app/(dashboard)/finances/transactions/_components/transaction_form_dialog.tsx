@@ -26,15 +26,10 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { Category } from '@fintrack/database/types';
-import { onlyNumbers } from '@fintrack/utils/format';
+import { genTransactionSourceId, onlyNumbers } from '@fintrack/utils/format';
+import { MerchantSelector } from '@/app/_components';
 
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
-
-const genSourceId = () => `trnx_${Math.random().toString(36).slice(2, 10)}`;
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 interface TransactionFormDialogProps {
   open: boolean;
@@ -44,10 +39,6 @@ interface TransactionFormDialogProps {
   transaction?: Transaction;
   onSuccess?: () => void;
 }
-
-// ---------------------------------------------------------------------------
-// TransactionFormDialog
-// ---------------------------------------------------------------------------
 
 export function TransactionFormDialog({
   open,
@@ -106,9 +97,12 @@ export function TransactionFormDialog({
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!date || !categorySlug || !amount) return;
+    if (!date || !categorySlug || !amount) {
+      toast('Incomplete data! Please check your input.');
+      return;
+    }
 
     if (isEdit) {
       updateMutation.mutate({
@@ -126,7 +120,7 @@ export function TransactionFormDialog({
         date: format(date, 'YYYY-MM-DD'),
         type: type as 'INCOME' | 'EXPENSE',
         source: 'MANUAL',
-        sourceId: genSourceId(),
+        sourceId: genTransactionSourceId(new Date()),
         categorySlug,
         merchant: merchant || undefined,
         description: description || undefined,
@@ -213,11 +207,7 @@ export function TransactionFormDialog({
           {/* Merchant */}
           <Field>
             <Label>Merchant</Label>
-            <Input
-              placeholder="e.g. Shoprite, Netflix"
-              value={merchant}
-              onChange={(e) => setMerchant(e.target.value)}
-            />
+            <MerchantSelector value={merchant} onChange={setMerchant} />
           </Field>
 
           {/* Description */}

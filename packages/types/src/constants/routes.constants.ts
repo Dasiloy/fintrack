@@ -27,7 +27,6 @@ export const DASHBOARD_ROUTES = {
   FINANCES_BUDGETS: '/finances/budgets',
   FINANCES_ACCOUNTS: '/finances/accounts',
   ANALYTICS: '/analytics',
-  ANALYTICS_INSIGHTS: '/analytics/insights',
   ANALYTICS_CHAT: '/analytics/chat',
   PLANNING_GOALS: '/planning/goals',
   PLANNING_SPLITS: '/planning/splits',

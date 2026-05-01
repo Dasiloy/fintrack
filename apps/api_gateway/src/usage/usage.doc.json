@@ -1,0 +1,45 @@
+{
+  "__comment": "Usage Controller HTTP Documentation — apps/api_gateway/src/usage/usage.controller.ts",
+  "meta_note": "All routes are prefixed with /api/usage and protected by ApiGuard (JWT bearer). Responses are Redis-cached with a 10-minute TTL in UsageService.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    }
+  },
+
+  "getGatedUsage": {
+    "route": "GET /api/usage/gated",
+    "method": "GET",
+    "description": "Return the authenticated user's subscription plan, feature limits, and current resource counts. Results are Redis-cached for 10 minutes to avoid repeated DB queries on every page load.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Gated usage fetched successfully",
+      "data": {
+        "plan": "FREE | PRO | ENTERPRISE",
+        "limits": {
+          "budgets": "number",
+          "goals": "number",
+          "recurringItems": "number",
+          "linkedAccounts": "number"
+        },
+        "usage": {
+          "budgets": "number",
+          "goals": "number",
+          "recurringItems": "number",
+          "linkedAccounts": "number"
+        }
+      }
+    },
+    "responses": {
+      "200": "Gated usage fetched successfully",
+      "401": "Access token invalid or expired"
+    }
+  }
+}

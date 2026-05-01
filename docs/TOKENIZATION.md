@@ -1,4 +1,10 @@
-# Transaction Auto-Categorisation — Architecture
+# Transaction Classification Pipeline
+
+## Where this runs
+
+This pipeline lives entirely inside `finance_service`, executed by `account.processor.ts` every time a Mono bank account is synced. The AI call in Layer 3 is the only part that crosses a service boundary — it's a single gRPC call to `ai_service`. See [AI-SERVICE.md](./AI-SERVICE.md) for how that service handles the request.
+
+---
 
 ## The Real-World Problem
 
@@ -11,25 +17,40 @@ AIRTIME PURCHASE 08012345678
 DSTV PAYMENT REF 991234
 ```
 
-Users rarely write meaningful descriptions. Mono's `category` enum covers
-~85–90 % of transactions, but for the rest — especially peer transfers tagged
-`unknown` — the narration is the only signal and it's almost always noise.
+Users rarely write meaningful descriptions. Mono's `category` enum covers ~85–90% of transactions, but for the rest — especially peer transfers tagged `unknown` — the narration is the only signal and it's almost always noise.
 
-Pure token scoring against category names works well when Mono classifies
-correctly. It breaks when Mono says `unknown` and the narration contains a
-bank name, a sender's name, or an opaque reference code.
+Pure token scoring against category names works well when Mono classifies correctly. It breaks when Mono says `unknown` and the narration contains a bank name, a sender's name, or an opaque reference code.
 
-The solution is a **layered pipeline** that progressively enriches the signal
-before giving up and calling AI.
+The solution is a **layered pipeline** that progressively enriches the signal before calling AI.
+
+---
+
+## The Two Transaction Fields
+
+Before the pipeline, two fields on `Transaction` must be understood:
+
+| Field | Type | Source | Mutable? |
+|-------|------|--------|----------|
+| `narration` | `String?` | Set once at Mono sync from the raw bank narration. This is the AI's source of truth. | Never — not user-editable |
+| `bankCategory` | `String?` | Set once at Mono sync from Mono's raw category enum (e.g. `food_and_drinks`). | Never |
+| `description` | `String` | Defaults to the narration at sync, but the user can rename it freely in the UI. | Yes — user-editable |
+
+`narration` and `bankCategory` are both null for manually-created transactions (they have no Mono origin). Token scoring and AI classification always read `narration` and `bankCategory` — never `description`, which may have been changed by the user.
 
 ---
 
 ## Pipeline Overview
 
 ```
-Transaction (narration + Mono category)
+Transaction (narration + bankCategory)
           │
           ▼
+┌─────────────────────────────────┐
+│  Layer 0 — Category Tags        │  Token set for each category =
+│  (built once per job)           │  name tokens ∪ tag tokens (from DB)
+└─────────────────┬───────────────┘
+                  │ CategoryTokenSet[]
+                  ▼
 ┌─────────────────────────────────┐
 │  Layer 1 — Merchant DB Scan     │  Narration tokens looked up in
 │  (per job: in-memory map)       │  NigerianMerchant table → hint tokens
@@ -38,19 +59,18 @@ Transaction (narration + Mono category)
                   ▼
 ┌─────────────────────────────────┐
 │  Layer 2 — Token Scoring        │  Score each category using 3 signals:
-│  (pure CPU, no DB)              │  Mono(×2) + MerchantHint(×2) + Narration(×1)
-│                                 │  Category token set = name + slug + tags
+│  (pure CPU, no DB)              │  bankCategory(×2) + merchantHint(×2) + narration(×1)
 └─────────────────┬───────────────┘
                   │
           score > 0? ──YES──► resolved category
                   │NO
                   ▼
 ┌─────────────────────────────────┐
-│  Layer 3 — AI Classification    │  Batch call for all score=0 transactions
-│  (selective, one call per job)  │  Model picks from user's actual categories
+│  Layer 3 — AI Classification    │  Single batched gRPC call to ai_service
+│  (selective, one call per job)  │  for all score=0 transactions
 └─────────────────┬───────────────┘
                   │
-          still no match? ──► dynamic fallback (misc/general/other)
+          still no match? ──► Miscellaneous (cat-misc)
 ```
 
 Each layer only activates for what the previous layer could not resolve.
@@ -61,21 +81,17 @@ Each layer only activates for what the previous layer could not resolve.
 
 ### What they are
 
-Tags are a list of explicit hint tokens attached to a category. They extend
-the token set used during scoring without requiring the hint words to appear
-in the category name.
+Tags are explicit hint tokens stored on each category. They extend the token set used during scoring without requiring the hint words to appear in the category name or slug.
 
 ```
-Category: Food & Dining
-  name tokens:  [food, dining]
-  tags:         [kfc, shoprite, restaurant, burger, pizza, chicken, eat, cafe]
-  ────────────────────────────────────────────────────────────────────────────
-  full token set: {food, dining, kfc, shoprite, restaurant, burger, pizza,
-                   chicken, eat, cafe}
+Category: Bills & Utilities  (slug: cat-bills-utilities)
+  name tokens:  [bills, utilities]
+  tags:         [airtime, data, mtn, dstv, electricity, ikedc, ...]
+  ──────────────────────────────────────────────────────────────────
+  full token set: {bills, utilities, airtime, data, mtn, dstv, electricity, ...}
 ```
 
-Without tags, "KFC IKEJA" with `Mono=unknown` would score 0 and fall through
-to AI. With tags, "kfc" hits the token set directly and resolves instantly.
+Without tags, `"AIRTIME PURCHASE 08012345678"` with `bankCategory=unknown` would score 0 and fall through to AI. With tags, `"airtime"` hits the set directly and resolves instantly.
 
 ### Prisma schema
 
@@ -86,54 +102,57 @@ model Category {
   slug     String
   isSystem Boolean  @default(false)
   userId   String?
-  tags     String[] @default([])   // ← new field
-  // ...existing relations
+  tags     String[] @default([])
+  // ...other fields
 }
 ```
 
-Tags are stored as a plain string array on the category — no join table
-needed. PostgreSQL GIN-indexes `String[]` efficiently.
+Tags are a plain `String[]` on each category — no join table. PostgreSQL GIN-indexes `String[]` efficiently.
 
 ### System category seed tags
 
-| Category              | Tags                                                                                                     |
-| --------------------- | -------------------------------------------------------------------------------------------------------- |
-| Food & Dining         | kfc, shoprite, restaurant, burger, pizza, chicken, eat, cafe, bar, canteen, eatery, spar, dine           |
-| Groceries             | shoprite, spar, market, supermarket, store, supply, provisions                                           |
-| Transport             | uber, bolt, taxify, okada, ride, fare, fuel, petrol, toll, park, bus, train                              |
-| Utilities             | mtn, airtel, glo, mobile, nepa, phcn, ikedc, ekedc, aedc, dstv, gotv, electricity, water, bill, recharge |
-| Healthcare            | pharmacy, hospital, clinic, lab, doctor, medic, health, drug                                             |
-| Savings & Investments | piggybank, cowrywise, stash, risevest, bamboo, invest, savings, fixed, deposit                           |
-| Entertainment         | netflix, showmax, spotify, apple, amazon, cinema, event, ticket, stream                                  |
-| Education             | school, tuition, course, exam, waec, jamb, fees, lesson                                                  |
-| Transfers             | nip, transfer, send, received, payment, remit                                                            |
-| Miscellaneous         | — (catch-all, no tags needed)                                                                            |
+These are the 10 system categories and their tags. The full seed is in [seed.ts](../packages/database/prisma/seed.ts).
+
+| Category | Slug | Representative tags |
+|----------|------|---------------------|
+| Food & Groceries | `cat-food` | food, dining, restaurant, delivery, groceries, supermarket, kfc, shoprite, spar, bukka, chowdeck, pizza, burger |
+| Income | `cat-income` | income, salary, credit, refund, cashback, received, inflow, settlement, payout, allowance, stipend |
+| Transport | `cat-transport` | transport, uber, bolt, taxify, fuel, petrol, fare, keke, okada, logistics, flight, travel, dispatch |
+| Bills & Utilities | `cat-bills-utilities` | bills, electricity, nepa, ikedc, ekedc, airtime, data, mtn, dstv, gotv, internet, wifi, spectranet, token |
+| Shopping & Retail | `cat-shopping` | shopping, retail, clothing, electronics, jumia, konga, jiji, slot, mall, ecommerce, gadgets |
+| Healthcare | `cat-healthcare` | healthcare, hospital, pharmacy, drugs, doctor, clinic, medplus, healthplus, lab, wellness, salon, spa |
+| Entertainment | `cat-entertainment` | entertainment, netflix, spotify, showmax, cinema, betting, bet9ja, sportybet, streaming, concert, ticket |
+| Education | `cat-education` | education, school, tuition, fees, waec, jamb, coursera, udemy, course, training, exam, scholarship |
+| Savings & Investments | `cat-savings` | savings, investment, piggyvest, cowrywise, risevest, stocks, pension, crypto, insurance, mortgage, deposit |
+| Miscellaneous | `cat-misc` | misc, charges, bank charge, tax, atm, withdrawal, cash, stamp duty, vat, processing fee, maintenance |
 
 ### User-defined tags
 
-When a user creates a custom category (e.g., "Side Business"), they can
-optionally supply tags:
+When a user creates a custom category (e.g., "Side Business"), they can optionally supply tags:
 
 ```json
 { "name": "Side Business", "tags": ["invoice", "client", "freelance", "paystack"] }
 ```
 
-The form makes this optional with a helper prompt: _"Add keywords that
-describe transactions in this category (e.g. merchant names, payment types)"._
+### How tags are built into the token set (once per job)
 
-### Pipeline snapshot — tags enriching the token set
+```typescript
+interface CategoryTokenSet {
+  id: string;
+  slug: string;
+  tokens: Set<string>;   // name tokens ∪ tag tokens
+}
 
+function buildCategoryTokenSets(categories: Category[]): CategoryTokenSet[] {
+  return categories.map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    tokens: new Set([...tokenize(c.name), ...c.tags.map((t) => t.toLowerCase())]),
+  }));
+}
 ```
-buildCategoryTokenSets(categories)
-  │
-  for each category:
-  │   name tokens   = tokenize(c.name)   → ["food", "dining"]
-  │   tag tokens    = c.tags             → ["kfc", "shoprite", ...]
-  │   ──────────────────────────────────────────────────────────
-  │   Set<string>   = union of both  → {food, dining, kfc, shoprite, ...}
-  │
-  returns CategoryTokenSet[]   (built once per job)
-```
+
+Built once per sync job, reused for every transaction in that job.
 
 ---
 
@@ -141,23 +160,18 @@ buildCategoryTokenSets(categories)
 
 ### What it is
 
-A table of known Nigerian merchants and bank identifiers, each mapped to a
-list of category hint tokens. The processor loads this table once per job
-into a `Map<string, string[]>` keyed by merchant name (uppercase), covering
-all aliases.
+A table of known Nigerian merchants and bank identifiers. Each row has a canonical name, a list of narration aliases (alternate spellings as they appear in bank text), and a `categoryHint` — a space-separated string of category-relevant tokens.
 
-When a narration is processed, each of its tokens is looked up in this map.
-Every hit injects the merchant's hint tokens into the scoring pipeline at the
-same weight as Mono's own category signal (×2 — curated knowledge).
+The processor loads the full table once per sync job into a `Map<string, string[]>` keyed by each name and alias (uppercase). When a narration token hits the map, its hint tokens are injected into scoring at the same weight as Mono's own signal (×2 — curated knowledge).
 
 ### Prisma schema
 
 ```prisma
 model NigerianMerchant {
   id           String   @id @default(cuid())
-  name         String   @unique        // canonical name, uppercase — "KFC"
-  aliases      String[]                // alternate narration fragments — ["KENTUCKY", "K F C"]
-  categoryHint String                  // space-separated hint tokens — "food restaurant fast"
+  name         String   @unique   // canonical, uppercase — "KFC"
+  aliases      String[]           // alternate narration fragments — ["KENTUCKY", "KENTUCKY FRIED CHICKEN"]
+  categoryHint String             // space-separated hint tokens — "food dining restaurant fast"
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -165,81 +179,57 @@ model NigerianMerchant {
 }
 ```
 
-### Seed data (initial Nigerian merchant list)
+### Seed data
 
-| name             | aliases          | categoryHint                         |
-| ---------------- | ---------------- | ------------------------------------ |
-| KFC              | KENTUCKY         | food restaurant fast dining          |
-| SHOPRITE         | SHOP RITE        | groceries supermarket food shopping  |
-| SPAR             | —                | groceries supermarket food shopping  |
-| CHICKEN REPUBLIC | CHICKEN REP      | food restaurant fast dining          |
-| TANTALIZERS      | TANTALISERS      | food restaurant dining               |
-| DOMINOS          | DOMINO           | food restaurant pizza dining         |
-| COLDSTONE        | COLD STONE       | food restaurant dessert dining       |
-| UBER             | UBER TRIP        | transport ride                       |
-| BOLT             | TAXIFY           | transport ride                       |
-| KUDA             | KUDA BANK        | transfer bank finance                |
-| OPAY             | O PAY            | transfer bank finance payment        |
-| PALMPAY          | PALM PAY         | transfer bank finance payment        |
-| GTB              | GTBANK, GUARANTY | transfer bank finance                |
-| UBA              | —                | transfer bank finance                |
-| ZENITH           | ZENITH BANK      | transfer bank finance                |
-| ACCESS           | ACCESS BANK      | transfer bank finance                |
-| FIRSTBANK        | FIRST BANK       | transfer bank finance                |
-| FCMB             | —                | transfer bank finance                |
-| STANBIC          | STANBIC IBTC     | transfer bank finance                |
-| MTN              | —                | utilities airtime data telecom       |
-| AIRTEL           | —                | utilities airtime data telecom       |
-| GLO              | GLOBACOM         | utilities airtime data telecom       |
-| 9MOBILE          | ETISALAT         | utilities airtime data telecom       |
-| DSTV             | —                | utilities entertainment subscription |
-| GOTV             | GOtv             | utilities entertainment subscription |
-| SHOWMAX          | —                | utilities entertainment subscription |
-| NETFLIX          | —                | utilities entertainment subscription |
-| IKEDC            | IKEJA ELECTRIC   | utilities electricity bills          |
-| EKEDC            | EKO ELECTRIC     | utilities electricity bills          |
-| AEDC             | ABUJA ELECTRIC   | utilities electricity bills          |
-| PHCN             | NEPA             | utilities electricity bills          |
-| LAWMA            | —                | utilities bills                      |
-| PAYSTACK         | —                | payment finance                      |
-| FLUTTERWAVE      | FLUTTER          | payment finance                      |
-| NIP              | —                | transfer payment                     |
+The seed in [seed.ts](../packages/database/prisma/seed.ts) ships 69 Nigerian merchants across 9 groups: food & dining, groceries, transport/fuel, telecom, cable TV, electricity DISCOs, ISPs, shopping, healthcare, entertainment/betting, fintech, and savings platforms.
+
+Representative entries:
+
+| name | aliases | categoryHint |
+|------|---------|--------------|
+| KFC | KENTUCKY, KENTUCKY FRIED CHICKEN | food dining restaurant fast chicken |
+| SHOPRITE | SHOPRITE NIGERIA, SHOPRITE CHECKERS | groceries supermarket retail food |
+| UBER | UBER TRIP, UBER BV | transport ride |
+| BOLT | BOLT NIGERIA, TAXIFY | transport ride |
+| MTN | MTN NIGERIA | bills utilities airtime data phone |
+| DSTV | DSTV NIGERIA, MULTICHOICE | bills utilities entertainment cable tv |
+| IKEDC | IKEJA ELECTRIC, IKEJA DISCO | bills utilities electricity nepa phcn |
+| PIGGYVEST | PIGGYBANK, PIGGYVEST LTD | savings investment |
+| KUDA | KUDA BANK, KUDA MFB | transfer payment fintech savings |
+| BET9JA | BET 9JA, BET9JA.COM | entertainment betting gambling sport |
 
 ### How narration tokens are matched
 
-Narration: `"NIP/KUDA/SAMUEL OLAMIDE/TRANSFER 1"`
+Narration: `"CHOWDECK DELIVERY PAYMENT REF 88291"`
 
 ```
-Step 1 — split on /, -, space          → ["NIP", "KUDA", "SAMUEL", "OLAMIDE", "TRANSFER", "1"]
+Step 1 — split on /, -, space        → ["CHOWDECK", "DELIVERY", "PAYMENT", "REF", "88291"]
 Step 2 — uppercase each token
 Step 3 — look up each in merchantMap
-          "NIP"     → hit → ["transfer", "payment"]
-          "KUDA"    → hit → ["transfer", "bank", "finance"]
-          "SAMUEL"  → miss
-          "OLAMIDE" → miss
-          "TRANSFER"→ miss (not in table; generic word)
-          "1"       → miss
-Step 4 — union all hits → merchantHintTokens = ["transfer", "payment", "bank", "finance"]
+          "CHOWDECK" → hit → ["food", "delivery", "dining"]
+          "DELIVERY" → miss (generic word, not in table)
+          "PAYMENT"  → miss
+          "REF"      → miss (too short after tokenize: dropped)
+          "88291"    → miss (non-alpha stripped)
+Step 4 — union all hits → merchantHintTokens = ["food", "delivery", "dining"]
 ```
-
-These tokens enter scoring at ×2 weight, same as Mono's own classification.
 
 ### Loading the merchant map (once per job)
 
-```
-handleSyncAccount()
-  │
-  ├─ prisma.category.findMany(...)       → categories[]
-  ├─ prisma.nigerianMerchant.findMany()  → merchants[]
-  │
-  ├─ buildCategoryTokenSets(categories)  → CategoryTokenSet[]
-  ├─ buildMerchantMap(merchants)         → Map<string, string[]>
-  │    for each merchant:
-  │      merchantMap.set(m.name, tokens)
-  │      for alias of m.aliases:
-  │        merchantMap.set(alias, tokens)   // all aliases share same hints
-  │
-  └─ process each transaction...
+```typescript
+async function handleSyncAccount(userId: string, accountId: string) {
+  const [categories, merchants] = await Promise.all([
+    prisma.category.findMany({ where: { OR: [{ isSystem: true }, { userId }] } }),
+    prisma.nigerianMerchant.findMany(),
+  ]);
+
+  const catTokenSets = buildCategoryTokenSets(categories);
+  const merchantMap  = buildMerchantMap(merchants);
+  //    merchantMap: Map<string, string[]>
+  //    built by: merchantMap.set(m.name, tokens); aliases.forEach(a => merchantMap.set(a, tokens))
+
+  // ...process each transaction
+}
 ```
 
 ---
@@ -248,123 +238,116 @@ handleSyncAccount()
 
 ### Inputs per transaction
 
-| Signal               | Source                                      | Weight |
-| -------------------- | ------------------------------------------- | ------ |
-| Mono tokens          | `tx.category` enum (e.g. `food_and_drinks`) | **×2** |
-| Merchant hint tokens | NigerianMerchant lookup on narration        | **×2** |
-| Narration tokens     | `tx.narration` free-text                    | **×1** |
+| Signal | Source | Weight |
+|--------|--------|--------|
+| bankCategory tokens | `tx.bankCategory` — Mono enum e.g. `food_and_drinks` → `["food", "drinks"]` | **×2** |
+| Merchant hint tokens | NigerianMerchant lookup on `tx.narration` | **×2** |
+| Narration tokens | `tx.narration` free-text tokenized | **×1** |
 
-### Category token set
-
-Built once per job from: `name tokens ∪ tag tokens`
+Mono gets ×2 because it's curated bank data. Merchant hints get ×2 for the same reason. Raw narration text gets ×1 as a weaker, unverified signal.
 
 ### Matching rule
 
 A token `t` matches a category's token set if:
 
-1. **Exact** — `t` is in the set
-2. **Substring** — one is contained in the other, with minimum 4-char length
-   (guards against "the" matching "therapy")
+1. **Exact** — `t` is in the set, or
+2. **Substring** — one contains the other, with minimum 4-char length (guards against short tokens like `"the"` matching `"therapy"`)
 
 ### Scoring loop
 
-```
-for each transaction tx:
-  monoTokens    = tokenize(tx.category)              // [] if "unknown"
-  narTokens     = tokenize(tx.narration)
-  merchantHints = lookupMerchantHints(tx.narration)  // [] if no match
+```typescript
+for (const tx of transactions) {
+  const monoTokens    = tokenize(tx.bankCategory ?? '');      // [] if null/unknown
+  const narTokens     = tokenize(tx.narration ?? '');
+  const merchantHints = lookupMerchantHints(tx.narration, merchantMap);
 
-  for each category C in catTokenSets:
-    score = 0
-    for t in monoTokens:    if match(t, C.tokens): score += 2
-    for t in merchantHints: if match(t, C.tokens): score += 2
-    for t in narTokens:     if match(t, C.tokens): score += 1
+  let winner: CategoryTokenSet | null = null;
+  let topScore = 0;
 
-  winner = category with highest score
-  if winner.score == 0 → add to unresolved[]
-```
+  for (const cat of catTokenSets) {
+    let score = 0;
+    for (const t of monoTokens)    if (matches(t, cat.tokens)) score += 2;
+    for (const t of merchantHints) if (matches(t, cat.tokens)) score += 2;
+    for (const t of narTokens)     if (matches(t, cat.tokens)) score += 1;
+    if (score > topScore) { topScore = score; winner = cat; }
+  }
 
-### Full walk-through: NIP/KUDA transfer
-
-```
-tx.category  = "unknown"
-tx.narration = "NIP/KUDA/SAMUEL OLAMIDE/TRANSFER 1"
-
-Mono tokens:     []
-Merchant hits:   ["transfer", "payment", "bank", "finance"]
-Narration tokens: ["nip", "kuda", "samuel", "olamide", "transfer"]
-
-Category scoring:
-  Transfers   {nip, transfer, send, ...}
-    merchant: "transfer" exact ×2 → 2
-    merchant: "payment"  miss → 0
-    merchant: "bank"     miss → 0
-    narration: "nip"     exact ×1 → 1
-    narration: "transfer" exact ×1 → 1
-    Total: 4  ✓ WINNER
-
-  Food & Dining   {food, dining, kfc, ...}
-    merchant: "bank"    miss → 0
-    Total: 0
-
-Result: Transfers (score 4)
+  if (topScore === 0) unresolved.push(tx);
+  else resolved.push({ ...tx, categorySlug: winner!.slug });
+}
 ```
 
-### Walk-through: Mono provides clear signal
+### Walk-through: Strong Mono signal + merchant match
 
 ```
-tx.category  = "food_and_drinks"
-tx.narration = "KFC IKEJA"
+tx.bankCategory = "food_and_drinks"
+tx.narration    = "KFC IKEJA LEKKI"
 
-Mono tokens:     ["food", "drinks"]
-Merchant hits:   ["food", "restaurant", "fast", "dining"]   ← "KFC" matched
-Narration tokens: ["kfc", "ikeja"]
+bankCategory tokens: ["food", "drinks"]
+merchantHintTokens:  ["food", "dining", "restaurant", "fast", "chicken"]  ← "KFC" matched
+narration tokens:    ["kfc", "ikeja", "lekki"]
 
-Category scoring:
-  Food & Dining  {food, dining, kfc, shoprite, restaurant, ...}
-    mono:     "food"       exact ×2 → 2
-    merchant: "food"       exact ×2 → 2
-    merchant: "restaurant" exact ×2 → 2
-    merchant: "dining"     exact ×2 → 2
-    narration: "kfc"       exact ×1 → 1
-    Total: 9  ✓ WINNER (very high confidence)
+Scoring against Food & Groceries  {food, dining, restaurant, groceries, ...}:
+  bankCategory: "food"       exact ×2 → 2
+  merchant:     "food"       exact ×2 → 2
+  merchant:     "dining"     exact ×2 → 2
+  merchant:     "restaurant" exact ×2 → 2
+  narration:    "kfc"        exact ×1 → 1
+  Total: 9  ✓ WINNER (very high confidence)
 ```
 
 ### Walk-through: Only narration saves it
 
 ```
-tx.category  = "unknown"
-tx.narration = "TRANSPORT FARE PAYMENT"
+tx.bankCategory = null
+tx.narration    = "TRANSPORT FARE PAYMENT"
 
-Mono tokens:     []
-Merchant hits:   []
-Narration tokens: ["transport", "fare", "payment"]
+bankCategory tokens: []
+merchantHintTokens:  []
+narration tokens:    ["transport", "fare", "payment"]
 
-Category scoring:
-  Transport  {transport, uber, bolt, ride, fare, fuel, ...}
-    narration: "transport" exact ×1 → 1
-    narration: "fare"      exact ×1 → 1
-    Total: 2  ✓ WINNER
+Scoring against Transport  {transport, uber, bolt, ride, fare, fuel, ...}:
+  narration: "transport" exact ×1 → 1
+  narration: "fare"      exact ×1 → 1
+  Total: 2  ✓ WINNER
 ```
 
-### Walk-through: Airtime purchase
+### Walk-through: Tags matter — airtime
 
 ```
-tx.category  = "unknown"
-tx.narration = "AIRTIME PURCHASE 08012345678"
+tx.bankCategory = "unknown"
+tx.narration    = "AIRTIME PURCHASE 08012345678"
 
-Mono tokens:     []
-Merchant hits:   []   ("AIRTIME", "PURCHASE" not in merchant table — generic words)
-Narration tokens: ["airtime", "purchase"]
+bankCategory tokens: []        ("unknown" produces no scoring tokens after tokenize)
+merchantHintTokens:  []        ("AIRTIME", "PURCHASE" not in merchant table — generic words)
+narration tokens:    ["airtime", "purchase"]
 
-Category scoring (assuming "airtime" is a tag on Utilities):
-  Utilities  {mtn, airtel, glo, nepa, bill, recharge, airtime, ...}
-    narration: "airtime" exact ×1 → 1
-    Total: 1  ✓ WINNER
+Scoring against Bills & Utilities  {bills, utilities, airtime, data, mtn, ...}:
+  narration: "airtime" exact ×1 → 1
+  Total: 1  ✓ WINNER
 ```
 
-> This is why tags matter: "airtime" would never appear in a category name
-> ("Utilities") or slug ("cat-utilities"), but it belongs in the token set.
+> This is why tags matter: `"airtime"` would never appear in the category name `"Bills & Utilities"`
+> or slug `"cat-bills-utilities"`, but it's in the tag list — so it scores.
+
+### Walk-through: Opaque narration — score = 0 → AI
+
+```
+tx.bankCategory = "unknown"
+tx.narration    = "PMT REF 991247/ACC SWEEP 003"
+
+bankCategory tokens: []
+merchantHintTokens:  []
+narration tokens:    ["pmt", "ref", "acc", "sweep"]  ← all < 4 chars or stopwords → []
+                    (actually all get dropped — "pmt" 3 chars, "ref" 3 chars, "acc" 3 chars, "sweep" passes)
+narration tokens after filter: ["sweep"]
+
+Scoring:
+  No category has "sweep" in its token set.
+  All scores = 0 → tx added to unresolved[]
+```
+
+This transaction goes to Layer 3.
 
 ---
 
@@ -372,39 +355,64 @@ Category scoring (assuming "airtime" is a tag on Utilities):
 
 ### When it activates
 
-Only for transactions where all previous layers returned score = 0.
-In practice this is a small subset — opaque reference numbers, employer
-payroll codes, or obscure merchant names not yet in the merchant table.
+Only for transactions where every previous layer returned score = 0. In practice a small subset — opaque reference codes, unknown merchant names, employer payroll codes not yet in the merchant table.
 
-### How it works
+### gRPC call to ai_service
 
-All unresolved transactions are collected **after** token scoring finishes,
-then sent to the `ai_service` as a **single batched gRPC call**. The model
-receives the full list of the user's categories (name + slug) in the prompt
-and returns a JSON map of `{ transactionId → categorySlug }`. No hardcoded
-slugs — the model picks from whatever categories actually exist.
+All unresolved transactions from the job are collected after token scoring finishes, then sent as **one batched call**:
 
+```typescript
+// finance_service → ai_service (one call per sync job)
+const response = await this.aiClient.classifyTransactions({
+  userId,
+  transactions: unresolved.map((tx) => ({
+    id:           tx.id,
+    narration:    tx.narration,      // Transaction.narration — raw Mono text
+    bankCategory: tx.bankCategory,  // Transaction.bankCategory — Mono enum hint
+  })),
+  categories: categories.map((c) => ({ name: c.name, slug: c.slug })),
+});
+
+// response.classifications: Record<transactionId, categorySlug>
+for (const [txId, slug] of Object.entries(response.classifications)) {
+  const cat = categories.find((c) => c.slug === slug);
+  applyCategory(txId, cat?.id ?? fallbackId);
+}
 ```
-Token scoring → 47 resolved, 8 unresolved (score = 0)
-                                   │
-                    ai_service.ClassifyTransactions({
-                      transactions: [{ id, narration, monoCategory }, ...],
-                      categories:   [{ name, slug }, ...]
-                    })
-                                   │
-                    returns: { "tx_abc" → "cat-misc", "tx_def" → "cat-food", ... }
-                                   │
-All 55 transactions now have categoryId → batch create
+
+The proto contract:
+
+```protobuf
+rpc ClassifyTransactions(ClassifyTransactionsReq) returns (ClassifyTransactionsRes) {}
+
+message ClassifyTransactionsReq {
+  string userId = 1;
+  repeated TransactionInput transactions = 2;
+  repeated CategoryInput categories = 3;
+}
+message TransactionInput {
+  string id = 1;
+  string narration = 2;
+  string bankCategory = 3;
+}
+message ClassifyTransactionsRes {
+  map<string, string> classifications = 1;  // transactionId → categorySlug
+}
 ```
+
+Inside `ai_service`, `ClassificationService` receives this, builds a prompt listing the user's actual categories, calls the LLM, and returns the map. The model picks only from slugs that exist in `categories` — no hardcoded slugs anywhere.
+
+See [AI-SERVICE.md → Domain 1 — Transaction Classification](./AI-SERVICE.md) for the full `ClassificationService` implementation including the prompt template, structured output schema, and few-shot injection.
 
 ### Cost model
 
-| Layer            | Covers                                            | Latency                | Cost                    |
-| ---------------- | ------------------------------------------------- | ---------------------- | ----------------------- |
-| Merchant DB      | ~10–15 % extra (NIP/bank transfers, known brands) | ~0 ms (in-memory)      | Free                    |
-| Token scoring    | ~80–90 % of transactions                          | ~0 ms (CPU only)       | Free                    |
-| AI batch         | Remaining ~5–10 %                                 | ~500 ms–2 s (one call) | ~$0.001–0.005 per batch |
-| Dynamic fallback | Last resort                                       | ~0 ms                  | Free                    |
+| Layer | Covers | Latency | Cost |
+|-------|--------|---------|------|
+| Category tags (Layer 0) | Built once, used per-tx | ~0 ms | Free |
+| Merchant DB scan (Layer 1) | ~10–15% extra coverage | ~0 ms (in-memory) | Free |
+| Token scoring (Layer 2) | ~80–90% of transactions | ~0 ms (CPU only) | Free |
+| AI batch (Layer 3) | Remaining ~5–10% | ~500 ms–2 s (one call) | ~$0.001–0.005 per batch |
+| Fallback to Miscellaneous | Last resort | ~0 ms | Free |
 
 AI is the final safety net, not the primary path.
 
@@ -412,19 +420,25 @@ AI is the final safety net, not the primary path.
 
 ## Tokenize Function
 
-```
-tokenize(text: string): string[]
+All three scoring signals pass through `tokenize` before matching:
 
-Rules (applied in order):
-  1. Lowercase
-  2. Replace separators (_, -, &, /, \) with space
-  3. Split on whitespace
-  4. Strip non-alpha chars from each token
-  5. Drop tokens shorter than 3 chars
-  6. Drop STOPWORDS
-```
+```typescript
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[_\-&/\\]/g, ' ')   // separators → spaces
+    .split(/\s+/)
+    .map((t) => t.replace(/[^a-z]/g, ''))  // strip non-alpha
+    .filter((t) => t.length >= 3)          // drop very short tokens
+    .filter((t) => !STOPWORDS.has(t));
+}
 
-**STOPWORDS:** `and the for with from into or of to a an in on at by cat per ltd plc nig nigeria`
+const STOPWORDS = new Set([
+  'and', 'the', 'for', 'with', 'from', 'into', 'or', 'of',
+  'to', 'a', 'an', 'in', 'on', 'at', 'by', 'cat', 'per',
+  'ltd', 'plc', 'nig', 'nigeria',
+]);
+```
 
 **Examples:**
 
@@ -432,78 +446,118 @@ Rules (applied in order):
 "food_and_drinks"              → ["food", "drinks"]
 "NIP/KUDA/SAMUEL OLAMIDE"      → ["nip", "kuda", "samuel", "olamide"]
 "AIRTIME PURCHASE 08012345678" → ["airtime", "purchase"]
-"Food & Dining"                → ["food", "dining"]
+"Food & Groceries"             → ["food", "groceries"]
 "Savings & Investments"        → ["savings", "investments"]
+"unknown"                      → ["unknown"]  ← scores 0 against all categories; Mono signal absent
 ```
+
+> `"unknown"` stays as a single token — it doesn't match any category tag set,
+> so transactions with `bankCategory = "unknown"` effectively get no Mono boost.
+
+---
+
+## Feedback Loop — Learning from User Corrections
+
+When a user corrects the AI-assigned category of a Mono transaction, the correction is not a dead end. It's stored as a pgvector embedding in `classification_corrections` and retrieved as few-shot examples for the **next** classification call for the same user.
+
+This means the model learns the user's personal categorisation preferences over time without any fine-tuning — purely through prompt augmentation at inference time.
+
+The full implementation lives in [AI-SERVICE.md → Feedback Loop — Learning from User Corrections](./AI-SERVICE.md):
+
+- **Write path**: `finance_service` publishes a `CategoryCorrected` event → `ai_service` embeds the narration → stored in `classification_corrections`
+- **Read path**: Before each `ClassifyTransactions` call, `ClassificationService.fetchFewShotExamples()` does a cosine search against the user's stored corrections → top-5 results injected as few-shot examples into the prompt
+
+This covers merchant names not yet in the `NigerianMerchant` table and opaque narrations that recur for the same user — over time, those transactions resolve before reaching Layer 3.
 
 ---
 
 ## Prisma Schema Summary
 
-Two additions to the existing schema:
-
 ```prisma
-// On existing Category model — add one field:
-tags  String[]  @default([])
+// On the existing Transaction model:
+narration    String?   // raw Mono bank narration — immutable, source for AI and embeddings
+bankCategory String?   // raw Mono category enum (e.g. "food_and_drinks") — persisted for AI hint
 
-// New table:
+// On the existing Category model:
+tags  String[]  @default([])   // hint tokens that extend the scoring token set
+
+// Merchant lookup table:
 model NigerianMerchant {
   id           String   @id @default(cuid())
-  name         String   @unique        // canonical uppercase key
-  aliases      String[]                // alternate narration fragments
-  categoryHint String                  // space-separated hint tokens
+  name         String   @unique
+  aliases      String[]
+  categoryHint String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
   @@index([name])
+}
+
+// Feedback loop (AI-SERVICE.md for detail):
+model ClassificationCorrection {
+  id            String                      @id @default(cuid())
+  narration     String
+  correctedSlug String
+  embedding     Unsupported("vector(1536)")?
+  userId        String
+  user          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime                    @default(now())
+  @@index([userId])
+  @@map("classification_corrections")
 }
 ```
 
 ---
 
-## Self-Learning Loop (Future)
-
-Every time a user manually re-categorises a bank transaction, the correction
-can write back into the merchant table automatically:
-
-```
-User moves "KFC IKEJA" from Miscellaneous → Food & Dining
-  │
-  extract narration candidate: "KFC"
-  │
-  upsert NigerianMerchant { name: "KFC", categoryHint: "food restaurant dining" }
-```
-
-Over time the merchant table grows organically from real user corrections,
-covering Nigerian merchants that are not in the initial seed — without any
-manual curation effort.
-
----
-
 ## Processor Execution Order (per sync job)
 
-```
-handleSyncAccount()
-  │
-  1. prisma.category.findMany()          → categories[]
-  2. prisma.nigerianMerchant.findMany()  → merchants[]
-  3. buildCategoryTokenSets(categories)  → CategoryTokenSet[]   (name+tags)
-  4. buildMerchantMap(merchants)         → Map<string, string[]>
-  │
-  5. fetch all Mono transaction pages    → MonoTransaction[]
-  │
-  6. for each tx:
-  │    merchantHints  = lookupMerchantHints(tx.narration, merchantMap)
-  │    categoryId     = resolveCategory(tx, catTokenSets, merchantHints, fallbackId)
-  │    collect resolved and unresolved
-  │
-  7. if unresolved.length > 0:
-  │    ai_service.ClassifyTransactions(unresolved, categories)
-  │    apply AI results
-  │
-  8. transactionService.batchCreateMonoTransactions(userId, allTransactions)
-  │    → single gRPC call, skipDuplicates handles idempotency
-  │
-  9. accountService.updateMonoBankAccount(account, id)
-  10. fcmService.sendToUser(...)          → push notification
+```typescript
+async function handleSyncAccount(userId: string, accountId: string) {
+  // 1. Load reference data (two parallel DB reads)
+  const [categories, merchants] = await Promise.all([
+    prisma.category.findMany({ where: { OR: [{ isSystem: true }, { userId }] } }),
+    prisma.nigerianMerchant.findMany(),
+  ]);
+
+  // 2. Build in-memory structures (CPU only — no more DB reads until step 6)
+  const catTokenSets = buildCategoryTokenSets(categories);  // name tokens ∪ tags
+  const merchantMap  = buildMerchantMap(merchants);         // name+aliases → hint tokens
+
+  // 3. Fetch fallback category
+  const fallbackId = categories.find((c) => c.slug === 'cat-misc')!.id;
+
+  // 4. Fetch all Mono transaction pages
+  const monoTxs = await monoClient.fetchAllTransactions(accountId);
+
+  // 5. Score every transaction (Layers 1–2)
+  const resolved:   ResolvedTx[] = [];
+  const unresolved: MonoTx[]     = [];
+
+  for (const tx of monoTxs) {
+    const merchantHints = lookupMerchantHints(tx.narration, merchantMap);
+    const result        = scoreTransaction(tx, catTokenSets, merchantHints);
+    result ? resolved.push(result) : unresolved.push(tx);
+  }
+
+  // 6. Layer 3 — AI batch for score=0 transactions
+  if (unresolved.length > 0) {
+    const aiResult = await aiClient.classifyTransactions({
+      userId,
+      transactions: unresolved.map((tx) => ({
+        id: tx.id, narration: tx.narration, bankCategory: tx.bankCategory,
+      })),
+      categories: categories.map((c) => ({ name: c.name, slug: c.slug })),
+    });
+    for (const [txId, slug] of Object.entries(aiResult.classifications)) {
+      const cat = categories.find((c) => c.slug === slug);
+      resolved.push({ id: txId, categoryId: cat?.id ?? fallbackId });
+    }
+  }
+
+  // 7. Persist all transactions in one batch (skipDuplicates = idempotent)
+  await transactionService.batchCreateMonoTransactions(userId, resolved);
+
+  // 8. Update account metadata + notify user
+  await accountService.updateMonoBankAccount(account, id);
+  await fcmService.sendToUser(userId, { title: 'Sync complete', ... });
+}
 ```

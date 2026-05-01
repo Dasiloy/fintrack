@@ -1,6 +1,5 @@
 import { env } from '@/env';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
-import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';

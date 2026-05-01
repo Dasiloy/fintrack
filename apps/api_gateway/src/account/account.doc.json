@@ -1,0 +1,132 @@
+{
+  "__comment": "Account Controller HTTP Documentation — apps/api_gateway/src/account/account.controller.ts",
+  "meta_note": "All routes are prefixed with /api/account. Most routes are protected by ApiGuard (JWT bearer). The Mono webhook route is public but protected by MonoGuard (HMAC signature verification).",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    }
+  },
+
+  "getLinkedAccounts": {
+    "route": "GET /api/account",
+    "method": "GET",
+    "description": "Return all Mono bank accounts linked to the authenticated user.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Accounts fetched successfully",
+      "data": [
+        {
+          "id": "string (uuid)",
+          "accountName": "string",
+          "accountNumber": "string",
+          "accountType": "SAVINGS | CURRENT",
+          "accountBalance": "number",
+          "accountCurrency": "NGN",
+          "bankName": "string",
+          "status": "AVAILABLE | REAUTHORIZATION_REQUIRED",
+          "lastSyncedAt": "ISO datetime | null",
+          "createdAt": "ISO datetime"
+        }
+      ]
+    },
+    "responses": {
+      "200": "Accounts fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "syncAccount": {
+    "route": "POST /api/account/:id/sync",
+    "method": "POST",
+    "description": "Manually trigger a transaction sync for a specific linked bank account. Enqueues a SYNC_ACCOUNT_JOB on the MONO_QUEUE; the sync is processed asynchronously.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — MonoBankAccount database ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Sync triggered",
+      "data": null
+    },
+    "responses": {
+      "200": "Sync job enqueued",
+      "401": "Access token invalid or expired",
+      "404": "Account not found"
+    }
+  },
+
+  "monoWebhook": {
+    "route": "POST /api/account/mono/webhook",
+    "method": "POST",
+    "description": "Receive Mono webhook events (e.g. mono.events.account_updated, mono.events.reauthorisation_required). This route is public but protected by MonoGuard which verifies the Mono-Signature HMAC header. Supported events trigger a sync or status update for the relevant account.",
+    "authentication": "MonoGuard — verifies Mono-Signature HMAC header (not a user JWT)",
+    "input": {
+      "event": "string — Mono event type (e.g. mono.events.account_updated)",
+      "data": "object — event payload from Mono"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Mono event received <event>",
+      "data": null
+    },
+    "responses": {
+      "200": "Event received and handled",
+      "401": "Invalid or missing Mono-Signature header",
+      "500": "Internal server error"
+    }
+  },
+
+  "linkMonoAccount": {
+    "route": "POST /api/account/link",
+    "method": "POST",
+    "description": "Link a new Mono bank account to the authenticated user using the one-time code from the Mono Connect widget. Exchanges the code for an account token, fetches account details, and persists the linked account.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "code": "string (required) — one-time code from the Mono Connect widget"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Account linked",
+      "data": null
+    },
+    "responses": {
+      "200": "Account linked successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error or Mono API failure"
+    }
+  },
+
+  "relinkMonoAccount": {
+    "route": "POST /api/account/relink",
+    "method": "POST",
+    "description": "Re-link an existing Mono bank account after a reauthorisation event (e.g. password change on the user's bank). Uses the reauth code from the Mono Connect widget to refresh the account token.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "code": "string (required) — reauth code from the Mono Connect widget",
+      "accountId": "string (required) — MonoBankAccount database ID to relink"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Account re-linked",
+      "data": null
+    },
+    "responses": {
+      "200": "Account re-linked successfully",
+      "401": "Access token invalid or expired",
+      "404": "Bank account not found",
+      "500": "Internal server error or Mono API failure"
+    }
+  }
+}

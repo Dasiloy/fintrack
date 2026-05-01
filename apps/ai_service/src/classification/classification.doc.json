@@ -1,0 +1,30 @@
+{
+  "__comment": "Classification Controller gRPC Documentation — apps/ai_service/src/classification/classification.controller.ts",
+  "meta_note": "All methods are exposed as gRPC procedures on the AiService package. Auth context is passed via gRPC Metadata decoded by RpcAuthGuard into metadata.user via @RpcUser().",
+  "conventions": {
+    "transport": "gRPC (NestJS microservice, @GrpcMethod)",
+    "auth": "RpcAuthGuard — reads the JWT from gRPC metadata, validates it, and exposes the decoded user via @RpcUser(). All methods require a valid access token.",
+    "rpc_errors": {
+      "OUT_OF_RANGE": "Model returned truncated or null output — classification result could not be parsed",
+      "INTERNAL": "Unexpected error during classification"
+    }
+  },
+
+  "classifyTransactions": {
+    "rpc": "ClassifyTransactions",
+    "proto_method": "rpc ClassifyTransactions (ClassifyTransactionsReq) returns (ClassifyTransactionsRes)",
+    "description": "Classify a batch of unclassified Mono bank transactions against the user's categories using a two-phase pipeline: (1) pgvector cosine-distance similarity search against prior user corrections, and (2) AI classification via gemini-2.5-flash with structured output. Short-circuits with an empty classifications array when the transaction list is empty.",
+    "authentication": "RpcAuthGuard — access token required",
+    "input": {
+      "categories": "array of { id: string, slug: string, name: string, tags: string[] } — the user's full category list",
+      "transactions": "array of { id: string, narration: string, category: string } — Mono transactions to classify; category is the raw Mono enum hint (may be empty)"
+    },
+    "output": {
+      "classifications": "array of { transactionId: string, categoryId: string, categorySlug: string } — one entry per input transaction"
+    },
+    "throws": {
+      "OUT_OF_RANGE": "Model returned truncated or null output",
+      "INTERNAL": "Unexpected classification error"
+    }
+  }
+}

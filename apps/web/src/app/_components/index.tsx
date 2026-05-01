@@ -9,3 +9,4 @@ export * from './drawer_ui';
 export { CookieConsentBanner } from './cookie_consent_banner';
 export { GoogleAnalytics } from './google_analytics';
 export { DeviceIdInit } from './device_id_init';
+export { MerchantSelector } from './merchant_selector';

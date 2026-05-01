@@ -17,3 +17,10 @@ export interface FcmNotificationPayload {
   body: string;
   data?: Record<string, string>;
 }
+
+// classification correction job
+export interface ClassificationCorrectionJobPayload {
+  userId: string;
+  narration: string;
+  correctedSlug: string;
+}
