@@ -105,16 +105,36 @@ This project is built to master:
 
 For more detailed guides, check the `docs/` folder:
 
+### Architecture & Services
 - [System Architecture](docs/ARCHITECTURE.md)
+- [API Gateway](docs/API-GATEWAY.md)
+- [Auth Service](docs/AUTH-SERVICE.md)
+- [Finance Service](docs/FINANCE-SERVICE.md)
+- [AI Service](docs/AI-SERVICE.md)
+- [Payment Service](docs/PAYMENT-SERVICE.md)
+- [Scheduler Service](docs/SCHEDULER-SERVICE.md)
+- [Notification Service](docs/NOTIFICATION-SERVICE.md)
+
+### Features & Flows
 - [Features & DSA Mapping](docs/FEATURES.md)
-- [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
-- [Build Journey Log](docs/BUILD-JOURNEY.md)
-- [Case Study & Business Value](docs/CASE-STUDY.md)
+- [Transaction Creation Flow](docs/TRANSACTION-CREATION-FLOW.md)
+- [Transaction Auto-Categorisation](docs/TOKENIZATION.md)
+
+### Security & Integrations
 - [OAuth Setup](docs/OAUTH.md)
 - [2FA / TOTP](docs/2FA-TOTP.md)
 - [Stripe & Subscriptions](docs/STRIPE.md)
+
+### Frontend
+- [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
+- [UI Engineering Guidelines](docs/UI.md)
+
+### Deployment & Operations
 - [Render Deployment](docs/RENDER.md)
-- [API Contract Index](docs/API-CONTRACT-TEMPLATE.json)
+
+### Reference
+- [Case Study & Business Value](docs/CASE-STUDY.md)
+- [API Contract Template](docs/API-CONTRACT-TEMPLATE.json)
 - [Backlog & Bug Tracker](docs/BACKLOG.md)
 
 ---
@@ -369,3 +389,5 @@ Instructions for api doc template is in docs folder in the api-contract-template
 Copyright © 2026 [dasiloy](https://github.com/dasiloy)
 
 //deployment, operations, security, ethics, management
+
+// npx neonctl@latest init

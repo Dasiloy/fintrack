@@ -2,7 +2,7 @@ import { Metadata } from '@grpc/grpc-js';
 import { lastValueFrom } from 'rxjs';
 
 import { ClientGrpc } from '@nestjs/microservices';
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 import { User } from '@fintrack/database/types';
 import {
@@ -13,16 +13,23 @@ import {
 import {
   BatchCreateTransactionsReq,
   BatchCreateTransactionsRes,
-  CreateTransactionReq,
   TransactionSource,
   TransactionType,
 } from '@fintrack/types/protos/finance/transaction';
+import {
+  AI_PACKAGE_NAME,
+  AI_SERVICE_NAME,
+  AiServiceClient,
+  ClassifyTransactionsReq,
+  ClassifyTransactionsRes,
+} from '@fintrack/types/protos/ai/ai';
 
 import {
   CreateTransactionDto,
   UpdateTransactionDto,
 } from './dto/transaction.dto';
 import { TransactionQueryDto } from './dto/transaction_query.dto';
+import { PrismaService } from '@fintrack/database/service';
 
 /**
  * API Gateway service for transaction CRUD operations.
@@ -33,14 +40,20 @@ import { TransactionQueryDto } from './dto/transaction_query.dto';
 @Injectable()
 export class TransactionService implements OnModuleInit {
   private financeServiceClient: FinanceServiceClient;
+  private aiServiceClient: AiServiceClient;
+  private readonly logger = new Logger(TransactionService.name);
 
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly financeClient: ClientGrpc,
+    @Inject(AI_PACKAGE_NAME) private readonly aiClient: ClientGrpc,
+    private readonly prisma: PrismaService,
   ) {}
 
   onModuleInit() {
     this.financeServiceClient =
       this.financeClient.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
+    this.aiServiceClient =
+      this.aiClient.getService<AiServiceClient>(AI_SERVICE_NAME);
   }
 
   /**
@@ -183,6 +196,25 @@ export class TransactionService implements OnModuleInit {
     metadata.add('x-user-id', userId);
     return lastValueFrom(
       this.financeServiceClient.batchCreateTransactions(req, metadata),
+    );
+  }
+
+  /**
+   * Runs transaction classification.
+   *
+   * @param {string} userId - Authenticated user id
+   * @param ClassifyTransactionsReq - Classification data
+   * @returns {Promise<ClassifyTransactionsRes>}
+   */
+  async classifyTransactions(
+    userId: string,
+    req: ClassifyTransactionsReq,
+  ): Promise<ClassifyTransactionsRes> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', userId);
+
+    return lastValueFrom(
+      this.aiServiceClient.classifyTransactions(req, metadata),
     );
   }
 }

@@ -10,9 +10,36 @@ import { DatabaseModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 
-import { AiController } from './ai.controller';
-import { AiService } from './ai.service';
+import { ChatModule } from './chat/chat.module';
+import { InsightsModule } from './insights/insights.module';
+import { ClassificationModule } from './classification/classification.module';
+import { RegistoryModule } from './registory/registory.module';
 
+/**
+ * Root module for the AI microservice.
+ *
+ * Bootstraps all infrastructure and feature modules needed to serve AI
+ * capabilities over gRPC:
+ *
+ * ## Infrastructure
+ * - **ConfigModule** — validates required env vars at startup (`REDIS_URL`,
+ *   `DATABASE_URL`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GEN_AI_API_KEY`).
+ *   Fails fast if any are absent.
+ * - **DatabaseModule** — Prisma client, used by classification and correction features.
+ * - **BullModule** — Redis-backed job queue, shared with other services via the same
+ *   `REDIS_URL`. Consumers registered in feature modules pick up cross-service jobs.
+ * - **RpcAuthGuard** (APP_GUARD) — validates JWT on every incoming gRPC call using
+ *   the `x-user-id` metadata header set by the API gateway.
+ * - **GrpcLoggingInterceptor** (APP_INTERCEPTOR) — structured request/response logging.
+ *
+ * ## Feature modules
+ * | Module              | Responsibility                                         |
+ * |---------------------|--------------------------------------------------------|
+ * | RegistoryModule     | Provider repos + ModelRessolver + LangChain/LangGraph  |
+ * | ClassificationModule| `ClassifyTransactions` gRPC + correction feedback loop |
+ * | ChatModule          | Chat completions (stub — not yet exposed via gRPC)     |
+ * | InsightsModule      | Spending insights (stub — not yet exposed via gRPC)    |
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,14 +53,12 @@ import { AiService } from './ai.service';
         DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         OPENAI_API_KEY: Joi.string().required(),
-        OPENAI_API_BASE: Joi.string().required(),
-        OPENAI_API_MODEL: Joi.string().required(),
-        OPENAI_API_VERSION: Joi.string().required(),
+        ANTHROPIC_API_KEY: Joi.string().required(),
+        GOOGLE_GEN_AI_API_KEY: Joi.string().required(),
       }),
     }),
     DatabaseModule,
     LoggerModule,
-
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -45,10 +70,14 @@ import { AiService } from './ai.service';
         };
       },
     }),
+
+    // main modules
+    RegistoryModule,
+    ChatModule,
+    InsightsModule,
+    ClassificationModule,
   ],
-  controllers: [AiController],
   providers: [
-    AiService,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,

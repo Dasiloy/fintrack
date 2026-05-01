@@ -12,7 +12,6 @@ import {
 /**
  * CleanupProcessor.
  */
-@Injectable()
 @Processor(ACCOUNT_CLEANUP_QUEUE)
 export class CleanupProcessor extends WorkerHost {
   private readonly logger = new Logger(CleanupProcessor.name);

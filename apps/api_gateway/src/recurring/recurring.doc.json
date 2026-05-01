@@ -1,0 +1,219 @@
+{
+  "__comment": "Recurring Controller HTTP Documentation — apps/api_gateway/src/recurring/recurring.controller.ts",
+  "meta_note": "All routes are prefixed with /api/recurring and protected by ApiGuard (JWT bearer). Each request is forwarded to the Finance microservice via gRPC. Aggregate responses are Redis-cached (5 min, USER_CACHE_TTL) and invalidated on any mutation.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | array | null"
+    },
+    "route_order": "GET /aggregate is declared before GET /:id to prevent the :id wildcard from capturing 'aggregate' as an ID.",
+    "cache": "GET /aggregate is Redis-cached per user (KEY: recurring_aggregate:{userId}, TTL: 300 s). All mutation routes (POST, PATCH, DELETE) call invalidateAggregateCache() fire-and-forget after a successful gRPC response."
+  },
+
+  "createRecurring": {
+    "route": "POST /api/recurring",
+    "method": "POST",
+    "description": "Creates a new recurring income or expense item. nextRunAt is computed by the Finance service. The scheduler picks up active items and creates transactions on each run date.",
+    "authentication": "Bearer <accessToken>",
+    "request_body": {
+      "name": "string (required, max 255)",
+      "amount": "number (required, > 0)",
+      "type": "'INCOME' | 'EXPENSE' (required)",
+      "frequency": "'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY' (required)",
+      "startDate": "string (required) — ISO date",
+      "categorySlug": "string (required)",
+      "endDate": "string (optional) — ISO date; omit for indefinite",
+      "description": "string (optional, max 255)",
+      "merchant": "string (optional, max 255)"
+    },
+    "response": {
+      "201": {
+        "success": true,
+        "statusCode": 201,
+        "message": "Recurring item created successfully",
+        "data": "<Recurinrg object>"
+      }
+    },
+    "errors": {
+      "400": "Validation error — missing required field or invalid value",
+      "401": "Access token missing, invalid, or expired",
+      "404": "categorySlug not found",
+      "500": "Internal server error"
+    },
+    "side_effects": [
+      "Invalidates gated usage cache (invalidateGatedUsageCache)",
+      "Invalidates recurring aggregate cache (invalidateAggregateCache)"
+    ]
+  },
+
+  "getRecurrings": {
+    "route": "GET /api/recurring",
+    "method": "GET",
+    "description": "Returns all recurring items for the authenticated user with optional server-side filtering and sorting. Active items always appear before paused items regardless of sortBy.",
+    "authentication": "Bearer <accessToken>",
+    "query_params": {
+      "isActive": "boolean (optional) — true: active only; false: paused only; omit: all",
+      "sortBy": "'nextRun' | 'amount' | 'name' (optional, default: nextRun)",
+      "type": "string[] (optional, repeated) — 'INCOME' and/or 'EXPENSE'",
+      "frequency": "string[] (optional, repeated) — one or more frequency values"
+    },
+    "response": {
+      "200": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Recurring items fetched successfully",
+        "data": "<Recurinrg[]>"
+      }
+    },
+    "errors": {
+      "401": "Access token missing, invalid, or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getRecurringsAggregate": {
+    "route": "GET /api/recurring/aggregate",
+    "method": "GET",
+    "description": "Returns pre-computed aggregate stats for the bills page widgets (active count, paused count, monthly expense total, monthly income total). Response is Redis-cached per user for 5 minutes and invalidated on any mutation. Backed by a single Prisma groupBy query in the Finance service — no row-level computation.",
+    "authentication": "Bearer <accessToken>",
+    "query_params": "none",
+    "response": {
+      "200": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Recurring aggregate fetched successfully",
+        "data": {
+          "activeCount": "number — items with isActive = true",
+          "pausedCount": "number — items with isActive = false",
+          "monthlyExpense": "number — total expense amount normalised to monthly",
+          "monthlyIncome": "number — total income amount normalised to monthly"
+        }
+      }
+    },
+    "errors": {
+      "401": "Access token missing, invalid, or expired",
+      "500": "Internal server error"
+    },
+    "cache": {
+      "key": "recurring_aggregate:{userId}",
+      "ttl_seconds": 300,
+      "invalidated_by": ["createRecurring", "updateRecurring", "toggleRecurring", "deleteRecurring"]
+    }
+  },
+
+  "getRecurring": {
+    "route": "GET /api/recurring/:id",
+    "method": "GET",
+    "description": "Returns a single recurring item by ID, including its full transaction history (transactions ordered newest-first).",
+    "authentication": "Bearer <accessToken>",
+    "path_params": {
+      "id": "string (required) — recurring item ID"
+    },
+    "response": {
+      "200": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Recurring item fetched successfully",
+        "data": "<Recurinrg object with transactions[]>"
+      }
+    },
+    "errors": {
+      "401": "Access token missing, invalid, or expired",
+      "404": "Recurring item not found or does not belong to the user",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateRecurring": {
+    "route": "PATCH /api/recurring/:id",
+    "method": "PATCH",
+    "description": "Updates an existing recurring item. All body fields are optional; only provided fields are patched. If frequency changes, nextRunAt is recomputed from today by the Finance service.",
+    "authentication": "Bearer <accessToken>",
+    "path_params": {
+      "id": "string (required) — recurring item ID"
+    },
+    "request_body": {
+      "name": "string (optional, max 255)",
+      "amount": "number (optional, > 0)",
+      "frequency": "'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY' (optional)",
+      "endDate": "string (optional) — ISO date; send null/empty to clear",
+      "description": "string (optional, max 255)",
+      "merchant": "string (optional, max 255)"
+    },
+    "response": {
+      "200": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Recurring item updated successfully",
+        "data": "<Recurinrg object>"
+      }
+    },
+    "errors": {
+      "400": "Validation error",
+      "401": "Access token missing, invalid, or expired",
+      "404": "Recurring item not found",
+      "500": "Internal server error"
+    },
+    "side_effects": [
+      "Invalidates recurring aggregate cache (invalidateAggregateCache)"
+    ]
+  },
+
+  "toggleRecurring": {
+    "route": "PATCH /api/recurring/:id/toggle",
+    "method": "PATCH",
+    "description": "Toggles the isActive flag on a recurring item. Deactivating stops the scheduler from creating new transactions. Reactivating recomputes nextRunAt from today so the schedule resumes without gaps.",
+    "authentication": "Bearer <accessToken>",
+    "path_params": {
+      "id": "string (required) — recurring item ID"
+    },
+    "request_body": "none",
+    "response": {
+      "200": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Recurring item toggled successfully",
+        "data": "<Recurinrg object with updated isActive>"
+      }
+    },
+    "errors": {
+      "401": "Access token missing, invalid, or expired",
+      "404": "Recurring item not found",
+      "500": "Internal server error"
+    },
+    "side_effects": [
+      "Invalidates recurring aggregate cache (invalidateAggregateCache)"
+    ]
+  },
+
+  "deleteRecurring": {
+    "route": "DELETE /api/recurring/:id",
+    "method": "DELETE",
+    "description": "Permanently deletes a recurring item. Transactions that were already created by the scheduler are NOT deleted.",
+    "authentication": "Bearer <accessToken>",
+    "path_params": {
+      "id": "string (required) — recurring item ID"
+    },
+    "request_body": "none",
+    "response": {
+      "204": {
+        "success": true,
+        "statusCode": 204,
+        "message": "Recurring item deleted successfully",
+        "data": null
+      }
+    },
+    "errors": {
+      "401": "Access token missing, invalid, or expired",
+      "404": "Recurring item not found",
+      "500": "Internal server error"
+    },
+    "side_effects": [
+      "Invalidates gated usage cache (invalidateGatedUsageCache)",
+      "Invalidates recurring aggregate cache (invalidateAggregateCache)"
+    ]
+  }
+}

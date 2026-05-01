@@ -26,6 +26,7 @@ import {
   GetRecurringsReq,
   GetRecurringsRes,
   Recurinrg,
+  RecurringAggregateRes,
   RecurringReq,
   UpdateRecurringReq,
 } from "./recurring";
@@ -103,6 +104,8 @@ export interface FinanceServiceClient {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
+
+  getRecurringsAggregate(request: Empty, metadata?: Metadata): Observable<RecurringAggregateRes>;
 
   /** Splits */
 
@@ -208,6 +211,11 @@ export interface FinanceServiceController {
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
+  getRecurringsAggregate(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<RecurringAggregateRes> | Observable<RecurringAggregateRes> | RecurringAggregateRes;
+
   /** Splits */
 
   createSplit(request: CreateSplitReq, metadata?: Metadata): Promise<Split> | Observable<Split> | Split;
@@ -293,6 +301,7 @@ export function FinanceServiceControllerMethods() {
       "updateRecurring",
       "toggleRecurring",
       "deleteRecurring",
+      "getRecurringsAggregate",
       "createSplit",
       "getSplitAggregate",
       "getSplits",

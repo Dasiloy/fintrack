@@ -106,7 +106,8 @@ export type MonoTransactionCategory =
   | 'tax'
   | 'top_up'
   | 'transfer'
-  | 'transport';
+  | 'transport'
+  | null;
 
 export interface MonoTransaction {
   id: string;
@@ -129,4 +130,9 @@ export interface MonoTransactionPage {
     previous: string | null;
     next: string | null;
   };
+}
+
+export interface CategoryMap {
+  id: string;
+  tokens: Set<string>;
 }

@@ -76,4 +76,13 @@ export function formatDate(date: Date) {
   return `${day}-${month}-${year}`;
 }
 
+/**
+ * Parses a YYYY-MM-DD string as local midnight, avoiding the UTC-shift
+ * display bug where `new Date('2026-05-01')` renders as Apr 30 in UTC+ zones.
+ */
+export function parseLocalDate(s: string): Date {
+  const parts = s.split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
+
 export default dayjs;

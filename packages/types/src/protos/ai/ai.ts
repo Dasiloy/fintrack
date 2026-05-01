@@ -11,30 +11,50 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "ai";
 
-export interface GenerateTextReq {
-  prompt: string;
+export interface MonoTransaction {
+  id: string;
+  narration: string;
+  category: string;
 }
 
-export interface GenerateTextRes {
-  text: string;
+export interface UserCategory {
+  id: string;
+  slug: string;
+  tags: string[];
+  name: string;
+}
+
+export interface ClassifyTransactionsReq {
+  transactions: MonoTransaction[];
+  categories: UserCategory[];
+}
+
+export interface ClassifyTransactionsUnit {
+  transactionId: string;
+  categoryId: string;
+  categorySlug: string;
+}
+
+export interface ClassifyTransactionsRes {
+  classifications: ClassifyTransactionsUnit[];
 }
 
 export const AI_PACKAGE_NAME = "ai";
 
 export interface AiServiceClient {
-  generateText(request: GenerateTextReq, metadata?: Metadata): Observable<GenerateTextRes>;
+  classifyTransactions(request: ClassifyTransactionsReq, metadata?: Metadata): Observable<ClassifyTransactionsRes>;
 }
 
 export interface AiServiceController {
-  generateText(
-    request: GenerateTextReq,
+  classifyTransactions(
+    request: ClassifyTransactionsReq,
     metadata?: Metadata,
-  ): Promise<GenerateTextRes> | Observable<GenerateTextRes> | GenerateTextRes;
+  ): Promise<ClassifyTransactionsRes> | Observable<ClassifyTransactionsRes> | ClassifyTransactionsRes;
 }
 
 export function AiServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["generateText"];
+    const grpcMethods: string[] = ["classifyTransactions"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AiService", method)(constructor.prototype[method], method, descriptor);

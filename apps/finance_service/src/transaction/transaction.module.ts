@@ -6,6 +6,7 @@ import {
   ACTIVITY_NOTIFICATION_QUEUE,
   FCM_NOTIFICATION_QUEUE,
   ANALYTICS_NOTIFICATION_QUEUE,
+  CLASSIFICATION_CORRECTION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { TransactionController } from './transaction.controller';
@@ -15,15 +16,10 @@ import { UtilsService } from '../utils.service';
 @Module({
   imports: [
     BullModule.registerQueue(
-      {
-        name: ACTIVITY_NOTIFICATION_QUEUE,
-      },
-      {
-        name: FCM_NOTIFICATION_QUEUE,
-      },
-      {
-        name: ANALYTICS_NOTIFICATION_QUEUE,
-      },
+      { name: ACTIVITY_NOTIFICATION_QUEUE },
+      { name: FCM_NOTIFICATION_QUEUE },
+      { name: ANALYTICS_NOTIFICATION_QUEUE },
+      { name: CLASSIFICATION_CORRECTION_QUEUE },
     ),
   ],
   controllers: [TransactionController],

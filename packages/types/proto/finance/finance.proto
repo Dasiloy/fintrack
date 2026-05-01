@@ -27,8 +27,9 @@ service FinanceService {
   rpc GetRecurrings(GetRecurringsReq)  returns (GetRecurringsRes) {}
   rpc GetRecurring(RecurringReq)       returns (Recurinrg) {}
   rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurinrg) {}
-  rpc ToggleRecurring(RecurringReq)     returns (Recurinrg) {}
-  rpc DeleteRecurring(RecurringReq)     returns (Empty) {}
+  rpc ToggleRecurring(RecurringReq)            returns (Recurinrg) {}
+  rpc DeleteRecurring(RecurringReq)            returns (Empty) {}
+  rpc GetRecurringsAggregate(Empty)            returns (RecurringAggregateRes) {}
 
   // Splits
   rpc CreateSplit(CreateSplitReq)                   returns (Split) {}

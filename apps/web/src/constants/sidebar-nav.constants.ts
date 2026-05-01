@@ -12,7 +12,6 @@ import {
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
-  Sparkles,
   Target,
   UserRound,
   Users,
@@ -56,7 +55,6 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Analytics & AI',
     items: [
       { title: 'Analytics', url: DASHBOARD_ROUTES.ANALYTICS, icon: BarChart3 },
-      { title: 'Insights', url: DASHBOARD_ROUTES.ANALYTICS_INSIGHTS, icon: Sparkles, isPro: true },
       { title: 'Chat', url: DASHBOARD_ROUTES.ANALYTICS_CHAT, icon: MessageCircle, isPro: true },
     ],
   },

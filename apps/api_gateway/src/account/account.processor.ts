@@ -1,10 +1,10 @@
 import { Job } from 'bullmq';
 
 import { Logger } from '@nestjs/common';
-import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 
-import { Category } from '@fintrack/database/types';
+import { Category, Merchant } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
 import {
   MONO_QUEUE,
@@ -14,60 +14,47 @@ import {
   MonoAccountSybJobPayload,
   MonoTransaction,
   MonoTransactionPage,
+  CategoryMap,
 } from '@fintrack/types/interfaces/mono';
 import {
   TransactionSource,
   TransactionType,
 } from '@fintrack/types/protos/finance/transaction';
+import { STOPWORDS } from '@fintrack/types/constants/mono.contants';
 
 import { FcmService } from '../fcm/fcm.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { formatDate } from '@fintrack/utils/date';
+import { genBankSourceId } from '@fintrack/utils/format';
 import { AccountService } from './account.service';
 
-// ---------------------------------------------------------------------------
-// Token-scoring categorisation — no static name or slug maps.
-//
-// How it works:
-//   Each DB category is tokenised from its name + slug.
-//   Each transaction produces two token sets:
-//     • Mono's category enum value (e.g. "food_and_drinks" → ["food","drinks"])
-//     • The narration string           (e.g. "SHOPRITE IKEJA" → ["shoprite","ikeja"])
-//   Mono tokens are weighted 2× because they are a curated signal.
-//   The category with the highest aggregate score wins.
-//   If nothing scores, the first category whose name/slug contains
-//   "misc", "general", or "other" is used as a dynamic fallback.
-// ---------------------------------------------------------------------------
-
-const STOPWORDS = new Set([
-  'and',
-  'the',
-  'for',
-  'with',
-  'from',
-  'into',
-  'or',
-  'of',
-  'to',
-  'a',
-  'an',
-  'in',
-  'on',
-  'at',
-  'by',
-  'cat',
-  'per',
-  'ltd',
-  'plc',
-  'nig',
-  'nigeria',
-]);
-
-interface CategoryTokenSet {
-  id: string;
-  tokens: Set<string>;
-}
-
+/**
+ * BullMQ processor that consumes `MONO_QUEUE` jobs produced by the account
+ * webhook handler when a Mono bank account needs to be synchronised.
+ *
+ * ## Job handled
+ * | Job name          | Payload                      | Handler                |
+ * |-------------------|------------------------------|------------------------|
+ * | `SYNC_ACCOUNT_JOB`| `MonoAccountSybJobPayload`   | `handleSyncAccount()`  |
+ *
+ * ## `handleSyncAccount` pipeline
+ * 1. **Load context** — fetch the user's categories (system + personal) and
+ *    all merchants in parallel; pre-compute token sets for both once per job.
+ * 2. **Fetch transactions** — paginate through Mono's transaction API for the
+ *    date range `[startDate, today]`, collecting all pages.
+ * 3. **Token-scoring categorisation** — for each transaction, score every
+ *    category by matching Mono's category enum tokens (weight 2×), merchant
+ *    hint tokens (weight 2×), and narration tokens (weight 1×) against the
+ *    category's token set.  High-scoring transactions go into `resolved`;
+ *    the rest go into `unresolved`.
+ * 4. **AI classification** — if `unresolved` is non-empty, a single gRPC call
+ *    to `AiService.ClassifyTransactions` classifies the remainder.  Resolved
+ *    IDs are tracked in `aiClassifiedIds` for the correction feedback loop.
+ * 5. **Batch create** — one gRPC call to `FinanceService.BatchCreateTransactions`
+ *    with `skipDuplicates`; returns `created` and `skipped` counts.
+ * 6. **Post-sync** — updates `lastSyncedAt` on the Mono account record and
+ *    sends an FCM push notification if any transactions were created.
+ */
 @Processor(MONO_QUEUE)
 export class MonoAccountSyncProcessor extends WorkerHost {
   private readonly logger = new Logger(MonoAccountSyncProcessor.name);
@@ -82,6 +69,7 @@ export class MonoAccountSyncProcessor extends WorkerHost {
     super();
   }
 
+  /** Routes incoming BullMQ jobs to the appropriate handler by job name. */
   async process(job: Job): Promise<void> {
     switch (job.name) {
       case SYNC_ACCOUNT_JOB:
@@ -92,48 +80,36 @@ export class MonoAccountSyncProcessor extends WorkerHost {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Handler
-  // ---------------------------------------------------------------------------
-
+  /**
+   * Executes the full 6-step sync pipeline for a single Mono bank account.
+   * See the class-level doc for the complete pipeline description.
+   * Errors are logged then re-thrown so BullMQ can retry the job.
+   */
   private async handleSyncAccount(
     data: MonoAccountSybJobPayload,
   ): Promise<void> {
     try {
       const { account, id, userId, startDate } = data;
-      const accountId = account._id;
-      this.logger.log(`Starting transaction sync for account ${accountId}`);
 
-      // Step 1 — load categories once; build token sets once for the whole job
-      const categories = await this.prisma.category.findMany({
-        where: { OR: [{ userId, isSystem: false }, { isSystem: true }] },
-      });
-      const catTokenSets = this.buildCategoryTokenSets(categories);
-      const fallbackId = this.findFallbackCategoryId(categories);
+      this.logger.log(`Starting transaction sync for account ${account._id}`);
+
+      // Step 1 — load categories and merchants  once; build token sets once for the whole job
+      const [categories, merchants] = await Promise.all([
+        this.prisma.category.findMany({
+          where: { OR: [{ isSystem: true }, { userId }] },
+        }),
+        this.prisma.merchant.findMany(),
+      ]);
+      const catTokenSets = this.buildCategoryTokenSetsMap(categories);
+      const merchantTokenSets = this.buildMerchantTokenSetsMap(merchants);
+      const fallbackCategoryId =
+        categories.find((c) => /misc|general|other/i.test(c.name + c.slug))
+          ?.id ?? categories[0]?.id;
 
       // Step 2 — fetch all pages (start + end required by Mono)
-      const start = formatDate(new Date(startDate));
-      const end = formatDate(new Date());
-
-      const transactions: MonoTransaction[] = [];
-      let nextUrl: string | null =
-        `https://api.withmono.com/v2/accounts/${accountId}/transactions?paginate=true&start=${start}&end=${end}`;
-
-      while (nextUrl) {
-        try {
-          const page = await this.fetchTransactionPage(nextUrl);
-          transactions.push(...page.data);
-          nextUrl = page.meta.next;
-        } catch (error) {
-          this.logger.error(
-            `Page fetch failed (${nextUrl}): ${error instanceof Error ? error.message : JSON.stringify(error)}`,
-          );
-          break;
-        }
-      }
-
+      const transactions = await this.fetchAllTransactions(startDate, account);
       if (transactions.length === 0) {
-        this.logger.log(`No new transactions for account ${accountId}`);
+        this.logger.log(`No new transactions for account ${account._id}`);
         await this.accountService.updateMonoBankAccount(account, id);
         return;
       }
@@ -142,26 +118,108 @@ export class MonoAccountSyncProcessor extends WorkerHost {
         `Fetched ${transactions.length} transactions — persisting…`,
       );
 
-      // Step 3 — single batch gRPC call; skipDuplicates handles idempotency
+      // step 3- Ressolve transaction categories
+      const rawTxMap = new Map<string, MonoTransaction>(
+        transactions.map((tx) => [tx.id, tx]),
+      );
+      const ressolved: MonoTransaction[] = [];
+      const unressolved: MonoTransaction[] = [];
+
+      for (const transaction of transactions) {
+        console.log(transaction);
+        const carTokens = this.tokenize(transaction.category);
+        const narTokens = this.tokenize(transaction.narration);
+        const merchantHintTokens = this.lookupMerchantHintTokens(
+          narTokens,
+          merchantTokenSets,
+        );
+
+        let highestscore = 0;
+        let category: CategoryMap | null = null;
+
+        catTokenSets.forEach((cm) => {
+          let score = 0;
+
+          // check mono category token => if this current category has some keywords that matches, score it
+          for (const ct of carTokens)
+            if (this.tokenMatches(ct, cm.tokens)) score += 2;
+
+          // check merchant hinnt tokens, is it present in this current category tokens? score it
+          for (const mt of merchantHintTokens)
+            if (this.tokenMatches(mt, cm.tokens)) score += 2;
+
+          // fallback omn narration if tokens in naration matches with those in this current user category score it
+          for (const nt of narTokens)
+            if (this.tokenMatches(nt, cm.tokens)) score += 1;
+
+          if (score > highestscore) {
+            highestscore = score;
+            category = cm;
+          }
+        });
+
+        highestscore > 0
+          ? ressolved.push({ ...transaction, category: category!.id as any })
+          : unressolved.push(transaction);
+      }
+      this.logger.log(
+        `Ressolved transactions ${ressolved.length}- Unressolved transactions ${unressolved.length}`,
+      );
+
+      // step 4 - Optional unressolved ai batch call
+      const aiClassifiedIds = new Set<string>();
+      if (unressolved.length > 0) {
+        const { classifications } =
+          await this.transactionService.classifyTransactions(userId, {
+            categories: categories.map((c) => ({
+              id: c.id,
+              slug: c.slug,
+              name: c.name,
+              tags: c.tags,
+            })),
+            transactions: unressolved.map((t) => ({
+              id: t.id,
+              narration: t.narration ?? '',
+              category: t.category ?? '',
+            })),
+          });
+
+        const classifiedMap = new Map<string, string>(
+          classifications.map((cl) => [cl.transactionId, cl.categoryId]),
+        );
+
+        unressolved.forEach((untrx) => {
+          const resolvedId = classifiedMap.get(untrx.id) ?? fallbackCategoryId;
+          if (!resolvedId) return;
+          aiClassifiedIds.add(untrx.id);
+          ressolved.push({ ...untrx, category: resolvedId as any });
+        });
+      }
+
+      // Step 5 — single batch gRPC call; skipDuplicates handles idempotency
       const { created, skipped } =
         await this.transactionService.batchCreateMonoTransactions(userId, {
-          transactions: transactions.map((tx) => ({
-            amount: String(tx.amount),
+          transactions: ressolved.map((tx) => ({
             date: tx.date,
+            amount: String(tx.amount),
+            description: tx.narration,
+            narration: tx.narration,
+            categoryId: tx.category as string,
+            source: TransactionSource.BANK,
+            sourceId: genBankSourceId(tx.id, tx.date),
+            bankTransactionId: tx.id,
+            monoBankAccountId: id,
+            aiClassified: aiClassifiedIds.has(tx.id),
             type:
               tx.type === 'credit'
                 ? TransactionType.INCOME
                 : TransactionType.EXPENSE,
-            description: tx.narration,
-            categoryId: this.resolveCategory(tx, catTokenSets, fallbackId),
-            source: TransactionSource.BANK,
-            sourceId: tx.id,
-            monoBankAccountId: id,
+            sourceData: JSON.stringify(rawTxMap.get(tx.id)),
           })),
         });
 
       this.logger.log(
-        `Sync done for ${accountId}: ${created} created, ${skipped} skipped`,
+        `Sync done for ${account._id}: ${created} created, ${skipped} skipped`,
       );
 
       // Step 4 — update lastSyncedAt
@@ -182,110 +240,113 @@ export class MonoAccountSyncProcessor extends WorkerHost {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Auto-categorisation — pure token scoring, no static maps
-  // ---------------------------------------------------------------------------
-
   /**
-   * Resolves the best matching category ID for a transaction.
-   *
-   * Scores each loaded category against two signals:
-   *  1. Mono's category enum value  (weight ×2 — curated signal)
-   *  2. The transaction narration   (weight ×1 — free-text signal)
-   *
-   * Matching is token-level: exact match or one token being a prefix/suffix
-   * of the other (e.g. "drink" ↔ "drinks", "grocer" ↔ "groceries").
-   *
-   * @param tx            - Mono transaction
-   * @param catTokenSets  - Pre-built token sets for all user categories
-   * @param fallbackId    - ID of the best "miscellaneous" category in the loaded list
+   * Pre-computes a `slug → CategoryMap` lookup with each category's token set
+   * (name tokens + tags, all lower-cased).  Called once per sync job so the
+   * O(categories) work is amortised across all transactions in the batch.
    */
-  private resolveCategory(
-    tx: MonoTransaction,
-    catTokenSets: CategoryTokenSet[],
-    fallbackId: string,
-  ): string {
-    const monoTokens =
-      tx.category === 'unknown' ? [] : this.tokenize(tx.category);
-    const narrationTokens = this.tokenize(tx.narration);
-
-    let bestId = fallbackId;
-    let bestScore = 0;
-
-    for (const { id, tokens } of catTokenSets) {
-      let score = 0;
-
-      for (const t of monoTokens) {
-        if (this.tokenMatches(t, tokens)) score += 2;
-      }
-      for (const t of narrationTokens) {
-        if (this.tokenMatches(t, tokens)) score += 1;
-      }
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestId = id;
-      }
-    }
-
-    return bestId;
-  }
-
-  /**
-   * Pre-computes token sets from each category's name and slug.
-   * Called once per sync job — not once per transaction.
-   */
-  private buildCategoryTokenSets(categories: Category[]): CategoryTokenSet[] {
-    return categories.map((c) => ({
-      id: c.id,
-      tokens: new Set([...this.tokenize(c.name), ...this.tokenize(c.slug)]),
-    }));
-  }
-
-  /**
-   * Finds the fallback category ID by looking for "misc", "general", or
-   * "other" in the name or slug — dynamic, not hardcoded.
-   */
-  private findFallbackCategoryId(categories: Category[]): string {
-    const fallback = categories.find(
-      (c) =>
-        /misc|general|other/i.test(c.name) || /misc|general|other/.test(c.slug),
+  private buildCategoryTokenSetsMap(
+    categories: Category[],
+  ): Map<string, CategoryMap> {
+    return new Map(
+      categories.map((c) => [
+        c.slug,
+        {
+          id: c.id,
+          tokens: new Set([
+            ...this.tokenize(c.name),
+            ...c.tags.map((tag) => tag.toLowerCase()),
+          ]),
+        },
+      ]),
     );
-    return fallback?.id ?? categories[0]?.id ?? '';
   }
 
   /**
-   * Returns true if `token` exactly matches or is a substring/prefix of any
-   * token in `catTokens` (and vice-versa), with minimum length 4 for partial
-   * matches to avoid noise ("the" ↔ "therapy" false positive).
+   * Pre-computes a `merchantName/alias → categoryHint tokens` lookup from the
+   * merchant table.  Both canonical names and aliases map to the same hint token
+   * set, so a narration like "SHOPRITE" resolves to its `Food` category hint even
+   * when the transaction spells out an alias.
    */
-  private tokenMatches(token: string, catTokens: Set<string>): boolean {
-    if (catTokens.has(token)) return true;
-    if (token.length < 4) return false;
-    for (const ct of catTokens) {
-      if (ct.length >= 4 && (ct.includes(token) || token.includes(ct)))
-        return true;
+  private buildMerchantTokenSetsMap(
+    merchants: Merchant[],
+  ): Map<string, string[]> {
+    const mercsMap = new Map(merchants.map((m) => [m.name, m.categoryHint]));
+
+    const tokenSets = new Map<string, string[]>();
+
+    merchants.forEach((merchant) => {
+      const hintTokens = this.tokenize(mercsMap.get(merchant.name)!);
+
+      // canonical name → token set
+      tokenSets.set(merchant.name, hintTokens);
+
+      merchant.aliases.forEach((alias) => {
+        tokenSets.set(alias, hintTokens);
+      });
+    });
+
+    return tokenSets;
+  }
+
+  /**
+   * Checks each narration token against the merchant map and returns the hint
+   * tokens for the first match found.  Returns an empty array when no known
+   * merchant name appears in the narration.
+   */
+  private lookupMerchantHintTokens(
+    narrationTokens: string[],
+    merchantsMap: Map<string, string[]>,
+  ): string[] {
+    narrationTokens.forEach((nt) => {
+      // use naration token as a projected merchant anme
+      const merchantTokens = merchantsMap.get(nt);
+
+      // if merchant found => return its hint tokens
+      if (merchantTokens) return merchantTokens;
+    });
+
+    return [];
+  }
+
+  /**
+   * Paginates through Mono's transaction API until `meta.next` is null,
+   * accumulating all transactions for the date range `[startDate, today]`.
+   * Page fetch errors are logged and break the loop — partial results are
+   * returned rather than failing the whole sync.
+   */
+  private async fetchAllTransactions(
+    startDate: Date,
+    account: MonoAccountSybJobPayload['account'],
+  ): Promise<MonoTransaction[]> {
+    const start = formatDate(new Date(startDate));
+    const end = formatDate(new Date());
+
+    const transactions: MonoTransaction[] = [];
+    let nextUrl: string | null =
+      `https://api.withmono.com/v2/accounts/${account._id}/transactions?paginate=true&start=${start}&end=${end}`;
+
+    while (nextUrl) {
+      try {
+        const page = await this.fetchTransactionPage(nextUrl);
+        if (page.data) transactions.push(...page.data);
+        nextUrl = page.meta?.next;
+      } catch (error) {
+        this.logger.error(
+          `Page fetch failed (${nextUrl}): ${error instanceof Error ? error.message : JSON.stringify(error)}`,
+        );
+        break;
+      }
     }
-    return false;
+
+    return transactions;
   }
 
   /**
-   * Splits text into lowercase, stopword-filtered tokens.
-   * Handles snake_case, kebab-case, spaces, and common punctuation.
+   * Fetches a single page of Mono transactions from the given URL.
+   * Throws an `Error` with the HTTP status and body text when the response
+   * is not OK — the caller breaks out of the pagination loop on error.
    */
-  private tokenize(text: string): string[] {
-    return text
-      .toLowerCase()
-      .replace(/[_\-&/\\]+/g, ' ')
-      .split(/\s+/)
-      .map((w) => w.replace(/[^a-z]/g, ''))
-      .filter((w) => w.length >= 3 && !STOPWORDS.has(w));
-  }
-
-  // ---------------------------------------------------------------------------
-  // Helpers
-  // ---------------------------------------------------------------------------
-
   private async fetchTransactionPage(
     url: string,
   ): Promise<MonoTransactionPage> {
@@ -307,5 +368,32 @@ export class MonoAccountSyncProcessor extends WorkerHost {
     }
 
     return response.json() as Promise<MonoTransactionPage>;
+  }
+
+  /**
+   * Returns `true` if `token` is an exact member of `catTokens`.
+   * Exact matching is intentional — partial/fuzzy matches produce false
+   * positives that degrade precision.  Gaps are intentionally left to AI
+   * classification rather than papered over with substring heuristics.
+   */
+  private tokenMatches(token: string, catTokens: Set<string>): boolean {
+    if (catTokens.has(token)) return true;
+    return false;
+  }
+
+  /**
+   * Normalises `text` into a lowercase, stopword-filtered token array.
+   * Handles snake_case, kebab-case, slashes, and common punctuation by
+   * converting separators to spaces before splitting.  Returns `[]` for
+   * null/undefined/empty input — safe to call with Mono's optional fields.
+   */
+  private tokenize(text: string | null | undefined): string[] {
+    if (!text) return [];
+    return text
+      .toLowerCase()
+      .replace(/[_\-&/\\]+/g, ' ')
+      .split(/\s+/)
+      .map((w) => w.replace(/[^a-z]/g, ''))
+      .filter((w) => !STOPWORDS.has(w));
   }
 }

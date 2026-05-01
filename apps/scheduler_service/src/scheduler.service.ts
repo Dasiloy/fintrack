@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import {
@@ -18,6 +18,8 @@ import {
  */
 @Injectable()
 export class SchedulerService {
+  private readonly logger = new Logger(SchedulerService.name);
+
   constructor(
     @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
     @InjectQueue(USAGE_TRACKING_QUEUE)
@@ -36,14 +38,12 @@ export class SchedulerService {
     );
   }
 
-  @Cron('0 * * * *') // every 1hr
-  createRecurringTransactions() {
-    this.reccuringQueue.add(
+  @Cron('0 * * * *')
+  async createRecurringTransactions() {
+    const job = await this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
       {},
-      {
-        jobId: CREATE_RECURRING_TRANSACTION,
-      },
+      { removeOnComplete: true, removeOnFail: false },
     );
   }
 

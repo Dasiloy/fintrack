@@ -1,0 +1,85 @@
+{
+  "__comment": "Budget Controller gRPC Documentation — apps/finance_service/src/budget/budget.controller.ts",
+  "meta_note": "All methods are exposed on the FinanceService gRPC server. Auth is enforced per-method via RpcAuthGuard; the authenticated user is injected via @RpcUser().",
+  "conventions": {
+    "transport": "gRPC — FinanceService (packages/types/proto/finance/budget.proto)",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Missing or invalid JWT in gRPC metadata",
+      "NOT_FOUND": "Budget does not exist or does not belong to the user",
+      "INVALID_ARGUMENT": "Validation failed on the request payload",
+      "INTERNAL": "Unexpected server error"
+    }
+  },
+
+  "createBudget": {
+    "rpc": "createBudget",
+    "proto_method": "rpc createBudget (CreateBudgetReq) returns (Budget)",
+    "description": "Create a new budget for the authenticated user linked to a category.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "name": "string — budget name",
+      "amount": "number — budget ceiling (> 0)",
+      "categoryId": "string — category to track",
+      "period": "BudgetPeriod enum int — e.g. MONTHLY, WEEKLY, YEARLY",
+      "startDate": "string — ISO date",
+      "endDate": "string (optional) — ISO date"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number",
+      "period": "BudgetPeriod int",
+      "startDate": "string",
+      "endDate": "string | null",
+      "spent": "number",
+      "category": "Category object"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "categoryId does not exist",
+      "INVALID_ARGUMENT": "Amount ≤ 0 or missing required fields",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateBudget": {
+    "rpc": "updateBudget",
+    "proto_method": "rpc updateBudget (UpdateBudgetReq) returns (Budget)",
+    "description": "Update an existing budget. All fields except id are optional.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — budget ID",
+      "name": "string (optional)",
+      "amount": "number (optional)",
+      "endDate": "string (optional) — ISO date"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number",
+      "updatedAt": "string — ISO datetime"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Budget not found or not owned by user",
+      "INVALID_ARGUMENT": "Validation failed",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteBudget": {
+    "rpc": "deleteBudget",
+    "proto_method": "rpc deleteBudget (DeleteBudgetReq) returns (Empty)",
+    "description": "Delete a budget by ID. Does not delete the associated transactions.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — budget ID"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Budget not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  }
+}

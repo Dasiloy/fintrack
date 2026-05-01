@@ -13,7 +13,30 @@ export const recurringRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
 
   /**
-   * Returns all recurring items for the authenticated user.
+   * Returns pre-computed aggregate stats for the authenticated user's recurring items.
+   * Response is Redis-cached (5 min, invalidated on mutations).
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   */
+  getSummary: protectedProcedure.query(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/recurring/aggregate`, {
+      headers: gatewayHeaders(ctx.headers),
+    });
+
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<{
+      activeCount: number;
+      pausedCount: number;
+      monthlyExpense: number;
+      monthlyIncome: number;
+    }> = await response.json();
+    return data;
+  }),
+
+  /**
+   * Returns recurring items for the authenticated user with optional
+   * server-side filtering (isActive, type, frequency) and sorting (sortBy).
    *
    * @throws UNAUTHORIZED if the session is invalid
    */
@@ -22,15 +45,20 @@ export const recurringRouter = createTRPCRouter({
       z
         .object({
           isActive: z.boolean().optional(),
+          sortBy: z.enum(['nextRun', 'amount', 'name']).optional(),
+          type: z.array(z.nativeEnum(TransactionType)).optional(),
+          frequency: z.array(z.nativeEnum(RecurringItemFrequency)).optional(),
         })
         .optional(),
     )
     .query(async ({ ctx, input }) => {
       const params = new URLSearchParams();
 
-      if (input?.isActive !== undefined) {
-        params.set('isActive', String(input.isActive));
-      }
+      if (input?.isActive !== undefined) params.set('isActive', String(input.isActive));
+      if (input?.sortBy) params.set('sortBy', input.sortBy);
+      input?.type?.forEach((t) => params.append('type', t));
+      input?.frequency?.forEach((f) => params.append('frequency', f));
+
       const response = await fetch(`${GATEWAY_URL}/api/recurring?${params.toString()}`, {
         headers: gatewayHeaders(ctx.headers),
       });
@@ -176,6 +204,9 @@ export const recurringRouter = createTRPCRouter({
       });
 
       if (!response.ok) await throwGatewayError(response);
+
+      // DELETE returns 204 No Content — no body to parse
+      if (response.status === 204) return { data: null, success: true, statusCode: 204, message: 'Deleted' } as StandardResponse<null>;
 
       const data: StandardResponse<null> = await response.json();
       return data;

@@ -144,6 +144,25 @@ import { UserModule } from './user/user.module';
             };
           },
         },
+        {
+          name: getServiceConfig()['AI_SERVICE'].PACKAGE_NAME,
+          useFactory: async () => {
+            const config = getServiceConfig()['AI_SERVICE'];
+            return {
+              transport: Transport.GRPC,
+              options: {
+                package: config.NAME,
+                url: getServiceUrl('AI_SERVICE'),
+                protoPath: [
+                  ...config.PROTO_PATH.map((path) => require.resolve(path)),
+                ],
+                loader: {
+                  includeDirs: getProtoIncludeDirs(),
+                },
+              },
+            };
+          },
+        },
       ],
     }),
     // Queue Registry

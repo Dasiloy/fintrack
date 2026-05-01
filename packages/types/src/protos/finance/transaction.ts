@@ -73,6 +73,7 @@ export interface CreateTransactionReq {
   categorySlug: string;
   source: TransactionSource;
   sourceId: string;
+  sourceData?: string | undefined;
 }
 
 export interface Transaction {
@@ -151,6 +152,13 @@ export interface BankTransactionItem {
   source: TransactionSource;
   merchant?: string | undefined;
   monoBankAccountId?: string | undefined;
+  aiClassified: boolean;
+  narration?: string | undefined;
+  bankTransactionId?:
+    | string
+    | undefined;
+  /** JSON-stringified audit blob */
+  sourceData?: string | undefined;
 }
 
 export interface BatchCreateTransactionsReq {

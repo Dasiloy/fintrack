@@ -19,15 +19,9 @@ import {
 import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { onlyNumbers } from '@fintrack/utils/format';
+import { genTransactionSourceId, onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
 import type { ExtractedData } from './scan_stepper';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const genSourceId = () => `trnx_${Math.random().toString(36).slice(2, 10)}`;
 
 // ---------------------------------------------------------------------------
 // ReviewStep
@@ -65,7 +59,7 @@ export function ReviewStep({ initialData, onSuccess, onStartOver }: ReviewStepPr
 
   const canSubmit = !!amount && !!categorySlug && !!date && !createMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!date || !categorySlug || !amount) return;
 
@@ -74,7 +68,7 @@ export function ReviewStep({ initialData, onSuccess, onStartOver }: ReviewStepPr
       date: format(date, 'YYYY-MM-DD'),
       type,
       source: 'MANUAL',
-      sourceId: genSourceId(),
+      sourceId: genTransactionSourceId(date ?? new Date()),
       categorySlug,
       merchant: merchant || undefined,
       description: description || undefined,
@@ -108,10 +102,7 @@ export function ReviewStep({ initialData, onSuccess, onStartOver }: ReviewStepPr
             </Field>
             <Field>
               <Label>Type</Label>
-              <Select
-                value={type}
-                onValueChange={(v) => setType(v as 'INCOME' | 'EXPENSE')}
-              >
+              <Select value={type} onValueChange={(v) => setType(v as 'INCOME' | 'EXPENSE')}>
                 <SelectTrigger size="default" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -205,7 +196,7 @@ export function ReviewStep({ initialData, onSuccess, onStartOver }: ReviewStepPr
               variant="ghost"
               size="sm"
               onClick={onStartOver}
-              className="text-text-tertiary gap-1.5 hover:text-text-secondary"
+              className="text-text-tertiary hover:text-text-secondary gap-1.5"
             >
               <RotateCcw className="size-3" />
               Start over

@@ -3,13 +3,35 @@ syntax = "proto3";
 package ai;
 
 service AiService {
-    rpc GenerateText(GenerateTextReq) returns (GenerateTextRes) {}
+  rpc ClassifyTransactions (ClassifyTransactionsReq) returns (ClassifyTransactionsRes) {}
 }
 
-message GenerateTextReq {
-    string prompt = 1;
+message MonoTransaction {
+ string id = 1;
+ string narration =2;
+ string category =3;
 }
 
-message GenerateTextRes {
-    string text = 1;
+
+message UserCategory {
+  string id =1;
+  string slug =2;
+  repeated string tags = 3;
+  string name = 4;
+}
+
+message ClassifyTransactionsReq {
+  repeated MonoTransaction transactions = 1;
+  repeated UserCategory    categories = 2;
+}
+
+
+message ClassifyTransactionsUnit {
+  string transaction_id = 1;
+  string  category_id   = 2;
+  string  category_slug = 3;
+}
+
+message ClassifyTransactionsRes {
+  repeated ClassifyTransactionsUnit classifications = 1;
 }
