@@ -106,6 +106,7 @@ This project is built to master:
 For more detailed guides, check the `docs/` folder:
 
 ### Architecture & Services
+
 - [System Architecture](docs/ARCHITECTURE.md)
 - [API Gateway](docs/API-GATEWAY.md)
 - [Auth Service](docs/AUTH-SERVICE.md)
@@ -116,23 +117,28 @@ For more detailed guides, check the `docs/` folder:
 - [Notification Service](docs/NOTIFICATION-SERVICE.md)
 
 ### Features & Flows
+
 - [Features & DSA Mapping](docs/FEATURES.md)
 - [Transaction Creation Flow](docs/TRANSACTION-CREATION-FLOW.md)
 - [Transaction Auto-Categorisation](docs/TOKENIZATION.md)
 
 ### Security & Integrations
+
 - [OAuth Setup](docs/OAUTH.md)
 - [2FA / TOTP](docs/2FA-TOTP.md)
 - [Stripe & Subscriptions](docs/STRIPE.md)
 
 ### Frontend
+
 - [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
 - [UI Engineering Guidelines](docs/UI.md)
 
 ### Deployment & Operations
+
 - [Render Deployment](docs/RENDER.md)
 
 ### Reference
+
 - [Case Study & Business Value](docs/CASE-STUDY.md)
 - [API Contract Template](docs/API-CONTRACT-TEMPLATE.json)
 - [Backlog & Bug Tracker](docs/BACKLOG.md)
@@ -368,21 +374,6 @@ npx kill-port [portnumber]
 **Redis connection refused or TLS errors**
 
 Upstash requires TLS. Make sure your `REDIS_URL` starts with `rediss://` (two s's), not `redis://`. A plain `redis://` URL will fail against Upstash.
-
-run through the api_gateway and backend_services, all microservices
-
-ensure that for all controllers, we have an updated oc.json file, with updated endpoint documentation,
-
-also ensure all endpoints, all services, controlllers and functions are prpoerly documented based on my standard sepecifcations as you see in example documentations in those services and controlollers
-
-DO NOT EDIT ANY FILE that does not fall in this category
-DO NOT EDIT any lock file or change dependencies
-
-You can remove unused imports if any oinly if you are sure that those imports are realkly unused
-
-THIS IS BASICALLY A CLEANUP Process do not break any functionality or edit files you are not sure of
-
-Instructions for api doc template is in docs folder in the api-contract-template.json file
 
 ---
 
