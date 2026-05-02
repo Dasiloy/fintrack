@@ -1,0 +1,105 @@
+{
+  "__comment": "Budget Controller HTTP Documentation — apps/api_gateway/src/budget/budget.controller.ts",
+  "meta_note": "All routes are prefixed with /api/budget and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    }
+  },
+
+  "createBudget": {
+    "route": "POST /api/budget",
+    "method": "POST",
+    "description": "Create a new budget for the authenticated user. Provide month (0-indexed) and year to backdate the budget period. Amount changes are tracked in budget history.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "name": "string (required)",
+      "amount": "number (required, > 0)",
+      "categoryId": "string (required) — must refer to a category owned by or shared with the user",
+      "period": "MONTHLY | QUARTERLY | YEARLY (required)",
+      "description": "string (optional)",
+      "carryOver": "boolean (optional, default false)",
+      "alertThreshold": "number (optional, 0–1) — fraction of budget consumed before alert fires",
+      "month": "number (optional, 0-indexed) — backdates budget",
+      "year": "number (optional) — backdates budget"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Budget created successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "amount": "number",
+        "description": "string | null",
+        "period": "MONTHLY | QUARTERLY | YEARLY",
+        "carryOver": "boolean",
+        "alertThreshold": "number",
+        "category": { "name": "string", "slug": "string", "color": "string", "icon": "string | null" },
+        "createdAt": "ISO datetime",
+        "updatedAt": "ISO datetime"
+      }
+    },
+    "responses": {
+      "201": "Budget created successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "404": "Category not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateBudget": {
+    "route": "PATCH /api/budget/:id",
+    "method": "PATCH",
+    "description": "Update an existing budget. Amount changes are recorded in budget history.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — budget ID",
+      "name": "string (optional)",
+      "amount": "number (optional, > 0)",
+      "description": "string (optional)",
+      "carryOver": "boolean (optional)",
+      "alertThreshold": "number (optional, 0–1)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Budget updated successfully",
+      "data": { "id": "string", "name": "string", "amount": "number", "updatedAt": "ISO datetime" }
+    },
+    "responses": {
+      "200": "Budget updated successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "404": "Budget not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteBudget": {
+    "route": "DELETE /api/budget/:id",
+    "method": "DELETE",
+    "description": "Delete a budget by ID.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — budget ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 204,
+      "message": "Budget deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "204": "Budget deleted successfully",
+      "401": "Access token invalid or expired",
+      "404": "Budget not found",
+      "500": "Internal server error"
+    }
+  }
+}

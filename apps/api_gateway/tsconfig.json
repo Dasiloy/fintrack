@@ -2,6 +2,7 @@
   "extends": "@fintrack/typescript-config/nest.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "types": ["node"],
     "resolveJsonModule": true
   }
 }

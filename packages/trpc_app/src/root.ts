@@ -11,6 +11,8 @@ import {
   goalRouter,
   splitRouter,
   notificationRouter,
+  banksRouter,
+  merchantRouter,
 } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
@@ -31,6 +33,8 @@ export const appRouter = createTRPCRouter({
   goal: goalRouter,
   split: splitRouter,
   notification: notificationRouter,
+  banks: banksRouter,
+  merchant: merchantRouter,
 });
 
 // Export type definition of API

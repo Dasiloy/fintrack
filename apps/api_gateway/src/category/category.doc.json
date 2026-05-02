@@ -1,0 +1,126 @@
+{
+  "__comment": "Category Controller HTTP Documentation — apps/api_gateway/src/category/category.controller.ts",
+  "meta_note": "All routes are prefixed with /api/category and protected by ApiGuard (JWT bearer). Returns both system categories (isSystem: true) and user-created categories.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | array | null"
+    }
+  },
+
+  "getCategories": {
+    "route": "GET /api/category",
+    "method": "GET",
+    "description": "Return all categories visible to the authenticated user: system-wide categories (isSystem: true) plus any categories the user has created.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Categories fetched successfully",
+      "data": [
+        {
+          "id": "string",
+          "name": "string",
+          "slug": "string",
+          "description": "string | null",
+          "icon": "string | null",
+          "color": "string",
+          "isSystem": "boolean",
+          "userId": "string | null"
+        }
+      ]
+    },
+    "responses": {
+      "200": "Categories fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "createCategory": {
+    "route": "POST /api/category",
+    "method": "POST",
+    "description": "Create a new custom category for the authenticated user.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "name": "string (required)",
+      "color": "string (required) — hex color code",
+      "icon": "string (optional)",
+      "description": "string (optional)",
+      "tags": "string[] (optional) — used for token-based category matching during bank sync"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Category created successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "slug": "string",
+        "color": "string",
+        "icon": "string | null",
+        "isSystem": false,
+        "userId": "string"
+      }
+    },
+    "responses": {
+      "201": "Category created successfully",
+      "400": "Category with same name already exists",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateCategory": {
+    "route": "PATCH /api/category/:slug",
+    "method": "PATCH",
+    "description": "Update an existing category by its slug. Only the owner can update user-created categories; system categories cannot be updated.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "slug": "path param (required) — category slug",
+      "name": "string (optional)",
+      "color": "string (optional)",
+      "icon": "string (optional)",
+      "description": "string (optional)",
+      "tags": "string[] (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Category updated successfully",
+      "data": { "id": "string", "name": "string", "slug": "string", "color": "string" }
+    },
+    "responses": {
+      "200": "Category updated successfully",
+      "401": "Access token invalid or expired",
+      "404": "Category not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteCategory": {
+    "route": "DELETE /api/category/:slug",
+    "method": "DELETE",
+    "description": "Delete a user-created category by its slug. System categories cannot be deleted.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "slug": "path param (required) — category slug"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Category deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Category deleted successfully",
+      "401": "Access token invalid or expired",
+      "404": "Category not found",
+      "500": "Internal server error"
+    }
+  }
+}

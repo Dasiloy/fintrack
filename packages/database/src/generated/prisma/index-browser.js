@@ -288,7 +288,17 @@ exports.Prisma.CategoryScalarFieldEnum = {
   icon: 'icon',
   color: 'color',
   isSystem: 'isSystem',
+  tags: 'tags',
   userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MerchantScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  aliases: 'aliases',
+  categoryHint: 'categoryHint',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -301,6 +311,8 @@ exports.Prisma.BudgetScalarFieldEnum = {
   period: 'period',
   carryOver: 'carryOver',
   alertThreshold: 'alertThreshold',
+  alertedAt: 'alertedAt',
+  alertAtFrequency: 'alertAtFrequency',
   categoryId: 'categoryId',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -341,6 +353,8 @@ exports.Prisma.TransactionScalarFieldEnum = {
   date: 'date',
   type: 'type',
   description: 'description',
+  narration: 'narration',
+  bankCategory: 'bankCategory',
   notes: 'notes',
   merchant: 'merchant',
   categoryId: 'categoryId',
@@ -350,8 +364,10 @@ exports.Prisma.TransactionScalarFieldEnum = {
   sourceData: 'sourceData',
   bankTransactionId: 'bankTransactionId',
   bankTransactionStatus: 'bankTransactionStatus',
+  recurringItemId: 'recurringItemId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  aiClassified: 'aiClassified',
   monoBankAccountId: 'monoBankAccountId'
 };
 
@@ -469,6 +485,14 @@ exports.Prisma.NotificationScalarFieldEnum = {
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClassificationCorrectionScalarFieldEnum = {
+  id: 'id',
+  narration: 'narration',
+  correctedSlug: 'correctedSlug',
+  userId: 'userId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -830,6 +854,7 @@ exports.Prisma.ModelName = {
   ActivityLogs: 'ActivityLogs',
   NotificationSetting: 'NotificationSetting',
   Category: 'Category',
+  Merchant: 'Merchant',
   Budget: 'Budget',
   BudgetHistory: 'BudgetHistory',
   OCRDraft: 'OCRDraft',
@@ -842,7 +867,8 @@ exports.Prisma.ModelName = {
   SplitSettlement: 'SplitSettlement',
   MonoBankAccount: 'MonoBankAccount',
   FcmDevice: 'FcmDevice',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  ClassificationCorrection: 'ClassificationCorrection'
 };
 
 /**

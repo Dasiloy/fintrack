@@ -48,7 +48,10 @@ message UpdateRecurringReq {
 }
 
 message GetRecurringsReq {
-  optional bool is_active = 1;
+  optional bool    is_active = 1;
+  optional string  sort_by   = 2;
+  repeated string  type      = 3;
+  repeated string  frequency = 4;
 }
 
 message GetRecurringsRes {
@@ -57,5 +60,12 @@ message GetRecurringsRes {
 
 message RecurringReq  { // handle get by id, delete and toggle
   string id = 1;
+}
+
+message RecurringAggregateRes {
+  int32 active_count    = 1;
+  int32 paused_count    = 2;
+  float monthly_expense = 3;
+  float monthly_income  = 4;
 }
 

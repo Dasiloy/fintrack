@@ -65,6 +65,7 @@ export const transactionRouter = createTRPCRouter({
         description: z.string().min(1).max(255).optional(),
         merchant: z.string().min(1).max(255).optional(),
         categorySlug: z.string().min(1).optional(),
+        notes: z.string().min(1).max(1000).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

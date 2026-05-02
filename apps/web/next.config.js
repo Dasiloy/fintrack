@@ -28,6 +28,15 @@ await import('./src/env.js');
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   transpilePackages: ['@fintrack/ui'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nigerianbanks.xyz',
+        pathname: '/logo/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

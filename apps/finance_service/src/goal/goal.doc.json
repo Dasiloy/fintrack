@@ -1,0 +1,202 @@
+{
+  "__comment": "Goal Controller gRPC Documentation — apps/finance_service/src/goal/goal.controller.ts",
+  "meta_note": "All methods are exposed on the FinanceService gRPC server. Auth is enforced at the module level via RpcAuthGuard; the authenticated user is injected via @RpcUser().",
+  "conventions": {
+    "transport": "gRPC — FinanceService (packages/types/proto/finance/goal.proto)",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Missing or invalid JWT in gRPC metadata",
+      "NOT_FOUND": "Resource does not exist or does not belong to the user",
+      "INVALID_ARGUMENT": "Validation failed on the request payload",
+      "INTERNAL": "Unexpected server error"
+    }
+  },
+
+  "createGoal": {
+    "rpc": "createGoal",
+    "proto_method": "rpc createGoal (CreateGoalReq) returns (Goal)",
+    "description": "Create a new savings goal for the authenticated user. targetDate must be in the future.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "name": "string",
+      "targetAmount": "number (> 0)",
+      "targetDate": "string — ISO date; must be in the future",
+      "priority": "GoalPriority enum int — HIGH=0, MEDIUM=1, LOW=2",
+      "description": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "targetAmount": "number",
+      "targetDate": "string",
+      "priority": "GoalPriority int",
+      "status": "GoalStatus int — IN_PROGRESS on creation",
+      "description": "string",
+      "contributedAmount": 0,
+      "contributions": [],
+      "createdAt": "string",
+      "updatedAt": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INVALID_ARGUMENT": "targetDate is in the past or amount ≤ 0",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getGoals": {
+    "rpc": "getGoals",
+    "proto_method": "rpc getGoals (GetGoalsReq) returns (GetGoalsRes)",
+    "description": "Return all savings goals for the authenticated user with optional filters on status, priority, and target amount.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "status": "repeated GoalStatus int (optional)",
+      "priority": "repeated GoalPriority int (optional)",
+      "amount": "number (optional) — threshold for targetAmount comparison; requires operator",
+      "operator": "string (optional) — gt | gte | lt | lte | eq | ne"
+    },
+    "output": {
+      "goals": [
+        { "id": "string", "name": "string", "targetAmount": "number", "contributedAmount": "number", "status": "GoalStatus int", "priority": "GoalPriority int" }
+      ]
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getGoal": {
+    "rpc": "getGoal",
+    "proto_method": "rpc getGoal (GoalReq) returns (Goal)",
+    "description": "Return a single savings goal by ID including all contributions and their linked transactions.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — goal ID"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "targetAmount": "number",
+      "contributedAmount": "number",
+      "contributions": [
+        { "id": "string", "amount": "number", "date": "string", "description": "string", "transaction": "Transaction object | null" }
+      ]
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Goal not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateGoal": {
+    "rpc": "updateGoal",
+    "proto_method": "rpc updateGoal (UpdateGoalReq) returns (Goal)",
+    "description": "Update a goal's metadata. Changing targetAmount re-evaluates the goal status automatically.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — goal ID",
+      "name": "string (optional)",
+      "targetAmount": "number (optional)",
+      "targetDate": "string (optional) — ISO date",
+      "priority": "GoalPriority int (optional)",
+      "description": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "targetAmount": "number",
+      "updatedAt": "string — ISO datetime"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Goal not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteGoal": {
+    "rpc": "deleteGoal",
+    "proto_method": "rpc deleteGoal (GoalReq) returns (Empty)",
+    "description": "Delete a goal and all its contributions (cascade via Prisma schema).",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — goal ID"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Goal not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "contributeToGoal": {
+    "rpc": "contributeToGoal",
+    "proto_method": "rpc contributeToGoal (CreateGoalContributionReq) returns (Contribution)",
+    "description": "Add a contribution to a savings goal. Validates that the total contributed does not exceed the target amount. When transactionId is provided the transaction's date is used.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "goalId": "string",
+      "amount": "number (> 0)",
+      "date": "string — ISO date",
+      "description": "string (optional)",
+      "transactionId": "string (optional) — link to an existing transaction"
+    },
+    "output": {
+      "id": "string",
+      "amount": "number",
+      "date": "string",
+      "description": "string"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Goal not found or not owned by user",
+      "INVALID_ARGUMENT": "Contribution would exceed goal target amount",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateGoalContribution": {
+    "rpc": "updateGoalContribution",
+    "proto_method": "rpc updateGoalContribution (UpdateGoalContributionReq) returns (Contribution)",
+    "description": "Update an existing goal contribution. Re-validates the overflow rule excluding the current contribution's existing value.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "goalId": "string",
+      "goalContributionId": "string",
+      "amount": "number (optional)",
+      "date": "string (optional) — ISO date",
+      "description": "string (optional)",
+      "transactionId": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "amount": "number",
+      "updatedAt": "string — ISO datetime"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Contribution not found",
+      "INVALID_ARGUMENT": "Updated amount would exceed goal target",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteContribution": {
+    "rpc": "deleteContribution",
+    "proto_method": "rpc deleteContribution (DeleteGoalContributionReq) returns (Empty)",
+    "description": "Delete a contribution from a goal.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "goalId": "string",
+      "goalContributionId": "string"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Contribution not found",
+      "INTERNAL": "Unexpected error"
+    }
+  }
+}

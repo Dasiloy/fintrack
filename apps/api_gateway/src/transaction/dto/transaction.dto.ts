@@ -99,6 +99,15 @@ export class CreateTransactionDto {
   @IsString()
   @IsNotEmpty()
   sourceId: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    required: false,
+    description: 'JSON-stringified audit blob for this transaction',
+  })
+  @IsString()
+  @IsOptional()
+  sourceData?: string;
 }
 
 /**
@@ -169,4 +178,15 @@ export class UpdateTransactionDto {
   @IsString()
   @IsOptional()
   categorySlug?: string;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    required: false,
+    description: 'Notes about the transaction',
+    example: 'Paid with card',
+  })
+  @Length(1, 1000, { message: 'Notes must be between 1 and 1000 characters' })
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }

@@ -263,24 +263,25 @@ model User {
   dateFormat DateFormat @default(DMY)
 
   // reverse relationship
-  accounts         Account[]
-  sessions         Session[]
-  subscription     Subscription?
-  usageTrackers    UsageTracker[]
-  backupCodes      BackupCodes[]
-  loginActivity    LoginActivity[]
-  setting          NotificationSetting?
-  categories       Category[]
-  transactions     Transaction[]
-  budgets          Budget[]
-  recurringItems   RecurringItem[]
-  goals            Goal[]
-  splits           Split[]
-  ocrDrafts        OCRDraft[]
-  fcmDevices       FcmDevice[]
-  activityLogs     ActivityLogs[]
-  monoBankAccounts MonoBankAccount[]
-  notifications    Notification[]
+  accounts                  Account[]
+  sessions                  Session[]
+  subscription              Subscription?
+  usageTrackers             UsageTracker[]
+  backupCodes               BackupCodes[]
+  loginActivity             LoginActivity[]
+  setting                   NotificationSetting?
+  categories                Category[]
+  transactions              Transaction[]
+  budgets                   Budget[]
+  recurringItems            RecurringItem[]
+  goals                     Goal[]
+  splits                    Split[]
+  ocrDrafts                 OCRDraft[]
+  fcmDevices                FcmDevice[]
+  activityLogs              ActivityLogs[]
+  monoBankAccounts          MonoBankAccount[]
+  notifications             Notification[]
+  classificationCorrections ClassificationCorrection[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -319,6 +320,7 @@ model Account {
   updatedAt DateTime @updatedAt
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -364,6 +366,8 @@ model LoginActivity {
 
   // time stamps
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 enum VerificationIdentifier {
@@ -454,6 +458,8 @@ model BackupCodes {
   user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@index([userId, usedAt])
 }
 
 model ActivityLogs {
@@ -469,6 +475,8 @@ model ActivityLogs {
 
   // timestamp
   createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model NotificationSetting {
@@ -514,13 +522,14 @@ model NotificationSetting {
 }
 
 model Category {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String  @unique
+  slug        String   @unique
   description String?
   icon        String?
   color       String?
-  isSystem    Boolean @default(false) // true = generic, false = user-created
+  isSystem    Boolean  @default(false) // true = generic, false = user-created
+  tags        String[] @default([])
 
   // nullable relation — null means it's a system/generic category
   userId String?
@@ -540,6 +549,16 @@ model Category {
   @@index([isSystem])
 }
 
+model Merchant {
+  id           String   @id @default(cuid())
+  name         String   @unique // canonical name, uppercase — "KFC"
+  aliases      String[] // alternate narration fragments — ["KENTUCKY", "K F C"]
+  categoryHint String // space-separated hint tokens — "food restaurant fast"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum BudgetPeriod {
   MONTHLY
   WEEKLY
@@ -548,13 +567,15 @@ enum BudgetPeriod {
 }
 
 model Budget {
-  id             String       @id @default(cuid())
-  name           String
-  amount         Float
-  description    String?
-  period         BudgetPeriod @default(MONTHLY)
-  carryOver      Boolean      @default(false) // will always be false for V1
-  alertThreshold Float        @default(0.8) // 80% of budget
+  id               String       @id @default(cuid())
+  name             String
+  amount           Float
+  description      String?
+  period           BudgetPeriod @default(MONTHLY)
+  carryOver        Boolean      @default(false) // will always be false for V1
+  alertThreshold   Float        @default(0.8) // 80% of budget
+  alertedAt        DateTime?
+  alertAtFrequency Int          @default(2)
 
   // classification
   categoryId String
@@ -644,13 +665,18 @@ enum BankTransactionStatus {
 }
 
 model Transaction {
-  id          String          @id @default(cuid())
-  amount      Float
-  date        DateTime
-  type        TransactionType
-  description String?
-  notes       String?
-  merchant    String?
+  id           String          @id @default(cuid())
+  amount       Float
+  date         DateTime
+  type         TransactionType
+  description  String?
+  narration    String? // raw bank narration from Mono — immutable, never user-edited; null for manual transactions
+  bankCategory String? // raw Mono category enum (e.g. "food_and_drinks") — stored for AI classification; null for manual transactions
+  notes        String?
+  merchant     String? // merchant name picked from merchant or typed in by user
+
+  // vector embedding on transaction for semantic retrieval
+  embedding Unsupported("vector(1536)")?
 
   // classification
   categoryId String
@@ -662,31 +688,37 @@ model Transaction {
 
   // source metadata
   source     TransactionSource @default(MANUAL)
-  sourceId   String // OCR Jobid, Mono TransactionID
+  sourceId   String // Human-readable reference: TXN-YYMMDD-XXXXXX / REC-YYMMDD-XXXXXX / BNK-YYMMDD-XXXXXX
   sourceData Json? // JSON blob for OCR/Split/mono/etc. metadata
 
   // mono bank data
-  bankTransactionId     String?
+  bankTransactionId     String? // Mono's original transaction ID — used for idempotency on bank sync
   bankTransactionStatus BankTransactionStatus @default(COMPLETED) // Only Completed transactions are supported in V1
+
+  // recurring link — set for transactions created by the scheduler from a RecurringItem
+  recurringItemId String?
+  recurringItem   RecurringItem? @relation(fields: [recurringItemId], references: [id], onDelete: SetNull)
 
   // relations
   split            Split?
   goalContribution GoalContribution?
   settlements      SplitSettlement[]
-  // goals contribution
 
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  monoBankAccountId String?          @unique // ensure idempotency
+  aiClassified Boolean @default(false)
+
+  monoBankAccountId String? // bank account this transaction belongs to
   monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id])
 
   @@unique([userId, source, sourceId])
   @@unique([userId, bankTransactionId, monoBankAccountId])
   @@index([userId, date])
-  @@index([userId, source])
-  @@index([userId, categoryId])
+  @@index([userId, source, date])
+  @@index([userId, categoryId, date])
+  @@index([userId, sourceId])
   @@index([monoBankAccountId, bankTransactionId]) // ensure idempotency
 }
 
@@ -725,9 +757,15 @@ model RecurringItem {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // transactions created by this recurring item
+  transactions Transaction[]
+
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, isActive])
+  @@index([isActive, nextRunAt])
 }
 
 enum Goalstatus {
@@ -762,7 +800,7 @@ model Goal {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([id, userId])
+  @@index([userId, status])
 }
 
 model GoalContribution {
@@ -782,7 +820,7 @@ model GoalContribution {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([id, goalId])
+  @@index([goalId])
 }
 
 enum SplitStatus {
@@ -810,6 +848,8 @@ model Split {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
 }
 
 model SplitParticipant {
@@ -877,6 +917,7 @@ model MonoBankAccount {
   updatedAt DateTime @updatedAt
 
   @@index([userId, accountId])
+  @@index([userId, accountNumber])
 }
 
 model FcmDevice {
@@ -912,4 +953,25 @@ model Notification {
   // timestamp
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, archived, createdAt])
+}
+
+model ClassificationCorrection {
+  id            String @id @default(cuid())
+  narration     String // raw Mono narration text that was corrected
+  correctedSlug String // the category slug the user switched to
+
+  // vector embedding of the narration — nullable until the async BullMQ worker processes it
+  embedding Unsupported("vector(1536)")?
+
+  // ownership — cascade delete ensures corrections are removed when user is deleted
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamp
+  createdAt DateTime @default(now())
+
+  @@unique([userId, narration])
+  @@index([userId])
 }

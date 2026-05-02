@@ -11,6 +11,7 @@ import "finance/goal.proto";
 service FinanceService {
   // Transactions
     rpc CreateTransaction(CreateTransactionReq) returns (Transaction) {}
+    rpc BatchCreateTransactions(BatchCreateTransactionsReq) returns (BatchCreateTransactionsRes) {}
     rpc GetTransactions(GetTransactionsReq) returns (GetTransactionsRes) {}
     rpc GetTransaction(GetTransactionReq) returns (Transaction) {}
     rpc UpdateTransaction(UpdateTransactionReq) returns (Transaction) {}
@@ -18,16 +19,21 @@ service FinanceService {
 
   // Budgets
    rpc CreateBudget (CreateBudgetReq) returns (Budget) {}
+   rpc GetBudgets(GetBudgetsReq)      returns  (GetBudgetsRes) {}
+   rpc GetBudget(GetBudgetReq)        returns (Budget) {}
+   rpc GetSpendingTrend(GetSpendingTrendReq) returns (GetSpendingTrendRes) {}
    rpc UpdateBudget (UpdateBudgetReq) returns (Budget) {}
    rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
+
 
   // Recurring
   rpc CreateRecurring(CreateRecurringReq)     returns (Recurinrg) {}
   rpc GetRecurrings(GetRecurringsReq)  returns (GetRecurringsRes) {}
   rpc GetRecurring(RecurringReq)       returns (Recurinrg) {}
   rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurinrg) {}
-  rpc ToggleRecurring(RecurringReq)     returns (Recurinrg) {}
-  rpc DeleteRecurring(RecurringReq)     returns (Empty) {}
+  rpc ToggleRecurring(RecurringReq)            returns (Recurinrg) {}
+  rpc DeleteRecurring(RecurringReq)            returns (Empty) {}
+  rpc GetRecurringsAggregate(Empty)            returns (RecurringAggregateRes) {}
 
   // Splits
   rpc CreateSplit(CreateSplitReq)                   returns (Split) {}

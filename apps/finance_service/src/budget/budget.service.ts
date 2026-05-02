@@ -86,7 +86,7 @@ export class BudgetService {
           ? new Date(Date.UTC(data.year, data.month, 1))
           : new Date();
       const period = (data.period as BudgetPeriod) ?? BudgetPeriod.MONTHLY;
-      const startDate = this.getStartOfPeriod(period, anchorDate);
+      const startDate = this.utils.getStartOfPeriod(period, anchorDate);
 
       const futureHistory = await this.prismaService.budgetHistory.findFirst({
         where: {
@@ -176,7 +176,7 @@ export class BudgetService {
 
           if (amountChanged) {
             const now = new Date();
-            const currentPeriodStart = this.getStartOfPeriod(
+            const currentPeriodStart = this.utils.getStartOfPeriod(
               budget.period,
               now,
             );
@@ -188,7 +188,10 @@ export class BudgetService {
             });
 
             const activePeriodStart = activeHistory
-              ? this.getStartOfPeriod(budget.period, activeHistory.startDate)
+              ? this.utils.getStartOfPeriod(
+                  budget.period,
+                  activeHistory.startDate,
+                )
               : null;
 
             const isSamePeriod =
@@ -353,63 +356,16 @@ export class BudgetService {
   }
 
   /**
-   * Returns the start of the current period unit for a given date and budget period.
-   * All history entry startDates are snapped to this value so each entry maps
-   * unambiguously to exactly one period unit.
-   *
-   * - MONTHLY   → first day of the month  (Jan 8  → Jan 1)
-   * - WEEKLY    → most recent Monday      (Wed Apr 9 → Mon Apr 7)
-   * - QUARTERLY → first day of the quarter (May 1 → Apr 1)
-   * - YEARLY    → first day of the year   (Aug 3 → Jan 1)
-   *
-   * @private
-   * @param {BudgetPeriod} period - The budget's period
-   * @param {Date} date - The reference date
-   * @returns {Date} Start of the period at midnight UTC
-   */
-  private getStartOfPeriod(period: BudgetPeriod, date: Date): Date {
-    const y = date.getUTCFullYear();
-    const m = date.getUTCMonth();
-
-    switch (period) {
-      case BudgetPeriod.WEEKLY: {
-        const day = date.getUTCDay(); // 0 = Sun, 1 = Mon … 6 = Sat
-        const diff = day === 0 ? -6 : 1 - day;
-        const monday = new Date(date);
-        monday.setUTCDate(date.getUTCDate() + diff);
-        return new Date(
-          Date.UTC(
-            monday.getUTCFullYear(),
-            monday.getUTCMonth(),
-            monday.getUTCDate(),
-          ),
-        );
-      }
-      case BudgetPeriod.MONTHLY:
-        return new Date(Date.UTC(y, m, 1));
-      case BudgetPeriod.QUARTERLY: {
-        // Quarters: Jan–Mar (0), Apr–Jun (3), Jul–Sep (6), Oct–Dec (9)
-        const quarterStartMonth = Math.floor(m / 3) * 3;
-        return new Date(Date.UTC(y, quarterStartMonth, 1));
-      }
-      case BudgetPeriod.YEARLY:
-        return new Date(Date.UTC(y, 0, 1));
-      default:
-        throw new RpcException({
-          code: status.FAILED_PRECONDITION,
-          message: 'Invalid budget period',
-        });
-    }
-  }
-
-  /**
    * Maps a Prisma Budget record to the proto Budget shape.
    *
    * @private
    * @param {BudgetWithOptionalJoins} budget - Prisma budget with optional category join
    * @returns {ProtoBudget}
    */
-  private formatBudget(budget: BudgetWithOptionalJoins): ProtoBudget {
+  private formatBudget(
+    budget: BudgetWithOptionalJoins,
+    spent = 0,
+  ): ProtoBudget {
     return {
       id: budget.id,
       name: budget.name,
@@ -418,6 +374,7 @@ export class BudgetService {
       carryOver: budget.carryOver,
       description: budget.description ?? '',
       alertThreshold: budget.alertThreshold,
+      spent: String(spent),
       createdAt: budget.createdAt.toISOString(),
       updatedAt: budget.updatedAt.toISOString(),
       category: this.utils.formatCategory(budget.category),
