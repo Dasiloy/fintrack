@@ -567,13 +567,15 @@ enum BudgetPeriod {
 }
 
 model Budget {
-  id             String       @id @default(cuid())
-  name           String
-  amount         Float
-  description    String?
-  period         BudgetPeriod @default(MONTHLY)
-  carryOver      Boolean      @default(false) // will always be false for V1
-  alertThreshold Float        @default(0.8) // 80% of budget
+  id               String       @id @default(cuid())
+  name             String
+  amount           Float
+  description      String?
+  period           BudgetPeriod @default(MONTHLY)
+  carryOver        Boolean      @default(false) // will always be false for V1
+  alertThreshold   Float        @default(0.8) // 80% of budget
+  alertedAt        DateTime?
+  alertAtFrequency Int          @default(2)
 
   // classification
   categoryId String

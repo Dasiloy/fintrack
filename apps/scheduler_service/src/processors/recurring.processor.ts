@@ -94,7 +94,6 @@ export class RecurringProcessor extends WorkerHost {
    */
   private async createRecurringTransactions(): Promise<void> {
     const now = new Date();
-    this.logger.log(`[AUDIT] Job started at ${now.toISOString()}`);
 
     const recurrings = await this.prisma.recurringItem.findMany({
       where: {
@@ -105,53 +104,13 @@ export class RecurringProcessor extends WorkerHost {
       include: { category: true },
     });
 
-    this.logger.log(`[AUDIT] Query returned ${recurrings.length} due item(s)`);
+    this.logger.log(
+      `${recurrings.length} recurring item(s) due at ${now.toISOString()}`,
+    );
 
     if (recurrings.length === 0) {
-      // Log all active items with their nextRunAt so we can see why none are due
-      const allActive = await this.prisma.recurringItem.findMany({
-        where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-          nextRunAt: true,
-          frequency: true,
-          userId: true,
-        },
-      });
-      this.logger.log(
-        `[AUDIT] No items due. Active items (${allActive.length}): ${JSON.stringify(
-          allActive.map((r) => ({
-            id: r.id,
-            name: r.name,
-            frequency: r.frequency,
-            nextRunAt: r.nextRunAt,
-            secondsUntilDue: r.nextRunAt
-              ? Math.round((r.nextRunAt.getTime() - now.getTime()) / 1000)
-              : null,
-          })),
-          null,
-          2,
-        )}`,
-      );
       return;
     }
-
-    this.logger.log(
-      `[AUDIT] Due items: ${JSON.stringify(
-        recurrings.map((r) => ({
-          id: r.id,
-          name: r.name,
-          userId: r.userId,
-          frequency: r.frequency,
-          nextRunAt: r.nextRunAt,
-          amount: r.amount,
-          type: r.type,
-        })),
-        null,
-        2,
-      )}`,
-    );
 
     // userId → items created this run, for the notification summary
     const createdByUser = new Map<string, RecurringItem[]>();
@@ -220,9 +179,6 @@ export class RecurringProcessor extends WorkerHost {
     createdByUser: Map<string, RecurringItem[]>,
   ): Promise<void> {
     const sourceId = genRecurringSourceId(item.id, item.nextRunAt);
-    this.logger.log(
-      `[AUDIT] processItem → id=${item.id} name="${item.name}" userId=${item.userId} sourceId="${sourceId}"`,
-    );
 
     const alreadyCreated = await this.prisma.transaction.findFirst({
       where: { userId: item.userId, source: 'RECURRING', sourceId },
@@ -231,7 +187,7 @@ export class RecurringProcessor extends WorkerHost {
 
     if (alreadyCreated) {
       this.logger.warn(
-        `[AUDIT] SKIP id=${item.id} — transaction ${alreadyCreated.id} already exists for sourceId="${sourceId}"`,
+        `SKIP ${item.id} ("${item.name}") — sourceId ${sourceId} already exists`,
       );
       return;
     }
@@ -239,17 +195,9 @@ export class RecurringProcessor extends WorkerHost {
     const nextRunAt = computeNextRunAt(item.frequency, item.nextRunAt);
     const shouldDeactivate = item.endDate !== null && nextRunAt > item.endDate;
 
-    this.logger.log(
-      `[AUDIT] DATE INSPECTION — item.nextRunAt raw: ${item.nextRunAt} | toISOString: ${item.nextRunAt.toISOString()} | toLocaleDateString: ${item.nextRunAt.toLocaleDateString()} | getTime: ${item.nextRunAt.getTime()} | UTC day: ${item.nextRunAt.getUTCDate()}/${item.nextRunAt.getUTCMonth() + 1}/${item.nextRunAt.getUTCFullYear()} | local day: ${item.nextRunAt.getDate()}/${item.nextRunAt.getMonth() + 1}/${item.nextRunAt.getFullYear()}`,
-    );
-
-    this.logger.log(
-      `[AUDIT] Creating transaction for id=${item.id} — amount=${item.amount} type=${item.type} date=${item.nextRunAt.toISOString()} nextRunAt→${nextRunAt.toISOString()} shouldDeactivate=${shouldDeactivate}`,
-    );
-
     await this.prisma.$transaction(
       async (tx) => {
-        const created = await tx.transaction.create({
+        await tx.transaction.create({
           data: {
             userId: item.userId,
             categoryId: item.category.id,
@@ -276,10 +224,6 @@ export class RecurringProcessor extends WorkerHost {
           },
         });
 
-        this.logger.log(
-          `[AUDIT] Transaction created → txId=${created.id} | stored date ISO: ${created.date.toISOString()} | UTC day: ${created.date.getUTCDate()}/${created.date.getUTCMonth() + 1}/${created.date.getUTCFullYear()} | local day: ${created.date.getDate()}/${created.date.getMonth() + 1}/${created.date.getFullYear()}`,
-        );
-
         await tx.recurringItem.update({
           where: { id: item.id },
           data: {
@@ -288,10 +232,6 @@ export class RecurringProcessor extends WorkerHost {
             ...(shouldDeactivate && { isActive: false }),
           },
         });
-
-        this.logger.log(
-          `[AUDIT] RecurringItem updated → id=${item.id} lastRunAt=${item.nextRunAt.toISOString()} nextRunAt=${nextRunAt.toISOString()}${shouldDeactivate ? ' isActive=false' : ''}`,
-        );
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
@@ -302,12 +242,11 @@ export class RecurringProcessor extends WorkerHost {
 
     if (shouldDeactivate) {
       this.logger.log(
-        `[AUDIT] Recurring item ${item.id} (${item.name}) deactivated — endDate reached`,
+        `Recurring item ${item.id} ("${item.name}") deactivated — endDate reached`,
       );
     }
 
     const userItems = createdByUser.get(item.userId) ?? [];
     createdByUser.set(item.userId, [...userItems, item]);
-    this.logger.log(`[AUDIT] processItem DONE → id=${item.id} "${item.name}"`);
   }
 }

@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/budget.proto
 
- 
+/* eslint-disable */
 import { Category } from "./transaction";
 
 export const protobufPackage = "finance";
@@ -20,6 +20,7 @@ export interface Budget {
   category: Category | undefined;
   createdAt: string;
   updatedAt: string;
+  spent: string;
 }
 
 export interface CreateBudgetReq {
@@ -31,6 +32,53 @@ export interface CreateBudgetReq {
   month?: number | undefined;
   year?: number | undefined;
   period?: string | undefined;
+}
+
+export interface UnbudgetedCategory {
+  categoryId: string;
+  name: string;
+  color: string;
+  icon: string;
+  spent: number;
+}
+
+export interface GetBudgetsReq {
+  /** 0-indexed */
+  month: number;
+  year: number;
+}
+
+export interface GetBudgetsRes {
+  budgets: Budget[];
+  unbudgeted: UnbudgetedCategory[];
+}
+
+export interface GetBudgetReq {
+  id: string;
+}
+
+export interface SpendingTrendCategory {
+  categoryId: string;
+  name: string;
+  color: string;
+  amount: number;
+}
+
+export interface SpendingTrendMonth {
+  /** "Jan 2026" */
+  label: string;
+  /** all-category EXPENSE sum */
+  total: number;
+  byCategory: SpendingTrendCategory[];
+}
+
+export interface GetSpendingTrendReq {
+  /** lookback window: 3, 6, or 12 */
+  months: number;
+}
+
+export interface GetSpendingTrendRes {
+  data: SpendingTrendMonth[];
 }
 
 export interface UpdateBudgetReq {

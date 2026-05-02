@@ -14,6 +14,7 @@ message Budget {
   Category category = 8;
   string created_at = 9;
   string updated_at = 10;
+  string  spent     = 11;
 }
 
 message CreateBudgetReq {
@@ -26,6 +27,50 @@ message CreateBudgetReq {
   optional int32 year = 7;
   optional string period = 8;
 }
+
+message UnbudgetedCategory {
+  string category_id = 1;
+  string name        = 2;
+  string color       = 3;
+  string icon        = 4;
+  float  spent       = 5;
+}
+
+message GetBudgetsReq {
+  int32 month = 1;  // 0-indexed
+  int32 year  = 2;
+}
+
+message GetBudgetsRes {
+  repeated Budget             budgets    = 1;
+  repeated UnbudgetedCategory unbudgeted = 2;
+}
+
+message GetBudgetReq {
+  string id = 1;
+}
+
+message SpendingTrendCategory {
+  string category_id = 1;
+  string name        = 2;
+  string color       = 3;
+  float  amount      = 4;
+}
+
+message SpendingTrendMonth {
+  string label = 1;  // "Jan 2026"
+  float  total = 2;  // all-category EXPENSE sum
+  repeated SpendingTrendCategory by_category = 3;
+}
+
+message GetSpendingTrendReq {
+  int32 months = 1;  // lookback window: 3, 6, or 12
+}
+
+message GetSpendingTrendRes {
+  repeated SpendingTrendMonth data = 1;
+}
+
 
 message UpdateBudgetReq {
           string id = 1;
