@@ -67,12 +67,12 @@ export class LangraphService {
     // short term memeory
     let checkpointer: BaseCheckpointSaver | undefined;
     if (opts?.checkpointer === 'memory') checkpointer = new MemorySaver();
-    else if (!!opts?.checkpointer) checkpointer = opts.checkpointer;
+    else if (opts?.checkpointer) checkpointer = opts.checkpointer;
 
     // long term memory
     let store: BaseStore | undefined;
     if (opts?.store === 'memory') store = new InMemoryStore();
-    else if (!!opts?.store) store = opts.store;
+    else if (opts?.store) store = opts.store;
 
     return graph.compile({
       checkpointer,

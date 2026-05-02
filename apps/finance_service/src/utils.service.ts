@@ -119,11 +119,17 @@ export class UtilsService {
     switch (period) {
       case BudgetPeriod.WEEKLY: {
         // ISO week: Mon=1 … Sat=6, Sun=0.  Walk back to the nearest Monday.
-        const day  = date.getUTCDay();
+        const day = date.getUTCDay();
         const diff = day === 0 ? -6 : 1 - day;
         const monday = new Date(date);
         monday.setUTCDate(date.getUTCDate() + diff);
-        return new Date(Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate()));
+        return new Date(
+          Date.UTC(
+            monday.getUTCFullYear(),
+            monday.getUTCMonth(),
+            monday.getUTCDate(),
+          ),
+        );
       }
       case BudgetPeriod.MONTHLY:
         return new Date(Date.UTC(y, m, 1));
@@ -132,7 +138,10 @@ export class UtilsService {
       case BudgetPeriod.YEARLY:
         return new Date(Date.UTC(y, 0, 1));
       default:
-        throw new RpcException({ code: status.FAILED_PRECONDITION, message: 'Invalid budget period' });
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'Invalid budget period',
+        });
     }
   }
 
@@ -187,7 +196,10 @@ export class UtilsService {
         // Jan 1 of next year − 1 ms → Dec 31 23:59:59.999Z
         return new Date(Date.UTC(y + 1, 0, 1) - 1);
       default:
-        throw new RpcException({ code: status.FAILED_PRECONDITION, message: 'Invalid budget period' });
+        throw new RpcException({
+          code: status.FAILED_PRECONDITION,
+          message: 'Invalid budget period',
+        });
     }
   }
 }

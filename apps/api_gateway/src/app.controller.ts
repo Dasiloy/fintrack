@@ -1,4 +1,10 @@
-import { Controller, Get, HttpCode, HttpStatus, VERSION_NEUTRAL } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  VERSION_NEUTRAL,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
@@ -34,12 +40,16 @@ export class AppController {
       example: {
         success: true,
         statusCode: HttpStatus.OK,
-        data: [{ id: 'cm123', name: 'NETFLIX', aliases: ['NETFLIX.COM', 'NFLX'] }],
+        data: [
+          { id: 'cm123', name: 'NETFLIX', aliases: ['NETFLIX.COM', 'NFLX'] },
+        ],
         message: 'Merchants fetched successfully',
       },
     },
   })
-  async getMerchants(): Promise<StandardResponse<{ id: string; name: string; aliases: string[] }[]>> {
+  async getMerchants(): Promise<
+    StandardResponse<{ id: string; name: string; aliases: string[] }[]>
+  > {
     const data = await this.appService.getMerchants();
     return {
       success: true,

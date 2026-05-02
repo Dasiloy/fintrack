@@ -138,7 +138,9 @@ export class GoalService implements OnModuleInit {
   async deleteGoal(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    const result = await lastValueFrom(this.financeService.deleteGoal({ id }, metadata));
+    const result = await lastValueFrom(
+      this.financeService.deleteGoal({ id }, metadata),
+    );
     void this.usageService.invalidateGatedUsageCache(user.id);
     return result;
   }

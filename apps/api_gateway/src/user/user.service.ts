@@ -11,7 +11,10 @@ import {
 
 import { PrismaService } from '@fintrack/database/service';
 import { Prisma, User } from '@fintrack/database/types';
-import { USER_SELECT, type GetMeResponse } from '@fintrack/database/user.select';
+import {
+  USER_SELECT,
+  type GetMeResponse,
+} from '@fintrack/database/user.select';
 import {
   REDIS_CLIENT,
   USER_CACHE_TTL,

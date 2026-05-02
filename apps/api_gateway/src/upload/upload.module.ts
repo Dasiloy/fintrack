@@ -8,10 +8,7 @@ import { UploadService } from './upload.service';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [
-    MulterModule.register({ storage: memoryStorage() }),
-    UserModule,
-  ],
+  imports: [MulterModule.register({ storage: memoryStorage() }), UserModule],
   controllers: [UploadController],
   providers: [UploadService],
 })

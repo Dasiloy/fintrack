@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import {
@@ -18,8 +18,6 @@ import {
  */
 @Injectable()
 export class SchedulerService {
-  private readonly logger = new Logger(SchedulerService.name);
-
   constructor(
     @InjectQueue(ACCOUNT_CLEANUP_QUEUE) private readonly cleanupQueue: Queue,
     @InjectQueue(USAGE_TRACKING_QUEUE)
@@ -29,18 +27,16 @@ export class SchedulerService {
 
   @Cron('0 3 * * *') // 3:am everyday
   purgeScheduledAccountDeletion() {
-    this.cleanupQueue.add(
+    void this.cleanupQueue.add(
       PURGE_SCHEDULED_DELETIONS_JOB,
       {},
-      {
-        jobId: PURGE_SCHEDULED_DELETIONS_JOB,
-      },
+      { jobId: PURGE_SCHEDULED_DELETIONS_JOB },
     );
   }
 
-  @Cron('0 * * * *')
-  async createRecurringTransactions() {
-    const job = await this.reccuringQueue.add(
+  @Cron('0 * * * *') // Runs every hour
+  createRecurringTransactions() {
+    void this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
       {},
       { removeOnComplete: true, removeOnFail: false },
@@ -49,12 +45,10 @@ export class SchedulerService {
 
   @Cron('0 1 1 * *') // 1:00am on the first day of the month
   cleanupUsageTrackers() {
-    this.usageTrackingQueue.add(
+    void this.usageTrackingQueue.add(
       PURGE_USAGE_TRACKING_JOB,
       {},
-      {
-        jobId: PURGE_USAGE_TRACKING_JOB,
-      },
+      { jobId: PURGE_USAGE_TRACKING_JOB },
     );
   }
 }

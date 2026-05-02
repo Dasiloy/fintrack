@@ -29,10 +29,18 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
-  @ApiOperation({ summary: 'Get current user profile', description: 'Cached in Redis for 5 minutes.' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Profile fetched successfully' })
+  @ApiOperation({
+    summary: 'Get current user profile',
+    description: 'Cached in Redis for 5 minutes.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Profile fetched successfully',
+  })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  async getMe(@CurrentUser() user: User): Promise<StandardResponse<UserProfile>> {
+  async getMe(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<UserProfile>> {
     const data = await this.userService.getMe(user.id);
     return {
       success: true,
@@ -45,7 +53,10 @@ export class UserController {
   @Patch('me')
   @ApiOperation({ summary: 'Update current user profile' })
   @ApiBody({ type: UpdateMeDto })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Profile updated successfully' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Profile updated successfully',
+  })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   async updateMe(
     @CurrentUser() user: User,
@@ -63,7 +74,10 @@ export class UserController {
   @Patch('settings')
   @ApiOperation({ summary: 'Update notification settings' })
   @ApiBody({ type: UpdateSettingsDto })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Settings updated successfully' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Settings updated successfully',
+  })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   async updateSettings(
     @CurrentUser() user: User,

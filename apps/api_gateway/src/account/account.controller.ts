@@ -113,9 +113,14 @@ export class AccountController {
   // ================================================================
   @Post(':id/sync')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Sync latest transactions for a linked bank account' })
+  @ApiOperation({
+    summary: 'Sync latest transactions for a linked bank account',
+  })
   @ApiResponse({ status: HttpStatus.OK, description: 'Sync triggered' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
   async syncAccount(
     @Param('id') id: string,
     @CurrentUser() user: User,
