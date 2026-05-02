@@ -63,6 +63,29 @@ export const accountRouter = createTRPCRouter({
     }),
 
   /**
+   * Triggers a real-time sync of the latest transactions for the given
+   * linked bank account. Enqueues a background job on the BE.
+   *
+   * @param id - Internal MonoBankAccount record ID
+   * @throws UNAUTHORIZED if the session is invalid
+   * @throws NOT_FOUND if no linked account exists for the given id
+   * @throws INTERNAL_SERVER_ERROR on unexpected gateway failure
+   */
+  syncAccount: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/account/${input.id}/sync`, {
+        method: 'POST',
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<null> = await response.json();
+      return data;
+    }),
+
+  /**
    * Re-authenticate a previously linked Mono bank account whose session has
    * expired or been revoked by the bank.
    *

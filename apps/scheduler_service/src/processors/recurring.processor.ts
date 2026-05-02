@@ -12,12 +12,9 @@ import {
   TOKEN_NOTIFICATION_QUEUE,
   RECURRING_TRANSACTIONS_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
-import {
-  Category,
-  Prisma,
-  RecurringItem,
-  RecurringItemFrequency,
-} from '@fintrack/database/types';
+import { Category, Prisma, RecurringItem } from '@fintrack/database/types';
+import { computeNextRunAt } from '@fintrack/utils/recurring';
+import { genRecurringSourceId } from '@fintrack/utils/format';
 
 @Processor(RECURRING_QUEUE)
 export class RecurringProcessor extends WorkerHost {
@@ -89,8 +86,8 @@ export class RecurringProcessor extends WorkerHost {
    * single activity notification and email per user summarising what was created.
    *
    * Idempotency is enforced at two levels:
-   * - The sourceId `{recurringId}-{nextRunAt.toISOString()}` is unique per run
-   *   period, so the DB unique constraint on (userId, source, sourceId) prevents
+   * - The sourceId `REC-{YYMMDD}-{6CHARS}` is deterministic per item per run
+   *   date, so the DB unique constraint on (userId, source, sourceId) prevents
    *   duplicate transactions even under concurrent workers.
    * - We do an explicit pre-check to skip items already processed this cycle,
    *   avoiding a wasted DB round-trip into the transaction block.
@@ -107,12 +104,13 @@ export class RecurringProcessor extends WorkerHost {
       include: { category: true },
     });
 
+    this.logger.log(
+      `${recurrings.length} recurring item(s) due at ${now.toISOString()}`,
+    );
+
     if (recurrings.length === 0) {
-      this.logger.log('No recurring items due — nothing to process');
       return;
     }
-
-    this.logger.log(`Processing ${recurrings.length} due recurring item(s)`);
 
     // userId → items created this run, for the notification summary
     const createdByUser = new Map<string, RecurringItem[]>();
@@ -124,7 +122,7 @@ export class RecurringProcessor extends WorkerHost {
         // Isolate failures so one bad item never blocks the rest of the batch
         const err = error instanceof Error ? error : new Error(String(error));
         this.logger.error(
-          `Failed to process recurring item ${item.id} (${item.name}): ${err.message}`,
+          `[AUDIT] Failed to process recurring item ${item.id} (${item.name}): ${err.message}`,
           err.stack,
         );
       }
@@ -142,17 +140,20 @@ export class RecurringProcessor extends WorkerHost {
         });
 
         if (user) {
+          const emailItems = items.map((r) => ({
+            name: r.name,
+            amount: r.amount.toString(),
+            frequency: r.frequency,
+            type: r.type,
+          }));
+
           await this.emailQueue.add(RECURRING_TRANSACTIONS_EMAIL_JOB, {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
             date: now.toISOString(),
-            items: items.map((r) => ({
-              name: r.name,
-              amount: r.amount.toString(),
-              frequency: r.frequency,
-              type: r.type,
-            })),
+            count: emailItems.length,
+            items: emailItems,
           });
         }
       } catch (error: unknown) {
@@ -177,7 +178,7 @@ export class RecurringProcessor extends WorkerHost {
     item: RecurringItem & { category: Category },
     createdByUser: Map<string, RecurringItem[]>,
   ): Promise<void> {
-    const sourceId = `${item.id}-${item.nextRunAt.toISOString()}`;
+    const sourceId = genRecurringSourceId(item.id, item.nextRunAt);
 
     const alreadyCreated = await this.prisma.transaction.findFirst({
       where: { userId: item.userId, source: 'RECURRING', sourceId },
@@ -186,14 +187,12 @@ export class RecurringProcessor extends WorkerHost {
 
     if (alreadyCreated) {
       this.logger.warn(
-        `Transaction for recurring item ${item.id} period ${item.nextRunAt.toISOString()} already exists — skipping`,
+        `SKIP ${item.id} ("${item.name}") — sourceId ${sourceId} already exists`,
       );
       return;
     }
 
-    const nextRunAt = this.computeNextRunAt(item.frequency, item.nextRunAt);
-
-    // Deactivate if the next run would exceed the endDate
+    const nextRunAt = computeNextRunAt(item.frequency, item.nextRunAt);
     const shouldDeactivate = item.endDate !== null && nextRunAt > item.endDate;
 
     await this.prisma.$transaction(
@@ -207,8 +206,21 @@ export class RecurringProcessor extends WorkerHost {
             type: item.type,
             source: 'RECURRING',
             sourceId,
+            recurringItemId: item.id,
             description: item.description,
             merchant: item.merchant,
+            sourceData: {
+              recurringItemId: item.id,
+              name: item.name,
+              frequency: item.frequency,
+              amount: Number(item.amount),
+              type: item.type,
+              _meta: {
+                runAt: item.nextRunAt.toISOString(),
+                prevRunAt: item.lastRunAt?.toISOString() ?? null,
+                nextRunAt: nextRunAt.toISOString(),
+              },
+            },
           },
         });
 
@@ -230,54 +242,11 @@ export class RecurringProcessor extends WorkerHost {
 
     if (shouldDeactivate) {
       this.logger.log(
-        `Recurring item ${item.id} (${item.name}) deactivated — endDate reached`,
+        `Recurring item ${item.id} ("${item.name}") deactivated — endDate reached`,
       );
     }
 
     const userItems = createdByUser.get(item.userId) ?? [];
     createdByUser.set(item.userId, [...userItems, item]);
-  }
-
-  /**
-   * Computes the next run date from a reference date based on frequency.
-   * All arithmetic uses UTC to avoid DST boundary issues.
-   *
-   * @private
-   * @param {RecurringItemFrequency} frequency
-   * @param {Date} from - The current nextRunAt (not "now")
-   * @returns {Date}
-   */
-  private computeNextRunAt(
-    frequency: RecurringItemFrequency,
-    from: Date,
-  ): Date {
-    const next = new Date(from);
-
-    switch (frequency) {
-      case RecurringItemFrequency.DAILY:
-        next.setUTCDate(next.getUTCDate() + 1);
-        break;
-      case RecurringItemFrequency.WEEKLY:
-        next.setUTCDate(next.getUTCDate() + 7);
-        break;
-      case RecurringItemFrequency.BIWEEKLY:
-        next.setUTCDate(next.getUTCDate() + 14);
-        break;
-      case RecurringItemFrequency.MONTHLY:
-        next.setUTCMonth(next.getUTCMonth() + 1);
-        break;
-      case RecurringItemFrequency.QUARTERLY:
-        next.setUTCMonth(next.getUTCMonth() + 3);
-        break;
-      case RecurringItemFrequency.YEARLY:
-        next.setUTCFullYear(next.getUTCFullYear() + 1);
-        break;
-      case RecurringItemFrequency.CUSTOM:
-        // CUSTOM cadence is externally driven — advance by one day as a safe default
-        next.setUTCDate(next.getUTCDate() + 1);
-        break;
-    }
-
-    return next;
   }
 }

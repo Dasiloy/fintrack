@@ -88,7 +88,7 @@ export class UsageProcessor extends WorkerHost {
         }),
       ]);
       this.logger.log(`Created new usage trackers for user ${user.id}`);
-      this.paymentQueue.add(NEW_USAGE_TRACKERS_CREATED_JOB, {
+      void this.paymentQueue.add(NEW_USAGE_TRACKERS_CREATED_JOB, {
         firstName: user.firstName,
         email: user.email,
         periodStart: dayjs(periodStart).format('YYYY-MM-DD'),

@@ -84,6 +84,11 @@ export type NotificationSetting = $Result.DefaultSelection<Prisma.$NotificationS
  */
 export type Category = $Result.DefaultSelection<Prisma.$CategoryPayload>
 /**
+ * Model Merchant
+ * 
+ */
+export type Merchant = $Result.DefaultSelection<Prisma.$MerchantPayload>
+/**
  * Model Budget
  * 
  */
@@ -148,6 +153,11 @@ export type FcmDevice = $Result.DefaultSelection<Prisma.$FcmDevicePayload>
  * 
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
+/**
+ * Model ClassificationCorrection
+ * 
+ */
+export type ClassificationCorrection = $Result.DefaultSelection<Prisma.$ClassificationCorrectionPayload>
 
 /**
  * Enums
@@ -874,6 +884,16 @@ export class PrismaClient<
   get category(): Prisma.CategoryDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.merchant`: Exposes CRUD operations for the **Merchant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Merchants
+    * const merchants = await prisma.merchant.findMany()
+    * ```
+    */
+  get merchant(): Prisma.MerchantDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.budget`: Exposes CRUD operations for the **Budget** model.
     * Example usage:
     * ```ts
@@ -1002,6 +1022,16 @@ export class PrismaClient<
     * ```
     */
   get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.classificationCorrection`: Exposes CRUD operations for the **ClassificationCorrection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClassificationCorrections
+    * const classificationCorrections = await prisma.classificationCorrection.findMany()
+    * ```
+    */
+  get classificationCorrection(): Prisma.ClassificationCorrectionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1232,7 +1262,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends BigInt
+  : T extends bigint
   ? False
   : T extends object
   ? True
@@ -1450,6 +1480,7 @@ export namespace Prisma {
     ActivityLogs: 'ActivityLogs',
     NotificationSetting: 'NotificationSetting',
     Category: 'Category',
+    Merchant: 'Merchant',
     Budget: 'Budget',
     BudgetHistory: 'BudgetHistory',
     OCRDraft: 'OCRDraft',
@@ -1462,7 +1493,8 @@ export namespace Prisma {
     SplitSettlement: 'SplitSettlement',
     MonoBankAccount: 'MonoBankAccount',
     FcmDevice: 'FcmDevice',
-    Notification: 'Notification'
+    Notification: 'Notification',
+    ClassificationCorrection: 'ClassificationCorrection'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1478,7 +1510,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2518,6 +2550,80 @@ export namespace Prisma {
           }
         }
       }
+      Merchant: {
+        payload: Prisma.$MerchantPayload<ExtArgs>
+        fields: Prisma.MerchantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MerchantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MerchantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          findFirst: {
+            args: Prisma.MerchantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MerchantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          findMany: {
+            args: Prisma.MerchantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>[]
+          }
+          create: {
+            args: Prisma.MerchantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          createMany: {
+            args: Prisma.MerchantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MerchantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>[]
+          }
+          delete: {
+            args: Prisma.MerchantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          update: {
+            args: Prisma.MerchantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          deleteMany: {
+            args: Prisma.MerchantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MerchantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MerchantUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>[]
+          }
+          upsert: {
+            args: Prisma.MerchantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MerchantPayload>
+          }
+          aggregate: {
+            args: Prisma.MerchantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMerchant>
+          }
+          groupBy: {
+            args: Prisma.MerchantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MerchantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MerchantCountArgs<ExtArgs>
+            result: $Utils.Optional<MerchantCountAggregateOutputType> | number
+          }
+        }
+      }
       Budget: {
         payload: Prisma.$BudgetPayload<ExtArgs>
         fields: Prisma.BudgetFieldRefs
@@ -3480,6 +3586,80 @@ export namespace Prisma {
           }
         }
       }
+      ClassificationCorrection: {
+        payload: Prisma.$ClassificationCorrectionPayload<ExtArgs>
+        fields: Prisma.ClassificationCorrectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClassificationCorrectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClassificationCorrectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          findFirst: {
+            args: Prisma.ClassificationCorrectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClassificationCorrectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          findMany: {
+            args: Prisma.ClassificationCorrectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>[]
+          }
+          create: {
+            args: Prisma.ClassificationCorrectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          createMany: {
+            args: Prisma.ClassificationCorrectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClassificationCorrectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>[]
+          }
+          delete: {
+            args: Prisma.ClassificationCorrectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          update: {
+            args: Prisma.ClassificationCorrectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClassificationCorrectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClassificationCorrectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ClassificationCorrectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ClassificationCorrectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClassificationCorrectionPayload>
+          }
+          aggregate: {
+            args: Prisma.ClassificationCorrectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClassificationCorrection>
+          }
+          groupBy: {
+            args: Prisma.ClassificationCorrectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClassificationCorrectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClassificationCorrectionCountArgs<ExtArgs>
+            result: $Utils.Optional<ClassificationCorrectionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3602,6 +3782,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsOmit
     notificationSetting?: NotificationSettingOmit
     category?: CategoryOmit
+    merchant?: MerchantOmit
     budget?: BudgetOmit
     budgetHistory?: BudgetHistoryOmit
     oCRDraft?: OCRDraftOmit
@@ -3615,6 +3796,7 @@ export namespace Prisma {
     monoBankAccount?: MonoBankAccountOmit
     fcmDevice?: FcmDeviceOmit
     notification?: NotificationOmit
+    classificationCorrection?: ClassificationCorrectionOmit
   }
 
   /* Types for Logging */
@@ -3711,6 +3893,7 @@ export namespace Prisma {
     activityLogs: number
     monoBankAccounts: number
     notifications: number
+    classificationCorrections: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3730,6 +3913,7 @@ export namespace Prisma {
     activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
     monoBankAccounts?: boolean | UserCountOutputTypeCountMonoBankAccountsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+    classificationCorrections?: boolean | UserCountOutputTypeCountClassificationCorrectionsArgs
   }
 
   // Custom InputTypes
@@ -3855,6 +4039,13 @@ export namespace Prisma {
     where?: NotificationWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountClassificationCorrectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassificationCorrectionWhereInput
+  }
+
 
   /**
    * Count Type CategoryCountOutputType
@@ -3964,6 +4155,37 @@ export namespace Prisma {
    */
   export type TransactionCountOutputTypeCountSettlementsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SplitSettlementWhereInput
+  }
+
+
+  /**
+   * Count Type RecurringItemCountOutputType
+   */
+
+  export type RecurringItemCountOutputType = {
+    transactions: number
+  }
+
+  export type RecurringItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transactions?: boolean | RecurringItemCountOutputTypeCountTransactionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * RecurringItemCountOutputType without action
+   */
+  export type RecurringItemCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RecurringItemCountOutputType
+     */
+    select?: RecurringItemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * RecurringItemCountOutputType without action
+   */
+  export type RecurringItemCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TransactionWhereInput
   }
 
 
@@ -6442,6 +6664,7 @@ export namespace Prisma {
     activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     monoBankAccounts?: boolean | User$monoBankAccountsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    classificationCorrections?: boolean | User$classificationCorrectionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6537,6 +6760,7 @@ export namespace Prisma {
     activityLogs?: boolean | User$activityLogsArgs<ExtArgs>
     monoBankAccounts?: boolean | User$monoBankAccountsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    classificationCorrections?: boolean | User$classificationCorrectionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6563,6 +6787,7 @@ export namespace Prisma {
       activityLogs: Prisma.$ActivityLogsPayload<ExtArgs>[]
       monoBankAccounts: Prisma.$MonoBankAccountPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      classificationCorrections: Prisma.$ClassificationCorrectionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6998,6 +7223,7 @@ export namespace Prisma {
     activityLogs<T extends User$activityLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ActivityLogsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monoBankAccounts<T extends User$monoBankAccountsArgs<ExtArgs> = {}>(args?: Subset<T, User$monoBankAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonoBankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    classificationCorrections<T extends User$classificationCorrectionsArgs<ExtArgs> = {}>(args?: Subset<T, User$classificationCorrectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7855,6 +8081,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * User.classificationCorrections
+   */
+  export type User$classificationCorrectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    where?: ClassificationCorrectionWhereInput
+    orderBy?: ClassificationCorrectionOrderByWithRelationInput | ClassificationCorrectionOrderByWithRelationInput[]
+    cursor?: ClassificationCorrectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ClassificationCorrectionScalarFieldEnum | ClassificationCorrectionScalarFieldEnum[]
   }
 
   /**
@@ -18958,6 +19208,7 @@ export namespace Prisma {
     icon: number
     color: number
     isSystem: number
+    tags: number
     userId: number
     createdAt: number
     updatedAt: number
@@ -18999,6 +19250,7 @@ export namespace Prisma {
     icon?: true
     color?: true
     isSystem?: true
+    tags?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -19085,6 +19337,7 @@ export namespace Prisma {
     icon: string | null
     color: string | null
     isSystem: boolean
+    tags: string[]
     userId: string | null
     createdAt: Date
     updatedAt: Date
@@ -19115,6 +19368,7 @@ export namespace Prisma {
     icon?: boolean
     color?: boolean
     isSystem?: boolean
+    tags?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -19133,6 +19387,7 @@ export namespace Prisma {
     icon?: boolean
     color?: boolean
     isSystem?: boolean
+    tags?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -19147,6 +19402,7 @@ export namespace Prisma {
     icon?: boolean
     color?: boolean
     isSystem?: boolean
+    tags?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -19161,12 +19417,13 @@ export namespace Prisma {
     icon?: boolean
     color?: boolean
     isSystem?: boolean
+    tags?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "icon" | "color" | "isSystem" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
+  export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "icon" | "color" | "isSystem" | "tags" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
   export type CategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | Category$userArgs<ExtArgs>
     transactions?: boolean | Category$transactionsArgs<ExtArgs>
@@ -19197,6 +19454,7 @@ export namespace Prisma {
       icon: string | null
       color: string | null
       isSystem: boolean
+      tags: string[]
       userId: string | null
       createdAt: Date
       updatedAt: Date
@@ -19634,6 +19892,7 @@ export namespace Prisma {
     readonly icon: FieldRef<"Category", 'String'>
     readonly color: FieldRef<"Category", 'String'>
     readonly isSystem: FieldRef<"Category", 'Boolean'>
+    readonly tags: FieldRef<"Category", 'String[]'>
     readonly userId: FieldRef<"Category", 'String'>
     readonly createdAt: FieldRef<"Category", 'DateTime'>
     readonly updatedAt: FieldRef<"Category", 'DateTime'>
@@ -20143,6 +20402,1010 @@ export namespace Prisma {
 
 
   /**
+   * Model Merchant
+   */
+
+  export type AggregateMerchant = {
+    _count: MerchantCountAggregateOutputType | null
+    _min: MerchantMinAggregateOutputType | null
+    _max: MerchantMaxAggregateOutputType | null
+  }
+
+  export type MerchantMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    categoryHint: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MerchantMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    categoryHint: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MerchantCountAggregateOutputType = {
+    id: number
+    name: number
+    aliases: number
+    categoryHint: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MerchantMinAggregateInputType = {
+    id?: true
+    name?: true
+    categoryHint?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MerchantMaxAggregateInputType = {
+    id?: true
+    name?: true
+    categoryHint?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MerchantCountAggregateInputType = {
+    id?: true
+    name?: true
+    aliases?: true
+    categoryHint?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MerchantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Merchant to aggregate.
+     */
+    where?: MerchantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Merchants to fetch.
+     */
+    orderBy?: MerchantOrderByWithRelationInput | MerchantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MerchantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Merchants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Merchants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Merchants
+    **/
+    _count?: true | MerchantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MerchantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MerchantMaxAggregateInputType
+  }
+
+  export type GetMerchantAggregateType<T extends MerchantAggregateArgs> = {
+        [P in keyof T & keyof AggregateMerchant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMerchant[P]>
+      : GetScalarType<T[P], AggregateMerchant[P]>
+  }
+
+
+
+
+  export type MerchantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MerchantWhereInput
+    orderBy?: MerchantOrderByWithAggregationInput | MerchantOrderByWithAggregationInput[]
+    by: MerchantScalarFieldEnum[] | MerchantScalarFieldEnum
+    having?: MerchantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MerchantCountAggregateInputType | true
+    _min?: MerchantMinAggregateInputType
+    _max?: MerchantMaxAggregateInputType
+  }
+
+  export type MerchantGroupByOutputType = {
+    id: string
+    name: string
+    aliases: string[]
+    categoryHint: string
+    createdAt: Date
+    updatedAt: Date
+    _count: MerchantCountAggregateOutputType | null
+    _min: MerchantMinAggregateOutputType | null
+    _max: MerchantMaxAggregateOutputType | null
+  }
+
+  type GetMerchantGroupByPayload<T extends MerchantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MerchantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MerchantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MerchantGroupByOutputType[P]>
+            : GetScalarType<T[P], MerchantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MerchantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    aliases?: boolean
+    categoryHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["merchant"]>
+
+  export type MerchantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    aliases?: boolean
+    categoryHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["merchant"]>
+
+  export type MerchantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    aliases?: boolean
+    categoryHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["merchant"]>
+
+  export type MerchantSelectScalar = {
+    id?: boolean
+    name?: boolean
+    aliases?: boolean
+    categoryHint?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MerchantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "aliases" | "categoryHint" | "createdAt" | "updatedAt", ExtArgs["result"]["merchant"]>
+
+  export type $MerchantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Merchant"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      aliases: string[]
+      categoryHint: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["merchant"]>
+    composites: {}
+  }
+
+  type MerchantGetPayload<S extends boolean | null | undefined | MerchantDefaultArgs> = $Result.GetResult<Prisma.$MerchantPayload, S>
+
+  type MerchantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MerchantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MerchantCountAggregateInputType | true
+    }
+
+  export interface MerchantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Merchant'], meta: { name: 'Merchant' } }
+    /**
+     * Find zero or one Merchant that matches the filter.
+     * @param {MerchantFindUniqueArgs} args - Arguments to find a Merchant
+     * @example
+     * // Get one Merchant
+     * const merchant = await prisma.merchant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MerchantFindUniqueArgs>(args: SelectSubset<T, MerchantFindUniqueArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Merchant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MerchantFindUniqueOrThrowArgs} args - Arguments to find a Merchant
+     * @example
+     * // Get one Merchant
+     * const merchant = await prisma.merchant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MerchantFindUniqueOrThrowArgs>(args: SelectSubset<T, MerchantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Merchant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantFindFirstArgs} args - Arguments to find a Merchant
+     * @example
+     * // Get one Merchant
+     * const merchant = await prisma.merchant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MerchantFindFirstArgs>(args?: SelectSubset<T, MerchantFindFirstArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Merchant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantFindFirstOrThrowArgs} args - Arguments to find a Merchant
+     * @example
+     * // Get one Merchant
+     * const merchant = await prisma.merchant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MerchantFindFirstOrThrowArgs>(args?: SelectSubset<T, MerchantFindFirstOrThrowArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Merchants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Merchants
+     * const merchants = await prisma.merchant.findMany()
+     * 
+     * // Get first 10 Merchants
+     * const merchants = await prisma.merchant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const merchantWithIdOnly = await prisma.merchant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MerchantFindManyArgs>(args?: SelectSubset<T, MerchantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Merchant.
+     * @param {MerchantCreateArgs} args - Arguments to create a Merchant.
+     * @example
+     * // Create one Merchant
+     * const Merchant = await prisma.merchant.create({
+     *   data: {
+     *     // ... data to create a Merchant
+     *   }
+     * })
+     * 
+     */
+    create<T extends MerchantCreateArgs>(args: SelectSubset<T, MerchantCreateArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Merchants.
+     * @param {MerchantCreateManyArgs} args - Arguments to create many Merchants.
+     * @example
+     * // Create many Merchants
+     * const merchant = await prisma.merchant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MerchantCreateManyArgs>(args?: SelectSubset<T, MerchantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Merchants and returns the data saved in the database.
+     * @param {MerchantCreateManyAndReturnArgs} args - Arguments to create many Merchants.
+     * @example
+     * // Create many Merchants
+     * const merchant = await prisma.merchant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Merchants and only return the `id`
+     * const merchantWithIdOnly = await prisma.merchant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MerchantCreateManyAndReturnArgs>(args?: SelectSubset<T, MerchantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Merchant.
+     * @param {MerchantDeleteArgs} args - Arguments to delete one Merchant.
+     * @example
+     * // Delete one Merchant
+     * const Merchant = await prisma.merchant.delete({
+     *   where: {
+     *     // ... filter to delete one Merchant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MerchantDeleteArgs>(args: SelectSubset<T, MerchantDeleteArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Merchant.
+     * @param {MerchantUpdateArgs} args - Arguments to update one Merchant.
+     * @example
+     * // Update one Merchant
+     * const merchant = await prisma.merchant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MerchantUpdateArgs>(args: SelectSubset<T, MerchantUpdateArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Merchants.
+     * @param {MerchantDeleteManyArgs} args - Arguments to filter Merchants to delete.
+     * @example
+     * // Delete a few Merchants
+     * const { count } = await prisma.merchant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MerchantDeleteManyArgs>(args?: SelectSubset<T, MerchantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Merchants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Merchants
+     * const merchant = await prisma.merchant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MerchantUpdateManyArgs>(args: SelectSubset<T, MerchantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Merchants and returns the data updated in the database.
+     * @param {MerchantUpdateManyAndReturnArgs} args - Arguments to update many Merchants.
+     * @example
+     * // Update many Merchants
+     * const merchant = await prisma.merchant.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Merchants and only return the `id`
+     * const merchantWithIdOnly = await prisma.merchant.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MerchantUpdateManyAndReturnArgs>(args: SelectSubset<T, MerchantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Merchant.
+     * @param {MerchantUpsertArgs} args - Arguments to update or create a Merchant.
+     * @example
+     * // Update or create a Merchant
+     * const merchant = await prisma.merchant.upsert({
+     *   create: {
+     *     // ... data to create a Merchant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Merchant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MerchantUpsertArgs>(args: SelectSubset<T, MerchantUpsertArgs<ExtArgs>>): Prisma__MerchantClient<$Result.GetResult<Prisma.$MerchantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Merchants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantCountArgs} args - Arguments to filter Merchants to count.
+     * @example
+     * // Count the number of Merchants
+     * const count = await prisma.merchant.count({
+     *   where: {
+     *     // ... the filter for the Merchants we want to count
+     *   }
+     * })
+    **/
+    count<T extends MerchantCountArgs>(
+      args?: Subset<T, MerchantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MerchantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Merchant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MerchantAggregateArgs>(args: Subset<T, MerchantAggregateArgs>): Prisma.PrismaPromise<GetMerchantAggregateType<T>>
+
+    /**
+     * Group by Merchant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MerchantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MerchantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MerchantGroupByArgs['orderBy'] }
+        : { orderBy?: MerchantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MerchantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMerchantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Merchant model
+   */
+  readonly fields: MerchantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Merchant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MerchantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Merchant model
+   */
+  interface MerchantFieldRefs {
+    readonly id: FieldRef<"Merchant", 'String'>
+    readonly name: FieldRef<"Merchant", 'String'>
+    readonly aliases: FieldRef<"Merchant", 'String[]'>
+    readonly categoryHint: FieldRef<"Merchant", 'String'>
+    readonly createdAt: FieldRef<"Merchant", 'DateTime'>
+    readonly updatedAt: FieldRef<"Merchant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Merchant findUnique
+   */
+  export type MerchantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter, which Merchant to fetch.
+     */
+    where: MerchantWhereUniqueInput
+  }
+
+  /**
+   * Merchant findUniqueOrThrow
+   */
+  export type MerchantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter, which Merchant to fetch.
+     */
+    where: MerchantWhereUniqueInput
+  }
+
+  /**
+   * Merchant findFirst
+   */
+  export type MerchantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter, which Merchant to fetch.
+     */
+    where?: MerchantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Merchants to fetch.
+     */
+    orderBy?: MerchantOrderByWithRelationInput | MerchantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Merchants.
+     */
+    cursor?: MerchantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Merchants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Merchants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Merchants.
+     */
+    distinct?: MerchantScalarFieldEnum | MerchantScalarFieldEnum[]
+  }
+
+  /**
+   * Merchant findFirstOrThrow
+   */
+  export type MerchantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter, which Merchant to fetch.
+     */
+    where?: MerchantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Merchants to fetch.
+     */
+    orderBy?: MerchantOrderByWithRelationInput | MerchantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Merchants.
+     */
+    cursor?: MerchantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Merchants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Merchants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Merchants.
+     */
+    distinct?: MerchantScalarFieldEnum | MerchantScalarFieldEnum[]
+  }
+
+  /**
+   * Merchant findMany
+   */
+  export type MerchantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter, which Merchants to fetch.
+     */
+    where?: MerchantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Merchants to fetch.
+     */
+    orderBy?: MerchantOrderByWithRelationInput | MerchantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Merchants.
+     */
+    cursor?: MerchantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Merchants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Merchants.
+     */
+    skip?: number
+    distinct?: MerchantScalarFieldEnum | MerchantScalarFieldEnum[]
+  }
+
+  /**
+   * Merchant create
+   */
+  export type MerchantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Merchant.
+     */
+    data: XOR<MerchantCreateInput, MerchantUncheckedCreateInput>
+  }
+
+  /**
+   * Merchant createMany
+   */
+  export type MerchantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Merchants.
+     */
+    data: MerchantCreateManyInput | MerchantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Merchant createManyAndReturn
+   */
+  export type MerchantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * The data used to create many Merchants.
+     */
+    data: MerchantCreateManyInput | MerchantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Merchant update
+   */
+  export type MerchantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Merchant.
+     */
+    data: XOR<MerchantUpdateInput, MerchantUncheckedUpdateInput>
+    /**
+     * Choose, which Merchant to update.
+     */
+    where: MerchantWhereUniqueInput
+  }
+
+  /**
+   * Merchant updateMany
+   */
+  export type MerchantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Merchants.
+     */
+    data: XOR<MerchantUpdateManyMutationInput, MerchantUncheckedUpdateManyInput>
+    /**
+     * Filter which Merchants to update
+     */
+    where?: MerchantWhereInput
+    /**
+     * Limit how many Merchants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Merchant updateManyAndReturn
+   */
+  export type MerchantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * The data used to update Merchants.
+     */
+    data: XOR<MerchantUpdateManyMutationInput, MerchantUncheckedUpdateManyInput>
+    /**
+     * Filter which Merchants to update
+     */
+    where?: MerchantWhereInput
+    /**
+     * Limit how many Merchants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Merchant upsert
+   */
+  export type MerchantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Merchant to update in case it exists.
+     */
+    where: MerchantWhereUniqueInput
+    /**
+     * In case the Merchant found by the `where` argument doesn't exist, create a new Merchant with this data.
+     */
+    create: XOR<MerchantCreateInput, MerchantUncheckedCreateInput>
+    /**
+     * In case the Merchant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MerchantUpdateInput, MerchantUncheckedUpdateInput>
+  }
+
+  /**
+   * Merchant delete
+   */
+  export type MerchantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+    /**
+     * Filter which Merchant to delete.
+     */
+    where: MerchantWhereUniqueInput
+  }
+
+  /**
+   * Merchant deleteMany
+   */
+  export type MerchantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Merchants to delete
+     */
+    where?: MerchantWhereInput
+    /**
+     * Limit how many Merchants to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Merchant without action
+   */
+  export type MerchantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Merchant
+     */
+    select?: MerchantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Merchant
+     */
+    omit?: MerchantOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Budget
    */
 
@@ -20157,11 +21420,13 @@ export namespace Prisma {
   export type BudgetAvgAggregateOutputType = {
     amount: number | null
     alertThreshold: number | null
+    alertAtFrequency: number | null
   }
 
   export type BudgetSumAggregateOutputType = {
     amount: number | null
     alertThreshold: number | null
+    alertAtFrequency: number | null
   }
 
   export type BudgetMinAggregateOutputType = {
@@ -20172,6 +21437,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod | null
     carryOver: boolean | null
     alertThreshold: number | null
+    alertedAt: Date | null
+    alertAtFrequency: number | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -20186,6 +21453,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod | null
     carryOver: boolean | null
     alertThreshold: number | null
+    alertedAt: Date | null
+    alertAtFrequency: number | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -20200,6 +21469,8 @@ export namespace Prisma {
     period: number
     carryOver: number
     alertThreshold: number
+    alertedAt: number
+    alertAtFrequency: number
     categoryId: number
     userId: number
     createdAt: number
@@ -20211,11 +21482,13 @@ export namespace Prisma {
   export type BudgetAvgAggregateInputType = {
     amount?: true
     alertThreshold?: true
+    alertAtFrequency?: true
   }
 
   export type BudgetSumAggregateInputType = {
     amount?: true
     alertThreshold?: true
+    alertAtFrequency?: true
   }
 
   export type BudgetMinAggregateInputType = {
@@ -20226,6 +21499,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -20240,6 +21515,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -20254,6 +21531,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -20355,6 +21634,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod
     carryOver: boolean
     alertThreshold: number
+    alertedAt: Date | null
+    alertAtFrequency: number
     categoryId: string
     userId: string
     createdAt: Date
@@ -20388,6 +21669,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -20406,6 +21689,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -20422,6 +21707,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -20438,13 +21725,15 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
+  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
   export type BudgetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -20475,6 +21764,8 @@ export namespace Prisma {
       period: $Enums.BudgetPeriod
       carryOver: boolean
       alertThreshold: number
+      alertedAt: Date | null
+      alertAtFrequency: number
       categoryId: string
       userId: string
       createdAt: Date
@@ -20912,6 +22203,8 @@ export namespace Prisma {
     readonly period: FieldRef<"Budget", 'BudgetPeriod'>
     readonly carryOver: FieldRef<"Budget", 'Boolean'>
     readonly alertThreshold: FieldRef<"Budget", 'Float'>
+    readonly alertedAt: FieldRef<"Budget", 'DateTime'>
+    readonly alertAtFrequency: FieldRef<"Budget", 'Int'>
     readonly categoryId: FieldRef<"Budget", 'String'>
     readonly userId: FieldRef<"Budget", 'String'>
     readonly createdAt: FieldRef<"Budget", 'DateTime'>
@@ -23720,6 +25013,8 @@ export namespace Prisma {
     date: Date | null
     type: $Enums.TransactionType | null
     description: string | null
+    narration: string | null
+    bankCategory: string | null
     notes: string | null
     merchant: string | null
     categoryId: string | null
@@ -23728,8 +25023,10 @@ export namespace Prisma {
     sourceId: string | null
     bankTransactionId: string | null
     bankTransactionStatus: $Enums.BankTransactionStatus | null
+    recurringItemId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiClassified: boolean | null
     monoBankAccountId: string | null
   }
 
@@ -23739,6 +25036,8 @@ export namespace Prisma {
     date: Date | null
     type: $Enums.TransactionType | null
     description: string | null
+    narration: string | null
+    bankCategory: string | null
     notes: string | null
     merchant: string | null
     categoryId: string | null
@@ -23747,8 +25046,10 @@ export namespace Prisma {
     sourceId: string | null
     bankTransactionId: string | null
     bankTransactionStatus: $Enums.BankTransactionStatus | null
+    recurringItemId: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiClassified: boolean | null
     monoBankAccountId: string | null
   }
 
@@ -23758,6 +25059,8 @@ export namespace Prisma {
     date: number
     type: number
     description: number
+    narration: number
+    bankCategory: number
     notes: number
     merchant: number
     categoryId: number
@@ -23767,8 +25070,10 @@ export namespace Prisma {
     sourceData: number
     bankTransactionId: number
     bankTransactionStatus: number
+    recurringItemId: number
     createdAt: number
     updatedAt: number
+    aiClassified: number
     monoBankAccountId: number
     _all: number
   }
@@ -23788,6 +25093,8 @@ export namespace Prisma {
     date?: true
     type?: true
     description?: true
+    narration?: true
+    bankCategory?: true
     notes?: true
     merchant?: true
     categoryId?: true
@@ -23796,8 +25103,10 @@ export namespace Prisma {
     sourceId?: true
     bankTransactionId?: true
     bankTransactionStatus?: true
+    recurringItemId?: true
     createdAt?: true
     updatedAt?: true
+    aiClassified?: true
     monoBankAccountId?: true
   }
 
@@ -23807,6 +25116,8 @@ export namespace Prisma {
     date?: true
     type?: true
     description?: true
+    narration?: true
+    bankCategory?: true
     notes?: true
     merchant?: true
     categoryId?: true
@@ -23815,8 +25126,10 @@ export namespace Prisma {
     sourceId?: true
     bankTransactionId?: true
     bankTransactionStatus?: true
+    recurringItemId?: true
     createdAt?: true
     updatedAt?: true
+    aiClassified?: true
     monoBankAccountId?: true
   }
 
@@ -23826,6 +25139,8 @@ export namespace Prisma {
     date?: true
     type?: true
     description?: true
+    narration?: true
+    bankCategory?: true
     notes?: true
     merchant?: true
     categoryId?: true
@@ -23835,8 +25150,10 @@ export namespace Prisma {
     sourceData?: true
     bankTransactionId?: true
     bankTransactionStatus?: true
+    recurringItemId?: true
     createdAt?: true
     updatedAt?: true
+    aiClassified?: true
     monoBankAccountId?: true
     _all?: true
   }
@@ -23933,6 +25250,8 @@ export namespace Prisma {
     date: Date
     type: $Enums.TransactionType
     description: string | null
+    narration: string | null
+    bankCategory: string | null
     notes: string | null
     merchant: string | null
     categoryId: string
@@ -23942,8 +25261,10 @@ export namespace Prisma {
     sourceData: JsonValue | null
     bankTransactionId: string | null
     bankTransactionStatus: $Enums.BankTransactionStatus
+    recurringItemId: string | null
     createdAt: Date
     updatedAt: Date
+    aiClassified: boolean
     monoBankAccountId: string | null
     _count: TransactionCountAggregateOutputType | null
     _avg: TransactionAvgAggregateOutputType | null
@@ -23972,6 +25293,8 @@ export namespace Prisma {
     date?: boolean
     type?: boolean
     description?: boolean
+    narration?: boolean
+    bankCategory?: boolean
     notes?: boolean
     merchant?: boolean
     categoryId?: boolean
@@ -23981,11 +25304,14 @@ export namespace Prisma {
     sourceData?: boolean
     bankTransactionId?: boolean
     bankTransactionStatus?: boolean
+    recurringItemId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiClassified?: boolean
     monoBankAccountId?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     split?: boolean | Transaction$splitArgs<ExtArgs>
     goalContribution?: boolean | Transaction$goalContributionArgs<ExtArgs>
     settlements?: boolean | Transaction$settlementsArgs<ExtArgs>
@@ -23999,6 +25325,8 @@ export namespace Prisma {
     date?: boolean
     type?: boolean
     description?: boolean
+    narration?: boolean
+    bankCategory?: boolean
     notes?: boolean
     merchant?: boolean
     categoryId?: boolean
@@ -24008,11 +25336,14 @@ export namespace Prisma {
     sourceData?: boolean
     bankTransactionId?: boolean
     bankTransactionStatus?: boolean
+    recurringItemId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiClassified?: boolean
     monoBankAccountId?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
@@ -24022,6 +25353,8 @@ export namespace Prisma {
     date?: boolean
     type?: boolean
     description?: boolean
+    narration?: boolean
+    bankCategory?: boolean
     notes?: boolean
     merchant?: boolean
     categoryId?: boolean
@@ -24031,11 +25364,14 @@ export namespace Prisma {
     sourceData?: boolean
     bankTransactionId?: boolean
     bankTransactionStatus?: boolean
+    recurringItemId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiClassified?: boolean
     monoBankAccountId?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
   }, ExtArgs["result"]["transaction"]>
 
@@ -24045,6 +25381,8 @@ export namespace Prisma {
     date?: boolean
     type?: boolean
     description?: boolean
+    narration?: boolean
+    bankCategory?: boolean
     notes?: boolean
     merchant?: boolean
     categoryId?: boolean
@@ -24054,15 +25392,18 @@ export namespace Prisma {
     sourceData?: boolean
     bankTransactionId?: boolean
     bankTransactionStatus?: boolean
+    recurringItemId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiClassified?: boolean
     monoBankAccountId?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "amount" | "date" | "type" | "description" | "notes" | "merchant" | "categoryId" | "userId" | "source" | "sourceId" | "sourceData" | "bankTransactionId" | "bankTransactionStatus" | "createdAt" | "updatedAt" | "monoBankAccountId", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "amount" | "date" | "type" | "description" | "narration" | "bankCategory" | "notes" | "merchant" | "categoryId" | "userId" | "source" | "sourceId" | "sourceData" | "bankTransactionId" | "bankTransactionStatus" | "recurringItemId" | "createdAt" | "updatedAt" | "aiClassified" | "monoBankAccountId", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     split?: boolean | Transaction$splitArgs<ExtArgs>
     goalContribution?: boolean | Transaction$goalContributionArgs<ExtArgs>
     settlements?: boolean | Transaction$settlementsArgs<ExtArgs>
@@ -24072,11 +25413,13 @@ export namespace Prisma {
   export type TransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
   }
   export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | Transaction$userArgs<ExtArgs>
+    recurringItem?: boolean | Transaction$recurringItemArgs<ExtArgs>
     monoBankAccount?: boolean | Transaction$monoBankAccountArgs<ExtArgs>
   }
 
@@ -24085,6 +25428,7 @@ export namespace Prisma {
     objects: {
       category: Prisma.$CategoryPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs> | null
+      recurringItem: Prisma.$RecurringItemPayload<ExtArgs> | null
       split: Prisma.$SplitPayload<ExtArgs> | null
       goalContribution: Prisma.$GoalContributionPayload<ExtArgs> | null
       settlements: Prisma.$SplitSettlementPayload<ExtArgs>[]
@@ -24096,6 +25440,8 @@ export namespace Prisma {
       date: Date
       type: $Enums.TransactionType
       description: string | null
+      narration: string | null
+      bankCategory: string | null
       notes: string | null
       merchant: string | null
       categoryId: string
@@ -24105,8 +25451,10 @@ export namespace Prisma {
       sourceData: Prisma.JsonValue | null
       bankTransactionId: string | null
       bankTransactionStatus: $Enums.BankTransactionStatus
+      recurringItemId: string | null
       createdAt: Date
       updatedAt: Date
+      aiClassified: boolean
       monoBankAccountId: string | null
     }, ExtArgs["result"]["transaction"]>
     composites: {}
@@ -24504,6 +25852,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     category<T extends CategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CategoryDefaultArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends Transaction$userArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    recurringItem<T extends Transaction$recurringItemArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$recurringItemArgs<ExtArgs>>): Prisma__RecurringItemClient<$Result.GetResult<Prisma.$RecurringItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     split<T extends Transaction$splitArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$splitArgs<ExtArgs>>): Prisma__SplitClient<$Result.GetResult<Prisma.$SplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     goalContribution<T extends Transaction$goalContributionArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$goalContributionArgs<ExtArgs>>): Prisma__GoalContributionClient<$Result.GetResult<Prisma.$GoalContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     settlements<T extends Transaction$settlementsArgs<ExtArgs> = {}>(args?: Subset<T, Transaction$settlementsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SplitSettlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -24542,6 +25891,8 @@ export namespace Prisma {
     readonly date: FieldRef<"Transaction", 'DateTime'>
     readonly type: FieldRef<"Transaction", 'TransactionType'>
     readonly description: FieldRef<"Transaction", 'String'>
+    readonly narration: FieldRef<"Transaction", 'String'>
+    readonly bankCategory: FieldRef<"Transaction", 'String'>
     readonly notes: FieldRef<"Transaction", 'String'>
     readonly merchant: FieldRef<"Transaction", 'String'>
     readonly categoryId: FieldRef<"Transaction", 'String'>
@@ -24551,8 +25902,10 @@ export namespace Prisma {
     readonly sourceData: FieldRef<"Transaction", 'Json'>
     readonly bankTransactionId: FieldRef<"Transaction", 'String'>
     readonly bankTransactionStatus: FieldRef<"Transaction", 'BankTransactionStatus'>
+    readonly recurringItemId: FieldRef<"Transaction", 'String'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
     readonly updatedAt: FieldRef<"Transaction", 'DateTime'>
+    readonly aiClassified: FieldRef<"Transaction", 'Boolean'>
     readonly monoBankAccountId: FieldRef<"Transaction", 'String'>
   }
     
@@ -24969,6 +26322,25 @@ export namespace Prisma {
   }
 
   /**
+   * Transaction.recurringItem
+   */
+  export type Transaction$recurringItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RecurringItem
+     */
+    select?: RecurringItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RecurringItem
+     */
+    omit?: RecurringItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RecurringItemInclude<ExtArgs> | null
+    where?: RecurringItemWhereInput
+  }
+
+  /**
    * Transaction.split
    */
   export type Transaction$splitArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -25364,6 +26736,8 @@ export namespace Prisma {
     updatedAt?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    transactions?: boolean | RecurringItem$transactionsArgs<ExtArgs>
+    _count?: boolean | RecurringItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["recurringItem"]>
 
   export type RecurringItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -25434,6 +26808,8 @@ export namespace Prisma {
   export type RecurringItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    transactions?: boolean | RecurringItem$transactionsArgs<ExtArgs>
+    _count?: boolean | RecurringItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RecurringItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
@@ -25449,6 +26825,7 @@ export namespace Prisma {
     objects: {
       category: Prisma.$CategoryPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
+      transactions: Prisma.$TransactionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -25864,6 +27241,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     category<T extends CategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CategoryDefaultArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    transactions<T extends RecurringItem$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, RecurringItem$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -26303,6 +27681,30 @@ export namespace Prisma {
      * Limit how many RecurringItems to delete.
      */
     limit?: number
+  }
+
+  /**
+   * RecurringItem.transactions
+   */
+  export type RecurringItem$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    where?: TransactionWhereInput
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    cursor?: TransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
   }
 
   /**
@@ -35642,6 +37044,1064 @@ export namespace Prisma {
 
 
   /**
+   * Model ClassificationCorrection
+   */
+
+  export type AggregateClassificationCorrection = {
+    _count: ClassificationCorrectionCountAggregateOutputType | null
+    _min: ClassificationCorrectionMinAggregateOutputType | null
+    _max: ClassificationCorrectionMaxAggregateOutputType | null
+  }
+
+  export type ClassificationCorrectionMinAggregateOutputType = {
+    id: string | null
+    narration: string | null
+    correctedSlug: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type ClassificationCorrectionMaxAggregateOutputType = {
+    id: string | null
+    narration: string | null
+    correctedSlug: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type ClassificationCorrectionCountAggregateOutputType = {
+    id: number
+    narration: number
+    correctedSlug: number
+    userId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ClassificationCorrectionMinAggregateInputType = {
+    id?: true
+    narration?: true
+    correctedSlug?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type ClassificationCorrectionMaxAggregateInputType = {
+    id?: true
+    narration?: true
+    correctedSlug?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type ClassificationCorrectionCountAggregateInputType = {
+    id?: true
+    narration?: true
+    correctedSlug?: true
+    userId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ClassificationCorrectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClassificationCorrection to aggregate.
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassificationCorrections to fetch.
+     */
+    orderBy?: ClassificationCorrectionOrderByWithRelationInput | ClassificationCorrectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClassificationCorrectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassificationCorrections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassificationCorrections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClassificationCorrections
+    **/
+    _count?: true | ClassificationCorrectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClassificationCorrectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClassificationCorrectionMaxAggregateInputType
+  }
+
+  export type GetClassificationCorrectionAggregateType<T extends ClassificationCorrectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateClassificationCorrection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClassificationCorrection[P]>
+      : GetScalarType<T[P], AggregateClassificationCorrection[P]>
+  }
+
+
+
+
+  export type ClassificationCorrectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClassificationCorrectionWhereInput
+    orderBy?: ClassificationCorrectionOrderByWithAggregationInput | ClassificationCorrectionOrderByWithAggregationInput[]
+    by: ClassificationCorrectionScalarFieldEnum[] | ClassificationCorrectionScalarFieldEnum
+    having?: ClassificationCorrectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClassificationCorrectionCountAggregateInputType | true
+    _min?: ClassificationCorrectionMinAggregateInputType
+    _max?: ClassificationCorrectionMaxAggregateInputType
+  }
+
+  export type ClassificationCorrectionGroupByOutputType = {
+    id: string
+    narration: string
+    correctedSlug: string
+    userId: string
+    createdAt: Date
+    _count: ClassificationCorrectionCountAggregateOutputType | null
+    _min: ClassificationCorrectionMinAggregateOutputType | null
+    _max: ClassificationCorrectionMaxAggregateOutputType | null
+  }
+
+  type GetClassificationCorrectionGroupByPayload<T extends ClassificationCorrectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClassificationCorrectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClassificationCorrectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClassificationCorrectionGroupByOutputType[P]>
+            : GetScalarType<T[P], ClassificationCorrectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClassificationCorrectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    narration?: boolean
+    correctedSlug?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["classificationCorrection"]>
+
+  export type ClassificationCorrectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    narration?: boolean
+    correctedSlug?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["classificationCorrection"]>
+
+  export type ClassificationCorrectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    narration?: boolean
+    correctedSlug?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["classificationCorrection"]>
+
+  export type ClassificationCorrectionSelectScalar = {
+    id?: boolean
+    narration?: boolean
+    correctedSlug?: boolean
+    userId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ClassificationCorrectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "narration" | "correctedSlug" | "userId" | "createdAt", ExtArgs["result"]["classificationCorrection"]>
+  export type ClassificationCorrectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ClassificationCorrectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ClassificationCorrectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ClassificationCorrectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClassificationCorrection"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      narration: string
+      correctedSlug: string
+      userId: string
+      createdAt: Date
+    }, ExtArgs["result"]["classificationCorrection"]>
+    composites: {}
+  }
+
+  type ClassificationCorrectionGetPayload<S extends boolean | null | undefined | ClassificationCorrectionDefaultArgs> = $Result.GetResult<Prisma.$ClassificationCorrectionPayload, S>
+
+  type ClassificationCorrectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ClassificationCorrectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ClassificationCorrectionCountAggregateInputType | true
+    }
+
+  export interface ClassificationCorrectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClassificationCorrection'], meta: { name: 'ClassificationCorrection' } }
+    /**
+     * Find zero or one ClassificationCorrection that matches the filter.
+     * @param {ClassificationCorrectionFindUniqueArgs} args - Arguments to find a ClassificationCorrection
+     * @example
+     * // Get one ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClassificationCorrectionFindUniqueArgs>(args: SelectSubset<T, ClassificationCorrectionFindUniqueArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ClassificationCorrection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ClassificationCorrectionFindUniqueOrThrowArgs} args - Arguments to find a ClassificationCorrection
+     * @example
+     * // Get one ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClassificationCorrectionFindUniqueOrThrowArgs>(args: SelectSubset<T, ClassificationCorrectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClassificationCorrection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionFindFirstArgs} args - Arguments to find a ClassificationCorrection
+     * @example
+     * // Get one ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClassificationCorrectionFindFirstArgs>(args?: SelectSubset<T, ClassificationCorrectionFindFirstArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ClassificationCorrection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionFindFirstOrThrowArgs} args - Arguments to find a ClassificationCorrection
+     * @example
+     * // Get one ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClassificationCorrectionFindFirstOrThrowArgs>(args?: SelectSubset<T, ClassificationCorrectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ClassificationCorrections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClassificationCorrections
+     * const classificationCorrections = await prisma.classificationCorrection.findMany()
+     * 
+     * // Get first 10 ClassificationCorrections
+     * const classificationCorrections = await prisma.classificationCorrection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const classificationCorrectionWithIdOnly = await prisma.classificationCorrection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClassificationCorrectionFindManyArgs>(args?: SelectSubset<T, ClassificationCorrectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ClassificationCorrection.
+     * @param {ClassificationCorrectionCreateArgs} args - Arguments to create a ClassificationCorrection.
+     * @example
+     * // Create one ClassificationCorrection
+     * const ClassificationCorrection = await prisma.classificationCorrection.create({
+     *   data: {
+     *     // ... data to create a ClassificationCorrection
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClassificationCorrectionCreateArgs>(args: SelectSubset<T, ClassificationCorrectionCreateArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ClassificationCorrections.
+     * @param {ClassificationCorrectionCreateManyArgs} args - Arguments to create many ClassificationCorrections.
+     * @example
+     * // Create many ClassificationCorrections
+     * const classificationCorrection = await prisma.classificationCorrection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClassificationCorrectionCreateManyArgs>(args?: SelectSubset<T, ClassificationCorrectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClassificationCorrections and returns the data saved in the database.
+     * @param {ClassificationCorrectionCreateManyAndReturnArgs} args - Arguments to create many ClassificationCorrections.
+     * @example
+     * // Create many ClassificationCorrections
+     * const classificationCorrection = await prisma.classificationCorrection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClassificationCorrections and only return the `id`
+     * const classificationCorrectionWithIdOnly = await prisma.classificationCorrection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClassificationCorrectionCreateManyAndReturnArgs>(args?: SelectSubset<T, ClassificationCorrectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ClassificationCorrection.
+     * @param {ClassificationCorrectionDeleteArgs} args - Arguments to delete one ClassificationCorrection.
+     * @example
+     * // Delete one ClassificationCorrection
+     * const ClassificationCorrection = await prisma.classificationCorrection.delete({
+     *   where: {
+     *     // ... filter to delete one ClassificationCorrection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClassificationCorrectionDeleteArgs>(args: SelectSubset<T, ClassificationCorrectionDeleteArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ClassificationCorrection.
+     * @param {ClassificationCorrectionUpdateArgs} args - Arguments to update one ClassificationCorrection.
+     * @example
+     * // Update one ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClassificationCorrectionUpdateArgs>(args: SelectSubset<T, ClassificationCorrectionUpdateArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ClassificationCorrections.
+     * @param {ClassificationCorrectionDeleteManyArgs} args - Arguments to filter ClassificationCorrections to delete.
+     * @example
+     * // Delete a few ClassificationCorrections
+     * const { count } = await prisma.classificationCorrection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClassificationCorrectionDeleteManyArgs>(args?: SelectSubset<T, ClassificationCorrectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClassificationCorrections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClassificationCorrections
+     * const classificationCorrection = await prisma.classificationCorrection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClassificationCorrectionUpdateManyArgs>(args: SelectSubset<T, ClassificationCorrectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClassificationCorrections and returns the data updated in the database.
+     * @param {ClassificationCorrectionUpdateManyAndReturnArgs} args - Arguments to update many ClassificationCorrections.
+     * @example
+     * // Update many ClassificationCorrections
+     * const classificationCorrection = await prisma.classificationCorrection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ClassificationCorrections and only return the `id`
+     * const classificationCorrectionWithIdOnly = await prisma.classificationCorrection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ClassificationCorrectionUpdateManyAndReturnArgs>(args: SelectSubset<T, ClassificationCorrectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ClassificationCorrection.
+     * @param {ClassificationCorrectionUpsertArgs} args - Arguments to update or create a ClassificationCorrection.
+     * @example
+     * // Update or create a ClassificationCorrection
+     * const classificationCorrection = await prisma.classificationCorrection.upsert({
+     *   create: {
+     *     // ... data to create a ClassificationCorrection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClassificationCorrection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClassificationCorrectionUpsertArgs>(args: SelectSubset<T, ClassificationCorrectionUpsertArgs<ExtArgs>>): Prisma__ClassificationCorrectionClient<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ClassificationCorrections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionCountArgs} args - Arguments to filter ClassificationCorrections to count.
+     * @example
+     * // Count the number of ClassificationCorrections
+     * const count = await prisma.classificationCorrection.count({
+     *   where: {
+     *     // ... the filter for the ClassificationCorrections we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClassificationCorrectionCountArgs>(
+      args?: Subset<T, ClassificationCorrectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClassificationCorrectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClassificationCorrection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClassificationCorrectionAggregateArgs>(args: Subset<T, ClassificationCorrectionAggregateArgs>): Prisma.PrismaPromise<GetClassificationCorrectionAggregateType<T>>
+
+    /**
+     * Group by ClassificationCorrection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClassificationCorrectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClassificationCorrectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClassificationCorrectionGroupByArgs['orderBy'] }
+        : { orderBy?: ClassificationCorrectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClassificationCorrectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClassificationCorrectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClassificationCorrection model
+   */
+  readonly fields: ClassificationCorrectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClassificationCorrection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClassificationCorrectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClassificationCorrection model
+   */
+  interface ClassificationCorrectionFieldRefs {
+    readonly id: FieldRef<"ClassificationCorrection", 'String'>
+    readonly narration: FieldRef<"ClassificationCorrection", 'String'>
+    readonly correctedSlug: FieldRef<"ClassificationCorrection", 'String'>
+    readonly userId: FieldRef<"ClassificationCorrection", 'String'>
+    readonly createdAt: FieldRef<"ClassificationCorrection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClassificationCorrection findUnique
+   */
+  export type ClassificationCorrectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassificationCorrection to fetch.
+     */
+    where: ClassificationCorrectionWhereUniqueInput
+  }
+
+  /**
+   * ClassificationCorrection findUniqueOrThrow
+   */
+  export type ClassificationCorrectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassificationCorrection to fetch.
+     */
+    where: ClassificationCorrectionWhereUniqueInput
+  }
+
+  /**
+   * ClassificationCorrection findFirst
+   */
+  export type ClassificationCorrectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassificationCorrection to fetch.
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassificationCorrections to fetch.
+     */
+    orderBy?: ClassificationCorrectionOrderByWithRelationInput | ClassificationCorrectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClassificationCorrections.
+     */
+    cursor?: ClassificationCorrectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassificationCorrections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassificationCorrections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClassificationCorrections.
+     */
+    distinct?: ClassificationCorrectionScalarFieldEnum | ClassificationCorrectionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassificationCorrection findFirstOrThrow
+   */
+  export type ClassificationCorrectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassificationCorrection to fetch.
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassificationCorrections to fetch.
+     */
+    orderBy?: ClassificationCorrectionOrderByWithRelationInput | ClassificationCorrectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClassificationCorrections.
+     */
+    cursor?: ClassificationCorrectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassificationCorrections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassificationCorrections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClassificationCorrections.
+     */
+    distinct?: ClassificationCorrectionScalarFieldEnum | ClassificationCorrectionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassificationCorrection findMany
+   */
+  export type ClassificationCorrectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter, which ClassificationCorrections to fetch.
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClassificationCorrections to fetch.
+     */
+    orderBy?: ClassificationCorrectionOrderByWithRelationInput | ClassificationCorrectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClassificationCorrections.
+     */
+    cursor?: ClassificationCorrectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClassificationCorrections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClassificationCorrections.
+     */
+    skip?: number
+    distinct?: ClassificationCorrectionScalarFieldEnum | ClassificationCorrectionScalarFieldEnum[]
+  }
+
+  /**
+   * ClassificationCorrection create
+   */
+  export type ClassificationCorrectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ClassificationCorrection.
+     */
+    data: XOR<ClassificationCorrectionCreateInput, ClassificationCorrectionUncheckedCreateInput>
+  }
+
+  /**
+   * ClassificationCorrection createMany
+   */
+  export type ClassificationCorrectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClassificationCorrections.
+     */
+    data: ClassificationCorrectionCreateManyInput | ClassificationCorrectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ClassificationCorrection createManyAndReturn
+   */
+  export type ClassificationCorrectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ClassificationCorrections.
+     */
+    data: ClassificationCorrectionCreateManyInput | ClassificationCorrectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClassificationCorrection update
+   */
+  export type ClassificationCorrectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ClassificationCorrection.
+     */
+    data: XOR<ClassificationCorrectionUpdateInput, ClassificationCorrectionUncheckedUpdateInput>
+    /**
+     * Choose, which ClassificationCorrection to update.
+     */
+    where: ClassificationCorrectionWhereUniqueInput
+  }
+
+  /**
+   * ClassificationCorrection updateMany
+   */
+  export type ClassificationCorrectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClassificationCorrections.
+     */
+    data: XOR<ClassificationCorrectionUpdateManyMutationInput, ClassificationCorrectionUncheckedUpdateManyInput>
+    /**
+     * Filter which ClassificationCorrections to update
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * Limit how many ClassificationCorrections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClassificationCorrection updateManyAndReturn
+   */
+  export type ClassificationCorrectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * The data used to update ClassificationCorrections.
+     */
+    data: XOR<ClassificationCorrectionUpdateManyMutationInput, ClassificationCorrectionUncheckedUpdateManyInput>
+    /**
+     * Filter which ClassificationCorrections to update
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * Limit how many ClassificationCorrections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ClassificationCorrection upsert
+   */
+  export type ClassificationCorrectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ClassificationCorrection to update in case it exists.
+     */
+    where: ClassificationCorrectionWhereUniqueInput
+    /**
+     * In case the ClassificationCorrection found by the `where` argument doesn't exist, create a new ClassificationCorrection with this data.
+     */
+    create: XOR<ClassificationCorrectionCreateInput, ClassificationCorrectionUncheckedCreateInput>
+    /**
+     * In case the ClassificationCorrection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClassificationCorrectionUpdateInput, ClassificationCorrectionUncheckedUpdateInput>
+  }
+
+  /**
+   * ClassificationCorrection delete
+   */
+  export type ClassificationCorrectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+    /**
+     * Filter which ClassificationCorrection to delete.
+     */
+    where: ClassificationCorrectionWhereUniqueInput
+  }
+
+  /**
+   * ClassificationCorrection deleteMany
+   */
+  export type ClassificationCorrectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClassificationCorrections to delete
+     */
+    where?: ClassificationCorrectionWhereInput
+    /**
+     * Limit how many ClassificationCorrections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ClassificationCorrection without action
+   */
+  export type ClassificationCorrectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClassificationCorrection
+     */
+    select?: ClassificationCorrectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClassificationCorrection
+     */
+    omit?: ClassificationCorrectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClassificationCorrectionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -35862,12 +38322,25 @@ export namespace Prisma {
     icon: 'icon',
     color: 'color',
     isSystem: 'isSystem',
+    tags: 'tags',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
+
+
+  export const MerchantScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    aliases: 'aliases',
+    categoryHint: 'categoryHint',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MerchantScalarFieldEnum = (typeof MerchantScalarFieldEnum)[keyof typeof MerchantScalarFieldEnum]
 
 
   export const BudgetScalarFieldEnum: {
@@ -35878,6 +38351,8 @@ export namespace Prisma {
     period: 'period',
     carryOver: 'carryOver',
     alertThreshold: 'alertThreshold',
+    alertedAt: 'alertedAt',
+    alertAtFrequency: 'alertAtFrequency',
     categoryId: 'categoryId',
     userId: 'userId',
     createdAt: 'createdAt',
@@ -35927,6 +38402,8 @@ export namespace Prisma {
     date: 'date',
     type: 'type',
     description: 'description',
+    narration: 'narration',
+    bankCategory: 'bankCategory',
     notes: 'notes',
     merchant: 'merchant',
     categoryId: 'categoryId',
@@ -35936,8 +38413,10 @@ export namespace Prisma {
     sourceData: 'sourceData',
     bankTransactionId: 'bankTransactionId',
     bankTransactionStatus: 'bankTransactionStatus',
+    recurringItemId: 'recurringItemId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
+    aiClassified: 'aiClassified',
     monoBankAccountId: 'monoBankAccountId'
   };
 
@@ -36085,6 +38564,17 @@ export namespace Prisma {
   };
 
   export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+  export const ClassificationCorrectionScalarFieldEnum: {
+    id: 'id',
+    narration: 'narration',
+    correctedSlug: 'correctedSlug',
+    userId: 'userId',
+    createdAt: 'createdAt'
+  };
+
+  export type ClassificationCorrectionScalarFieldEnum = (typeof ClassificationCorrectionScalarFieldEnum)[keyof typeof ClassificationCorrectionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -36661,6 +39151,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsListRelationFilter
     monoBankAccounts?: MonoBankAccountListRelationFilter
     notifications?: NotificationListRelationFilter
+    classificationCorrections?: ClassificationCorrectionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -36703,6 +39194,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsOrderByRelationAggregateInput
     monoBankAccounts?: MonoBankAccountOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
+    classificationCorrections?: ClassificationCorrectionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -36748,6 +39240,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsListRelationFilter
     monoBankAccounts?: MonoBankAccountListRelationFilter
     notifications?: NotificationListRelationFilter
+    classificationCorrections?: ClassificationCorrectionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -37569,6 +40062,7 @@ export namespace Prisma {
     icon?: StringNullableFilter<"Category"> | string | null
     color?: StringNullableFilter<"Category"> | string | null
     isSystem?: BoolFilter<"Category"> | boolean
+    tags?: StringNullableListFilter<"Category">
     userId?: StringNullableFilter<"Category"> | string | null
     createdAt?: DateTimeFilter<"Category"> | Date | string
     updatedAt?: DateTimeFilter<"Category"> | Date | string
@@ -37586,6 +40080,7 @@ export namespace Prisma {
     icon?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
     isSystem?: SortOrder
+    tags?: SortOrder
     userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -37607,6 +40102,7 @@ export namespace Prisma {
     icon?: StringNullableFilter<"Category"> | string | null
     color?: StringNullableFilter<"Category"> | string | null
     isSystem?: BoolFilter<"Category"> | boolean
+    tags?: StringNullableListFilter<"Category">
     userId?: StringNullableFilter<"Category"> | string | null
     createdAt?: DateTimeFilter<"Category"> | Date | string
     updatedAt?: DateTimeFilter<"Category"> | Date | string
@@ -37624,6 +40120,7 @@ export namespace Prisma {
     icon?: SortOrderInput | SortOrder
     color?: SortOrderInput | SortOrder
     isSystem?: SortOrder
+    tags?: SortOrder
     userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -37643,9 +40140,67 @@ export namespace Prisma {
     icon?: StringNullableWithAggregatesFilter<"Category"> | string | null
     color?: StringNullableWithAggregatesFilter<"Category"> | string | null
     isSystem?: BoolWithAggregatesFilter<"Category"> | boolean
+    tags?: StringNullableListFilter<"Category">
     userId?: StringNullableWithAggregatesFilter<"Category"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Category"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Category"> | Date | string
+  }
+
+  export type MerchantWhereInput = {
+    AND?: MerchantWhereInput | MerchantWhereInput[]
+    OR?: MerchantWhereInput[]
+    NOT?: MerchantWhereInput | MerchantWhereInput[]
+    id?: StringFilter<"Merchant"> | string
+    name?: StringFilter<"Merchant"> | string
+    aliases?: StringNullableListFilter<"Merchant">
+    categoryHint?: StringFilter<"Merchant"> | string
+    createdAt?: DateTimeFilter<"Merchant"> | Date | string
+    updatedAt?: DateTimeFilter<"Merchant"> | Date | string
+  }
+
+  export type MerchantOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    aliases?: SortOrder
+    categoryHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MerchantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    name?: string
+    AND?: MerchantWhereInput | MerchantWhereInput[]
+    OR?: MerchantWhereInput[]
+    NOT?: MerchantWhereInput | MerchantWhereInput[]
+    aliases?: StringNullableListFilter<"Merchant">
+    categoryHint?: StringFilter<"Merchant"> | string
+    createdAt?: DateTimeFilter<"Merchant"> | Date | string
+    updatedAt?: DateTimeFilter<"Merchant"> | Date | string
+  }, "id" | "name">
+
+  export type MerchantOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    aliases?: SortOrder
+    categoryHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MerchantCountOrderByAggregateInput
+    _max?: MerchantMaxOrderByAggregateInput
+    _min?: MerchantMinOrderByAggregateInput
+  }
+
+  export type MerchantScalarWhereWithAggregatesInput = {
+    AND?: MerchantScalarWhereWithAggregatesInput | MerchantScalarWhereWithAggregatesInput[]
+    OR?: MerchantScalarWhereWithAggregatesInput[]
+    NOT?: MerchantScalarWhereWithAggregatesInput | MerchantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Merchant"> | string
+    name?: StringWithAggregatesFilter<"Merchant"> | string
+    aliases?: StringNullableListFilter<"Merchant">
+    categoryHint?: StringWithAggregatesFilter<"Merchant"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Merchant"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Merchant"> | Date | string
   }
 
   export type BudgetWhereInput = {
@@ -37659,6 +40214,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -37676,6 +40233,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrderInput | SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -37697,6 +40256,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -37714,6 +40275,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrderInput | SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -37736,6 +40299,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodWithAggregatesFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolWithAggregatesFilter<"Budget"> | boolean
     alertThreshold?: FloatWithAggregatesFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntWithAggregatesFilter<"Budget"> | number
     categoryId?: StringWithAggregatesFilter<"Budget"> | string
     userId?: StringWithAggregatesFilter<"Budget"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
@@ -37926,6 +40491,8 @@ export namespace Prisma {
     date?: DateTimeFilter<"Transaction"> | Date | string
     type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     description?: StringNullableFilter<"Transaction"> | string | null
+    narration?: StringNullableFilter<"Transaction"> | string | null
+    bankCategory?: StringNullableFilter<"Transaction"> | string | null
     notes?: StringNullableFilter<"Transaction"> | string | null
     merchant?: StringNullableFilter<"Transaction"> | string | null
     categoryId?: StringFilter<"Transaction"> | string
@@ -37935,11 +40502,14 @@ export namespace Prisma {
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
+    recurringItemId?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+    aiClassified?: BoolFilter<"Transaction"> | boolean
     monoBankAccountId?: StringNullableFilter<"Transaction"> | string | null
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    recurringItem?: XOR<RecurringItemNullableScalarRelationFilter, RecurringItemWhereInput> | null
     split?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
     goalContribution?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
     settlements?: SplitSettlementListRelationFilter
@@ -37952,6 +40522,8 @@ export namespace Prisma {
     date?: SortOrder
     type?: SortOrder
     description?: SortOrderInput | SortOrder
+    narration?: SortOrderInput | SortOrder
+    bankCategory?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
     categoryId?: SortOrder
@@ -37961,11 +40533,14 @@ export namespace Prisma {
     sourceData?: SortOrderInput | SortOrder
     bankTransactionId?: SortOrderInput | SortOrder
     bankTransactionStatus?: SortOrder
+    recurringItemId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiClassified?: SortOrder
     monoBankAccountId?: SortOrderInput | SortOrder
     category?: CategoryOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    recurringItem?: RecurringItemOrderByWithRelationInput
     split?: SplitOrderByWithRelationInput
     goalContribution?: GoalContributionOrderByWithRelationInput
     settlements?: SplitSettlementOrderByRelationAggregateInput
@@ -37974,7 +40549,6 @@ export namespace Prisma {
 
   export type TransactionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    monoBankAccountId?: string
     userId_source_sourceId?: TransactionUserIdSourceSourceIdCompoundUniqueInput
     userId_bankTransactionId_monoBankAccountId?: TransactionUserIdBankTransactionIdMonoBankAccountIdCompoundUniqueInput
     AND?: TransactionWhereInput | TransactionWhereInput[]
@@ -37984,6 +40558,8 @@ export namespace Prisma {
     date?: DateTimeFilter<"Transaction"> | Date | string
     type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     description?: StringNullableFilter<"Transaction"> | string | null
+    narration?: StringNullableFilter<"Transaction"> | string | null
+    bankCategory?: StringNullableFilter<"Transaction"> | string | null
     notes?: StringNullableFilter<"Transaction"> | string | null
     merchant?: StringNullableFilter<"Transaction"> | string | null
     categoryId?: StringFilter<"Transaction"> | string
@@ -37993,15 +40569,19 @@ export namespace Prisma {
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
+    recurringItemId?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+    aiClassified?: BoolFilter<"Transaction"> | boolean
+    monoBankAccountId?: StringNullableFilter<"Transaction"> | string | null
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    recurringItem?: XOR<RecurringItemNullableScalarRelationFilter, RecurringItemWhereInput> | null
     split?: XOR<SplitNullableScalarRelationFilter, SplitWhereInput> | null
     goalContribution?: XOR<GoalContributionNullableScalarRelationFilter, GoalContributionWhereInput> | null
     settlements?: SplitSettlementListRelationFilter
     monoBankAccount?: XOR<MonoBankAccountNullableScalarRelationFilter, MonoBankAccountWhereInput> | null
-  }, "id" | "monoBankAccountId" | "userId_source_sourceId" | "userId_bankTransactionId_monoBankAccountId">
+  }, "id" | "userId_source_sourceId" | "userId_bankTransactionId_monoBankAccountId">
 
   export type TransactionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -38009,6 +40589,8 @@ export namespace Prisma {
     date?: SortOrder
     type?: SortOrder
     description?: SortOrderInput | SortOrder
+    narration?: SortOrderInput | SortOrder
+    bankCategory?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
     categoryId?: SortOrder
@@ -38018,8 +40600,10 @@ export namespace Prisma {
     sourceData?: SortOrderInput | SortOrder
     bankTransactionId?: SortOrderInput | SortOrder
     bankTransactionStatus?: SortOrder
+    recurringItemId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiClassified?: SortOrder
     monoBankAccountId?: SortOrderInput | SortOrder
     _count?: TransactionCountOrderByAggregateInput
     _avg?: TransactionAvgOrderByAggregateInput
@@ -38037,6 +40621,8 @@ export namespace Prisma {
     date?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     type?: EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
     description?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    narration?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    bankCategory?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     notes?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     merchant?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     categoryId?: StringWithAggregatesFilter<"Transaction"> | string
@@ -38046,8 +40632,10 @@ export namespace Prisma {
     sourceData?: JsonNullableWithAggregatesFilter<"Transaction">
     bankTransactionId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.BankTransactionStatus
+    recurringItemId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+    aiClassified?: BoolWithAggregatesFilter<"Transaction"> | boolean
     monoBankAccountId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
   }
 
@@ -38074,6 +40662,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"RecurringItem"> | Date | string
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    transactions?: TransactionListRelationFilter
   }
 
   export type RecurringItemOrderByWithRelationInput = {
@@ -38096,6 +40685,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     category?: CategoryOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    transactions?: TransactionOrderByRelationAggregateInput
   }
 
   export type RecurringItemWhereUniqueInput = Prisma.AtLeast<{
@@ -38121,6 +40711,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"RecurringItem"> | Date | string
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    transactions?: TransactionListRelationFilter
   }, "id">
 
   export type RecurringItemOrderByWithAggregationInput = {
@@ -38811,6 +41402,62 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
 
+  export type ClassificationCorrectionWhereInput = {
+    AND?: ClassificationCorrectionWhereInput | ClassificationCorrectionWhereInput[]
+    OR?: ClassificationCorrectionWhereInput[]
+    NOT?: ClassificationCorrectionWhereInput | ClassificationCorrectionWhereInput[]
+    id?: StringFilter<"ClassificationCorrection"> | string
+    narration?: StringFilter<"ClassificationCorrection"> | string
+    correctedSlug?: StringFilter<"ClassificationCorrection"> | string
+    userId?: StringFilter<"ClassificationCorrection"> | string
+    createdAt?: DateTimeFilter<"ClassificationCorrection"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type ClassificationCorrectionOrderByWithRelationInput = {
+    id?: SortOrder
+    narration?: SortOrder
+    correctedSlug?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type ClassificationCorrectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_narration?: ClassificationCorrectionUserIdNarrationCompoundUniqueInput
+    AND?: ClassificationCorrectionWhereInput | ClassificationCorrectionWhereInput[]
+    OR?: ClassificationCorrectionWhereInput[]
+    NOT?: ClassificationCorrectionWhereInput | ClassificationCorrectionWhereInput[]
+    narration?: StringFilter<"ClassificationCorrection"> | string
+    correctedSlug?: StringFilter<"ClassificationCorrection"> | string
+    userId?: StringFilter<"ClassificationCorrection"> | string
+    createdAt?: DateTimeFilter<"ClassificationCorrection"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_narration">
+
+  export type ClassificationCorrectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    narration?: SortOrder
+    correctedSlug?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    _count?: ClassificationCorrectionCountOrderByAggregateInput
+    _max?: ClassificationCorrectionMaxOrderByAggregateInput
+    _min?: ClassificationCorrectionMinOrderByAggregateInput
+  }
+
+  export type ClassificationCorrectionScalarWhereWithAggregatesInput = {
+    AND?: ClassificationCorrectionScalarWhereWithAggregatesInput | ClassificationCorrectionScalarWhereWithAggregatesInput[]
+    OR?: ClassificationCorrectionScalarWhereWithAggregatesInput[]
+    NOT?: ClassificationCorrectionScalarWhereWithAggregatesInput | ClassificationCorrectionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClassificationCorrection"> | string
+    narration?: StringWithAggregatesFilter<"ClassificationCorrection"> | string
+    correctedSlug?: StringWithAggregatesFilter<"ClassificationCorrection"> | string
+    userId?: StringWithAggregatesFilter<"ClassificationCorrection"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ClassificationCorrection"> | Date | string
+  }
+
   export type CurrenciesCreateInput = {
     id?: string
     currency: $Enums.Currency
@@ -38963,6 +41610,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -39005,6 +41653,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -39047,6 +41696,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -39089,6 +41739,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -40003,6 +42654,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutCategoriesInput
@@ -40019,6 +42671,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40035,6 +42688,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCategoriesNestedInput
@@ -40051,6 +42705,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40067,6 +42722,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -40080,6 +42736,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -40092,7 +42749,71 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MerchantCreateInput = {
+    id?: string
+    name: string
+    aliases?: MerchantCreatealiasesInput | string[]
+    categoryHint: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MerchantUncheckedCreateInput = {
+    id?: string
+    name: string
+    aliases?: MerchantCreatealiasesInput | string[]
+    categoryHint: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MerchantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    aliases?: MerchantUpdatealiasesInput | string[]
+    categoryHint?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MerchantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    aliases?: MerchantUpdatealiasesInput | string[]
+    categoryHint?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MerchantCreateManyInput = {
+    id?: string
+    name: string
+    aliases?: MerchantCreatealiasesInput | string[]
+    categoryHint: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MerchantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    aliases?: MerchantUpdatealiasesInput | string[]
+    categoryHint?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MerchantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    aliases?: MerchantUpdatealiasesInput | string[]
+    categoryHint?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -40105,6 +42826,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -40120,6 +42843,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -40135,6 +42860,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -40150,6 +42877,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40165,6 +42894,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -40179,6 +42910,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -40191,6 +42924,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40397,6 +43132,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -40406,8 +43143,10 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
@@ -40420,6 +43159,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -40429,8 +43170,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
@@ -40443,6 +43186,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -40452,8 +43197,10 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
@@ -40466,6 +43213,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -40475,8 +43224,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
@@ -40489,6 +43240,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -40498,8 +43251,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
   }
 
@@ -40509,6 +43264,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -40518,6 +43275,7 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type TransactionUncheckedUpdateManyInput = {
@@ -40526,6 +43284,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -40535,8 +43295,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -40558,6 +43320,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutRecurringItemsInput
     user: UserCreateNestedOneWithoutRecurringItemsInput
+    transactions?: TransactionCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemUncheckedCreateInput = {
@@ -40578,6 +43341,7 @@ export namespace Prisma {
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    transactions?: TransactionUncheckedCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemUpdateInput = {
@@ -40598,6 +43362,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutRecurringItemsNestedInput
     user?: UserUpdateOneRequiredWithoutRecurringItemsNestedInput
+    transactions?: TransactionUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemUncheckedUpdateInput = {
@@ -40618,6 +43383,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUncheckedUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemCreateManyInput = {
@@ -41358,6 +44124,61 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ClassificationCorrectionCreateInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutClassificationCorrectionsInput
+  }
+
+  export type ClassificationCorrectionUncheckedCreateInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type ClassificationCorrectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutClassificationCorrectionsNestedInput
+  }
+
+  export type ClassificationCorrectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassificationCorrectionCreateManyInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type ClassificationCorrectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassificationCorrectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -41653,6 +44474,12 @@ export namespace Prisma {
     none?: NotificationWhereInput
   }
 
+  export type ClassificationCorrectionListRelationFilter = {
+    every?: ClassificationCorrectionWhereInput
+    some?: ClassificationCorrectionWhereInput
+    none?: ClassificationCorrectionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -41719,6 +44546,10 @@ export namespace Prisma {
   }
 
   export type NotificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ClassificationCorrectionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -42483,6 +45314,14 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -42501,6 +45340,7 @@ export namespace Prisma {
     icon?: SortOrder
     color?: SortOrder
     isSystem?: SortOrder
+    tags?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -42528,6 +45368,31 @@ export namespace Prisma {
     color?: SortOrder
     isSystem?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MerchantCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    aliases?: SortOrder
+    categoryHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MerchantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    categoryHint?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MerchantMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    categoryHint?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -42579,6 +45444,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -42588,6 +45455,7 @@ export namespace Prisma {
   export type BudgetAvgOrderByAggregateInput = {
     amount?: SortOrder
     alertThreshold?: SortOrder
+    alertAtFrequency?: SortOrder
   }
 
   export type BudgetMaxOrderByAggregateInput = {
@@ -42598,6 +45466,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -42612,6 +45482,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -42621,6 +45493,7 @@ export namespace Prisma {
   export type BudgetSumOrderByAggregateInput = {
     amount?: SortOrder
     alertThreshold?: SortOrder
+    alertAtFrequency?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -42873,6 +45746,11 @@ export namespace Prisma {
     not?: NestedEnumBankTransactionStatusFilter<$PrismaModel> | $Enums.BankTransactionStatus
   }
 
+  export type RecurringItemNullableScalarRelationFilter = {
+    is?: RecurringItemWhereInput | null
+    isNot?: RecurringItemWhereInput | null
+  }
+
   export type SplitNullableScalarRelationFilter = {
     is?: SplitWhereInput | null
     isNot?: SplitWhereInput | null
@@ -42916,6 +45794,8 @@ export namespace Prisma {
     date?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    narration?: SortOrder
+    bankCategory?: SortOrder
     notes?: SortOrder
     merchant?: SortOrder
     categoryId?: SortOrder
@@ -42925,8 +45805,10 @@ export namespace Prisma {
     sourceData?: SortOrder
     bankTransactionId?: SortOrder
     bankTransactionStatus?: SortOrder
+    recurringItemId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiClassified?: SortOrder
     monoBankAccountId?: SortOrder
   }
 
@@ -42940,6 +45822,8 @@ export namespace Prisma {
     date?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    narration?: SortOrder
+    bankCategory?: SortOrder
     notes?: SortOrder
     merchant?: SortOrder
     categoryId?: SortOrder
@@ -42948,8 +45832,10 @@ export namespace Prisma {
     sourceId?: SortOrder
     bankTransactionId?: SortOrder
     bankTransactionStatus?: SortOrder
+    recurringItemId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiClassified?: SortOrder
     monoBankAccountId?: SortOrder
   }
 
@@ -42959,6 +45845,8 @@ export namespace Prisma {
     date?: SortOrder
     type?: SortOrder
     description?: SortOrder
+    narration?: SortOrder
+    bankCategory?: SortOrder
     notes?: SortOrder
     merchant?: SortOrder
     categoryId?: SortOrder
@@ -42967,8 +45855,10 @@ export namespace Prisma {
     sourceId?: SortOrder
     bankTransactionId?: SortOrder
     bankTransactionStatus?: SortOrder
+    recurringItemId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiClassified?: SortOrder
     monoBankAccountId?: SortOrder
   }
 
@@ -43538,6 +46428,35 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type ClassificationCorrectionUserIdNarrationCompoundUniqueInput = {
+    userId: string
+    narration: string
+  }
+
+  export type ClassificationCorrectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    narration?: SortOrder
+    correctedSlug?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ClassificationCorrectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    narration?: SortOrder
+    correctedSlug?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ClassificationCorrectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    narration?: SortOrder
+    correctedSlug?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -43678,6 +46597,13 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type ClassificationCorrectionCreateNestedManyWithoutUserInput = {
+    create?: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput> | ClassificationCorrectionCreateWithoutUserInput[] | ClassificationCorrectionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClassificationCorrectionCreateOrConnectWithoutUserInput | ClassificationCorrectionCreateOrConnectWithoutUserInput[]
+    createMany?: ClassificationCorrectionCreateManyUserInputEnvelope
+    connect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -43800,6 +46726,13 @@ export namespace Prisma {
     connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
     createMany?: NotificationCreateManyUserInputEnvelope
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput> | ClassificationCorrectionCreateWithoutUserInput[] | ClassificationCorrectionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClassificationCorrectionCreateOrConnectWithoutUserInput | ClassificationCorrectionCreateOrConnectWithoutUserInput[]
+    createMany?: ClassificationCorrectionCreateManyUserInputEnvelope
+    connect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -44070,6 +47003,20 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type ClassificationCorrectionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput> | ClassificationCorrectionCreateWithoutUserInput[] | ClassificationCorrectionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClassificationCorrectionCreateOrConnectWithoutUserInput | ClassificationCorrectionCreateOrConnectWithoutUserInput[]
+    upsert?: ClassificationCorrectionUpsertWithWhereUniqueWithoutUserInput | ClassificationCorrectionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ClassificationCorrectionCreateManyUserInputEnvelope
+    set?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    disconnect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    delete?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    connect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    update?: ClassificationCorrectionUpdateWithWhereUniqueWithoutUserInput | ClassificationCorrectionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ClassificationCorrectionUpdateManyWithWhereWithoutUserInput | ClassificationCorrectionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ClassificationCorrectionScalarWhereInput | ClassificationCorrectionScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -44314,6 +47261,20 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput> | ClassificationCorrectionCreateWithoutUserInput[] | ClassificationCorrectionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ClassificationCorrectionCreateOrConnectWithoutUserInput | ClassificationCorrectionCreateOrConnectWithoutUserInput[]
+    upsert?: ClassificationCorrectionUpsertWithWhereUniqueWithoutUserInput | ClassificationCorrectionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ClassificationCorrectionCreateManyUserInputEnvelope
+    set?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    disconnect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    delete?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    connect?: ClassificationCorrectionWhereUniqueInput | ClassificationCorrectionWhereUniqueInput[]
+    update?: ClassificationCorrectionUpdateWithWhereUniqueWithoutUserInput | ClassificationCorrectionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ClassificationCorrectionUpdateManyWithWhereWithoutUserInput | ClassificationCorrectionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ClassificationCorrectionScalarWhereInput | ClassificationCorrectionScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutAccountsInput = {
     create?: XOR<UserCreateWithoutAccountsInput, UserUncheckedCreateWithoutAccountsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAccountsInput
@@ -44466,6 +47427,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSettingInput, UserUpdateWithoutSettingInput>, UserUncheckedUpdateWithoutSettingInput>
   }
 
+  export type CategoryCreatetagsInput = {
+    set: string[]
+  }
+
   export type UserCreateNestedOneWithoutCategoriesInput = {
     create?: XOR<UserCreateWithoutCategoriesInput, UserUncheckedCreateWithoutCategoriesInput>
     connectOrCreate?: UserCreateOrConnectWithoutCategoriesInput
@@ -44512,6 +47477,11 @@ export namespace Prisma {
     connectOrCreate?: RecurringItemCreateOrConnectWithoutCategoryInput | RecurringItemCreateOrConnectWithoutCategoryInput[]
     createMany?: RecurringItemCreateManyCategoryInputEnvelope
     connect?: RecurringItemWhereUniqueInput | RecurringItemWhereUniqueInput[]
+  }
+
+  export type CategoryUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type UserUpdateOneWithoutCategoriesNestedInput = {
@@ -44606,6 +47576,15 @@ export namespace Prisma {
     update?: RecurringItemUpdateWithWhereUniqueWithoutCategoryInput | RecurringItemUpdateWithWhereUniqueWithoutCategoryInput[]
     updateMany?: RecurringItemUpdateManyWithWhereWithoutCategoryInput | RecurringItemUpdateManyWithWhereWithoutCategoryInput[]
     deleteMany?: RecurringItemScalarWhereInput | RecurringItemScalarWhereInput[]
+  }
+
+  export type MerchantCreatealiasesInput = {
+    set: string[]
+  }
+
+  export type MerchantUpdatealiasesInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type CategoryCreateNestedOneWithoutBudgetsInput = {
@@ -44742,6 +47721,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type RecurringItemCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<RecurringItemCreateWithoutTransactionsInput, RecurringItemUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: RecurringItemCreateOrConnectWithoutTransactionsInput
+    connect?: RecurringItemWhereUniqueInput
+  }
+
   export type SplitCreateNestedOneWithoutTransactionInput = {
     create?: XOR<SplitCreateWithoutTransactionInput, SplitUncheckedCreateWithoutTransactionInput>
     connectOrCreate?: SplitCreateOrConnectWithoutTransactionInput
@@ -44814,6 +47799,16 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTransactionsInput, UserUpdateWithoutTransactionsInput>, UserUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type RecurringItemUpdateOneWithoutTransactionsNestedInput = {
+    create?: XOR<RecurringItemCreateWithoutTransactionsInput, RecurringItemUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: RecurringItemCreateOrConnectWithoutTransactionsInput
+    upsert?: RecurringItemUpsertWithoutTransactionsInput
+    disconnect?: RecurringItemWhereInput | boolean
+    delete?: RecurringItemWhereInput | boolean
+    connect?: RecurringItemWhereUniqueInput
+    update?: XOR<XOR<RecurringItemUpdateToOneWithWhereWithoutTransactionsInput, RecurringItemUpdateWithoutTransactionsInput>, RecurringItemUncheckedUpdateWithoutTransactionsInput>
   }
 
   export type SplitUpdateOneWithoutTransactionNestedInput = {
@@ -44906,6 +47901,20 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type TransactionCreateNestedManyWithoutRecurringItemInput = {
+    create?: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput> | TransactionCreateWithoutRecurringItemInput[] | TransactionUncheckedCreateWithoutRecurringItemInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutRecurringItemInput | TransactionCreateOrConnectWithoutRecurringItemInput[]
+    createMany?: TransactionCreateManyRecurringItemInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+  }
+
+  export type TransactionUncheckedCreateNestedManyWithoutRecurringItemInput = {
+    create?: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput> | TransactionCreateWithoutRecurringItemInput[] | TransactionUncheckedCreateWithoutRecurringItemInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutRecurringItemInput | TransactionCreateOrConnectWithoutRecurringItemInput[]
+    createMany?: TransactionCreateManyRecurringItemInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+  }
+
   export type EnumRecurringItemFrequencyFieldUpdateOperationsInput = {
     set?: $Enums.RecurringItemFrequency
   }
@@ -44924,6 +47933,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutRecurringItemsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRecurringItemsInput, UserUpdateWithoutRecurringItemsInput>, UserUncheckedUpdateWithoutRecurringItemsInput>
+  }
+
+  export type TransactionUpdateManyWithoutRecurringItemNestedInput = {
+    create?: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput> | TransactionCreateWithoutRecurringItemInput[] | TransactionUncheckedCreateWithoutRecurringItemInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutRecurringItemInput | TransactionCreateOrConnectWithoutRecurringItemInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutRecurringItemInput | TransactionUpsertWithWhereUniqueWithoutRecurringItemInput[]
+    createMany?: TransactionCreateManyRecurringItemInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutRecurringItemInput | TransactionUpdateWithWhereUniqueWithoutRecurringItemInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutRecurringItemInput | TransactionUpdateManyWithWhereWithoutRecurringItemInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
+  export type TransactionUncheckedUpdateManyWithoutRecurringItemNestedInput = {
+    create?: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput> | TransactionCreateWithoutRecurringItemInput[] | TransactionUncheckedCreateWithoutRecurringItemInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutRecurringItemInput | TransactionCreateOrConnectWithoutRecurringItemInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutRecurringItemInput | TransactionUpsertWithWhereUniqueWithoutRecurringItemInput[]
+    createMany?: TransactionCreateManyRecurringItemInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutRecurringItemInput | TransactionUpdateWithWhereUniqueWithoutRecurringItemInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutRecurringItemInput | TransactionUpdateManyWithWhereWithoutRecurringItemInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutGoalsInput = {
@@ -45324,6 +48361,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutNotificationsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type UserCreateNestedOneWithoutClassificationCorrectionsInput = {
+    create?: XOR<UserCreateWithoutClassificationCorrectionsInput, UserUncheckedCreateWithoutClassificationCorrectionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClassificationCorrectionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutClassificationCorrectionsNestedInput = {
+    create?: XOR<UserCreateWithoutClassificationCorrectionsInput, UserUncheckedCreateWithoutClassificationCorrectionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClassificationCorrectionsInput
+    upsert?: UserUpsertWithoutClassificationCorrectionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClassificationCorrectionsInput, UserUpdateWithoutClassificationCorrectionsInput>, UserUncheckedUpdateWithoutClassificationCorrectionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -46202,6 +49253,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     transactions?: TransactionCreateNestedManyWithoutCategoryInput
@@ -46217,6 +49269,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     transactions?: TransactionUncheckedCreateNestedManyWithoutCategoryInput
@@ -46240,6 +49293,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -46249,7 +49304,9 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
@@ -46262,6 +49319,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -46270,8 +49329,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
@@ -46296,6 +49357,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -46310,6 +49373,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -46343,6 +49408,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutRecurringItemsInput
+    transactions?: TransactionCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemUncheckedCreateWithoutUserInput = {
@@ -46362,6 +49428,7 @@ export namespace Prisma {
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    transactions?: TransactionUncheckedCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemCreateOrConnectWithoutUserInput = {
@@ -46619,6 +49686,30 @@ export namespace Prisma {
 
   export type NotificationCreateManyUserInputEnvelope = {
     data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ClassificationCorrectionCreateWithoutUserInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    createdAt?: Date | string
+  }
+
+  export type ClassificationCorrectionUncheckedCreateWithoutUserInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    createdAt?: Date | string
+  }
+
+  export type ClassificationCorrectionCreateOrConnectWithoutUserInput = {
+    where: ClassificationCorrectionWhereUniqueInput
+    create: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput>
+  }
+
+  export type ClassificationCorrectionCreateManyUserInputEnvelope = {
+    data: ClassificationCorrectionCreateManyUserInput | ClassificationCorrectionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -46891,6 +49982,7 @@ export namespace Prisma {
     icon?: StringNullableFilter<"Category"> | string | null
     color?: StringNullableFilter<"Category"> | string | null
     isSystem?: BoolFilter<"Category"> | boolean
+    tags?: StringNullableListFilter<"Category">
     userId?: StringNullableFilter<"Category"> | string | null
     createdAt?: DateTimeFilter<"Category"> | Date | string
     updatedAt?: DateTimeFilter<"Category"> | Date | string
@@ -46921,6 +50013,8 @@ export namespace Prisma {
     date?: DateTimeFilter<"Transaction"> | Date | string
     type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     description?: StringNullableFilter<"Transaction"> | string | null
+    narration?: StringNullableFilter<"Transaction"> | string | null
+    bankCategory?: StringNullableFilter<"Transaction"> | string | null
     notes?: StringNullableFilter<"Transaction"> | string | null
     merchant?: StringNullableFilter<"Transaction"> | string | null
     categoryId?: StringFilter<"Transaction"> | string
@@ -46930,8 +50024,10 @@ export namespace Prisma {
     sourceData?: JsonNullableFilter<"Transaction">
     bankTransactionId?: StringNullableFilter<"Transaction"> | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFilter<"Transaction"> | $Enums.BankTransactionStatus
+    recurringItemId?: StringNullableFilter<"Transaction"> | string | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+    aiClassified?: BoolFilter<"Transaction"> | boolean
     monoBankAccountId?: StringNullableFilter<"Transaction"> | string | null
   }
 
@@ -46962,6 +50058,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -47232,6 +50330,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
+  export type ClassificationCorrectionUpsertWithWhereUniqueWithoutUserInput = {
+    where: ClassificationCorrectionWhereUniqueInput
+    update: XOR<ClassificationCorrectionUpdateWithoutUserInput, ClassificationCorrectionUncheckedUpdateWithoutUserInput>
+    create: XOR<ClassificationCorrectionCreateWithoutUserInput, ClassificationCorrectionUncheckedCreateWithoutUserInput>
+  }
+
+  export type ClassificationCorrectionUpdateWithWhereUniqueWithoutUserInput = {
+    where: ClassificationCorrectionWhereUniqueInput
+    data: XOR<ClassificationCorrectionUpdateWithoutUserInput, ClassificationCorrectionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ClassificationCorrectionUpdateManyWithWhereWithoutUserInput = {
+    where: ClassificationCorrectionScalarWhereInput
+    data: XOR<ClassificationCorrectionUpdateManyMutationInput, ClassificationCorrectionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ClassificationCorrectionScalarWhereInput = {
+    AND?: ClassificationCorrectionScalarWhereInput | ClassificationCorrectionScalarWhereInput[]
+    OR?: ClassificationCorrectionScalarWhereInput[]
+    NOT?: ClassificationCorrectionScalarWhereInput | ClassificationCorrectionScalarWhereInput[]
+    id?: StringFilter<"ClassificationCorrection"> | string
+    narration?: StringFilter<"ClassificationCorrection"> | string
+    correctedSlug?: StringFilter<"ClassificationCorrection"> | string
+    userId?: StringFilter<"ClassificationCorrection"> | string
+    createdAt?: DateTimeFilter<"ClassificationCorrection"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -47271,6 +50396,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -47312,6 +50438,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -47369,6 +50496,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -47410,6 +50538,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -47451,6 +50580,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -47492,6 +50622,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -47549,6 +50680,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -47590,6 +50722,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -47631,6 +50764,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -47672,6 +50806,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -47729,6 +50864,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -47770,6 +50906,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -47811,6 +50948,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -47852,6 +50990,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -47909,6 +51048,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -47950,6 +51090,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -47991,6 +51132,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -48032,6 +51174,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -48089,6 +51232,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -48130,6 +51274,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -48171,6 +51316,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -48212,6 +51358,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -48269,6 +51416,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -48310,6 +51458,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutActivityLogsInput = {
@@ -48351,6 +51500,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -48392,6 +51542,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -48449,6 +51600,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -48490,6 +51642,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingInput = {
@@ -48531,6 +51684,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingInput = {
@@ -48572,6 +51726,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingInput = {
@@ -48629,6 +51784,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingInput = {
@@ -48670,6 +51826,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCategoriesInput = {
@@ -48711,6 +51868,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -48752,6 +51910,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -48765,6 +51924,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -48774,7 +51935,9 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
@@ -48787,6 +51950,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     userId?: string | null
@@ -48795,8 +51960,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
@@ -48821,6 +51988,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutBudgetsInput
@@ -48835,6 +52004,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -48868,6 +52039,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutRecurringItemsInput
+    transactions?: TransactionCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemUncheckedCreateWithoutCategoryInput = {
@@ -48887,6 +52059,7 @@ export namespace Prisma {
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    transactions?: TransactionUncheckedCreateNestedManyWithoutRecurringItemInput
   }
 
   export type RecurringItemCreateOrConnectWithoutCategoryInput = {
@@ -48949,6 +52122,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -48990,6 +52164,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -49048,6 +52223,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutCategoriesInput
@@ -49063,6 +52239,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49114,6 +52291,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -49155,6 +52333,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -49209,6 +52388,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCategoriesNestedInput
@@ -49224,6 +52404,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49281,6 +52462,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -49322,6 +52504,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetHistoryUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -49361,6 +52544,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -49375,6 +52560,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -49405,6 +52592,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -49419,6 +52608,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49464,6 +52655,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOcrDraftsInput = {
@@ -49505,6 +52697,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOcrDraftsInput = {
@@ -49562,6 +52755,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOcrDraftsInput = {
@@ -49603,6 +52797,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutTransactionsInput = {
@@ -49613,6 +52808,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutCategoriesInput
@@ -49628,6 +52824,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49679,6 +52876,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -49720,11 +52918,57 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type RecurringItemCreateWithoutTransactionsInput = {
+    id?: string
+    name: string
+    amount: number
+    type: $Enums.TransactionType
+    frequency: $Enums.RecurringItemFrequency
+    startDate: Date | string
+    endDate?: Date | string | null
+    description?: string | null
+    notes?: string | null
+    merchant?: string | null
+    lastRunAt?: Date | string | null
+    nextRunAt: Date | string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    category: CategoryCreateNestedOneWithoutRecurringItemsInput
+    user: UserCreateNestedOneWithoutRecurringItemsInput
+  }
+
+  export type RecurringItemUncheckedCreateWithoutTransactionsInput = {
+    id?: string
+    name: string
+    amount: number
+    type: $Enums.TransactionType
+    frequency: $Enums.RecurringItemFrequency
+    startDate: Date | string
+    endDate?: Date | string | null
+    description?: string | null
+    notes?: string | null
+    merchant?: string | null
+    lastRunAt?: Date | string | null
+    nextRunAt: Date | string
+    isActive?: boolean
+    categoryId: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RecurringItemCreateOrConnectWithoutTransactionsInput = {
+    where: RecurringItemWhereUniqueInput
+    create: XOR<RecurringItemCreateWithoutTransactionsInput, RecurringItemUncheckedCreateWithoutTransactionsInput>
   }
 
   export type SplitCreateWithoutTransactionInput = {
@@ -49869,6 +53113,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCategoriesNestedInput
@@ -49884,6 +53129,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49941,6 +53187,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -49982,6 +53229,58 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type RecurringItemUpsertWithoutTransactionsInput = {
+    update: XOR<RecurringItemUpdateWithoutTransactionsInput, RecurringItemUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<RecurringItemCreateWithoutTransactionsInput, RecurringItemUncheckedCreateWithoutTransactionsInput>
+    where?: RecurringItemWhereInput
+  }
+
+  export type RecurringItemUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: RecurringItemWhereInput
+    data: XOR<RecurringItemUpdateWithoutTransactionsInput, RecurringItemUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type RecurringItemUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    frequency?: EnumRecurringItemFrequencyFieldUpdateOperationsInput | $Enums.RecurringItemFrequency
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    merchant?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    category?: CategoryUpdateOneRequiredWithoutRecurringItemsNestedInput
+    user?: UserUpdateOneRequiredWithoutRecurringItemsNestedInput
+  }
+
+  export type RecurringItemUncheckedUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    frequency?: EnumRecurringItemFrequencyFieldUpdateOperationsInput | $Enums.RecurringItemFrequency
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    merchant?: NullableStringFieldUpdateOperationsInput | string | null
+    lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    categoryId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SplitUpsertWithoutTransactionInput = {
@@ -50134,6 +53433,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
     user?: UserCreateNestedOneWithoutCategoriesInput
@@ -50149,6 +53449,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50200,6 +53501,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRecurringItemsInput = {
@@ -50241,11 +53543,74 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRecurringItemsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutRecurringItemsInput, UserUncheckedCreateWithoutRecurringItemsInput>
+  }
+
+  export type TransactionCreateWithoutRecurringItemInput = {
+    id?: string
+    amount: number
+    date: Date | string
+    type: $Enums.TransactionType
+    description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
+    notes?: string | null
+    merchant?: string | null
+    source?: $Enums.TransactionSource
+    sourceId: string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: string | null
+    bankTransactionStatus?: $Enums.BankTransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiClassified?: boolean
+    category: CategoryCreateNestedOneWithoutTransactionsInput
+    user?: UserCreateNestedOneWithoutTransactionsInput
+    split?: SplitCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
+    settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
+    monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type TransactionUncheckedCreateWithoutRecurringItemInput = {
+    id?: string
+    amount: number
+    date: Date | string
+    type: $Enums.TransactionType
+    description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
+    notes?: string | null
+    merchant?: string | null
+    categoryId: string
+    userId?: string | null
+    source?: $Enums.TransactionSource
+    sourceId: string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: string | null
+    bankTransactionStatus?: $Enums.BankTransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiClassified?: boolean
+    monoBankAccountId?: string | null
+    split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
+    goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+    settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
+  }
+
+  export type TransactionCreateOrConnectWithoutRecurringItemInput = {
+    where: TransactionWhereUniqueInput
+    create: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput>
+  }
+
+  export type TransactionCreateManyRecurringItemInputEnvelope = {
+    data: TransactionCreateManyRecurringItemInput | TransactionCreateManyRecurringItemInput[]
+    skipDuplicates?: boolean
   }
 
   export type CategoryUpsertWithoutRecurringItemsInput = {
@@ -50267,6 +53632,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneWithoutCategoriesNestedInput
@@ -50282,6 +53648,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50339,6 +53706,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRecurringItemsInput = {
@@ -50380,6 +53748,23 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TransactionUpsertWithWhereUniqueWithoutRecurringItemInput = {
+    where: TransactionWhereUniqueInput
+    update: XOR<TransactionUpdateWithoutRecurringItemInput, TransactionUncheckedUpdateWithoutRecurringItemInput>
+    create: XOR<TransactionCreateWithoutRecurringItemInput, TransactionUncheckedCreateWithoutRecurringItemInput>
+  }
+
+  export type TransactionUpdateWithWhereUniqueWithoutRecurringItemInput = {
+    where: TransactionWhereUniqueInput
+    data: XOR<TransactionUpdateWithoutRecurringItemInput, TransactionUncheckedUpdateWithoutRecurringItemInput>
+  }
+
+  export type TransactionUpdateManyWithWhereWithoutRecurringItemInput = {
+    where: TransactionScalarWhereInput
+    data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyWithoutRecurringItemInput>
   }
 
   export type UserCreateWithoutGoalsInput = {
@@ -50421,6 +53806,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -50462,6 +53848,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -50551,6 +53938,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -50592,6 +53980,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type GoalContributionUpsertWithWhereUniqueWithoutGoalInput = {
@@ -50662,6 +54051,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -50671,8 +54062,10 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
@@ -50684,6 +54077,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -50693,8 +54088,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
@@ -50759,6 +54156,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -50768,8 +54167,10 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
@@ -50781,6 +54182,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -50790,8 +54193,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
@@ -50836,6 +54241,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSplitsInput = {
@@ -50877,6 +54283,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSplitsInput = {
@@ -50890,6 +54297,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -50899,8 +54308,10 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
@@ -50912,6 +54323,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -50921,8 +54334,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
@@ -51041,6 +54456,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSplitsInput = {
@@ -51082,6 +54498,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithoutSplitInput = {
@@ -51101,6 +54518,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -51110,8 +54529,10 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
@@ -51123,6 +54544,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -51132,8 +54555,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
@@ -51352,6 +54777,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -51361,8 +54788,10 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     monoBankAccount?: MonoBankAccountCreateNestedOneWithoutTransactionsInput
@@ -51374,6 +54803,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -51383,8 +54814,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
@@ -51478,6 +54911,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -51487,8 +54922,10 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
@@ -51500,6 +54937,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -51509,8 +54948,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
@@ -51555,6 +54996,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonoBankAccountsInput = {
@@ -51596,6 +55038,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonoBankAccountsInput = {
@@ -51609,6 +55052,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     source?: $Enums.TransactionSource
@@ -51618,8 +55063,10 @@ export namespace Prisma {
     bankTransactionStatus?: $Enums.BankTransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     category: CategoryCreateNestedOneWithoutTransactionsInput
     user?: UserCreateNestedOneWithoutTransactionsInput
+    recurringItem?: RecurringItemCreateNestedOneWithoutTransactionsInput
     split?: SplitCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementCreateNestedManyWithoutTransactionInput
@@ -51631,6 +55078,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -51640,8 +55089,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     split?: SplitUncheckedCreateNestedOneWithoutTransactionInput
     goalContribution?: GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
     settlements?: SplitSettlementUncheckedCreateNestedManyWithoutTransactionInput
@@ -51707,6 +55158,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonoBankAccountsInput = {
@@ -51748,6 +55200,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutMonoBankAccountInput = {
@@ -51805,6 +55258,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFcmDevicesInput = {
@@ -51846,6 +55300,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFcmDevicesInput = {
@@ -51903,6 +55358,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFcmDevicesInput = {
@@ -51944,6 +55400,7 @@ export namespace Prisma {
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -51985,6 +55442,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -52026,6 +55484,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
     activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
     monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -52083,6 +55542,7 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -52124,6 +55584,191 @@ export namespace Prisma {
     fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
     activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
     monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutClassificationCorrectionsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutClassificationCorrectionsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutClassificationCorrectionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutClassificationCorrectionsInput, UserUncheckedCreateWithoutClassificationCorrectionsInput>
+  }
+
+  export type UserUpsertWithoutClassificationCorrectionsInput = {
+    update: XOR<UserUpdateWithoutClassificationCorrectionsInput, UserUncheckedUpdateWithoutClassificationCorrectionsInput>
+    create: XOR<UserCreateWithoutClassificationCorrectionsInput, UserUncheckedCreateWithoutClassificationCorrectionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutClassificationCorrectionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutClassificationCorrectionsInput, UserUncheckedUpdateWithoutClassificationCorrectionsInput>
+  }
+
+  export type UserUpdateWithoutClassificationCorrectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutClassificationCorrectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -52186,6 +55831,7 @@ export namespace Prisma {
     icon?: string | null
     color?: string | null
     isSystem?: boolean
+    tags?: CategoryCreatetagsInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -52196,6 +55842,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -52204,8 +55852,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
   }
 
@@ -52217,6 +55867,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52324,6 +55976,13 @@ export namespace Prisma {
     notificationId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ClassificationCorrectionCreateManyUserInput = {
+    id?: string
+    narration: string
+    correctedSlug: string
+    createdAt?: Date | string
   }
 
   export type AccountUpdateWithoutUserInput = {
@@ -52490,6 +56149,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactions?: TransactionUpdateManyWithoutCategoryNestedInput
@@ -52505,6 +56165,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactions?: TransactionUncheckedUpdateManyWithoutCategoryNestedInput
@@ -52520,6 +56181,7 @@ export namespace Prisma {
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     color?: NullableStringFieldUpdateOperationsInput | string | null
     isSystem?: BoolFieldUpdateOperationsInput | boolean
+    tags?: CategoryUpdatetagsInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -52530,6 +56192,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -52539,7 +56203,9 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
@@ -52552,6 +56218,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -52560,8 +56228,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
@@ -52574,6 +56244,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -52582,8 +56254,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -52595,6 +56269,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -52609,6 +56285,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52623,6 +56301,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52645,6 +56325,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutRecurringItemsNestedInput
+    transactions?: TransactionUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemUncheckedUpdateWithoutUserInput = {
@@ -52664,6 +56345,7 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUncheckedUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemUncheckedUpdateManyWithoutUserInput = {
@@ -52948,12 +56630,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ClassificationCorrectionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassificationCorrectionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ClassificationCorrectionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    narration?: StringFieldUpdateOperationsInput | string
+    correctedSlug?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TransactionCreateManyCategoryInput = {
     id?: string
     amount: number
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     userId?: string | null
@@ -52962,8 +56667,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
     monoBankAccountId?: string | null
   }
 
@@ -52975,6 +56682,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -53005,6 +56714,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -53014,7 +56725,9 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
@@ -53027,6 +56740,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53035,8 +56750,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
@@ -53049,6 +56766,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53057,8 +56776,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -53070,6 +56791,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutBudgetsNestedInput
@@ -53084,6 +56807,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53098,6 +56823,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -53120,6 +56847,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutRecurringItemsNestedInput
+    transactions?: TransactionUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemUncheckedUpdateWithoutCategoryInput = {
@@ -53139,6 +56867,7 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transactions?: TransactionUncheckedUpdateManyWithoutRecurringItemNestedInput
   }
 
   export type RecurringItemUncheckedUpdateManyWithoutCategoryInput = {
@@ -53230,6 +56959,104 @@ export namespace Prisma {
     splitId?: StringFieldUpdateOperationsInput | string
     participantId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionCreateManyRecurringItemInput = {
+    id?: string
+    amount: number
+    date: Date | string
+    type: $Enums.TransactionType
+    description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
+    notes?: string | null
+    merchant?: string | null
+    categoryId: string
+    userId?: string | null
+    source?: $Enums.TransactionSource
+    sourceId: string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: string | null
+    bankTransactionStatus?: $Enums.BankTransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiClassified?: boolean
+    monoBankAccountId?: string | null
+  }
+
+  export type TransactionUpdateWithoutRecurringItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    merchant?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
+    sourceId?: StringFieldUpdateOperationsInput | string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
+    category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
+    user?: UserUpdateOneWithoutTransactionsNestedInput
+    split?: SplitUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
+    settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
+    monoBankAccount?: MonoBankAccountUpdateOneWithoutTransactionsNestedInput
+  }
+
+  export type TransactionUncheckedUpdateWithoutRecurringItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    merchant?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
+    sourceId?: StringFieldUpdateOperationsInput | string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
+    monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
+    split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
+    goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+    settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
+  }
+
+  export type TransactionUncheckedUpdateManyWithoutRecurringItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    merchant?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
+    sourceId?: StringFieldUpdateOperationsInput | string
+    sourceData?: NullableJsonNullValueInput | InputJsonValue
+    bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
+    bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
+    monoBankAccountId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type GoalContributionCreateManyGoalInput = {
@@ -53392,6 +57219,8 @@ export namespace Prisma {
     date: Date | string
     type: $Enums.TransactionType
     description?: string | null
+    narration?: string | null
+    bankCategory?: string | null
     notes?: string | null
     merchant?: string | null
     categoryId: string
@@ -53401,8 +57230,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: string | null
     bankTransactionStatus?: $Enums.BankTransactionStatus
+    recurringItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiClassified?: boolean
   }
 
   export type TransactionUpdateWithoutMonoBankAccountInput = {
@@ -53411,6 +57242,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     source?: EnumTransactionSourceFieldUpdateOperationsInput | $Enums.TransactionSource
@@ -53420,8 +57253,10 @@ export namespace Prisma {
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutTransactionsNestedInput
     user?: UserUpdateOneWithoutTransactionsNestedInput
+    recurringItem?: RecurringItemUpdateOneWithoutTransactionsNestedInput
     split?: SplitUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUpdateManyWithoutTransactionNestedInput
@@ -53433,6 +57268,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -53442,8 +57279,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
     split?: SplitUncheckedUpdateOneWithoutTransactionNestedInput
     goalContribution?: GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
     settlements?: SplitSettlementUncheckedUpdateManyWithoutTransactionNestedInput
@@ -53455,6 +57294,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    narration?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCategory?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
@@ -53464,8 +57305,10 @@ export namespace Prisma {
     sourceData?: NullableJsonNullValueInput | InputJsonValue
     bankTransactionId?: NullableStringFieldUpdateOperationsInput | string | null
     bankTransactionStatus?: EnumBankTransactionStatusFieldUpdateOperationsInput | $Enums.BankTransactionStatus
+    recurringItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiClassified?: BoolFieldUpdateOperationsInput | boolean
   }
 
 

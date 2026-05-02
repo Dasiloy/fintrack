@@ -16,6 +16,7 @@ import {
   UpdateRecurringReq,
   GetRecurringsReq,
   GetRecurringsRes,
+  RecurringAggregateRes,
   RecurringReq,
 } from '@fintrack/types/protos/finance/recurring';
 import { Empty } from '@fintrack/types/protos/finance/transaction';
@@ -25,8 +26,13 @@ import {
   RecurringItem,
   RecurringItemFrequency,
   Transaction,
-  TransactionSource,
 } from '@fintrack/database/types';
+
+import {
+  computeFirstRunAt,
+  computeNextRunAt,
+  utcToday,
+} from '@fintrack/utils/recurring';
 
 import { UtilsService } from '../utils.service';
 import { TransactionService } from '../transaction/transaction.service';
@@ -35,15 +41,38 @@ type RecurringWithCategory = RecurringItem & {
   category?: Category | null;
 };
 
+const MONTHLY_MULTIPLIER: Record<string, number> = {
+  DAILY: 30,
+  WEEKLY: 4.33,
+  BIWEEKLY: 2.17,
+  MONTHLY: 1,
+  QUARTERLY: 1 / 3,
+  YEARLY: 1 / 12,
+  CUSTOM: 0,
+};
+
 /**
- * Service responsible for all recurring-item operations.
- * Processes gRPC requests for creating, reading, updating, toggling, and
- * deleting recurring items.
+ * Core service for all recurring-item operations in the Finance microservice.
  *
- * Creation rule for nextRunAt:
- * - If startDate >= today  → nextRunAt = startDate (scheduler fires on that date)
- * - If startDate < today   → compute the next occurrence from today forward
- *   based on the frequency. No transactions are backfilled.
+ * ## Responsibilities
+ * Processes gRPC requests for creating, reading, updating, toggling, and
+ * deleting recurring items, and computing aggregate stats for the bills page.
+ *
+ * ## `nextRunAt` computation rule
+ * - `startDate >= today` → `nextRunAt = startDate` (scheduler fires on that date)
+ * - `startDate < today`  → next occurrence computed forward from today by frequency
+ *   (no transactions are backfilled)
+ * - Frequency change or reactivation → recomputed from today via `computeNextRunAt`
+ *
+ * ## Aggregate strategy
+ * `getRecurringsAggregate` uses a single Prisma `groupBy` query (≤ 24 rows:
+ * 6 frequencies × 2 types × 2 `isActive` states). Monthly totals are derived
+ * by applying `MONTHLY_MULTIPLIER` per frequency — no row-level iteration,
+ * no blocking computation on the server.
+ *
+ * ## Side effects
+ * Every mutation enqueues an `ACTIVITY_NOTIFICATION_JOB` to BullMQ for
+ * activity logging and analytics.
  *
  * @class RecurringService
  */
@@ -86,14 +115,12 @@ export class RecurringService {
       startDate.setUTCHours(0, 0, 0, 0);
       const endDate = data.endDate ? new Date(data.endDate) : null;
       const frequency = data.frequency as RecurringItemFrequency;
-
-      const today = new Date();
-      today.setUTCHours(0, 0, 0, 0);
+      const today = utcToday();
 
       const nextRunAt =
         startDate >= today
           ? startDate
-          : this.computeNextRunAt(frequency, today);
+          : computeFirstRunAt(frequency, startDate, today);
 
       const recurring = await this.prismaService.recurringItem.create({
         data: {
@@ -140,14 +167,19 @@ export class RecurringService {
     data: GetRecurringsReq,
   ): Promise<GetRecurringsRes> {
     try {
-      this.logger.debug('isActive', data);
+      const orderBy = this.buildOrderBy(data.sortBy);
+
       const items = await this.prismaService.recurringItem.findMany({
         where: {
           userId,
           ...(data.isActive !== undefined && { isActive: data.isActive }),
+          ...(data.type?.length && { type: { in: data.type as any[] } }),
+          ...(data.frequency?.length && {
+            frequency: { in: data.frequency as any[] },
+          }),
         },
         include: { category: true },
-        orderBy: { nextRunAt: 'desc' },
+        orderBy,
       });
 
       return { recurrings: items.map((r) => this.formatRecurring(r)) };
@@ -182,11 +214,7 @@ export class RecurringService {
           include: { category: true },
         }),
         this.prismaService.transaction.findMany({
-          where: {
-            source: TransactionSource.RECURRING,
-            sourceId: data.id,
-            userId,
-          },
+          where: { recurringItemId: data.id, userId },
           orderBy: { date: 'desc' },
         }),
       ]);
@@ -258,10 +286,7 @@ export class RecurringService {
           }),
           ...(data.merchant !== undefined && { merchant: data.merchant }),
           ...(frequencyChanged && {
-            nextRunAt: this.computeNextRunAt(
-              data.frequency as RecurringItemFrequency,
-              new Date(),
-            ),
+            nextRunAt: computeNextRunAt(data.frequency as string, utcToday()),
           }),
         },
         include: { category: true },
@@ -317,7 +342,10 @@ export class RecurringService {
           // When reactivating, reset nextRunAt to the next valid occurrence
           // so the scheduler doesn't miss a beat
           ...(nextIsActive && {
-            nextRunAt: this.computeNextRunAt(existing.frequency, new Date()),
+            nextRunAt: computeNextRunAt(
+              existing.frequency as string,
+              utcToday(),
+            ),
           }),
         },
         include: { category: true },
@@ -380,46 +408,78 @@ export class RecurringService {
   }
 
   /**
-   * Computes the next run date from a reference date based on frequency.
-   * All arithmetic uses UTC to avoid DST boundary issues.
+   * Returns aggregate metrics for the bills page widgets using a single
+   * `groupBy` query — no row-level iteration, no blocking computation.
+   *
+   * The DB returns at most `6 frequencies × 2 types × 2 isActive states = 24`
+   * rows. The only server-side work is a single `.reduce()` over those rows to
+   * apply the per-frequency monthly multiplier.
+   *
+   * @async
+   * @param {string} userId
+   * @returns {Promise<RecurringAggregateRes>}
+   * @throws {RpcException} INTERNAL on unexpected errors
+   */
+  async getRecurringsAggregate(userId: string): Promise<RecurringAggregateRes> {
+    try {
+      const groups = await this.prismaService.recurringItem.groupBy({
+        by: ['frequency', 'type', 'isActive'],
+        where: { userId },
+        _count: { id: true },
+        _sum: { amount: true },
+      });
+
+      let activeCount = 0;
+      let pausedCount = 0;
+      let monthlyExpense = 0;
+      let monthlyIncome = 0;
+
+      for (const g of groups) {
+        const count = g._count.id;
+        const sum = g._sum.amount ?? 0;
+        const multiplier = MONTHLY_MULTIPLIER[g.frequency] ?? 0;
+
+        if (g.isActive) activeCount += count;
+        else pausedCount += count;
+
+        if (g.type === 'EXPENSE') monthlyExpense += sum * multiplier;
+        else monthlyIncome += sum * multiplier;
+      }
+
+      return { activeCount, pausedCount, monthlyExpense, monthlyIncome };
+    } catch (error) {
+      this.logger.error('getRecurringsAggregate error:', error);
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * Builds a Prisma `orderBy` array for recurring item queries.
+   *
+   * Active items always float to the top via a leading `{ isActive: 'desc' }`
+   * clause, regardless of the chosen sort field. The secondary sort is:
+   * - `'amount'`  → highest amount first
+   * - `'name'`    → alphabetical ascending
+   * - default     → nearest `nextRunAt` first (soonest due)
    *
    * @private
-   * @param {RecurringItemFrequency} frequency
-   * @param {Date} from - The current nextRunAt (not "now")
-   * @returns {Date}
+   * @param {string} [sortBy] - Sort key from the API request
+   * @returns Prisma-compatible orderBy array
    */
-  private computeNextRunAt(
-    frequency: RecurringItemFrequency,
-    from: Date,
-  ): Date {
-    const next = new Date(from);
-
-    switch (frequency) {
-      case RecurringItemFrequency.DAILY:
-        next.setUTCDate(next.getUTCDate() + 1);
-        break;
-      case RecurringItemFrequency.WEEKLY:
-        next.setUTCDate(next.getUTCDate() + 7);
-        break;
-      case RecurringItemFrequency.BIWEEKLY:
-        next.setUTCDate(next.getUTCDate() + 14);
-        break;
-      case RecurringItemFrequency.MONTHLY:
-        next.setUTCMonth(next.getUTCMonth() + 1);
-        break;
-      case RecurringItemFrequency.QUARTERLY:
-        next.setUTCMonth(next.getUTCMonth() + 3);
-        break;
-      case RecurringItemFrequency.YEARLY:
-        next.setUTCFullYear(next.getUTCFullYear() + 1);
-        break;
-      case RecurringItemFrequency.CUSTOM:
-        // CUSTOM cadence is externally driven — advance by one day as a safe default
-        next.setUTCDate(next.getUTCDate() + 1);
-        break;
+  private buildOrderBy(sortBy?: string) {
+    const active = { isActive: 'desc' as const };
+    switch (sortBy) {
+      case 'amount':
+        return [active, { amount: 'desc' as const }];
+      case 'name':
+        return [active, { name: 'asc' as const }];
+      default:
+        return [active, { nextRunAt: 'asc' as const }];
     }
-
-    return next;
   }
 
   /**
@@ -489,7 +549,7 @@ export class RecurringService {
       createdAt: recurring.createdAt.toISOString(),
       updatedAt: recurring.updatedAt.toISOString(),
       transactions: transactions.length
-        ? transactions.map(this.transactionService.formatTransaction)
+        ? transactions.map((t) => this.transactionService.formatTransaction(t))
         : [],
     };
   }

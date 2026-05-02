@@ -1,0 +1,234 @@
+{
+  "__comment": "Goal Controller HTTP Documentation — apps/api_gateway/src/goal/goal.controller.ts",
+  "meta_note": "All routes are prefixed with /api/goal and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | array | null"
+    }
+  },
+
+  "createGoal": {
+    "route": "POST /api/goal/create",
+    "method": "POST",
+    "description": "Create a new savings goal for the authenticated user.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "name": "string (required)",
+      "targetAmount": "number (required, > 0)",
+      "targetDate": "string (required) — ISO date; must be in the future",
+      "priority": "HIGH | MEDIUM | LOW (required)",
+      "description": "string (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Goal created successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "targetAmount": "number",
+        "targetDate": "ISO date",
+        "priority": "HIGH | MEDIUM | LOW",
+        "status": "IN_PROGRESS",
+        "description": "string | null",
+        "contributedAmount": 0,
+        "contributions": [],
+        "createdAt": "ISO datetime",
+        "updatedAt": "ISO datetime"
+      }
+    },
+    "responses": {
+      "201": "Goal created successfully",
+      "400": "Validation error or target date in the past",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getGoals": {
+    "route": "GET /api/goal",
+    "method": "GET",
+    "description": "Return all savings goals for the authenticated user with optional filters.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "status": "query, string — comma-separated statuses: IN_PROGRESS, COMPLETED, CANCELLED",
+      "priority": "query, string — comma-separated priorities: HIGH, MEDIUM, LOW",
+      "amount": "query, number — threshold for targetAmount filter; must be used with `operator`",
+      "operator": "query, string — gt | gte | lt | lte | eq | ne"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Goals fetched successfully",
+      "data": [
+        { "id": "string", "name": "string", "targetAmount": "number", "contributedAmount": "number", "status": "string", "priority": "string" }
+      ]
+    },
+    "responses": {
+      "200": "Goals fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getGoal": {
+    "route": "GET /api/goal/:id",
+    "method": "GET",
+    "description": "Return a single savings goal by ID including all contributions and their linked transactions.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — goal ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Goal fetched successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "targetAmount": "number",
+        "contributedAmount": "number",
+        "contributions": [
+          { "id": "string", "amount": "number", "date": "ISO date", "description": "string | null", "transaction": "object | null" }
+        ]
+      }
+    },
+    "responses": {
+      "200": "Goal fetched successfully",
+      "401": "Access token invalid or expired",
+      "404": "Goal not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateGoal": {
+    "route": "PATCH /api/goal/:id",
+    "method": "PATCH",
+    "description": "Update a goal's metadata. Changing targetAmount re-evaluates the goal status automatically.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — goal ID",
+      "name": "string (optional)",
+      "targetAmount": "number (optional)",
+      "targetDate": "string (optional) — ISO date",
+      "priority": "HIGH | MEDIUM | LOW (optional)",
+      "description": "string (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Goal updated successfully",
+      "data": { "id": "string", "name": "string", "targetAmount": "number", "updatedAt": "ISO datetime" }
+    },
+    "responses": {
+      "200": "Goal updated successfully",
+      "401": "Access token invalid or expired",
+      "404": "Goal not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteGoal": {
+    "route": "DELETE /api/goal/:id",
+    "method": "DELETE",
+    "description": "Delete a goal and all its contributions.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — goal ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Goal deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Goal deleted",
+      "401": "Access token invalid or expired",
+      "404": "Goal not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "contributeToGoal": {
+    "route": "POST /api/goal/:goalId/contribution",
+    "method": "POST",
+    "description": "Add a contribution to a savings goal. Validates that the contribution does not cause the total to exceed the target amount. Optionally links to an existing transaction.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "goalId": "path param (required) — goal ID",
+      "amount": "number (required, > 0)",
+      "date": "string (required) — ISO date of contribution",
+      "description": "string (optional)",
+      "transactionId": "string (optional) — link to an existing transaction"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Contribution added successfully",
+      "data": { "id": "string", "amount": "number", "date": "ISO date", "description": "string | null" }
+    },
+    "responses": {
+      "201": "Contribution added successfully",
+      "400": "Contribution would exceed goal target amount",
+      "401": "Access token invalid or expired",
+      "404": "Goal not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateContribution": {
+    "route": "PATCH /api/goal/:goalId/contribution/:contributionId",
+    "method": "PATCH",
+    "description": "Update an existing goal contribution. Re-validates the overflow rule excluding the current contribution's existing value.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "goalId": "path param (required)",
+      "contributionId": "path param (required)",
+      "amount": "number (optional)",
+      "date": "string (optional) — ISO date",
+      "description": "string (optional)",
+      "transactionId": "string (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Contribution updated successfully",
+      "data": { "id": "string", "amount": "number", "updatedAt": "ISO datetime" }
+    },
+    "responses": {
+      "200": "Contribution updated",
+      "400": "Updated amount would exceed goal target",
+      "401": "Access token invalid or expired",
+      "404": "Contribution not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteContribution": {
+    "route": "DELETE /api/goal/:goalId/contribution/:contributionId",
+    "method": "DELETE",
+    "description": "Delete a contribution from a goal.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "goalId": "path param (required)",
+      "contributionId": "path param (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Contribution deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Contribution deleted",
+      "401": "Access token invalid or expired",
+      "404": "Contribution not found",
+      "500": "Internal server error"
+    }
+  }
+}

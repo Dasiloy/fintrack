@@ -174,10 +174,7 @@ export function LoginForm({ authError }: LoginFormProps) {
         return;
       }
 
-      if (
-        httpStatus === 401 &&
-        error?.response?.data?.message === 'Invalid Email/Password'
-      ) {
+      if (httpStatus === 401 && error?.response?.data?.message === 'Invalid Email/Password') {
         const newAttempts = loginAttempts + 1;
         setLoginAttempts(newAttempts);
         if (newAttempts >= MAX_LOGIN_ATTEMPTS) {

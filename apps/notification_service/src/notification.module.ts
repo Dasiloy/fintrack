@@ -50,7 +50,9 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         },
         template: {
           dir: join(__dirname, '..', 'templates'),
-          adapter: new HandlebarsAdapter(),
+          adapter: new HandlebarsAdapter({
+            eq: (a: unknown, b: unknown) => a === b,
+          }),
           options: {
             strict: true,
           },

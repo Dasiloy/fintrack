@@ -27,10 +27,14 @@
   "engines": {
     "node": "22.21.0"
   },
+  "resolutions": {
+    "hermes-compiler": "250829098.0.4"
+  },
   "pnpm": {
     "overrides": {
-      "@types/react": "19.2.2",
-      "@types/react-dom": "19.2.2"
+      "@types/react": "19.2.10",
+      "@types/react-dom": "19.2.3",
+      "hermes-compiler": "250829098.0.4"
     }
   }
 }

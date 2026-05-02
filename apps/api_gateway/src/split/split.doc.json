@@ -1,0 +1,290 @@
+{
+  "__comment": "Split Controller HTTP Documentation — apps/api_gateway/src/split/split.controller.ts",
+  "meta_note": "All routes are prefixed with /api/split and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | array | null",
+      "meta": "pagination object (present on getSplits)"
+    }
+  },
+
+  "createSplit": {
+    "route": "POST /api/split/create",
+    "method": "POST",
+    "description": "Create a new split expense for the authenticated user. Optionally link to an existing transaction.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "name": "string (required)",
+      "amount": "number (required, > 0)",
+      "transactionId": "string (optional) — link to an existing transaction"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Split created successfully",
+      "data": { "id": "string", "name": "string", "amount": "number", "status": "OPEN", "participants": [] }
+    },
+    "responses": {
+      "201": "Split created successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getSplitAggregate": {
+    "route": "GET /api/split/aggregate",
+    "method": "GET",
+    "description": "Return aggregate totals across all splits for the authenticated user: total owed, total paid, and counts by status.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Split aggregate fetched successfully",
+      "data": {
+        "totalOwed": "number",
+        "totalPaid": "number",
+        "openCount": "number",
+        "partialCount": "number",
+        "settledCount": "number",
+        "settledAmount": "number"
+      }
+    },
+    "responses": {
+      "200": "Aggregate fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getSplits": {
+    "route": "GET /api/split",
+    "method": "GET",
+    "description": "Return all splits for the authenticated user with optional status filters and pagination.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "status": "query, string (optional) — comma-separated: OPEN, PARTIALLY_SETTLED, SETTLED",
+      "page": "query, number (optional, default 1)",
+      "limit": "query, number (optional, default 10)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Splits fetched successfully",
+      "data": [{ "id": "string", "name": "string", "amount": "number", "status": "string", "totalPaid": "number", "totalOwed": "number" }],
+      "meta": { "total": "number", "page": "number", "limit": "number" }
+    },
+    "responses": {
+      "200": "Splits fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getSplit": {
+    "route": "GET /api/split/:id",
+    "method": "GET",
+    "description": "Return a single split by ID with full participant and settlement details.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — split ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Split fetched successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "amount": "number",
+        "status": "string",
+        "totalPaid": "number",
+        "totalOwed": "number",
+        "participants": [{ "id": "string", "name": "string", "amount": "number", "paid": "number", "balance": "number", "settlements": [] }]
+      }
+    },
+    "responses": {
+      "200": "Split fetched successfully",
+      "401": "Access token invalid or expired",
+      "404": "Split not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateSplit": {
+    "route": "PATCH /api/split/:id",
+    "method": "PATCH",
+    "description": "Update a split's name or amount.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required)",
+      "name": "string (optional)",
+      "amount": "number (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Split updated successfully",
+      "data": { "id": "string", "name": "string", "amount": "number" }
+    },
+    "responses": {
+      "200": "Split updated successfully",
+      "401": "Access token invalid or expired",
+      "404": "Split not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteSplit": {
+    "route": "DELETE /api/split/:id",
+    "method": "DELETE",
+    "description": "Delete a split by ID.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Split deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Split deleted",
+      "401": "Access token invalid or expired",
+      "404": "Split not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "addParticipant": {
+    "route": "POST /api/split/:splitId/participant",
+    "method": "POST",
+    "description": "Add a participant to an existing split.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "splitId": "path param (required)",
+      "name": "string (required)",
+      "email": "string (optional)",
+      "amount": "number (required, > 0)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Participant added successfully",
+      "data": { "id": "string", "name": "string", "email": "string | null", "amount": "number" }
+    },
+    "responses": {
+      "201": "Participant added",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "404": "Split not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateParticipant": {
+    "route": "PATCH /api/split/:splitId/participant/:participantId",
+    "method": "PATCH",
+    "description": "Update a participant's details within a split.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "splitId": "path param (required)",
+      "participantId": "path param (required)",
+      "name": "string (optional)",
+      "email": "string (optional)",
+      "amount": "number (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Participant updated successfully",
+      "data": { "id": "string", "name": "string", "amount": "number" }
+    },
+    "responses": {
+      "200": "Participant updated",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "404": "Split or participant not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteParticipant": {
+    "route": "DELETE /api/split/:splitId/participant/:participantId",
+    "method": "DELETE",
+    "description": "Remove a participant from a split.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "splitId": "path param (required)",
+      "participantId": "path param (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Participant deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Participant deleted",
+      "401": "Access token invalid or expired",
+      "404": "Split or participant not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "paySettlement": {
+    "route": "POST /api/split/:splitId/participant/:participantId/settlement",
+    "method": "POST",
+    "description": "Record a settlement payment for a participant. Optionally links to an existing transaction. Automatically updates the split status based on total paid vs total owed.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "splitId": "path param (required)",
+      "participantId": "path param (required)",
+      "paidAmount": "number (required, > 0)",
+      "paidAt": "string (required) — ISO date",
+      "transactionId": "string (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Settlement recorded successfully",
+      "data": { "id": "string", "paidAmount": "number", "paidAt": "ISO datetime" }
+    },
+    "responses": {
+      "201": "Settlement recorded",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "404": "Split or participant not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteSettlement": {
+    "route": "DELETE /api/split/:splitId/settlement/:settlementId",
+    "method": "DELETE",
+    "description": "Delete a settlement record from a split.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "splitId": "path param (required)",
+      "settlementId": "path param (required)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Settlement deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Settlement deleted",
+      "401": "Access token invalid or expired",
+      "404": "Split or settlement not found",
+      "500": "Internal server error"
+    }
+  }
+}

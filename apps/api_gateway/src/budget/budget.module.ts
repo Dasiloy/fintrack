@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { BudgetController } from './budget.controller';
 import { BudgetService } from './budget.service';
+import { UsageModule } from '../usage/usage.module';
 
 /**
  * Module responsible for managing user budgets
@@ -11,6 +12,7 @@ import { BudgetService } from './budget.service';
  * @class BudgetModule
  */
 @Module({
+  imports: [UsageModule],
   controllers: [BudgetController],
   providers: [BudgetService],
 })

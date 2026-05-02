@@ -46,7 +46,8 @@ export const getPeriodRange = () => {
 };
 
 export const format = (date: Date | string, format: string) => {
-  return dayjs(date).format(format);
+  const dayjsDate = dayjs(date);
+  return dayjsDate.isValid() ? dayjsDate.format(format) : '';
 };
 
 export const isDateToday = (date: Date | string) => {
@@ -66,5 +67,22 @@ export const isDateThisWeekIso = (date: Date | string) => {
   const dayjsDate = dayjs(date);
   return dayjsDate.isoWeek() === dayjs().isoWeek() && dayjsDate.year() === dayjs().year();
 };
+
+export function formatDate(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
+/**
+ * Parses a YYYY-MM-DD string as local midnight, avoiding the UTC-shift
+ * display bug where `new Date('2026-05-01')` renders as Apr 30 in UTC+ zones.
+ */
+export function parseLocalDate(s: string): Date {
+  const parts = s.split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
 
 export default dayjs;

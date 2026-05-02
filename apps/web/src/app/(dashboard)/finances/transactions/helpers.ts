@@ -6,7 +6,7 @@ export function getDateGroup(dateStr: string): string {
   if (isDateToday(d)) return 'TODAY';
   if (isDateYesterday(d)) return 'YESTERDAY';
   if (isDateThisWeekIso(d)) return 'THIS WEEK';
-  return format(d, 'MMMM d, yyyy');
+  return format(d, 'MMMM DD, YYYY');
 }
 
 export function groupTransactionsByDate(transactions: Transaction[]) {

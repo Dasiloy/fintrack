@@ -35,11 +35,20 @@ import { CurrentUser } from '../decorators/current_user.decorator';
 import { TransactionQueryDto } from './dto/transaction_query.dto';
 
 /**
- * Controller responsible for managing user transactions.
- * Handles HTTP requests for CRUD operations on transactions
- * and forwards them to the Finance microservice via gRPC.
+ * HTTP controller for user transaction CRUD operations.
  *
- * @class TransactionController
+ * All routes are protected by `ApiGuard` (JWT bearer token).  Each method
+ * delegates to `TransactionService` which proxies the call to the Finance
+ * microservice via gRPC, then wraps the response in a `StandardResponse`.
+ *
+ * ## Routes
+ * | Method | Path              | Description                    |
+ * |--------|-------------------|--------------------------------|
+ * | POST   | /transaction      | Create a manual transaction    |
+ * | GET    | /transaction      | List transactions (paginated)  |
+ * | GET    | /transaction/:id  | Get a single transaction       |
+ * | PATCH  | /transaction/:id  | Update a transaction           |
+ * | DELETE | /transaction/:id  | Delete a transaction           |
  */
 @ApiTags('Transactions')
 @ApiBearerAuth()
