@@ -1,6 +1,25 @@
 {
-  "__comment": "Root App Module API Documentation",
-  "meta_note": "System-level endpoints for monitoring and health. Authentication is usually neutral or not required for health checks.",
+  "__comment": "Root App Module API Documentation — apps/api_gateway/src/app.controller.ts",
+  "meta_note": "System-level endpoints. No authentication required unless noted. Routes are version-neutral (no /api prefix).",
+
+  "getMerchants": {
+    "route": "GET /merchants",
+    "method": "GET",
+    "description": "Return all known merchants (name + aliases). Public endpoint, cached 24 h in Redis. Used by the bank sync processor for token-based category matching.",
+    "authentication": "None",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Merchants fetched successfully",
+      "data": [{ "id": "string", "name": "string", "aliases": ["string"] }]
+    },
+    "responses": {
+      "200": "Merchants fetched successfully",
+      "500": "Internal server error"
+    }
+  },
+
   "healthCheck": {
     "route": "GET /api/health",
     "method": "GET",

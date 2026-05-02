@@ -8,7 +8,17 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Budget, CreateBudgetReq, DeleteBudgetReq, UpdateBudgetReq } from "./budget";
+import {
+  Budget,
+  CreateBudgetReq,
+  DeleteBudgetReq,
+  GetBudgetReq,
+  GetBudgetsReq,
+  GetBudgetsRes,
+  GetSpendingTrendReq,
+  GetSpendingTrendRes,
+  UpdateBudgetReq,
+} from "./budget";
 import {
   Contribution,
   CreateGoalContributionReq,
@@ -86,6 +96,12 @@ export interface FinanceServiceClient {
   /** Budgets */
 
   createBudget(request: CreateBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  getBudgets(request: GetBudgetsReq, metadata?: Metadata): Observable<GetBudgetsRes>;
+
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  getSpendingTrend(request: GetSpendingTrendReq, metadata?: Metadata): Observable<GetSpendingTrendRes>;
 
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Observable<Budget>;
 
@@ -183,6 +199,18 @@ export interface FinanceServiceController {
   /** Budgets */
 
   createBudget(request: CreateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  getBudgets(
+    request: GetBudgetsReq,
+    metadata?: Metadata,
+  ): Promise<GetBudgetsRes> | Observable<GetBudgetsRes> | GetBudgetsRes;
+
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  getSpendingTrend(
+    request: GetSpendingTrendReq,
+    metadata?: Metadata,
+  ): Promise<GetSpendingTrendRes> | Observable<GetSpendingTrendRes> | GetSpendingTrendRes;
 
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
 
@@ -293,6 +321,9 @@ export function FinanceServiceControllerMethods() {
       "updateTransaction",
       "deleteTransaction",
       "createBudget",
+      "getBudgets",
+      "getBudget",
+      "getSpendingTrend",
       "updateBudget",
       "deleteBudget",
       "createRecurring",

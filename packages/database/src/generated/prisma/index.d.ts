@@ -1262,7 +1262,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends bigint
+  : T extends BigInt
   ? False
   : T extends object
   ? True
@@ -21420,11 +21420,13 @@ export namespace Prisma {
   export type BudgetAvgAggregateOutputType = {
     amount: number | null
     alertThreshold: number | null
+    alertAtFrequency: number | null
   }
 
   export type BudgetSumAggregateOutputType = {
     amount: number | null
     alertThreshold: number | null
+    alertAtFrequency: number | null
   }
 
   export type BudgetMinAggregateOutputType = {
@@ -21435,6 +21437,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod | null
     carryOver: boolean | null
     alertThreshold: number | null
+    alertedAt: Date | null
+    alertAtFrequency: number | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21449,6 +21453,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod | null
     carryOver: boolean | null
     alertThreshold: number | null
+    alertedAt: Date | null
+    alertAtFrequency: number | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21463,6 +21469,8 @@ export namespace Prisma {
     period: number
     carryOver: number
     alertThreshold: number
+    alertedAt: number
+    alertAtFrequency: number
     categoryId: number
     userId: number
     createdAt: number
@@ -21474,11 +21482,13 @@ export namespace Prisma {
   export type BudgetAvgAggregateInputType = {
     amount?: true
     alertThreshold?: true
+    alertAtFrequency?: true
   }
 
   export type BudgetSumAggregateInputType = {
     amount?: true
     alertThreshold?: true
+    alertAtFrequency?: true
   }
 
   export type BudgetMinAggregateInputType = {
@@ -21489,6 +21499,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21503,6 +21515,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21517,6 +21531,8 @@ export namespace Prisma {
     period?: true
     carryOver?: true
     alertThreshold?: true
+    alertedAt?: true
+    alertAtFrequency?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21618,6 +21634,8 @@ export namespace Prisma {
     period: $Enums.BudgetPeriod
     carryOver: boolean
     alertThreshold: number
+    alertedAt: Date | null
+    alertAtFrequency: number
     categoryId: string
     userId: string
     createdAt: Date
@@ -21651,6 +21669,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21669,6 +21689,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21685,6 +21707,8 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21701,13 +21725,15 @@ export namespace Prisma {
     period?: boolean
     carryOver?: boolean
     alertThreshold?: boolean
+    alertedAt?: boolean
+    alertAtFrequency?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
+  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
   export type BudgetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -21738,6 +21764,8 @@ export namespace Prisma {
       period: $Enums.BudgetPeriod
       carryOver: boolean
       alertThreshold: number
+      alertedAt: Date | null
+      alertAtFrequency: number
       categoryId: string
       userId: string
       createdAt: Date
@@ -22175,6 +22203,8 @@ export namespace Prisma {
     readonly period: FieldRef<"Budget", 'BudgetPeriod'>
     readonly carryOver: FieldRef<"Budget", 'Boolean'>
     readonly alertThreshold: FieldRef<"Budget", 'Float'>
+    readonly alertedAt: FieldRef<"Budget", 'DateTime'>
+    readonly alertAtFrequency: FieldRef<"Budget", 'Int'>
     readonly categoryId: FieldRef<"Budget", 'String'>
     readonly userId: FieldRef<"Budget", 'String'>
     readonly createdAt: FieldRef<"Budget", 'DateTime'>
@@ -38321,6 +38351,8 @@ export namespace Prisma {
     period: 'period',
     carryOver: 'carryOver',
     alertThreshold: 'alertThreshold',
+    alertedAt: 'alertedAt',
+    alertAtFrequency: 'alertAtFrequency',
     categoryId: 'categoryId',
     userId: 'userId',
     createdAt: 'createdAt',
@@ -40182,6 +40214,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40199,6 +40233,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrderInput | SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40220,6 +40256,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40237,6 +40275,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrderInput | SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40259,6 +40299,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodWithAggregatesFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolWithAggregatesFilter<"Budget"> | boolean
     alertThreshold?: FloatWithAggregatesFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntWithAggregatesFilter<"Budget"> | number
     categoryId?: StringWithAggregatesFilter<"Budget"> | string
     userId?: StringWithAggregatesFilter<"Budget"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
@@ -42784,6 +42826,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -42799,6 +42843,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42814,6 +42860,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -42829,6 +42877,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42844,6 +42894,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42858,6 +42910,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42870,6 +42924,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45388,6 +45444,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45397,6 +45455,7 @@ export namespace Prisma {
   export type BudgetAvgOrderByAggregateInput = {
     amount?: SortOrder
     alertThreshold?: SortOrder
+    alertAtFrequency?: SortOrder
   }
 
   export type BudgetMaxOrderByAggregateInput = {
@@ -45407,6 +45466,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45421,6 +45482,8 @@ export namespace Prisma {
     period?: SortOrder
     carryOver?: SortOrder
     alertThreshold?: SortOrder
+    alertedAt?: SortOrder
+    alertAtFrequency?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45430,6 +45493,7 @@ export namespace Prisma {
   export type BudgetSumOrderByAggregateInput = {
     amount?: SortOrder
     alertThreshold?: SortOrder
+    alertAtFrequency?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -49293,6 +49357,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -49307,6 +49373,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49990,6 +50058,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFilter<"Budget"> | $Enums.BudgetPeriod
     carryOver?: BoolFilter<"Budget"> | boolean
     alertThreshold?: FloatFilter<"Budget"> | number
+    alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
+    alertAtFrequency?: IntFilter<"Budget"> | number
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -51918,6 +51988,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutBudgetsInput
@@ -51932,6 +52004,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52470,6 +52544,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -52484,6 +52560,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -52514,6 +52592,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -52528,6 +52608,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55785,6 +55867,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56185,6 +56269,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56199,6 +56285,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56213,6 +56301,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56592,6 +56682,8 @@ export namespace Prisma {
     period?: $Enums.BudgetPeriod
     carryOver?: boolean
     alertThreshold?: number
+    alertedAt?: Date | string | null
+    alertAtFrequency?: number
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56699,6 +56791,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56713,6 +56807,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56727,6 +56823,8 @@ export namespace Prisma {
     period?: EnumBudgetPeriodFieldUpdateOperationsInput | $Enums.BudgetPeriod
     carryOver?: BoolFieldUpdateOperationsInput | boolean
     alertThreshold?: FloatFieldUpdateOperationsInput | number
+    alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    alertAtFrequency?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

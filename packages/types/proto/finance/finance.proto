@@ -19,8 +19,12 @@ service FinanceService {
 
   // Budgets
    rpc CreateBudget (CreateBudgetReq) returns (Budget) {}
+   rpc GetBudgets(GetBudgetsReq)      returns  (GetBudgetsRes) {}
+   rpc GetBudget(GetBudgetReq)        returns (Budget) {}
+   rpc GetSpendingTrend(GetSpendingTrendReq) returns (GetSpendingTrendRes) {}
    rpc UpdateBudget (UpdateBudgetReq) returns (Budget) {}
    rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
+
 
   // Recurring
   rpc CreateRecurring(CreateRecurringReq)     returns (Recurinrg) {}
