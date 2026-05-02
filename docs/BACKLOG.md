@@ -52,7 +52,10 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🐛 Bugs
 
-_No known bugs at this time._
+### [BG-001] Introduce Import Transactions data from csv files
+
+Sometimes when we open notification sidebar, it basically craahes the app
+Loading chunk \_app-pages-browser_src_app**components_notifications_tsx failed. (error: http://localhost:3000/\_next/static/chunks/\_app-pages-browser_src_app**components_notifications_tsx.js)
 
 ---
 

@@ -11,6 +11,7 @@ import {
 
 import { PrismaService } from '@fintrack/database/service';
 import { Category, Prisma, User } from '@fintrack/database/types';
+import { UsageService } from '../usage/usage.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 
 /**
@@ -19,7 +20,10 @@ import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 @Injectable()
 export class CategoryService {
   private logger = new Logger(CategoryService.name);
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly usageService: UsageService,
+  ) {}
 
   /**
    * @description Get the categories
@@ -94,6 +98,7 @@ export class CategoryService {
           userId: true,
         },
       });
+      await this.usageService.invalidateGatedUsageCache(user.id);
       return category;
     } catch (error) {
       this.logger.error(`Category create failed: ${error.message}`);
@@ -224,6 +229,7 @@ export class CategoryService {
           },
         }),
       ]);
+      await this.usageService.invalidateGatedUsageCache(user.id);
     } catch (error) {
       this.logger.error(`Category delete failed: ${error.message}`);
       if (error instanceof HttpException) throw error;

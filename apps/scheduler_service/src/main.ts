@@ -20,9 +20,9 @@ import {
 } from '@fintrack/common/config/services';
 
 async function bootstrap() {
-  const serviceName: any = process.env.MICROSERVICE_NAME!;
+  const serviceName = process.env.MICROSERVICE_NAME! as Service;
   // Get Service config
-  const config = getServiceConfig()[serviceName as Service];
+  const config = getServiceConfig()[serviceName];
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     SchedulerModule,
@@ -59,4 +59,4 @@ async function bootstrap() {
   await app.listen();
   logger.log(`Running on port ${process.env.AI_SERVICE_PORT}`);
 }
-bootstrap();
+void bootstrap();

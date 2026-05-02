@@ -10,3 +10,5 @@ export * from './recurring';
 export * from './goal';
 export * from './split';
 export * from './notification';
+export * from './banks';
+export * from './merchant';

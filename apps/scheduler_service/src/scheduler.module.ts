@@ -18,7 +18,6 @@ import {
   USAGE_TRACKING_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
-import { SchedulerController } from './scheduler.controller';
 import { SchedulerService } from './scheduler.service';
 
 // PROCESORS
@@ -62,7 +61,6 @@ import { RecurringProcessor } from './processors/recurring.processor';
       { name: TOKEN_NOTIFICATION_QUEUE },
     ),
   ],
-  controllers: [SchedulerController],
   providers: [
     SchedulerService,
     CleanupProcessor,

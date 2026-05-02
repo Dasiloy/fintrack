@@ -1,0 +1,152 @@
+{
+  "__comment": "Transaction Controller HTTP Documentation — apps/api_gateway/src/transaction/transaction.controller.ts",
+  "meta_note": "All routes are prefixed with /api/transaction and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | array | null",
+      "meta": "pagination object (present on list responses)"
+    }
+  },
+
+  "createTransaction": {
+    "route": "POST /api/transaction",
+    "method": "POST",
+    "description": "Create a new manual transaction for the authenticated user. Amount is serialised to string for gRPC transport and enum values are mapped to proto integers.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "amount": "number (required, > 0)",
+      "type": "INCOME | EXPENSE (required)",
+      "source": "MANUAL | OCR (required)",
+      "date": "string (required) — ISO date",
+      "description": "string (optional)",
+      "merchant": "string (optional)",
+      "categorySlug": "string (required) — category slug",
+      "sourceId": "string (required) — human-readable reference ID e.g. TXN-YYMMDD-XXXXXX",
+      "sourceData": "string (optional) — JSON-stringified audit blob"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 201,
+      "message": "Transaction created successfully",
+      "data": {
+        "id": "string",
+        "amount": "number",
+        "date": "ISO date",
+        "type": "INCOME | EXPENSE",
+        "description": "string | null",
+        "merchant": "string | null",
+        "source": "MANUAL",
+        "sourceId": "string | null"
+      }
+    },
+    "responses": {
+      "201": "Transaction created successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getAllTransactions": {
+    "route": "GET /api/transaction",
+    "method": "GET",
+    "description": "Return a paginated, filtered list of transactions for the authenticated user. Type and source arrays are mapped from DTO enum strings to proto enum integers.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "startDate": "query, string (optional) — ISO date",
+      "endDate": "query, string (optional) — ISO date",
+      "categorySlug": "query, string (optional) — comma-separated slugs",
+      "type": "query, string (optional) — comma-separated: INCOME, EXPENSE",
+      "source": "query, string (optional) — comma-separated: MANUAL, BANK",
+      "page": "query, number (optional, default 1)",
+      "limit": "query, number (optional, default 10)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Transactions fetched successfully",
+      "data": [{ "id": "string", "amount": "number", "date": "ISO date", "type": "string", "source": "string" }],
+      "meta": { "total": "number", "page": "number", "limit": "number" }
+    },
+    "responses": {
+      "200": "Transactions fetched successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getTransactionById": {
+    "route": "GET /api/transaction/:id",
+    "method": "GET",
+    "description": "Return a single transaction by ID scoped to the authenticated user.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — transaction ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Transaction fetched successfully",
+      "data": { "id": "string", "amount": "number", "date": "ISO date", "type": "string", "source": "string" }
+    },
+    "responses": {
+      "200": "Transaction fetched successfully",
+      "401": "Access token invalid or expired",
+      "404": "Transaction not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "updateTransactionById": {
+    "route": "PATCH /api/transaction/:id",
+    "method": "PATCH",
+    "description": "Update a transaction by ID. Only the owning user's transaction can be updated. When a BANK transaction's category is changed and it was AI-classified, the finance service enqueues a correction feedback job to the AI service.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — transaction ID",
+      "amount": "number (optional)",
+      "type": "INCOME | EXPENSE (optional)",
+      "description": "string (optional)",
+      "categoryId": "string (optional)",
+      "merchant": "string (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Transaction updated successfully",
+      "data": { "id": "string", "amount": "number", "updatedAt": "ISO datetime" }
+    },
+    "responses": {
+      "200": "Transaction updated successfully",
+      "401": "Access token invalid or expired",
+      "404": "Transaction not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteTransactionById": {
+    "route": "DELETE /api/transaction/:id",
+    "method": "DELETE",
+    "description": "Delete a transaction by ID scoped to the authenticated user.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — transaction ID"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Transaction deleted successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Transaction deleted successfully",
+      "401": "Access token invalid or expired",
+      "404": "Transaction not found",
+      "500": "Internal server error"
+    }
+  }
+}

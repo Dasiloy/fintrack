@@ -1,0 +1,112 @@
+{
+  "__comment": "User Controller HTTP Documentation — apps/api_gateway/src/user/user.controller.ts",
+  "meta_note": "All routes are prefixed with /api/user and protected by ApiGuard (JWT bearer). getMe results are Redis-cached for 5 minutes.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    }
+  },
+
+  "getMe": {
+    "route": "GET /api/user/me",
+    "method": "GET",
+    "description": "Return the authenticated user's profile. Result is Redis-cached for 5 minutes to avoid repeated DB queries on page load.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Profile fetched successfully",
+      "data": {
+        "id": "string",
+        "email": "string",
+        "firstName": "string | null",
+        "lastName": "string | null",
+        "avatar": "string | null",
+        "language": "string",
+        "currency": "string",
+        "dateFormat": "string",
+        "timezone": "string",
+        "plan": "FREE | PRO | ENTERPRISE",
+        "settings": "object | null"
+      }
+    },
+    "responses": {
+      "200": "Profile fetched successfully",
+      "401": "Access token invalid or expired"
+    }
+  },
+
+  "updateMe": {
+    "route": "PATCH /api/user/me",
+    "method": "PATCH",
+    "description": "Update the authenticated user's profile. All fields are optional.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "firstName": "string (optional, 1-50 chars)",
+      "lastName": "string (optional, 1-50 chars)",
+      "avatar": "string (optional) — URL to avatar image",
+      "language": "Language enum (optional)",
+      "currency": "Currency enum (optional)",
+      "dateFormat": "DateFormat enum (optional)",
+      "timezone": "string (optional) — IANA timezone, e.g. Africa/Lagos"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Profile updated successfully",
+      "data": {
+        "id": "string",
+        "email": "string",
+        "firstName": "string | null",
+        "lastName": "string | null",
+        "avatar": "string | null",
+        "language": "string",
+        "currency": "string",
+        "dateFormat": "string",
+        "timezone": "string"
+      }
+    },
+    "responses": {
+      "200": "Profile updated successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired"
+    }
+  },
+
+  "updateSettings": {
+    "route": "PATCH /api/user/settings",
+    "method": "PATCH",
+    "description": "Update the authenticated user's notification preferences. All flags are optional booleans; omitted fields are left unchanged.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "budgetAlertMail": "boolean (optional)",
+      "budgetAlertApp": "boolean (optional)",
+      "billReminderMail": "boolean (optional)",
+      "billReminderApp": "boolean (optional)",
+      "weeklyReportMail": "boolean (optional)",
+      "weeklyReportApp": "boolean (optional)",
+      "aiInsightsMail": "boolean (optional)",
+      "aiInsightsApp": "boolean (optional)",
+      "goalsAlertMail": "boolean (optional)",
+      "goalsAlertApp": "boolean (optional)",
+      "splitsAlertMail": "boolean (optional)",
+      "splitsAlertApp": "boolean (optional)"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Settings updated successfully",
+      "data": null
+    },
+    "responses": {
+      "200": "Settings updated successfully",
+      "400": "Validation error",
+      "401": "Access token invalid or expired"
+    }
+  }
+}

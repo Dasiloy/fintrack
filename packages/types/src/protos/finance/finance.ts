@@ -8,7 +8,17 @@
 import type { Metadata } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
-import { Budget, CreateBudgetReq, DeleteBudgetReq, UpdateBudgetReq } from "./budget";
+import {
+  Budget,
+  CreateBudgetReq,
+  DeleteBudgetReq,
+  GetBudgetReq,
+  GetBudgetsReq,
+  GetBudgetsRes,
+  GetSpendingTrendReq,
+  GetSpendingTrendRes,
+  UpdateBudgetReq,
+} from "./budget";
 import {
   Contribution,
   CreateGoalContributionReq,
@@ -26,6 +36,7 @@ import {
   GetRecurringsReq,
   GetRecurringsRes,
   Recurinrg,
+  RecurringAggregateRes,
   RecurringReq,
   UpdateRecurringReq,
 } from "./recurring";
@@ -46,6 +57,8 @@ import {
   UpdateSplitReq,
 } from "./split";
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
   CreateTransactionReq,
   DeleteTransactionReq,
   Empty,
@@ -67,6 +80,11 @@ export interface FinanceServiceClient {
 
   createTransaction(request: CreateTransactionReq, metadata?: Metadata): Observable<Transaction>;
 
+  batchCreateTransactions(
+    request: BatchCreateTransactionsReq,
+    metadata?: Metadata,
+  ): Observable<BatchCreateTransactionsRes>;
+
   getTransactions(request: GetTransactionsReq, metadata?: Metadata): Observable<GetTransactionsRes>;
 
   getTransaction(request: GetTransactionReq, metadata?: Metadata): Observable<Transaction>;
@@ -78,6 +96,12 @@ export interface FinanceServiceClient {
   /** Budgets */
 
   createBudget(request: CreateBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  getBudgets(request: GetBudgetsReq, metadata?: Metadata): Observable<GetBudgetsRes>;
+
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<Budget>;
+
+  getSpendingTrend(request: GetSpendingTrendReq, metadata?: Metadata): Observable<GetSpendingTrendRes>;
 
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Observable<Budget>;
 
@@ -96,6 +120,8 @@ export interface FinanceServiceClient {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
+
+  getRecurringsAggregate(request: Empty, metadata?: Metadata): Observable<RecurringAggregateRes>;
 
   /** Splits */
 
@@ -148,6 +174,11 @@ export interface FinanceServiceController {
     metadata?: Metadata,
   ): Promise<Transaction> | Observable<Transaction> | Transaction;
 
+  batchCreateTransactions(
+    request: BatchCreateTransactionsReq,
+    metadata?: Metadata,
+  ): Promise<BatchCreateTransactionsRes> | Observable<BatchCreateTransactionsRes> | BatchCreateTransactionsRes;
+
   getTransactions(
     request: GetTransactionsReq,
     metadata?: Metadata,
@@ -168,6 +199,18 @@ export interface FinanceServiceController {
   /** Budgets */
 
   createBudget(request: CreateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  getBudgets(
+    request: GetBudgetsReq,
+    metadata?: Metadata,
+  ): Promise<GetBudgetsRes> | Observable<GetBudgetsRes> | GetBudgetsRes;
+
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
+  getSpendingTrend(
+    request: GetSpendingTrendReq,
+    metadata?: Metadata,
+  ): Promise<GetSpendingTrendRes> | Observable<GetSpendingTrendRes> | GetSpendingTrendRes;
 
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
 
@@ -195,6 +238,11 @@ export interface FinanceServiceController {
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
 
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  getRecurringsAggregate(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<RecurringAggregateRes> | Observable<RecurringAggregateRes> | RecurringAggregateRes;
 
   /** Splits */
 
@@ -267,11 +315,15 @@ export function FinanceServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "createTransaction",
+      "batchCreateTransactions",
       "getTransactions",
       "getTransaction",
       "updateTransaction",
       "deleteTransaction",
       "createBudget",
+      "getBudgets",
+      "getBudget",
+      "getSpendingTrend",
       "updateBudget",
       "deleteBudget",
       "createRecurring",
@@ -280,6 +332,7 @@ export function FinanceServiceControllerMethods() {
       "updateRecurring",
       "toggleRecurring",
       "deleteRecurring",
+      "getRecurringsAggregate",
       "createSplit",
       "getSplitAggregate",
       "getSplits",

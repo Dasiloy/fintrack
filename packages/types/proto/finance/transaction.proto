@@ -59,6 +59,7 @@ message CreateTransactionReq {
   string            category_slug = 6;
   TransactionSource source        = 7;
  string   source_id     = 8;
+ optional string   source_data = 9;
 }
 
 message Transaction {
@@ -111,10 +112,38 @@ message UpdateTransactionReq {
   optional string description = 5;
   optional string merchant = 6;
   optional string category_slug = 7;
+  optional string notes = 8;
 }
 
 message DeleteTransactionReq {
   string id = 1;
+}
+
+// Used exclusively for bank sync batch imports.
+// category_id is pre-resolved by the processor — no category lookup needed.
+message BankTransactionItem {
+  string            amount               = 1;
+  string            date                 = 2;
+  TransactionType   type                 = 3;
+  optional string   description          = 4;
+  string            category_id          = 5;
+  string            source_id            = 6;
+  TransactionSource source               = 7;
+  optional string   merchant             = 8;
+  optional string   mono_bank_account_id = 9;
+  bool              ai_classified        = 10;
+  optional string   narration            = 11;
+  optional string   bank_transaction_id  = 12;
+  optional string   source_data          = 13; // JSON-stringified audit blob
+}
+
+message BatchCreateTransactionsReq {
+  repeated BankTransactionItem transactions         = 1;
+}
+
+message BatchCreateTransactionsRes {
+  int32 created = 1;
+  int32 skipped = 2;
 }
 
 

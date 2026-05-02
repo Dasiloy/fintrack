@@ -26,11 +26,10 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { Category } from '@fintrack/database/types';
-import type { Transaction } from '@fintrack/types/protos/finance/transaction';
+import { genTransactionSourceId, onlyNumbers } from '@fintrack/utils/format';
+import { MerchantSelector } from '@/app/_components';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 
 interface TransactionFormDialogProps {
   open: boolean;
@@ -40,10 +39,6 @@ interface TransactionFormDialogProps {
   transaction?: Transaction;
   onSuccess?: () => void;
 }
-
-// ---------------------------------------------------------------------------
-// TransactionFormDialog
-// ---------------------------------------------------------------------------
 
 export function TransactionFormDialog({
   open,
@@ -102,9 +97,12 @@ export function TransactionFormDialog({
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!date || !categorySlug || !amount) return;
+    if (!date || !categorySlug || !amount) {
+      toast('Incomplete data! Please check your input.');
+      return;
+    }
 
     if (isEdit) {
       updateMutation.mutate({
@@ -122,7 +120,7 @@ export function TransactionFormDialog({
         date: format(date, 'YYYY-MM-DD'),
         type: type as 'INCOME' | 'EXPENSE',
         source: 'MANUAL',
-        sourceId: 'manual',
+        sourceId: genTransactionSourceId(new Date()),
         categorySlug,
         merchant: merchant || undefined,
         description: description || undefined,
@@ -143,19 +141,18 @@ export function TransactionFormDialog({
             <Field>
               <Label>Amount</Label>
               <Input
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 placeholder="0.00"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setAmount(onlyNumbers(e.target.value))}
                 required
               />
             </Field>
             <Field>
               <Label>Type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger size="default" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -170,7 +167,7 @@ export function TransactionFormDialog({
           <Field>
             <Label>Category</Label>
             <Select value={categorySlug} onValueChange={setCategorySlug}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -210,11 +207,7 @@ export function TransactionFormDialog({
           {/* Merchant */}
           <Field>
             <Label>Merchant</Label>
-            <Input
-              placeholder="e.g. Shoprite, Netflix"
-              value={merchant}
-              onChange={(e) => setMerchant(e.target.value)}
-            />
+            <MerchantSelector value={merchant} onChange={setMerchant} />
           </Field>
 
           {/* Description */}

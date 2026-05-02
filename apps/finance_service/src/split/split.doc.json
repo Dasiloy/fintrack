@@ -1,0 +1,254 @@
+{
+  "__comment": "Split Controller gRPC Documentation — apps/finance_service/src/split/split.controller.ts",
+  "meta_note": "All methods are exposed on the FinanceService gRPC server. Auth is enforced at the module level via RpcAuthGuard; the authenticated user is injected via @RpcUser().",
+  "conventions": {
+    "transport": "gRPC — FinanceService (packages/types/proto/finance/split.proto)",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Missing or invalid JWT in gRPC metadata",
+      "NOT_FOUND": "Resource does not exist or does not belong to the user",
+      "INVALID_ARGUMENT": "Validation failed on the request payload",
+      "INTERNAL": "Unexpected server error"
+    }
+  },
+
+  "createSplit": {
+    "rpc": "createSplit",
+    "proto_method": "rpc createSplit (CreateSplitReq) returns (Split)",
+    "description": "Create a new split expense for the authenticated user. Optionally links to an existing transaction.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "name": "string",
+      "amount": "number (> 0)",
+      "transactionId": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number",
+      "status": "SplitStatus int — OPEN on creation",
+      "participants": []
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INVALID_ARGUMENT": "Amount ≤ 0 or missing name",
+      "NOT_FOUND": "transactionId does not exist",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getSplitAggregate": {
+    "rpc": "getSplitAggregate",
+    "proto_method": "rpc getSplitAggregate (Empty) returns (GetSplitAggregateRes)",
+    "description": "Return aggregate totals across all splits for the authenticated user: total owed, total paid, and counts by status.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {},
+    "output": {
+      "totalOwed": "number",
+      "totalPaid": "number",
+      "openCount": "int32",
+      "partialCount": "int32",
+      "settledCount": "int32",
+      "settledAmount": "number"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getSplits": {
+    "rpc": "getSplits",
+    "proto_method": "rpc getSplits (GetSplitsReq) returns (GetSplitsRes)",
+    "description": "Return all splits for the authenticated user with optional status filters and pagination.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "status": "repeated SplitStatus int (optional) — OPEN, PARTIALLY_SETTLED, SETTLED",
+      "page": "int32 (optional, default 1)",
+      "limit": "int32 (optional, default 10)"
+    },
+    "output": {
+      "splits": [
+        { "id": "string", "name": "string", "amount": "number", "status": "SplitStatus int", "totalPaid": "number", "totalOwed": "number" }
+      ],
+      "meta": { "total": "int32", "page": "int32", "limit": "int32" }
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getSplit": {
+    "rpc": "getSplit",
+    "proto_method": "rpc getSplit (SplitReq) returns (Split)",
+    "description": "Return a single split by ID with full participant and settlement details.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — split ID"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number",
+      "status": "SplitStatus int",
+      "totalPaid": "number",
+      "totalOwed": "number",
+      "participants": [
+        { "id": "string", "name": "string", "amount": "number", "paid": "number", "balance": "number", "settlements": [] }
+      ]
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateSplit": {
+    "rpc": "updateSplit",
+    "proto_method": "rpc updateSplit (UpdateSplitReq) returns (Split)",
+    "description": "Update a split's name or amount.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — split ID",
+      "name": "string (optional)",
+      "amount": "number (optional)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split not found or not owned by user",
+      "INVALID_ARGUMENT": "Validation failed",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteSplit": {
+    "rpc": "deleteSplit",
+    "proto_method": "rpc deleteSplit (SplitReq) returns (Empty)",
+    "description": "Delete a split by ID.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — split ID"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "addParticipant": {
+    "rpc": "addParticipant",
+    "proto_method": "rpc addParticipant (AddParticipantReq) returns (SplitParticipant)",
+    "description": "Add a participant to an existing split.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "splitId": "string",
+      "name": "string",
+      "email": "string (optional)",
+      "amount": "number (> 0)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "email": "string | null",
+      "amount": "number"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split not found or not owned by user",
+      "INVALID_ARGUMENT": "Amount ≤ 0 or missing name",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "updateParticipant": {
+    "rpc": "updateParticipant",
+    "proto_method": "rpc updateParticipant (UpdateParticipantReq) returns (SplitParticipant)",
+    "description": "Update a participant's details within a split.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "splitId": "string",
+      "participantId": "string",
+      "name": "string (optional)",
+      "email": "string (optional)",
+      "amount": "number (optional)"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split or participant not found",
+      "INVALID_ARGUMENT": "Validation failed",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteParticipant": {
+    "rpc": "deleteParticipant",
+    "proto_method": "rpc deleteParticipant (ParticipantReq) returns (Empty)",
+    "description": "Remove a participant from a split.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "splitId": "string",
+      "participantId": "string"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split or participant not found",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "paySettlement": {
+    "rpc": "paySettlement",
+    "proto_method": "rpc paySettlement (PaySettlementReq) returns (SplitSettlement)",
+    "description": "Record a settlement payment for a participant. Optionally links to an existing transaction. Automatically updates the split status based on total paid vs total owed.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "splitId": "string",
+      "participantId": "string",
+      "paidAmount": "number (> 0)",
+      "paidAt": "string — ISO date",
+      "transactionId": "string (optional)"
+    },
+    "output": {
+      "id": "string",
+      "paidAmount": "number",
+      "paidAt": "string — ISO datetime"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split or participant not found",
+      "INVALID_ARGUMENT": "paidAmount ≤ 0",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "deleteSettlement": {
+    "rpc": "deleteSettlement",
+    "proto_method": "rpc deleteSettlement (SettlementReq) returns (Empty)",
+    "description": "Delete a settlement record from a split.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "splitId": "string",
+      "settlementId": "string"
+    },
+    "output": {},
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Split or settlement not found",
+      "INTERNAL": "Unexpected error"
+    }
+  }
+}

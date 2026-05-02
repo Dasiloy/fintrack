@@ -14,12 +14,17 @@ import {
   ANALYTICS_NOTIFICATION_QUEUE,
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
+  CLASSIFICATION_CORRECTION_JOB,
+  CLASSIFICATION_CORRECTION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
   AnalyticsNotificationPayload,
+  ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
 import {
+  BatchCreateTransactionsReq,
+  BatchCreateTransactionsRes,
   CreateTransactionReq,
   DeleteTransactionReq,
   Empty,
@@ -72,6 +77,8 @@ export class TransactionService {
     private readonly fcmNotificationQueue: Queue,
     @InjectQueue(ANALYTICS_NOTIFICATION_QUEUE)
     private readonly analyticsNotificationQueue: Queue,
+    @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
+    private readonly classificationCorrectionQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -101,6 +108,9 @@ export class TransactionService {
         sourceId: request.sourceId,
         description: request.description,
         merchant: request.merchant,
+        ...(request.sourceData && {
+          sourceData: JSON.parse(request.sourceData),
+        }),
       };
       const createdTransaction = await this.prismaService.transaction.create({
         data: payload,
@@ -126,6 +136,63 @@ export class TransactionService {
       throw new RpcException({
         code: status.INTERNAL,
         message: 'An error occurred while creating the transaction',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * @description Batch-create bank transactions imported from Mono.
+   *
+   * Resolves all category slugs to IDs in a single DB query, then runs
+   * a single createMany with skipDuplicates — idempotent on re-runs.
+   * No per-transaction side-effects are fired; the caller (sync processor)
+   * sends a single FCM notification after the batch completes.
+   *
+   * @param userId - The user id
+   * @param request - Batch request with transactions array and optional monoBankAccountId
+   */
+  async batchCreateTransactions(
+    userId: string,
+    request: BatchCreateTransactionsReq,
+  ): Promise<BatchCreateTransactionsRes> {
+    try {
+      const { transactions } = request;
+      if (!transactions.length) return { created: 0, skipped: 0 };
+
+      const data = transactions.map((tx) => {
+        return {
+          userId,
+          categoryId: tx.categoryId,
+          date: new Date(tx.date),
+          amount: Number(tx.amount),
+          type: this.ressolveType(tx.type),
+          source: this.ressolveSource(tx.source),
+          sourceId: tx.sourceId,
+          description: tx.description,
+          narration: tx.narration,
+          merchant: tx.merchant,
+          monoBankAccountId: tx.monoBankAccountId,
+          bankTransactionId: tx.bankTransactionId,
+          aiClassified: tx.aiClassified ?? false,
+          ...(tx.sourceData && { sourceData: JSON.parse(tx.sourceData) }),
+        };
+      });
+
+      const result = await this.prismaService.transaction.createMany({
+        data,
+        skipDuplicates: true,
+      });
+
+      return {
+        created: result.count,
+        skipped: transactions.length - result.count,
+      };
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred while batch creating transactions',
         details: error.message,
       });
     }
@@ -258,8 +325,13 @@ export class TransactionService {
         where: { id: request.id, userId },
         select: {
           id: true,
+          source: true,
+          categoryId: true,
+          narration: true,
+          aiClassified: true,
         },
       });
+
       if (!transaction) {
         throw new RpcException({
           code: status.NOT_FOUND,
@@ -279,6 +351,7 @@ export class TransactionService {
           description: request.description,
         }),
         ...(request.merchant !== undefined && { merchant: request.merchant }),
+        ...(request.notes !== undefined && { notes: request.notes }),
         ...(category?.id && { category: { connect: { id: category.id } } }),
       };
       const updatedTransaction = await this.prismaService.transaction.update({
@@ -288,6 +361,25 @@ export class TransactionService {
           category: true,
         },
       });
+
+      const categoryChanged =
+        category && category.id !== transaction.categoryId;
+      if (
+        transaction.source === TransactionSource.BANK &&
+        transaction.aiClassified &&
+        categoryChanged &&
+        transaction.narration
+      ) {
+        await this.classificationCorrectionQueue.add(
+          CLASSIFICATION_CORRECTION_JOB,
+          {
+            userId,
+            narration: transaction.narration,
+            correctedSlug: request.categorySlug!,
+          } satisfies ClassificationCorrectionJobPayload,
+        );
+      }
+
       // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
       return this.formatTransaction(updatedTransaction);

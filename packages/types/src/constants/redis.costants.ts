@@ -1,3 +1,12 @@
 export const REDIS_CLIENT = 'REDIS_CLIENT';
-
 export const USER_CACHE_TTL = 300; //5min
+
+export const GATED_USAGE_CACHE_PREFIX = 'gated_usage';
+export const GATED_USAGE_TTL = 600; // 10 minutes
+
+export const USER_PROFILE_CACHE_PREFIX = 'user_profile';
+
+export const RECURRING_AGGREGATE_CACHE_PREFIX = 'recurring_aggregate';
+
+export const MERCHANT_CACHE_KEY = 'merchants';
+export const MERCHANT_CACHE_TTL = 86400; // 24 hours

@@ -1,7 +1,9 @@
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -163,10 +165,7 @@ export class GetRecurringsQueryDto {
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => {
-    // If omitted → leave as undefined
     if (value === undefined || value === null) return undefined;
-
-    // Accept string "true"/"false", boolean, 0/1, etc.
     if (typeof value === 'boolean') return value;
     if (typeof value === 'string') {
       const v = value.toLowerCase();
@@ -175,4 +174,41 @@ export class GetRecurringsQueryDto {
     }
   })
   isActive?: boolean;
+
+  @ApiPropertyOptional({
+    enum: ['nextRun', 'amount', 'name'],
+    description: 'Sort field. Defaults to nextRun.',
+    example: 'nextRun',
+  })
+  @IsIn(['nextRun', 'amount', 'name'])
+  @IsOptional()
+  sortBy?: 'nextRun' | 'amount' | 'name';
+
+  @ApiPropertyOptional({
+    enum: TransactionType,
+    isArray: true,
+    description: 'Filter by transaction type.',
+    example: [TransactionType.EXPENSE],
+  })
+  @IsArray()
+  @IsEnum(TransactionType, { each: true })
+  @IsOptional()
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : undefined,
+  )
+  type?: TransactionType[];
+
+  @ApiPropertyOptional({
+    enum: RecurringItemFrequency,
+    isArray: true,
+    description: 'Filter by frequency.',
+    example: [RecurringItemFrequency.MONTHLY],
+  })
+  @IsArray()
+  @IsEnum(RecurringItemFrequency, { each: true })
+  @IsOptional()
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : undefined,
+  )
+  frequency?: RecurringItemFrequency[];
 }
