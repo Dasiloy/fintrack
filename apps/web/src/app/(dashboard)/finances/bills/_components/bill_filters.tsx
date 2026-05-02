@@ -1,6 +1,6 @@
 'use client';
 
-import { RecurringItemFrequency } from '@fintrack/database/types';
+import { type RecurringItemFrequency } from '@fintrack/database/types';
 import {
   FilterSheet,
   FilterSection,

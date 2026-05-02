@@ -193,7 +193,9 @@ export class GetRecurringsQueryDto {
   @IsArray()
   @IsEnum(TransactionType, { each: true })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : undefined,
+  )
   type?: TransactionType[];
 
   @ApiPropertyOptional({
@@ -205,6 +207,8 @@ export class GetRecurringsQueryDto {
   @IsArray()
   @IsEnum(RecurringItemFrequency, { each: true })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : undefined,
+  )
   frequency?: RecurringItemFrequency[];
 }

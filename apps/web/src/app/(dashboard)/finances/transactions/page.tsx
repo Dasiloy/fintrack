@@ -259,7 +259,7 @@ export default function TransactionsPage() {
           />
         ),
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+       
     ],
     [drawerTxId, drawerOpen, deleteMutation],
   );

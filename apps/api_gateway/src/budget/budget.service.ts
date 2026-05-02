@@ -75,7 +75,9 @@ export class BudgetService implements OnModuleInit {
   async deleteBudget(user: User, id: string): Promise<Empty> {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
-    const result = await lastValueFrom(this.financeService.deleteBudget({ id }, metadata));
+    const result = await lastValueFrom(
+      this.financeService.deleteBudget({ id }, metadata),
+    );
     void this.usageService.invalidateGatedUsageCache(user.id);
     return result;
   }

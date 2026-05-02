@@ -1,6 +1,6 @@
 import { Job } from 'bullmq';
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 
 import { PrismaService } from '@fintrack/database/nest';

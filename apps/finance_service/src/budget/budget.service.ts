@@ -176,7 +176,10 @@ export class BudgetService {
 
           if (amountChanged) {
             const now = new Date();
-            const currentPeriodStart = this.utils.getStartOfPeriod(budget.period, now);
+            const currentPeriodStart = this.utils.getStartOfPeriod(
+              budget.period,
+              now,
+            );
 
             // Find the active history entry (endDate = null)
             const activeHistory = await tx.budgetHistory.findFirst({
@@ -185,7 +188,10 @@ export class BudgetService {
             });
 
             const activePeriodStart = activeHistory
-              ? this.utils.getStartOfPeriod(budget.period, activeHistory.startDate)
+              ? this.utils.getStartOfPeriod(
+                  budget.period,
+                  activeHistory.startDate,
+                )
               : null;
 
             const isSamePeriod =
@@ -349,7 +355,6 @@ export class BudgetService {
     );
   }
 
-
   /**
    * Maps a Prisma Budget record to the proto Budget shape.
    *
@@ -357,7 +362,10 @@ export class BudgetService {
    * @param {BudgetWithOptionalJoins} budget - Prisma budget with optional category join
    * @returns {ProtoBudget}
    */
-  private formatBudget(budget: BudgetWithOptionalJoins, spent = 0): ProtoBudget {
+  private formatBudget(
+    budget: BudgetWithOptionalJoins,
+    spent = 0,
+  ): ProtoBudget {
     return {
       id: budget.id,
       name: budget.name,
