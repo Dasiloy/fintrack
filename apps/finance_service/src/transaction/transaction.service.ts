@@ -12,16 +12,19 @@ import {
   ACTIVITY_NOTIFICATION_QUEUE,
   ANALYTICS_NOTIFICATION_JOB,
   ANALYTICS_NOTIFICATION_QUEUE,
+  BUDGET_ALERT_EMAIL_JOB,
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
   CLASSIFICATION_CORRECTION_JOB,
   CLASSIFICATION_CORRECTION_QUEUE,
+  TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
   AnalyticsNotificationPayload,
   ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
+import { BudgetAlertEmailPayload } from '@fintrack/types/interfaces/mail.interface';
 import {
   BatchCreateTransactionsReq,
   BatchCreateTransactionsRes,
@@ -79,6 +82,8 @@ export class TransactionService {
     private readonly analyticsNotificationQueue: Queue,
     @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
     private readonly classificationCorrectionQueue: Queue,
+    @InjectQueue(TOKEN_NOTIFICATION_QUEUE)
+    private readonly tokenNotificationQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -121,6 +126,13 @@ export class TransactionService {
 
       // call side effects events
       this.callevents(userId, createdTransaction, 'Transaction Created');
+      if (createdTransaction.type === TransactionType.EXPENSE) {
+        await this.checkAndDispatchBudgetAlerts(
+          userId,
+          [createdTransaction.categoryId],
+          createdTransaction.date,
+        );
+      }
       return this.formatTransaction(createdTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;
@@ -183,6 +195,21 @@ export class TransactionService {
         data,
         skipDuplicates: true,
       });
+
+      const expenseCategoryIds = [
+        ...new Set(
+          transactions
+            .filter((tx) => tx.type === ProtoTransactionType.EXPENSE)
+            .map((tx) => tx.categoryId),
+        ),
+      ];
+      if (result.count > 0 && expenseCategoryIds.length > 0) {
+        await this.checkAndDispatchBudgetAlerts(
+          userId,
+          expenseCategoryIds,
+          new Date(),
+        );
+      }
 
       return {
         created: result.count,
@@ -382,6 +409,13 @@ export class TransactionService {
 
       // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
+      if (updatedTransaction.type === TransactionType.EXPENSE) {
+        await this.checkAndDispatchBudgetAlerts(
+          userId,
+          [updatedTransaction.categoryId],
+          updatedTransaction.date,
+        );
+      }
       return this.formatTransaction(updatedTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;
@@ -598,5 +632,61 @@ export class TransactionService {
           }
         : undefined,
     };
+  }
+
+  private async checkAndDispatchBudgetAlerts(
+    userId: string,
+    categoryIds: string[],
+    referenceDate: Date,
+  ): Promise<void> {
+    const budgets = await this.prismaService.budget.findMany({
+      where: { userId, categoryId: { in: categoryIds } },
+      include: { category: true },
+    });
+    if (budgets.length === 0) return;
+
+    const results = await Promise.all(
+      budgets.map(async (budget) => {
+        const periodStart = this.utils.getStartOfPeriod(budget.period, referenceDate);
+        const periodEnd = this.utils.getEndOfPeriod(budget.period, periodStart);
+        const { _sum } = await this.prismaService.transaction.aggregate({
+          where: { userId, categoryId: budget.categoryId, type: TransactionType.EXPENSE, date: { gte: periodStart, lte: periodEnd } },
+          _sum: { amount: true },
+        });
+        return { budget, spent: Number(_sum.amount ?? 0), periodStart };
+      }),
+    );
+
+    const newBreaches = results.filter(({ budget, spent, periodStart }) => {
+      const ratio = spent / Number(budget.amount);
+      const throttleCutoff = new Date(referenceDate.getTime() - budget.alertAtFrequency * 86_400_000);
+      const suppressed =
+        budget.alertedAt !== null &&
+        budget.alertedAt >= periodStart &&
+        budget.alertedAt >= throttleCutoff;
+      return ratio >= budget.alertThreshold && !suppressed;
+    });
+
+    if (newBreaches.length === 0) return;
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: { email: true, firstName: true, lastName: true },
+    });
+    if (!user) return;
+
+    await this.tokenNotificationQueue.add(BUDGET_ALERT_EMAIL_JOB, {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      budgetIds: newBreaches.map(({ budget }) => budget.id),
+      alerts: newBreaches.map(({ budget, spent }) => ({
+        budgetName: budget.name,
+        categoryName: budget.category.name,
+        spent,
+        limit: Number(budget.amount),
+        percentage: Math.round((spent / Number(budget.amount)) * 100),
+      })),
+    } satisfies BudgetAlertEmailPayload);
   }
 }

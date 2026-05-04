@@ -102,6 +102,22 @@ export interface AccountDeletionEmailPayload {
   deletionDate: string;
 }
 
+export interface BudgetAlertItem {
+  budgetName: string;
+  categoryName: string;
+  spent: number;
+  limit: number;
+  percentage: number;
+}
+
+export interface BudgetAlertEmailPayload {
+  email: string;
+  firstName: string;
+  lastName: string;
+  budgetIds: string[];
+  alerts: BudgetAlertItem[];
+}
+
 export interface RecurringTransactionItem {
   name: string;
   amount: string;

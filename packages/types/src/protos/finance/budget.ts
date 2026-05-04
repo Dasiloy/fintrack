@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/budget.proto
 
- 
+/* eslint-disable */
 import { Category } from "./transaction";
 
 export const protobufPackage = "finance";
@@ -35,7 +35,7 @@ export interface CreateBudgetReq {
 }
 
 export interface UnbudgetedCategory {
-  categoryId: string;
+  slug: string;
   name: string;
   color: string;
   icon: string;
@@ -57,8 +57,21 @@ export interface GetBudgetReq {
   id: string;
 }
 
+export interface BudgetHistoryEntry {
+  id: string;
+  limit: number;
+  startDate: string;
+  endDate?: string | undefined;
+  createdAt: string;
+}
+
+export interface BudgetDetail {
+  budget: Budget | undefined;
+  history: BudgetHistoryEntry[];
+}
+
 export interface SpendingTrendCategory {
-  categoryId: string;
+  slug: string;
   name: string;
   color: string;
   amount: number;

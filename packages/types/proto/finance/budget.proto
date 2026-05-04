@@ -29,7 +29,7 @@ message CreateBudgetReq {
 }
 
 message UnbudgetedCategory {
-  string category_id = 1;
+  string slug = 1;
   string name        = 2;
   string color       = 3;
   string icon        = 4;
@@ -50,8 +50,21 @@ message GetBudgetReq {
   string id = 1;
 }
 
+message BudgetHistoryEntry {
+  string          id         = 1;
+  float           limit      = 2;
+  string          start_date = 3;
+  optional string end_date   = 4;
+  string          created_at = 5;
+}
+
+message BudgetDetail {
+  Budget                       budget  = 1;
+  repeated BudgetHistoryEntry  history = 2;
+}
+
 message SpendingTrendCategory {
-  string category_id = 1;
+  string slug = 1;
   string name        = 2;
   string color       = 3;
   float  amount      = 4;

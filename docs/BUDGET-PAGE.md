@@ -264,11 +264,11 @@ export interface BudgetAlertItem {
 }
 
 export interface BudgetAlertEmailPayload {
-  email:     string;
+  email: string;
   firstName: string;
-  lastName:  string;
-  budgetIds: string[];  // notification service stamps alertedAt after email is sent
-  alerts:    BudgetAlertItem[];
+  lastName: string;
+  budgetIds: string[]; // notification service stamps alertedAt after email is sent
+  alerts: BudgetAlertItem[];
 }
 ```
 
@@ -522,7 +522,7 @@ Refer to the `shadcn` skill for the exact initialisation flow if `components.jso
 
 ### 3b. `SpendingTrendChart` component · `[ ]`
 
-**File:** `packages/ui/src/components/charts/spending_trend_chart.tsx`
+**File:** `packages/ui/src/app/(dasgboard/finance/budgets/_components/spending_trend_chart.tsx`
 
 ```typescript
 interface SpendingTrendChartProps {
@@ -1169,14 +1169,6 @@ Pattern for invalidation (matches existing `usage.service.ts`):
 const keys = await this.redis.keys(`${BUDGET_LIST_CACHE_PREFIX}:${userId}:*`);
 if (keys.length) await this.redis.del(...keys);
 ```
-
----
-
-## Section 12 — Navigation · `[ ]`
-
-Ensure `/finances/budgets` appears in the sidebar nav. Check
-`apps/web/src/app/(dashboard)/_components/` for the nav config and add the Budgets link
-if not already present (likely next to Transactions).
 
 ---
 

@@ -10,6 +10,7 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import {
   Budget,
+  BudgetDetail,
   CreateBudgetReq,
   DeleteBudgetReq,
   GetBudgetReq,
@@ -99,7 +100,7 @@ export interface FinanceServiceClient {
 
   getBudgets(request: GetBudgetsReq, metadata?: Metadata): Observable<GetBudgetsRes>;
 
-  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<Budget>;
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<BudgetDetail>;
 
   getSpendingTrend(request: GetSpendingTrendReq, metadata?: Metadata): Observable<GetSpendingTrendRes>;
 
@@ -205,7 +206,10 @@ export interface FinanceServiceController {
     metadata?: Metadata,
   ): Promise<GetBudgetsRes> | Observable<GetBudgetsRes> | GetBudgetsRes;
 
-  getBudget(request: GetBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+  getBudget(
+    request: GetBudgetReq,
+    metadata?: Metadata,
+  ): Promise<BudgetDetail> | Observable<BudgetDetail> | BudgetDetail;
 
   getSpendingTrend(
     request: GetSpendingTrendReq,

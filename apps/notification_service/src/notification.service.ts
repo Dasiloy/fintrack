@@ -2,6 +2,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 
 import { Injectable, Logger } from '@nestjs/common';
 
+import { PrismaService } from '@fintrack/database/service';
 import {
   EmailVerificationPayload,
   WelcomeEmailPayload,
@@ -17,6 +18,7 @@ import {
   SubscriptionEndedEmailPayload,
   NewUsageTrackersCreatedEmailPayload,
   AccountDeletionEmailPayload,
+  BudgetAlertEmailPayload,
   RecurringTransactionsEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
@@ -27,7 +29,10 @@ import {
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   /**
    * Sends a verification email with an OTP
@@ -403,6 +408,35 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send account deletion email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async sendBudgetAlertEmail(data: BudgetAlertEmailPayload) {
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject: 'Budget Alert - Fintrack',
+        template: './budget_alert',
+        context: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          alerts: data.alerts,
+          count: data.alerts.length,
+        },
+      });
+      await this.prismaService.budget.updateMany({
+        where: { id: { in: data.budgetIds } },
+        data: { alertedAt: new Date() },
+      });
+      this.logger.log(
+        `Budget alert email sent to ${data.email} (${data.alerts.length} budget(s))`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send budget alert email to ${data.email}`,
         error.stack,
       );
       throw error;

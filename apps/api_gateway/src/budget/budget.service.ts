@@ -14,9 +14,19 @@ import {
   FINANCE_PACKAGE_NAME,
 } from '@fintrack/types/protos/finance/transaction';
 import { User } from '@fintrack/database/types';
-import { Budget as ProtoBudget } from '@fintrack/types/protos/finance/budget';
+import {
+  Budget as ProtoBudget,
+  BudgetDetail,
+  GetBudgetsRes,
+  GetSpendingTrendRes,
+} from '@fintrack/types/protos/finance/budget';
 
-import { CreateBudgetDto, UpdateBudgetDto } from './dto/budget.dto';
+import {
+  CreateBudgetDto,
+  GetBudgetsQueryDto,
+  GetSpendingTrendQueryDto,
+  UpdateBudgetDto,
+} from './dto/budget.dto';
 
 /**
  * Service responsible for managing user budgets
@@ -36,6 +46,42 @@ export class BudgetService implements OnModuleInit {
   onModuleInit() {
     this.financeService =
       this.client.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
+  }
+
+  async getBudgets(
+    user: User,
+    query: GetBudgetsQueryDto,
+  ): Promise<GetBudgetsRes> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+    return lastValueFrom(
+      this.financeService.getBudgets(
+        { month: query.month, year: query.year },
+        metadata,
+      ),
+    );
+  }
+
+  async getBudget(user: User, id: string): Promise<BudgetDetail> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+    return lastValueFrom(
+      this.financeService.getBudget({ id }, metadata),
+    );
+  }
+
+  async getSpendingTrend(
+    user: User,
+    query: GetSpendingTrendQueryDto,
+  ): Promise<GetSpendingTrendRes> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+    return lastValueFrom(
+      this.financeService.getSpendingTrend(
+        { months: query.months ?? 6 },
+        metadata,
+      ),
+    );
   }
 
   async createBudget(user: User, data: CreateBudgetDto): Promise<ProtoBudget> {

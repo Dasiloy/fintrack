@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -9,6 +10,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -148,4 +150,41 @@ export class UpdateBudgetDto {
   @Max(1, { message: 'Alert threshold must be less than or equal to 1' })
   @IsOptional()
   alertThreshold?: number;
+}
+
+export class GetBudgetsQueryDto {
+  @ApiProperty({
+    type: 'integer',
+    description: '0-indexed month (0 = January)',
+    example: 0,
+  })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(11)
+  month: number;
+
+  @ApiProperty({
+    type: 'integer',
+    description: 'Full year',
+    example: 2026,
+  })
+  @Type(() => Number)
+  @IsInt()
+  @Min(2000)
+  year: number;
+}
+
+export class GetSpendingTrendQueryDto {
+  @ApiPropertyOptional({
+    type: 'integer',
+    description: 'Lookback window in months. One of: 3, 6, 12.',
+    example: 6,
+    default: 6,
+  })
+  @Type(() => Number)
+  @IsInt()
+  @IsIn([3, 6, 12])
+  @IsOptional()
+  months?: number = 6;
 }
