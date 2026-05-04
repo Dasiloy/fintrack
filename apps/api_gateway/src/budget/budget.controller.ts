@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -14,15 +16,26 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
 import { User } from '@fintrack/database/types';
-import { Budget as ProtoBudget } from '@fintrack/types/protos/finance/budget';
+import {
+  Budget as ProtoBudget,
+  BudgetDetail,
+  GetBudgetsRes,
+  GetSpendingTrendRes,
+} from '@fintrack/types/protos/finance/budget';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 
-import { CreateBudgetDto, UpdateBudgetDto } from './dto/budget.dto';
+import {
+  CreateBudgetDto,
+  GetBudgetsQueryDto,
+  GetSpendingTrendQueryDto,
+  UpdateBudgetDto,
+} from './dto/budget.dto';
 import { BudgetService } from './budget.service';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
@@ -40,6 +53,77 @@ import { CurrentUser } from '../decorators/current_user.decorator';
 @UseGuards(ApiGuard)
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
+
+  // ================================================================
+  //. Get budgets for a month/year
+  // ================================================================
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get budgets for a given month and year' })
+  @ApiQuery({ name: 'month', type: Number, required: true, description: '0-indexed month (0 = January)', example: 0 })
+  @ApiQuery({ name: 'year', type: Number, required: true, description: 'Full year', example: 2026 })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Budgets retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  async getBudgets(
+    @CurrentUser() user: User,
+    @Query() query: GetBudgetsQueryDto,
+  ): Promise<StandardResponse<GetBudgetsRes>> {
+    const res = await this.budgetService.getBudgets(user, query);
+    return {
+      data: res,
+      message: 'Budgets retrieved successfully',
+      success: true,
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
+  //. Get spending trend
+  // ================================================================
+  @Get('trend')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get spending trend over a lookback window' })
+  @ApiQuery({ name: 'months', type: Number, required: false, description: 'Lookback window: 3, 6, or 12', example: 6 })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Spending trend retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  async getSpendingTrend(
+    @CurrentUser() user: User,
+    @Query() query: GetSpendingTrendQueryDto,
+  ): Promise<StandardResponse<GetSpendingTrendRes>> {
+    const res = await this.budgetService.getSpendingTrend(user, query);
+    return {
+      data: res,
+      message: 'Spending trend retrieved successfully',
+      success: true,
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
+  //. Get a single budget by id
+  // ================================================================
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a budget by ID including history' })
+  @ApiParam({ name: 'id', type: String, required: true, description: 'Budget ID', example: 'cmnoh1rlt0001i0rqneqmzb77' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Budget retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Budget not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  async getBudget(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<StandardResponse<BudgetDetail>> {
+    const res = await this.budgetService.getBudget(user, id);
+    return {
+      data: res,
+      message: 'Budget retrieved successfully',
+      success: true,
+      statusCode: HttpStatus.OK,
+    };
+  }
 
   // ================================================================
   //. Create a budget

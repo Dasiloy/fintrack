@@ -276,7 +276,7 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex flex-col">
       {/* ── Page header ── */}
       <PageHeader breadcrumbs={[{ label: 'Transactions' }]}>
         <Button
@@ -376,7 +376,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* ── Transaction list ── */}
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="px-6 pb-6">
         <div className="glass-card rounded-card border-border-subtle min-h-[480px] overflow-hidden border md:min-h-[660px] 2xl:min-h-[750px]">
           <StyledTable
             columns={transactionColumns}

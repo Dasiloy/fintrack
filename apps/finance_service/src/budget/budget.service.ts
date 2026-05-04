@@ -15,8 +15,14 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import {
   Budget as ProtoBudget,
+  BudgetDetail,
   CreateBudgetReq,
   DeleteBudgetReq,
+  GetBudgetReq,
+  GetBudgetsReq,
+  GetBudgetsRes,
+  GetSpendingTrendReq,
+  GetSpendingTrendRes,
   UpdateBudgetReq,
 } from '@fintrack/types/protos/finance/budget';
 import {
@@ -271,6 +277,131 @@ export class BudgetService {
    * @throws {RpcException} NOT_FOUND if the budget does not exist or belongs to another user
    * @throws {RpcException} INTERNAL on unexpected errors
    */
+  async getBudgets(userId: string, req: GetBudgetsReq): Promise<GetBudgetsRes> {
+    try {
+      const anchor = new Date(Date.UTC(req.year, req.month, 1));
+      const periodStart = this.utils.getStartOfPeriod(BudgetPeriod.MONTHLY, anchor);
+      const periodEnd = this.utils.getEndOfPeriod(BudgetPeriod.MONTHLY, periodStart);
+
+      const [budgets, allSpend] = await Promise.all([
+        this.prismaService.budget.findMany({
+          where: { userId },
+          include: { category: true },
+        }),
+        this.prismaService.transaction.groupBy({
+          by: ['categoryId'],
+          where: { userId, type: 'EXPENSE', date: { gte: periodStart, lte: periodEnd } },
+          _sum: { amount: true },
+        }),
+      ]);
+
+      const budgetedIds = new Set(budgets.map((b) => b.categoryId));
+      const spentMap = new Map(allSpend.map((r) => [r.categoryId, Number(r._sum.amount ?? 0)]));
+
+      const unbudgetedSpend = allSpend.filter((r) => !budgetedIds.has(r.categoryId));
+      const unbudgetedCategories = unbudgetedSpend.length
+        ? await this.prismaService.category.findMany({
+            where: { id: { in: unbudgetedSpend.map((r) => r.categoryId) } },
+          })
+        : [];
+
+      return {
+        budgets: budgets.map((b) => this.formatBudget(b, spentMap.get(b.categoryId) ?? 0)),
+        unbudgeted: unbudgetedCategories.map((c) => ({
+          slug: c.slug,
+          name: c.name,
+          color: c.color ?? '',
+          icon: c.icon ?? '',
+          spent: spentMap.get(c.id) ?? 0,
+        })),
+      };
+    } catch (error) {
+      this.logger.error('getBudgets error:', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({ code: status.INTERNAL, message: 'An error occurred', details: error.message });
+    }
+  }
+
+  async getBudget(userId: string, req: GetBudgetReq): Promise<BudgetDetail> {
+    try {
+      const budget = await this.prismaService.budget.findFirst({
+        where: { id: req.id, userId },
+        include: {
+          category: true,
+          budgetHistory: { orderBy: { startDate: 'asc' } },
+        },
+      });
+
+      if (!budget) {
+        throw new RpcException({ code: status.NOT_FOUND, message: 'Budget not found' });
+      }
+
+      return {
+        budget: this.formatBudget(budget),
+        history: budget.budgetHistory.map((h) => ({
+          id: h.id,
+          limit: h.limit,
+          startDate: h.startDate.toISOString(),
+          endDate: h.endDate?.toISOString(),
+          createdAt: h.createdAt.toISOString(),
+        })),
+      };
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({ code: status.INTERNAL, message: 'An error occurred', details: error.message });
+    }
+  }
+
+  async getSpendingTrend(userId: string, req: GetSpendingTrendReq): Promise<GetSpendingTrendRes> {
+    try {
+      const now = new Date();
+      const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const startDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (req.months - 1), 1));
+      const endDate = this.utils.getEndOfPeriod(BudgetPeriod.MONTHLY, currentMonthStart);
+
+      const transactions = await this.prismaService.transaction.findMany({
+        where: { userId, type: 'EXPENSE', date: { gte: startDate, lte: endDate } },
+        include: { category: true },
+      });
+
+      // Pre-fill all months in range with zero so gaps render as 0 on the chart
+      const monthSlots: Array<{ year: number; month: number; label: string }> = [];
+      for (let i = 0; i < req.months; i++) {
+        const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (req.months - 1 - i), 1));
+        monthSlots.push({
+          year: d.getUTCFullYear(),
+          month: d.getUTCMonth(),
+          label: d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }),
+        });
+      }
+
+      // Group amounts by month-key → category slug
+      const monthMap = new Map<string, Map<string, { slug: string; name: string; color: string; amount: number }>>();
+      for (const tx of transactions) {
+        const key = `${tx.date.getUTCFullYear()}-${tx.date.getUTCMonth()}`;
+        if (!monthMap.has(key)) monthMap.set(key, new Map());
+        const catMap = monthMap.get(key)!;
+        const slug = tx.category?.slug ?? 'other';
+        if (!catMap.has(slug)) {
+          catMap.set(slug, { slug, name: tx.category?.name ?? 'Other', color: tx.category?.color ?? '#888', amount: 0 });
+        }
+        catMap.get(slug)!.amount += Number(tx.amount);
+      }
+
+      const data = monthSlots.map(({ year, month, label }) => {
+        const catMap = monthMap.get(`${year}-${month}`) ?? new Map();
+        const byCategory = Array.from(catMap.values());
+        return { label, total: byCategory.reduce((s, c) => s + c.amount, 0), byCategory };
+      });
+
+      return { data };
+    } catch (error) {
+      this.logger.error('getSpendingTrend error:', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({ code: status.INTERNAL, message: 'An error occurred', details: error.message });
+    }
+  }
+
   async deleteBudget(userId: string, data: DeleteBudgetReq): Promise<Empty> {
     try {
       const budget = await this.prismaService.budget.findFirst({

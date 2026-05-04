@@ -4,8 +4,14 @@ import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcMethod, Payload } from '@nestjs/microservices';
 import { FINANCE_SERVICE_NAME } from '@fintrack/types/protos/finance/finance';
 import {
+  BudgetDetail,
   CreateBudgetReq,
   DeleteBudgetReq,
+  GetBudgetReq,
+  GetBudgetsReq,
+  GetBudgetsRes,
+  GetSpendingTrendReq,
+  GetSpendingTrendRes,
   Budget as ProtoBudget,
   UpdateBudgetReq,
 } from '@fintrack/types/protos/finance/budget';
@@ -25,6 +31,30 @@ import { BudgetService } from './budget.service';
 @UseGuards(RpcAuthGuard)
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
+
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'getBudgets')
+  getBudgets(
+    @Payload() request: GetBudgetsReq,
+    @RpcUser() user: User,
+  ): Promise<GetBudgetsRes> {
+    return this.budgetService.getBudgets(user.id, request);
+  }
+
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'getBudget')
+  getBudget(
+    @Payload() request: GetBudgetReq,
+    @RpcUser() user: User,
+  ): Promise<BudgetDetail> {
+    return this.budgetService.getBudget(user.id, request);
+  }
+
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'getSpendingTrend')
+  getSpendingTrend(
+    @Payload() request: GetSpendingTrendReq,
+    @RpcUser() user: User,
+  ): Promise<GetSpendingTrendRes> {
+    return this.budgetService.getSpendingTrend(user.id, request);
+  }
 
   @GrpcMethod(FINANCE_SERVICE_NAME, 'createBudget')
   createBudget(
