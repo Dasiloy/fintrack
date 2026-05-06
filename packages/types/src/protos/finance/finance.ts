@@ -13,11 +13,13 @@ import {
   BudgetDetail,
   CreateBudgetReq,
   DeleteBudgetReq,
+  GetArchivedBudgetsRes,
   GetBudgetReq,
   GetBudgetsReq,
   GetBudgetsRes,
   GetSpendingTrendReq,
   GetSpendingTrendRes,
+  RestoreBudgetReq,
   UpdateBudgetReq,
 } from "./budget";
 import {
@@ -107,6 +109,10 @@ export interface FinanceServiceClient {
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Observable<Budget>;
 
   deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Observable<Empty>;
+
+  getArchivedBudgets(request: Empty, metadata?: Metadata): Observable<GetArchivedBudgetsRes>;
+
+  restoreBudget(request: RestoreBudgetReq, metadata?: Metadata): Observable<Budget>;
 
   /** Recurring */
 
@@ -220,6 +226,13 @@ export interface FinanceServiceController {
 
   deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
+  getArchivedBudgets(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GetArchivedBudgetsRes> | Observable<GetArchivedBudgetsRes> | GetArchivedBudgetsRes;
+
+  restoreBudget(request: RestoreBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+
   /** Recurring */
 
   createRecurring(
@@ -330,6 +343,8 @@ export function FinanceServiceControllerMethods() {
       "getSpendingTrend",
       "updateBudget",
       "deleteBudget",
+      "getArchivedBudgets",
+      "restoreBudget",
       "createRecurring",
       "getRecurrings",
       "getRecurring",

@@ -10,7 +10,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -54,11 +54,25 @@ export class CreateBudgetDto {
     description: 'The alert threshold of the budget',
     example: 0.8,
   })
-  @IsNumber({ maxDecimalPlaces: 1 })
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.1, { message: 'Alert threshold must be greater than 0.1' })
   @Max(1, { message: 'Alert threshold must be less than or equal to 1' })
   @IsOptional()
   alertThreshold?: number = 0.8;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    required: false,
+    description: 'Alert Delay in days backoff',
+    example: 2,
+  })
+  @IsInt({
+    message: 'Number must be exactly an integar',
+  })
+  @Min(1, { message: 'Alert Frequency must be greater than 0' })
+  @Max(7, { message: 'Alert Frequency must be maximum of 7 days apart' })
+  @IsOptional()
+  alertAtFrequency = 2;
 
   @ApiProperty({
     type: 'string',
@@ -145,11 +159,38 @@ export class UpdateBudgetDto {
     description: 'The alert threshold of the budget',
     example: 0.8,
   })
-  @IsNumber({ maxDecimalPlaces: 1 })
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.1, { message: 'Alert threshold must be greater than 0.1' })
   @Max(1, { message: 'Alert threshold must be less than or equal to 1' })
   @IsOptional()
   alertThreshold?: number;
+
+  @ApiPropertyOptional({
+    type: 'number',
+    required: false,
+    description: 'Alert Delay in days backoff',
+    example: 2,
+  })
+  @IsInt({
+    message: 'Number must be exactly an integar',
+  })
+  @Min(1, { message: 'Alert Frequency must be greater than 0' })
+  @Max(7, { message: 'Alert Frequency must be maximum of 7 days apart' })
+  @IsOptional()
+  alertAtFrequency: number;
+
+  @ApiProperty({ type: 'integer', example: 2 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(11)
+  month: number;
+
+  @ApiProperty({ type: 'integer', example: 2026 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(2000)
+  year: number;
 }
 
 export class GetBudgetsQueryDto {
@@ -175,6 +216,19 @@ export class GetBudgetsQueryDto {
   year: number;
 }
 
+export class GetBudgetQueryDto {
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(11)
+  month: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(2000)
+  year: number;
+}
+
 export class GetSpendingTrendQueryDto {
   @ApiPropertyOptional({
     type: 'integer',
@@ -187,4 +241,10 @@ export class GetSpendingTrendQueryDto {
   @IsIn([3, 6, 12])
   @IsOptional()
   months?: number = 6;
+}
+
+export class DeleteBudgetDto {
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  hardDelete?: boolean = false;
 }

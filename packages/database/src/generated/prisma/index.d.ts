@@ -1262,7 +1262,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends bigint
+  : T extends BigInt
   ? False
   : T extends object
   ? True
@@ -21439,6 +21439,7 @@ export namespace Prisma {
     alertThreshold: number | null
     alertedAt: Date | null
     alertAtFrequency: number | null
+    deactivatedAt: Date | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21455,6 +21456,7 @@ export namespace Prisma {
     alertThreshold: number | null
     alertedAt: Date | null
     alertAtFrequency: number | null
+    deactivatedAt: Date | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21471,6 +21473,7 @@ export namespace Prisma {
     alertThreshold: number
     alertedAt: number
     alertAtFrequency: number
+    deactivatedAt: number
     categoryId: number
     userId: number
     createdAt: number
@@ -21501,6 +21504,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21517,6 +21521,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21533,6 +21538,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21636,6 +21642,7 @@ export namespace Prisma {
     alertThreshold: number
     alertedAt: Date | null
     alertAtFrequency: number
+    deactivatedAt: Date | null
     categoryId: string
     userId: string
     createdAt: Date
@@ -21671,6 +21678,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21691,6 +21699,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21709,6 +21718,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21727,13 +21737,14 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
+  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "deactivatedAt" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
   export type BudgetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -21766,6 +21777,7 @@ export namespace Prisma {
       alertThreshold: number
       alertedAt: Date | null
       alertAtFrequency: number
+      deactivatedAt: Date | null
       categoryId: string
       userId: string
       createdAt: Date
@@ -22205,6 +22217,7 @@ export namespace Prisma {
     readonly alertThreshold: FieldRef<"Budget", 'Float'>
     readonly alertedAt: FieldRef<"Budget", 'DateTime'>
     readonly alertAtFrequency: FieldRef<"Budget", 'Int'>
+    readonly deactivatedAt: FieldRef<"Budget", 'DateTime'>
     readonly categoryId: FieldRef<"Budget", 'String'>
     readonly userId: FieldRef<"Budget", 'String'>
     readonly createdAt: FieldRef<"Budget", 'DateTime'>
@@ -38353,6 +38366,7 @@ export namespace Prisma {
     alertThreshold: 'alertThreshold',
     alertedAt: 'alertedAt',
     alertAtFrequency: 'alertAtFrequency',
+    deactivatedAt: 'deactivatedAt',
     categoryId: 'categoryId',
     userId: 'userId',
     createdAt: 'createdAt',
@@ -40216,6 +40230,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40235,6 +40250,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrderInput | SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40258,6 +40274,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40277,6 +40294,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrderInput | SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40301,6 +40319,7 @@ export namespace Prisma {
     alertThreshold?: FloatWithAggregatesFilter<"Budget"> | number
     alertedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntWithAggregatesFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
     categoryId?: StringWithAggregatesFilter<"Budget"> | string
     userId?: StringWithAggregatesFilter<"Budget"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
@@ -42828,6 +42847,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -42845,6 +42865,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42862,6 +42883,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -42879,6 +42901,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42896,6 +42919,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42912,6 +42936,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42926,6 +42951,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -45446,6 +45472,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45468,6 +45495,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45484,6 +45512,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -49359,6 +49388,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -49375,6 +49405,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50060,6 +50091,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -51990,6 +52022,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutBudgetsInput
@@ -52006,6 +52039,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52546,6 +52580,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -52562,6 +52597,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -52594,6 +52630,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -52610,6 +52647,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55869,6 +55907,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56271,6 +56310,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56287,6 +56327,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56303,6 +56344,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56684,6 +56726,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56793,6 +56836,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56809,6 +56853,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56825,6 +56870,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

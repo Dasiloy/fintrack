@@ -8,6 +8,7 @@ import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../
 import type {
   Budget,
   BudgetDetail,
+  GetArchivedBudgetsRes,
   GetBudgetsRes,
   GetSpendingTrendRes,
 } from '@fintrack/types/protos/finance/budget';
@@ -87,9 +88,19 @@ export const budgetRouter = createTRPCRouter({
    * @throws NOT_FOUND if the budget does not exist or belongs to another user
    */
   getById: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
+    .input(
+      z.object({
+        id: z.string().min(1),
+        month: z.number().int().min(0).max(11),
+        year: z.number().int().min(2000),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      const response = await fetch(`${GATEWAY_URL}/api/budget/${input.id}`, {
+      const params = new URLSearchParams({
+        month: String(input.month),
+        year: String(input.year),
+      });
+      const response = await fetch(`${GATEWAY_URL}/api/budget/${input.id}?${params.toString()}`, {
         headers: gatewayHeaders(ctx.headers),
       });
       if (!response.ok) await throwGatewayError(response);
@@ -120,7 +131,7 @@ export const budgetRouter = createTRPCRouter({
         year: z.number().int().min(2000),
         description: z.string().min(1).max(255).optional(),
         alertThreshold: z.number().min(0).max(1).optional(),
-        alertThrottleDays: z.number().int().min(1).max(30).optional(),
+        alertAtFrequency: z.number().int().min(1).max(7).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -151,9 +162,11 @@ export const budgetRouter = createTRPCRouter({
         id: z.string().min(1),
         name: z.string().min(1).max(255).optional(),
         amount: z.number().min(0).optional(),
+        month: z.number().int().min(0).max(11),
+        year: z.number().int().min(2000),
         description: z.string().min(1).max(255).optional(),
         alertThreshold: z.number().min(0).max(1).optional(),
-        alertThrottleDays: z.number().int().min(1).max(30).optional(),
+        alertAtFrequency: z.number().int().min(1).max(7).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -172,6 +185,39 @@ export const budgetRouter = createTRPCRouter({
     }),
 
   /**
+   * Returns all soft-deleted (archived) budgets for the user.
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   */
+  getArchived: protectedProcedure.query(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/budget/archived`, {
+      headers: gatewayHeaders(ctx.headers),
+    });
+    if (!response.ok) await throwGatewayError(response);
+    const data: StandardResponse<GetArchivedBudgetsRes> = await response.json();
+    return data;
+  }),
+
+  /**
+   * Restores a soft-deleted budget by ID.
+   *
+   * @param id - Budget ID to restore
+   * @throws UNAUTHORIZED if the session is invalid
+   * @throws NOT_FOUND if the archived budget does not exist
+   */
+  restore: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/budget/${input.id}/restore`, {
+        method: 'POST',
+        headers: gatewayHeaders(ctx.headers),
+      });
+      if (!response.ok) await throwGatewayError(response);
+      const data: StandardResponse<Budget> = await response.json();
+      return data;
+    }),
+
+  /**
    * Deletes a budget by ID.
    *
    * @param id - Budget ID to delete
@@ -179,9 +225,10 @@ export const budgetRouter = createTRPCRouter({
    * @throws NOT_FOUND if the budget does not exist
    */
   delete: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
+    .input(z.object({ id: z.string().min(1), hardDelete: z.boolean().default(false) }))
     .mutation(async ({ ctx, input }) => {
-      const response = await fetch(`${GATEWAY_URL}/api/budget/${input.id}`, {
+      const params = new URLSearchParams({ hardDelete: String(input.hardDelete) });
+      const response = await fetch(`${GATEWAY_URL}/api/budget/${input.id}?${params.toString()}`, {
         method: 'DELETE',
         headers: gatewayHeaders(ctx.headers),
       });

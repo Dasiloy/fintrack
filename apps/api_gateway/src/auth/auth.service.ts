@@ -46,7 +46,15 @@ import {
 } from './dto/auth.dto';
 
 /**
- * AuthService.
+ * @description Proxies all authentication operations to the Auth microservice via gRPC.
+ *
+ * ## Responsibilities
+ * - Forwarding registration, login, email verification, and password management calls to the Auth gRPC service
+ * - Managing 2FA setup, confirmation, disabling, and backup-code regeneration
+ * - Handling Google OAuth login and in-app email/password changes
+ * - Scheduling account deletion
+ *
+ * @class AuthService
  */
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -54,6 +62,11 @@ export class AuthService implements OnModuleInit {
 
   constructor(@Inject(AUTH_PACKAGE_NAME) private client: ClientGrpc) {}
 
+  /**
+   * @description Initialise the gRPC Auth stub on module startup.
+   *
+   * @public
+   */
   onModuleInit() {
     this.authService =
       this.client.getService<AuthServiceClient>(AUTH_SERVICE_NAME);

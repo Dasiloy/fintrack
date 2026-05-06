@@ -313,6 +313,7 @@ exports.Prisma.BudgetScalarFieldEnum = {
   alertThreshold: 'alertThreshold',
   alertedAt: 'alertedAt',
   alertAtFrequency: 'alertAtFrequency',
+  deactivatedAt: 'deactivatedAt',
   categoryId: 'categoryId',
   userId: 'userId',
   createdAt: 'createdAt',

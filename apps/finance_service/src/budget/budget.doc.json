@@ -11,32 +11,91 @@
     }
   },
 
+  "getBudgets": {
+    "rpc": "getBudgets",
+    "proto_method": "rpc getBudgets (GetBudgetsReq) returns (GetBudgetsRes)",
+    "description": "Returns all budgets active during the given month/year period, each enriched with a per-category `spent` total (sum of EXPENSE transactions in the period). Only budgets where `deactivatedAt IS NULL OR deactivatedAt > periodStart` are included. Also returns `unbudgeted` — categories with EXPENSE spend in the period that have no budget set.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "month": "number — 0-indexed month (0 = January, 11 = December)",
+      "year": "number — full four-digit year"
+    },
+    "output": {
+      "budgets": "Budget[] — list of active budgets; `amount` on each budget is the effective limit for the requested period (from the BudgetHistory entry active at periodStart), not the current budget.amount; falls back to budget.amount if no history entry covers the period",
+      "unbudgeted": "UnbudgetedCategory[] — categories with spend but no budget, each with slug/name/color/icon/spent"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getBudget": {
+    "rpc": "getBudget",
+    "proto_method": "rpc getBudget (GetBudgetReq) returns (BudgetDetail)",
+    "description": "Returns a single budget by ID with its full history timeline ordered by startDate ascending. The `spent` field on the returned budget is scoped to the period defined by `month` and `year` — never inferred from server time — so viewing a past period always yields the correct historical spend.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — budget ID",
+      "month": "number — 0-indexed month used to scope the spent total",
+      "year": "number — full four-digit year used to scope the spent total"
+    },
+    "output": {
+      "budget": "Budget — the budget record; `amount` reflects the effective limit for the requested period derived from the already-loaded BudgetHistory (entry whose startDate <= periodStart and endDate > periodStart or null); falls back to budget.amount if no entry covers the period",
+      "history": "BudgetHistoryEntry[] — ordered list of limit changes: id, limit, startDate, endDate | null, createdAt"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Budget not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getSpendingTrend": {
+    "rpc": "getSpendingTrend",
+    "proto_method": "rpc getSpendingTrend (GetSpendingTrendReq) returns (GetSpendingTrendRes)",
+    "description": "Returns a monthly spending breakdown across the requested number of past months counting back from the current month. Months with zero spend are still included so charts have no gaps.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "months": "number — how many months to include (e.g. 3, 6, 12)"
+    },
+    "output": {
+      "data": "SpendingTrendMonth[] — ordered array of { label: string, total: number, byCategory: { slug, name, color, amount }[] }"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
   "createBudget": {
     "rpc": "createBudget",
     "proto_method": "rpc createBudget (CreateBudgetReq) returns (Budget)",
-    "description": "Create a new budget for the authenticated user linked to a category.",
+    "description": "Creates a new budget or re-activates a previously deactivated one via an upsert on the @@unique([userId, categoryId, period]) index. On the create path a new Budget row and its first BudgetHistory entry are inserted. On the re-activation path `deactivatedAt` is cleared, core fields are refreshed, and a new BudgetHistory entry is opened — all prior history is preserved. `month` and `year` are optional and used to backdate the budget period; when omitted the anchor defaults to today.",
     "authentication": "RpcAuthGuard — JWT in gRPC metadata",
     "input": {
       "name": "string — budget name",
       "amount": "number — budget ceiling (> 0)",
-      "categoryId": "string — category to track",
-      "period": "BudgetPeriod enum int — e.g. MONTHLY, WEEKLY, YEARLY",
-      "startDate": "string — ISO date",
-      "endDate": "string (optional) — ISO date"
+      "categorySlug": "string — slug of the category to track",
+      "period": "BudgetPeriod enum int — MONTHLY, WEEKLY, or YEARLY",
+      "month": "number (optional) — 0-indexed month to backdate the budget start",
+      "year": "number (optional) — full year to backdate the budget start",
+      "description": "string (optional)",
+      "alertThreshold": "number (optional, 0–1) — fraction of budget consumed before alert fires",
+      "alertAtFrequency": "number (optional, 1–30) — how often (in days) to re-alert after threshold breach"
     },
     "output": {
       "id": "string",
       "name": "string",
       "amount": "number",
       "period": "BudgetPeriod int",
-      "startDate": "string",
-      "endDate": "string | null",
+      "deactivatedAt": "string | undefined — ISO datetime if deactivated",
       "spent": "number",
       "category": "Category object"
     },
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
-      "NOT_FOUND": "categoryId does not exist",
+      "NOT_FOUND": "categorySlug does not exist",
       "INVALID_ARGUMENT": "Amount ≤ 0 or missing required fields",
       "INTERNAL": "Unexpected error"
     }
@@ -45,13 +104,17 @@
   "updateBudget": {
     "rpc": "updateBudget",
     "proto_method": "rpc updateBudget (UpdateBudgetReq) returns (Budget)",
-    "description": "Update an existing budget. All fields except id are optional.",
+    "description": "Updates an existing budget. The `month` and `year` fields are required and anchor the period for SCD history tracking — they must match the period the user is viewing so history entries are stamped correctly. When `amount` changes: if the edited period matches the current active history entry the limit is corrected in place; if the period has rolled over the active entry is closed and a new one is opened. All mutations run in a Serializable Prisma transaction.",
     "authentication": "RpcAuthGuard — JWT in gRPC metadata",
     "input": {
-      "id": "string — budget ID",
+      "id": "string — budget ID (required)",
+      "month": "number — 0-indexed month the user is viewing (required)",
+      "year": "number — full year the user is viewing (required)",
       "name": "string (optional)",
       "amount": "number (optional)",
-      "endDate": "string (optional) — ISO date"
+      "description": "string (optional)",
+      "alertThreshold": "number (optional, 0–1)",
+      "alertAtFrequency": "number (optional, 1–30)"
     },
     "output": {
       "id": "string",
@@ -70,15 +133,53 @@
   "deleteBudget": {
     "rpc": "deleteBudget",
     "proto_method": "rpc deleteBudget (DeleteBudgetReq) returns (Empty)",
-    "description": "Delete a budget by ID. Does not delete the associated transactions.",
+    "description": "Deactivates or permanently deletes a budget. hardDelete=false (default): sets deactivatedAt to the first day of the current server UTC month and closes the open BudgetHistory entry at the same date. The budget is hidden in getBudgets for the current and future months but visible for past months. Can be restored via restoreBudget. hardDelete=true: permanently removes the Budget row and all BudgetHistory rows via cascade. Irreversible.",
     "authentication": "RpcAuthGuard — JWT in gRPC metadata",
     "input": {
-      "id": "string — budget ID"
+      "id": "string — budget ID",
+      "hardDelete": "boolean (default false) — true = permanent cascade delete; false = soft-deactivate from current month"
     },
     "output": {},
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
       "NOT_FOUND": "Budget not found or not owned by user",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getArchivedBudgets": {
+    "rpc": "getArchivedBudgets",
+    "proto_method": "rpc getArchivedBudgets (Empty) returns (GetArchivedBudgetsRes)",
+    "description": "Returns all soft-deleted (deactivated) budgets for the user, ordered newest-deactivated first. These are budgets where deactivatedAt IS NOT NULL. Used to populate the archived budgets management UI where users can restore or permanently delete individual budgets.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {},
+    "output": {
+      "budgets": "Budget[] — list of archived budgets; each includes deactivatedAt, category, and amount"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "restoreBudget": {
+    "rpc": "restoreBudget",
+    "proto_method": "rpc restoreBudget (RestoreBudgetReq) returns (Budget)",
+    "description": "Restores a soft-deleted budget by clearing deactivatedAt and reopening a BudgetHistory entry for the current period. If a history entry already exists at the current period start (deactivated and restored within the same month) it is reopened in place rather than creating a duplicate row, preventing a unique constraint violation on budgetId+startDate.",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {
+      "id": "string — ID of the archived budget to restore"
+    },
+    "output": {
+      "id": "string",
+      "name": "string",
+      "amount": "number",
+      "deactivatedAt": "undefined — cleared on restore",
+      "category": "Category object"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid",
+      "NOT_FOUND": "Archived budget not found or not owned by user",
       "INTERNAL": "Unexpected error"
     }
   }

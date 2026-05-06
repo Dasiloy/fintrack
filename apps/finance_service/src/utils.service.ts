@@ -8,9 +8,10 @@ import { BudgetPeriod, Category, Prisma } from '@fintrack/database/types';
 import { Category as ProtoCategory } from '@fintrack/types/protos/finance/transaction';
 
 /**
- *  Utils Helpers specificially for reusable logics and mthods
+ * Utility helpers shared across all Finance microservice domain services.
+ * Provides category resolution, proto formatting, and period boundary calculations.
  *
- * @class
+ * @class UtilsService
  */
 @Injectable()
 export class UtilsService {

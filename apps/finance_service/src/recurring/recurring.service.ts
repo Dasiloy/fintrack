@@ -436,14 +436,16 @@ export class RecurringService {
 
       for (const g of groups) {
         const count = g._count.id;
-        const sum = g._sum.amount ?? 0;
+        const sum = Number(g._sum.amount ?? 0);
         const multiplier = MONTHLY_MULTIPLIER[g.frequency] ?? 0;
 
-        if (g.isActive) activeCount += count;
-        else pausedCount += count;
-
-        if (g.type === 'EXPENSE') monthlyExpense += sum * multiplier;
-        else monthlyIncome += sum * multiplier;
+        if (g.isActive) {
+          activeCount += count;
+          if (g.type === 'EXPENSE') monthlyExpense += sum * multiplier;
+          else monthlyIncome += sum * multiplier;
+        } else {
+          pausedCount += count;
+        }
       }
 
       return { activeCount, pausedCount, monthlyExpense, monthlyIncome };

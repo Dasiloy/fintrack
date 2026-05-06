@@ -42,7 +42,7 @@ export function BudgetFormDialog({
   const [categorySlug, setCategorySlug] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [alertThresholdPct, setAlertThresholdPct] = React.useState(80);
-  const [alertThrottleDays, setAlertThrottleDays] = React.useState(3);
+  const [alertAtFrequency, setAlertAtFrequency] = React.useState(2);
 
   const { data: categoryData } = api_client.category.getAll.useQuery();
   const categories = categoryData?.data ?? [];
@@ -54,12 +54,12 @@ export function BudgetFormDialog({
     setCategorySlug('');
     setDescription('');
     setAlertThresholdPct(80);
-    setAlertThrottleDays(3);
+    setAlertAtFrequency(2);
   }, [open]);
 
   React.useEffect(() => {
     if (prefilledCategoryId && categories.length > 0) {
-      const cat = categories.find((c: any) => c.id === prefilledCategoryId);
+      const cat = categories.find((c: any) => c.slug === prefilledCategoryId);
       if (cat) setCategorySlug((cat as any).slug ?? '');
     }
   }, [prefilledCategoryId, categories]);
@@ -91,7 +91,7 @@ export function BudgetFormDialog({
       year: selectedMonth.getFullYear(),
       description: description || undefined,
       alertThreshold: alertThresholdPct / 100,
-      alertThrottleDays,
+      alertAtFrequency,
     });
   };
 
@@ -194,10 +194,10 @@ export function BudgetFormDialog({
                 type="text"
                 inputMode="numeric"
                 className="w-20"
-                value={String(alertThrottleDays)}
+                value={String(alertAtFrequency)}
                 onChange={(e) => {
                   const n = parseInt(onlyNumbers(e.target.value) || '1', 10);
-                  setAlertThrottleDays(Math.min(30, Math.max(1, n)));
+                  setAlertAtFrequency(Math.min(30, Math.max(1, n)));
                 }}
               />
               <span className="text-text-secondary text-sm">days</span>

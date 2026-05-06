@@ -1,17 +1,32 @@
 'use client';
 
 import { useMemo } from 'react';
+import { cn } from '@ui/lib/utils';
 import dayjs from '@fintrack/utils/date';
 import { Button, Skeleton } from '@ui/components';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Bell, CheckCheck, Clock3, Inbox, Trash2 } from 'lucide-react';
+import { useRouter } from '@bprogress/next';
 import {
   markNotificationAsReadAtom,
   notificationsAtom,
   removeNotificationAtom,
 } from '@/lib/jotai/notification';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { cn } from '@ui/lib/utils';
+
+type NotifData = Record<string, string> | null;
+
+function resolveNotificationNav(data: NotifData) {
+  if (!data?.type) return null;
+  switch (data.type) {
+    case 'transaction':
+      return { href: '/finances/transactions', txId: data.transactionId ?? null };
+    case 'bank_sync':
+      return { href: '/finances/transactions', txId: null };
+    default:
+      return null;
+  }
+}
 
 type NotificationItem = ReturnType<typeof useAtomValue<typeof notificationsAtom>>[number];
 type NotificationGroupKey = 'today' | 'yesterday' | 'older';
@@ -51,6 +66,10 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
   const createdAt = new Date(notification.createdAt);
   const removeNotification = useSetAtom(removeNotificationAtom);
   const markNotificationAsRead = useSetAtom(markNotificationAsReadAtom);
+  const router = useRouter();
+
+  const data = (notification.data ?? null) as NotifData;
+  const nav = resolveNotificationNav(data);
 
   // mutations
   const utils = api_client.useUtils();
@@ -69,21 +88,37 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
 
   // helpers
   function handleMarkAsRead(notificationId: string) {
-    // optimistic update
     markNotificationAsRead(notificationId);
     markAsRead({ notificationId });
   }
   function handleArchive(notificationId: string) {
-    // optimistic update
     removeNotification(notificationId);
     archive({ notificationId });
+  }
+  function handleCardClick() {
+    if (!nav) return;
+    if (!isRead) handleMarkAsRead(notification.notificationId);
+    const url = nav.txId ? `${nav.href}?txId=${nav.txId}` : nav.href;
+    router.push(url);
   }
 
   return (
     <article
+      role={nav ? 'button' : undefined}
+      tabIndex={nav ? 0 : undefined}
+      onClick={nav ? handleCardClick : undefined}
+      onKeyDown={
+        nav
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') handleCardClick();
+            }
+          : undefined
+      }
       className={cn(
         'group relative border-b px-3 py-2.5 transition-colors duration-200 last:border-b-0',
         isRead ? 'border-white/6 bg-transparent' : 'border-primary/12 bg-transparent',
+        nav &&
+          'cursor-pointer outline-none hover:bg-white/3 focus-visible:ring-1 focus-visible:ring-white/20',
       )}
     >
       <div className="min-w-0">
@@ -118,7 +153,10 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
               variant="ghost"
               className="text-text-secondary hover:text-text-primary size-7"
               disabled={isRead || isMarkingAsRead}
-              onClick={() => handleMarkAsRead(notification.notificationId)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleMarkAsRead(notification.notificationId);
+              }}
               aria-label={
                 isRead
                   ? `${notification.title} already read`
@@ -133,7 +171,10 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
               variant="ghost"
               className="text-error hover:bg-error/10 hover:text-error size-7"
               disabled={isArchiving}
-              onClick={() => handleArchive(notification.notificationId)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleArchive(notification.notificationId);
+              }}
               aria-label={`Remove ${notification.title ?? 'notification'}`}
             >
               <Trash2 className="size-3.5" />
@@ -144,6 +185,21 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
         <p className="text-text-tertiary mt-0.5 line-clamp-2 pl-7.5 text-[11px] leading-4.5">
           {notification.body}
         </p>
+
+        {/* Entity detail line */}
+        {data?.type === 'transaction' && data.transactionAmount && (
+          <p className="text-text-disabled mt-0.5 pl-7.5 text-[10px] font-medium tabular-nums">
+            {data.transactionType === 'EXPENSE' ? '-' : '+'}₦
+            {Number(data.transactionAmount).toLocaleString('en-NG')}
+            {data.transactionSource
+              ? ` · ${data.transactionSource.charAt(0) + data.transactionSource.slice(1).toLowerCase()}`
+              : ''}
+            {data.transactionDate ? ` · ${dayjs(data.transactionDate).format('DD MMM YYYY')}` : ''}
+          </p>
+        )}
+        {data?.type === 'bank_sync' && (
+          <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">→ View transactions</p>
+        )}
 
         <div className="text-text-disabled mt-1.5 flex items-center gap-1.5 pl-7.5 text-[10px]">
           <Clock3 className="size-2.5 shrink-0" />
@@ -217,8 +273,6 @@ function NotificationGroupSkeleton() {
 //   MAIN COMPONENT
 // =================================================================================
 export default function Notifications() {
-  // queries
-
   const { isPending } = api_client.notification.getNotifications.useQuery();
 
   const notifications = useAtomValue(notificationsAtom);

@@ -7,8 +7,6 @@ import {
   AreaChart,
   CartesianGrid,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   XAxis,
   YAxis,
@@ -20,6 +18,7 @@ import {
   buildCategoryData,
   buildTotalConfig,
   buildTotalData,
+  formatYAxisTick,
 } from '@/app/(dashboard)/finances/budgets/helpers';
 import { SpendingTrendChartTooltip } from '@/app/(dashboard)/finances/budgets/_components/spending_trend_chart_tooltip';
 
@@ -27,12 +26,6 @@ interface SpendingTrendChartProps {
   data: SpendingTrendMonth[];
   mode?: SpendingTrendMode;
   className?: string;
-}
-
-function formatYAxisTick(val: number): string {
-  if (val >= 1_000_000) return `₦${(val / 1_000_000).toFixed(1)}m`;
-  if (val >= 1_000) return `₦${Math.round(val / 1_000)}k`;
-  return `₦${val}`;
 }
 
 export function SpendingTrendChart({ data, mode = 'total', className }: SpendingTrendChartProps) {
@@ -93,7 +86,6 @@ export function SpendingTrendChart({ data, mode = 'total', className }: Spending
             />
           )}
         />
-        <ChartLegend content={<ChartLegendContent />} />
         {areaKeys.map((key) => (
           <Area
             key={key}

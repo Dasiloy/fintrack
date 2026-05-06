@@ -21,6 +21,8 @@ export interface Budget {
   createdAt: string;
   updatedAt: string;
   spent: string;
+  alertAtFrequency: number;
+  deactivatedAt?: string | undefined;
 }
 
 export interface CreateBudgetReq {
@@ -32,6 +34,7 @@ export interface CreateBudgetReq {
   month?: number | undefined;
   year?: number | undefined;
   period?: string | undefined;
+  alertAtFrequency?: number | undefined;
 }
 
 export interface UnbudgetedCategory {
@@ -55,6 +58,8 @@ export interface GetBudgetsRes {
 
 export interface GetBudgetReq {
   id: string;
+  month: number;
+  year: number;
 }
 
 export interface BudgetHistoryEntry {
@@ -100,9 +105,21 @@ export interface UpdateBudgetReq {
   amount?: number | undefined;
   description?: string | undefined;
   alertThreshold?: number | undefined;
+  alertAtFrequency?: number | undefined;
+  month: number;
+  year: number;
 }
 
 export interface DeleteBudgetReq {
+  id: string;
+  hardDelete: boolean;
+}
+
+export interface GetArchivedBudgetsRes {
+  budgets: Budget[];
+}
+
+export interface RestoreBudgetReq {
   id: string;
 }
 

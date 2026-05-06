@@ -24,3 +24,10 @@ export interface ClassificationCorrectionJobPayload {
   narration: string;
   correctedSlug: string;
 }
+
+// budget check job
+export interface BudgetCheckJobPayload {
+  userId: string;
+  categoryIds: string[];
+  referenceDate: string;
+}
