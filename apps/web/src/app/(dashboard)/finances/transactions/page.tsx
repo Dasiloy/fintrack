@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { format } from '@fintrack/utils/date';
 import { Download, Eye, Loader2, Plus, Trash2 } from 'lucide-react';
 import { Button, Skeleton, toast, type DateRange as DateType } from '@ui/components';
@@ -31,6 +32,7 @@ import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 
 export default function TransactionsPage() {
   // ── Hooks ────────────────────────────────────────────────────────────────
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = React.useState<CategoryTab>({
     kind: 'all',
     label: 'All Transactions',
@@ -38,6 +40,15 @@ export default function TransactionsPage() {
   const [drawerTxId, setDrawerTxId] = React.useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const txId = searchParams.get('txId');
+    if (txId) {
+      setDrawerTxId(txId);
+      setDrawerOpen(true);
+    }
+  }, [searchParams]);
+
   const [filters, setFilters] = React.useState<FilterState>(EMPTY_FILTERS);
   const [dateRange, setDateRange] = React.useState<DateType | undefined>(undefined);
   const [draftDateRange, setDraftDateRange] = React.useState<DateType | undefined>(undefined);
@@ -259,7 +270,7 @@ export default function TransactionsPage() {
           />
         ),
       },
-       
+
     ],
     [drawerTxId, drawerOpen, deleteMutation],
   );

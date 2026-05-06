@@ -576,6 +576,7 @@ model Budget {
   alertThreshold   Float        @default(0.8) // 80% of budget
   alertedAt        DateTime?
   alertAtFrequency Int          @default(2)
+  deactivatedAt    DateTime? // track soft delete of budget from an onset
 
   // classification
   categoryId String

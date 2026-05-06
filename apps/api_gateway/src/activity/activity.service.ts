@@ -11,7 +11,13 @@ import { PrismaService } from '@fintrack/database/service';
 import { ActivityLogs } from '@fintrack/database/types';
 
 /**
- * ActivityService.
+ * @description Persists activity log entries and fans them out to connected WebSocket clients in real time.
+ *
+ * ## Responsibilities
+ * - Writing ActivityLogs records to the database after key metric mutations
+ * - Forwarding activity payloads to the ActivityLogsRealtimeService for live delivery
+ *
+ * @class ActivityService
  */
 @Injectable()
 export class ActivityService {
@@ -40,7 +46,12 @@ export class ActivityService {
   }
 
   /**
+   * @description Returns the 20 most recent activity log entries for a user, ordered newest-first.
    *
+   * @async
+   * @public
+   * @param {string} userId The ID of the user whose logs to fetch
+   * @returns {Promise<ActivityLogs[]>} Up to 20 activity log records
    */
   async getActivityLogs(userId: string): Promise<ActivityLogs[]> {
     try {

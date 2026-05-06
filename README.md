@@ -62,21 +62,21 @@ graph TD
 
 ### Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Monorepo** | Turborepo, pnpm Workspaces |
-| **Web** | Next.js 15, React Server Components, Tailwind CSS, tRPC, TanStack Query |
-| **API Gateway** | NestJS (REST + Swagger), BullMQ, Passport JWT |
-| **Microservices** | NestJS, gRPC (protoc-gen-ts_proto) |
-| **Database** | Aiven PostgreSQL, Prisma ORM |
-| **Cache / Queues** | Upstash Redis, BullMQ |
-| **AI** | OpenAI, Anthropic Claude, Google Gemini |
-| **Bank Sync** | Mono Connect (Nigerian banks) |
-| **Payments** | Stripe Checkout + Billing Portal |
-| **Push** | Firebase Cloud Messaging (FCM) |
-| **Email** | Mailtrap (dev) / SMTP provider (prod), Handlebars templates |
-| **Auth** | NextAuth v5, Google OAuth, TOTP 2FA, OTP email verification |
-| **File Uploads** | Cloudinary |
+| Layer              | Technology                                                              |
+| ------------------ | ----------------------------------------------------------------------- |
+| **Monorepo**       | Turborepo, pnpm Workspaces                                              |
+| **Web**            | Next.js 15, React Server Components, Tailwind CSS, tRPC, TanStack Query |
+| **API Gateway**    | NestJS (REST + Swagger), BullMQ, Passport JWT                           |
+| **Microservices**  | NestJS, gRPC (protoc-gen-ts_proto)                                      |
+| **Database**       | Aiven PostgreSQL, Prisma ORM                                            |
+| **Cache / Queues** | Upstash Redis, BullMQ                                                   |
+| **AI**             | OpenAI, Anthropic Claude, Google Gemini                                 |
+| **Bank Sync**      | Mono Connect (Nigerian banks)                                           |
+| **Payments**       | Stripe Checkout + Billing Portal                                        |
+| **Push**           | Firebase Cloud Messaging (FCM)                                          |
+| **Email**          | Mailtrap (dev) / SMTP provider (prod), Handlebars templates             |
+| **Auth**           | NextAuth v5, Google OAuth, TOTP 2FA, OTP email verification             |
+| **File Uploads**   | Cloudinary                                                              |
 
 ---
 
@@ -168,11 +168,11 @@ fintrack/
 
 ### 1. Prerequisites
 
-| Tool | Minimum Version | Install |
-|---|---|---|
+| Tool    | Minimum Version   | Install                                   |
+| ------- | ----------------- | ----------------------------------------- |
 | Node.js | 18.x LTS or later | https://nodejs.org or `nvm install --lts` |
-| pnpm | 9.x | `npm install -g pnpm@9` |
-| Git | any recent | https://git-scm.com |
+| pnpm    | 9.x               | `npm install -g pnpm@9`                   |
+| Git     | any recent        | https://git-scm.com                       |
 
 ```bash
 node -v   # v18.x or higher
@@ -327,17 +327,17 @@ pnpm dev
 
 Turborepo starts all services in parallel and streams their logs. Once ready:
 
-| Service | Port | URL |
-|---|---|---|
-| Web App (Next.js) | 3000 | http://localhost:3000 |
-| API Gateway (REST) | 4001 | http://localhost:4001 |
-| Swagger UI | 4001 | http://localhost:4001/api/docs |
-| Auth Service (gRPC) | 4002 | gRPC only |
-| Finance Service (gRPC) | 4003 | gRPC only |
-| AI Service (gRPC) | 4004 | gRPC only |
-| Scheduler Service (gRPC) | 4005 | gRPC only |
-| Payment Service (gRPC) | 4008 | gRPC only |
-| Notification Service (gRPC) | 4009 | gRPC only |
+| Service                     | Port | URL                            |
+| --------------------------- | ---- | ------------------------------ |
+| Web App (Next.js)           | 3000 | http://localhost:3000          |
+| API Gateway (REST)          | 4001 | http://localhost:4001          |
+| Swagger UI                  | 4001 | http://localhost:4001/api/docs |
+| Auth Service (gRPC)         | 4002 | gRPC only                      |
+| Finance Service (gRPC)      | 4003 | gRPC only                      |
+| AI Service (gRPC)           | 4004 | gRPC only                      |
+| Scheduler Service (gRPC)    | 4005 | gRPC only                      |
+| Payment Service (gRPC)      | 4008 | gRPC only                      |
+| Notification Service (gRPC) | 4009 | gRPC only                      |
 
 Swagger is protected by HTTP basic auth. Credentials are `SWAGGER_DOC_USER` / `SWAGGER_DOC_PASS` in `apps/api_gateway/.env` (defaults: `fintrack` / `developer`).
 
@@ -362,16 +362,16 @@ pnpm --filter web                  dev
 
 All commands run from the **repo root**.
 
-| Command | Description |
-|---|---|
-| `pnpm dev` | Start all apps and services in watch mode |
-| `pnpm build` | Build every app and package for production |
-| `pnpm lint` | Run ESLint across the entire monorepo |
-| `pnpm check-types` | TypeScript type-check across the entire monorepo |
-| `pnpm --filter @fintrack/types proto:gen` | Regenerate TypeScript types from all `.proto` files |
-| `pnpm --filter @fintrack/database exec prisma generate` | Regenerate Prisma client after schema changes |
-| `pnpm --filter @fintrack/database exec prisma migrate dev` | Run pending migrations |
-| `pnpm docker:prod` | Start the full production stack with Docker Compose |
+| Command                                                    | Description                                         |
+| ---------------------------------------------------------- | --------------------------------------------------- |
+| `pnpm dev`                                                 | Start all apps and services in watch mode           |
+| `pnpm build`                                               | Build every app and package for production          |
+| `pnpm lint`                                                | Run ESLint across the entire monorepo               |
+| `pnpm check-types`                                         | TypeScript type-check across the entire monorepo    |
+| `pnpm --filter @fintrack/types proto:gen`                  | Regenerate TypeScript types from all `.proto` files |
+| `pnpm --filter @fintrack/database exec prisma generate`    | Regenerate Prisma client after schema changes       |
+| `pnpm --filter @fintrack/database exec prisma migrate dev` | Run pending migrations                              |
+| `pnpm docker:prod`                                         | Start the full production stack with Docker Compose |
 
 ---
 

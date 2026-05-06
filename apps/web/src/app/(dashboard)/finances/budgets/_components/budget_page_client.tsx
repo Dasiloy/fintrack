@@ -1,102 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import { Plus } from 'lucide-react';
+import { Archive, Plus } from 'lucide-react';
 import { Button, MonthPicker, toast } from '@ui/components';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { PageHeader } from '@/app/_components/page-header';
-import type { Budget, UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
 import { BudgetCategoryCard } from './budget_card';
 import { BudgetCardSkeleton } from './budget_card_skeleton';
 import { BudgetEmptyState } from './budget_empty_state';
 import { BudgetFormDialog } from './budget_form_dialog';
 import { BudgetDrawer } from './budget_drawer';
 import { UnbudgetedCategoryCard } from './unbudgeted_category_card';
-
-// ── Fake data (remove when API is ready) ─────────────────────────────────────
-
-const FAKE_BUDGETS: Budget[] = [
-  {
-    id: '1',
-    name: 'Monthly Groceries',
-    amount: 80000,
-    spent: '91200',
-    description: '',
-    period: 'MONTHLY',
-    carryOver: false,
-    alertThreshold: 0.8,
-    category: { name: 'Food & Dining', slug: 'food-dining', color: '#f97316', icon: '' },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Transport',
-    amount: 40000,
-    spent: '34500',
-    description: '',
-    period: 'MONTHLY',
-    carryOver: false,
-    alertThreshold: 0.8,
-    category: { name: 'Transport', slug: 'transport', color: '#3b82f6', icon: '' },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Utilities',
-    amount: 25000,
-    spent: '21800',
-    description: '',
-    period: 'MONTHLY',
-    carryOver: false,
-    alertThreshold: 0.8,
-    category: {
-      name: 'Bills & Utilities',
-      slug: 'utilities',
-      color: '#8b5cf6',
-      icon: '',
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'Entertainment',
-    amount: 30000,
-    spent: '8400',
-    description: '',
-    period: 'MONTHLY',
-    carryOver: false,
-    alertThreshold: 0.8,
-    category: {
-      name: 'Entertainment',
-      slug: 'entertainment',
-      color: '#ec4899',
-      icon: '',
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'Health',
-    amount: 20000,
-    spent: '0',
-    description: '',
-    period: 'MONTHLY',
-    carryOver: false,
-    alertThreshold: 0.75,
-    category: { name: 'Health & Fitness', slug: 'health', color: '#10b981', icon: '' },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-const FAKE_UNBUDGETED: UnbudgetedCategory[] = [
-  { slug: 'cat-shopping', name: 'Shopping', color: '#f59e0b', icon: '', spent: 45600 },
-  { slug: 'cat-education', name: 'Education', color: '#06b6d4', icon: '', spent: 12000 },
-];
+import { UnbudgetedCategoryCardSkeletons } from './unbudgeted_category_card_skeleton';
+import { CreateCategoryDialog } from './create_category_dialog';
+import { ArchivedBudgetsSheet } from './archived_budgets_sheet';
 
 interface BudgetPageClientProps {
   trendNode: React.ReactNode;
@@ -111,26 +28,23 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   const [drawerBudgetId, setDrawerBudgetId] = React.useState<string | null>(null);
   const [drawerEditMode, setDrawerEditMode] = React.useState(false);
   const [prefilledCategoryId, setPrefilledCategoryId] = React.useState<string | undefined>();
+  const [createCategoryOpen, setCreateCategoryOpen] = React.useState(false);
+  const [archivedOpen, setArchivedOpen] = React.useState(false);
 
   const utils = api_client.useUtils();
 
-  const { data, isLoading } = api_client.budget.getAll.useQuery(
-    {
-      month: selectedMonth.getMonth(),
-      year: selectedMonth.getFullYear(),
-    },
-    {
-      enabled: false,
-    },
-  );
+  const { data, isLoading } = api_client.budget.getAll.useQuery({
+    month: selectedMonth.getMonth(),
+    year: selectedMonth.getFullYear(),
+  });
 
-  const budgets = data?.data?.budgets ?? [...FAKE_BUDGETS];
-  const unbudgeted = data?.data?.unbudgeted ?? [...FAKE_UNBUDGETED];
+  const budgets = data?.data?.budgets ?? [];
+  const unbudgeted = data?.data?.unbudgeted ?? [];
 
   const deleteMutation = api_client.budget.delete.useMutation({
     onSuccess: () => {
       void utils.budget.getAll.invalidate();
-      toast.success('Budget deleted');
+      toast.success('Budget deactivated');
     },
     onError: (error) => {
       toast.error(error.message);
@@ -184,7 +98,17 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
 
               {/* Budget cards */}
               <section className="space-y-3">
-                <h2 className="text-text-primary text-sm font-semibold">Your Budgets</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-text-primary text-sm font-semibold">Your Budgets</h2>
+                  <button
+                    type="button"
+                    onClick={() => setArchivedOpen(true)}
+                    className="text-text-tertiary hover:text-text-secondary flex cursor-pointer items-center gap-1 text-[11px] transition-colors"
+                  >
+                    <Archive className="size-3" />
+                    Archived
+                  </button>
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                   {isLoading ? (
                     <BudgetCardSkeleton count={4} />
@@ -199,7 +123,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                           setDrawerBudgetId(id);
                           setDrawerEditMode(!!editMode);
                         }}
-                        onDelete={(id) => deleteMutation.mutate({ id })}
+                        onDelete={(id) => deleteMutation.mutateAsync({ id })}
                       />
                     ))
                   )}
@@ -208,19 +132,46 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
             </div>
 
             {/* ── Right: unbudgeted sidebar ── */}
-            {!isLoading && unbudgeted.length > 0 && (
-              <aside className="w-full lg:w-[260px] lg:shrink-0">
-                <div className="glass-card rounded-card border-border-subtle border p-4">
-                  <div className="mb-4 flex items-center justify-between gap-2">
-                    <h2 className="text-text-primary text-sm font-semibold">Unbudgeted</h2>
+            <aside className="w-full lg:w-[260px] lg:shrink-0">
+              <div className="glass-card rounded-card border-border-subtle border p-4">
+                <div className="mb-4 flex items-center justify-between gap-2">
+                  <h2 className="text-text-primary text-sm font-semibold">Unbudgeted</h2>
+                  {!isLoading && (
                     <button
                       type="button"
-                      className="bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors"
+                      onClick={() => setCreateCategoryOpen(true)}
+                      className="bg-primary/10 text-primary hover:bg-primary/20 flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors"
                     >
                       <Plus className="size-3" />
                       Add Category
                     </button>
+                  )}
+                </div>
+
+                {isLoading ? (
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                    <UnbudgetedCategoryCardSkeletons count={3} />
                   </div>
+                ) : unbudgeted.length === 0 ? (
+                  <div className="flex flex-col items-center gap-3 py-6 text-center">
+                    <div className="bg-bg-muted flex size-10 items-center justify-center rounded-full">
+                      <Plus className="text-text-disabled size-4" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-text-secondary text-[13px] font-medium">All caught up</p>
+                      <p className="text-text-disabled text-[11px] leading-snug">
+                        Every category with spend this month has a budget.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCreateCategoryOpen(true)}
+                      className="text-primary hover:text-primary/80 cursor-pointer text-[11px] font-medium underline-offset-2 transition-colors hover:underline"
+                    >
+                      Create a new category
+                    </button>
+                  </div>
+                ) : (
                   <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
                     {unbudgeted.map((cat) => (
                       <UnbudgetedCategoryCard
@@ -230,14 +181,16 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                       />
                     ))}
                   </div>
-                </div>
-              </aside>
-            )}
+                )}
+              </div>
+            </aside>
           </div>
         </div>
       </div>
 
       {/* ── Dialogs / drawers ── */}
+      <ArchivedBudgetsSheet open={archivedOpen} onOpenChange={setArchivedOpen} />
+      <CreateCategoryDialog open={createCategoryOpen} onOpenChange={setCreateCategoryOpen} />
       <BudgetFormDialog
         open={createOpen}
         onOpenChange={handleCreateOpenChange}
@@ -247,6 +200,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
       <BudgetDrawer
         budgetId={drawerBudgetId}
         initialEditMode={drawerEditMode}
+        selectedMonth={selectedMonth}
         onOpenChange={(open) => {
           if (!open) setDrawerBudgetId(null);
         }}

@@ -2,7 +2,7 @@ import { Metadata } from '@grpc/grpc-js';
 import { lastValueFrom } from 'rxjs';
 
 import { ClientGrpc } from '@nestjs/microservices';
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, OnModuleInit } from '@nestjs/common';
 
 import { User } from '@fintrack/database/types';
 import {
@@ -29,7 +29,7 @@ import {
   UpdateTransactionDto,
 } from './dto/transaction.dto';
 import { TransactionQueryDto } from './dto/transaction_query.dto';
-import { PrismaService } from '@fintrack/database/service';
+import { BudgetService } from '../budget/budget.service';
 
 /**
  * API Gateway service for transaction CRUD operations.
@@ -41,14 +41,19 @@ import { PrismaService } from '@fintrack/database/service';
 export class TransactionService implements OnModuleInit {
   private financeServiceClient: FinanceServiceClient;
   private aiServiceClient: AiServiceClient;
-  private readonly logger = new Logger(TransactionService.name);
 
   constructor(
     @Inject(FINANCE_PACKAGE_NAME) private readonly financeClient: ClientGrpc,
     @Inject(AI_PACKAGE_NAME) private readonly aiClient: ClientGrpc,
-    private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => BudgetService))
+    private readonly budgetService: BudgetService,
   ) {}
 
+  /**
+   * @description Initialise the gRPC Finance and AI stubs on module startup.
+   *
+   * @public
+   */
   onModuleInit() {
     this.financeServiceClient =
       this.financeClient.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
@@ -72,7 +77,7 @@ export class TransactionService implements OnModuleInit {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
 
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeServiceClient.createTransaction(
         {
           ...createTransactionDto,
@@ -83,6 +88,8 @@ export class TransactionService implements OnModuleInit {
         metadata,
       ),
     );
+    void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    return result;
   }
 
   /**
@@ -149,7 +156,7 @@ export class TransactionService implements OnModuleInit {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
 
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeServiceClient.updateTransaction(
         {
           id,
@@ -162,6 +169,8 @@ export class TransactionService implements OnModuleInit {
         metadata,
       ),
     );
+    void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    return result;
   }
 
   /**
@@ -175,9 +184,11 @@ export class TransactionService implements OnModuleInit {
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
 
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeServiceClient.deleteTransaction({ id }, metadata),
     );
+    void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    return result;
   }
 
   /**
@@ -194,9 +205,13 @@ export class TransactionService implements OnModuleInit {
   ): Promise<BatchCreateTransactionsRes> {
     const metadata = new Metadata();
     metadata.add('x-user-id', userId);
-    return lastValueFrom(
+    const result = await lastValueFrom(
       this.financeServiceClient.batchCreateTransactions(req, metadata),
     );
+    if (result.created > 0) {
+      void this.budgetService.invalidateBudgetListAndTrend(userId);
+    }
+    return result;
   }
 
   /**

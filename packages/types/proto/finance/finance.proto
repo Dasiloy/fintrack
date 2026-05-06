@@ -24,6 +24,8 @@ service FinanceService {
    rpc GetSpendingTrend(GetSpendingTrendReq) returns (GetSpendingTrendRes) {}
    rpc UpdateBudget (UpdateBudgetReq) returns (Budget) {}
    rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
+   rpc GetArchivedBudgets(Empty) returns (GetArchivedBudgetsRes) {}
+   rpc RestoreBudget(RestoreBudgetReq) returns (Budget) {}
 
 
   // Recurring

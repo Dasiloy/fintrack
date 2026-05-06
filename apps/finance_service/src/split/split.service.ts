@@ -1220,6 +1220,15 @@ export class SplitService {
   // Private — event callers
   // ----------------------------------------------------------------
 
+  /**
+   * @description Enqueues an activity-log notification job for a split lifecycle event.
+   *
+   * @private
+   * @param {string} userId - The user who triggered the event
+   * @param {SplitWithOptionalJoins} split - The split involved in the event
+   * @param {string} event - Human-readable event label e.g. 'Split Created'
+   * @returns {void}
+   */
   private callEvents(
     userId: string,
     split: SplitWithOptionalJoins,
@@ -1244,6 +1253,16 @@ export class SplitService {
     this.activityQueue.add(ACTIVITY_NOTIFICATION_JOB, activityData);
   }
 
+  /**
+   * @description Enqueues an activity-log notification job for a split-participant lifecycle event.
+   *
+   * @private
+   * @param {string} userId - The user who triggered the event
+   * @param {SplitParticipant} participant - The participant involved in the event
+   * @param {string} splitId - The ID of the parent split
+   * @param {string} event - Human-readable event label e.g. 'Split Participant Added'
+   * @returns {void}
+   */
   private callParticipantEvents(
     userId: string,
     participant: SplitParticipant,
@@ -1269,6 +1288,16 @@ export class SplitService {
     this.activityQueue.add(ACTIVITY_NOTIFICATION_JOB, activityData);
   }
 
+  /**
+   * @description Enqueues an activity-log notification job for a split-settlement lifecycle event.
+   *
+   * @private
+   * @param {string} userId - The user who triggered the event
+   * @param {SplitSettlement} settlement - The settlement involved in the event
+   * @param {string} splitId - The ID of the parent split
+   * @param {string} event - Human-readable event label e.g. 'Split Settlement Added'
+   * @returns {void}
+   */
   private callSettlementEvents(
     userId: string,
     settlement: SplitSettlement,
@@ -1299,6 +1328,13 @@ export class SplitService {
   // Private — formatters
   // ----------------------------------------------------------------
 
+  /**
+   * @description Maps a Prisma SplitSettlement record (with optional transaction join) to the proto shape.
+   *
+   * @private
+   * @param {SplitSettlementWithTransaction} settlement - Prisma settlement with optional transaction join
+   * @returns {ProtoSettlement}
+   */
   private formatSettlement(
     settlement: SplitSettlementWithTransaction,
   ): ProtoSettlement {
@@ -1313,6 +1349,13 @@ export class SplitService {
     };
   }
 
+  /**
+   * @description Maps a Prisma SplitParticipant record (with optional settlements and computed totals) to the proto shape.
+   *
+   * @private
+   * @param {SplitParticipantWithSettlements} participant - Prisma participant with optional settlements join
+   * @returns {ProtoParticipant}
+   */
   private formatParticipant(
     participant: SplitParticipantWithSettlements,
   ): ProtoParticipant {
@@ -1331,6 +1374,13 @@ export class SplitService {
     };
   }
 
+  /**
+   * @description Maps a Prisma Split record (with optional joins and computed totals) to the proto shape.
+   *
+   * @private
+   * @param {SplitWithOptionalJoins} split - Prisma split with optional participants and transaction joins
+   * @returns {ProtoSplit}
+   */
   private formatSplit(split: SplitWithOptionalJoins): ProtoSplit {
     return {
       id: split.id,

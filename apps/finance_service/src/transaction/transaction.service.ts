@@ -12,19 +12,19 @@ import {
   ACTIVITY_NOTIFICATION_QUEUE,
   ANALYTICS_NOTIFICATION_JOB,
   ANALYTICS_NOTIFICATION_QUEUE,
-  BUDGET_ALERT_EMAIL_JOB,
+  BUDGET_CHECK_JOB,
+  BUDGET_CHECK_QUEUE,
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
   CLASSIFICATION_CORRECTION_JOB,
   CLASSIFICATION_CORRECTION_QUEUE,
-  TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
   AnalyticsNotificationPayload,
+  BudgetCheckJobPayload,
   ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
-import { BudgetAlertEmailPayload } from '@fintrack/types/interfaces/mail.interface';
 import {
   BatchCreateTransactionsReq,
   BatchCreateTransactionsRes,
@@ -61,10 +61,15 @@ export type TransactionWithOptionalJoins = Transaction & {
 };
 
 /**
- * Service responsible for handling all transaction related operations
- * Interacts with Prisma.
- * Manages Transaction.
- * Queue bull events for transaction related operations
+ * Service responsible for all transaction CRUD operations in the Finance microservice.
+ * Processes gRPC requests, persists records via Prisma, and dispatches side-effect jobs
+ * (activity logs, FCM push, analytics, classification corrections, budget alerts).
+ *
+ * ## Responsibilities
+ * - Single and batch transaction creation with duplicate-skipping for bank imports
+ * - Paginated, filtered transaction listing
+ * - Transaction updates with AI-classification correction feedback
+ * - Budget alert dispatch after any EXPENSE write
  *
  * @class TransactionService
  */
@@ -82,8 +87,8 @@ export class TransactionService {
     private readonly analyticsNotificationQueue: Queue,
     @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
     private readonly classificationCorrectionQueue: Queue,
-    @InjectQueue(TOKEN_NOTIFICATION_QUEUE)
-    private readonly tokenNotificationQueue: Queue,
+    @InjectQueue(BUDGET_CHECK_QUEUE)
+    private readonly budgetCheckQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -127,11 +132,11 @@ export class TransactionService {
       // call side effects events
       this.callevents(userId, createdTransaction, 'Transaction Created');
       if (createdTransaction.type === TransactionType.EXPENSE) {
-        await this.checkAndDispatchBudgetAlerts(
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
-          [createdTransaction.categoryId],
-          createdTransaction.date,
-        );
+          categoryIds: [createdTransaction.categoryId],
+          referenceDate: createdTransaction.date.toISOString(),
+        } satisfies BudgetCheckJobPayload);
       }
       return this.formatTransaction(createdTransaction);
     } catch (error) {
@@ -204,11 +209,11 @@ export class TransactionService {
         ),
       ];
       if (result.count > 0 && expenseCategoryIds.length > 0) {
-        await this.checkAndDispatchBudgetAlerts(
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
-          expenseCategoryIds,
-          new Date(),
-        );
+          categoryIds: expenseCategoryIds,
+          referenceDate: new Date().toISOString(),
+        } satisfies BudgetCheckJobPayload);
       }
 
       return {
@@ -410,11 +415,11 @@ export class TransactionService {
       // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
       if (updatedTransaction.type === TransactionType.EXPENSE) {
-        await this.checkAndDispatchBudgetAlerts(
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
-          [updatedTransaction.categoryId],
-          updatedTransaction.date,
-        );
+          categoryIds: [updatedTransaction.categoryId],
+          referenceDate: updatedTransaction.date.toISOString(),
+        } satisfies BudgetCheckJobPayload);
       }
       return this.formatTransaction(updatedTransaction);
     } catch (error) {
@@ -634,59 +639,4 @@ export class TransactionService {
     };
   }
 
-  private async checkAndDispatchBudgetAlerts(
-    userId: string,
-    categoryIds: string[],
-    referenceDate: Date,
-  ): Promise<void> {
-    const budgets = await this.prismaService.budget.findMany({
-      where: { userId, categoryId: { in: categoryIds } },
-      include: { category: true },
-    });
-    if (budgets.length === 0) return;
-
-    const results = await Promise.all(
-      budgets.map(async (budget) => {
-        const periodStart = this.utils.getStartOfPeriod(budget.period, referenceDate);
-        const periodEnd = this.utils.getEndOfPeriod(budget.period, periodStart);
-        const { _sum } = await this.prismaService.transaction.aggregate({
-          where: { userId, categoryId: budget.categoryId, type: TransactionType.EXPENSE, date: { gte: periodStart, lte: periodEnd } },
-          _sum: { amount: true },
-        });
-        return { budget, spent: Number(_sum.amount ?? 0), periodStart };
-      }),
-    );
-
-    const newBreaches = results.filter(({ budget, spent, periodStart }) => {
-      const ratio = spent / Number(budget.amount);
-      const throttleCutoff = new Date(referenceDate.getTime() - budget.alertAtFrequency * 86_400_000);
-      const suppressed =
-        budget.alertedAt !== null &&
-        budget.alertedAt >= periodStart &&
-        budget.alertedAt >= throttleCutoff;
-      return ratio >= budget.alertThreshold && !suppressed;
-    });
-
-    if (newBreaches.length === 0) return;
-
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: { email: true, firstName: true, lastName: true },
-    });
-    if (!user) return;
-
-    await this.tokenNotificationQueue.add(BUDGET_ALERT_EMAIL_JOB, {
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      budgetIds: newBreaches.map(({ budget }) => budget.id),
-      alerts: newBreaches.map(({ budget, spent }) => ({
-        budgetName: budget.name,
-        categoryName: budget.category.name,
-        spent,
-        limit: Number(budget.amount),
-        percentage: Math.round((spent / Number(budget.amount)) * 100),
-      })),
-    } satisfies BudgetAlertEmailPayload);
-  }
 }

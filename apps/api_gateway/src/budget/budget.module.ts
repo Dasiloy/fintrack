@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
 import { BudgetController } from './budget.controller';
 import { BudgetService } from './budget.service';
 import { UsageModule } from '../usage/usage.module';
+import { TransactionModule } from '../transaction/transaction.module';
 
 /**
  * Module responsible for managing user budgets
@@ -12,8 +13,9 @@ import { UsageModule } from '../usage/usage.module';
  * @class BudgetModule
  */
 @Module({
-  imports: [UsageModule],
+  imports: [UsageModule, forwardRef(() => TransactionModule)],
   controllers: [BudgetController],
   providers: [BudgetService],
+  exports: [BudgetService],
 })
 export class BudgetModule {}

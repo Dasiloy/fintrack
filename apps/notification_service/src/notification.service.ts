@@ -3,6 +3,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/service';
+import { formatCurrency } from '@fintrack/utils/format';
 import {
   EmailVerificationPayload,
   WelcomeEmailPayload,
@@ -415,16 +416,25 @@ export class NotificationService {
   }
 
   async sendBudgetAlertEmail(data: BudgetAlertEmailPayload) {
+    const count = data.alerts.length;
+    const subject =
+      count === 1
+        ? 'Budget Alert — 1 budget needs attention'
+        : `Budget Alert — ${count} budgets need attention`;
     try {
       await this.mailerService.sendMail({
         to: data.email,
-        subject: 'Budget Alert - Fintrack',
+        subject,
         template: './budget_alert',
         context: {
           firstName: data.firstName,
-          lastName: data.lastName,
-          alerts: data.alerts,
-          count: data.alerts.length,
+          count,
+          alerts: data.alerts.map((a) => ({
+            ...a,
+            spentFormatted: formatCurrency(a.spent),
+            limitFormatted: formatCurrency(a.limit),
+            isOverBudget: a.percentage >= 100,
+          })),
         },
       });
       await this.prismaService.budget.updateMany({

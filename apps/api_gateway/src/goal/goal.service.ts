@@ -41,6 +41,11 @@ export class GoalService implements OnModuleInit {
     private readonly usageService: UsageService,
   ) {}
 
+  /**
+   * @description Initialise the gRPC Finance stub on module startup.
+   *
+   * @public
+   */
   onModuleInit() {
     this.financeService =
       this.client.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
