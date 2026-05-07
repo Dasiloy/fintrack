@@ -508,7 +508,9 @@ export type RecurringItemFrequency = (typeof RecurringItemFrequency)[keyof typeo
 
 export const Goalstatus: {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD',
+  CANCELLED: 'CANCELLED'
 };
 
 export type Goalstatus = (typeof Goalstatus)[keyof typeof Goalstatus]
