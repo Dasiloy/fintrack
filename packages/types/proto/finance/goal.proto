@@ -3,6 +3,11 @@ package finance;
 
 import "finance/transaction.proto";
 
+message MonthlyContributionSummary {
+  string month = 1;   // "YYYY-MM" label
+  float amount = 2;
+}
+
 message Contribution  {
     string id=1;
     float amount=2;
@@ -21,12 +26,13 @@ message Goal {
   string target_date=3;
   float target_amount=4;
   string priority=5;
-  string statsu=6;
+  string status=6;
   optional string description=7;
   string created_at=8;
   string updated_at=9;
   repeated Contribution contributions=10;
   optional float contributed_amount=11;
+  repeated MonthlyContributionSummary monthly_contributions = 12;
 }
 
 
@@ -58,6 +64,11 @@ message  UpdateGoalReq {
   optional float target_amount=4;
   optional string description=5;
   optional string priority=6;
+}
+
+message UpdateGoalStatusReq {
+  string id = 1;
+  string status = 2;  // ACTIVE | ON_HOLD | CANCELLED
 }
 
 message GoalReq {

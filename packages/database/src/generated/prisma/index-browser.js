@@ -819,7 +819,9 @@ exports.RecurringItemFrequency = exports.$Enums.RecurringItemFrequency = {
 
 exports.Goalstatus = exports.$Enums.Goalstatus = {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD',
+  CANCELLED: 'CANCELLED'
 };
 
 exports.GoalPriority = exports.$Enums.GoalPriority = {
