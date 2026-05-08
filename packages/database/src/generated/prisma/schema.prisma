@@ -773,7 +773,6 @@ enum Goalstatus {
   ACTIVE
   COMPLETED
   ON_HOLD
-  CANCELLED
 }
 
 enum GoalPriority {

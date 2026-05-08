@@ -19,3 +19,9 @@ export const BUDGET_TREND_CACHE_TTL = 900; // 15 minutes
 
 export const BUDGET_ONE_CACHE_PREFIX = 'budget_one'; // budget_one:{budgetId}
 export const BUDGET_ONE_CACHE_TTL = 300; // 5 minutes
+
+export const GOAL_LIST_CACHE_PREFIX = 'goal_list'; // goal_list:{userId}
+export const GOAL_LIST_CACHE_TTL = 120; // 2 minutes
+
+export const GOAL_AGGREGATE_CACHE_PREFIX = 'goal_aggregate'; // goal_aggregate:{userId}
+export const GOAL_AGGREGATE_CACHE_TTL = 120; // 2 minutes

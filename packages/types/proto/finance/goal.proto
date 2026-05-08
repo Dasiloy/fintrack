@@ -19,6 +19,27 @@ message Contribution  {
     optional Transaction transaction=8;
 }
 
+message ProjectionPoint {
+  string month = 1;   // "YYYY-MM"
+  float amount = 2;
+  bool is_projected = 3; // diff between past actual contribution and linearly generated future savings
+}
+
+message GoalsAggregate {
+  float total_saved = 1;
+  float active_target = 2;
+  float active_percent = 3;
+  int32 on_track_count = 4;
+  int32 overdue_count =5;
+  int32 active_count = 6;
+  int32 completed_count = 7;
+  int32 on_hold_count = 8;
+  float avg_monthly_contribution = 9;
+  int32 streak_months = 10; // consecutive months of goal savings receding from this month
+  repeated MonthlyContributionSummary contribution_heatmap = 11;
+  repeated ProjectionPoint projection_data = 12;
+}
+
 
 message Goal {
   string id=1;
@@ -68,7 +89,7 @@ message  UpdateGoalReq {
 
 message UpdateGoalStatusReq {
   string id = 1;
-  string status = 2;  // ACTIVE | ON_HOLD | CANCELLED
+  string status = 2;  // ACTIVE | ON_HOLD
 }
 
 message GoalReq {

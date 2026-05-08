@@ -5,11 +5,13 @@ import { FINANCE_SERVICE_NAME } from '@fintrack/types/protos/finance/finance';
 import {
   Goal as ProtoGoal,
   Contribution as ProtoContribution,
+  GoalsAggregate,
   CreateGoalReq,
   GetGoalsReq,
   GetGoalsRes,
   GoalReq,
   UpdateGoalReq,
+  UpdateGoalStatusReq,
   CreateGoalContributionReq,
   UpdateGoalContributionReq,
   DeleteGoalContributionReq,
@@ -152,5 +154,37 @@ export class GoalController {
     @RpcUser() user: User,
   ): Promise<Empty> {
     return this.goalService.deleteContribution(user.id, request);
+  }
+
+  /**
+   * Transitions a goal between ACTIVE and ON_HOLD.
+   * COMPLETED status is system-managed and cannot be set manually.
+   *
+   * @param {UpdateGoalStatusReq} request - Contains goal id and target status (ACTIVE | ON_HOLD)
+   * @param {User} user - Authenticated user from gRPC metadata
+   * @returns {Promise<ProtoGoal>} The updated goal
+   */
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'updateGoalStatus')
+  updateGoalStatus(
+    @Payload() request: UpdateGoalStatusReq,
+    @RpcUser() user: User,
+  ): Promise<ProtoGoal> {
+    return this.goalService.updateGoalStatus(user.id, request);
+  }
+
+  /**
+   * Returns a health snapshot across all of the user's savings goals:
+   * status counts, savings totals, streak, heatmap, and projection data.
+   *
+   * @param {Empty} _request - No payload required
+   * @param {User} user - Authenticated user from gRPC metadata
+   * @returns {Promise<GoalsAggregate>} Computed aggregate metrics
+   */
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'getGoalsAggregate')
+  getGoalsAggregate(
+    @Payload() _request: Empty,
+    @RpcUser() user: User,
+  ): Promise<GoalsAggregate> {
+    return this.goalService.getGoalsAggregate(user.id);
   }
 }
