@@ -24,6 +24,7 @@ import {
 import { User } from '@fintrack/database/types';
 import {
   Goal as ProtoGoal,
+  GoalsAggregate,
   Contribution as ProtoContribution,
   GetGoalsRes,
 } from '@fintrack/types/protos/finance/goal';
@@ -34,6 +35,7 @@ import { ApiGuard } from '../guards/api.guard';
 import {
   CreateGoalDto,
   UpdateGoalDto,
+  UpdateGoalStatusDto,
   GetGoalsQueryDto,
   CreateContributionDto,
   UpdateContributionDto,
@@ -56,7 +58,7 @@ export class GoalController {
   // ================================================================
   // Create a goal
   // ================================================================
-  @Post('create')
+  @Post('')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a savings goal' })
   @ApiBody({
@@ -210,6 +212,56 @@ export class GoalController {
   }
 
   // ================================================================
+  // Goals aggregate (declare BEFORE :id to prevent route shadowing)
+  // ================================================================
+  @Get('aggregate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get aggregate health metrics across all goals' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Goals aggregate fetched successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Goals aggregate fetched successfully',
+        data: {
+          totalSaved: 75000,
+          activeTarget: 300000,
+          activePercent: 25,
+          activeCount: 3,
+          completedCount: 1,
+          onHoldCount: 1,
+          overdueCount: 0,
+          onTrackCount: 2,
+          avgMonthlyContribution: 12500,
+          streakMonths: 4,
+          contributionHeatmap: [{ month: '2025-06', amount: 10000 }],
+          projectionData: [
+            { month: '2026-05', amount: 12500, isProjected: false },
+          ],
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+  })
+  async getGoalsAggregate(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<GoalsAggregate>> {
+    const response = await this.goalService.getGoalsAggregate(user);
+    return {
+      success: true,
+      message: 'Goals aggregate fetched successfully',
+      statusCode: HttpStatus.OK,
+      data: response,
+    };
+  }
+
+  // ================================================================
   // Get a single goal
   // ================================================================
   @Get(':id')
@@ -341,6 +393,69 @@ export class GoalController {
     return {
       success: true,
       message: 'Goal updated successfully',
+      statusCode: HttpStatus.OK,
+      data: response,
+    };
+  }
+
+  // ================================================================
+  // Update goal status
+  // ================================================================
+  @Patch(':id/status')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Transition a goal between ACTIVE and ON_HOLD' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'Goal ID',
+    example: 'goal_abc123',
+  })
+  @ApiBody({
+    required: true,
+    type: UpdateGoalStatusDto,
+    description:
+      'Target status (ACTIVE | ON_HOLD). COMPLETED is system-managed.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Goal status updated successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Goal status updated successfully',
+        data: { id: 'goal_abc123', status: 'ON_HOLD' },
+      },
+    },
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Goal not found' })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid status value',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Cannot change the status of a completed goal',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+  })
+  async updateGoalStatus(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() updateGoalStatusDto: UpdateGoalStatusDto,
+  ): Promise<StandardResponse<ProtoGoal>> {
+    const response = await this.goalService.updateGoalStatus(
+      user,
+      id,
+      updateGoalStatusDto,
+    );
+    return {
+      success: true,
+      message: 'Goal status updated successfully',
       statusCode: HttpStatus.OK,
       data: response,
     };

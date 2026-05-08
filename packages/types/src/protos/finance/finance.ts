@@ -31,8 +31,10 @@ import {
   GetGoalsRes,
   Goal,
   GoalReq,
+  GoalsAggregate,
   UpdateGoalContributionReq,
   UpdateGoalReq,
+  UpdateGoalStatusReq,
 } from "./goal";
 import {
   CreateRecurringReq,
@@ -161,6 +163,10 @@ export interface FinanceServiceClient {
   getGoals(request: GetGoalsReq, metadata?: Metadata): Observable<GetGoalsRes>;
 
   getGoal(request: GoalReq, metadata?: Metadata): Observable<Goal>;
+
+  getGoalsAggregate(request: Empty, metadata?: Metadata): Observable<GoalsAggregate>;
+
+  updateGoalStatus(request: UpdateGoalStatusReq, metadata?: Metadata): Observable<Goal>;
 
   updateGoal(request: UpdateGoalReq, metadata?: Metadata): Observable<Goal>;
 
@@ -308,6 +314,13 @@ export interface FinanceServiceController {
 
   getGoal(request: GoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
 
+  getGoalsAggregate(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GoalsAggregate> | Observable<GoalsAggregate> | GoalsAggregate;
+
+  updateGoalStatus(request: UpdateGoalStatusReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
+
   updateGoal(request: UpdateGoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
 
   deleteGoal(request: GoalReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
@@ -366,6 +379,8 @@ export function FinanceServiceControllerMethods() {
       "createGoal",
       "getGoals",
       "getGoal",
+      "getGoalsAggregate",
+      "updateGoalStatus",
       "updateGoal",
       "deleteGoal",
       "contributeToGoal",
