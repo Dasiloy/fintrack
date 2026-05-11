@@ -3,8 +3,3 @@ export interface GoalMonthlyGrouping {
   month: string;
   total: number;
 }
-
-export interface GoalPace {
-  pace: number;
-  until: number;
-}

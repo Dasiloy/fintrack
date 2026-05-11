@@ -26,7 +26,7 @@ import {
   ACTIVITY_NOTIFICATION_JOB,
   ACTIVITY_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
-import { GoalMonthlyGrouping, GoalPace } from '@fintrack/types/interfaces/goal';
+import { GoalMonthlyGrouping } from '@fintrack/types/interfaces/goal';
 import {
   Goal,
   GoalContribution,
@@ -51,6 +51,10 @@ type GoalContributionWithTransaction = GoalContribution & {
 type GoalWithOptionalJoins = Goal & {
   contributedAmount?: number;
   contributions?: GoalContributionWithTransaction[];
+  paceRequired?: number;
+  paceActual?: number;
+  paceStatus?: 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'COMPLETED';
+  monthsLeft?: number;
 };
 
 /**
@@ -378,19 +382,19 @@ export class GoalService {
 
       // totalSaved spans every status — the user's lifetime savings figure
       const totalSaved = Array.from(allTimeTotalMap.values()).reduce(
-        (s, v) => s + v,
+        (sum, goalTotal) => sum + goalTotal,
         0,
       );
 
       // activeSaved is scoped to ACTIVE goals only to prevent ON_HOLD savings
       // from inflating activePercent against an active-only denominator
       const activeSaved = activeGoals.reduce(
-        (s, g) => s + (allTimeTotalMap.get(g.id) ?? 0),
+        (sum, goal) => sum + (allTimeTotalMap.get(goal.id) ?? 0),
         0,
       );
       const activePercent =
         activeTarget > 0
-          ? Math.min(100, (activeSaved / activeTarget) * 100)
+          ? Math.min(100, (activeSaved / activeTarget) * 100) // scoped to max of 100 in case, the user accidentally has oversaved
           : 0;
 
       // ── Monthly bucket maps ─────────────────────────────────────────────────
@@ -398,10 +402,8 @@ export class GoalService {
         this.buildMonthlyBuckets(recentContributions);
 
       // ── Aggregate metrics — each helper owns exactly one concern ────────────
-      const avgMonthlyContribution = this.computeAvgMonthlyContribution(
-        monthBuckets,
-        currentMonth,
-      );
+      const avgMonthlyContribution =
+        this.computeAvgMonthlyContribution(monthBuckets);
       const streakMonths = this.computeStreak(monthBuckets, now);
       const contributionHeatmap = this.buildContributionHeatmap(
         monthBuckets,
@@ -411,7 +413,6 @@ export class GoalService {
         activeGoals,
         allTimeTotalMap,
         goalMonthBuckets,
-        currentMonth,
         now,
       );
       const projectionData = this.buildProjectionData(
@@ -479,7 +480,42 @@ export class GoalService {
         });
       }
 
-      return this.formatGoal(goal as GoalWithOptionalJoins);
+      const contributedAmount = goal.contributions.reduce(
+        (sum, c) => sum + Number(c.amount),
+        0,
+      );
+
+      // Pace calculations — used by the drawer's progress detail section
+      const now = new Date();
+      const monthsLeft = this.monthsBetween(now, goal.targetDate);
+      const remaining = Math.max(0, goal.targetAmount - contributedAmount);
+      const paceRequired = monthsLeft > 0 ? remaining / monthsLeft : 0;
+
+      // paceActual = all-time avg over distinct calendar months with contributions
+      const activeMonths = new Set(
+        goal.contributions.map((c) => format(c.date, 'YYYY-MM')),
+      ).size;
+      const paceActual = activeMonths > 0 ? contributedAmount / activeMonths : 0;
+
+      let paceStatus: 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'COMPLETED';
+      if (goal.status === Goalstatus.COMPLETED) {
+        paceStatus = 'COMPLETED';
+      } else if (monthsLeft < 0) {
+        paceStatus = 'OVERDUE';
+      } else if (remaining === 0 || paceActual >= paceRequired) {
+        paceStatus = 'ON_TRACK';
+      } else {
+        paceStatus = 'BEHIND';
+      }
+
+      return this.formatGoal({
+        ...goal,
+        contributedAmount,
+        paceRequired,
+        paceActual,
+        paceStatus,
+        monthsLeft,
+      } as GoalWithOptionalJoins);
     } catch (error) {
       if (error instanceof RpcException) throw error;
       throw new RpcException({
@@ -1005,16 +1041,14 @@ export class GoalService {
     };
   }
 
-  // ── getGoalsAggregate helpers ──────────────────────────────────────────────
-  // Each helper owns exactly one concern and accepts only the data it needs.
-  // This keeps getGoalsAggregate as a thin coordinator with no inline computation.
+  //? ── getGoalsAggregate helpers ──────────────────────────────────────────────//
 
   /**
-   * Converts the Q2 groupBy result into a lookup map for O(1) contribution
+   * Converts the Q2 groupBy result array  into a lookup map for O(1) contribution
    * retrieval during on-track and projection passes.
    *
    * @private
-   * @returns goalId → all-time contribution total98
+   * @returns  goalId → all-time contribution total
    *
    */
   private buildAllTimeTotalMap(
@@ -1048,17 +1082,18 @@ export class GoalService {
     monthBuckets: Map<string, number>;
     goalMonthBuckets: Map<string, Map<string, number>>;
   } {
-    const monthBuckets = new Map<string, number>();
-    const goalMonthBuckets = new Map<string, Map<string, number>>();
+    const monthBuckets = new Map<string, number>(); // {month:amount}
+    const goalMonthBuckets = new Map<string, Map<string, number>>(); // {goalId: {month:amount}}
 
     for (const c of recentContributions) {
       const month = format(c.date, 'YYYY-MM');
       const amt = Number(c.amount);
 
-      monthBuckets.set(month, (monthBuckets.get(month) ?? 0) + amt);
+      monthBuckets.set(month, (monthBuckets.get(month) ?? 0) + amt); // auto increment rolling monthly summary
 
       if (!goalMonthBuckets.has(c.goalId))
         goalMonthBuckets.set(c.goalId, new Map());
+
       const gMap = goalMonthBuckets.get(c.goalId)!;
       gMap.set(month, (gMap.get(month) ?? 0) + amt);
     }
@@ -1080,16 +1115,15 @@ export class GoalService {
    */
   private computeAvgMonthlyContribution(
     monthBuckets: Map<string, number>,
-    currentMonth: string,
   ): number {
     let sumContributed = 0;
     let activePeriods = 0;
+
     for (const [m, amount] of monthBuckets) {
-      if (m < currentMonth) {
-        sumContributed += amount;
-        activePeriods++;
-      }
+      sumContributed += amount;
+      activePeriods++;
     }
+
     return activePeriods > 0 ? sumContributed / activePeriods : 0;
   }
 
@@ -1156,7 +1190,6 @@ export class GoalService {
     activeGoals: { id: string; targetAmount: number; targetDate: Date }[],
     allTimeTotalMap: Map<string, number>,
     goalMonthBuckets: Map<string, Map<string, number>>,
-    currentMonth: string,
     now: Date,
   ): { onTrackCount: number; overdueCount: number } {
     let onTrackCount = 0;
@@ -1173,17 +1206,8 @@ export class GoalService {
       }
 
       const gMap = goalMonthBuckets.get(goal.id);
-      let goalSum = 0;
-      let goalActivePeriods = 0;
-      if (gMap) {
-        for (const [m, amount] of gMap) {
-          if (m < currentMonth) {
-            goalSum += amount;
-            goalActivePeriods++;
-          }
-        }
-      }
-      const goalAvg = goalActivePeriods > 0 ? goalSum / goalActivePeriods : 0;
+      const activePeriods = gMap?.size ?? 0;
+      const goalAvg = activePeriods > 0 ? contributed / activePeriods : 0;
 
       if (monthsLeft === 0) {
         if (goalAvg >= remaining) onTrackCount++;
@@ -1197,22 +1221,87 @@ export class GoalService {
   }
 
   /**
-   * Builds the 15-point projection time series used by the savings area chart.
+   * Builds the 15-point projection time series rendered by the savings area chart.
+   * Returns an array of { month, amount, isProjected } ordered oldest → newest.
    *
-   * Past window (isProjected: false) — 3 months of actual data:
-   *   If the current month has contributions, it is included as the most recent
-   *   past point (months i=2..0). Otherwise the window shifts back one month
-   *   (i=3..1) to avoid opening the chart with a known zero that would create
-   *   a false dip at the projection boundary.
+   * ── Overview ───────────────────────────────────────────────────────────────
    *
-   * Future window (isProjected: true) — 12 projected months:
-   *   Each ACTIVE goal contributes a constant monthly pace:
-   *     pace = (targetAmount - contributed) / monthsToTarget
-   *   Goals at or past their target date are excluded. For each future month
-   *   offset i, only goals whose funding window is still open (until >= i)
-   *   contribute to that month's projected total.
+   * The array has two contiguous segments:
+   *
+   *   [past 3 months — isProjected: false]  [future 12 months — isProjected: true]
+   *   ◄─────────────────────────────────────►◄──────────────────────────────────►
+   *        actual totals from monthBuckets        computed via difference-array
+   *
+   * ── Part 1 — Past window (actual data) ─────────────────────────────────────
+   *
+   * We always emit exactly 3 past months, but the exact offsets depend on
+   * whether the current month has any contributions:
+   *
+   *   Current month HAS contributions → include it as the most recent past point.
+   *     pastStart = 2, pastEnd = 0  → months at offsets -2, -1, 0  (current month)
+   *
+   *   Current month has NO contributions yet → shift the window back by one.
+   *     pastStart = 3, pastEnd = 1  → months at offsets -3, -2, -1 (last full month)
+   *
+   * The shift prevents the chart from opening with a visible zero on the right
+   * side of the "actual" segment (which would look like a dip at the boundary).
+   *
+   * ── Part 2 — Future window (projected data) ─────────────────────────────────
+   *
+   * Each active goal needs a constant monthly savings pace:
+   *
+   *   pace = (targetAmount − contributed) / monthsToTarget
+   *   We use a difference-array (expiry-deduction) technique that
+   *   makes this to O(goals + months):
+   *
+   *   STEP A — Initialise
+   *     expiryDeductions  numeric array of length (futureEnd + 2), all zeros.
+   *                       Index k holds the total pace that drops out at month k.
+   *     totalPace         running sum of all active goal paces (starts at 0).
+   *
+   *   STEP B — One pass over goals (O(goals))
+   *     For each goal:
+   *       1. Skip it if its target date has already passed (monthsToTarget ≤ 0).
+   *       2. Compute pace = remaining / monthsToTarget and add to totalPace.
+   *       3. Record the deduction: expiryDeductions[monthsToTarget + 1] += pace.
+   *          The "+1" means "the month AFTER this goal's last active month".
+   *          If that index falls beyond futureEnd + 1 the deduction is never
+   *          read (goal outlives the chart window) — skip it to stay in bounds.
+   *
+   *     After this loop, totalPace = sum of all active goal paces, and
+   *     expiryDeductions encodes exactly when each goal stops contributing.
+   *
+   *     Example with 3 goals (futureStart = 1, futureEnd = 12):
+   *
+   *       Goal A: pace 500, until month 8  → expiryDeductions[9]  += 500
+   *       Goal B: pace 300, until month 12 → expiryDeductions[13] += 300  (skipped — out of range)
+   *       Goal C: pace 200, until month 3  → expiryDeductions[4]  += 200
+   *
+   *       totalPace = 1000
+   *       expiryDeductions = [0, 0, 0, 0, 200, 0, 0, 0, 0, 500, 0, 0, 0, 300]
+   *                 index:    0  1  2  3   4   5  6  7  8   9  10 11 12  13
+   *
+   *   STEP C — One pass over months (O(months))
+   *     runningSum starts at totalPace (all goals active simultaneously).
+   *     At each month offset i:
+   *       1. runningSum -= expiryDeductions[i]   ← subtract goals that expired
+   *       2. Emit { month, amount: runningSum, isProjected: true }
+   *
+   *     Tracing the example:
+   *       i=1:  1000 − 0   = 1000  (A + B + C all active)
+   *       i=2:  1000 − 0   = 1000
+   *       i=3:  1000 − 0   = 1000
+   *       i=4:  1000 − 200 =  800  (C expired)
+   *       i=5..8: 800
+   *       i=9:   800 − 500 =  300  (A expired)
+   *       i=10..12: 300            (only B remains)
    *
    * @private
+   * @param activeGoals       ACTIVE goals with id, targetAmount, and targetDate
+   * @param allTimeTotalMap   goalId → all-time contribution total
+   * @param monthBuckets      "YYYY-MM" → cross-goal total for that month
+   * @param currentMonth      "YYYY-MM" label for the current calendar month
+   * @param now               reference Date (UTC) for all offset arithmetic
    */
   private buildProjectionData(
     activeGoals: { id: string; targetAmount: number; targetDate: Date }[],
@@ -1222,7 +1311,13 @@ export class GoalService {
     now: Date,
   ): ProjectionPoint[] {
     const projectionData: ProjectionPoint[] = [];
+
+    // ── Part 1: Past window ──────────────────────────────────────────────────
     const hasCurrentMonthData = monthBuckets.has(currentMonth);
+
+    // Include the current month in the past window only when it already has
+    // contributions. Without this guard the rightmost actual bar would be zero
+    // and create a false dip at the boundary with the projected segment.
     const pastStart = hasCurrentMonthData ? 2 : 3;
     const pastEnd = hasCurrentMonthData ? 0 : 1;
 
@@ -1238,30 +1333,51 @@ export class GoalService {
       });
     }
 
-    // Pre-compute pace + funding window for each active goal once.
-    // Goals at or past their target date are excluded (null → filtered out).
-    const goalPaces = activeGoals
-      .map((goal): GoalPace | null => {
-        const monthsToTarget = this.monthsBetween(now, goal.targetDate);
-        if (monthsToTarget <= 0) return null;
-        const contributed = allTimeTotalMap.get(goal.id) ?? 0;
-        const remaining = Math.max(0, goal.targetAmount - contributed);
-        return { pace: remaining / monthsToTarget, until: monthsToTarget };
-      })
-      .filter((p): p is GoalPace => p !== null);
+    // ── Part 2: Future window (difference-array technique) ───────────────────
 
+    // futureStart / futureEnd mirror the past window shift: when the current
+    // month is included as a past point, the first future offset is 1 (next
+    // month). When it is excluded, offset 0 IS the current month projection.
     const futureStart = hasCurrentMonthData ? 1 : 0;
     const futureEnd = hasCurrentMonthData ? 12 : 11;
 
+    // STEP A — expiryDeductions[k] will hold the total pace that drops out at
+    // month offset k. Size is futureEnd + 2 so index futureEnd + 1 is reachable
+    // without an out-of-bounds write.
+    const expiryDeductions = new Float64Array(futureEnd + 2);
+    let totalPace = 0;
+
+    // STEP B — one O(goals) pass: accumulate total pace and register each
+    // goal's expiry offset in the deduction array.
+    for (const goal of activeGoals) {
+      const monthsToTarget = this.monthsBetween(now, goal.targetDate);
+      if (monthsToTarget <= 0) continue; // already past due — exclude from projection
+
+      const contributed = allTimeTotalMap.get(goal.id) ?? 0;
+      const remaining = Math.max(0, goal.targetAmount - contributed);
+      const pace = remaining / monthsToTarget;
+
+      totalPace += pace;
+
+      // The goal is active through month offset `monthsToTarget`, so it stops
+      // contributing at offset `monthsToTarget + 1`. Goals whose window extends
+      // past futureEnd are never subtracted within the render range — skip them.
+      const deductAt = monthsToTarget + 1;
+      if (deductAt <= futureEnd + 1) {
+        expiryDeductions[deductAt] += pace;
+      }
+    }
+
+    // STEP C — one O(months) pass: walk the render range, subtracting expiries
+    // before emitting each month's projected total.
+    let runningSum = totalPace; // starts at sum of ALL active goal paces
     for (let i = futureStart; i <= futureEnd; i++) {
+      runningSum -= expiryDeductions[i]; // drop goals whose window closed here
       const m = format(
         new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + i, 1)),
         'YYYY-MM',
       );
-      const amount = goalPaces
-        .filter((p) => p.until >= i)
-        .reduce((sum, p) => sum + p.pace, 0);
-      projectionData.push({ month: m, amount, isProjected: true });
+      projectionData.push({ month: m, amount: runningSum, isProjected: true });
     }
 
     return projectionData;
@@ -1417,6 +1533,10 @@ export class GoalService {
             month,
           }))
         : [],
+      paceRequired: goal.paceRequired ?? undefined,
+      paceActual: goal.paceActual ?? undefined,
+      paceStatus: goal.paceStatus ?? undefined,
+      monthsLeft: goal.monthsLeft ?? undefined,
     };
   }
 }

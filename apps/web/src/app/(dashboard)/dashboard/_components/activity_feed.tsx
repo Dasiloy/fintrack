@@ -4,12 +4,13 @@ import { getTimeFromNow } from '@fintrack/utils/date';
 import dayjs from '@fintrack/utils/date';
 import { useAtomValue } from 'jotai';
 import {
+  Activity,
   ArrowUpDown,
+  Coins,
   PiggyBank,
   RefreshCw,
   SplitSquareVertical,
   Target,
-  Activity,
 } from 'lucide-react';
 import { Skeleton } from '@ui/components';
 import { cn } from '@ui/lib/utils';
@@ -40,6 +41,7 @@ const ENTITY_ICONS: Record<string, React.ReactNode> = {
   budget: <PiggyBank className="size-3.5" />,
   transaction: <ArrowUpDown className="size-3.5" />,
   goal: <Target className="size-3.5" />,
+  goal_contribution: <Coins className="size-3.5" />,
   split: <SplitSquareVertical className="size-3.5" />,
   recurring: <RefreshCw className="size-3.5" />,
 };
@@ -48,6 +50,7 @@ const ENTITY_ICON_COLORS: Record<string, string> = {
   budget: 'border-violet-500/20 bg-violet-500/8 text-violet-400',
   transaction: 'border-blue-500/20 bg-blue-500/8 text-blue-400',
   goal: 'border-amber-500/20 bg-amber-500/8 text-amber-400',
+  goal_contribution: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400',
   split: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400',
   recurring: 'border-cyan-500/20 bg-cyan-500/8 text-cyan-400',
 };
@@ -158,6 +161,24 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
             {d.goalStatus.toLowerCase().replace('_', ' ')}
           </span>
         )}
+      </div>
+    );
+  }
+
+  if (d.type === 'goal_contribution') {
+    const amount = fmt(d.contributionAmount);
+    const date = d.contributionDate ? dayjs(d.contributionDate).format('DD MMM YYYY') : null;
+    const goalName = d.goalName ?? null;
+
+    return (
+      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        {goalName && (
+          <span className="text-text-secondary text-[11px] font-medium">{goalName}</span>
+        )}
+        {amount && (
+          <span className="text-emerald-400 text-[11px] font-semibold tabular-nums">+{amount}</span>
+        )}
+        {date && <span className="text-text-disabled text-[10px]">{date}</span>}
       </div>
     );
   }

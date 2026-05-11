@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Emergency Fund",
+    "targetAmount": 1500000,
+    "targetDate": "2026-12-31",
+    "status": "ACTIVE",
+    "priority": "HIGH",
+    "description": "3-month emergency fund to cover living expenses in case of job loss or health crisis",
+    "contributions": [
+      { "amount": 80000,  "date": "2025-12-15", "description": "Emergency fund — December top-up" },
+      { "amount": 100000, "date": "2026-01-10", "description": "Emergency fund — January contribution" },
+      { "amount": 120000, "date": "2026-02-12", "description": "Emergency fund — February contribution (increased)" },
+      { "amount": 100000, "date": "2026-03-08", "description": "Emergency fund — March contribution" },
+      { "amount": 120000, "date": "2026-04-10", "description": "Emergency fund — April contribution" },
+      { "amount": 80000,  "date": "2026-05-05", "description": "Emergency fund — May contribution" }
+    ]
+  },
+  {
+    "name": "MacBook Pro M4",
+    "targetAmount": 900000,
+    "targetDate": "2026-09-30",
+    "status": "ACTIVE",
+    "priority": "MEDIUM",
+    "description": "Upgrading work setup with a MacBook Pro M4 for better development performance",
+    "contributions": [
+      { "amount": 80000, "date": "2025-11-20", "description": "MacBook savings — November" },
+      { "amount": 85000, "date": "2025-12-18", "description": "MacBook savings — December" },
+      { "amount": 80000, "date": "2026-01-15", "description": "MacBook savings — January" },
+      { "amount": 90000, "date": "2026-02-15", "description": "MacBook savings — February (added freelance income)" },
+      { "amount": 85000, "date": "2026-03-12", "description": "MacBook savings — March" }
+    ]
+  },
+  {
+    "name": "Dubai Vacation",
+    "targetAmount": 600000,
+    "targetDate": "2027-03-31",
+    "status": "ACTIVE",
+    "priority": "LOW",
+    "description": "Anniversary trip to Dubai with partner — flights, hotel, and activities",
+    "contributions": [
+      { "amount": 50000, "date": "2026-03-25", "description": "Dubai trip fund — initial savings" },
+      { "amount": 50000, "date": "2026-04-20", "description": "Dubai trip fund — April" }
+    ]
+  },
+  {
+    "name": "Wedding Fund",
+    "targetAmount": 3000000,
+    "targetDate": "2027-12-31",
+    "status": "ON_HOLD",
+    "priority": "HIGH",
+    "description": "Traditional and white wedding — venue, asoebi, catering, photography, and honeymoon",
+    "contributions": [
+      { "amount": 200000, "date": "2025-11-10", "description": "Wedding fund — November" },
+      { "amount": 200000, "date": "2025-12-10", "description": "Wedding fund — December" },
+      { "amount": 150000, "date": "2026-01-08", "description": "Wedding fund — January (reduced, high expenses month)" }
+    ]
+  },
+  {
+    "name": "iPhone 15 Pro Max",
+    "targetAmount": 500000,
+    "targetDate": "2025-12-31",
+    "status": "COMPLETED",
+    "priority": "MEDIUM",
+    "description": "Replacing my aging iPhone 12 with the new iPhone 15 Pro Max",
+    "contributions": [
+      { "amount": 150000, "date": "2025-08-15", "description": "iPhone savings — August" },
+      { "amount": 150000, "date": "2025-09-15", "description": "iPhone savings — September" },
+      { "amount": 120000, "date": "2025-10-12", "description": "iPhone savings — October" },
+      { "amount": 80000,  "date": "2025-11-08", "description": "iPhone savings — final push (goal reached!)" }
+    ]
+  }
+]

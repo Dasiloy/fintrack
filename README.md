@@ -150,7 +150,6 @@ fintrack/
 ### Frontend
 
 - [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
-- [UI Engineering Guidelines](docs/UI.md)
 
 ### Deployment & Operations
 
@@ -168,11 +167,11 @@ fintrack/
 
 ### 1. Prerequisites
 
-| Tool    | Minimum Version   | Install                                   |
-| ------- | ----------------- | ----------------------------------------- |
-| Node.js | 18.x LTS or later | https://nodejs.org or `nvm install --lts` |
-| pnpm    | 9.x               | `npm install -g pnpm@9`                   |
-| Git     | any recent        | https://git-scm.com                       |
+| Tool    | Minimum Version   | Install                                     |
+| ------- | ----------------- | ------------------------------------------- |
+| Node.js | 18.x LTS or later | <https://nodejs.org> or `nvm install --lts` |
+| pnpm    | 9.x               | `npm install -g pnpm@9`                     |
+| Git     | any recent        | <https://git-scm.com>                       |
 
 ```bash
 node -v   # v18.x or higher
@@ -190,7 +189,7 @@ Create a free account for each service below and collect the credentials — you
 
 All services share one Postgres database via Prisma. The Aiven free tier allows **16 concurrent connections** — the pool allocation is pre-configured per service in each `.env.example`.
 
-1. Sign up at https://console.aiven.io (free tier, no credit card for trial).
+1. Sign up at <https://console.aiven.io> (free tier, no credit card for trial).
 2. Create a new **PostgreSQL** service (choose the region closest to you).
 3. Go to **Connection Info** and copy the **Service URI** (pooled).
 4. Format: `postgresql://user:password@host:port/dbname?sslmode=require`
@@ -198,14 +197,14 @@ All services share one Postgres database via Prisma. The Aiven free tier allows 
 
 #### Upstash Redis (cache, rate limiting, BullMQ queues)
 
-1. Sign up at https://upstash.com (free tier).
+1. Sign up at <https://upstash.com> (free tier).
 2. Create a **Redis** database.
 3. **Details** tab → copy the `REDIS_URL` field.
 4. Must start with `rediss://` (TLS) — plain `redis://` will be rejected by Upstash.
 
 #### Google OAuth (social login)
 
-1. https://console.cloud.google.com → **APIs & Services → Credentials → Create OAuth 2.0 Client ID**.
+1. Go to <https://console.cloud.google.com> → **APIs & Services → Credentials → Create OAuth 2.0 Client ID**.
 2. Application type: **Web application**.
 3. Authorised redirect URI: `http://localhost:3000/api/auth/callback/google`
 4. Copy **Client ID** → `AUTH_GOOGLE_ID`, **Client secret** → `AUTH_GOOGLE_SECRET`.
@@ -214,7 +213,7 @@ All services share one Postgres database via Prisma. The Aiven free tier allows 
 
 Captures emails in a sandbox so nothing reaches real inboxes during development.
 
-1. Sign up at https://mailtrap.io (free tier).
+1. Sign up at <https://mailtrap.io> (free tier).
 2. **Email API → API Tokens** → generate a token for your sandbox inbox.
 3. Copy the token → `MAIL_TOKEN`.
 
@@ -222,12 +221,12 @@ Captures emails in a sandbox so nothing reaches real inboxes during development.
 
 Profile pictures and receipt attachments are stored in Cloudinary.
 
-1. Sign up at https://cloudinary.com (free tier).
+1. Sign up at <https://cloudinary.com> (free tier).
 2. Dashboard → **Cloud name** → `CLOUDINARY_ID`.
 
 #### Stripe (subscriptions)
 
-1. Sign up at https://dashboard.stripe.com.
+1. Sign up at <https://dashboard.stripe.com>.
 2. **Developers → API keys** → copy the secret key → `STRIPE_SECRET_KEY`.
 3. Create a **Product** with a monthly price → copy the Price ID → `STRIPE_PRO_MONTHLY_PRICE_ID`.
 4. **Developers → Webhooks** → add a local endpoint via `stripe listen` → copy the signing secret → `STRIPE_WEBHOOK_SECRET`.
@@ -236,13 +235,13 @@ Profile pictures and receipt attachments are stored in Cloudinary.
 
 Required to link and sync Nigerian bank accounts.
 
-1. Sign up at https://mono.co (developer account).
+1. Sign up at <https://mono.co> (developer account).
 2. **Settings → API Keys** → copy the **Secret Key** → `MONO_SECRET_KEY`.
 3. **Settings → Webhooks** → add your gateway URL → copy the webhook secret → `MONO_WEBHOOK_SECRET`.
 
 #### Firebase (FCM push notifications)
 
-1. https://console.firebase.google.com → create a project.
+1. Go to <https://console.firebase.google.com> → create a project.
 2. **Project Settings → Service Accounts** → generate a new private key → download the JSON file.
 3. Set `FIREBASE_SERVICE_ACCOUNT` to the stringified JSON (or a path, depending on your setup).
 4. **Project Settings → General → Web Push certificates** → copy the VAPID key → `NEXT_PUBLIC_FIREBASE_VAPID_KEY`.
@@ -251,9 +250,9 @@ Required to link and sync Nigerian bank accounts.
 
 The AI service supports OpenAI, Anthropic, and Google Gemini — set whichever you have access to.
 
-- `OPENAI_API_KEY` — https://platform.openai.com
-- `ANTHROPIC_API_KEY` — https://console.anthropic.com
-- `GOOGLE_GEN_AI_API_KEY` — https://aistudio.google.com
+- `OPENAI_API_KEY` — <https://platform.openai.com>
+- `ANTHROPIC_API_KEY` — <https://console.anthropic.com>
+- `GOOGLE_GEN_AI_API_KEY` — <https://aistudio.google.com>
 
 ---
 
@@ -319,7 +318,45 @@ pnpm --filter @fintrack/database exec prisma migrate dev --name init
 
 ---
 
-### 6. Running the Project
+### 6. Seed Demo Data
+
+The seed script populates your account with 6 months of realistic Nigerian financial data so every feature in the app is immediately usable — no manual data entry required.
+
+#### What gets seeded
+
+| Entity            | Count | Details                                                   |
+| ----------------- | ----- | --------------------------------------------------------- |
+| System categories | 10    | Food, Transport, Bills, Entertainment, etc.               |
+| Merchants         | 69    | Nigerian brands used by the AI classifier                 |
+| Transactions      | 42    | Income + expenses across Nov 2025 – May 2026              |
+| Budgets           | 6     | Monthly, quarterly, and yearly with limit-change history  |
+| Goals             | 5     | ACTIVE, ON_HOLD, and COMPLETED with monthly contributions |
+| Recurring items   | 10    | Salary, rent, subscriptions (all frequencies)             |
+| Activity logs     | 20    | Timeline of key events shown in the dashboard feed        |
+
+#### Steps
+
+1. Sign up at [http://localhost:3000/signup](http://localhost:3000/signup) and verify your email.
+
+2. Add your email to the root `.env`:
+
+   ```env
+   SEED_USER_EMAIL=your@email.com
+   ```
+
+3. Run the seed:
+
+   ```bash
+   pnpm --filter @fintrack/database db:seed
+   ```
+
+The seed is **idempotent** — running it a second time is safe. Each section checks for existing records and skips if data already exists for your account. If `SEED_USER_EMAIL` is not set, or no account matches the email, the script exits immediately with a clear error message.
+
+> **Fixture files** live in `packages/database/prisma/json/`. Each entity type has its own JSON file. Modify them before running the seed to customise the demo data.
+
+---
+
+### 7. Running the Project
 
 ```bash
 pnpm dev
@@ -327,23 +364,21 @@ pnpm dev
 
 Turborepo starts all services in parallel and streams their logs. Once ready:
 
-| Service                     | Port | URL                            |
-| --------------------------- | ---- | ------------------------------ |
-| Web App (Next.js)           | 3000 | http://localhost:3000          |
-| API Gateway (REST)          | 4001 | http://localhost:4001          |
-| Swagger UI                  | 4001 | http://localhost:4001/api/docs |
-| Auth Service (gRPC)         | 4002 | gRPC only                      |
-| Finance Service (gRPC)      | 4003 | gRPC only                      |
-| AI Service (gRPC)           | 4004 | gRPC only                      |
-| Scheduler Service (gRPC)    | 4005 | gRPC only                      |
-| Payment Service (gRPC)      | 4008 | gRPC only                      |
-| Notification Service (gRPC) | 4009 | gRPC only                      |
-
-Swagger is protected by HTTP basic auth. Credentials are `SWAGGER_DOC_USER` / `SWAGGER_DOC_PASS` in `apps/api_gateway/.env` (defaults: `fintrack` / `developer`).
+| Service                     | Port | URL                              |
+| --------------------------- | ---- | -------------------------------- |
+| Web App (Next.js)           | 3000 | <http://localhost:3000>          |
+| API Gateway (REST)          | 4001 | <http://localhost:4001>          |
+| Swagger UI                  | 4001 | <http://localhost:4001/api/docs> |
+| Auth Service (gRPC)         | 4002 | gRPC only                        |
+| Finance Service (gRPC)      | 4003 | gRPC only                        |
+| AI Service (gRPC)           | 4004 | gRPC only                        |
+| Scheduler Service (gRPC)    | 4005 | gRPC only                        |
+| Payment Service (gRPC)      | 4008 | gRPC only                        |
+| Notification Service (gRPC) | 4009 | gRPC only                        |
 
 ---
 
-### 7. Running Individual Services
+### 8. Running Individual Services
 
 ```bash
 pnpm --filter api_gateway          dev
@@ -358,7 +393,7 @@ pnpm --filter web                  dev
 
 ---
 
-### 8. Useful Commands
+### 9. Useful Commands
 
 All commands run from the **repo root**.
 
@@ -375,7 +410,7 @@ All commands run from the **repo root**.
 
 ---
 
-### 9. Common Issues
+### 10. Common Issues
 
 **`MODULE_NOT_FOUND` referencing proto files**
 
@@ -401,17 +436,17 @@ If you see TypeScript errors like "Expected 0 arguments, got 1" after changing a
 pnpm --filter @fintrack/utils build
 ```
 
-**Port already in use**
+#### Port already in use
 
 ```bash
 npx kill-port 4001   # or whichever port is blocked
 ```
 
-**Redis TLS errors**
+#### Redis TLS errors
 
 Upstash requires TLS. `REDIS_URL` must start with `rediss://` (two `s`). A plain `redis://` URL will fail.
 
-**Aiven DB connection pool exhausted**
+#### Aiven DB connection pool exhausted
 
 The free tier allows 16 total connections. The default pool allocation across all services sums to ~13, leaving headroom for migrations and ad-hoc queries. If you add services, adjust `DB_POOL_MAX` in each service's `.env` to stay within the limit.
 
