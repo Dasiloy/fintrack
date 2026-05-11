@@ -63,6 +63,20 @@ export interface Goal {
   contributions: Contribution[];
   contributedAmount?: number | undefined;
   monthlyContributions: MonthlyContributionSummary[];
+  /** Pace fields — populated by getById only */
+  paceRequired?:
+    | number
+    | undefined;
+  /** user's all-time avg monthly contribution for this goal */
+  paceActual?:
+    | number
+    | undefined;
+  /** ON_TRACK | BEHIND | OVERDUE | COMPLETED */
+  paceStatus?:
+    | string
+    | undefined;
+  /** calendar months remaining to targetDate */
+  monthsLeft?: number | undefined;
 }
 
 export interface CreateGoalReq {

@@ -1,0 +1,142 @@
+[
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-05-08T09:15:00Z",
+    "data": { "amount": 450000, "type": "INCOME", "description": "Monthly Salary — May 2026", "source": "MANUAL" }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:Emergency Fund",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-05-05T14:30:00Z",
+    "data": { "goalName": "Emergency Fund", "contributionAmount": 80000, "contributionDate": "2026-05-05" }
+  },
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-05-03T08:00:00Z",
+    "data": { "amount": 3500, "type": "EXPENSE", "description": "MTN Data Bundle — 20GB", "source": "MANUAL" }
+  },
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-04-28T09:20:00Z",
+    "data": { "amount": 450000, "type": "INCOME", "description": "Monthly Salary — April 2026", "source": "MANUAL" }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:Emergency Fund",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-04-10T11:00:00Z",
+    "data": { "goalName": "Emergency Fund", "contributionAmount": 120000, "contributionDate": "2026-04-10" }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:Dubai Vacation",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-04-20T16:45:00Z",
+    "data": { "goalName": "Dubai Vacation", "contributionAmount": 50000, "contributionDate": "2026-04-20" }
+  },
+  {
+    "event": "budget.alert",
+    "entityRef": "budget",
+    "entityType": "budget",
+    "createdAt": "2026-04-22T10:00:00Z",
+    "data": { "name": "Bills & Utilities", "spent": 175500, "limit": 185000, "percent": 95 }
+  },
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-03-28T09:10:00Z",
+    "data": { "amount": 450000, "type": "INCOME", "description": "Monthly Salary — March 2026", "source": "MANUAL" }
+  },
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-03-05T13:20:00Z",
+    "data": { "amount": 85000, "type": "EXPENSE", "description": "SLOT — Samsung Galaxy Buds2 Pro", "source": "MANUAL" }
+  },
+  {
+    "event": "goal.created",
+    "entityRef": "goal:Dubai Vacation",
+    "entityType": "goal",
+    "createdAt": "2026-03-20T10:30:00Z",
+    "data": { "name": "Dubai Vacation", "targetAmount": 600000, "targetDate": "2027-03-31", "priority": "LOW" }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:MacBook Pro M4",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-03-12T15:00:00Z",
+    "data": { "goalName": "MacBook Pro M4", "contributionAmount": 85000, "contributionDate": "2026-03-12" }
+  },
+  {
+    "event": "transaction.created",
+    "entityRef": "txn",
+    "entityType": "transaction",
+    "createdAt": "2026-02-28T09:05:00Z",
+    "data": { "amount": 450000, "type": "INCOME", "description": "Monthly Salary — February 2026", "source": "MANUAL" }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:Emergency Fund",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-02-12T12:00:00Z",
+    "data": { "goalName": "Emergency Fund", "contributionAmount": 120000, "contributionDate": "2026-02-12" }
+  },
+  {
+    "event": "budget.created",
+    "entityRef": "budget",
+    "entityType": "budget",
+    "createdAt": "2026-02-01T08:00:00Z",
+    "data": { "name": "Shopping & Retail", "period": "MONTHLY", "limit": 100000 }
+  },
+  {
+    "event": "goal_contribution.created",
+    "entityRef": "goal:Emergency Fund",
+    "entityType": "goal_contribution",
+    "createdAt": "2026-01-10T14:00:00Z",
+    "data": { "goalName": "Emergency Fund", "contributionAmount": 100000, "contributionDate": "2026-01-10" }
+  },
+  {
+    "event": "goal.status_updated",
+    "entityRef": "goal:Wedding Fund",
+    "entityType": "goal",
+    "createdAt": "2026-01-25T09:00:00Z",
+    "data": { "name": "Wedding Fund", "from": "ACTIVE", "to": "ON_HOLD" }
+  },
+  {
+    "event": "recurring.created",
+    "entityRef": "recurring:Piggyvest Savings Lock",
+    "entityType": "recurring",
+    "createdAt": "2026-01-02T10:00:00Z",
+    "data": { "name": "Piggyvest Savings Lock", "amount": 50000, "frequency": "MONTHLY", "type": "EXPENSE" }
+  },
+  {
+    "event": "goal.status_updated",
+    "entityRef": "goal:iPhone 15 Pro Max",
+    "entityType": "goal",
+    "createdAt": "2025-12-01T08:30:00Z",
+    "data": { "name": "iPhone 15 Pro Max", "from": "ACTIVE", "to": "COMPLETED" }
+  },
+  {
+    "event": "goal.created",
+    "entityRef": "goal:Emergency Fund",
+    "entityType": "goal",
+    "createdAt": "2025-12-05T11:00:00Z",
+    "data": { "name": "Emergency Fund", "targetAmount": 1500000, "targetDate": "2026-12-31", "priority": "HIGH" }
+  },
+  {
+    "event": "recurring.created",
+    "entityRef": "recurring:Monthly Salary",
+    "entityType": "recurring",
+    "createdAt": "2025-11-01T07:00:00Z",
+    "data": { "name": "Monthly Salary", "amount": 450000, "frequency": "MONTHLY", "type": "INCOME" }
+  }
+]

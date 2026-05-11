@@ -1,710 +1,612 @@
+/**
+ * FinTrack Database Seed
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Populates a user account with realistic demo data for developer onboarding.
+ *
+ * QUICK START:
+ *   1. Run migrations:   pnpm --filter @fintrack/database db:migrate
+ *   2. Generate types:   pnpm --filter @fintrack/database db:generate
+ *   3. Sign up:          http://localhost:3000/signup
+ *   4. Add to .env:      SEED_USER_EMAIL=your@email.com
+ *   5. Run seed:         pnpm --filter @fintrack/database db:seed
+ *
+ * REQUIRED ENV VAR:
+ *   SEED_USER_EMAIL — the email address of the account to seed.
+ *   The seed will stop immediately if this is not set.
+ *
+ * WHAT GETS SEEDED:
+ *   ✓ 10 system categories  — Food, Transport, Bills, Entertainment, etc.
+ *   ✓ 68 merchants          — Nigerian brands used for AI auto-classification
+ *   ✓ 42 transactions       — income & expenses across Nov 2025 – May 2026
+ *   ✓  6 budgets            — monthly/quarterly/yearly with limit-change history
+ *   ✓  5 goals              — ACTIVE, ON_HOLD, and COMPLETED with contributions
+ *   ✓ 10 recurring items    — salary, rent, subscriptions (all frequencies)
+ *   ✓ 20 activity logs      — timeline of key events across all features
+ *
+ * IDEMPOTENCY:
+ *   Safe to re-run. Each section checks for existing records and skips if
+ *   the data already exists for the target user.
+ *
+ * JSON FIXTURES (packages/database/prisma/json/):
+ *   categories.json    — system categories (slug-keyed, shared across users)
+ *   merchants.json     — merchant registry for AI classification
+ *   transactions.json  — 42 transactions with categorySlug references
+ *   budgets.json       — 6 budgets with full BudgetHistory entries
+ *   goals.json         — 5 goals with embedded contribution arrays
+ *   recurring_items.json — 10 recurring items (bills + income)
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
 import 'dotenv/config';
+import { openSync, readFileSync } from 'fs';
+import { join } from 'path';
+import { ReadStream } from 'tty';
+import { fileURLToPath } from 'url';
 import { prisma } from '../src/client';
 
-const SYSTEM_CATEGORIES = [
-  {
-    name: 'Food & Groceries',
-    slug: 'cat-food',
-    color: '#F97316',
-    description: 'Restaurants, fast food, food delivery, supermarkets, and household consumables.',
-    icon: '',
-    tags: [
-      'food', 'dining', 'restaurant', 'fast food', 'takeaway', 'delivery',
-      'meal', 'snack', 'drinks', 'cafe', 'coffee', 'kitchen', 'bukka',
-      'eatery', 'grill', 'chop', 'pizza', 'burger', 'suya', 'canteen',
-      'bakery', 'pastry', 'ice cream', 'juice', 'smoothie',
-      'groceries', 'supermarket', 'market', 'foodstuff', 'provisions',
-      'shoprite', 'spar', 'justrite', 'hubmart', 'park n shop',
-      'household', 'toiletries', 'cleaning', 'detergent', 'consumables',
-    ],
-  },
-  {
-    name: 'Income',
-    slug: 'cat-income',
-    color: '#4ADE80',
-    description: 'Salary, freelance payments, transfers received, refunds, and all inflows.',
-    icon: '',
-    tags: [
-      'income', 'salary', 'wage', 'freelance', 'credit', 'refund',
-      'cashback', 'bonus', 'commission', 'dividend', 'interest',
-      'received', 'inflow', 'proceeds', 'grant', 'allowance', 'stipend',
-      'transfer in', 'payment received', 'settlement', 'payout',
-    ],
-  },
-  {
-    name: 'Transport',
-    slug: 'cat-transport',
-    color: '#3B82F6',
-    description: 'Ride-hailing, fuel, public transport, flights, and logistics.',
-    icon: '',
-    tags: [
-      'transport',
-      'uber',
-      'bolt',
-      'taxify',
-      'ride',
-      'fuel',
-      'petrol',
-      'diesel',
-      'bus',
-      'taxi',
-      'keke',
-      'okada',
-      'fare',
-      'toll',
-      'logistics',
-      'shipping',
-      'courier',
-      'flight',
-      'airfare',
-      'travel',
-      'commute',
-      'parking',
-      'train',
-      'ferry',
-      'dispatch',
-    ],
-  },
-  {
-    name: 'Bills & Utilities',
-    slug: 'cat-bills-utilities',
-    color: '#06B6D4',
-    description: 'Electricity, water, internet, airtime, cable TV, and rent.',
-    icon: '',
-    tags: [
-      'bills',
-      'utilities',
-      'electricity',
-      'nepa',
-      'phcn',
-      'water',
-      'internet',
-      'wifi',
-      'broadband',
-      'airtime',
-      'data',
-      'cable',
-      'dstv',
-      'gotv',
-      'startimes',
-      'rent',
-      'service charge',
-      'waste',
-      'ikedc',
-      'ekedc',
-      'aedc',
-      'phed',
-      'kedco',
-      'ibedc',
-      'spectranet',
-      'swift',
-      'mtn',
-      'airtel',
-      'glo',
-      '9mobile',
-      'prepaid',
-      'token',
-    ],
-  },
-  {
-    name: 'Shopping & Retail',
-    slug: 'cat-shopping',
-    color: '#F59E0B',
-    description: 'Clothing, electronics, online stores, and general retail.',
-    icon: '',
-    tags: [
-      'shopping',
-      'retail',
-      'clothing',
-      'fashion',
-      'electronics',
-      'gadgets',
-      'jumia',
-      'konga',
-      'jiji',
-      'slot',
-      'store',
-      'mall',
-      'market',
-      'accessories',
-      'appliances',
-      'hardware',
-      'purchase',
-      'order',
-      'delivery',
-      'online',
-      'ecommerce',
-      'shoes',
-      'bags',
-    ],
-  },
-  {
-    name: 'Healthcare',
-    slug: 'cat-healthcare',
-    color: '#EF4444',
-    description: 'Hospitals, pharmacies, lab tests, and personal care.',
-    icon: '',
-    tags: [
-      'healthcare',
-      'hospital',
-      'clinic',
-      'pharmacy',
-      'drugs',
-      'medical',
-      'doctor',
-      'dentist',
-      'health',
-      'wellness',
-      'lab',
-      'test',
-      'surgery',
-      'beauty',
-      'salon',
-      'spa',
-      'cosmetics',
-      'grooming',
-      'hygiene',
-      'medplus',
-      'healthplus',
-      'reddington',
-      'prescription',
-    ],
-  },
-  {
-    name: 'Entertainment',
-    slug: 'cat-entertainment',
-    color: '#EC4899',
-    description: 'Streaming, movies, events, sports betting, and leisure.',
-    icon: '',
-    tags: [
-      'entertainment',
-      'cinema',
-      'movie',
-      'netflix',
-      'spotify',
-      'streaming',
-      'games',
-      'event',
-      'concert',
-      'ticket',
-      'club',
-      'nightlife',
-      'betting',
-      'gambling',
-      'sport',
-      'fun',
-      'leisure',
-      'music',
-      'showmax',
-      'audiomack',
-      'boomplay',
-      'bet9ja',
-      'sportybet',
-      '1xbet',
-      'naira bet',
-      'subscription',
-      'disney',
-      'apple tv',
-    ],
-  },
-  {
-    name: 'Education',
-    slug: 'cat-education',
-    color: '#10B981',
-    description: 'School fees, exams, courses, and educational materials.',
-    icon: '',
-    tags: [
-      'education',
-      'school',
-      'tuition',
-      'fees',
-      'university',
-      'college',
-      'course',
-      'training',
-      'books',
-      'stationery',
-      'learning',
-      'exam',
-      'waec',
-      'jamb',
-      'neco',
-      'tutorial',
-      'lesson',
-      'scholarship',
-      'coursera',
-      'udemy',
-      'british council',
-      'institution',
-    ],
-  },
-  {
-    name: 'Savings & Investments',
-    slug: 'cat-savings',
-    color: '#14B8A6',
-    description: 'Savings goals, investments, insurance, and loan repayments.',
-    icon: '',
-    tags: [
-      'savings',
-      'investment',
-      'insurance',
-      'loan',
-      'mortgage',
-      'repayment',
-      'piggyvest',
-      'cowrywise',
-      'risevest',
-      'stocks',
-      'crypto',
-      'pension',
-      'retirement',
-      'deposit',
-      'contribution',
-      'stash',
-      'treasury',
-      'mutual fund',
-      'bonds',
-      'interest',
-      'principal',
-      'premium',
-    ],
-  },
-  {
-    name: 'Miscellaneous',
-    slug: 'cat-misc',
-    color: '#94A3B8',
-    description: 'Bank charges, taxes, fees, and everything else.',
-    icon: '',
-    tags: [
-      'misc',
-      'general',
-      'other',
-      'fees',
-      'charges',
-      'bank charge',
-      'tax',
-      'government',
-      'atm',
-      'withdrawal',
-      'cash',
-      'sms',
-      'maintenance',
-      'penalty',
-      'fine',
-      'levy',
-      'stamp duty',
-      'commission',
-      'vat',
-      'transfer charge',
-      'processing fee',
-    ],
-  },
-];
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-const MERCHANTS = [
-  // ─── Food & Dining ───────────────────────────────────────────────────────
-  {
-    name: 'KFC',
-    aliases: ['KFC', 'KENTUCKY FRIED CHICKEN', 'KENTUCKY'],
-    categoryHint: 'food dining restaurant fast chicken',
-  },
-  {
-    name: 'CHICKEN REPUBLIC',
-    aliases: ['CHICKEN REPUBLIC', 'CHICK REPUBLIC', 'CHICKENREPUBLIC'],
-    categoryHint: 'food dining restaurant fast chicken',
-  },
-  {
-    name: 'DOMINOS PIZZA',
-    aliases: ['DOMINOS', "DOMINO'S", 'DOMINOES PIZZA', 'DOMINOS PIZZA'],
-    categoryHint: 'food dining pizza restaurant',
-  },
-  {
-    name: 'MR BIGGS',
-    aliases: ['MR BIGGS', 'MRBIGGS', 'MR. BIGGS', 'UAC RESTAURANTS'],
-    categoryHint: 'food dining restaurant fast',
-  },
-  {
-    name: 'KILIMANJARO',
-    aliases: ['KILIMANJARO', 'KILIMANJARO RESTAURANT', 'KILIMANJARO NIGERIA'],
-    categoryHint: 'food dining restaurant',
-  },
-  {
-    name: 'SWEET SENSATION',
-    aliases: ['SWEET SENSATION', 'SWEET SENSATIONS', 'SWEETSENSATION'],
-    categoryHint: 'food dining bakery pastry',
-  },
-  {
-    name: 'THE PLACE RESTAURANT',
-    aliases: ['THE PLACE', 'THE PLACE RESTAURANT', 'THEPLACE'],
-    categoryHint: 'food dining restaurant',
-  },
-  {
-    name: 'TANTALIZERS',
-    aliases: ['TANTALIZERS', 'TANTALIZER'],
-    categoryHint: 'food dining restaurant fast',
-  },
-  {
-    name: 'COLD STONE CREAMERY',
-    aliases: ['COLDSTONE', 'COLD STONE', 'COLDSTONE CREAMERY', 'COLD STONE CREAMERY'],
-    categoryHint: 'food dining ice cream snack',
-  },
-  {
-    name: 'CHOWDECK',
-    aliases: ['CHOWDECK', 'CHOW DECK', 'CHOWDECK LOGISTICS'],
-    categoryHint: 'food delivery dining',
-  },
-  {
-    name: 'JUMIA FOOD',
-    aliases: ['JUMIA FOOD', 'JUMIAFOOD', 'HELLOFOOD'],
-    categoryHint: 'food delivery dining',
-  },
-  {
-    name: 'BOLT FOOD',
-    aliases: ['BOLT FOOD', 'BOLTFOOD', 'BOLT FOOD NIGERIA'],
-    categoryHint: 'food delivery dining',
-  },
-  {
-    name: 'GLOVO',
-    aliases: ['GLOVO', 'GLOVOAPP', 'GLOVO NIGERIA'],
-    categoryHint: 'food delivery dining transport',
-  },
-  {
-    name: 'BARCELOS',
-    aliases: ['BARCELOS', 'BARCELOS NIGERIA'],
-    categoryHint: 'food dining restaurant',
-  },
-  {
-    name: 'TASTEE FRIED CHICKEN',
-    aliases: ['TASTEE', 'TASTEE FRIED CHICKEN', 'TFC'],
-    categoryHint: 'food dining restaurant fast chicken',
-  },
+// ─── Section registry ─────────────────────────────────────────────────────────
+const SECTIONS = [
+  { id: 1, label: 'System categories', hint: '10 categories for AI classification' },
+  { id: 2, label: 'Merchant registry', hint: '69 merchants for auto-classification' },
+  { id: 3, label: 'Budgets', hint: '6 budgets with limit-change history' },
+  { id: 4, label: 'Transactions', hint: '42 transactions, Nov 2025 – May 2026' },
+  { id: 5, label: 'Goals', hint: '5 goals with contributions' },
+  { id: 6, label: 'Recurring items', hint: '10 recurring items (bills + income)' },
+  { id: 7, label: 'Activity logs', hint: '20 activity log entries' },
+] as const;
 
-  // ─── Groceries & Supermarkets ────────────────────────────────────────────
-  {
-    name: 'SHOPRITE',
-    aliases: ['SHOPRITE', 'SHOPRITE NIGERIA', 'SHOPRITE CHECKERS'],
-    categoryHint: 'groceries supermarket retail food',
-  },
-  {
-    name: 'SPAR NIGERIA',
-    aliases: ['SPAR', 'SPAR NIGERIA', 'SPAR SUPERMARKET'],
-    categoryHint: 'groceries supermarket retail',
-  },
-  {
-    name: 'JUSTRITE SUPERSTORE',
-    aliases: ['JUSTRITE', 'JUST RITE', 'JUSTRITE SUPERSTORE'],
-    categoryHint: 'groceries supermarket retail',
-  },
-  {
-    name: 'HUBMART',
-    aliases: ['HUBMART', 'HUB MART', 'PARK N SHOP', 'ARTEE INDUSTRIES'],
-    categoryHint: 'groceries supermarket retail',
-  },
+type SectionId = (typeof SECTIONS)[number]['id'];
 
-  // ─── Transport ───────────────────────────────────────────────────────────
-  {
-    name: 'UBER',
-    aliases: ['UBER', 'UBER NIGERIA', 'UBER BV', 'UBER TRIP'],
-    categoryHint: 'transport ride uber',
-  },
-  {
-    name: 'BOLT',
-    aliases: ['BOLT', 'TAXIFY', 'BOLT TECHNOLOGY', 'BOLT NIGERIA'],
-    categoryHint: 'transport ride bolt',
-  },
-  {
-    name: 'TOTAL ENERGIES',
-    aliases: ['TOTAL', 'TOTALENERGIES', 'TOTAL NIGERIA', 'TOTAL ENERGIES'],
-    categoryHint: 'transport fuel petrol diesel',
-  },
-  {
-    name: 'ARDOVA PETROLEUM',
-    aliases: ['ARDOVA', 'AP PETROLEUM', 'ARDOVA PLC', 'FYNDFUEL ARDOVA'],
-    categoryHint: 'transport fuel petrol',
-  },
-  {
-    name: 'OANDO',
-    aliases: ['OANDO', 'OANDO PLC', 'OANDO FUEL'],
-    categoryHint: 'transport fuel petrol diesel',
-  },
-  {
-    name: 'MRS OIL',
-    aliases: ['MRS OIL', 'MRS PETROLEUM', 'MRS OIL NIGERIA'],
-    categoryHint: 'transport fuel petrol',
-  },
-  {
-    name: 'MOBIL OIL',
-    aliases: ['MOBIL', 'EXXONMOBIL', 'MOBIL OIL NIGERIA', 'MOBIL PETROLEUM'],
-    categoryHint: 'transport fuel petrol diesel',
-  },
-  {
-    name: 'CONOIL',
-    aliases: ['CONOIL', 'CONOIL PLC', 'CONOIL PETROLEUM'],
-    categoryHint: 'transport fuel petrol',
-  },
-  {
-    name: 'NIPCO',
-    aliases: ['NIPCO', 'NIPCO GAS', 'NIPCO PETROLEUM'],
-    categoryHint: 'transport fuel petrol gas',
-  },
+// ─── Upfront section selector ─────────────────────────────────────────────────
+// Shows a numbered menu once, before any seeding begins. Returns the set of
+// section IDs the user chose. Requires an interactive terminal — exits
+// immediately in CI or piped environments to prevent accidental data mutation.
+function selectSections(): Promise<Set<SectionId>> {
+  // Open /dev/tty directly so the menu works even when stdin is piped.
+  // Falls back to an error if no controlling terminal exists (true CI / headless environments).
+  let tty: ReadStream;
+  try {
+    tty = new ReadStream(openSync('/dev/tty', 'r+'));
+  } catch {
+    console.error('\n❌  Seeding requires an interactive terminal.');
+    console.error('    Run the seed locally, not in CI or a piped context.\n');
+    process.exit(1);
+  }
 
-  // ─── Bills & Utilities — Telecom ─────────────────────────────────────────
-  {
-    name: 'MTN NIGERIA',
-    aliases: ['MTN', 'MTN NIGERIA', 'MTN AIRTIME', 'MTN DATA', 'MTN VTU', 'MTN RECHARGE'],
-    categoryHint: 'bills utilities airtime data phone',
-  },
-  {
-    name: 'AIRTEL NIGERIA',
-    aliases: ['AIRTEL', 'AIRTEL NIGERIA', 'AIRTEL AIRTIME', 'AIRTEL DATA'],
-    categoryHint: 'bills utilities airtime data phone',
-  },
-  {
-    name: 'GLO MOBILE',
-    aliases: ['GLO', 'GLOBACOM', 'GLO MOBILE', 'GLO AIRTIME'],
-    categoryHint: 'bills utilities airtime data phone',
-  },
-  {
-    name: '9MOBILE',
-    aliases: ['9MOBILE', 'ETISALAT', '9MOBILE NIGERIA', 'ETISALAT NIGERIA'],
-    categoryHint: 'bills utilities airtime data phone',
-  },
+  const DIM = '\x1b[2m',
+    RESET = '\x1b[0m',
+    CYAN = '\x1b[36m',
+    BOLD = '\x1b[1m';
+  const CLEAR = '\x1b[2K\r';
 
-  // ─── Bills & Utilities — Cable TV ────────────────────────────────────────
-  {
-    name: 'MULTICHOICE NIGERIA',
-    aliases: ['DSTV', 'GOTV', 'MULTICHOICE', 'MULTICHOICE NIGERIA', 'DSTV SUBSCRIPTION'],
-    categoryHint: 'bills utilities entertainment cable tv dstv gotv',
-  },
-  {
-    name: 'STARTIMES',
-    aliases: ['STARTIMES', 'STAR TIMES', 'STARTIMES NIGERIA'],
-    categoryHint: 'bills utilities entertainment cable tv',
-  },
+  const checked = new Set(SECTIONS.map((s) => s.id as SectionId)); // all on by default
+  const labelWidth = Math.max(...SECTIONS.map((s) => s.label.length));
+  let cursor = 0;
 
-  // ─── Bills & Utilities — Electricity DISCOs ──────────────────────────────
-  {
-    name: 'IKEJA ELECTRIC',
-    aliases: ['IKEDC', 'IKEJA ELECTRIC', 'IKEDC PREPAID', 'IKEJA DISCO'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'EKO ELECTRICITY',
-    aliases: ['EKEDC', 'EKO ELECTRICITY', 'EKEDC PREPAID', 'EKO DISCO'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'ABUJA ELECTRICITY',
-    aliases: ['AEDC', 'ABUJA ELECTRICITY', 'AEDC PREPAID', 'ABUJA DISCO'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'PORT HARCOURT ELECTRICITY',
-    aliases: ['PHED', 'PORT HARCOURT ELECTRICITY', 'PHED PREPAID'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'KANO ELECTRICITY',
-    aliases: ['KEDCO', 'KANO ELECTRICITY', 'KEDCO PREPAID'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'IBADAN ELECTRICITY',
-    aliases: ['IBEDC', 'IBADAN ELECTRICITY', 'IBEDC PREPAID', 'IBADAN DISCO'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
-  {
-    name: 'BENIN ELECTRICITY',
-    aliases: ['BEDC', 'BENIN ELECTRICITY', 'BEDC PREPAID'],
-    categoryHint: 'bills utilities electricity nepa phcn',
-  },
+  function renderLines(): string[] {
+    return SECTIONS.map((s, i) => {
+      const on = checked.has(s.id);
+      const focused = i === cursor;
+      const pointer = focused ? `${CYAN}›${RESET}` : ' ';
+      const box = on ? `${CYAN}◉${RESET}` : `${DIM}◯${RESET}`;
+      const label = focused ? `${BOLD}${s.label}${RESET}` : s.label;
+      return `  ${pointer} ${box}  ${label.padEnd(labelWidth)}   ${DIM}${s.hint}${RESET}`;
+    });
+  }
 
-  // ─── Bills & Utilities — Internet ISPs ───────────────────────────────────
-  {
-    name: 'SPECTRANET',
-    aliases: ['SPECTRANET', 'SPECTRANET INTERNET', 'SPECTRANET LIMITED'],
-    categoryHint: 'bills utilities internet broadband wifi',
-  },
-  {
-    name: 'SWIFT NETWORKS',
-    aliases: ['SWIFT NETWORKS', 'SWIFT', 'SWIFT INTERNET'],
-    categoryHint: 'bills utilities internet broadband',
-  },
-  {
-    name: 'SMILE COMMUNICATIONS',
-    aliases: ['SMILE', 'SMILE COMMUNICATIONS', 'SMILECOMS'],
-    categoryHint: 'bills utilities internet broadband data',
-  },
+  return new Promise((resolve) => {
+    process.stdout.write(
+      `\n  Select data to seed  ${DIM}↑↓ navigate · Space toggle · Enter confirm${RESET}\n\n`,
+    );
+    process.stdout.write(renderLines().join('\n') + '\n');
 
-  // ─── Shopping & Retail ───────────────────────────────────────────────────
-  {
-    name: 'JUMIA NIGERIA',
-    aliases: ['JUMIA', 'JUMIA NIGERIA', 'JUMIA.COM.NG', 'JUMIA ONLINE'],
-    categoryHint: 'shopping retail online ecommerce',
-  },
-  {
-    name: 'KONGA',
-    aliases: ['KONGA', 'KONGA.COM', 'KONGA ONLINE', 'KONGA NIGERIA'],
-    categoryHint: 'shopping retail online ecommerce',
-  },
-  {
-    name: 'SLOT SYSTEMS',
-    aliases: ['SLOT', 'SLOT SYSTEMS', 'SLOT NIGERIA', 'SLOT LIMITED'],
-    categoryHint: 'shopping retail electronics gadgets',
-  },
+    tty.setRawMode(true);
+    tty.resume();
+    tty.setEncoding('utf8');
 
-  // ─── Healthcare ──────────────────────────────────────────────────────────
-  {
-    name: 'HEALTHPLUS PHARMACY',
-    aliases: ['HEALTHPLUS', 'HEALTH PLUS', 'HEALTHPLUS PHARMACY'],
-    categoryHint: 'healthcare pharmacy drugs medical',
-  },
-  {
-    name: 'MEDPLUS PHARMACY',
-    aliases: ['MEDPLUS', 'MED PLUS', 'MEDPLUS PHARMACY'],
-    categoryHint: 'healthcare pharmacy drugs medical',
-  },
-  {
-    name: 'REDDINGTON HOSPITAL',
-    aliases: ['REDDINGTON', 'REDDINGTON HOSPITAL', 'REDDINGTON MULTISPECIALIST'],
-    categoryHint: 'healthcare hospital medical',
-  },
-  {
-    name: 'LAGOON HOSPITALS',
-    aliases: ['LAGOON HOSPITAL', 'LAGOON HOSPITALS', 'LAGOON HOSPITAL GROUP'],
-    categoryHint: 'healthcare hospital medical',
-  },
+    tty.on('data', function onKey(key: string) {
+      if (key === '\x03') {
+        // Ctrl+C
+        tty.setRawMode(false);
+        tty.destroy();
+        process.stdout.write('\n');
+        process.exit(0);
+      } else if (key === '\x1b[A') {
+        // ↑
+        cursor = (cursor - 1 + SECTIONS.length) % SECTIONS.length;
+      } else if (key === '\x1b[B') {
+        // ↓
+        cursor = (cursor + 1) % SECTIONS.length;
+      } else if (key === ' ') {
+        // Space — toggle
+        const id = SECTIONS[cursor]!.id;
+        if (checked.has(id)) checked.delete(id);
+        else checked.add(id);
+      } else if (key === '\r' || key === '\n') {
+        // Enter — confirm
+        tty.setRawMode(false);
+        tty.destroy();
+        process.stdout.write('\n');
+        resolve(checked.size > 0 ? checked : new Set(SECTIONS.map((s) => s.id as SectionId)));
+        return;
+      }
 
-  // ─── Entertainment & Betting ─────────────────────────────────────────────
-  {
-    name: 'NETFLIX',
-    aliases: ['NETFLIX', 'NETFLIX.COM', 'NETFLIX SUBSCRIPTION'],
-    categoryHint: 'entertainment streaming subscription',
-  },
-  {
-    name: 'SHOWMAX',
-    aliases: ['SHOWMAX', 'SHOWMAX NIGERIA', 'SHOWMAX SUBSCRIPTION'],
-    categoryHint: 'entertainment streaming subscription',
-  },
-  {
-    name: 'SPOTIFY',
-    aliases: ['SPOTIFY', 'SPOTIFY AB', 'SPOTIFY SUBSCRIPTION'],
-    categoryHint: 'entertainment streaming music subscription',
-  },
-  {
-    name: 'BET9JA',
-    aliases: ['BET9JA', 'SBTECH BET9JA', 'KC GAMING'],
-    categoryHint: 'entertainment betting gambling sport',
-  },
-  {
-    name: 'SPORTYBET',
-    aliases: ['SPORTYBET', 'SPORTY BET', 'SPORTY', 'SPORTYBET NIGERIA'],
-    categoryHint: 'entertainment betting gambling sport',
-  },
-  {
-    name: '1XBET',
-    aliases: ['1XBET', '1X BET', '1XBET NIGERIA', '1X CORP'],
-    categoryHint: 'entertainment betting gambling sport',
-  },
-  {
-    name: 'NAIRA BET',
-    aliases: ['NAIRA BET', 'NAIRABET', 'NAIRABET NIGERIA'],
-    categoryHint: 'entertainment betting gambling sport',
-  },
+      // Redraw: move up N lines and repaint in place
+      process.stdout.write(`\x1b[${SECTIONS.length}A`);
+      for (const line of renderLines()) process.stdout.write(CLEAR + line + '\n');
+    });
+  });
+}
 
-  // ─── Fintech / Transfers ─────────────────────────────────────────────────
-  {
-    name: 'OPAY',
-    aliases: ['OPAY', 'OPAY DIGITAL', 'O-PAY', 'PAYCOM'],
-    categoryHint: 'transfer payment fintech',
-  },
-  {
-    name: 'PALMPAY',
-    aliases: ['PALMPAY', 'PALM PAY', 'TRANSSNET PALMPAY'],
-    categoryHint: 'transfer payment fintech',
-  },
-  {
-    name: 'FLUTTERWAVE',
-    aliases: ['FLUTTERWAVE', 'FLUTTER WAVE', 'RAVE BY FLUTTERWAVE'],
-    categoryHint: 'transfer payment fintech',
-  },
-  {
-    name: 'PAYSTACK',
-    aliases: ['PAYSTACK', 'PAY STACK', 'PAYSTACK PAYMENTS'],
-    categoryHint: 'transfer payment fintech',
-  },
-  {
-    name: 'MONIEPOINT',
-    aliases: ['MONIEPOINT', 'MONIE POINT', 'MONIEPOINT MICROFINANCE'],
-    categoryHint: 'transfer payment fintech',
-  },
-  {
-    name: 'KUDA BANK',
-    aliases: ['KUDA', 'KUDA BANK', 'KUDA MICROFINANCE'],
-    categoryHint: 'transfer payment fintech savings',
-  },
+// ─── JSON fixture loader ──────────────────────────────────────────────────────
+function loadFixture<T>(filename: string): T {
+  return JSON.parse(readFileSync(join(__dirname, 'json', filename), 'utf-8')) as T;
+}
 
-  // ─── Savings & Investments ───────────────────────────────────────────────
-  {
-    name: 'PIGGYVEST',
-    aliases: ['PIGGYVEST', 'PIGGY VEST', 'PIGGYVEST INC', 'PIGGYBANK.NG'],
-    categoryHint: 'savings investment',
-  },
-  {
-    name: 'COWRYWISE',
-    aliases: ['COWRYWISE', 'COWRY WISE', 'COWRYWISE FINANCIAL'],
-    categoryHint: 'savings investment mutual fund',
-  },
-  {
-    name: 'RISEVEST',
-    aliases: ['RISEVEST', 'RISE VEST', 'RISE DIGITAL', 'RISE INVEST'],
-    categoryHint: 'savings investment stocks',
-  },
-  {
-    name: 'CHAKA',
-    aliases: ['CHAKA', 'CHAKA.IO', 'CHAKA TECHNOLOGIES'],
-    categoryHint: 'savings investment stocks',
-  },
-  {
-    name: 'BAMBOO',
-    aliases: ['BAMBOO', 'BAMBOO INVEST', 'BAMBOO SYSTEMS'],
-    categoryHint: 'savings investment stocks',
-  },
-];
+// ─── Fixture types ────────────────────────────────────────────────────────────
 
-// ---------------------------------------------------------------------------
+interface CategoryFixture {
+  name: string;
+  slug: string;
+  color: string;
+  description: string;
+  icon: string;
+  tags: string[];
+}
 
+interface MerchantFixture {
+  name: string;
+  aliases: string[];
+  categoryHint: string;
+}
+
+interface TransactionFixture {
+  amount: number;
+  date: string;
+  type: 'INCOME' | 'EXPENSE';
+  categorySlug: string;
+  description: string;
+  merchant: string | null;
+  source: 'MANUAL' | 'RECURRING' | 'BANK' | 'OCR' | 'SPLIT';
+  notes: string | null;
+}
+
+interface BudgetHistoryEntry {
+  limit: number;
+  startDate: string;
+  endDate: string | null;
+}
+
+interface BudgetFixture {
+  name: string;
+  categorySlug: string;
+  period: 'MONTHLY' | 'WEEKLY' | 'QUARTERLY' | 'YEARLY';
+  description: string;
+  alertThreshold: number;
+  history: BudgetHistoryEntry[];
+}
+
+interface ContributionFixture {
+  amount: number;
+  date: string;
+  description: string;
+}
+
+interface GoalFixture {
+  name: string;
+  targetAmount: number;
+  targetDate: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'ON_HOLD';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  description: string;
+  contributions: ContributionFixture[];
+}
+
+interface RecurringItemFixture {
+  name: string;
+  amount: number;
+  type: 'INCOME' | 'EXPENSE';
+  frequency: 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY' | 'CUSTOM';
+  categorySlug: string;
+  startDate: string;
+  nextRunAt: string;
+  lastRunAt: string | null;
+  isActive: boolean;
+  description: string | null;
+  merchant: string | null;
+  notes: string | null;
+}
+
+// ─── Source ID generator ──────────────────────────────────────────────────────
+// Format mirrors the finance service convention: TXN-YYMMDD-XXXXXX
+let _idCounter = 1;
+function genSourceId(prefix: 'TXN' | 'REC', date: Date): string {
+  const y = String(date.getFullYear()).slice(2);
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const seq = String(_idCounter++).padStart(6, '0');
+  return `${prefix}-${y}${m}${d}-${seq}`;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 async function main() {
   await prisma.$connect();
 
-  // Seed system categories
-  console.log('Seeding system categories...');
-  const { count: categoryCount } = await prisma.category.createMany({
-    data: SYSTEM_CATEGORIES.map((c) => ({ ...c, isSystem: true })),
-    skipDuplicates: true,
-  });
-  console.log(
-    `  ✓ ${categoryCount} new system categories (${SYSTEM_CATEGORIES.length - categoryCount} already existed)`,
-  );
+  // ── Require SEED_USER_EMAIL ───────────────────────────────────────────────
+  //
+  // This is mandatory. The seed does not auto-discover users — it targets the
+  // exact account you specify so there's no risk of polluting the wrong user.
+  //
+  const seedEmail = process.env['SEED_USER_EMAIL'];
 
-  // Seed merchants
-  console.log('Seeding merchants...');
-  const { count: merchantCount } = await prisma.merchant.createMany({
-    data: MERCHANTS,
-    skipDuplicates: true,
+  if (!seedEmail) {
+    console.error('\n❌  SEED_USER_EMAIL is not set.');
+    console.error('    Add it to your .env file and re-run:\n');
+    console.error('    SEED_USER_EMAIL=your@email.com\n');
+    process.exit(1);
+  }
+
+  // ── Locate the target account ─────────────────────────────────────────────
+  console.log(`\n👤 Looking up user: ${seedEmail}`);
+
+  const user = await prisma.user.findUnique({ where: { email: seedEmail } });
+
+  if (!user) {
+    console.error(`\n❌  No account found for "${seedEmail}".`);
+    console.error('    Sign up at http://localhost:3000/signup first, then re-run the seed.\n');
+    process.exit(1);
+  }
+
+  console.log(`   ✓ Found: ${user.firstName} ${user.lastName}`);
+  const userId = user.id;
+
+  // ── Prompt for sections upfront ───────────────────────────────────────────
+  const selected = await selectSections();
+  const run = (id: SectionId) => selected.has(id);
+
+  // ── 1. System categories ──────────────────────────────────────────────────
+  //
+  // Shared across all users (isSystem: true, no userId). Used by transactions,
+  // budgets, and recurring items for classification. Each category carries a
+  // tags array that powers the AI auto-classification engine.
+  //
+  console.log('\n📦 System categories');
+  if (run(1)) {
+    const categoryFixtures = loadFixture<CategoryFixture[]>('categories.json');
+    const { count: categoryCount } = await prisma.category.createMany({
+      data: categoryFixtures.map((c) => ({ ...c, isSystem: true })),
+      skipDuplicates: true,
+    });
+    console.log(
+      `   ✓ ${categoryCount} created (${categoryFixtures.length - categoryCount} already existed)`,
+    );
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
+  // Always build the slug → id lookup regardless of whether we just seeded,
+  // so that later sections (budgets, transactions, recurring items) can resolve
+  // category slugs even when this section was skipped.
+  const allCategories = await prisma.category.findMany({
+    where: { isSystem: true },
+    select: { id: true, slug: true },
   });
-  console.log(
-    `  ✓ ${merchantCount} new merchants (${MERCHANTS.length - merchantCount} already existed)`,
-  );
+  const catBySlug = new Map(allCategories.map((c) => [c.slug, c.id]));
+
+  function resolveCat(slug: string): string {
+    const id = catBySlug.get(slug);
+    if (!id) throw new Error(`Unknown category slug: "${slug}" — seed categories first.`);
+    return id;
+  }
+
+  // ── 2. Merchant registry ──────────────────────────────────────────────────
+  //
+  // Global (not per-user). The AI classification pipeline looks up narration
+  // fragments against this registry to auto-assign categories and merchant
+  // names to imported bank transactions.
+  //
+  console.log('\n🏪 Merchant registry');
+  if (run(2)) {
+    const merchantFixtures = loadFixture<MerchantFixture[]>('merchants.json');
+    const { count: merchantCount } = await prisma.merchant.createMany({
+      data: merchantFixtures,
+      skipDuplicates: true,
+    });
+    console.log(
+      `   ✓ ${merchantCount} created (${merchantFixtures.length - merchantCount} already existed)`,
+    );
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
+  // ── 3. Budgets ────────────────────────────────────────────────────────────
+  //
+  // One budget per category+period (enforced by a unique constraint). Each
+  // budget carries a BudgetHistory table that records limit changes over time
+  // (SCD — slowly changing dimension). The entry with endDate=null is current.
+  //
+  console.log('\n💰 Budgets');
+  if (run(3)) {
+    const budgetFixtures = loadFixture<BudgetFixture[]>('budgets.json');
+    let budgetsCreated = 0;
+    let budgetsSkipped = 0;
+
+    for (const fixture of budgetFixtures) {
+      const categoryId = resolveCat(fixture.categorySlug);
+
+      const existing = await prisma.budget.findFirst({
+        where: { userId, categoryId, period: fixture.period },
+      });
+
+      if (existing) {
+        budgetsSkipped++;
+        continue;
+      }
+
+      // The current limit is the most-recent history entry (the one with endDate=null).
+      const currentLimit = fixture.history.at(-1)!.limit;
+
+      const budget = await prisma.budget.create({
+        data: {
+          name: fixture.name,
+          amount: currentLimit,
+          description: fixture.description,
+          period: fixture.period,
+          alertThreshold: fixture.alertThreshold,
+          categoryId,
+          userId,
+        },
+      });
+
+      await prisma.budgetHistory.createMany({
+        data: fixture.history.map((h) => ({
+          budgetId: budget.id,
+          limit: h.limit,
+          startDate: new Date(h.startDate),
+          endDate: h.endDate ? new Date(h.endDate) : null,
+        })),
+        skipDuplicates: true,
+      });
+
+      budgetsCreated++;
+    }
+
+    console.log(`   ✓ ${budgetsCreated} created, ${budgetsSkipped} already existed`);
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
+  // ── 4. Transactions ───────────────────────────────────────────────────────
+  //
+  // 42 transactions covering November 2025 – May 2026. Includes salary income,
+  // freelance payments, and expenses across every budget category. Source IDs
+  // use the TXN-YYMMDD-XXXXXX format produced by the finance service.
+  //
+  console.log('\n💳 Transactions');
+  if (run(4)) {
+    const transactionFixtures = loadFixture<TransactionFixture[]>('transactions.json');
+    const { count: txnsCreated } = await prisma.transaction.createMany({
+      data: transactionFixtures.map((fixture) => {
+        const txnDate = new Date(fixture.date);
+        return {
+          amount: fixture.amount,
+          date: txnDate,
+          type: fixture.type,
+          description: fixture.description,
+          merchant: fixture.merchant,
+          notes: fixture.notes,
+          source: fixture.source,
+          sourceId: genSourceId('TXN', txnDate),
+          categoryId: resolveCat(fixture.categorySlug),
+          userId,
+        };
+      }),
+      skipDuplicates: true,
+    });
+    console.log(`   ✓ ${txnsCreated} transactions created`);
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
+  // ── 5. Goals + contributions ──────────────────────────────────────────────
+  //
+  // 5 goals across all statuses and priorities. Contributions are distributed
+  // across 10 consecutive months (Aug 2025 – May 2026), producing a 10-month
+  // saving streak which unlocks the Diamond Saver milestone badge.
+  //
+  //   ACTIVE  HIGH   — Emergency Fund   ₦600k / ₦1.5M  (40%)
+  //   ACTIVE  MEDIUM — MacBook Pro M4   ₦420k / ₦900k  (47%)
+  //   ACTIVE  LOW    — Dubai Vacation   ₦100k / ₦600k  (17%)
+  //   ON_HOLD HIGH   — Wedding Fund     ₦550k / ₦3M    (18%)
+  //   COMPLETED      — iPhone 15 Pro    ₦500k / ₦500k  (100%)
+  //
+  // goalIds is always populated (from DB when skipped) so activity logs can
+  // resolve "goal:<name>" refs even if this section was skipped.
+  //
+  const goalIds: Record<string, string> = {};
+
+  console.log('\n🎯 Goals & contributions');
+  if (run(5)) {
+    const goalFixtures = loadFixture<GoalFixture[]>('goals.json');
+    let goalsCreated = 0;
+    let goalsSkipped = 0;
+
+    for (const fixture of goalFixtures) {
+      const existing = await prisma.goal.findFirst({ where: { userId, name: fixture.name } });
+
+      if (existing) {
+        goalIds[fixture.name] = existing.id;
+        goalsSkipped++;
+        continue;
+      }
+
+      const goal = await prisma.goal.create({
+        data: {
+          name: fixture.name,
+          targetAmount: fixture.targetAmount,
+          targetDate: new Date(fixture.targetDate),
+          status: fixture.status,
+          priority: fixture.priority,
+          description: fixture.description,
+          userId,
+        },
+      });
+
+      goalIds[fixture.name] = goal.id;
+
+      if (fixture.contributions.length > 0) {
+        await prisma.goalContribution.createMany({
+          data: fixture.contributions.map((c) => ({
+            goalId: goal.id,
+            amount: c.amount,
+            date: new Date(c.date),
+            description: c.description,
+          })),
+        });
+      }
+
+      goalsCreated++;
+    }
+
+    console.log(`   ✓ ${goalsCreated} created, ${goalsSkipped} already existed`);
+  } else {
+    const existing = await prisma.goal.findMany({
+      where: { userId },
+      select: { id: true, name: true },
+    });
+    for (const g of existing) goalIds[g.name] = g.id;
+    console.log('   ⏭  skipped');
+  }
+
+  // ── 6. Recurring items ────────────────────────────────────────────────────
+  //
+  // 10 items spanning all RecurringItemFrequency values. Covers both INCOME
+  // (salary) and EXPENSE (rent, subscriptions, bills). One item is inactive
+  // (weekly groceries) to demonstrate the paused/disabled state in the UI.
+  //
+  // recurringIds is always populated (from DB when skipped) so activity logs
+  // can resolve "recurring:<name>" refs even if this section was skipped.
+  //
+  const recurringIds: Record<string, string> = {};
+
+  console.log('\n🔄 Recurring items');
+  if (run(6)) {
+    const recurringFixtures = loadFixture<RecurringItemFixture[]>('recurring_items.json');
+    let recurringCreated = 0;
+    let recurringSkipped = 0;
+
+    for (const fixture of recurringFixtures) {
+      const existing = await prisma.recurringItem.findFirst({
+        where: { userId, name: fixture.name },
+      });
+
+      if (existing) {
+        recurringIds[fixture.name] = existing.id;
+        recurringSkipped++;
+        continue;
+      }
+
+      const item = await prisma.recurringItem.create({
+        data: {
+          name: fixture.name,
+          amount: fixture.amount,
+          type: fixture.type,
+          frequency: fixture.frequency,
+          startDate: new Date(fixture.startDate),
+          nextRunAt: new Date(fixture.nextRunAt),
+          lastRunAt: fixture.lastRunAt ? new Date(fixture.lastRunAt) : null,
+          isActive: fixture.isActive,
+          description: fixture.description,
+          merchant: fixture.merchant,
+          notes: fixture.notes,
+          categoryId: resolveCat(fixture.categorySlug),
+          userId,
+        },
+      });
+
+      recurringIds[fixture.name] = item.id;
+      recurringCreated++;
+    }
+
+    console.log(`   ✓ ${recurringCreated} created, ${recurringSkipped} already existed`);
+  } else {
+    const existing = await prisma.recurringItem.findMany({
+      where: { userId },
+      select: { id: true, name: true },
+    });
+    for (const r of existing) recurringIds[r.name] = r.id;
+    console.log('   ⏭  skipped');
+  }
+
+  // ── 7. Activity logs ──────────────────────────────────────────────────────
+  //
+  // 20 log entries loaded from activity_logs.json. Each entry uses an entityRef
+  // field that gets resolved to a real DB id at seed time:
+  //
+  //   "txn"                    → most recent transaction for this user
+  //   "budget"                 → first budget for this user
+  //   "goal:<name>"            → goal seeded above with that name
+  //   "recurring:<name>"       → recurring item seeded above with that name
+  //
+  console.log('\n📋 Activity logs');
+  if (run(7)) {
+    const anyTransaction = await prisma.transaction.findFirst({
+      where: { userId },
+      orderBy: { date: 'desc' },
+    });
+    const anyBudget = await prisma.budget.findFirst({ where: { userId } });
+
+    function resolveEntityRef(ref: string): string {
+      if (ref === 'txn') return anyTransaction?.id ?? userId;
+      if (ref === 'budget') return anyBudget?.id ?? userId;
+      if (ref.startsWith('goal:')) return goalIds[ref.slice(5)] ?? userId;
+      if (ref.startsWith('recurring:')) return recurringIds[ref.slice(10)] ?? userId;
+      return userId;
+    }
+
+    interface ActivityLogFixture {
+      event: string;
+      entityRef: string;
+      entityType: string;
+      createdAt: string;
+      data: object;
+    }
+
+    const logFixtures = loadFixture<ActivityLogFixture[]>('activity_logs.json');
+
+    const { count: logsCreated } = await prisma.activityLogs.createMany({
+      data: logFixtures.map((l) => ({
+        event: l.event,
+        entityId: resolveEntityRef(l.entityRef),
+        entityType: l.entityType,
+        createdAt: new Date(l.createdAt),
+        data: l.data,
+        userId,
+      })),
+      skipDuplicates: true,
+    });
+    console.log(`   ✓ ${logsCreated} activity logs created`);
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
+  // ── Done ──────────────────────────────────────────────────────────────────
+  console.log('\n✅ Seed complete!\n');
+  console.log(`   Account:   ${user.firstName} ${user.lastName} (${user.email})`);
+  console.log('   Dashboard: http://localhost:3000/dashboard');
+  console.log('   Goals:     http://localhost:3000/planning/goals');
+  console.log('   Budgets:   http://localhost:3000/finance/budgets\n');
 }
 
+// ─── Bootstrap ────────────────────────────────────────────────────────────────
 main()
   .then(async () => {
-    console.log('DB seed complete.');
     await prisma.$disconnect();
   })
   .catch(async (error) => {
-    console.error(error);
+    console.error('\n❌ Seed failed:', error);
     await prisma.$disconnect();
     process.exit(1);
   });

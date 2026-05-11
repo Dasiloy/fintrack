@@ -1,0 +1,422 @@
+[
+  {
+    "amount": 450000,
+    "date": "2025-11-28",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — November 2025",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 85000,
+    "date": "2025-11-15",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Freelance — UI Design (Decagon Project)",
+    "merchant": "OPAY",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 150000,
+    "date": "2025-11-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — November 2025",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": "2-bedroom flat, Lekki Phase 1"
+  },
+  {
+    "amount": 4500,
+    "date": "2025-11-03",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "Netflix Premium Subscription",
+    "merchant": "NETFLIX",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 12500,
+    "date": "2025-11-05",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "DSTV Compact Plus Subscription",
+    "merchant": "MULTICHOICE NIGERIA",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 8500,
+    "date": "2025-11-10",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "KFC — Lunch with team",
+    "merchant": "KFC",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 3500,
+    "date": "2025-11-12",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "MTN Data Bundle — 20GB",
+    "merchant": "MTN NIGERIA",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 5200,
+    "date": "2025-11-13",
+    "type": "EXPENSE",
+    "categorySlug": "cat-transport",
+    "description": "Uber — Office commute",
+    "merchant": "UBER",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 38000,
+    "date": "2025-11-22",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "Shoprite — Monthly groceries",
+    "merchant": "SHOPRITE",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 450000,
+    "date": "2025-12-27",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — December 2025",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 50000,
+    "date": "2025-12-20",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Year-End Bonus",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "Performance bonus Q4 2025"
+  },
+  {
+    "amount": 150000,
+    "date": "2025-12-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — December 2025",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 4500,
+    "date": "2025-12-03",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "Netflix Premium Subscription",
+    "merchant": "NETFLIX",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 6800,
+    "date": "2025-12-08",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "Chicken Republic — Family dinner",
+    "merchant": "CHICKEN REPUBLIC",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 3500,
+    "date": "2025-12-10",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "MTN Airtime",
+    "merchant": "MTN NIGERIA",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 25000,
+    "date": "2025-12-15",
+    "type": "EXPENSE",
+    "categorySlug": "cat-shopping",
+    "description": "Jumia — Christmas gifts order",
+    "merchant": "JUMIA NIGERIA",
+    "source": "MANUAL",
+    "notes": "Gifts for family"
+  },
+  {
+    "amount": 8400,
+    "date": "2025-12-18",
+    "type": "EXPENSE",
+    "categorySlug": "cat-transport",
+    "description": "Uber — Lagos traffic commutes",
+    "merchant": "UBER",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 450000,
+    "date": "2026-01-28",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — January 2026",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 150000,
+    "date": "2026-01-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — January 2026",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 4500,
+    "date": "2026-01-03",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "Netflix Premium Subscription",
+    "merchant": "NETFLIX",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 18500,
+    "date": "2026-01-16",
+    "type": "EXPENSE",
+    "categorySlug": "cat-healthcare",
+    "description": "HealthPlus Pharmacy — Medications",
+    "merchant": "HEALTHPLUS PHARMACY",
+    "source": "MANUAL",
+    "notes": "Monthly prescription refill"
+  },
+  {
+    "amount": 22000,
+    "date": "2026-01-05",
+    "type": "EXPENSE",
+    "categorySlug": "cat-transport",
+    "description": "Total Energies — Fuel",
+    "merchant": "TOTAL ENERGIES",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 85000,
+    "date": "2026-01-20",
+    "type": "EXPENSE",
+    "categorySlug": "cat-misc",
+    "description": "Annual Car Insurance — Leadway Assurance",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": "Toyota Camry comprehensive insurance"
+  },
+  {
+    "amount": 450000,
+    "date": "2026-02-28",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — February 2026",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 65000,
+    "date": "2026-02-20",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Freelance — Backend API (StartupNG)",
+    "merchant": "KUDA BANK",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 150000,
+    "date": "2026-02-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — February 2026",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 18000,
+    "date": "2026-02-10",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Spectranet Internet — Monthly Plan",
+    "merchant": "SPECTRANET",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 12000,
+    "date": "2026-02-05",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "Chowdeck — Food delivery week",
+    "merchant": "CHOWDECK",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 6500,
+    "date": "2026-02-14",
+    "type": "EXPENSE",
+    "categorySlug": "cat-transport",
+    "description": "Bolt — Valentine's Day rides",
+    "merchant": "BOLT",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 450000,
+    "date": "2026-03-28",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — March 2026",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 150000,
+    "date": "2026-03-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — March 2026",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 4500,
+    "date": "2026-03-03",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "Netflix Premium Subscription",
+    "merchant": "NETFLIX",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 85000,
+    "date": "2026-03-05",
+    "type": "EXPENSE",
+    "categorySlug": "cat-shopping",
+    "description": "SLOT — Samsung Galaxy Buds2 Pro",
+    "merchant": "SLOT SYSTEMS",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 42000,
+    "date": "2026-03-22",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "Shoprite — Monthly grocery run",
+    "merchant": "SHOPRITE",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 450000,
+    "date": "2026-04-28",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — April 2026",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 150000,
+    "date": "2026-04-01",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "Apartment Rent — April 2026",
+    "merchant": null,
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 9200,
+    "date": "2026-04-08",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "KFC — Team lunch outing",
+    "merchant": "KFC",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 28000,
+    "date": "2026-04-15",
+    "type": "EXPENSE",
+    "categorySlug": "cat-transport",
+    "description": "Total Energies — Fuel (both cars)",
+    "merchant": "TOTAL ENERGIES",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 12500,
+    "date": "2026-04-05",
+    "type": "EXPENSE",
+    "categorySlug": "cat-entertainment",
+    "description": "DSTV Compact Plus Subscription",
+    "merchant": "MULTICHOICE NIGERIA",
+    "source": "RECURRING",
+    "notes": null
+  },
+  {
+    "amount": 450000,
+    "date": "2026-05-08",
+    "type": "INCOME",
+    "categorySlug": "cat-income",
+    "description": "Monthly Salary — May 2026",
+    "merchant": "MONIEPOINT",
+    "source": "MANUAL",
+    "notes": "TechCorp Solutions Ltd salary credit"
+  },
+  {
+    "amount": 3500,
+    "date": "2026-05-03",
+    "type": "EXPENSE",
+    "categorySlug": "cat-bills-utilities",
+    "description": "MTN Data Bundle — 20GB",
+    "merchant": "MTN NIGERIA",
+    "source": "MANUAL",
+    "notes": null
+  },
+  {
+    "amount": 15500,
+    "date": "2026-05-09",
+    "type": "EXPENSE",
+    "categorySlug": "cat-food",
+    "description": "Chowdeck — Weekly food delivery",
+    "merchant": "CHOWDECK",
+    "source": "MANUAL",
+    "notes": null
+  }
+]
