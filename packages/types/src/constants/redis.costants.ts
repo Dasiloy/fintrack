@@ -1,4 +1,5 @@
 export const REDIS_CLIENT = 'REDIS_CLIENT';
+export const REDIS_SUBSCRIBER = 'REDIS_SUBSCRIBER';
 export const USER_CACHE_TTL = 300; //5min
 
 export const GATED_USAGE_CACHE_PREFIX = 'gated_usage';
@@ -25,3 +26,6 @@ export const GOAL_LIST_CACHE_TTL = 300; // 5 minutes
 
 export const GOAL_AGGREGATE_CACHE_PREFIX = 'goal_aggregate'; // goal_aggregate:{userId}
 export const GOAL_AGGREGATE_CACHE_TTL = 1200; // 20 minutes => Goals do not chnage frequently
+
+export const OCR_RESULT_CACHE_PREFIX = 'ocr_result'; // ocr_result:{draftId}
+export const OCR_RESULT_CACHE_TTL = 3600; // 1 hour — terminal OCR results are immutable

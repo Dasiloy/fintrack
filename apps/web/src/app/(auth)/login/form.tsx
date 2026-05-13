@@ -246,7 +246,7 @@ export function LoginForm({ authError }: LoginFormProps) {
       }
     : {
         title: 'Welcome Back',
-        description: 'Log in with your Apple or Google account',
+        description: 'Log in with your Google account',
       };
 
   // ── Render ────────────────────────────────────────────────────────────────

@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs';
+
 import {
   Body,
   Controller,
@@ -5,10 +7,12 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  MessageEvent,
   Param,
   Patch,
   Post,
   Query,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -436,5 +440,18 @@ export class TransactionController {
       statusCode: HttpStatus.OK,
       data: null,
     };
+  }
+
+  // ================================================================
+  //. SSE support - Stream OCR updates to FE
+  // ================================================================
+  @Sse('draft/:draftId/stream')
+  @ApiOperation({ summary: 'Stream OCR extraction progress for a receipt draft' })
+  @ApiParam({ name: 'draftId', type: String, required: true, example: 'clx1234abc' })
+  streamOcrDraftEvents(
+    @Param('draftId') draftId: string,
+    @CurrentUser() user: User,
+  ): Observable<MessageEvent> {
+    return this.transactionService.streamOcrDraft(user, draftId);
   }
 }

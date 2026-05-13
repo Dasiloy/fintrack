@@ -27,7 +27,10 @@ import {
 } from '@/app/_components/styledTable';
 import { capitalize, flattenObject, formatCurrency } from '@fintrack/utils/format';
 import { DateRange, Menu } from '@/app/_components';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
 import { useCsv } from '@ui/hooks';
+import { useProGate } from '@/hooks/use_pro_gate';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 
 export default function TransactionsPage() {
@@ -277,6 +280,7 @@ export default function TransactionsPage() {
 
   // ── Csv Exports ────────────────────────────────────────────────────────────────
   const { isDownloading, downloadTableCsv } = useCsv('transactions.csv');
+  const csvGate = useProGate(Usage.CSV_EXPORT);
   const handleExports = async () => {
     try {
       const rows = allTransactions.map(flattenObject);
@@ -295,11 +299,18 @@ export default function TransactionsPage() {
           size="sm"
           loading={isDownloading}
           className="gap-1.5 px-2.5 sm:px-4"
-          onClick={handleExports}
+          onClick={() => csvGate.triggerGate(handleExports)}
         >
           <Download className="size-3.5" />
           <span className="hidden sm:inline">Export</span>
         </Button>
+        <ProGateModal
+          feature={Usage.CSV_EXPORT}
+          open={csvGate.open}
+          onClose={csvGate.onClose}
+          title="Export Transactions"
+          description="Download your full transaction history as a spreadsheet — perfect for budgeting, tax prep, or sharing with your accountant."
+        />
         <TransactionMethodChooser onManual={() => setAddOpen(true)} />
       </PageHeader>
 

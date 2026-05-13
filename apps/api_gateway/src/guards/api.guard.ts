@@ -40,14 +40,15 @@ export class ApiGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    // Extract token from Authorization header
+    // Extract token — Authorization header (standard) or query param (SSE, EventSource)
     const authHeader = request.headers.authorization;
+    const queryToken = request.query?.token as string | undefined;
 
-    if (!authHeader) {
+    if (!authHeader && !queryToken) {
       throw new UnauthorizedException('Unathorized');
     }
-    // Extract Bearer token
-    const token = authHeader.split(' ')?.[1];
+
+    const token = authHeader ? authHeader.split(' ')?.[1] : queryToken;
 
     if (!token) {
       throw new UnauthorizedException('Unauthorized');

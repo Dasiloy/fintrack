@@ -3,6 +3,7 @@ import type Redis from 'ioredis';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/service';
+import { UsageFeature } from '@fintrack/database/types';
 import {
   GATED_USAGE_CACHE_PREFIX,
   GATED_USAGE_TTL,
@@ -71,6 +72,24 @@ export class UsageService {
    * @param {string} userId The user whose cache entry should be removed
    * @returns {Promise<void>}
    */
+  /**
+   * Increments the usage counter for a monthly-tracked feature and invalidates
+   * the gated usage cache so the next read reflects the updated count.
+   * Called fire-and-forget after a successful gated operation completes.
+   *
+   * @async
+   * @public
+   * @param {string} userId - Owning user
+   * @param {UsageFeature} feature - The feature tracker to increment (e.g. RECEIPT_UPLOADS)
+   */
+  async incrementUsage(userId: string, feature: UsageFeature): Promise<void> {
+    await this.prisma.usageTracker.updateMany({
+      where: { userId, feature },
+      data: { count: { increment: 1 } },
+    });
+    void this.invalidateGatedUsageCache(userId);
+  }
+
   async invalidateGatedUsageCache(userId: string): Promise<void> {
     const cacheKey = `${GATED_USAGE_CACHE_PREFIX}:${userId}`;
     await this.redis

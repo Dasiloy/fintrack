@@ -19,6 +19,39 @@
   }
 }
 
+/* Receipt scan — ReceiptScanPreview sweep bar */
+@keyframes scan-bar-sweep {
+  0% {
+    top: 0px;
+  }
+  100% {
+    top: calc(100% - 3px);
+  }
+}
+
+.receipt-scan-bar {
+  animation: scan-bar-sweep 1.9s ease-in-out infinite alternate;
+}
+
+@keyframes upload-shimmer {
+  0% {
+    opacity: 0.08;
+    transform: translateY(6px);
+  }
+  50% {
+    opacity: 0.22;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 0.08;
+    transform: translateY(6px);
+  }
+}
+
+.receipt-upload-shimmer {
+  animation: upload-shimmer 2s ease-in-out infinite;
+}
+
 @layer utilities {
   /** Hide scrollbar while keeping the element scrollable — use on any overflow-x/y-auto container */
   .no-scrollbar::-webkit-scrollbar {
