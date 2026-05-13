@@ -6,19 +6,19 @@ import type { Session } from 'next-auth';
 import { usePushNotifications } from '@/hooks/use_notifications';
 import { useAnalytics } from '@/hooks/use_analytics';
 import { useActivity } from '@/hooks/use_activity';
-import { useEffect } from 'react';
 
 export default function DashboardLayout({
   children,
   session,
   isPro,
-}: React.PropsWithChildren & { session: Session; isPro: boolean }) {
+  sidebarDefaultOpen = true,
+}: React.PropsWithChildren & { session: Session; isPro: boolean; sidebarDefaultOpen?: boolean }) {
   usePushNotifications();
   useAnalytics();
   useActivity();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={sidebarDefaultOpen}>
       <AppSidebar session={session} isPro={isPro} />
       <SidebarInset className="bg-bg-deep flex flex-col">{children}</SidebarInset>
     </SidebarProvider>

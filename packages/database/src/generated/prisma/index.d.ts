@@ -24007,7 +24007,7 @@ export namespace Prisma {
   export type OCRDraftGroupByOutputType = {
     id: string
     amount: number | null
-    date: Date
+    date: Date | null
     description: string | null
     notes: string | null
     merchant: string | null
@@ -24135,7 +24135,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       amount: number | null
-      date: Date
+      date: Date | null
       description: string | null
       notes: string | null
       merchant: string | null
@@ -40401,7 +40401,7 @@ export namespace Prisma {
     NOT?: OCRDraftWhereInput | OCRDraftWhereInput[]
     id?: StringFilter<"OCRDraft"> | string
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -40420,7 +40420,7 @@ export namespace Prisma {
   export type OCRDraftOrderByWithRelationInput = {
     id?: SortOrder
     amount?: SortOrderInput | SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
@@ -40443,7 +40443,7 @@ export namespace Prisma {
     OR?: OCRDraftWhereInput[]
     NOT?: OCRDraftWhereInput | OCRDraftWhereInput[]
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -40461,7 +40461,7 @@ export namespace Prisma {
   export type OCRDraftOrderByWithAggregationInput = {
     id?: SortOrder
     amount?: SortOrderInput | SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
@@ -40487,7 +40487,7 @@ export namespace Prisma {
     NOT?: OCRDraftScalarWhereWithAggregatesInput | OCRDraftScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"OCRDraft"> | string
     amount?: FloatNullableWithAggregatesFilter<"OCRDraft"> | number | null
-    date?: DateTimeWithAggregatesFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableWithAggregatesFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
     notes?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
     merchant?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
@@ -43031,7 +43031,7 @@ export namespace Prisma {
   export type OCRDraftCreateInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43049,7 +43049,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedCreateInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43067,7 +43067,7 @@ export namespace Prisma {
   export type OCRDraftUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43085,7 +43085,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43103,7 +43103,7 @@ export namespace Prisma {
   export type OCRDraftCreateManyInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43121,7 +43121,7 @@ export namespace Prisma {
   export type OCRDraftUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43138,7 +43138,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49546,7 +49546,7 @@ export namespace Prisma {
   export type OCRDraftCreateWithoutUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -49563,7 +49563,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedCreateWithoutUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -50222,7 +50222,7 @@ export namespace Prisma {
     NOT?: OCRDraftScalarWhereInput | OCRDraftScalarWhereInput[]
     id?: StringFilter<"OCRDraft"> | string
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -55958,7 +55958,7 @@ export namespace Prisma {
   export type OCRDraftCreateManyUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -56485,7 +56485,7 @@ export namespace Prisma {
   export type OCRDraftUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56502,7 +56502,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56519,7 +56519,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null

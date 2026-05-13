@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useIsMobile } from '@ui/hooks';
 import { cn } from '@ui/lib/utils/cn';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@bprogress/next';
 import { ChevronRight, Landmark, PenLine, Plus, ScanLine, X } from 'lucide-react';
 import { Button, Sheet, SheetContent, AnchoredPopover } from '@ui/components';
 

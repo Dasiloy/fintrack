@@ -20,6 +20,9 @@ import dayjs from '@fintrack/utils/date';
 import type { Session } from '@fintrack/database/types';
 import { UiSession } from '@/app/(dashboard)/settings/_components/session';
 import { flattenObject } from '@fintrack/utils/format';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { useProGate } from '@/hooks/use_pro_gate';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 
 // Helpers
 const getSecurityScore = ({
@@ -52,6 +55,7 @@ export function History() {
   const isMobile = useIsMobile();
 
   const { downloadCsv, isDownloading } = useCsv('profile.csv');
+  const csvGate = useProGate(Usage.CSV_EXPORT);
 
   // queries
   const twoFaData = api_client.auth.get2fa.useQuery();
@@ -95,12 +99,19 @@ export function History() {
           <Button
             size="xs"
             variant={'secondary'}
-            onClick={downloadProfileCsv}
+            onClick={() => csvGate.triggerGate(downloadProfileCsv)}
             loading={isDownloading}
             disabled={isPending || isDownloading}
           >
             Export CSV
           </Button>
+          <ProGateModal
+            feature={Usage.CSV_EXPORT}
+            open={csvGate.open}
+            onClose={csvGate.onClose}
+            title="Export Account Data"
+            description="Download your profile and account data as a CSV — useful for personal records or migrating to another service."
+          />
         </CardAction>
       </CardHeader>
 

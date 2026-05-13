@@ -10,7 +10,6 @@ import {
   CardAction,
   Button,
   Text,
-  Skeleton,
   ProfileUploader,
   toast,
 } from '@ui/components';

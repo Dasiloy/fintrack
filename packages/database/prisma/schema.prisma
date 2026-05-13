@@ -625,7 +625,7 @@ enum OCRDraftStatus {
 model OCRDraft {
   id            String         @id @default(cuid())
   amount        Float?
-  date          DateTime
+  date          DateTime?
   description   String?
   notes         String?
   merchant      String?
@@ -644,7 +644,7 @@ model OCRDraft {
   updatedAt DateTime @updatedAt
 
   @@index([userId, status])
-  @@index([imageKey])
+  @@index([userId,imageKey])
 }
 
 enum TransactionType {
