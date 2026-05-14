@@ -1371,6 +1371,9 @@ importers:
       '@fintrack/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.19.11
       '@types/pg':
         specifier: ^8.16.0
         version: 8.16.0
@@ -1497,6 +1500,9 @@ importers:
       '@trpc/server':
         specifier: ^11.0.0
         version: 11.10.0(typescript@5.9.3)
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.19.11
       superjson:
         specifier: ^2.2.1
         version: 2.2.6
