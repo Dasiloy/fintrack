@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "OCRDraft" ALTER COLUMN "date" DROP NOT NULL;

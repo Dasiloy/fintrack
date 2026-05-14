@@ -3,6 +3,7 @@ import type Redis from 'ioredis';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/service';
+import { UsageFeature } from '@fintrack/database/types';
 import {
   GATED_USAGE_CACHE_PREFIX,
   GATED_USAGE_TTL,
@@ -13,8 +14,18 @@ import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
 import { GatedUsageResponse } from '@fintrack/database/usage.types';
 
 /**
- * Handles gated usage data with Redis-backed caching.
- * Cache key: gated_usage:{userId}, TTL: 10 minutes.
+ * @description Provides gated usage data (plan limits, resource counts, usage trackers) with Redis cache-aside.
+ *
+ * ## Responsibilities
+ * - Serving plan limit and resource count data needed for feature-gating checks
+ * - Caching query results to avoid repeated heavy joins on every request
+ * - Exposing a cache invalidation helper called after any mutation that changes resource counts
+ *
+ * ## Cache strategy
+ * Cache key: `gated_usage:{userId}`, TTL: GATED_USAGE_TTL. On a cache miss the full usage snapshot
+ * is assembled from DB and written back to Redis.
+ *
+ * @class UsageService
  */
 @Injectable()
 export class UsageService {
@@ -26,8 +37,13 @@ export class UsageService {
   ) {}
 
   /**
-   * Returns gated usage data for a user.
-   * Checks Redis cache first; on miss, queries DB and caches the result.
+   * @description Returns gated usage data for a user, serving from Redis cache when available.
+   * On a cache miss the full snapshot is assembled from DB and written back to Redis.
+   *
+   * @async
+   * @public
+   * @param {string} userId The user whose usage data to fetch
+   * @returns {Promise<GatedUsageResponse>} Plan limits, resource counts, and usage tracker data
    */
   async getGatedUsage(userId: string): Promise<GatedUsageResponse> {
     const cacheKey = `${GATED_USAGE_CACHE_PREFIX}:${userId}`;
@@ -48,10 +64,32 @@ export class UsageService {
   }
 
   /**
-   * Removes the cached gated usage entry for a user.
-   * Called after any mutation that changes resource counts.
-   * Fire-and-forget — errors are logged but not re-thrown.
+   * @description Removes the cached gated usage entry for a user.
+   * Called fire-and-forget after any mutation that changes resource counts; errors are logged but not re-thrown.
+   *
+   * @async
+   * @public
+   * @param {string} userId The user whose cache entry should be removed
+   * @returns {Promise<void>}
    */
+  /**
+   * Increments the usage counter for a monthly-tracked feature and invalidates
+   * the gated usage cache so the next read reflects the updated count.
+   * Called fire-and-forget after a successful gated operation completes.
+   *
+   * @async
+   * @public
+   * @param {string} userId - Owning user
+   * @param {UsageFeature} feature - The feature tracker to increment (e.g. RECEIPT_UPLOADS)
+   */
+  async incrementUsage(userId: string, feature: UsageFeature): Promise<void> {
+    await this.prisma.usageTracker.updateMany({
+      where: { userId, feature },
+      data: { count: { increment: 1 } },
+    });
+    void this.invalidateGatedUsageCache(userId);
+  }
+
   async invalidateGatedUsageCache(userId: string): Promise<void> {
     const cacheKey = `${GATED_USAGE_CACHE_PREFIX}:${userId}`;
     await this.redis
@@ -67,6 +105,15 @@ export class UsageService {
   // Private helpers
   // ---------------------------------------------------------------------------
 
+  /**
+   * @description Queries the database for the full gated usage snapshot, assembling plan limits,
+   * usage tracker data, and resource counts into a single structured response.
+   *
+   * @async
+   * @private
+   * @param {string} userId The user to query
+   * @returns {Promise<GatedUsageResponse>} Full usage snapshot from DB
+   */
   private async queryFromDb(userId: string): Promise<GatedUsageResponse> {
     const userCount = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },

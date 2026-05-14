@@ -1,6 +1,7 @@
 import {
   IsDateString,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -11,7 +12,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-import { GoalPriority } from '@fintrack/database/types';
+import { GoalPriority, Goalstatus } from '@fintrack/database/types';
 
 export class CreateGoalDto {
   @ApiProperty({
@@ -196,6 +197,20 @@ export class CreateContributionDto {
   @IsString()
   @IsOptional()
   transactionId?: string;
+}
+
+export class UpdateGoalStatusDto {
+  @ApiProperty({
+    type: 'string',
+    description:
+      'Target status for the goal. COMPLETED is system-managed and cannot be set manually.',
+    example: 'ON_HOLD',
+    enum: [Goalstatus.ACTIVE, Goalstatus.ON_HOLD],
+  })
+  @IsIn([Goalstatus.ACTIVE, Goalstatus.ON_HOLD], {
+    message: `status must be one of: ${Goalstatus.ACTIVE}, ${Goalstatus.ON_HOLD}`,
+  })
+  status: string;
 }
 
 export class UpdateContributionDto {

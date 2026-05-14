@@ -3,6 +3,7 @@ import {
   Controller,
   FileTypeValidator,
   HttpStatus,
+  Logger,
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
@@ -19,16 +20,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { type User } from '@fintrack/database/types';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import {
   MAX_FILE_SIZE,
   IMAGE_FILE_TYPE,
+  IMAGE_PDF_FILE_TYPE,
 } from '@fintrack/types/constants/file.constants';
 
 import { UploadService } from './upload.service';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
-import { type User } from '@fintrack/database/types';
+import { UploadReceiptResponse } from './dto/upload_receipt.dto';
 
 /**
  * Controller responsible for managing user uploads
@@ -126,11 +129,15 @@ export class UploadController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE }),
-          new FileTypeValidator({ fileType: IMAGE_FILE_TYPE }),
+          new FileTypeValidator({
+            fileType: IMAGE_FILE_TYPE,
+            skipMagicNumbersValidation: true,
+          }),
         ],
         exceptionFactory: (errors) => {
-          console.log('errors', errors);
-          return new BadRequestException('Invalid file type');
+          const logger = new Logger(ParseFilePipe.name);
+          logger.error('Error', JSON.stringify(errors));
+          return new BadRequestException('File upload failed');
         },
       }),
     )
@@ -142,6 +149,110 @@ export class UploadController {
       statusCode: HttpStatus.OK,
       data: null,
       message: 'Profile image uploaded successfully',
+    };
+  }
+
+  // ================================================================
+  //. Upload Receipt
+  // ================================================================
+  @Post('receipt')
+  @ApiOperation({
+    summary: 'Upload Receipt Image or Pdf',
+    description: 'Upload a receipt image or pdf',
+  })
+  @ApiBody({
+    description: 'Payload for uploading a receipt image/pdf',
+    required: true,
+    schema: {
+      example: {
+        file: 'base64 encoded image or podf file',
+      },
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Receipt uploaded successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        data: {
+          draftId: 'ocnmbreyrbfign68964bgmn',
+          isNew: false,
+        },
+        message: 'Profile image uploaded successfully',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Request',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: null,
+        message: 'Bad Request',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        data: null,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal Server Error',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        message: 'Internal Server Error',
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadReceipt(
+    @CurrentUser() user: User,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: MAX_FILE_SIZE }),
+          new FileTypeValidator({
+            fileType: IMAGE_PDF_FILE_TYPE,
+            skipMagicNumbersValidation: true,
+          }),
+        ],
+        exceptionFactory: (errors) => {
+          const logger = new Logger(ParseFilePipe.name);
+          logger.error('Error', JSON.stringify(errors));
+          return new BadRequestException('File upload failed');
+        },
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<StandardResponse<UploadReceiptResponse>> {
+    const data = await this.uploadService.uploadReceipt(user, file);
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      data,
+      message: 'Receipt uploaded successfully',
     };
   }
 }

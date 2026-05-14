@@ -13,6 +13,19 @@ import {
 
 import { AnalyticsRealtimeService } from './analytics.realtime';
 
+/**
+ * @description Handles analytics notifications and baseline analytics data retrieval with Redis cache-aside.
+ *
+ * ## Responsibilities
+ * - Forwarding analytics update events to connected WebSocket clients via AnalyticsRealtimeService
+ * - Serving cached baseline analytics data and invalidating the cache on updates
+ *
+ * ## Cache strategy
+ * Cache key: `analytics:{userId}`, TTL: USER_CACHE_TTL. On a cache miss the data is computed
+ * and written back; on a notify hit the cache is refreshed in-place with the updated payload.
+ *
+ * @class AnalyticsService
+ */
 @Injectable()
 export class AnalyticsService {
   constructor(

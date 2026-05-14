@@ -508,7 +508,8 @@ export type RecurringItemFrequency = (typeof RecurringItemFrequency)[keyof typeo
 
 export const Goalstatus: {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD'
 };
 
 export type Goalstatus = (typeof Goalstatus)[keyof typeof Goalstatus]
@@ -1262,7 +1263,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends bigint
+  : T extends BigInt
   ? False
   : T extends object
   ? True
@@ -21439,6 +21440,7 @@ export namespace Prisma {
     alertThreshold: number | null
     alertedAt: Date | null
     alertAtFrequency: number | null
+    deactivatedAt: Date | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21455,6 +21457,7 @@ export namespace Prisma {
     alertThreshold: number | null
     alertedAt: Date | null
     alertAtFrequency: number | null
+    deactivatedAt: Date | null
     categoryId: string | null
     userId: string | null
     createdAt: Date | null
@@ -21471,6 +21474,7 @@ export namespace Prisma {
     alertThreshold: number
     alertedAt: number
     alertAtFrequency: number
+    deactivatedAt: number
     categoryId: number
     userId: number
     createdAt: number
@@ -21501,6 +21505,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21517,6 +21522,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21533,6 +21539,7 @@ export namespace Prisma {
     alertThreshold?: true
     alertedAt?: true
     alertAtFrequency?: true
+    deactivatedAt?: true
     categoryId?: true
     userId?: true
     createdAt?: true
@@ -21636,6 +21643,7 @@ export namespace Prisma {
     alertThreshold: number
     alertedAt: Date | null
     alertAtFrequency: number
+    deactivatedAt: Date | null
     categoryId: string
     userId: string
     createdAt: Date
@@ -21671,6 +21679,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21691,6 +21700,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21709,6 +21719,7 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
@@ -21727,13 +21738,14 @@ export namespace Prisma {
     alertThreshold?: boolean
     alertedAt?: boolean
     alertAtFrequency?: boolean
+    deactivatedAt?: boolean
     categoryId?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
+  export type BudgetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "description" | "period" | "carryOver" | "alertThreshold" | "alertedAt" | "alertAtFrequency" | "deactivatedAt" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["budget"]>
   export type BudgetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -21766,6 +21778,7 @@ export namespace Prisma {
       alertThreshold: number
       alertedAt: Date | null
       alertAtFrequency: number
+      deactivatedAt: Date | null
       categoryId: string
       userId: string
       createdAt: Date
@@ -22205,6 +22218,7 @@ export namespace Prisma {
     readonly alertThreshold: FieldRef<"Budget", 'Float'>
     readonly alertedAt: FieldRef<"Budget", 'DateTime'>
     readonly alertAtFrequency: FieldRef<"Budget", 'Int'>
+    readonly deactivatedAt: FieldRef<"Budget", 'DateTime'>
     readonly categoryId: FieldRef<"Budget", 'String'>
     readonly userId: FieldRef<"Budget", 'String'>
     readonly createdAt: FieldRef<"Budget", 'DateTime'>
@@ -23993,7 +24007,7 @@ export namespace Prisma {
   export type OCRDraftGroupByOutputType = {
     id: string
     amount: number | null
-    date: Date
+    date: Date | null
     description: string | null
     notes: string | null
     merchant: string | null
@@ -24121,7 +24135,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       amount: number | null
-      date: Date
+      date: Date | null
       description: string | null
       notes: string | null
       merchant: string | null
@@ -38353,6 +38367,7 @@ export namespace Prisma {
     alertThreshold: 'alertThreshold',
     alertedAt: 'alertedAt',
     alertAtFrequency: 'alertAtFrequency',
+    deactivatedAt: 'deactivatedAt',
     categoryId: 'categoryId',
     userId: 'userId',
     createdAt: 'createdAt',
@@ -40216,6 +40231,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40235,6 +40251,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrderInput | SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40258,6 +40275,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -40277,6 +40295,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrderInput | SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -40301,6 +40320,7 @@ export namespace Prisma {
     alertThreshold?: FloatWithAggregatesFilter<"Budget"> | number
     alertedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntWithAggregatesFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
     categoryId?: StringWithAggregatesFilter<"Budget"> | string
     userId?: StringWithAggregatesFilter<"Budget"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Budget"> | Date | string
@@ -40381,7 +40401,7 @@ export namespace Prisma {
     NOT?: OCRDraftWhereInput | OCRDraftWhereInput[]
     id?: StringFilter<"OCRDraft"> | string
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -40400,7 +40420,7 @@ export namespace Prisma {
   export type OCRDraftOrderByWithRelationInput = {
     id?: SortOrder
     amount?: SortOrderInput | SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
@@ -40423,7 +40443,7 @@ export namespace Prisma {
     OR?: OCRDraftWhereInput[]
     NOT?: OCRDraftWhereInput | OCRDraftWhereInput[]
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -40441,7 +40461,7 @@ export namespace Prisma {
   export type OCRDraftOrderByWithAggregationInput = {
     id?: SortOrder
     amount?: SortOrderInput | SortOrder
-    date?: SortOrder
+    date?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     merchant?: SortOrderInput | SortOrder
@@ -40467,7 +40487,7 @@ export namespace Prisma {
     NOT?: OCRDraftScalarWhereWithAggregatesInput | OCRDraftScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"OCRDraft"> | string
     amount?: FloatNullableWithAggregatesFilter<"OCRDraft"> | number | null
-    date?: DateTimeWithAggregatesFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableWithAggregatesFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
     notes?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
     merchant?: StringNullableWithAggregatesFilter<"OCRDraft"> | string | null
@@ -42828,6 +42848,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -42845,6 +42866,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42862,6 +42884,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -42879,6 +42902,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42896,6 +42920,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -42912,6 +42937,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -42926,6 +42952,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43004,7 +43031,7 @@ export namespace Prisma {
   export type OCRDraftCreateInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43022,7 +43049,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedCreateInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43040,7 +43067,7 @@ export namespace Prisma {
   export type OCRDraftUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43058,7 +43085,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43076,7 +43103,7 @@ export namespace Prisma {
   export type OCRDraftCreateManyInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -43094,7 +43121,7 @@ export namespace Prisma {
   export type OCRDraftUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43111,7 +43138,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45446,6 +45473,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45468,6 +45496,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -45484,6 +45513,7 @@ export namespace Prisma {
     alertThreshold?: SortOrder
     alertedAt?: SortOrder
     alertAtFrequency?: SortOrder
+    deactivatedAt?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
@@ -49359,6 +49389,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -49375,6 +49406,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49514,7 +49546,7 @@ export namespace Prisma {
   export type OCRDraftCreateWithoutUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -49531,7 +49563,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedCreateWithoutUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -50060,6 +50092,7 @@ export namespace Prisma {
     alertThreshold?: FloatFilter<"Budget"> | number
     alertedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     alertAtFrequency?: IntFilter<"Budget"> | number
+    deactivatedAt?: DateTimeNullableFilter<"Budget"> | Date | string | null
     categoryId?: StringFilter<"Budget"> | string
     userId?: StringFilter<"Budget"> | string
     createdAt?: DateTimeFilter<"Budget"> | Date | string
@@ -50189,7 +50222,7 @@ export namespace Prisma {
     NOT?: OCRDraftScalarWhereInput | OCRDraftScalarWhereInput[]
     id?: StringFilter<"OCRDraft"> | string
     amount?: FloatNullableFilter<"OCRDraft"> | number | null
-    date?: DateTimeFilter<"OCRDraft"> | Date | string
+    date?: DateTimeNullableFilter<"OCRDraft"> | Date | string | null
     description?: StringNullableFilter<"OCRDraft"> | string | null
     notes?: StringNullableFilter<"OCRDraft"> | string | null
     merchant?: StringNullableFilter<"OCRDraft"> | string | null
@@ -51990,6 +52023,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutBudgetsInput
@@ -52006,6 +52040,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -52546,6 +52581,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     category: CategoryCreateNestedOneWithoutBudgetsInput
@@ -52562,6 +52598,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     userId: string
     createdAt?: Date | string
@@ -52594,6 +52631,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -52610,6 +52648,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55869,6 +55908,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     categoryId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -55918,7 +55958,7 @@ export namespace Prisma {
   export type OCRDraftCreateManyUserInput = {
     id?: string
     amount?: number | null
-    date: Date | string
+    date?: Date | string | null
     description?: string | null
     notes?: string | null
     merchant?: string | null
@@ -56271,6 +56311,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     category?: CategoryUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56287,6 +56328,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56303,6 +56345,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56442,7 +56485,7 @@ export namespace Prisma {
   export type OCRDraftUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56459,7 +56502,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56476,7 +56519,7 @@ export namespace Prisma {
   export type OCRDraftUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     amount?: NullableFloatFieldUpdateOperationsInput | number | null
-    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56684,6 +56727,7 @@ export namespace Prisma {
     alertThreshold?: number
     alertedAt?: Date | string | null
     alertAtFrequency?: number
+    deactivatedAt?: Date | string | null
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -56793,6 +56837,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutBudgetsNestedInput
@@ -56809,6 +56854,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56825,6 +56871,7 @@ export namespace Prisma {
     alertThreshold?: FloatFieldUpdateOperationsInput | number
     alertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertAtFrequency?: IntFieldUpdateOperationsInput | number
+    deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -58,6 +58,12 @@ export class PaymentService implements OnModuleInit {
   // ================================================================
   //. MODULE INITIALIZTION === Setup Payment Service and Stripe Client
   // ================================================================
+
+  /**
+   * @description Initialise the gRPC Payment stub and Stripe client on module startup.
+   *
+   * @public
+   */
   onModuleInit() {
     this.grpcPaymentService =
       this.client.getService<PaymentServiceClient>(PAYMENT_SERVICE_NAME);

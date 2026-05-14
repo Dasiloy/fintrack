@@ -3,6 +3,11 @@ package finance;
 
 import "finance/transaction.proto";
 
+message MonthlyContributionSummary {
+  string month = 1;   // "YYYY-MM" label
+  float amount = 2;
+}
+
 message Contribution  {
     string id=1;
     float amount=2;
@@ -14,6 +19,27 @@ message Contribution  {
     optional Transaction transaction=8;
 }
 
+message ProjectionPoint {
+  string month = 1;   // "YYYY-MM"
+  float amount = 2;
+  bool is_projected = 3; // diff between past actual contribution and linearly generated future savings
+}
+
+message GoalsAggregate {
+  float total_saved = 1;
+  float active_target = 2;
+  float active_percent = 3;
+  int32 on_track_count = 4;
+  int32 overdue_count =5;
+  int32 active_count = 6;
+  int32 completed_count = 7;
+  int32 on_hold_count = 8;
+  float avg_monthly_contribution = 9;
+  int32 streak_months = 10; // consecutive months of goal savings receding from this month
+  repeated MonthlyContributionSummary contribution_heatmap = 11;
+  repeated ProjectionPoint projection_data = 12;
+}
+
 
 message Goal {
   string id=1;
@@ -21,12 +47,18 @@ message Goal {
   string target_date=3;
   float target_amount=4;
   string priority=5;
-  string statsu=6;
+  string status=6;
   optional string description=7;
   string created_at=8;
   string updated_at=9;
   repeated Contribution contributions=10;
   optional float contributed_amount=11;
+  repeated MonthlyContributionSummary monthly_contributions = 12;
+  // Pace fields — populated by getById only
+  optional float pace_required = 13;   // monthly amount needed to hit target on time
+  optional float pace_actual = 14;     // user's all-time avg monthly contribution for this goal
+  optional string pace_status = 15;    // ON_TRACK | BEHIND | OVERDUE | COMPLETED
+  optional int32 months_left = 16;     // calendar months remaining to targetDate
 }
 
 
@@ -58,6 +90,11 @@ message  UpdateGoalReq {
   optional float target_amount=4;
   optional string description=5;
   optional string priority=6;
+}
+
+message UpdateGoalStatusReq {
+  string id = 1;
+  string status = 2;  // ACTIVE | ON_HOLD
 }
 
 message GoalReq {

@@ -2,7 +2,7 @@
   "extends": "@fintrack/typescript-config/nest.json",
   "compilerOptions": {
     "module": "nodenext",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "moduleResolution": "nodenext",
     "target": "ES2022",
     "outDir": "./dist"
