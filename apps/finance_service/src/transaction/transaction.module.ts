@@ -28,7 +28,12 @@ import { UtilsService } from '../utils.service';
     ),
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, BudgetCheckProcessor, PaginateService, UtilsService],
+  providers: [
+    TransactionService,
+    BudgetCheckProcessor,
+    PaginateService,
+    UtilsService,
+  ],
   exports: [TransactionService],
 })
 export class TransactionModule {}

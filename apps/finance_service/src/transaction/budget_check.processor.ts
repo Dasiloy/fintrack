@@ -79,8 +79,14 @@ export class BudgetCheckProcessor extends WorkerHost {
 
       const results = await Promise.all(
         budgets.map(async (budget) => {
-          const periodStart = this.utils.getStartOfPeriod(budget.period, referenceDate);
-          const periodEnd = this.utils.getEndOfPeriod(budget.period, periodStart);
+          const periodStart = this.utils.getStartOfPeriod(
+            budget.period,
+            referenceDate,
+          );
+          const periodEnd = this.utils.getEndOfPeriod(
+            budget.period,
+            periodStart,
+          );
           const { _sum } = await this.prisma.transaction.aggregate({
             where: {
               userId,

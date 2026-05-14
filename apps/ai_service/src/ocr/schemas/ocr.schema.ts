@@ -10,12 +10,18 @@ import { z } from 'zod';
  * in the prompt, eliminating a follow-up classification call.
  */
 export const ocrSchema = z.object({
-  amount: z.number().optional().describe('Transaction amount as a number, omit if unknown'),
+  amount: z
+    .number()
+    .optional()
+    .describe('Transaction amount as a number, omit if unknown'),
   date: z
     .string()
     .optional()
     .describe('Transaction date in ISO YYYY-MM-DD format, omit if unknown'),
-  merchant: z.string().optional().describe('Merchant or vendor name, omit if unknown'),
+  merchant: z
+    .string()
+    .optional()
+    .describe('Merchant or vendor name, omit if unknown'),
   description: z
     .string()
     .optional()
@@ -23,7 +29,9 @@ export const ocrSchema = z.object({
   categorySlug: z
     .string()
     .optional()
-    .describe('Matching category slug from the provided list, omit if none fit'),
+    .describe(
+      'Matching category slug from the provided list, omit if none fit',
+    ),
   confidence: z
     .number()
     .min(0)
