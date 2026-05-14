@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Food & Dining",
+    "categorySlug": "cat-food",
+    "period": "MONTHLY",
+    "description": "Monthly budget for groceries, restaurants, and food delivery",
+    "alertThreshold": 0.8,
+    "history": [
+      { "limit": 60000, "startDate": "2025-11-01", "endDate": "2025-12-31" },
+      { "limit": 80000, "startDate": "2026-01-01", "endDate": null }
+    ]
+  },
+  {
+    "name": "Transport",
+    "categorySlug": "cat-transport",
+    "period": "MONTHLY",
+    "description": "Monthly transport budget covering ride-hailing, fuel, and commute",
+    "alertThreshold": 0.75,
+    "history": [
+      { "limit": 40000, "startDate": "2025-11-01", "endDate": null }
+    ]
+  },
+  {
+    "name": "Entertainment",
+    "categorySlug": "cat-entertainment",
+    "period": "MONTHLY",
+    "description": "Streaming subscriptions, events, sports, and leisure",
+    "alertThreshold": 0.9,
+    "history": [
+      { "limit": 20000, "startDate": "2025-11-01", "endDate": "2026-03-31" },
+      { "limit": 25000, "startDate": "2026-04-01", "endDate": null }
+    ]
+  },
+  {
+    "name": "Bills & Utilities",
+    "categorySlug": "cat-bills-utilities",
+    "period": "MONTHLY",
+    "description": "Rent, electricity, internet, airtime, and all recurring bills",
+    "alertThreshold": 0.85,
+    "history": [
+      { "limit": 35000, "startDate": "2025-11-01", "endDate": null }
+    ]
+  },
+  {
+    "name": "Healthcare",
+    "categorySlug": "cat-healthcare",
+    "period": "QUARTERLY",
+    "description": "Hospitals, pharmacy, lab tests, and personal wellness",
+    "alertThreshold": 0.7,
+    "history": [
+      { "limit": 50000, "startDate": "2026-01-01", "endDate": null }
+    ]
+  },
+  {
+    "name": "Shopping & Retail",
+    "categorySlug": "cat-shopping",
+    "period": "MONTHLY",
+    "description": "Clothing, electronics, online retail, and general shopping",
+    "alertThreshold": 0.8,
+    "history": [
+      { "limit": 60000, "startDate": "2025-11-01", "endDate": "2026-02-28" },
+      { "limit": 100000, "startDate": "2026-03-01", "endDate": null }
+    ]
+  }
+]

@@ -20,10 +20,12 @@ service FinanceService {
   // Budgets
    rpc CreateBudget (CreateBudgetReq) returns (Budget) {}
    rpc GetBudgets(GetBudgetsReq)      returns  (GetBudgetsRes) {}
-   rpc GetBudget(GetBudgetReq)        returns (Budget) {}
+   rpc GetBudget(GetBudgetReq)        returns (BudgetDetail) {}
    rpc GetSpendingTrend(GetSpendingTrendReq) returns (GetSpendingTrendRes) {}
    rpc UpdateBudget (UpdateBudgetReq) returns (Budget) {}
    rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
+   rpc GetArchivedBudgets(Empty) returns (GetArchivedBudgetsRes) {}
+   rpc RestoreBudget(RestoreBudgetReq) returns (Budget) {}
 
 
   // Recurring
@@ -52,6 +54,8 @@ service FinanceService {
   rpc CreateGoal(CreateGoalReq)                      returns (Goal) {}
   rpc GetGoals(GetGoalsReq)                          returns (GetGoalsRes) {}
   rpc GetGoal(GoalReq)                               returns (Goal) {}
+  rpc GetGoalsAggregate (Empty) returns (GoalsAggregate);
+  rpc UpdateGoalStatus (UpdateGoalStatusReq) returns (Goal);
   rpc UpdateGoal(UpdateGoalReq)                      returns (Goal) {}
   rpc DeleteGoal(GoalReq)                            returns (Empty) {}
   rpc ContributeToGoal(CreateGoalContributionReq)    returns (Contribution) {}

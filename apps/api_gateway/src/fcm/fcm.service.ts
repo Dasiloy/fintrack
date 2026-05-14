@@ -103,6 +103,12 @@ export class FcmService {
     }
   }
 
+  /**
+   * @description Generates a cryptographically random 32-character hex notification ID.
+   *
+   * @private
+   * @returns {string} Unique notification ID
+   */
   private generateNotificationId(): string {
     return crypto.randomBytes(16).toString('hex');
   }

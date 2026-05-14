@@ -1,6 +1,6 @@
 {
   "__comment": "Budget Controller HTTP Documentation — apps/api_gateway/src/budget/budget.controller.ts",
-  "meta_note": "All routes are prefixed with /api/budget and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC.",
+  "meta_note": "All routes are prefixed with /api/budget and protected by ApiGuard (JWT bearer). Requests are forwarded to the Finance microservice via gRPC. Route order matters: /archived and /:id/restore are declared before /:id to prevent NestJS from matching 'archived' as an :id param.",
   "conventions": {
     "access_token": "Authorization: Bearer <accessToken>",
     "response_envelope": {
@@ -11,21 +11,186 @@
     }
   },
 
+  "getBudgets": {
+    "route": "GET /api/budget?month=<0-11>&year=<YYYY>",
+    "method": "GET",
+    "description": "List all budgets active during the given month/year for the authenticated user, including per-budget spend and unbudgeted categories with their spend totals. Budgets deactivated before or at the start of the requested period are excluded.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "month": "query param (required) — 0-indexed month (0 = January, 11 = December)",
+      "year": "query param (required) — full year e.g. 2026"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Budgets retrieved successfully",
+      "data": {
+        "budgets": [
+          {
+            "id": "string",
+            "name": "string",
+            "amount": "number — effective limit for the requested period (BudgetHistory entry active at periodStart); falls back to current budget.amount if no history entry covers the period",
+            "spent": "number",
+            "period": "MONTHLY | QUARTERLY | YEARLY",
+            "alertThreshold": "number",
+            "description": "string | null",
+            "deactivatedAt": "ISO datetime | null",
+            "category": { "name": "string", "slug": "string", "color": "string", "icon": "string" },
+            "createdAt": "ISO datetime",
+            "updatedAt": "ISO datetime"
+          }
+        ],
+        "unbudgeted": [
+          {
+            "slug": "string",
+            "name": "string",
+            "color": "string",
+            "icon": "string",
+            "spent": "number"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200": "Budgets retrieved successfully",
+      "400": "Validation error (missing/invalid month or year)",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getSpendingTrend": {
+    "route": "GET /api/budget/trend?months=<3|6|12>",
+    "method": "GET",
+    "description": "Return monthly EXPENSE totals (overall and per-category) for the last N months. Used to render the spending trend chart on the Budget page.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "months": "query param (optional, default 6) — lookback window; one of 3, 6, or 12"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Spending trend retrieved successfully",
+      "data": {
+        "data": [
+          {
+            "label": "string — e.g. 'Jan 2026'",
+            "total": "number — sum of all EXPENSE transactions for this month",
+            "byCategory": [
+              {
+                "slug": "string",
+                "name": "string",
+                "color": "string",
+                "amount": "number"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200": "Spending trend retrieved successfully",
+      "400": "Validation error (months must be 3, 6, or 12)",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getArchivedBudgets": {
+    "route": "GET /api/budget/archived",
+    "method": "GET",
+    "description": "Returns all soft-deleted (deactivated) budgets for the authenticated user, ordered newest-deactivated first. Used to populate the archived budgets management sheet where users can restore or permanently delete individual budgets.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Archived budgets retrieved successfully",
+      "data": {
+        "budgets": [
+          {
+            "id": "string",
+            "name": "string",
+            "amount": "number",
+            "period": "MONTHLY | QUARTERLY | YEARLY",
+            "deactivatedAt": "ISO datetime",
+            "category": { "name": "string", "slug": "string", "color": "string", "icon": "string" },
+            "createdAt": "ISO datetime",
+            "updatedAt": "ISO datetime"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200": "Archived budgets retrieved successfully",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "getBudget": {
+    "route": "GET /api/budget/:id?month=<0-11>&year=<YYYY>",
+    "method": "GET",
+    "description": "Retrieve a single budget by ID including its full amount-change history, ordered oldest-first. The `spent` field is scoped to the period defined by `month` and `year` so viewing a past period always returns the correct historical spend.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — budget ID",
+      "month": "query param (required) — 0-indexed month used to scope the spent total",
+      "year": "query param (required) — full four-digit year used to scope the spent total"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Budget retrieved successfully",
+      "data": {
+        "budget": {
+          "id": "string",
+          "name": "string",
+          "amount": "number — effective limit for the requested period (BudgetHistory entry active at periodStart); falls back to current budget.amount if no history entry covers the period",
+          "spent": "number",
+          "period": "MONTHLY | QUARTERLY | YEARLY",
+          "alertThreshold": "number",
+          "description": "string | null",
+          "deactivatedAt": "ISO datetime | null",
+          "category": { "name": "string", "slug": "string", "color": "string", "icon": "string" },
+          "createdAt": "ISO datetime",
+          "updatedAt": "ISO datetime"
+        },
+        "history": [
+          {
+            "id": "string",
+            "limit": "number",
+            "startDate": "ISO datetime",
+            "endDate": "ISO datetime | null",
+            "createdAt": "ISO datetime"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200": "Budget retrieved successfully",
+      "400": "Validation error (missing/invalid month or year)",
+      "401": "Access token invalid or expired",
+      "404": "Budget not found",
+      "500": "Internal server error"
+    }
+  },
+
   "createBudget": {
     "route": "POST /api/budget",
     "method": "POST",
-    "description": "Create a new budget for the authenticated user. Provide month (0-indexed) and year to backdate the budget period. Amount changes are tracked in budget history.",
+    "description": "Create a new budget or re-activate a previously deactivated one for the same category+period. Uses an upsert on the unique (userId, categorySlug, period) index. On re-activation `deactivatedAt` is cleared, core fields are refreshed, and a new BudgetHistory entry is opened — prior history is preserved. Provide `month` (0-indexed) and `year` to backdate the budget period.",
     "authentication": "Bearer <accessToken>",
     "input": {
       "name": "string (required)",
       "amount": "number (required, > 0)",
-      "categoryId": "string (required) — must refer to a category owned by or shared with the user",
+      "categorySlug": "string (required) — slug of the category to track",
       "period": "MONTHLY | QUARTERLY | YEARLY (required)",
+      "month": "number (required, 0-indexed) — anchors the budget period",
+      "year": "number (required) — anchors the budget period",
       "description": "string (optional)",
-      "carryOver": "boolean (optional, default false)",
       "alertThreshold": "number (optional, 0–1) — fraction of budget consumed before alert fires",
-      "month": "number (optional, 0-indexed) — backdates budget",
-      "year": "number (optional) — backdates budget"
+      "alertAtFrequency": "number (optional, 1–30) — days between re-alerts after threshold breach"
     },
     "output": {
       "success": true,
@@ -37,8 +202,8 @@
         "amount": "number",
         "description": "string | null",
         "period": "MONTHLY | QUARTERLY | YEARLY",
-        "carryOver": "boolean",
         "alertThreshold": "number",
+        "deactivatedAt": "null — always null on a freshly created or re-activated budget",
         "category": { "name": "string", "slug": "string", "color": "string", "icon": "string | null" },
         "createdAt": "ISO datetime",
         "updatedAt": "ISO datetime"
@@ -56,15 +221,17 @@
   "updateBudget": {
     "route": "PATCH /api/budget/:id",
     "method": "PATCH",
-    "description": "Update an existing budget. Amount changes are recorded in budget history.",
+    "description": "Update an existing budget. `month` and `year` are required and anchor the period for SCD history tracking — they must match the period the user is editing. When `amount` changes, the history entry for that period is updated in-place if it matches the current active entry, or a new entry is opened if the period has rolled over.",
     "authentication": "Bearer <accessToken>",
     "input": {
       "id": "path param (required) — budget ID",
+      "month": "body (required) — 0-indexed month the user is viewing",
+      "year": "body (required) — full year the user is viewing",
       "name": "string (optional)",
       "amount": "number (optional, > 0)",
       "description": "string (optional)",
-      "carryOver": "boolean (optional)",
-      "alertThreshold": "number (optional, 0–1)"
+      "alertThreshold": "number (optional, 0–1)",
+      "alertAtFrequency": "number (optional, 1–30)"
     },
     "output": {
       "success": true,
@@ -81,13 +248,44 @@
     }
   },
 
-  "deleteBudget": {
-    "route": "DELETE /api/budget/:id",
-    "method": "DELETE",
-    "description": "Delete a budget by ID.",
+  "restoreBudget": {
+    "route": "POST /api/budget/:id/restore",
+    "method": "POST",
+    "description": "Restores a soft-deleted (deactivated) budget. Clears `deactivatedAt` and reopens a BudgetHistory entry for the current period. If a history entry already exists for that period start it is reopened in place rather than creating a duplicate.",
     "authentication": "Bearer <accessToken>",
     "input": {
-      "id": "path param (required) — budget ID"
+      "id": "path param (required) — ID of the archived budget to restore"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Budget restored successfully",
+      "data": {
+        "id": "string",
+        "name": "string",
+        "amount": "number",
+        "deactivatedAt": "null — cleared on restore",
+        "category": { "name": "string", "slug": "string", "color": "string", "icon": "string" },
+        "createdAt": "ISO datetime",
+        "updatedAt": "ISO datetime"
+      }
+    },
+    "responses": {
+      "200": "Budget restored successfully",
+      "401": "Access token invalid or expired",
+      "404": "Archived budget not found",
+      "500": "Internal server error"
+    }
+  },
+
+  "deleteBudget": {
+    "route": "DELETE /api/budget/:id?hardDelete=<true|false>",
+    "method": "DELETE",
+    "description": "Deactivates or permanently deletes a budget. hardDelete=false (default): soft-deactivates from the current server month — budget is hidden from the current month onwards but visible for past periods; can be restored. hardDelete=true: permanently removes the Budget row and all BudgetHistory rows (cascade delete). Irreversible.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "id": "path param (required) — budget ID",
+      "hardDelete": "query param (optional, default false) — true = permanent cascade delete; false = soft-deactivate from current month"
     },
     "output": {
       "success": true,
@@ -96,7 +294,7 @@
       "data": null
     },
     "responses": {
-      "204": "Budget deleted successfully",
+      "204": "Budget deleted/deactivated successfully",
       "401": "Access token invalid or expired",
       "404": "Budget not found",
       "500": "Internal server error"

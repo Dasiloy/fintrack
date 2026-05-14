@@ -576,6 +576,7 @@ model Budget {
   alertThreshold   Float        @default(0.8) // 80% of budget
   alertedAt        DateTime?
   alertAtFrequency Int          @default(2)
+  deactivatedAt    DateTime? // track soft delete of budget from an onset
 
   // classification
   categoryId String
@@ -623,7 +624,7 @@ enum OCRDraftStatus {
 model OCRDraft {
   id            String         @id @default(cuid())
   amount        Float?
-  date          DateTime
+  date          DateTime?
   description   String?
   notes         String?
   merchant      String?
@@ -642,7 +643,7 @@ model OCRDraft {
   updatedAt DateTime @updatedAt
 
   @@index([userId, status])
-  @@index([imageKey])
+  @@index([userId, imageKey])
 }
 
 enum TransactionType {
@@ -771,6 +772,7 @@ model RecurringItem {
 enum Goalstatus {
   ACTIVE
   COMPLETED
+  ON_HOLD
 }
 
 enum GoalPriority {

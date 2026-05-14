@@ -48,7 +48,7 @@ export const categoryRouter = createTRPCRouter({
         name: z.string().min(1).max(100),
         description: z.string().min(1).max(255).optional(),
         icon: z.string().optional(),
-        color: z.string().optional(),
+        color: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

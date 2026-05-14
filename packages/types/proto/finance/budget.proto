@@ -15,6 +15,8 @@ message Budget {
   string created_at = 9;
   string updated_at = 10;
   string  spent     = 11;
+  float alert_at_frequency = 12;
+  optional string deactivated_at = 13;
 }
 
 message CreateBudgetReq {
@@ -26,10 +28,11 @@ message CreateBudgetReq {
   optional int32 month = 6;
   optional int32 year = 7;
   optional string period = 8;
+  optional float alert_at_frequency = 9;
 }
 
 message UnbudgetedCategory {
-  string category_id = 1;
+  string slug = 1;
   string name        = 2;
   string color       = 3;
   string icon        = 4;
@@ -48,10 +51,25 @@ message GetBudgetsRes {
 
 message GetBudgetReq {
   string id = 1;
+  int32  month = 2;
+  int32  year  = 3;
+}
+
+message BudgetHistoryEntry {
+  string          id         = 1;
+  float           limit      = 2;
+  string          start_date = 3;
+  optional string end_date   = 4;
+  string          created_at = 5;
+}
+
+message BudgetDetail {
+  Budget                       budget  = 1;
+  repeated BudgetHistoryEntry  history = 2;
 }
 
 message SpendingTrendCategory {
-  string category_id = 1;
+  string slug = 1;
   string name        = 2;
   string color       = 3;
   float  amount      = 4;
@@ -78,8 +96,20 @@ message UpdateBudgetReq {
  optional float amount = 3;
  optional string description = 4;
 optional  float alert_threshold = 5;
+optional float alert_at_frequency = 6;
+int32  month = 7;
+int32  year  = 8;
 }
 
 message DeleteBudgetReq {
+  string id = 1;
+  bool   hard_delete = 2;
+}
+
+message GetArchivedBudgetsRes {
+  repeated Budget budgets = 1;
+}
+
+message RestoreBudgetReq {
   string id = 1;
 }

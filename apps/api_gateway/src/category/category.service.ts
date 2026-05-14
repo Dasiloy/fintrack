@@ -15,7 +15,18 @@ import { UsageService } from '../usage/usage.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 
 /**
- * CategoryService.
+ * @description Manages user-defined and system transaction categories including CRUD operations and slug generation.
+ *
+ * ## Responsibilities
+ * - Fetching system and user-owned categories
+ * - Creating custom categories with unique crypto-derived slugs
+ * - Updating and deleting user-owned categories, reassigning orphaned transactions to the fallback `cat-misc` category
+ * - Invalidating the gated usage cache after category count changes
+ *
+ * ## Side effects
+ * Create and delete operations call `UsageService.invalidateGatedUsageCache` to keep plan-limit counts accurate.
+ *
+ * @class CategoryService
  */
 @Injectable()
 export class CategoryService {

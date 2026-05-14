@@ -4,6 +4,7 @@ import { PageHeader } from '@/app/_components/page-header';
 import { useMonoConnect } from '@/hooks/use_mono';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { Button, toast } from '@ui/components';
+import { ActivityFeed } from './_components/activity_feed';
 
 export default function DashboardPage() {
   const { linkAccount, reauthenticate } = useMonoConnect({});
@@ -42,6 +43,13 @@ export default function DashboardPage() {
           <Button onClick={onLink} loading={linkAccountMutation.isPending}>
             connect mono
           </Button>
+        </div>
+
+        {/* Activity feed */}
+        <div className="glass-card rounded-card p-5">
+          <h2 className="text-text-primary mb-1 text-sm font-semibold">Recent Activity</h2>
+          <p className="text-text-tertiary mb-4 text-[11px]">Your last 20 actions across all features</p>
+          <ActivityFeed />
         </div>
       </main>
     </div>
