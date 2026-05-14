@@ -446,8 +446,15 @@ export class TransactionController {
   //. SSE support - Stream OCR updates to FE
   // ================================================================
   @Sse('draft/:draftId/stream')
-  @ApiOperation({ summary: 'Stream OCR extraction progress for a receipt draft' })
-  @ApiParam({ name: 'draftId', type: String, required: true, example: 'clx1234abc' })
+  @ApiOperation({
+    summary: 'Stream OCR extraction progress for a receipt draft',
+  })
+  @ApiParam({
+    name: 'draftId',
+    type: String,
+    required: true,
+    example: 'clx1234abc',
+  })
   streamOcrDraftEvents(
     @Param('draftId') draftId: string,
     @CurrentUser() user: User,

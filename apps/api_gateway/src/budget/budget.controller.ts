@@ -140,7 +140,10 @@ export class BudgetController {
   @Get('archived')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all archived (soft-deleted) budgets' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Archived budgets retrieved successfully' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Archived budgets retrieved successfully',
+  })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   async getArchivedBudgets(
     @CurrentUser() user: User,
@@ -160,9 +163,20 @@ export class BudgetController {
   @Post(':id/restore')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Restore a soft-deleted budget' })
-  @ApiParam({ name: 'id', type: String, required: true, description: 'Budget ID to restore' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Budget restored successfully' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Archived budget not found' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    required: true,
+    description: 'Budget ID to restore',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Budget restored successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Archived budget not found',
+  })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   async restoreBudget(
     @CurrentUser() user: User,

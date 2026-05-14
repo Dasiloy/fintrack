@@ -495,7 +495,8 @@ export class GoalService {
       const activeMonths = new Set(
         goal.contributions.map((c) => format(c.date, 'YYYY-MM')),
       ).size;
-      const paceActual = activeMonths > 0 ? contributedAmount / activeMonths : 0;
+      const paceActual =
+        activeMonths > 0 ? contributedAmount / activeMonths : 0;
 
       let paceStatus: 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'COMPLETED';
       if (goal.status === Goalstatus.COMPLETED) {

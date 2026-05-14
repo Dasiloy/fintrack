@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Usage } from '@fintrack/types/constants/plan.constants';
+import { type Usage } from '@fintrack/types/constants/plan.constants';
 import { useCanUseFeature } from '@/app/providers/plan_usage_provider';
 
 /**
