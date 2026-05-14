@@ -10,13 +10,16 @@ import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
 import {
   Budget,
+  BudgetDetail,
   CreateBudgetReq,
   DeleteBudgetReq,
+  GetArchivedBudgetsRes,
   GetBudgetReq,
   GetBudgetsReq,
   GetBudgetsRes,
   GetSpendingTrendReq,
   GetSpendingTrendRes,
+  RestoreBudgetReq,
   UpdateBudgetReq,
 } from "./budget";
 import {
@@ -28,8 +31,10 @@ import {
   GetGoalsRes,
   Goal,
   GoalReq,
+  GoalsAggregate,
   UpdateGoalContributionReq,
   UpdateGoalReq,
+  UpdateGoalStatusReq,
 } from "./goal";
 import {
   CreateRecurringReq,
@@ -99,13 +104,17 @@ export interface FinanceServiceClient {
 
   getBudgets(request: GetBudgetsReq, metadata?: Metadata): Observable<GetBudgetsRes>;
 
-  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<Budget>;
+  getBudget(request: GetBudgetReq, metadata?: Metadata): Observable<BudgetDetail>;
 
   getSpendingTrend(request: GetSpendingTrendReq, metadata?: Metadata): Observable<GetSpendingTrendRes>;
 
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Observable<Budget>;
 
   deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Observable<Empty>;
+
+  getArchivedBudgets(request: Empty, metadata?: Metadata): Observable<GetArchivedBudgetsRes>;
+
+  restoreBudget(request: RestoreBudgetReq, metadata?: Metadata): Observable<Budget>;
 
   /** Recurring */
 
@@ -154,6 +163,10 @@ export interface FinanceServiceClient {
   getGoals(request: GetGoalsReq, metadata?: Metadata): Observable<GetGoalsRes>;
 
   getGoal(request: GoalReq, metadata?: Metadata): Observable<Goal>;
+
+  getGoalsAggregate(request: Empty, metadata?: Metadata): Observable<GoalsAggregate>;
+
+  updateGoalStatus(request: UpdateGoalStatusReq, metadata?: Metadata): Observable<Goal>;
 
   updateGoal(request: UpdateGoalReq, metadata?: Metadata): Observable<Goal>;
 
@@ -205,7 +218,10 @@ export interface FinanceServiceController {
     metadata?: Metadata,
   ): Promise<GetBudgetsRes> | Observable<GetBudgetsRes> | GetBudgetsRes;
 
-  getBudget(request: GetBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
+  getBudget(
+    request: GetBudgetReq,
+    metadata?: Metadata,
+  ): Promise<BudgetDetail> | Observable<BudgetDetail> | BudgetDetail;
 
   getSpendingTrend(
     request: GetSpendingTrendReq,
@@ -215,6 +231,13 @@ export interface FinanceServiceController {
   updateBudget(request: UpdateBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
 
   deleteBudget(request: DeleteBudgetReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  getArchivedBudgets(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GetArchivedBudgetsRes> | Observable<GetArchivedBudgetsRes> | GetArchivedBudgetsRes;
+
+  restoreBudget(request: RestoreBudgetReq, metadata?: Metadata): Promise<Budget> | Observable<Budget> | Budget;
 
   /** Recurring */
 
@@ -291,6 +314,13 @@ export interface FinanceServiceController {
 
   getGoal(request: GoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
 
+  getGoalsAggregate(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GoalsAggregate> | Observable<GoalsAggregate> | GoalsAggregate;
+
+  updateGoalStatus(request: UpdateGoalStatusReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
+
   updateGoal(request: UpdateGoalReq, metadata?: Metadata): Promise<Goal> | Observable<Goal> | Goal;
 
   deleteGoal(request: GoalReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
@@ -326,6 +356,8 @@ export function FinanceServiceControllerMethods() {
       "getSpendingTrend",
       "updateBudget",
       "deleteBudget",
+      "getArchivedBudgets",
+      "restoreBudget",
       "createRecurring",
       "getRecurrings",
       "getRecurring",
@@ -347,6 +379,8 @@ export function FinanceServiceControllerMethods() {
       "createGoal",
       "getGoals",
       "getGoal",
+      "getGoalsAggregate",
+      "updateGoalStatus",
       "updateGoal",
       "deleteGoal",
       "contributeToGoal",

@@ -13,6 +13,7 @@ import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.int
 import { ChatModule } from './chat/chat.module';
 import { InsightsModule } from './insights/insights.module';
 import { ClassificationModule } from './classification/classification.module';
+import { OcrModule } from './ocr/ocr.module';
 import { RegistoryModule } from './registory/registory.module';
 
 /**
@@ -76,6 +77,7 @@ import { RegistoryModule } from './registory/registory.module';
     ChatModule,
     InsightsModule,
     ClassificationModule,
+    OcrModule,
   ],
   providers: [
     {

@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { auth } from '@/lib/nextauth';
 import { redirect } from 'next/navigation';
 
@@ -18,9 +19,13 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
     // non-fatal — default to free
   }
 
+  const cookieStore = await cookies();
+  const sidebarCookie = cookieStore.get('sidebar_state');
+  const sidebarDefaultOpen = sidebarCookie ? sidebarCookie.value === 'true' : true;
+
   return (
     <SocketProvider>
-      <DashboardLayout session={session} isPro={isPro}>
+      <DashboardLayout session={session} isPro={isPro} sidebarDefaultOpen={sidebarDefaultOpen}>
         {children}
       </DashboardLayout>
     </SocketProvider>

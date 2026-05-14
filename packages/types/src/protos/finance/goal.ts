@@ -9,6 +9,12 @@ import { Transaction } from "./transaction";
 
 export const protobufPackage = "finance";
 
+export interface MonthlyContributionSummary {
+  /** "YYYY-MM" label */
+  month: string;
+  amount: number;
+}
+
 export interface Contribution {
   id: string;
   amount: number;
@@ -20,18 +26,57 @@ export interface Contribution {
   transaction?: Transaction | undefined;
 }
 
+export interface ProjectionPoint {
+  /** "YYYY-MM" */
+  month: string;
+  amount: number;
+  /** diff between past actual contribution and linearly generated future savings */
+  isProjected: boolean;
+}
+
+export interface GoalsAggregate {
+  totalSaved: number;
+  activeTarget: number;
+  activePercent: number;
+  onTrackCount: number;
+  overdueCount: number;
+  activeCount: number;
+  completedCount: number;
+  onHoldCount: number;
+  avgMonthlyContribution: number;
+  /** consecutive months of goal savings receding from this month */
+  streakMonths: number;
+  contributionHeatmap: MonthlyContributionSummary[];
+  projectionData: ProjectionPoint[];
+}
+
 export interface Goal {
   id: string;
   name: string;
   targetDate: string;
   targetAmount: number;
   priority: string;
-  statsu: string;
+  status: string;
   description?: string | undefined;
   createdAt: string;
   updatedAt: string;
   contributions: Contribution[];
   contributedAmount?: number | undefined;
+  monthlyContributions: MonthlyContributionSummary[];
+  /** Pace fields — populated by getById only */
+  paceRequired?:
+    | number
+    | undefined;
+  /** user's all-time avg monthly contribution for this goal */
+  paceActual?:
+    | number
+    | undefined;
+  /** ON_TRACK | BEHIND | OVERDUE | COMPLETED */
+  paceStatus?:
+    | string
+    | undefined;
+  /** calendar months remaining to targetDate */
+  monthsLeft?: number | undefined;
 }
 
 export interface CreateGoalReq {
@@ -60,6 +105,12 @@ export interface UpdateGoalReq {
   targetAmount?: number | undefined;
   description?: string | undefined;
   priority?: string | undefined;
+}
+
+export interface UpdateGoalStatusReq {
+  id: string;
+  /** ACTIVE | ON_HOLD */
+  status: string;
 }
 
 export interface GoalReq {

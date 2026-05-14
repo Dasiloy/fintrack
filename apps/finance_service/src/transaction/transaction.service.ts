@@ -12,6 +12,8 @@ import {
   ACTIVITY_NOTIFICATION_QUEUE,
   ANALYTICS_NOTIFICATION_JOB,
   ANALYTICS_NOTIFICATION_QUEUE,
+  BUDGET_CHECK_JOB,
+  BUDGET_CHECK_QUEUE,
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
   CLASSIFICATION_CORRECTION_JOB,
@@ -19,6 +21,7 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import {
   AnalyticsNotificationPayload,
+  BudgetCheckJobPayload,
   ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
 } from '@fintrack/types/interfaces/finance';
@@ -58,10 +61,15 @@ export type TransactionWithOptionalJoins = Transaction & {
 };
 
 /**
- * Service responsible for handling all transaction related operations
- * Interacts with Prisma.
- * Manages Transaction.
- * Queue bull events for transaction related operations
+ * Service responsible for all transaction CRUD operations in the Finance microservice.
+ * Processes gRPC requests, persists records via Prisma, and dispatches side-effect jobs
+ * (activity logs, FCM push, analytics, classification corrections, budget alerts).
+ *
+ * ## Responsibilities
+ * - Single and batch transaction creation with duplicate-skipping for bank imports
+ * - Paginated, filtered transaction listing
+ * - Transaction updates with AI-classification correction feedback
+ * - Budget alert dispatch after any EXPENSE write
  *
  * @class TransactionService
  */
@@ -79,6 +87,8 @@ export class TransactionService {
     private readonly analyticsNotificationQueue: Queue,
     @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
     private readonly classificationCorrectionQueue: Queue,
+    @InjectQueue(BUDGET_CHECK_QUEUE)
+    private readonly budgetCheckQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -121,6 +131,13 @@ export class TransactionService {
 
       // call side effects events
       this.callevents(userId, createdTransaction, 'Transaction Created');
+      if (createdTransaction.type === TransactionType.EXPENSE) {
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+          userId,
+          categoryIds: [createdTransaction.categoryId],
+          referenceDate: createdTransaction.date.toISOString(),
+        } satisfies BudgetCheckJobPayload);
+      }
       return this.formatTransaction(createdTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;
@@ -183,6 +200,21 @@ export class TransactionService {
         data,
         skipDuplicates: true,
       });
+
+      const expenseCategoryIds = [
+        ...new Set(
+          transactions
+            .filter((tx) => tx.type === ProtoTransactionType.EXPENSE)
+            .map((tx) => tx.categoryId),
+        ),
+      ];
+      if (result.count > 0 && expenseCategoryIds.length > 0) {
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+          userId,
+          categoryIds: expenseCategoryIds,
+          referenceDate: new Date().toISOString(),
+        } satisfies BudgetCheckJobPayload);
+      }
 
       return {
         created: result.count,
@@ -382,6 +414,13 @@ export class TransactionService {
 
       // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
+      if (updatedTransaction.type === TransactionType.EXPENSE) {
+        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+          userId,
+          categoryIds: [updatedTransaction.categoryId],
+          referenceDate: updatedTransaction.date.toISOString(),
+        } satisfies BudgetCheckJobPayload);
+      }
       return this.formatTransaction(updatedTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;

@@ -30,6 +30,14 @@ export class AppService {
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
+  /**
+   * @description Returns all merchants from cache or database, writing through to Redis on a cache miss.
+   * Cache is fire-and-forget — a Redis failure does not block the response.
+   *
+   * @async
+   * @public
+   * @returns {Promise<{ id: string; name: string; aliases: string[] }[]>} Merchant list ordered by name
+   */
   async getMerchants(): Promise<
     { id: string; name: string; aliases: string[] }[]
   > {
@@ -60,6 +68,15 @@ export class AppService {
   // ================================================================
   //. Health Check
   // ================================================================
+
+  /**
+   * @description Probes PostgreSQL and Redis connectivity concurrently and throws if either is unavailable.
+   *
+   * @async
+   * @public
+   * @returns {Promise<void>}
+   * @throws {ServiceUnavailableException} If either the database or Redis ping fails
+   */
   async getHealth() {
     try {
       const [pg, redis] = await Promise.allSettled([

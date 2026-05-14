@@ -105,7 +105,7 @@ export default function BillsPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex flex-col">
       {/* ── Page header ── */}
       <PageHeader breadcrumbs={[{ label: 'Bills & Recurring' }]}>
         <Button size="sm" className="gap-1.5 px-2.5 sm:px-3" onClick={() => setAddOpen(true)}>
@@ -156,7 +156,7 @@ export default function BillsPage() {
       </div>
 
       {/* ── Bill cards grid ── */}
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="px-6 pb-6">
         {isLoading ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (

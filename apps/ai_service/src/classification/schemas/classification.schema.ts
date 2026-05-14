@@ -18,3 +18,5 @@ export const classificationSchema = z.object({
     }),
   ),
 });
+
+export type ClassificationSchema = z.infer<typeof classificationSchema>;

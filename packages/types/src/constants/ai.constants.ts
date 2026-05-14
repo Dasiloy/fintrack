@@ -2,6 +2,8 @@ import { ModelId, ModelProviderConfig } from '../interfaces/ai';
 
 export const DEFAULT_EMB_MAX_TOKENS = 8191;
 
+export const EXTRACTION_TIMEOUT_MS = 45_000;
+
 export const MODEL_CONFIGS: Record<ModelId, ModelProviderConfig> = {
   // ─── OpenAI chat / reasoning ──────────────────────────────────────────────
   'openai:gpt-4o': {

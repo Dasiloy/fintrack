@@ -313,6 +313,7 @@ exports.Prisma.BudgetScalarFieldEnum = {
   alertThreshold: 'alertThreshold',
   alertedAt: 'alertedAt',
   alertAtFrequency: 'alertAtFrequency',
+  deactivatedAt: 'deactivatedAt',
   categoryId: 'categoryId',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -818,7 +819,8 @@ exports.RecurringItemFrequency = exports.$Enums.RecurringItemFrequency = {
 
 exports.Goalstatus = exports.$Enums.Goalstatus = {
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  ON_HOLD: 'ON_HOLD'
 };
 
 exports.GoalPriority = exports.$Enums.GoalPriority = {

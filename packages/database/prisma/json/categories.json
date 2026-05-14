@@ -1,0 +1,127 @@
+[
+  {
+    "name": "Food & Groceries",
+    "slug": "cat-food",
+    "color": "#F97316",
+    "description": "Restaurants, fast food, food delivery, supermarkets, and household consumables.",
+    "icon": "",
+    "tags": [
+      "food", "dining", "restaurant", "fast food", "takeaway", "delivery", "meal", "snack",
+      "drinks", "cafe", "coffee", "kitchen", "bukka", "eatery", "grill", "chop", "pizza",
+      "burger", "suya", "canteen", "bakery", "pastry", "ice cream", "juice", "smoothie",
+      "groceries", "supermarket", "market", "foodstuff", "provisions", "shoprite", "spar",
+      "justrite", "hubmart", "park n shop", "household", "toiletries", "cleaning",
+      "detergent", "consumables"
+    ]
+  },
+  {
+    "name": "Income",
+    "slug": "cat-income",
+    "color": "#4ADE80",
+    "description": "Salary, freelance payments, transfers received, refunds, and all inflows.",
+    "icon": "",
+    "tags": [
+      "income", "salary", "wage", "freelance", "credit", "refund", "cashback", "bonus",
+      "commission", "dividend", "interest", "received", "inflow", "proceeds", "grant",
+      "allowance", "stipend", "transfer in", "payment received", "settlement", "payout"
+    ]
+  },
+  {
+    "name": "Transport",
+    "slug": "cat-transport",
+    "color": "#3B82F6",
+    "description": "Ride-hailing, fuel, public transport, flights, and logistics.",
+    "icon": "",
+    "tags": [
+      "transport", "uber", "bolt", "taxify", "ride", "fuel", "petrol", "diesel", "bus",
+      "taxi", "keke", "okada", "fare", "toll", "logistics", "shipping", "courier", "flight",
+      "airfare", "travel", "commute", "parking", "train", "ferry", "dispatch"
+    ]
+  },
+  {
+    "name": "Bills & Utilities",
+    "slug": "cat-bills-utilities",
+    "color": "#06B6D4",
+    "description": "Electricity, water, internet, airtime, cable TV, and rent.",
+    "icon": "",
+    "tags": [
+      "bills", "utilities", "electricity", "nepa", "phcn", "water", "internet", "wifi",
+      "broadband", "airtime", "data", "cable", "dstv", "gotv", "startimes", "rent",
+      "service charge", "waste", "ikedc", "ekedc", "aedc", "phed", "kedco", "ibedc",
+      "spectranet", "swift", "mtn", "airtel", "glo", "9mobile", "prepaid", "token"
+    ]
+  },
+  {
+    "name": "Shopping & Retail",
+    "slug": "cat-shopping",
+    "color": "#F59E0B",
+    "description": "Clothing, electronics, online stores, and general retail.",
+    "icon": "",
+    "tags": [
+      "shopping", "retail", "clothing", "fashion", "electronics", "gadgets", "jumia",
+      "konga", "jiji", "slot", "store", "mall", "market", "accessories", "appliances",
+      "hardware", "purchase", "order", "delivery", "online", "ecommerce", "shoes", "bags"
+    ]
+  },
+  {
+    "name": "Healthcare",
+    "slug": "cat-healthcare",
+    "color": "#EF4444",
+    "description": "Hospitals, pharmacies, lab tests, and personal care.",
+    "icon": "",
+    "tags": [
+      "healthcare", "hospital", "clinic", "pharmacy", "drugs", "medical", "doctor",
+      "dentist", "health", "wellness", "lab", "test", "surgery", "beauty", "salon", "spa",
+      "cosmetics", "grooming", "hygiene", "medplus", "healthplus", "reddington", "prescription"
+    ]
+  },
+  {
+    "name": "Entertainment",
+    "slug": "cat-entertainment",
+    "color": "#EC4899",
+    "description": "Streaming, movies, events, sports betting, and leisure.",
+    "icon": "",
+    "tags": [
+      "entertainment", "cinema", "movie", "netflix", "spotify", "streaming", "games",
+      "event", "concert", "ticket", "club", "nightlife", "betting", "gambling", "sport",
+      "fun", "leisure", "music", "showmax", "audiomack", "boomplay", "bet9ja", "sportybet",
+      "1xbet", "naira bet", "subscription", "disney", "apple tv"
+    ]
+  },
+  {
+    "name": "Education",
+    "slug": "cat-education",
+    "color": "#10B981",
+    "description": "School fees, exams, courses, and educational materials.",
+    "icon": "",
+    "tags": [
+      "education", "school", "tuition", "fees", "university", "college", "course",
+      "training", "books", "stationery", "learning", "exam", "waec", "jamb", "neco",
+      "tutorial", "lesson", "scholarship", "coursera", "udemy", "british council", "institution"
+    ]
+  },
+  {
+    "name": "Savings & Investments",
+    "slug": "cat-savings",
+    "color": "#14B8A6",
+    "description": "Savings goals, investments, insurance, and loan repayments.",
+    "icon": "",
+    "tags": [
+      "savings", "investment", "insurance", "loan", "mortgage", "repayment", "piggyvest",
+      "cowrywise", "risevest", "stocks", "crypto", "pension", "retirement", "deposit",
+      "contribution", "stash", "treasury", "mutual fund", "bonds", "interest", "principal", "premium"
+    ]
+  },
+  {
+    "name": "Miscellaneous",
+    "slug": "cat-misc",
+    "color": "#94A3B8",
+    "description": "Bank charges, taxes, fees, and everything else.",
+    "icon": "",
+    "tags": [
+      "misc", "general", "other", "fees", "charges", "bank charge", "tax", "government",
+      "atm", "withdrawal", "cash", "sms", "maintenance", "penalty", "fine", "levy",
+      "stamp duty", "commission", "vat", "transfer charge", "processing fee"
+    ]
+  }
+]

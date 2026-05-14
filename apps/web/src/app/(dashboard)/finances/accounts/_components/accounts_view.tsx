@@ -70,7 +70,7 @@ export function AccountsView() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex flex-col">
       <PageHeader breadcrumbs={[{ label: 'Finances' }, { label: 'Accounts' }]}>
         <Button
           size="sm"
@@ -100,7 +100,7 @@ export function AccountsView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-auto px-6 pb-6">
+      <div className="px-6 pb-6">
         {isLoading ? (
           <AccountsSkeleton />
         ) : accounts.length === 0 ? (

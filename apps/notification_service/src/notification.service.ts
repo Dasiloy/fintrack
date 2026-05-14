@@ -2,6 +2,8 @@ import { MailerService } from '@nestjs-modules/mailer';
 
 import { Injectable, Logger } from '@nestjs/common';
 
+import { PrismaService } from '@fintrack/database/service';
+import { formatCurrency } from '@fintrack/utils/format';
 import {
   EmailVerificationPayload,
   WelcomeEmailPayload,
@@ -17,6 +19,7 @@ import {
   SubscriptionEndedEmailPayload,
   NewUsageTrackersCreatedEmailPayload,
   AccountDeletionEmailPayload,
+  BudgetAlertEmailPayload,
   RecurringTransactionsEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
@@ -27,7 +30,10 @@ import {
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   /**
    * Sends a verification email with an OTP
@@ -403,6 +409,44 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send account deletion email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  async sendBudgetAlertEmail(data: BudgetAlertEmailPayload) {
+    const count = data.alerts.length;
+    const subject =
+      count === 1
+        ? 'Budget Alert — 1 budget needs attention'
+        : `Budget Alert — ${count} budgets need attention`;
+    try {
+      await this.mailerService.sendMail({
+        to: data.email,
+        subject,
+        template: './budget_alert',
+        context: {
+          firstName: data.firstName,
+          count,
+          alerts: data.alerts.map((a) => ({
+            ...a,
+            spentFormatted: formatCurrency(a.spent),
+            limitFormatted: formatCurrency(a.limit),
+            isOverBudget: a.percentage >= 100,
+          })),
+        },
+      });
+      await this.prismaService.budget.updateMany({
+        where: { id: { in: data.budgetIds } },
+        data: { alertedAt: new Date() },
+      });
+      this.logger.log(
+        `Budget alert email sent to ${data.email} (${data.alerts.length} budget(s))`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send budget alert email to ${data.email}`,
         error.stack,
       );
       throw error;

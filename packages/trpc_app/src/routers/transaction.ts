@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import { TransactionType, TransactionSource } from '@fintrack/database/types';
-import { createTRPCRouter, protectedProcedure } from '../setup';
+import { createTRPCRouter, protectedProcedure, protectedProcedureWithPlanLimits } from '../setup';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
@@ -13,6 +14,55 @@ export const transactionRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
+
+  /**
+   * Uploads a receipt image or PDF to the gateway, which stores it in
+   * Cloudinary, upserts an OCRDraft row, and enqueues an OCR extraction job.
+   *
+   * The file is passed as a base64-encoded string with its MIME type and
+   * original filename. The tRPC server reconstructs a `FormData` payload and
+   * forwards it as `multipart/form-data` to `POST /api/upload/receipt`.
+   *
+   * Returns `{ draftId, isNew }`:
+   * - `draftId` — use to open the SSE stream (`GET /transaction/draft/:id/stream`)
+   *   and later as `sourceId` when confirming the transaction.
+   * - `isNew` — `false` when the same receipt was uploaded before and a
+   *   resolved draft already exists; no new extraction job was enqueued.
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   * @throws BAD_REQUEST if the file type or size is invalid
+   * @throws INTERNAL_SERVER_ERROR on upload or extraction failure
+   */
+  uploadReceipt: protectedProcedureWithPlanLimits
+    .input(
+      z.object({
+        feature: z.literal(Usage.RECEIPT_UPLOADS_PER_MONTH),
+        file: z.string().min(1),
+        filename: z.string().min(1),
+        mimeType: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { feature: _feature, file, filename, mimeType } = input;
+
+      const base64 = file.replace(/^data:[^;]+;base64,/, '');
+      const bytes = Buffer.from(base64, 'base64');
+      const blob = new Blob([bytes], { type: mimeType });
+
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+
+      const response = await fetch(`${GATEWAY_URL}/api/upload/receipt`, {
+        method: 'POST',
+        body: formData,
+        headers: gatewayHeaders(ctx.headers),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<{ draftId: string; isNew: boolean }> = await response.json();
+      return data.data!;
+    }),
 
   /**
    * Creates a new manual transaction for the authenticated user.
