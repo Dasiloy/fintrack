@@ -58,8 +58,11 @@ export const viewport: Viewport = {
   width: 'device-width',
   userScalable: false,
   viewportFit: 'cover',
-  colorScheme: 'dark',
-  themeColor: '#0f0f14',
+  colorScheme: 'dark light',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0f0f14' },
+    { media: '(prefers-color-scheme: light)', color: '#f0f0f6' },
+  ],
 };
 
 ///! FONT SETUP
@@ -79,7 +82,7 @@ const manrope = Manrope({
 // ======================
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inetr.variable} ${manrope.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inetr.variable} ${manrope.variable}`}>
       <body>
         <TRPCAppProvider>
           <AppProviver>{children}</AppProviver>

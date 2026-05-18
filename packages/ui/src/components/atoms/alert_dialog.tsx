@@ -81,7 +81,7 @@ function AlertDialogContent({
         data-size={size}
         className={cn(
           // Surface: elevated opaque card
-          'bg-bg-elevated border-border-subtle shadow-card rounded-card border',
+          'bg-bg-elevated border-border-light shadow-card rounded-card border',
           // Layout
           'fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2',
           'gap-space-6 p-space-6 max-w-[calc(100%-2rem)]',

@@ -19,7 +19,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
     <section className="mx-auto max-w-[1200px] px-4 pb-14 md:px-6">
       <Link
         href={`${STATIC_ROUTES.BLOG}/${post.slug}`}
-        className="group rounded-card bg-bg-elevated border-border-subtle relative block overflow-hidden border transition-all duration-smooth hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_40px_rgba(124,122,255,0.12)]"
+        className="group rounded-card bg-bg-elevated border-border-light relative block overflow-hidden border transition-all duration-smooth hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_40px_rgba(124,122,255,0.12)]"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* Gradient image placeholder */}

@@ -22,6 +22,7 @@
  *   ✓  5 goals              — ACTIVE, ON_HOLD, and COMPLETED with contributions
  *   ✓ 10 recurring items    — salary, rent, subscriptions (all frequencies)
  *   ✓ 20 activity logs      — timeline of key events across all features
+ *   ✓  3 splits             — OPEN / PARTIALLY_SETTLED / SETTLED with participants & settlements
  *
  * IDEMPOTENCY:
  *   Safe to re-run. Each section checks for existing records and skips if
@@ -34,6 +35,7 @@
  *   budgets.json       — 6 budgets with full BudgetHistory entries
  *   goals.json         — 5 goals with embedded contribution arrays
  *   recurring_items.json — 10 recurring items (bills + income)
+ *   splits.json        — 3 splits with participants and settlements
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -55,6 +57,7 @@ const SECTIONS = [
   { id: 5, label: 'Goals', hint: '5 goals with contributions' },
   { id: 6, label: 'Recurring items', hint: '10 recurring items (bills + income)' },
   { id: 7, label: 'Activity logs', hint: '20 activity log entries' },
+  { id: 8, label: 'Splits', hint: '3 splits with participants & settlements' },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]['id'];
@@ -217,6 +220,27 @@ interface RecurringItemFixture {
   description: string | null;
   merchant: string | null;
   notes: string | null;
+}
+
+interface SplitParticipantFixture {
+  name: string;
+  email: string;
+  amount: number;
+}
+
+interface SplitSettlementFixture {
+  participantIndex: number;
+  paidAmount: number;
+  paidAt: string;
+}
+
+interface SplitFixture {
+  name: string;
+  amount: number;
+  status: 'OPEN' | 'PARTIALLY_SETTLED' | 'SETTLED';
+  createdAt: string;
+  participants: SplitParticipantFixture[];
+  settlements: SplitSettlementFixture[];
 }
 
 // ─── Source ID generator ──────────────────────────────────────────────────────
@@ -592,12 +616,70 @@ async function main() {
     console.log('   ⏭  skipped');
   }
 
+  // ── 8. Splits ─────────────────────────────────────────────────────────────
+  //
+  // 3 splits covering all statuses: OPEN, PARTIALLY_SETTLED, SETTLED.
+  // Each has 3 participants. Settlements reference participants by their
+  // index in the fixture array, resolved to DB ids at seed time.
+  //
+  console.log('\n🔀 Splits');
+  if (run(8)) {
+    const splitFixtures = loadFixture<SplitFixture[]>('splits.json');
+    let splitsCreated = 0;
+    let splitsSkipped = 0;
+
+    for (const fixture of splitFixtures) {
+      const existing = await prisma.split.findFirst({ where: { userId, name: fixture.name } });
+
+      if (existing) {
+        splitsSkipped++;
+        continue;
+      }
+
+      const split = await prisma.split.create({
+        data: {
+          name: fixture.name,
+          amount: fixture.amount,
+          status: fixture.status,
+          createdAt: new Date(fixture.createdAt),
+          userId,
+        },
+      });
+
+      const participants = await Promise.all(
+        fixture.participants.map((p) =>
+          prisma.splitParticipant.create({
+            data: { name: p.name, email: p.email, amount: p.amount, splitId: split.id },
+          }),
+        ),
+      );
+
+      if (fixture.settlements.length > 0) {
+        await prisma.splitSettlement.createMany({
+          data: fixture.settlements.map((s) => ({
+            splitId: split.id,
+            participantId: participants[s.participantIndex]!.id,
+            paidAmount: s.paidAmount,
+            paidAt: new Date(s.paidAt),
+          })),
+        });
+      }
+
+      splitsCreated++;
+    }
+
+    console.log(`   ✓ ${splitsCreated} created, ${splitsSkipped} already existed`);
+  } else {
+    console.log('   ⏭  skipped');
+  }
+
   // ── Done ──────────────────────────────────────────────────────────────────
   console.log('\n✅ Seed complete!\n');
   console.log(`   Account:   ${user.firstName} ${user.lastName} (${user.email})`);
   console.log('   Dashboard: http://localhost:3000/dashboard');
+  console.log('   Budgets:   http://localhost:3000/finance/budgets');
   console.log('   Goals:     http://localhost:3000/planning/goals');
-  console.log('   Budgets:   http://localhost:3000/finance/budgets\n');
+  console.log('   Splits:     http://localhost:3000/planning/splits');
 }
 
 // ─── Bootstrap ────────────────────────────────────────────────────────────────

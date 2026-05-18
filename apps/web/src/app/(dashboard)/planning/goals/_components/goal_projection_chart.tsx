@@ -77,7 +77,7 @@ export function GoalProjectionChart({ data, isLoading }: GoalProjectionChartProp
           <p className="text-text-primary text-[13px] font-semibold">Savings Projection</p>
           <p className="text-text-tertiary text-[11px]">Combined active goals trajectory</p>
         </div>
-        <div className="border-border-subtle flex overflow-hidden rounded-lg border">
+        <div className="border-border-light flex overflow-hidden rounded-lg border">
           {(['6M', '12M'] as ViewRange[]).map((v) => (
             <button
               key={v}

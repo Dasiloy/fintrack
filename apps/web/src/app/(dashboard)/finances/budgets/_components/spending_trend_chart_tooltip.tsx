@@ -20,7 +20,7 @@ export function SpendingTrendChartTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="bg-bg-elevated border-border-subtle min-w-40 rounded-lg border px-2.5 py-2 text-xs shadow-xl">
+    <div className="bg-bg-elevated border-border-light min-w-40 rounded-lg border px-2.5 py-2 text-xs shadow-xl">
       <p className="text-text-secondary mb-2 font-medium">{label}</p>
       {payload.map((entry, i) => (
         <div key={i} className="flex items-center justify-between gap-6 py-0.5">

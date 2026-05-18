@@ -13,7 +13,7 @@ export function ContactCta() {
           className="from-primary/8 pointer-events-none absolute inset-0 bg-linear-to-br to-transparent"
         />
 
-        <p className="bg-bg-elevated border-border-subtle text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+        <p className="bg-bg-elevated border-border-light text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
           Still need help?
         </p>
 

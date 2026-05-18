@@ -18,7 +18,7 @@ export function PopularArticles() {
               className="glass-card rounded-card group flex items-start gap-4 p-5 transition-all duration-smooth hover:-translate-y-0.5 hover:shadow-md"
             >
               {cat && Icon && (
-                <div className="bg-bg-elevated border-border-subtle mt-0.5 shrink-0 rounded-lg border p-2.5">
+                <div className="bg-bg-elevated border-border-light mt-0.5 shrink-0 rounded-lg border p-2.5">
                   <Icon size={16} className={cat.iconClass} aria-hidden="true" />
                 </div>
               )}

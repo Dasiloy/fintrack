@@ -6,6 +6,7 @@ import { RefreshCw, Home } from 'lucide-react';
 
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { Logo } from '@/app/_components';
+import { consoleLogger } from '@fintrack/common/console_logger/index';
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -18,8 +19,7 @@ interface ErrorPageProps {
  */
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
-    // Log to your error reporting service here if needed
-    console.error('[ErrorBoundary]', error);
+    consoleLogger.error('[ErrorBoundary]', error);
   }, [error]);
 
   return (
@@ -42,7 +42,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       {/* Content */}
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 text-center">
         {/* Big 500 */}
-        <p className="font-manrope from-primary/60 to-primary/10 mb-4 select-none bg-linear-to-b bg-clip-text text-[clamp(7rem,20vw,14rem)] font-black leading-none text-transparent">
+        <p className="font-manrope from-primary/60 to-primary/10 mb-4 bg-linear-to-b bg-clip-text text-[clamp(7rem,20vw,14rem)] leading-none font-black text-transparent select-none">
           500
         </p>
 
@@ -51,28 +51,21 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         </h1>
 
         <p className="text-body text-text-secondary mb-3 max-w-md leading-relaxed">
-          An unexpected error occurred. Our team has been notified. You can try again or return
-          to the home page.
+          An unexpected error occurred. Our team has been notified. You can try again or return to
+          the home page.
         </p>
-
-        {/* Show digest in production, full message in dev */}
-        {(error.digest ?? (process.env.NODE_ENV === 'development' && error.message)) && (
-          <p className="text-caption text-text-disabled bg-bg-elevated border-border-subtle mb-8 rounded-lg border px-4 py-2 font-mono">
-            {process.env.NODE_ENV === 'development' ? error.message : `Error ID: ${error.digest}`}
-          </p>
-        )}
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="glossy-button rounded-button text-body text-text-primary shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
+            className="glossy-button rounded-button text-body shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
           >
             <RefreshCw size={16} aria-hidden="true" />
             Try again
           </button>
           <Link
             href={STATIC_ROUTES.HOME}
-            className="rounded-button border-border-light text-text-secondary hover:text-text-primary hover:border-primary/40 text-body inline-flex items-center gap-2 border px-6 py-2.5 font-semibold transition-colors duration-smooth"
+            className="rounded-button border-border-light text-text-secondary hover:text-text-primary hover:border-primary/40 text-body duration-smooth inline-flex items-center gap-2 border px-6 py-2.5 font-semibold transition-colors"
           >
             <Home size={16} aria-hidden="true" />
             Go home

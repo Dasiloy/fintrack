@@ -35,7 +35,7 @@ export function LeftPanel({
   if (phase !== 'idle' && file) {
     return (
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1">
-        <div className="border-border-subtle bg-bg-surface relative h-[200px] overflow-hidden rounded-2xl border md:h-auto md:min-h-0 md:flex-1">
+        <div className="border-border-light bg-bg-surface relative h-[200px] overflow-hidden rounded-2xl border md:h-auto md:min-h-0 md:flex-1">
           {isPdf ? (
             <iframe
               src={`${fileUrl ?? ''}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
@@ -100,7 +100,7 @@ export function LeftPanel({
         'focus-visible:ring-primary/50 transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none',
         isDragging
           ? 'border-primary scale-[1.02] bg-[rgba(124,122,255,0.06)]'
-          : 'border-border-subtle hover:border-border-light hover:bg-bg-surface/40',
+          : 'border-border-light hover:border-border-light hover:bg-bg-surface/40',
       )}
     >
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">

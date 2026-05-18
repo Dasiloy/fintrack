@@ -5,7 +5,10 @@ import { CirclePlay, Plus, PauseCircle, Repeat2, TrendingDown } from 'lucide-rea
 import { Button, toast } from '@ui/components';
 import { formatCurrency } from '@fintrack/utils/format';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { useProGate } from '@/hooks/use_pro_gate';
 import type { Recurinrg } from '@fintrack/types/protos/finance/recurring';
 
 import type { BillFilters } from './types';
@@ -19,6 +22,7 @@ import { MetricCard } from './_components/metric_card';
 
 export default function BillsPage() {
   // ── State ─────────────────────────────────────────────────────────────────
+  const createGate = useProGate(Usage.MAX_RECURRING_ITEMS);
   const [filters, setFilters] = React.useState<BillFilters>(EMPTY_FILTERS);
   const [addOpen, setAddOpen] = React.useState(false);
   const [drawerItemId, setDrawerItemId] = React.useState<string | null>(null);
@@ -108,7 +112,11 @@ export default function BillsPage() {
     <div className="flex flex-col">
       {/* ── Page header ── */}
       <PageHeader breadcrumbs={[{ label: 'Bills & Recurring' }]}>
-        <Button size="sm" className="gap-1.5 px-2.5 sm:px-3" onClick={() => setAddOpen(true)}>
+        <Button
+          size="sm"
+          className="gap-1.5 px-2.5 sm:px-3"
+          onClick={() => createGate.triggerGate(() => setAddOpen(true))}
+        >
           <Plus className="size-3.5" />
           <span className="hidden sm:inline">Add Bill</span>
         </Button>
@@ -165,7 +173,7 @@ export default function BillsPage() {
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 pt-6 sm:min-h-[400px] sm:pt-16">
-            <div className="border-border-subtle bg-bg-surface flex size-14 items-center justify-center rounded-2xl border">
+            <div className="border-border-light bg-bg-surface flex size-14 items-center justify-center rounded-2xl border">
               <Repeat2 className="text-text-disabled size-6" />
             </div>
             <div className="text-center">
@@ -177,7 +185,11 @@ export default function BillsPage() {
               </p>
             </div>
             {!hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => createGate.triggerGate(() => setAddOpen(true))}
+              >
                 <Plus className="size-3.5" />
                 Add Bill
               </Button>
@@ -201,6 +213,11 @@ export default function BillsPage() {
       </div>
 
       {/* ── Create dialog ── */}
+      <ProGateModal
+        feature={Usage.MAX_RECURRING_ITEMS}
+        open={createGate.open}
+        onClose={createGate.onClose}
+      />
       <BillFormDialog open={addOpen} onOpenChange={setAddOpen} categories={categories} />
 
       {/* ── Detail drawer ── */}

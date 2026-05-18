@@ -22,7 +22,7 @@ export function MeetTheTeam() {
         {TEAM_MEMBERS.map(({ name, role, bio, initials }) => (
           <div
             key={name}
-            className="group rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover hover:border-border-light border p-8 text-center transition-all duration-smooth"
+            className="group rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover hover:border-border-light border p-8 text-center transition-all duration-smooth"
           >
             {/* Avatar */}
             <div

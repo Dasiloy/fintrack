@@ -77,7 +77,7 @@ function ButtonGroupText({
     <Comp
       className={cn(
         // Surface matches input fields
-        'bg-bg-surface gap-space-2 rounded-button border-border-subtle flex items-center border',
+        'bg-bg-surface gap-space-2 rounded-button border-border-light flex items-center border',
         'px-space-4 text-body text-text-secondary font-medium',
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
@@ -103,7 +103,7 @@ function ButtonGroupSeparator({
       data-slot="button-group-separator"
       orientation={orientation}
       className={cn(
-        'bg-border-subtle relative m-0! self-stretch data-[orientation=vertical]:h-auto',
+        'bg-border-light relative m-0! self-stretch data-[orientation=vertical]:h-auto',
         className,
       )}
       {...props}

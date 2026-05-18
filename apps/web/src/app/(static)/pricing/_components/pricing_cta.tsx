@@ -10,7 +10,7 @@ import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 export function PricingCta() {
   return (
     <section className="mx-auto mb-32 max-w-[700px] px-4 text-center md:px-6">
-      <div className="glass-card rounded-card border-border-subtle border px-8 py-12">
+      <div className="glass-card rounded-card border-border-light border px-8 py-12">
         <p className="text-overline text-primary mb-3 block tracking-widest uppercase">
           Ready to start?
         </p>
@@ -24,7 +24,7 @@ export function PricingCta() {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href={AUTH_ROUTES.SIGNUP}
-            className="glossy-button rounded-button text-body text-text-primary shadow-glow inline-flex items-center gap-2 px-8 py-3 font-bold"
+            className="glossy-button rounded-button text-body text-white shadow-glow inline-flex items-center gap-2 px-8 py-3 font-bold"
           >
             Get started free
             <ArrowRight size={16} aria-hidden="true" />

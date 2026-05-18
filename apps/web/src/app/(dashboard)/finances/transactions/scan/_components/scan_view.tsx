@@ -286,7 +286,7 @@ export function ScanView() {
           <form onSubmit={handleSubmit} className="flex flex-col md:min-h-0 md:flex-1">
             <div className="glass-card rounded-card border-border-subtle flex flex-col overflow-hidden border md:min-h-0 md:flex-1 md:flex-row">
               {/* Left — upload / preview */}
-              <div className="border-border-subtle flex flex-col p-4 md:min-h-0 md:w-[38%] md:overflow-hidden md:border-r">
+              <div className="border-border-light flex flex-col p-4 md:min-h-0 md:w-[38%] md:overflow-hidden md:border-r">
                 <p className="text-text-secondary mb-3 text-[11px] font-semibold tracking-wider uppercase">
                   Receipt
                 </p>
@@ -304,7 +304,7 @@ export function ScanView() {
               </div>
 
               {/* Right — scanner + extracted details */}
-              <div className="border-border-subtle flex flex-col border-t p-4 md:min-h-0 md:flex-1 md:overflow-hidden md:border-t-0">
+              <div className="border-border-light flex flex-col border-t p-4 md:min-h-0 md:flex-1 md:overflow-hidden md:border-t-0">
                 <p className="text-text-secondary mb-3 text-[11px] font-semibold tracking-wider uppercase">
                   {phase === 'idle'
                     ? 'Details'

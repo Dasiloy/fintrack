@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 import { useState } from 'react';
+import { useTheme } from '@ui/components';
 import { useBoolean } from '@ui/hooks';
 import {
   COOKIE_BALANCE,
@@ -11,17 +12,21 @@ import {
   COOKIE_CONSENT,
   COOKIE_CONSENT_VALUE_ACCEPTED,
   COOKIE_CONSENT_VALUE_DECLINED,
-  COOKIE_THEME,
-  COOKIE_THEME_VALUE_DARK,
-  COOKIE_THEME_VALUE_LIGHT,
   getCookieExpiry,
   type CookiKeys,
 } from '@/lib/constants/cookies';
-import { CookieIcon, EyeIcon, EyeOffIcon, MoonIcon, SunIcon } from 'lucide-react';
+import { CookieIcon, EyeIcon, EyeOffIcon, MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
+import { cn } from '@ui/lib/utils';
 import { SettingSwitch } from '@/app/(dashboard)/settings/account/_components/setting_switch';
 import { ProfileSection } from '@/app/(dashboard)/settings/account/_components/profile_section';
 import { promisify } from '@fintrack/utils/promise';
 import { toast } from '@ui/components';
+
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Light', Icon: SunIcon },
+  { value: 'system', label: 'System', Icon: MonitorIcon },
+  { value: 'dark', label: 'Dark', Icon: MoonIcon },
+] as const;
 
 interface PrefrencesProps {
   cookies: Map<CookiKeys, string>;
@@ -29,17 +34,17 @@ interface PrefrencesProps {
 
 export function Prefrences({ cookies }: PrefrencesProps) {
   const [loading, setLoading] = useBoolean();
+  const { theme, setTheme } = useTheme();
+
   const [settings, setSettings] = useState<Record<CookiKeys, string>>({
     [COOKIE_CONSENT]: cookies.get(COOKIE_CONSENT) ?? COOKIE_CONSENT_VALUE_ACCEPTED,
-    [COOKIE_THEME]: cookies.get(COOKIE_THEME) ?? COOKIE_THEME_VALUE_DARK,
     [COOKIE_BALANCE]: cookies.get(COOKIE_BALANCE) ?? COOKIE_BALANCE_VALUE_ENABLED,
   });
 
   const consent = settings[COOKIE_CONSENT] === COOKIE_CONSENT_VALUE_ACCEPTED;
-
-  const darkTheme = settings[COOKIE_THEME] === COOKIE_THEME_VALUE_DARK;
-
   const balance = settings[COOKIE_BALANCE] === COOKIE_BALANCE_VALUE_ENABLED;
+
+  const activeTheme = THEME_OPTIONS.find((t) => t.value === theme) ?? THEME_OPTIONS[1]!;
 
   const onchangeSave = (key: CookiKeys, checked: boolean) => {
     switch (key) {
@@ -47,12 +52,6 @@ export function Prefrences({ cookies }: PrefrencesProps) {
         setSettings((prev) => ({
           ...prev,
           [COOKIE_CONSENT]: checked ? COOKIE_CONSENT_VALUE_ACCEPTED : COOKIE_CONSENT_VALUE_DECLINED,
-        }));
-        break;
-      case COOKIE_THEME:
-        setSettings((prev) => ({
-          ...prev,
-          [COOKIE_THEME]: checked ? COOKIE_THEME_VALUE_DARK : COOKIE_THEME_VALUE_LIGHT,
         }));
         break;
       case COOKIE_BALANCE:
@@ -113,18 +112,41 @@ export function Prefrences({ cookies }: PrefrencesProps) {
           checked={consent}
           onCheckedChange={(checked) => onchangeSave(COOKIE_CONSENT, checked)}
         />
-        <SettingSwitch
-          disabled={loading}
-          title={darkTheme ? 'Dark Theme Enabled' : 'Dark Theme Disabled'}
-          description={
-            darkTheme
-              ? 'Dark theme is enabled to use the website'
-              : 'Dark theme is disabled to use the website'
-          }
-          Icon={darkTheme ? <MoonIcon /> : <SunIcon />}
-          checked={darkTheme}
-          onCheckedChange={(checked) => onchangeSave(COOKIE_THEME, checked)}
-        />
+        <div className="bg-bg-surface flex flex-col gap-4 rounded-xl p-4 md:flex-row md:items-center">
+          <div className="bg-primary/20 text-primary flex size-12 shrink-0 items-center justify-center rounded-lg">
+            <activeTheme.Icon className="size-5" />
+          </div>
+          <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-text-primary text-body font-medium">Appearance</p>
+              <p className="text-text-tertiary text-body-sm">
+                {theme === 'system'
+                  ? 'Following your system preference'
+                  : theme === 'dark'
+                    ? 'Switch to light theme for a brighter interface'
+                    : 'Switch to dark theme for a dimmer interface'}
+              </p>
+            </div>
+            <div className="border-border-light flex shrink-0 overflow-hidden rounded-lg border">
+              {THEME_OPTIONS.map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setTheme(value)}
+                  className={cn(
+                    'duration-smooth flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all',
+                    theme === value
+                      ? 'bg-primary text-white'
+                      : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary',
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <SettingSwitch
           disabled={loading}
           title={balance ? 'Balance Hidden' : 'Balance Visible'}

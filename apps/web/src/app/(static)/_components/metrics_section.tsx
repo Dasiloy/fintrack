@@ -18,7 +18,7 @@ export function MetricsSection() {
         {METRICS.map(({ icon: Icon, stat, label, description }) => (
           <div
             key={label}
-            className="group p-6 rounded-card text-center border border-transparent hover:bg-bg-elevated hover:border-border-subtle transition-all duration-smooth"
+            className="group p-6 rounded-card text-center border border-transparent hover:bg-bg-elevated hover:border-border-light transition-all duration-smooth"
           >
             {/* Icon */}
             <div className="size-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-smooth shadow-card group-hover:shadow-glow">

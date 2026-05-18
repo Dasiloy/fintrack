@@ -40983,6 +40983,7 @@ export namespace Prisma {
   export type SplitWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     transactionId?: string
+    userId_name?: SplitUserIdNameCompoundUniqueInput
     AND?: SplitWhereInput | SplitWhereInput[]
     OR?: SplitWhereInput[]
     NOT?: SplitWhereInput | SplitWhereInput[]
@@ -40996,7 +40997,7 @@ export namespace Prisma {
     transaction?: XOR<TransactionNullableScalarRelationFilter, TransactionWhereInput> | null
     participants?: SplitParticipantListRelationFilter
     settlements?: SplitSettlementListRelationFilter
-  }, "id" | "transactionId">
+  }, "id" | "transactionId" | "userId_name">
 
   export type SplitOrderByWithAggregationInput = {
     id?: SortOrder
@@ -46171,6 +46172,11 @@ export namespace Prisma {
 
   export type SplitParticipantOrderByRelationAggregateInput = {
     _count?: SortOrder
+  }
+
+  export type SplitUserIdNameCompoundUniqueInput = {
+    userId: string
+    name: string
   }
 
   export type SplitCountOrderByAggregateInput = {
