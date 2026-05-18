@@ -71,7 +71,7 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
                 ? 'border-primary/30'
                 : isRegenerating
                   ? 'border-amber-500/30'
-                  : 'border-border-subtle'
+                  : 'border-border-light'
           }`}
         />
         {/* Icon container */}
@@ -85,7 +85,7 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
                   ? 'border-amber-500/30 bg-amber-500/10'
                   : isSetup
                     ? 'border-primary/30 bg-primary/10'
-                    : 'border-border-subtle bg-bg-surface'
+                    : 'border-border-light bg-bg-surface'
           }`}
         >
           {isEnabled ? (
@@ -144,7 +144,7 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
                       ? 'bg-success text-white'
                       : isCurrent
                         ? 'bg-primary text-white'
-                        : 'bg-bg-surface-hover text-text-disabled border-border-subtle border'
+                        : 'bg-bg-surface-hover text-text-disabled border-border-light border'
                   }`}
                 >
                   {isDone ? <Check className="size-3" /> : i + 1}
@@ -168,7 +168,7 @@ function TwoFactorVisual({ state }: { state: TwoFactorState }) {
 
       {/* Info blurb — only on disabled state */}
       {state === 'disabled' && (
-        <div className="border-border-subtle bg-bg-surface rounded-lg border px-4 py-3">
+        <div className="border-border-light bg-bg-surface rounded-lg border px-4 py-3">
           <p className="text-text-tertiary text-xs leading-relaxed">
             2FA adds a second verification step at login. Even if your password is stolen, your
             account stays safe.
@@ -278,7 +278,7 @@ function SetupScanStep({
             <p className="text-text-secondary mb-1.5 text-xs font-medium">
               Can&apos;t scan? Enter this key manually:
             </p>
-            <div className="border-border-subtle bg-bg-surface flex items-center gap-2 rounded-lg border px-3 py-2">
+            <div className="border-border-light bg-bg-surface flex items-center gap-2 rounded-lg border px-3 py-2">
               <code className="text-text-primary min-w-0 flex-1 font-mono text-xs tracking-widest break-all">
                 {secret.match(/.{1,4}/g)?.join(' ')}
               </code>
@@ -383,7 +383,7 @@ function BackupCodesStep({ codes, onDone }: { codes: string[]; onDone: () => voi
         </p>
       </div>
 
-      <div className="bg-bg-surface border-border-subtle mb-5 grid grid-cols-2 gap-2 rounded-lg border p-4">
+      <div className="bg-bg-surface border-border-light mb-5 grid grid-cols-2 gap-2 rounded-lg border p-4">
         {codes.map((code) => (
           <code key={code} className="text-text-primary font-mono text-sm tracking-widest">
             {code}

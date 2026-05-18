@@ -158,7 +158,7 @@ export function NotificationPrefrences() {
       description="Manage your account notification preferences"
       Icon={<Image width={20} height={20} alt="Prefrences" src="/bell.svg" />}
     >
-      <table className="border-border-subtle w-full overflow-hidden border">
+      <table className="border-border-light w-full overflow-hidden border">
         <thead className="bg-bg-surface">
           <tr className="text-text-secondary text-body-lg">
             <th className="px-4 py-4 text-left md:px-5">Notification Type</th>
@@ -172,7 +172,7 @@ export function NotificationPrefrences() {
         </thead>
         <tbody className="bg-transparent">
           {grouped.map(({ type, title, description, notifications }) => (
-            <tr key={type} className="border-border-subtle border-b">
+            <tr key={type} className="border-border-light border-b">
               <td className="px-4 py-4 text-left md:px-5">
                 <div className="flex flex-col gap-0.5">
                   <p className="text-text-primary text-body font-medium">{title}</p>

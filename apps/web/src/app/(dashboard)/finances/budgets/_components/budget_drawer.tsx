@@ -187,12 +187,12 @@ export function BudgetDrawer({
                   />
                 </div>
 
-                <Separator className="bg-border-subtle" />
+                <Separator className="bg-border-light" />
 
                 <div>
                   <SectionLabel>Details</SectionLabel>
-                  <div className="border-border-subtle divide-border-subtle divide-y overflow-hidden rounded-lg border">
-                    <div className="divide-border-subtle divide-y px-3">
+                  <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+                    <div className="divide-border-light divide-y px-3">
                       <EditRow label="Name">
                         <input
                           type="text"
@@ -215,7 +215,7 @@ export function BudgetDrawer({
                   </div>
                 </div>
 
-                <Separator className="bg-border-subtle" />
+                <Separator className="bg-border-light" />
 
                 <div className="space-y-4">
                   <SectionLabel>Alerts</SectionLabel>
@@ -328,7 +328,7 @@ export function BudgetDrawer({
                   </div>
                 </div>
 
-                <Separator className="bg-border-subtle" />
+                <Separator className="bg-border-light" />
 
                 {/* Spending */}
                 <Section label="Spending">
@@ -350,7 +350,7 @@ export function BudgetDrawer({
                 {/* History — expandable */}
                 {history.length > 0 && (
                   <>
-                    <Separator className="bg-border-subtle" />
+                    <Separator className="bg-border-light" />
                     <div>
                       <button
                         type="button"
@@ -386,7 +386,7 @@ export function BudgetDrawer({
                                     )}
                                   />
                                   {!isLast && (
-                                    <div className="bg-border-subtle my-1.5 w-px flex-1" />
+                                    <div className="bg-border-light my-1.5 w-px flex-1" />
                                   )}
                                 </div>
                                 {/* Content */}

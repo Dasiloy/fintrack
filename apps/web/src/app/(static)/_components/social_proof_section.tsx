@@ -6,7 +6,7 @@ import { LOGOS } from '../_data';
  */
 export function SocialProofSection() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 md:px-6 mb-32 pb-16 border-b border-border-subtle">
+    <section className="max-w-[1200px] mx-auto px-4 md:px-6 mb-32 pb-16 border-b border-border-light">
       <p className="text-center text-overline text-text-disabled mb-8">
         Trusted by industry leaders
       </p>

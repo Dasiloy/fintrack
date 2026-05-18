@@ -59,7 +59,7 @@ export function FilterToggleGroup<V extends string>({
               'flex-1 cursor-pointer rounded-md border py-2 text-[12px] font-medium transition-all duration-150',
               active
                 ? (opt.activeClassName ?? 'bg-primary/10 border-primary/25 text-primary')
-                : 'border-border-subtle text-text-secondary hover:border-border-light hover:text-text-primary',
+                : 'border-border-light text-text-secondary hover:border-border-light hover:text-text-primary',
             )}
           >
             {opt.label}
@@ -159,7 +159,7 @@ export function FilterTextInput({ label, value, placeholder, onChange }: FilterT
             value={value}
             onChange={(e) => onChange(e.target.value)}
             className={cn(
-              'border-border-subtle bg-bg-surface w-full rounded-md border',
+              'border-border-light bg-bg-surface w-full rounded-md border',
               'text-text-primary placeholder:text-text-disabled px-3 py-2 text-[12px]',
               'focus:border-primary/40 transition-colors focus:outline-none',
             )}
@@ -214,7 +214,7 @@ export function FilterAccountList({ value, onChange, enabled = true }: FilterAcc
                 'flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-all duration-150',
                 active
                   ? 'border-primary/30 bg-primary/6'
-                  : 'border-border-subtle hover:border-border-light hover:bg-bg-surface-hover/50',
+                  : 'border-border-light hover:border-border-light hover:bg-bg-surface-hover/50',
               )}
             >
               {logo ? (

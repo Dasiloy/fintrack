@@ -71,7 +71,7 @@ export function NewsletterCta() {
                   </div>
                   <button
                     onClick={handleSubmit}
-                    className="glossy-button rounded-button text-body text-text-primary shadow-glow whitespace-nowrap px-6 py-3 font-bold"
+                    className="glossy-button rounded-button text-body text-white shadow-glow whitespace-nowrap px-6 py-3 font-bold"
                   >
                     Subscribe
                   </button>

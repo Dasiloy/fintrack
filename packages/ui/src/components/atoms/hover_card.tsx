@@ -24,7 +24,7 @@ function HoverCardContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'bg-bg-elevated text-text-primary border-border-subtle rounded-card shadow-card border',
+          'bg-bg-elevated text-text-primary border-border-light rounded-card shadow-card border',
           'p-space-4 z-50 w-64 origin-(--radix-hover-card-content-transform-origin) outline-hidden',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

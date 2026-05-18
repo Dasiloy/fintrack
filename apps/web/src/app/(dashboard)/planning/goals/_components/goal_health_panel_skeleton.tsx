@@ -13,7 +13,7 @@ export function GoalHealthPanelSkeleton() {
           <Skeleton key={i} className="aspect-square rounded-sm" />
         ))}
       </div>
-      <div className="border-border-subtle space-y-2.5 border-t pt-4">
+      <div className="border-border-light space-y-2.5 border-t pt-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex justify-between">
             <Skeleton className="h-3 w-24 rounded" />

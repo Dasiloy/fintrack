@@ -1,6 +1,6 @@
 'use client';
 
-import { Toaster, TooltipProvider } from '@ui/components';
+import { ThemeProvider, Toaster, TooltipProvider } from '@ui/components';
 import { AppProgressProvider } from '@bprogress/next';
 
 import { CookieConsentProvider } from './cookie_consent_provider';
@@ -9,23 +9,31 @@ import { CookieConsentBanner, GoogleAnalytics, DeviceIdInit } from '@/app/_compo
 
 export default function AppProviver({ children }: React.PropsWithChildren) {
   return (
-    <CookieConsentProvider>
-      <PlanUsageProvider>
-        <TooltipProvider>
-          <AppProgressProvider
-            color="#7c7aff"
-            disableSameURL
-            shallowRouting={false}
-            shouldCompareComplexProps
-          >
-            <Toaster position="top-right" />
-            {children}
-            <CookieConsentBanner />
-            <GoogleAnalytics />
-            <DeviceIdInit />
-          </AppProgressProvider>
-        </TooltipProvider>
-      </PlanUsageProvider>
-    </CookieConsentProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      storageKey="fintrack_theme"
+    >
+      <CookieConsentProvider>
+        <PlanUsageProvider>
+          <TooltipProvider>
+            <AppProgressProvider
+              color="#7c7aff"
+              disableSameURL
+              shallowRouting={false}
+              shouldCompareComplexProps
+            >
+              <Toaster position="top-right" />
+              {children}
+              <CookieConsentBanner />
+              <GoogleAnalytics />
+              <DeviceIdInit />
+            </AppProgressProvider>
+          </TooltipProvider>
+        </PlanUsageProvider>
+      </CookieConsentProvider>
+    </ThemeProvider>
   );
 }
