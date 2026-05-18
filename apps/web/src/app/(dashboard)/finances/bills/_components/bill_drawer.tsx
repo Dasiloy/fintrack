@@ -180,7 +180,7 @@ export function BillDrawer({
                         ? t === 'INCOME'
                           ? 'bg-success/10 border-success/25 text-success'
                           : 'bg-error/10 border-error/25 text-error'
-                        : 'border-border-subtle text-text-secondary hover:border-border-light',
+                        : 'border-border-light text-text-secondary hover:border-border-light',
                     )}
                   >
                     {t === 'INCOME' ? 'Income' : 'Expense'}
@@ -201,13 +201,13 @@ export function BillDrawer({
                 />
               </div>
 
-              <Separator className="bg-border-subtle" />
+              <Separator className="bg-border-light" />
 
               {/* Core fields */}
               <div>
                 <SectionLabel>Details</SectionLabel>
-                <div className="border-border-subtle divide-border-subtle divide-y overflow-hidden rounded-lg border">
-                  <div className="divide-border-subtle divide-y px-3">
+                <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+                  <div className="divide-border-light divide-y px-3">
                     <EditRow label="Name">
                       <input
                         type="text"
@@ -403,7 +403,7 @@ export function BillDrawer({
                 </div>
               </div>
 
-              <Separator className="bg-border-subtle" />
+              <Separator className="bg-border-light" />
 
               {/* Schedule */}
               <Section label="Schedule">

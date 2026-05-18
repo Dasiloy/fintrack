@@ -77,7 +77,7 @@ function ArchivedBudgetItem({
 
 function ArchivedListSkeleton() {
   return (
-    <div className="flex flex-col divide-y divide-border-subtle px-5 py-4">
+    <div className="flex flex-col divide-y divide-border-light px-5 py-4">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 py-3.5">
           <div className="min-w-0 flex-1 space-y-2">
@@ -145,7 +145,7 @@ export function ArchivedBudgetsSheet({ open, onOpenChange }: ArchivedBudgetsShee
                 </p>
               </div>
             ) : (
-              <div className="divide-border-subtle flex flex-col divide-y px-5 py-2">
+              <div className="divide-border-light flex flex-col divide-y px-5 py-2">
                 {archived.map((budget, i) => (
                   <React.Fragment key={budget.id}>
                     <ArchivedBudgetItem
@@ -157,7 +157,7 @@ export function ArchivedBudgetsSheet({ open, onOpenChange }: ArchivedBudgetsShee
                         restoreMutation.variables?.id === budget.id
                       }
                     />
-                    {i < archived.length - 1 && <Separator className="bg-border-subtle" />}
+                    {i < archived.length - 1 && <Separator className="bg-border-light" />}
                   </React.Fragment>
                 ))}
               </div>

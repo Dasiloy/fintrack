@@ -4,7 +4,10 @@ import * as React from 'react';
 import { Archive, Plus } from 'lucide-react';
 import { Button, MonthPicker, toast } from '@ui/components';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { useProGate } from '@/hooks/use_pro_gate';
 import { BudgetCategoryCard } from './budget_card';
 import { BudgetCardSkeleton } from './budget_card_skeleton';
 import { BudgetEmptyState } from './budget_empty_state';
@@ -20,6 +23,7 @@ interface BudgetPageClientProps {
 }
 
 export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
+  const createGate = useProGate(Usage.MAX_BUDGETS);
   const [selectedMonth, setSelectedMonth] = React.useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -52,8 +56,10 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   });
 
   const handleSetBudget = (categoryId: string) => {
-    setPrefilledCategoryId(categoryId);
-    setCreateOpen(true);
+    createGate.triggerGate(() => {
+      setPrefilledCategoryId(categoryId);
+      setCreateOpen(true);
+    });
   };
 
   const handleCreateOpenChange = (open: boolean) => {
@@ -65,7 +71,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
     <div className="flex flex-col">
       {/* ── Page header ── */}
       <PageHeader breadcrumbs={[{ label: 'Finances', href: '/finances' }, { label: 'Budgets' }]}>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
+        <Button size="sm" onClick={() => createGate.triggerGate(() => setCreateOpen(true))}>
           <Plus className="size-3.5" />
           <span className="hidden sm:inline">New Budget</span>
         </Button>
@@ -113,7 +119,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                   {isLoading ? (
                     <BudgetCardSkeleton count={4} />
                   ) : budgets.length === 0 ? (
-                    <BudgetEmptyState month={selectedMonth} onNew={() => setCreateOpen(true)} />
+                    <BudgetEmptyState month={selectedMonth} onNew={() => createGate.triggerGate(() => setCreateOpen(true))} />
                   ) : (
                     budgets.map((budget) => (
                       <BudgetCategoryCard
@@ -189,6 +195,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
       </div>
 
       {/* ── Dialogs / drawers ── */}
+      <ProGateModal feature={Usage.MAX_BUDGETS} open={createGate.open} onClose={createGate.onClose} />
       <ArchivedBudgetsSheet open={archivedOpen} onOpenChange={setArchivedOpen} />
       <CreateCategoryDialog open={createCategoryOpen} onOpenChange={setCreateCategoryOpen} />
       <BudgetFormDialog

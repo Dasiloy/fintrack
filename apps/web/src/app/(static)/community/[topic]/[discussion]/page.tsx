@@ -64,7 +64,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
         </nav>
 
         {/* Post card */}
-        <article className="rounded-card bg-bg-elevated border-border-subtle mb-8 border p-6 sm:p-8">
+        <article className="rounded-card bg-bg-elevated border-border-light mb-8 border p-6 sm:p-8">
           {/* Header */}
           <div className="mb-5 flex items-start gap-4">
             <div className="from-primary/40 to-primary/10 font-manrope text-text-primary flex size-12 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-sm font-bold ring-2 ring-primary/30">
@@ -90,7 +90,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
           <p className="text-body text-text-secondary mb-6 leading-relaxed">{post.body}</p>
 
           {/* Reactions */}
-          <div className="border-border-subtle flex items-center gap-6 border-t pt-4">
+          <div className="border-border-light flex items-center gap-6 border-t pt-4">
             <span className="text-body-sm text-text-secondary flex items-center gap-2">
               <ThumbsUp size={16} className="text-primary" aria-hidden="true" />
               {post.likes} Likes
@@ -112,7 +112,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
             {MOCK_COMMENTS.map(({ initials, authorName, timeAgo, body }) => (
               <div
                 key={authorName}
-                className="rounded-card bg-bg-elevated border-border-subtle flex gap-4 border p-5"
+                className="rounded-card bg-bg-elevated border-border-light flex gap-4 border p-5"
               >
                 <div className="from-primary/30 to-primary/5 font-manrope text-text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-xs font-bold">
                   {initials}
@@ -131,13 +131,13 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
         </section>
 
         {/* Reply CTA */}
-        <div className="glass-card rounded-card border-border-subtle mt-8 border p-6 text-center">
+        <div className="glass-card rounded-card border-border-light mt-8 border p-6 text-center">
           <p className="text-body text-text-secondary mb-4">
             Join the conversation — sign in to reply.
           </p>
           <Link
             href={AUTH_ROUTES.SIGNUP}
-            className="glossy-button rounded-button text-body text-text-primary shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
+            className="glossy-button rounded-button text-body text-white shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
           >
             <LogIn size={15} aria-hidden="true" />
             Sign up to reply

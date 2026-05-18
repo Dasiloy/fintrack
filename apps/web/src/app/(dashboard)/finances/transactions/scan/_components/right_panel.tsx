@@ -72,7 +72,7 @@ export function RightPanel({
 
   if (phase === 'idle') {
     return (
-      <div className="border-border-subtle flex min-h-[160px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed md:min-h-0 md:flex-1">
+      <div className="border-border-light flex min-h-[160px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed md:min-h-0 md:flex-1">
         <div className="bg-bg-surface flex size-14 items-center justify-center rounded-2xl">
           <ScanLine className="text-text-disabled size-7" />
         </div>

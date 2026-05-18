@@ -32,7 +32,7 @@ function DropdownMenuContent({
         sideOffset={sideOffset}
         className={cn(
           // Surface
-          'bg-bg-elevated text-text-primary rounded-card border-border-subtle shadow-card border',
+          'bg-bg-elevated text-text-primary rounded-card border-border-light shadow-card border',
           // Sizing
           'z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-32 overflow-x-hidden overflow-y-auto',
           // Positioning / origin
@@ -191,7 +191,7 @@ function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn('bg-border-subtle -mx-space-1 my-space-1 h-px', className)}
+      className={cn('bg-border-light -mx-space-1 my-space-1 h-px', className)}
       {...props}
     />
   );
@@ -250,7 +250,7 @@ function DropdownMenuSubContent({
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        'bg-bg-elevated text-text-primary rounded-card border-border-subtle shadow-card border',
+        'bg-bg-elevated text-text-primary rounded-card border-border-light shadow-card border',
         'z-50 min-w-32 overflow-hidden',
         'origin-(--radix-dropdown-menu-content-transform-origin)',
         'p-space-1',

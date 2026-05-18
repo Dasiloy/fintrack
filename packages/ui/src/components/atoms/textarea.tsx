@@ -14,7 +14,7 @@ function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
       className={cn(
         // Layout — field-sizing-content lets it grow with content
         'rounded-button field-sizing-content min-h-[88px] w-full',
-        'border-border-subtle bg-bg-surface border',
+        'border-border-light bg-bg-surface border',
         'px-space-4 py-space-3 text-body text-text-primary',
         // Placeholder
         'placeholder:text-text-tertiary',

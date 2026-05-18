@@ -48,3 +48,4 @@ export * from './tooltip';
 export * from './chart';
 export * from './icons';
 export * from './sidebar';
+export * from './theme_provider';

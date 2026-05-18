@@ -13,7 +13,7 @@ export function UnbudgetedCategoryCard({ category, onSetBudget }: UnbudgetedCate
   const color = category.color ?? '#8b8b98';
 
   return (
-    <div className="border-border-subtle bg-bg-surface flex flex-col rounded-xl border border-dashed p-4">
+    <div className="border-border-light bg-bg-surface flex flex-col rounded-xl border border-dashed p-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">

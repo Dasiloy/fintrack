@@ -215,10 +215,10 @@ export function Sidebar({
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
           variant === 'floating'
-            ? 'rounded-card shadow-card top-2 h-[calc(100svh-(--spacing(4)))] border border-white/5'
+            ? 'rounded-card shadow-card top-2 h-[calc(100svh-(--spacing(4)))] border border-border-light'
             : variant === 'inset'
               ? 'rounded-card top-2 h-[calc(100svh-(--spacing(4)))]'
-              : 'border-r border-white/5',
+              : 'border-r border-border-light',
           'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[collapsible=icon]:overflow-hidden',
           className,
         )}
@@ -229,7 +229,7 @@ export function Sidebar({
           data-sidebar="sidebar"
           className="bg-bg-elevated group-data-[variant=floating]:rounded-card flex h-full w-full flex-col"
           style={{
-            background: 'linear-gradient(180deg, #18181D 0%, #0F0F14 100%)',
+            background: 'linear-gradient(180deg, var(--ft-color-bg-elevated) 0%, var(--ft-color-bg-deep) 100%)',
           }}
         >
           {children}
@@ -284,7 +284,7 @@ export function SidebarRail({ className, ...props }: React.ComponentProps<'butto
         'group-data-[side=left]:-right-4 group-data-[side=right]:left-0',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
-        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-white/5',
+        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-bg-surface-hover',
         'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
         className,
       )}
@@ -378,7 +378,7 @@ export function SidebarSeparator({ className, ...props }: React.ComponentProps<t
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn('w-full bg-white/5', className)}
+      className={cn('w-full bg-border-light', className)}
       {...props}
     />
   );
@@ -659,7 +659,7 @@ export function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        'mx-3.5 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-white/10 py-0.5 pl-2.5',
+        'mx-3.5 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-border-light py-0.5 pl-2.5',
         'group-data-[collapsible=icon]:hidden',
         className,
       )}

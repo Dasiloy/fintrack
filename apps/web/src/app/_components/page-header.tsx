@@ -62,9 +62,9 @@ export function PageHeader({
         'sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b px-4',
         'backdrop-blur-glass transition-[background-color,border-color,box-shadow] duration-300',
         scrolled
-          ? 'bg-bg-surface/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_12px_rgba(0,0,0,0.2)]'
-          : 'bg-bg-surface/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
-        online ? 'border-white/5' : 'border-warning/30',
+          ? 'bg-bg-elevated/90 shadow-(--ft-top-highlight)'
+          : 'bg-bg-elevated/80 shadow-none',
+        online ? 'border-border-subtle' : 'border-warning/30',
         className,
       )}
     >

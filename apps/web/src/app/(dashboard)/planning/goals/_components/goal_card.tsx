@@ -233,7 +233,7 @@ export function GoalCard({ goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
               {pct}%
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-border-light">
             <div
               className={cn(
                 'h-full rounded-full transition-all',
@@ -276,7 +276,7 @@ export function GoalCard({ goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
 
         {/* ── Add Funds button ── */}
         {!isCompleted && (
-          <div className="border-border-subtle border-t px-4 py-2.5">
+          <div className="border-border-light border-t px-4 py-2.5">
             <button
               type="button"
               onClick={(e) => {
@@ -291,7 +291,7 @@ export function GoalCard({ goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
           </div>
         )}
         {isCompleted && (
-          <div className="border-border-subtle border-t px-4 py-2.5 text-center">
+          <div className="border-border-light border-t px-4 py-2.5 text-center">
             <span className="text-[11px] font-semibold text-emerald-400">Goal Completed</span>
           </div>
         )}

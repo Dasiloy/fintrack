@@ -209,7 +209,7 @@ export default function PasswordSection() {
               </>
             )}
           </p>
-          <div className="border-border-subtle bg-bg-surface rounded-lg border px-4 py-3">
+          <div className="border-border-light bg-bg-surface rounded-lg border px-4 py-3">
             <p className="text-text-tertiary text-xs leading-relaxed">
               <span className="text-text-secondary font-medium">Tip:</span> Use a password manager
               like 1Password or Bitwarden to generate and store a secure password.

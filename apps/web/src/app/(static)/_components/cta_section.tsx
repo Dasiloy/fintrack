@@ -52,7 +52,7 @@ export function CTASection() {
         <button
           type="submit"
           disabled={!email.trim()}
-          className="glossy-button rounded-button text-body text-text-primary px-6 py-3 font-bold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
+          className="glossy-button rounded-button text-body text-white px-6 py-3 font-bold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
         >
           Get Started
         </button>

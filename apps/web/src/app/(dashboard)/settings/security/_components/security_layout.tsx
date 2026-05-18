@@ -45,7 +45,7 @@ export function SecurityLayout() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* ── Page header + horizontal tab bar ─────────────────────────────── */}
-      <div className="border-border-subtle shrink-0 border-b px-6 pt-6 lg:px-8">
+      <div className="border-border-light shrink-0 border-b px-6 pt-6 lg:px-8">
         {/* Title row */}
         <div className="mb-5">
           <h1 className="text-text-primary text-xl font-semibold">Security</h1>

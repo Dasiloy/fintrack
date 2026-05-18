@@ -11,7 +11,7 @@ export function HeroSection() {
   return (
     <section className="mx-auto mb-24 max-w-[1200px] px-4 text-center md:px-6">
       {/* Live badge */}
-      <div className="bg-bg-elevated border-border-subtle text-overline text-primary mb-8 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+      <div className="bg-bg-elevated border-border-light text-overline text-primary mb-8 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
         <span className="relative flex h-2 w-2">
           <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
           <span className="bg-primary relative inline-flex h-2 w-2 rounded-full" />
@@ -22,7 +22,7 @@ export function HeroSection() {
       {/* Headline */}
       <h1 className="font-manrope text-text-primary mb-6 text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-[72px]">
         Master Your Money <br />
-        <span className="to-primary bg-linear-to-r from-white bg-clip-text text-transparent">
+        <span className="to-primary bg-linear-to-r from-gradient-text-from bg-clip-text text-transparent">
           With Intelligent Insight
         </span>
       </h1>
@@ -37,7 +37,7 @@ export function HeroSection() {
       <div className="mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row">
         <Link
           href={AUTH_ROUTES.SIGNUP}
-          className="glossy-button rounded-card text-body-lg text-text-primary shadow-glow inline-flex w-auto items-center justify-center gap-2 px-8 py-3.5 font-bold"
+          className="glossy-button rounded-card text-body-lg text-white shadow-glow inline-flex w-auto items-center justify-center gap-2 px-8 py-3.5 font-bold"
         >
           Get Started
           <ArrowRight size={18} />
@@ -61,7 +61,7 @@ function DashboardMockup() {
 
       <div className="flex h-[260px] gap-4 p-5 sm:h-[340px] md:h-[400px] md:p-6">
         {/* Sidebar skeleton */}
-        <div className="bg-bg-elevated rounded-card border-border-subtle hidden w-44 shrink-0 flex-col gap-3 border p-4 sm:flex">
+        <div className="bg-bg-elevated rounded-card border-border-light hidden w-44 shrink-0 flex-col gap-3 border p-4 sm:flex">
           <div className="bg-primary/30 mb-3 size-8 rounded-full" />
           <div className="bg-bg-surface-hover h-2.5 w-24 rounded-full" />
           <div className="bg-bg-surface-hover h-2.5 w-32 rounded-full" />
@@ -73,7 +73,7 @@ function DashboardMockup() {
         {/* Main content */}
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           {/* Top bar */}
-          <div className="bg-bg-elevated rounded-button border-border-subtle flex h-11 shrink-0 items-center justify-between border px-4">
+          <div className="bg-bg-elevated rounded-button border-border-light flex h-11 shrink-0 items-center justify-between border px-4">
             <div className="bg-bg-surface-hover h-3 w-28 rounded-full" />
             <div className="flex gap-2">
               <div className="bg-bg-surface-hover size-7 rounded-full" />
@@ -84,7 +84,7 @@ function DashboardMockup() {
           {/* Content grid */}
           <div className="grid min-h-0 flex-1 grid-cols-3 gap-3">
             {/* Bar chart */}
-            <div className="bg-bg-elevated rounded-card border-border-subtle col-span-3 flex items-end gap-2 overflow-hidden border px-5 pb-5 sm:col-span-2">
+            <div className="bg-bg-elevated rounded-card border-border-light col-span-3 flex items-end gap-2 overflow-hidden border px-5 pb-5 sm:col-span-2">
               {bars.map((h, i) => (
                 <div
                   key={i}
@@ -100,14 +100,14 @@ function DashboardMockup() {
 
             {/* Stat cards */}
             <div className="col-span-3 flex flex-col gap-3 sm:col-span-1">
-              <div className="bg-bg-elevated rounded-card border-border-subtle flex flex-1 flex-col justify-center border p-4">
+              <div className="bg-bg-elevated rounded-card border-border-light flex flex-1 flex-col justify-center border p-4">
                 <p className="text-h3 font-manrope text-text-primary mb-1 font-bold">$12,450</p>
                 <span className="text-caption text-success flex items-center gap-1">
                   <span aria-hidden>↑</span>
                   +14%
                 </span>
               </div>
-              <div className="bg-bg-elevated rounded-card border-border-subtle flex flex-1 flex-col justify-center border p-4">
+              <div className="bg-bg-elevated rounded-card border-border-light flex flex-1 flex-col justify-center border p-4">
                 <p className="text-h3 font-manrope text-text-primary mb-1 font-bold">85%</p>
                 <p className="text-caption text-text-tertiary">Goal Reached</p>
               </div>

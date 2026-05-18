@@ -106,7 +106,7 @@ function PaceDetails({ goal, remaining }: { goal: Goal; remaining: number }) {
   const valueCls = 'text-text-primary text-[11px] font-semibold tabular-nums';
 
   return (
-    <div className="border-border-subtle w-full divide-y divide-white/5 rounded-lg border px-3">
+    <div className="border-border-light w-full divide-y divide-border-light rounded-lg border px-3">
       <div className={rowCls}>
         <span className={labelCls}>
           <Clock className="size-3" />
@@ -304,8 +304,8 @@ export function GoalDrawer({
               <div className="flex flex-col gap-5 px-6 py-6">
                 <div>
                   <SectionLabel>Details</SectionLabel>
-                  <div className="border-border-subtle divide-border-subtle divide-y overflow-hidden rounded-lg border">
-                    <div className="divide-border-subtle divide-y px-3">
+                  <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+                    <div className="divide-border-light divide-y px-3">
                       <EditRow label="Name">
                         <input
                           type="text"
@@ -378,7 +378,7 @@ export function GoalDrawer({
                   </div>
                 </div>
 
-                <Separator className="bg-border-subtle" />
+                <Separator className="bg-border-light" />
 
                 {/* Status control */}
                 <div>
@@ -460,7 +460,7 @@ export function GoalDrawer({
                   <PaceDetails goal={goal} remaining={remaining} />
                 )}
 
-                <Separator className="bg-border-subtle" />
+                <Separator className="bg-border-light" />
 
                 {/* Details */}
                 <Section label="Details">
@@ -473,7 +473,7 @@ export function GoalDrawer({
                 {/* Add Funds */}
                 {!isCompleted && (
                   <>
-                    <Separator className="bg-border-subtle" />
+                    <Separator className="bg-border-light" />
                     <div>
                       <button
                         type="button"
@@ -491,7 +491,7 @@ export function GoalDrawer({
                         )}
                       </button>
                       {addFundsOpen && (
-                        <div className="border-border-subtle mt-3 rounded-lg border p-3">
+                        <div className="border-border-light mt-3 rounded-lg border p-3">
                           <GoalContributionForm
                             goalId={goal.id}
                             remainingAmount={remaining}
@@ -507,7 +507,7 @@ export function GoalDrawer({
                 {/* Contributions list */}
                 {(goal.contributions ?? []).length > 0 && (
                   <>
-                    <Separator className="bg-border-subtle" />
+                    <Separator className="bg-border-light" />
                     <div>
                       <p className="text-text-disabled mb-3 text-[10px] font-semibold tracking-wider uppercase">
                         Contributions ({goal.contributions.length})
@@ -518,7 +518,7 @@ export function GoalDrawer({
                           .map((c) => (
                             <li
                               key={c.id}
-                              className="border-border-subtle flex items-start justify-between gap-2 rounded-lg border p-3"
+                              className="border-border-light flex items-start justify-between gap-2 rounded-lg border p-3"
                             >
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-baseline gap-2">

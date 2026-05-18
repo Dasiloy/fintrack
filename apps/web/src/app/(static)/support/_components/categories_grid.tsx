@@ -18,7 +18,7 @@ function CategoryCard({ cat, count }: { cat: SupportCategory; count: number }) {
       />
 
       <div className="relative flex items-start justify-between gap-3">
-        <div className="bg-bg-elevated border-border-subtle rounded-xl border p-3">
+        <div className="bg-bg-elevated border-border-light rounded-xl border p-3">
           <Icon size={20} className={cat.iconClass} aria-hidden="true" />
         </div>
         <ArrowRight

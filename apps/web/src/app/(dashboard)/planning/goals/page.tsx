@@ -4,7 +4,10 @@ import * as React from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@ui/components';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { useProGate } from '@/hooks/use_pro_gate';
 import { GoalCard } from './_components/goal_card';
 import { GoalCardSkeleton } from './_components/goal_card_skeleton';
 import { GoalEmptyState } from './_components/goal_empty_state';
@@ -15,6 +18,7 @@ import { GoalProjectionChart } from './_components/goal_projection_chart';
 
 export default function GoalsPage() {
   const [createOpen, setCreateOpen] = React.useState(false);
+  const createGate = useProGate(Usage.MAX_GOALS);
   const [drawerGoalId, setDrawerGoalId] = React.useState<string | null>(null);
   const [drawerEditMode, setDrawerEditMode] = React.useState(false);
   const [drawerAddFunds, setDrawerAddFunds] = React.useState(false);
@@ -59,7 +63,7 @@ export default function GoalsPage() {
   return (
     <div className="flex flex-col">
       <PageHeader breadcrumbs={[{ label: 'Planning' }, { label: 'Goals' }]}>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
+        <Button size="sm" onClick={() => createGate.triggerGate(() => setCreateOpen(true))}>
           <Plus className="size-3.5" />
           <span className="hidden sm:inline">Create New Goal</span>
         </Button>
@@ -80,7 +84,7 @@ export default function GoalsPage() {
           {goalsLoading ? (
             <GoalCardSkeleton count={4} />
           ) : goals.length === 0 ? (
-            <GoalEmptyState onNew={() => setCreateOpen(true)} />
+            <GoalEmptyState onNew={() => createGate.triggerGate(() => setCreateOpen(true))} />
           ) : (
             goals.map((goal) => (
               <GoalCard
@@ -96,6 +100,7 @@ export default function GoalsPage() {
       </div>
 
       <GoalFormDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <ProGateModal feature={Usage.MAX_GOALS} open={createGate.open} onClose={createGate.onClose} />
 
       <GoalDrawer
         goalId={drawerGoalId}

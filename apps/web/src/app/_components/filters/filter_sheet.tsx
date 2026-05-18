@@ -19,7 +19,7 @@ function DefaultFilterTrigger({
       type="button"
       onClick={onClick}
       className={cn(
-        'cursor-pointer border-border-subtle hover:border-border-light flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-medium transition-colors',
+        'cursor-pointer border-border-light hover:border-border-light flex h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-medium transition-colors',
         activeCount > 0 ? 'text-primary' : 'text-text-secondary hover:text-text-primary',
       )}
     >
@@ -99,7 +99,7 @@ export function FilterSheet<T>({
         className="flex w-72 flex-col gap-0 overflow-hidden p-0"
       >
         {/* Header */}
-        <div className="border-border-subtle flex shrink-0 items-center justify-between border-b px-5 py-4">
+        <div className="border-border-light flex shrink-0 items-center justify-between border-b px-5 py-4">
           <span className="text-text-primary text-[13px] font-semibold">{title}</span>
           <div className="flex items-center gap-3">
             {draftCount > 0 && (
@@ -127,12 +127,12 @@ export function FilterSheet<T>({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-border-subtle flex shrink-0 gap-2 border-t px-5 py-4">
+        <div className="border-border-light flex shrink-0 gap-2 border-t px-5 py-4">
           <button
             type="button"
             onClick={handleClose}
             className={cn(
-              'cursor-pointer rounded-button border-border-subtle h-9 flex-1 border text-[12px] font-medium',
+              'cursor-pointer rounded-button border-border-light h-9 flex-1 border text-[12px] font-medium',
               'text-text-secondary hover:text-text-primary hover:border-border-light transition-colors',
             )}
           >

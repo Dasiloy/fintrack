@@ -11,7 +11,7 @@ export function AboutCta() {
   return (
     <section className="mx-auto mb-32 max-w-[800px] px-4 text-center md:px-6">
       {/* Divider */}
-      <div className="border-border-subtle mx-auto mb-16 w-16 border-t" />
+      <div className="border-border-light mx-auto mb-16 w-16 border-t" />
 
       <h2 className="font-manrope text-text-primary mb-5 text-3xl font-bold tracking-tight sm:text-4xl">
         Join us on the journey
@@ -24,7 +24,7 @@ export function AboutCta() {
 
       <Link
         href={AUTH_ROUTES.SIGNUP}
-        className="glossy-button rounded-card text-body-lg text-text-primary shadow-glow inline-flex items-center gap-2 px-8 py-3.5 font-bold"
+        className="glossy-button rounded-card text-body-lg text-white shadow-glow inline-flex items-center gap-2 px-8 py-3.5 font-bold"
       >
         Get Started — it's free
         <ArrowRight size={18} aria-hidden="true" />

@@ -104,7 +104,7 @@ export default function SessionsSection() {
         </div>
 
         {sessions.length === 0 ? (
-          <div className="border-border-subtle flex flex-col items-center gap-2 rounded-lg border border-dashed py-8 text-center">
+          <div className="border-border-light flex flex-col items-center gap-2 rounded-lg border border-dashed py-8 text-center">
             <WifiOff className="text-text-disabled size-5" />
             <p className="text-text-secondary text-sm font-medium">No active sessions</p>
             <p className="text-text-disabled text-xs">
@@ -145,7 +145,7 @@ export default function SessionsSection() {
         </div>
 
         {activities.length === 0 ? (
-          <div className="border-border-subtle flex flex-col items-center gap-2 rounded-lg border border-dashed py-8 text-center">
+          <div className="border-border-light flex flex-col items-center gap-2 rounded-lg border border-dashed py-8 text-center">
             <Globe className="text-text-disabled size-5" />
             <p className="text-text-secondary text-sm font-medium">No login history yet</p>
             <p className="text-text-disabled text-xs">
@@ -153,7 +153,7 @@ export default function SessionsSection() {
             </p>
           </div>
         ) : (
-          <div className="space-y-0 overflow-hidden rounded-lg border border-white/5">
+          <div className="space-y-0 overflow-hidden rounded-lg border border-border-light">
             {activities.map((row) => {
               const isSuccess = row.status === 'SUCCESS';
               return <LoginActivityItem key={row.id} loginActivity={row as LoginActivity} />;

@@ -27,7 +27,7 @@ export function CommunityHero({ query, onQueryChange }: CommunityHeroProps) {
 
         <div className="relative z-10 flex flex-col items-center gap-6">
           {/* Live badge */}
-          <div className="bg-bg-elevated border-border-subtle text-overline text-primary inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+          <div className="bg-bg-elevated border-border-light text-overline text-primary inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
             <span className="relative flex h-2 w-2">
               <span className="bg-primary absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
               <span className="bg-primary relative inline-flex h-2 w-2 rounded-full" />

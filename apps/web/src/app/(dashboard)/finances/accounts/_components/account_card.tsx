@@ -89,7 +89,7 @@ export function AccountCard({
       </div>
 
       {/* Divider */}
-      <div className="bg-border-subtle mx-4 h-px" />
+      <div className="bg-border-light mx-4 h-px" />
 
       {/* Bottom row */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">

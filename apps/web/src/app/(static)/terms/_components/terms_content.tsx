@@ -43,7 +43,7 @@ export function TermsContent() {
       </div>
 
       {/* Footer note */}
-      <div className="glass-card rounded-card border-border-subtle mt-16 mb-8 border p-6">
+      <div className="glass-card rounded-card border-border-light mt-16 mb-8 border p-6">
         <p className="text-body-sm text-text-secondary leading-relaxed">
           By using FinTrack you confirm you have read, understood, and agree to these Terms of
           Service. For our data practices, see the{' '}
