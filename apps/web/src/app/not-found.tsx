@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, Home } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { Logo } from '@/app/_components';
@@ -40,7 +40,7 @@ export default function NotFound() {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href={STATIC_ROUTES.HOME}
-            className="glossy-button rounded-button text-body text-text-primary shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
+            className="glossy-button rounded-button text-body shadow-glow inline-flex items-center gap-2 px-6 py-2.5 font-bold"
           >
             <Home size={16} aria-hidden="true" />
             Go home

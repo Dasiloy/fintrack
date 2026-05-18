@@ -69,7 +69,7 @@ export function GoalHealthPanel({ aggregate, isLoading }: GoalHealthPanelProps) 
                 <div
                   key={cell.month}
                   title={`${monthLabel(cell.month)}: ${formatCurrency(cell.amount)}`}
-                  className="border-border-subtle aspect-square rounded-sm border"
+                  className="border-border-light aspect-square rounded-sm border"
                   style={{
                     background:
                       intensity > 0
@@ -91,7 +91,7 @@ export function GoalHealthPanel({ aggregate, isLoading }: GoalHealthPanelProps) 
 
       {/* ── Stats block ── */}
       {aggregate && (
-        <div className="border-border-subtle divide-border-subtle divide-y border-t pt-4">
+        <div className="border-border-light divide-border-light divide-y border-t pt-4">
           <StatRow label="Avg. monthly" value={formatCurrency(aggregate.avgMonthlyContribution)} />
           <StatRow
             label="On track"

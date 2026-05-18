@@ -54,7 +54,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Article header */}
         <article>
           {/* Category pill */}
-          <div className="bg-bg-elevated border-border-subtle text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+          <div className="bg-bg-elevated border-border-light text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
             {post.category}
           </div>
 
@@ -64,7 +64,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </h1>
 
           {/* Meta row */}
-          <div className="border-border-subtle mb-8 flex flex-wrap items-center gap-4 border-b pb-8">
+          <div className="border-border-light mb-8 flex flex-wrap items-center gap-4 border-b pb-8">
             <div className="flex items-center gap-2.5">
               <div className="from-primary/40 to-primary/10 text-text-primary font-manrope flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-xs font-bold ring-2 ring-primary/20">
                 {post.initials}
@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Related posts */}
         {related.length > 0 && (
           <section className="mt-16" aria-label="Keep reading">
-            <div className="border-border-subtle mb-8 flex items-center justify-between border-t pt-8">
+            <div className="border-border-light mb-8 flex items-center justify-between border-t pt-8">
               <h2 className="font-manrope text-text-primary text-xl font-bold">Keep Reading</h2>
               <Link
                 href={STATIC_ROUTES.BLOG}
@@ -128,7 +128,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <Link
                     key={p.slug}
                     href={`${STATIC_ROUTES.BLOG}/${p.slug}`}
-                    className="group rounded-card bg-bg-elevated border-border-subtle hover:border-primary/25 flex flex-col overflow-hidden border transition-all duration-smooth hover:-translate-y-0.5"
+                    className="group rounded-card bg-bg-elevated border-border-light hover:border-primary/25 flex flex-col overflow-hidden border transition-all duration-smooth hover:-translate-y-0.5"
                   >
                     <div
                       className={`relative flex h-32 w-full items-center justify-center bg-linear-to-br ${p.gradientFrom} ${p.gradientTo}`}
@@ -207,7 +207,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
           {block.items.map((item) => (
             <li
               key={item.title}
-              className="rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover flex items-start gap-3 border px-4 py-3.5 transition-colors duration-smooth"
+              className="rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover flex items-start gap-3 border px-4 py-3.5 transition-colors duration-smooth"
             >
               <span className="bg-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full">
                 <Check size={12} className="text-white" aria-hidden="true" />

@@ -47,7 +47,7 @@ function MonthPickerTrigger({
   onOpenChange,
 }: MonthPickerTriggerProps) {
   return (
-    <div className="border-border-subtle bg-bg-surface flex items-center rounded-lg border">
+    <div className="border-border-light bg-bg-surface flex items-center rounded-lg border">
       <button
         type="button"
         onClick={onPrevMonth}

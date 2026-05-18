@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Team Dinner",
+    "amount": 45000,
+    "status": "SETTLED",
+    "createdAt": "2026-02-14",
+    "participants": [
+      { "name": "Tunde Adeyemi", "email": "tunde.adeyemi@example.com", "amount": 15000 },
+      { "name": "Chisom Okafor", "email": "chisom.okafor@example.com", "amount": 15000 },
+      { "name": "Bola Afolabi",  "email": "bola.afolabi@example.com",  "amount": 15000 }
+    ],
+    "settlements": [
+      { "participantIndex": 0, "paidAmount": 15000, "paidAt": "2026-02-15" },
+      { "participantIndex": 1, "paidAmount": 15000, "paidAt": "2026-02-16" },
+      { "participantIndex": 2, "paidAmount": 15000, "paidAt": "2026-02-17" }
+    ]
+  },
+  {
+    "name": "Lagos Road Trip",
+    "amount": 120000,
+    "status": "PARTIALLY_SETTLED",
+    "createdAt": "2026-03-10",
+    "participants": [
+      { "name": "Emeka Nwosu",    "email": "emeka.nwosu@example.com",    "amount": 40000 },
+      { "name": "Fatima Bello",   "email": "fatima.bello@example.com",   "amount": 40000 },
+      { "name": "Seun Adesanya",  "email": "seun.adesanya@example.com",  "amount": 40000 }
+    ],
+    "settlements": [
+      { "participantIndex": 0, "paidAmount": 40000, "paidAt": "2026-03-15" }
+    ]
+  },
+  {
+    "name": "Office Supplies",
+    "amount": 28500,
+    "status": "OPEN",
+    "createdAt": "2026-05-01",
+    "participants": [
+      { "name": "Yemi Oduola",   "email": "yemi.oduola@example.com",   "amount": 9500 },
+      { "name": "Kemi Adebayo",  "email": "kemi.adebayo@example.com",  "amount": 9500 },
+      { "name": "Dayo Okonkwo",  "email": "dayo.okonkwo@example.com",  "amount": 9500 }
+    ],
+    "settlements": []
+  }
+]

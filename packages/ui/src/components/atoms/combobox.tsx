@@ -82,7 +82,7 @@ const ComboboxInput = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'gap-space-2 rounded-button border-border-subtle bg-bg-surface flex h-10 items-center border',
+        'gap-space-2 rounded-button border-border-light bg-bg-surface flex h-10 items-center border',
         'px-space-3 duration-smooth transition-all',
         'focus-within:ring-primary/50 focus-within:border-primary/30 focus-within:ring-2',
         'has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50',
@@ -142,7 +142,7 @@ function ComboboxContent({
           className={cn(
             // Surface
             'bg-bg-elevated text-text-primary',
-            'rounded-card border-border-subtle shadow-card border',
+            'rounded-card border-border-light shadow-card border',
             // Sizing
             'group/combobox-content relative max-h-96 overflow-hidden',
             'w-(--anchor-width) max-w-(--available-width)',
@@ -306,7 +306,7 @@ function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.
   return (
     <ComboboxPrimitive.Separator
       data-slot="combobox-separator"
-      className={cn('bg-border-subtle -mx-1 my-1 h-px', className)}
+      className={cn('bg-border-light -mx-1 my-1 h-px', className)}
       {...props}
     />
   );
@@ -327,7 +327,7 @@ function ComboboxChips({
       data-slot="combobox-chips"
       className={cn(
         'gap-space-2 rounded-button flex min-h-10 flex-wrap items-center',
-        'border-border-subtle bg-bg-surface border bg-clip-padding',
+        'border-border-light bg-bg-surface border bg-clip-padding',
         'px-space-3 py-space-2 text-body duration-smooth shadow-none transition-all',
         'focus-within:border-primary/30 focus-within:ring-primary/50 focus-within:ring-2',
         'has-aria-invalid:border-error has-aria-invalid:ring-error/20 has-aria-invalid:ring-2',

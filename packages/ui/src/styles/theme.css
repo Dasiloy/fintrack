@@ -97,9 +97,18 @@
   --ft-color-text-tertiary: #8b8b98;
   --ft-color-text-disabled: #5a5a68;
 
+  /* Gradient text start (theme-switchable) */
+  --ft-gradient-text-from: #ffffff;
+
   /* Effects */
   --ft-blur-glass: 20px;
   --ft-blur-input: 10px;
+
+  /* Effect helpers (theme-switchable) */
+  --ft-glass-border: rgba(255, 255, 255, 0.05);
+  --ft-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ft-input-border: rgba(255, 255, 255, 0.10);
+  --ft-top-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   /* Shadows */
   --ft-shadow-card: 0 4px 12px -4px rgba(0, 0, 0, 0.25), inset 0 1px 0px rgba(255, 255, 255, 0.03);
@@ -114,6 +123,35 @@
   --ft-chart-line-thickness: 2px;
   --ft-chart-bar-spacing: 12px;
   --ft-chart-donut-thickness: 24px;
+}
+
+/* ── Light mode overrides ── */
+.light {
+  color-scheme: light;
+
+  --ft-color-bg-deep: #f4f4f5;
+  --ft-color-bg-elevated: #ffffff;
+  --ft-color-bg-surface: #fafafa;
+  --ft-color-bg-surface-hover: #f0f0f0;
+
+  --ft-color-border-subtle: transparent;
+  --ft-color-border-light: #e0e0e0;
+  --ft-color-divider: #ececec;
+
+  --ft-color-text-primary: #0f0f14;
+  --ft-color-text-secondary: #3d3d4e;
+  --ft-color-text-tertiary: #6b6b7a;
+  --ft-color-text-disabled: #9b9baa;
+
+  --ft-shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --ft-shadow-glow: 0 0 20px rgba(124, 122, 255, 0.2);
+  --ft-shadow-glow-hover: 0 0 30px rgba(124, 122, 255, 0.35);
+
+  --ft-glass-border: transparent;
+  --ft-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --ft-input-border: rgba(0, 0, 0, 0.12);
+  --ft-top-highlight: inset 0 1px 0 rgba(0, 0, 0, 0.04);
+  --ft-gradient-text-from: var(--ft-color-primary-dark);
 }
 
 @theme inline {
@@ -223,6 +261,9 @@
   /* Transitions */
   --duration-smooth: var(--ft-duration-smooth);
   --ease-smooth: var(--ft-ease-smooth);
+
+  /* Gradient text */
+  --color-gradient-text-from: var(--ft-gradient-text-from);
 }
 
 @keyframes alert-progress {
@@ -300,15 +341,24 @@
   text-transform: uppercase;
 }
 
+/* Unlayered — wins over all @layer rules including utilities */
+[data-slot="button"][data-variant="default"],
+[data-slot="button"][data-variant="destructive"] {
+  color: #ffffff;
+}
+
 @layer utilities {
   .glass-card {
-    @apply bg-bg-surface/60 backdrop-blur-glass border border-white/5;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    @apply bg-bg-surface/60 backdrop-blur-glass;
+    border: 1px solid var(--ft-glass-border);
+    box-shadow: var(--ft-glass-inset);
   }
   .glossy-button {
     @apply from-primary to-primary-dark shadow-glow hover:shadow-glow-hover bg-linear-to-r hover:translate-y-[-2px] active:translate-y-0;
+    color: #ffffff;
   }
   .input-field {
-    @apply bg-bg-surface/60 backdrop-blur-input focus:border-primary focus:ring-primary px-space-4 py-space-3 rounded-button border border-white/10 outline-none focus:ring-1;
+    @apply bg-bg-surface/60 backdrop-blur-input focus:border-primary focus:ring-primary px-space-4 py-space-3 rounded-button outline-none focus:ring-1;
+    border: 1px solid var(--ft-input-border);
   }
 }

@@ -27,7 +27,7 @@ export function DesignPhilosophy() {
         {PHILOSOPHY_CARDS.map(({ icon: Icon, title, description }) => (
           <div
             key={title}
-            className="group rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover hover:border-border-light border p-8 transition-all duration-smooth"
+            className="group rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover hover:border-border-light border p-8 transition-all duration-smooth"
           >
             {/* Icon */}
             <div className="bg-primary/10 text-primary rounded-button mb-5 flex size-12 items-center justify-center group-hover:scale-110 transition-transform duration-smooth">

@@ -118,7 +118,7 @@ export function UploadStep({ onFileAccepted }: UploadStepProps) {
           'transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
           isDragging
             ? 'scale-[1.015] border-primary bg-[rgba(124,122,255,0.06)]'
-            : 'border-border-subtle hover:border-border-light hover:bg-bg-surface/40',
+            : 'border-border-light hover:border-border-light hover:bg-bg-surface/40',
         )}
       >
         {/* Icon container */}

@@ -28,10 +28,10 @@ export function ComparisonTable() {
         Compare plans
       </h2>
 
-      <div className="rounded-card bg-bg-elevated border-border-subtle overflow-hidden border">
+      <div className="rounded-card bg-bg-elevated border-border-light overflow-hidden border">
 
         {/* ── Desktop header (hidden on mobile) ── */}
-        <div className="border-border-subtle bg-bg-deep/40 hidden border-b sm:grid sm:grid-cols-[1fr_160px_160px] sm:px-6 sm:py-4">
+        <div className="border-border-light bg-bg-deep/40 hidden border-b sm:grid sm:grid-cols-[1fr_160px_160px] sm:px-6 sm:py-4">
           <span className="text-body-sm text-text-tertiary font-semibold">Feature</span>
           <span className="text-body-sm text-text-secondary text-center font-semibold">Free</span>
           <span className="text-body-sm text-primary text-center font-semibold">Pro</span>
@@ -46,7 +46,7 @@ export function ComparisonTable() {
               key={row.label}
               className={cn(
                 'ft-compare-row',
-                !isLast && 'border-border-subtle border-b',
+                !isLast && 'border-border-light border-b',
                 idx % 2 === 1 ? 'bg-bg-deep/20' : '',
               )}
               style={{ animationDelay: `${idx * 40 + 100}ms` }}

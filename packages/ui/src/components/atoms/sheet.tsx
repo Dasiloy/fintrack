@@ -62,7 +62,7 @@ function SheetContent({
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
-          "bg-bg-elevated border-border-subtle fixed z-50 flex flex-col shadow-card",
+          "bg-bg-elevated border-border-light fixed z-50 flex flex-col shadow-card",
           "data-[state=open]:animate-in data-[state=closed]:animate-out transition ease-in-out duration-smooth data-[state=closed]:duration-300 data-[state=open]:duration-500",
           "gap-space-4",
           side === "right" &&
@@ -82,7 +82,7 @@ function SheetContent({
         </VisuallyHidden.Root>
         {children}
         {showCloseButton && (
-          <SheetPrimitive.Close className="absolute top-space-4 right-space-4 rounded-button border border-border-subtle bg-bg-surface/80 text-text-tertiary opacity-70 hover:bg-bg-surface hover:text-text-primary hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-hidden disabled:pointer-events-none duration-smooth transition-colors">
+          <SheetPrimitive.Close className="absolute top-space-4 right-space-4 rounded-button border border-border-light bg-bg-surface/80 text-text-tertiary opacity-70 hover:bg-bg-surface hover:text-text-primary hover:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/50 focus:outline-hidden disabled:pointer-events-none duration-smooth transition-colors">
             <XIcon className="size-4" />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>

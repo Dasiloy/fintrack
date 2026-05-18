@@ -132,7 +132,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
         )}
         {amount && <span className="text-text-disabled text-[11px] tabular-nums">{amount}</span>}
         {period && (
-          <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-white/40">
+          <span className="rounded bg-border-light px-1.5 py-0.5 text-[10px] text-text-disabled">
             {period}
           </span>
         )}
@@ -143,7 +143,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   if (d.type === 'goal') {
     const target = fmt(d.goalTargetAmount);
     const statusStyle = d.goalStatus
-      ? (GOAL_STATUS_STYLES[d.goalStatus] ?? 'bg-white/8 text-white/40')
+      ? (GOAL_STATUS_STYLES[d.goalStatus] ?? 'bg-border-light text-text-disabled')
       : null;
 
     return (
@@ -186,7 +186,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   if (d.type === 'split') {
     const amount = fmt(d.splitAmount);
     const statusStyle = d.splitStatus
-      ? (SPLIT_STATUS_STYLES[d.splitStatus] ?? 'bg-white/8 text-white/40')
+      ? (SPLIT_STATUS_STYLES[d.splitStatus] ?? 'bg-border-light text-text-disabled')
       : null;
 
     return (
@@ -237,7 +237,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
 function ActivityRow({ log }: { log: ActivityLogs }) {
   const icon = ENTITY_ICONS[log.entityType] ?? <Activity className="size-3.5" />;
   const iconColor =
-    ENTITY_ICON_COLORS[log.entityType] ?? 'border-white/8 bg-white/3 text-text-tertiary';
+    ENTITY_ICON_COLORS[log.entityType] ?? 'border-border-light bg-bg-surface text-text-tertiary';
   const label = formatEventLabel(log.event);
 
   return (
@@ -292,7 +292,7 @@ export function ActivityFeed() {
 
   if (loading) {
     return (
-      <div className="divide-y divide-white/6">
+      <div className="divide-y divide-border-light">
         {Array.from({ length: 6 }).map((_, i) => (
           <ActivityRowSkeleton key={i} />
         ))}
@@ -310,7 +310,7 @@ export function ActivityFeed() {
   }
 
   return (
-    <div className="divide-y divide-white/6">
+    <div className="divide-y divide-border-light">
       {logs.map((log) => (
         <ActivityRow key={log.id} log={log} />
       ))}

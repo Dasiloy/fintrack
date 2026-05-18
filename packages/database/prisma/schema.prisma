@@ -853,6 +853,7 @@ model Split {
   updatedAt DateTime @updatedAt
 
   @@index([userId, status])
+  @@unique([userId,name])
 }
 
 model SplitParticipant {

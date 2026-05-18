@@ -11,7 +11,7 @@ export function SupportHero({ query, onQueryChange }: SupportHeroProps) {
   return (
     <section className="mx-auto max-w-[1200px] px-4 pb-12 pt-10 md:px-6">
       <div className="text-center">
-        <div className="bg-bg-elevated border-border-subtle text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+        <div className="bg-bg-elevated border-border-light text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
           <LifeBuoy size={13} aria-hidden="true" />
           Help Center
         </div>

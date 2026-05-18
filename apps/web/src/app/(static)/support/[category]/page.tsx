@@ -56,7 +56,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <div className="flex-1 min-w-0">
             {/* Category header */}
             <div className="mb-8 flex items-start gap-4">
-              <div className={`rounded-xl bg-linear-to-br ${cat.gradientClass} border-border-subtle border p-4`}>
+              <div className={`rounded-xl bg-linear-to-br ${cat.gradientClass} border-border-light border p-4`}>
                 <Icon size={24} className={cat.iconClass} aria-hidden="true" />
               </div>
               <div>
@@ -119,7 +119,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                       href={`/support/${other.slug}`}
                       className="glass-card rounded-card group flex items-center gap-3 p-3.5 transition-all duration-smooth hover:shadow-md"
                     >
-                      <div className="bg-bg-elevated border-border-subtle shrink-0 rounded-lg border p-2">
+                      <div className="bg-bg-elevated border-border-light shrink-0 rounded-lg border p-2">
                         <OtherIcon size={14} className={other.iconClass} aria-hidden="true" />
                       </div>
                       <span className="text-body-sm text-text-secondary group-hover:text-text-primary flex-1 font-medium transition-colors duration-smooth">

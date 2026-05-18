@@ -67,7 +67,7 @@ export function SpendingTrendHeader({
           disabled && 'pointer-events-none',
         )}
       >
-        <div className="border-border-subtle flex items-center rounded-lg border p-0.5">
+        <div className="border-border-light flex items-center rounded-lg border p-0.5">
           {(['total', 'category'] as SpendingTrendMode[]).map((m) => (
             <button
               key={m}
@@ -85,7 +85,7 @@ export function SpendingTrendHeader({
           ))}
         </div>
 
-        <div className="border-border-subtle flex items-center rounded-lg border p-0.5">
+        <div className="border-border-light flex items-center rounded-lg border p-0.5">
           {WINDOW_OPTIONS.map((w) => (
             <button
               key={w}

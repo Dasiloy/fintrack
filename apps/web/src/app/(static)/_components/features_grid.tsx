@@ -27,7 +27,7 @@ export function FeaturesGrid() {
         {FEATURES.map(({ icon: Icon, title, description }) => (
           <div
             key={title}
-            className="group p-6 rounded-card bg-bg-elevated border border-border-subtle hover:bg-bg-surface-hover hover:border-border-light transition-all duration-smooth"
+            className="group p-6 rounded-card bg-bg-elevated border border-border-light hover:bg-bg-surface-hover hover:border-border-light transition-all duration-smooth"
           >
             {/* Icon box */}
             <div className="size-10 rounded-button bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-smooth">

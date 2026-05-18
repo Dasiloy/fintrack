@@ -80,7 +80,7 @@ export function LandingNav({ user }: { user: SessionUser }) {
               {user ? (
                 <Link
                   href={DASHBOARD_ROUTES.DASHBOARD}
-                  className="glossy-button text-body text-text-primary shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
+                  className="glossy-button text-body text-white shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
                 >
                   Dashboard
                 </Link>
@@ -94,7 +94,7 @@ export function LandingNav({ user }: { user: SessionUser }) {
                   </Link>
                   <Link
                     href={AUTH_ROUTES.SIGNUP}
-                    className="glossy-button text-body text-text-primary shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
+                    className="glossy-button text-body text-white shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
                   >
                     Get Started
                   </Link>
@@ -128,7 +128,7 @@ export function LandingNav({ user }: { user: SessionUser }) {
               </Link>
             ))}
             {user ? (
-              <div className="border-border-subtle border-t pt-4">
+              <div className="border-border-light border-t pt-4">
                 <Link
                   href={DASHBOARD_ROUTES.DASHBOARD}
                   onClick={() => setOpen.off()}
@@ -139,7 +139,7 @@ export function LandingNav({ user }: { user: SessionUser }) {
               </div>
             ) : (
               <React.Fragment>
-                <div className="border-border-subtle border-t pt-4">
+                <div className="border-border-light border-t pt-4">
                   <Link
                     href={AUTH_ROUTES.LOGIN}
                     onClick={() => setOpen.off()}
@@ -148,11 +148,11 @@ export function LandingNav({ user }: { user: SessionUser }) {
                     Login
                   </Link>
                 </div>
-                <div className="border-border-subtle border-t pt-4">
+                <div className="border-border-light border-t pt-4">
                   <Link
                     href={AUTH_ROUTES.SIGNUP}
                     onClick={() => setOpen.off()}
-                    className="glossy-button text-body text-text-primary shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
+                    className="glossy-button text-body text-white shadow-primary/25 inline-flex items-center rounded-full px-5 py-2 font-bold shadow-lg"
                   >
                     Get Started
                   </Link>
