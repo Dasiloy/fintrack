@@ -28,14 +28,14 @@ export function CommunityCta() {
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={AUTH_ROUTES.SIGNUP}
-              className="glossy-button rounded-card text-body text-text-primary shadow-glow inline-flex w-full items-center justify-center gap-2 px-8 py-3 font-bold sm:w-auto"
+              className="glossy-button rounded-card text-body text-white shadow-glow inline-flex w-full items-center justify-center gap-2 px-8 py-3 font-bold sm:w-auto"
             >
               Sign Up &amp; Join
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
             <Link
               href={AUTH_ROUTES.LOGIN}
-              className="border-border-subtle text-body text-text-secondary hover:bg-bg-elevated hover:text-text-primary duration-smooth inline-flex w-full items-center justify-center gap-2 rounded-lg border bg-transparent px-8 py-3 font-bold transition-all sm:w-auto"
+              className="border-border-light text-body text-text-secondary hover:bg-bg-elevated hover:text-text-primary duration-smooth inline-flex w-full items-center justify-center gap-2 rounded-lg border bg-transparent px-8 py-3 font-bold transition-all sm:w-auto"
             >
               <LogIn size={16} aria-hidden="true" />
               Log In

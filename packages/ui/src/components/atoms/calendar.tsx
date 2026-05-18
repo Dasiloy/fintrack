@@ -23,7 +23,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        'bg-bg-surface group/calendar p-space-3 rounded-card border-border-subtle border',
+        'bg-bg-surface group/calendar p-space-3 rounded-card border-border-light border',
         '[--cell-size:var(--spacing-space-8)]',
         'in-data-[slot=card-content]:border-0 in-data-[slot=card-content]:bg-transparent in-data-[slot=card-content]:p-0',
         'in-data-[slot=popover-content]:border-0 in-data-[slot=popover-content]:bg-transparent in-data-[slot=popover-content]:p-0',
@@ -63,7 +63,7 @@ function Calendar({
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
-          'relative has-focus:border-primary border border-border-subtle has-focus:ring-primary/50 has-focus:ring-2 rounded-button duration-smooth ease-smooth',
+          'relative has-focus:border-primary border border-border-light has-focus:ring-primary/50 has-focus:ring-2 rounded-button duration-smooth ease-smooth',
           defaultClassNames.dropdown_root,
         ),
         dropdown: cn('absolute bg-bg-surface inset-0 opacity-0', defaultClassNames.dropdown),

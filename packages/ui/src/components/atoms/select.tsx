@@ -29,7 +29,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        'gap-space-2 rounded-button border-border-subtle bg-bg-surface px-space-4 py-space-2 text-text-primary flex w-fit items-center justify-between border text-[12px] whitespace-nowrap outline-none',
+        'gap-space-2 rounded-button border-border-light bg-bg-surface px-space-4 py-space-2 text-text-primary flex w-fit items-center justify-between border text-[12px] whitespace-nowrap outline-none',
         "data-placeholder:text-text-tertiary [&_svg:not([class*='text-'])]:text-text-tertiary",
         'focus-visible:border-primary focus-visible:ring-primary/50 focus-visible:ring-2',
         'aria-invalid:border-error aria-invalid:ring-error/20',
@@ -62,7 +62,7 @@ const SelectContent = React.forwardRef<
         ref={ref}
         data-slot="select-content"
         className={cn(
-          'bg-bg-elevated text-text-primary border-border-subtle rounded-card shadow-card border',
+          'bg-bg-elevated text-text-primary border-border-light rounded-card shadow-card border',
           'relative z-50 max-h-(--radix-select-content-available-height) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto',
           'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
@@ -140,7 +140,7 @@ function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn('bg-border-subtle -mx-space-1 my-space-1 pointer-events-none h-px', className)}
+      className={cn('bg-border-light -mx-space-1 my-space-1 pointer-events-none h-px', className)}
       {...props}
     />
   );

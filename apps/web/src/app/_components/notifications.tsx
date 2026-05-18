@@ -116,9 +116,9 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
       }
       className={cn(
         'group relative border-b px-3 py-2.5 transition-colors duration-200 last:border-b-0',
-        isRead ? 'border-white/6 bg-transparent' : 'border-primary/12 bg-transparent',
+        isRead ? 'border-border-light bg-transparent' : 'border-primary/12 bg-transparent',
         nav &&
-          'cursor-pointer outline-none hover:bg-white/3 focus-visible:ring-1 focus-visible:ring-white/20',
+          'cursor-pointer outline-none hover:bg-bg-surface-hover focus-visible:ring-1 focus-visible:ring-border-light',
       )}
     >
       <div className="min-w-0">
@@ -128,7 +128,7 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
               className={cn(
                 'flex size-5.5 shrink-0 items-center justify-center rounded-md border',
                 isRead
-                  ? 'text-text-secondary border-white/8 bg-transparent'
+                  ? 'text-text-secondary border-border-light bg-transparent'
                   : 'border-primary/20 bg-primary/8 text-primary',
               )}
             >
@@ -223,7 +223,7 @@ function EmptyNotificationsState() {
 
 function NotificationItemSkeleton() {
   return (
-    <div className="border-b border-white/6 px-3 py-2.5 last:border-b-0">
+    <div className="border-b border-border-light px-3 py-2.5 last:border-b-0">
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <Skeleton className="size-5.5 rounded-md" />
@@ -260,7 +260,7 @@ function NotificationGroupSkeleton() {
         <Skeleton className="h-3 w-4 rounded-full" />
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/6">
+      <div className="overflow-hidden rounded-2xl border border-border-light">
         <NotificationItemSkeleton />
         <NotificationItemSkeleton />
         <NotificationItemSkeleton />
@@ -299,7 +299,7 @@ export default function Notifications() {
 
   return (
     <div className="from-bg-elevated via-bg-surface to-bg-deep flex h-full w-full flex-col bg-linear-to-b">
-      <div className="sticky top-0 z-10 border-b border-white/6 bg-black/10 px-5 py-5 backdrop-blur-xl">
+      <div className="sticky top-0 z-10 border-b border-border-light bg-bg-elevated/80 px-5 py-5 backdrop-blur-xl">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-text-disabled mb-1 text-[11px] font-semibold tracking-[0.24em] uppercase">
@@ -314,7 +314,7 @@ export default function Notifications() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-white/8 bg-white/4">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-border-light bg-bg-surface">
               <Bell className="text-text-primary size-4" />
             </div>
 
@@ -332,7 +332,7 @@ export default function Notifications() {
         </div>
       </div>
 
-      <div className="scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent flex-1 overflow-y-auto px-4 py-4">
+      <div className="scrollbar-thin scrollbar-thumb-border-subtle scrollbar-track-transparent flex-1 overflow-y-auto px-4 py-4">
         {isPending ? (
           <div className="space-y-6">
             <NotificationGroupSkeleton />
@@ -351,7 +351,7 @@ export default function Notifications() {
                   >
                     {group.title}
                   </h2>
-                  <div className="h-px flex-1 bg-white/8" />
+                  <div className="h-px flex-1 bg-border-light" />
                   <span className="text-text-disabled text-xs">{group.items.length}</span>
                 </div>
 

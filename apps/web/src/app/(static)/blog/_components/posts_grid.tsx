@@ -31,7 +31,7 @@ export function PostsGrid({ posts, hasMore, onLoadMore, isFiltered }: PostsGridP
       `}</style>
 
       {posts.length === 0 ? (
-        <div className="rounded-card bg-bg-elevated border-border-subtle flex flex-col items-center gap-3 border py-24 text-center">
+        <div className="rounded-card bg-bg-elevated border-border-light flex flex-col items-center gap-3 border py-24 text-center">
           <Inbox size={32} className="text-text-disabled" aria-hidden="true" />
           <p className="text-body text-text-secondary">
             {isFiltered ? 'No articles match your search.' : 'No articles yet.'}
@@ -46,7 +46,7 @@ export function PostsGrid({ posts, hasMore, onLoadMore, isFiltered }: PostsGridP
                 <Link
                   key={post.slug}
                   href={`${STATIC_ROUTES.BLOG}/${post.slug}`}
-                  className="ft-blog-card group rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover hover:border-primary/20 flex flex-col overflow-hidden border transition-all duration-smooth hover:-translate-y-1 hover:shadow-[0_8px_28px_rgba(124,122,255,0.1)]"
+                  className="ft-blog-card group rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover hover:border-primary/20 flex flex-col overflow-hidden border transition-all duration-smooth hover:-translate-y-1 hover:shadow-[0_8px_28px_rgba(124,122,255,0.1)]"
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   {/* Gradient image area */}

@@ -87,7 +87,7 @@ function NavItemRow({
           <item.icon />
           <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
           {item.isPro && !isPro && (
-            <Badge className="bg-warning/10 text-warning ml-auto shrink-0 px-1.5 py-0 text-[10px] font-semibold group-data-[collapsible=icon]:hidden">
+            <Badge className="bg-warning/10 text-warning ml-auto shrink-0 border-0 px-1.5 py-0 text-[10px] font-semibold group-data-[collapsible=icon]:hidden">
               Pro
             </Badge>
           )}
@@ -125,7 +125,7 @@ function NavCollapsibleRow({
             side="right"
             align="start"
             sideOffset={6}
-            className="rounded-card-mobile border-border-subtle bg-bg-surface shadow-card w-44 border p-1"
+            className="rounded-card-mobile border-border-light bg-bg-surface shadow-card w-44 border p-1"
           >
             <p className="text-text-disabled px-2 pt-0.5 pb-1 text-[10px] font-medium tracking-wider uppercase">
               {item.title}
@@ -318,7 +318,7 @@ function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="rounded-card-mobile border-border-subtle bg-bg-surface shadow-card w-56 border"
+            className="rounded-card-mobile border-border-light bg-bg-surface shadow-card w-56 border"
             side={isMobile ? 'top' : 'right'}
             align="end"
             sideOffset={8}
@@ -342,7 +342,7 @@ function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
               </div>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator className="bg-border-subtle" />
+            <DropdownMenuSeparator className="bg-border-light" />
 
             <DropdownMenuItem asChild className="py-space-1 cursor-pointer">
               <Link
@@ -366,7 +366,7 @@ function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
               </DropdownMenuItem>
             )}
 
-            <DropdownMenuSeparator className="bg-border-subtle" />
+            <DropdownMenuSeparator className="bg-border-light" />
 
             <DropdownMenuItem
               className="text-error focus:text-error focus:bg-error/10 py-space-2 cursor-pointer"

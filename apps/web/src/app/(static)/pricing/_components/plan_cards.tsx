@@ -59,7 +59,7 @@ export function PlanCards({ session }: PlanCardsProps) {
               'ft-plan-card rounded-card duration-smooth flex flex-col border p-7 transition-all',
               plan.popular
                 ? 'bg-bg-elevated border-primary/40 relative overflow-hidden shadow-[0_0_40px_rgba(124,122,255,0.14)]'
-                : 'bg-bg-elevated border-border-subtle',
+                : 'bg-bg-elevated border-border-light',
             )}
             style={{ animationDelay: `${idx * 120}ms` }}
           >

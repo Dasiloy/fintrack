@@ -107,7 +107,7 @@ function StyledTableColumn<T>({
           column.skeletonClassName,
         )}
       >
-        <div className="bg-border-subtle/40 h-3.5 w-full rounded" />
+        <div className="bg-border-light/50 h-3.5 w-full rounded" />
       </div>
     );
   }
@@ -144,7 +144,7 @@ function StyledTableHeader<T>({
   return (
     <div
       className={cn(
-        'border-border-subtle/60 bg-bg-surface-hover/50 flex items-center gap-4 border-b border-l-[3px] border-l-transparent px-5 py-2.5',
+        'border-border-light/60 bg-bg-surface-hover flex items-center gap-4 border-b border-l-[3px] border-l-transparent px-5 py-2.5',
         className,
       )}
     >
@@ -188,7 +188,7 @@ function StyledTableBody<T>({
 
   if (isLoading) {
     return (
-      <div className={cn('divide-border-subtle/30 flex flex-col divide-y', className)}>
+      <div className={cn('divide-border-light/40 flex flex-col divide-y', className)}>
         {Array.from({ length: skeletonRowCount }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 px-5 py-3.5">
             {columns.map((col) => (
@@ -214,7 +214,7 @@ function StyledTableBody<T>({
   }
 
   return (
-    <div className={cn('divide-border-subtle/25 flex flex-col divide-y', className)}>
+    <div className={cn('divide-border-light/40 flex flex-col divide-y', className)}>
       {React.Children.map(children, (child) =>
         React.isValidElement(child)
           ? React.cloneElement(child as React.ReactElement<any>, {

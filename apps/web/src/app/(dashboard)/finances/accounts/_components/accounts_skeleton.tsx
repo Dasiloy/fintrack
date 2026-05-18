@@ -17,7 +17,7 @@ export function AccountsSkeleton() {
             </div>
             <Skeleton className="h-5 w-16 rounded-full" />
           </div>
-          <div className="bg-border-subtle mx-4 h-px" />
+          <div className="bg-border-light mx-4 h-px" />
           <div className="flex items-center justify-between px-4 py-3">
             <div className="space-y-1.5">
               <Skeleton className="h-5 w-24 rounded-md" />

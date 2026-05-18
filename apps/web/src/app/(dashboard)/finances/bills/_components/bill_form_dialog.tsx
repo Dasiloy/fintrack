@@ -117,7 +117,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
                     ? t === 'INCOME'
                       ? 'bg-success/10 border-success/25 text-success'
                       : 'bg-error/10 border-error/25 text-error'
-                    : 'border-border-subtle text-text-secondary hover:border-border-light',
+                    : 'border-border-light text-text-secondary hover:border-border-light',
                 )}
               >
                 {t === 'INCOME' ? 'Income' : 'Expense'}

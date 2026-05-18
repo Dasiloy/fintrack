@@ -12,7 +12,7 @@ export function LoginActivityItem({ loginActivity }: LoginActivityProps) {
   return (
     <div
       key={loginActivity.id}
-      className="border-border-subtle flex items-center gap-4 border-b px-4 py-3 last:border-0"
+      className="border-border-light flex items-center gap-4 border-b px-4 py-3 last:border-0"
     >
       <span
         className={`size-2 shrink-0 rounded-full ${

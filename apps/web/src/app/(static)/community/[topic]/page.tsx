@@ -48,7 +48,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
         </div>
 
         {/* Topic header card */}
-        <div className={`rounded-card bg-bg-elevated border-border-subtle relative mb-10 overflow-hidden border p-8`}>
+        <div className={`rounded-card bg-bg-elevated border-border-light relative mb-10 overflow-hidden border p-8`}>
           <div
             aria-hidden="true"
             className={`pointer-events-none absolute inset-0 bg-linear-to-br ${gradientClass} opacity-60`}
@@ -79,7 +79,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
 
         {/* Discussion list */}
         {discussions.length === 0 ? (
-          <div className="rounded-card bg-bg-elevated border-border-subtle flex flex-col items-center gap-3 border py-20 text-center">
+          <div className="rounded-card bg-bg-elevated border-border-light flex flex-col items-center gap-3 border py-20 text-center">
             <p className="text-body text-text-secondary">No discussions yet in this topic.</p>
             <p className="text-body-sm text-text-tertiary">Be the first to start the conversation!</p>
           </div>
@@ -89,7 +89,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
               <Link
                 key={slug}
                 href={`${STATIC_ROUTES.COMMUNITY}/${topicSlug}/${slug}`}
-                className="group rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover hover:border-border-light flex flex-col gap-4 border p-5 transition-all duration-smooth hover:-translate-y-0.5 sm:flex-row"
+                className="group rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover hover:border-border-light flex flex-col gap-4 border p-5 transition-all duration-smooth hover:-translate-y-0.5 sm:flex-row"
               >
                 {/* Avatar */}
                 <div className="relative shrink-0 self-start">

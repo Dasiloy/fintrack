@@ -102,7 +102,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* Related in category */}
             {related.length > 0 && (
               <div className="mt-14">
-                <div className="border-border-subtle mb-6 flex items-center justify-between border-t pt-8">
+                <div className="border-border-light mb-6 flex items-center justify-between border-t pt-8">
                   <h2 className="font-manrope text-text-primary text-lg font-bold">
                     More in {cat.title}
                   </h2>

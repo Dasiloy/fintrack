@@ -195,7 +195,7 @@ export function TransactionDrawer({
                         ? t === 'INCOME'
                           ? 'bg-success/10 border-success/25 text-success'
                           : 'bg-error/10 border-error/25 text-error'
-                        : 'border-border-subtle text-text-secondary hover:border-border-light',
+                        : 'border-border-light text-text-secondary hover:border-border-light',
                     )}
                   >
                     {t === 'INCOME' ? 'Income' : 'Expense'}
@@ -216,13 +216,13 @@ export function TransactionDrawer({
                 />
               </div>
 
-              <Separator className="bg-border-subtle" />
+              <Separator className="bg-border-light" />
 
               {/* Core fields */}
               <div>
                 <SectionLabel>Details</SectionLabel>
-                <div className="border-border-subtle divide-border-subtle divide-y overflow-hidden rounded-lg border">
-                  <div className="divide-border-subtle divide-y px-3">
+                <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+                  <div className="divide-border-light divide-y px-3">
                     <EditRow label="Category">
                       <Select
                         value={edit.categorySlug}
@@ -301,7 +301,7 @@ export function TransactionDrawer({
                 <SectionLabel>Notes</SectionLabel>
                 <textarea
                   className={cn(
-                    'border-border-subtle bg-bg-surface text-text-primary placeholder:text-text-disabled',
+                    'border-border-light bg-bg-surface text-text-primary placeholder:text-text-disabled',
                     'focus:border-primary/40 w-full resize-none rounded-md border px-2.5 py-2 text-[12px] transition-colors focus:outline-none',
                   )}
                   rows={4}
@@ -371,7 +371,7 @@ export function TransactionDrawer({
                 </p>
               </div>
 
-              <Separator className="bg-border-subtle" />
+              <Separator className="bg-border-light" />
 
               {/* Core details */}
               <Section label="Details">

@@ -11,7 +11,7 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
       className={cn(
         'rounded-chart size-4 shrink-0',
         // Surface
-        'border-border-subtle border bg-transparent',
+        'border-border-light border bg-transparent',
         // Checked state — filled with primary brand color
         'data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-white',
         // Focus ring

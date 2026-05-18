@@ -66,7 +66,7 @@ export function PrivacyContent() {
             )}
 
             {section.contactBlock && (
-              <div className="glass-card rounded-card border-border-subtle mt-4 inline-block border p-5">
+              <div className="glass-card rounded-card border-border-light mt-4 inline-block border p-5">
                 <p className="text-body text-text-secondary">
                   Email:{' '}
                   <Link
@@ -86,7 +86,7 @@ export function PrivacyContent() {
       </div>
 
       {/* Footer note */}
-      <div className="glass-card rounded-card border-border-subtle mt-16 mb-8 border p-6">
+      <div className="glass-card rounded-card border-border-light mt-16 mb-8 border p-6">
         <p className="text-body-sm text-text-secondary leading-relaxed">
           This Privacy Policy applies alongside our{' '}
           <Link

@@ -851,6 +851,7 @@ model Split {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, name])
   @@index([userId, status])
 }
 

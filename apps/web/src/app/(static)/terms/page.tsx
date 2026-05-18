@@ -47,7 +47,7 @@ export default function TermsPage() {
 
       {/* Divider */}
       <div className="mx-auto mb-12 max-w-[800px] px-4 md:px-6">
-        <div className="border-border-subtle border-t" />
+        <div className="border-border-light border-t" />
       </div>
 
       <TermsContent />

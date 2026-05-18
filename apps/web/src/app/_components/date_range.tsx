@@ -63,7 +63,7 @@ function DateRange({
               'rounded-button flex h-8 items-center gap-2 border px-3 text-[12px] transition-colors duration-150',
               hasDate
                 ? 'border-border-light text-text-primary'
-                : 'border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border-light',
+                : 'border-border-light text-text-tertiary hover:text-text-secondary hover:border-border-light',
             )}
           >
             <CalendarDays className="size-3.5 shrink-0" />
@@ -78,7 +78,7 @@ function DateRange({
           onSelect={(range: any) => onDateSelect(range)}
         />
         {!!(onClear && onApply) && (
-          <div className="border-border-subtle flex items-center justify-end gap-2 border-t px-3 py-2.5">
+          <div className="border-border-light flex items-center justify-end gap-2 border-t px-3 py-2.5">
             {onClear && (
               <button
                 type="button"

@@ -57,7 +57,7 @@ function MethodList({ onSelect }: { onSelect: (key: Method['key']) => void }) {
             'focus-visible:ring-primary/50 focus-visible:ring-2 focus-visible:outline-none',
           )}
         >
-          <span className="bg-bg-surface text-text-secondary border-border-subtle flex size-8 shrink-0 items-center justify-center rounded-lg border">
+          <span className="bg-bg-surface text-text-secondary border-border-light flex size-8 shrink-0 items-center justify-center rounded-lg border">
             {method.icon}
           </span>
           <div className="min-w-0 flex-1">
@@ -107,9 +107,9 @@ export function TransactionMethodChooser({ onManual }: TransactionMethodChooserP
             sideOffset={6}
             contentClassName="w-64 p-0"
             trigger={
-              <Button size="sm" className="gap-1.5 px-2.5 sm:px-4">
+              <Button size="sm" className="gap-1.5 px-2.5 text-white sm:px-3">
                 <Plus className="size-3.5" />
-                <span>Add Transaction</span>
+                <span className="hidden sm:inline">Add Transaction</span>
               </Button>
             }
           >

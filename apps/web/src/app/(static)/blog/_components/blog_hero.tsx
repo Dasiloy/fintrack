@@ -18,7 +18,7 @@ export function BlogHero({ query, onQueryChange, activeCategory, onCategoryChang
     <section className="mx-auto max-w-[1200px] px-4 pb-12 pt-10 md:px-6">
       {/* Headline */}
       <div className="mb-10 md:text-left text-center">
-        <div className="bg-bg-elevated border-border-subtle text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
+        <div className="bg-bg-elevated border-border-light text-overline text-primary mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1.5">
           FinTrack Blog
         </div>
         <h1 className="font-manrope text-text-primary mb-3 text-4xl font-bold tracking-tight md:text-5xl">
@@ -44,7 +44,7 @@ export function BlogHero({ query, onQueryChange, activeCategory, onCategoryChang
                 'rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-smooth',
                 activeCategory === cat.slug
                   ? 'bg-primary text-white shadow-[0_2px_12px_rgba(124,122,255,0.35)]'
-                  : 'bg-bg-elevated border-border-subtle text-text-secondary border hover:border-primary/40 hover:text-text-primary',
+                  : 'bg-bg-elevated border-border-light text-text-secondary border hover:border-primary/40 hover:text-text-primary',
               )}
             >
               {cat.label}

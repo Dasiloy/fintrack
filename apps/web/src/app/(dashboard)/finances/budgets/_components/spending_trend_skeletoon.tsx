@@ -8,7 +8,7 @@ export function SpendingTrendChartSkeleton() {
         {/* Grid lines */}
         <div className="absolute inset-x-[52px] inset-y-2 flex flex-col justify-between">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="border-border-subtle border-t border-dashed opacity-60" />
+            <div key={i} className="border-border-light border-t border-dashed opacity-60" />
           ))}
         </div>
 
