@@ -10,7 +10,12 @@ import {
   FileText,
   Lock,
   MessageSquare,
+  Repeat2,
   Sparkles,
+  Target,
+  UserPlus,
+  Users,
+  Wallet,
 } from 'lucide-react';
 import { Button, Dialog, DialogContent } from '@ui/components';
 import { Usage } from '@fintrack/types/constants/plan.constants';
@@ -61,6 +66,36 @@ const FEATURE_CONFIG: Partial<Record<Usage, FeatureConfig>> = {
       'Go beyond 6 months of history. See year-over-year comparisons and long-term financial trends in full detail.',
     icon: BarChart3,
   },
+  [Usage.MAX_GOALS]: {
+    title: 'More Goals',
+    description:
+      'Free plan allows up to 3 savings goals. Upgrade to Pro for unlimited goals to track every financial milestone.',
+    icon: Target,
+  },
+  [Usage.MAX_BUDGETS]: {
+    title: 'More Budgets',
+    description:
+      'Free plan allows up to 5 budgets. Upgrade to Pro for unlimited budgets across all your spending categories.',
+    icon: Wallet,
+  },
+  [Usage.MAX_RECURRING_ITEMS]: {
+    title: 'More Recurring Bills',
+    description:
+      'Free plan allows up to 5 recurring bills. Upgrade to Pro to track unlimited subscriptions and recurring expenses.',
+    icon: Repeat2,
+  },
+  [Usage.MAX_ACTIVE_SPLITS]: {
+    title: 'More Splits',
+    description:
+      'Free plan allows up to 3 active splits. Upgrade to Pro for unlimited split bills across all your shared expenses.',
+    icon: Users,
+  },
+  [Usage.MAX_PEOPLE_PER_SPLIT]: {
+    title: 'More Participants',
+    description:
+      'Free plan allows up to 3 people per split. Upgrade to Pro to add unlimited participants to any split.',
+    icon: UserPlus,
+  },
 };
 
 const DEFAULT_CONFIG: FeatureConfig = {
@@ -83,7 +118,14 @@ export interface ProGateModalProps {
   imageSrc?: string;
 }
 
-export function ProGateModal({ feature, open, onClose, title, description, imageSrc }: ProGateModalProps) {
+export function ProGateModal({
+  feature,
+  open,
+  onClose,
+  title,
+  description,
+  imageSrc,
+}: ProGateModalProps) {
   const config = FEATURE_CONFIG[feature] ?? DEFAULT_CONFIG;
   const Icon = config.icon;
   const resolvedImage = imageSrc ?? config.imageSrc;
@@ -92,7 +134,7 @@ export function ProGateModal({ feature, open, onClose, title, description, image
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent showCloseButton className="overflow-hidden p-0 sm:max-w-sm">
+      <DialogContent showCloseButton={false} className="overflow-hidden p-0 sm:max-w-sm">
         {/* ── Illustration area ── */}
         {resolvedImage ? (
           <div className="relative h-48 w-full overflow-hidden">
@@ -122,23 +164,20 @@ export function ProGateModal({ feature, open, onClose, title, description, image
 
           {/* Title + description */}
           <div className="flex flex-col gap-1.5">
-            <h2 className="text-text-primary text-[17px] font-semibold leading-snug tracking-tight">
+            <h2 className="text-text-primary text-[17px] leading-snug font-semibold tracking-tight">
               Locked: {resolvedTitle}
             </h2>
-            <p className="text-text-secondary text-[13px] leading-relaxed">
-              {resolvedDescription}
-            </p>
+            <p className="text-text-secondary text-[13px] leading-relaxed">{resolvedDescription}</p>
           </div>
 
           {/* Feature highlight row */}
-          <div className="border-border-subtle bg-bg-surface flex items-center gap-3 rounded-xl border px-3.5 py-3">
+          <div className="border-border-light bg-bg-surface flex items-center gap-3 rounded-xl border px-3.5 py-3">
             <div className="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
               <Icon className="text-primary size-4" />
             </div>
             <p className="text-text-secondary text-[12px] leading-snug">
-              Available on the{' '}
-              <span className="text-text-primary font-semibold">Pro plan</span> — upgrade to
-              unlock {resolvedTitle.toLowerCase()} and more.
+              Available on the <span className="text-text-primary font-semibold">Pro plan</span> —
+              upgrade to unlock {resolvedTitle.toLowerCase()} and more.
             </p>
           </div>
 

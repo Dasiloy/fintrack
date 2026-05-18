@@ -13,9 +13,9 @@ const buttonVariants = cva(
           'bg-linear-to-r from-primary to-primary-dark text-white shadow-glow hover:shadow-glow-hover',
         destructive: 'bg-error text-white hover:bg-error/90 shadow-sm',
         outline:
-          'border border-border-light bg-transparent hover:bg-bg-surface-hover hover:border-primary/50 text-text-primary',
+          'border border-border-light bg-transparent hover:border-primary/50 text-text-primary',
         secondary:
-          'bg-bg-surface-hover text-text-primary hover:bg-bg-surface border border-white/5',
+          'bg-bg-surface text-text-primary hover:bg-bg-surface-hover border border-border-light',
         ghost: 'hover:bg-bg-surface-hover text-text-secondary hover:text-text-primary',
         link: 'text-primary underline-offset-4 hover:underline p-0 h-auto',
       },

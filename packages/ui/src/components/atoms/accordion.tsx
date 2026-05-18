@@ -27,7 +27,7 @@ function AccordionItem({
       data-slot="accordion-item"
       className={cn(
         // Divider using design system border token; last item has no bottom border
-        'border-border-subtle border-b last:border-b-0',
+        'border-border-light border-b last:border-b-0',
         className,
       )}
       {...props}

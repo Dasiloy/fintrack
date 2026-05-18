@@ -17,7 +17,7 @@ const toggleVariants = cva(
       variant: {
         default: "bg-transparent gap-space-2",
         outline:
-          "border border-border-subtle bg-transparent gap-space-2 hover:bg-bg-surface-hover hover:text-text-primary",
+          "border border-border-light bg-transparent gap-space-2 hover:bg-bg-surface-hover hover:text-text-primary",
       },
       size: {
         default: "h-11 px-space-2 min-w-11",

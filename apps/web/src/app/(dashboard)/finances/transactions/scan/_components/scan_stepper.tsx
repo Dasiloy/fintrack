@@ -52,8 +52,8 @@ function StepIndicator({ current }: { current: ScanStep }) {
                   done
                     ? 'bg-primary text-white'
                     : active
-                      ? 'border-primary border bg-[rgba(124,122,255,0.1)] text-[#7C7AFF]'
-                      : 'border-border-subtle bg-bg-surface text-text-disabled border',
+                      ? 'border-primary border bg-primary/10 text-primary'
+                      : 'border-border-light bg-bg-surface text-text-disabled border',
                 )}
               >
                 {done ? <Check className="size-3.5" /> : s.n}
@@ -71,7 +71,7 @@ function StepIndicator({ current }: { current: ScanStep }) {
               <div
                 className={cn(
                   'mx-2.5 mb-5 h-px w-10 transition-colors duration-300',
-                  i < currentIdx ? 'bg-primary' : 'bg-border-subtle',
+                  i < currentIdx ? 'bg-primary' : 'bg-border-light',
                 )}
               />
             )}

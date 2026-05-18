@@ -117,7 +117,7 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
                 title="Custom color"
                 className={cn(
                   'relative size-7 cursor-pointer overflow-hidden rounded-full transition-transform hover:scale-110',
-                  isCustomColor ? '' : 'border-border-subtle border border-dashed',
+                  isCustomColor ? '' : 'border-border-light border border-dashed',
                 )}
                 style={{
                   background: isCustomColor ? color : undefined,

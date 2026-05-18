@@ -50,7 +50,7 @@ export function FeatureHighlightSection() {
           </div>
 
           {/* Right: savings card mockup */}
-          <div className="relative h-[320px] md:h-[380px] rounded-card overflow-hidden bg-bg-elevated border border-border-subtle shadow-glow">
+          <div className="relative h-[320px] md:h-[380px] rounded-card overflow-hidden bg-bg-elevated border border-border-light shadow-glow">
             {/* Dot-grid background pattern */}
             <div
               aria-hidden="true"

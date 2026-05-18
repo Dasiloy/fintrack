@@ -192,7 +192,7 @@ export const splitRouter = createTRPCRouter({
         splitId: z.string().min(1),
         name: z.string().min(1).max(255),
         email: z.string().email().optional(),
-        owedAmount: z.number().min(0),
+        amount: z.number().min(0),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -224,7 +224,7 @@ export const splitRouter = createTRPCRouter({
         participantId: z.string().min(1),
         name: z.string().min(1).max(255).optional(),
         email: z.string().email().optional(),
-        owedAmount: z.number().min(0).optional(),
+        amount: z.number().min(0).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

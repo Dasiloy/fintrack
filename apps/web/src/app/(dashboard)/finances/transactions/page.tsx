@@ -380,7 +380,7 @@ export default function TransactionsPage() {
                         'shrink-0 cursor-pointer border transition-all duration-150',
                         active
                           ? 'bg-primary border-primary text-white'
-                          : 'border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-light',
+                          : 'border-border-light text-text-secondary hover:text-text-primary hover:border-border-light',
                       )}
                     >
                       {color && (
@@ -399,7 +399,7 @@ export default function TransactionsPage() {
 
       {/* ── Transaction list ── */}
       <div className="px-6 pb-6">
-        <div className="glass-card rounded-card border-border-subtle min-h-[480px] overflow-hidden border md:min-h-[660px] 2xl:min-h-[750px]">
+        <div className="glass-card rounded-card border-border-light min-h-[480px] overflow-hidden border md:min-h-[660px] 2xl:min-h-[750px]">
           <StyledTable
             columns={transactionColumns}
             columnHeaderClassName="truncate"
@@ -432,7 +432,7 @@ export default function TransactionsPage() {
                       'group transition-colors duration-150',
                       drawerTxId === tx.id && drawerOpen
                         ? 'bg-bg-surface-hover border-l-primary!'
-                        : 'hover:bg-bg-surface-hover/50',
+                        : 'hover:bg-bg-surface-hover',
                     )
                   }
                 />

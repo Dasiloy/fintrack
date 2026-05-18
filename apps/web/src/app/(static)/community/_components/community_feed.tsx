@@ -48,7 +48,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
 
             {discussions.length === 0 ? (
               /* Empty state */
-              <div className="rounded-card bg-bg-elevated border-border-subtle flex flex-col items-center gap-3 border py-16 text-center">
+              <div className="rounded-card bg-bg-elevated border-border-light flex flex-col items-center gap-3 border py-16 text-center">
                 <Inbox size={32} className="text-text-disabled" />
                 <p className="text-body text-text-secondary">
                   No discussions matched your search.
@@ -63,7 +63,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
                   <Link
                     key={slug}
                     href={`${STATIC_ROUTES.COMMUNITY}/${topicSlug}/${slug}`}
-                    className="ft-discussion-item group rounded-card bg-bg-elevated border-border-subtle hover:bg-bg-surface-hover hover:border-border-light flex flex-col gap-4 border p-5 transition-all duration-smooth hover:-translate-y-0.5 sm:flex-row"
+                    className="ft-discussion-item group rounded-card bg-bg-elevated border-border-light hover:bg-bg-surface-hover hover:border-border-light flex flex-col gap-4 border p-5 transition-all duration-smooth hover:-translate-y-0.5 sm:flex-row"
                     style={{ animationDelay: `${idx * 60}ms` }}
                   >
                     {/* Avatar */}
@@ -120,7 +120,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
               <button
                 type="button"
                 onClick={onLoadMore}
-                className="border-border-subtle text-body text-text-secondary hover:bg-bg-elevated hover:text-text-primary duration-smooth mt-6 w-full rounded-lg border bg-transparent py-3 font-medium transition-all"
+                className="border-border-light text-body text-text-secondary hover:bg-bg-elevated hover:text-text-primary duration-smooth mt-6 w-full rounded-lg border bg-transparent py-3 font-medium transition-all"
               >
                 Load More Discussions
               </button>
@@ -130,7 +130,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
           {/* ── Right: sidebar ────────────────────────────── */}
           <aside className="flex flex-col gap-5">
             {/* Trending Tags */}
-            <div className="rounded-card bg-bg-elevated border-border-subtle border p-5">
+            <div className="rounded-card bg-bg-elevated border-border-light border p-5">
               <h3 className="font-manrope text-text-primary mb-4 flex items-center gap-2 text-lg font-bold">
                 <Flame size={18} className="text-primary" aria-hidden="true" />
                 Trending Tags
@@ -140,7 +140,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
                   <button
                     key={tag}
                     type="button"
-                    className="rounded-card bg-bg-deep border-border-subtle text-body-sm text-text-secondary hover:text-primary hover:border-primary/40 duration-smooth border px-3 py-1.5 transition-all"
+                    className="rounded-card bg-bg-deep border-border-light text-body-sm text-text-secondary hover:text-primary hover:border-primary/40 duration-smooth border px-3 py-1.5 transition-all"
                   >
                     {tag}
                   </button>
@@ -149,7 +149,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
             </div>
 
             {/* Community Stats */}
-            <div className="rounded-card bg-bg-elevated border-border-subtle border p-5">
+            <div className="rounded-card bg-bg-elevated border-border-light border p-5">
               <h3 className="font-manrope text-text-primary mb-4 text-lg font-bold">
                 Community Stats
               </h3>
@@ -169,7 +169,7 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
             </div>
 
             {/* AMA Event */}
-            <div className="from-primary/15 rounded-card border-border-subtle border bg-linear-to-br to-transparent p-5">
+            <div className="from-primary/15 rounded-card border-border-light border bg-linear-to-br to-transparent p-5">
               <div className="mb-3 flex items-center gap-3">
                 <div className="from-primary/40 to-primary/10 font-manrope text-text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-sm font-bold">
                   {AMA_EVENT.initials}

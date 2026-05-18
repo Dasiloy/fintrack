@@ -53,7 +53,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          'bg-bg-elevated border-border-subtle rounded-card shadow-card border',
+          'bg-bg-elevated border-border-light rounded-card shadow-card border',
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2',
           'gap-space-4 p-space-6 sm:max-w-lg',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -70,7 +70,7 @@ function DialogContent({
             data-slot="dialog-close"
             className={cn(
               'top-space-4 right-space-4 absolute inline-flex size-8 items-center justify-center',
-              'rounded-button border-border-subtle bg-bg-surface/80 text-text-tertiary border',
+              'rounded-button border-border-light bg-bg-surface/80 text-text-tertiary border',
               'hover:bg-bg-surface hover:text-text-primary',
               'opacity-70 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50',
               'duration-smooth transition-colors',

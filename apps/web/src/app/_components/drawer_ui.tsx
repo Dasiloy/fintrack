@@ -53,8 +53,8 @@ export function Section({ label, children }: { label: string; children: React.Re
   return (
     <div>
       <SectionLabel>{label}</SectionLabel>
-      <div className="border-border-subtle divide-border-subtle divide-y overflow-hidden rounded-lg border">
-        <div className="divide-border-subtle divide-y px-3">{children}</div>
+      <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+        <div className="divide-border-light divide-y px-3">{children}</div>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export function EditRow({ label, children }: { label: string; children: React.Re
 // ---------------------------------------------------------------------------
 
 export const inputCls = cn(
-  'border-border-subtle bg-bg-surface text-text-primary placeholder:text-text-disabled',
+  'border-border-light bg-bg-surface text-text-primary placeholder:text-text-disabled',
   'focus:border-primary/40 h-8 w-full rounded-md border px-2.5 text-[12px] transition-colors focus:outline-none',
 );
 
@@ -99,7 +99,7 @@ interface DrawerHeaderProps {
 
 export function DrawerHeader({ title, editMode, onEdit, onCancel, onClose }: DrawerHeaderProps) {
   return (
-    <div className="border-border-subtle flex shrink-0 items-center justify-between border-b px-6 py-4">
+    <div className="border-border-light flex shrink-0 items-center justify-between border-b px-6 py-4">
       <span className="text-text-primary text-[13px] font-semibold">{title}</span>
       <div className="flex items-center gap-3">
         {!editMode && onEdit && (
@@ -138,7 +138,7 @@ export function DrawerHeader({ title, editMode, onEdit, onCancel, onClose }: Dra
 
 export function DrawerFooter({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border-border-subtle flex shrink-0 gap-2.5 border-t px-6 py-4">{children}</div>
+    <div className="border-border-light flex shrink-0 gap-2.5 border-t px-6 py-4">{children}</div>
   );
 }
 

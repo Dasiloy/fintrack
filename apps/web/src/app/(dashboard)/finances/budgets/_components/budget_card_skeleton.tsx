@@ -30,7 +30,7 @@ function BudgetCardSkeletonItem() {
           <Skeleton className="h-2.5 w-6 rounded" />
           <Skeleton className="h-3 w-12 rounded" />
         </div>
-        <div className="border-border-subtle mt-1.5 border-t pt-1.5">
+        <div className="border-border-light mt-1.5 border-t pt-1.5">
           <div className="flex items-baseline justify-between gap-1">
             <Skeleton className="h-2.5 w-14 rounded" />
             <Skeleton className="h-3 w-12 rounded" />

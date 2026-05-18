@@ -32,7 +32,7 @@ const FOOTER_COLS = [
 /** Landing page footer — brand column + three link columns + copyright bar. */
 export function LandingFooter() {
   return (
-    <footer className="border-border-subtle bg-bg-deep border-t pt-16 pb-8">
+    <footer className="border-border-light bg-bg-deep border-t pt-16 pb-8">
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         {/* Columns */}
         <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4">
@@ -65,7 +65,7 @@ export function LandingFooter() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-border-subtle flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
+        <div className="border-border-light flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
           <p className="text-caption text-text-disabled">
             &copy; {new Date().getFullYear()} FinTrack Inc. All rights reserved.
           </p>

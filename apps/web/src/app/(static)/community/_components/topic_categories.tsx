@@ -31,7 +31,7 @@ export function TopicCategories() {
           <Link
             key={slug}
             href={`${STATIC_ROUTES.COMMUNITY}/${slug}`}
-            className="group rounded-card bg-bg-elevated border-border-subtle hover:border-primary/30 relative flex h-52 flex-col justify-end overflow-hidden border p-6 transition-all duration-smooth hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(124,122,255,0.12)]"
+            className="group rounded-card bg-bg-elevated border-border-light hover:border-primary/30 relative flex h-52 flex-col justify-end overflow-hidden border p-6 transition-all duration-smooth hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(124,122,255,0.12)]"
             style={{ animationDelay: `${idx * 80}ms` }}
           >
             {/* Gradient layer */}

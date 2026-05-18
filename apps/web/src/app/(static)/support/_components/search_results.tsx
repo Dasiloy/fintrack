@@ -14,7 +14,7 @@ export function SearchResults({ articles, query }: SearchResultsProps) {
     return (
       <div className="mx-auto max-w-[1200px] px-4 pb-20 md:px-6">
         <div className="flex flex-col items-center gap-4 py-20 text-center">
-          <div className="bg-bg-elevated border-border-subtle rounded-2xl border p-5">
+          <div className="bg-bg-elevated border-border-light rounded-2xl border p-5">
             <SearchX size={28} className="text-text-tertiary" aria-hidden="true" />
           </div>
           <div>
@@ -47,7 +47,7 @@ export function SearchResults({ articles, query }: SearchResultsProps) {
               className="glass-card rounded-card group flex items-start gap-4 p-5 transition-all duration-smooth hover:-translate-y-0.5 hover:shadow-md"
             >
               {cat && Icon && (
-                <div className="bg-bg-elevated border-border-subtle mt-0.5 shrink-0 rounded-lg border p-2.5">
+                <div className="bg-bg-elevated border-border-light mt-0.5 shrink-0 rounded-lg border p-2.5">
                   <Icon size={16} className={cat.iconClass} aria-hidden="true" />
                 </div>
               )}
