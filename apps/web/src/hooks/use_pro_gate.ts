@@ -35,5 +35,7 @@ export function useProGate(feature: Usage) {
 
   const onClose = React.useCallback(() => setOpen(false), []);
 
-  return { open, onClose, canUse, triggerGate };
+  const openModal = React.useCallback(() => setOpen(true), []);
+
+  return { open, onClose, canUse, triggerGate, openModal };
 }

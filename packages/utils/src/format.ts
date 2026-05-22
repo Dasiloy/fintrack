@@ -1,16 +1,44 @@
-/**
- * FormatCurrency - format currency in account desired currency
- *
- * Currency can be NGN,USD and others
- * Return Properly formatted currency
- */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-NG', {
+// Language enum value → BCP-47 locale tag
+const LANG_TO_LOCALE: Record<string, string> = {
+  EN_US: 'en-US',
+  EN_GB: 'en-GB',
+  EN: 'en',
+  FR: 'fr-FR',
+  ES: 'es-ES',
+  PT: 'pt-PT',
+  HA_LATN_NG: 'ha-Latn-NG',
+  YO_NG: 'yo-NG',
+  IG_NG: 'ig-NG',
+  SW_KE: 'sw-KE',
+  SW_TZ: 'sw-TZ',
+};
+
+export function langToLocale(lang: string): string {
+  return LANG_TO_LOCALE[lang] ?? 'en-NG';
+}
+
+export function formatCurrency(amount: number, currency = 'NGN', locale = 'en-NG'): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'NGN',
+    currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatDate(
+  date: Date | string,
+  dateFormat: 'DMY' | 'MDY' | 'YMD' = 'DMY',
+  locale = 'en-NG',
+): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  // MDY: use en-US locale so Intl orders month first; for others respect the user locale
+  const l = dateFormat === 'MDY' ? 'en-US' : locale;
+  return new Intl.DateTimeFormat(l, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(d);
 }
 
 /** Strips everything except digits and a single decimal point — use as an onChange filter on text amount inputs */

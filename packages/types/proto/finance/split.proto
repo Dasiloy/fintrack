@@ -94,9 +94,11 @@ message CreateSplitReq {
 }
 
 message UpdateSplitReq {
-  string          id     = 1;
-  optional string name   = 2;
-  optional float  amount = 3;
+  string          id                   = 1;
+  optional string name                 = 2;
+  optional float  amount               = 3;
+  optional string transaction_id       = 4; // UUID — link an EXPENSE transaction
+  optional bool   unlink_transaction   = 5; // true — remove existing transaction link
 }
 
 // ---- Participant ----

@@ -1,15 +1,18 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface UnbudgetedCategoryCardProps {
   category: UnbudgetedCategory;
   onSetBudget: (categoryId: string) => void;
 }
 
-export function UnbudgetedCategoryCard({ category, onSetBudget }: UnbudgetedCategoryCardProps) {
+export function UnbudgetedCategoryCard({
+  category, onSetBudget }: UnbudgetedCategoryCardProps) {
+  const formatCurrency = useFormatCurrency();
   const color = category.color ?? '#8b8b98';
 
   return (

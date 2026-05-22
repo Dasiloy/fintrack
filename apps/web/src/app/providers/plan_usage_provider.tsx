@@ -75,6 +75,10 @@ export function useCanUseFeature(feature: Usage) {
       case Usage.MAX_RECURRING_ITEMS:
         currentUsage = context.resourceCounts.recurringItems;
         break;
+      case Usage.MAX_PEOPLE_PER_SPLIT:
+        // Per-split contextual limit — enforced server-side by the tRPC middleware.
+        // Return true here so the UI doesn't pre-block; the server counts directly from DB.
+        return true;
       default:
         currentUsage = Infinity;
     }

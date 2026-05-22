@@ -28,6 +28,9 @@ export interface RegisterReq {
   password: string;
   firstName: string;
   lastName: string;
+  timezone?: string | undefined;
+  currency?: string | undefined;
+  language?: string | undefined;
 }
 
 export interface RegisterRes {

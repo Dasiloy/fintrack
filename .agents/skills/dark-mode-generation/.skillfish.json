@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "dark-mode-generation",
+  "owner": "flight505",
+  "repo": "storybook-assistant",
+  "path": "skills/dark-mode-generation",
+  "branch": "main",
+  "sha": "cbddebdffe795b99c52e97e42bad4e59ad6e578b",
+  "source": "manual"
+}

@@ -146,4 +146,42 @@ message BatchCreateTransactionsRes {
   int32 skipped = 2;
 }
 
+// Daily expense total for a single calendar day.
+message DailySpending {
+  string date   = 1; // "YYYY-MM-DD"
+  string amount = 2; // decimal string, expense amount only
+}
+
+// Aggregated income and expense for a single calendar month.
+message MonthlyFinancials {
+  string month   = 1; // "YYYY-MM"
+  string income  = 2; // decimal string
+  string expense = 3; // decimal string
+}
+
+message SearchTransactionsReq {
+  string q     = 1; // partial text — union ILIKE across description, merchant, notes, narration
+  string type  = 2; // "EXPENSE" | "INCOME" | "" (all)
+  int32  limit = 3; // default 20, max 50
+}
+
+message SearchTransactionsRes {
+  repeated Transaction transactions = 1;
+}
+
+message GetTransactionSummaryReq {
+  optional int32 months = 1; // how many months of monthly_series to return (server caps per plan)
+}
+
+message GetTransactionSummaryRes {
+  string net_balance        = 1; // all-time income - expense
+  string monthly_income     = 2; // current calendar month INCOME sum
+  string monthly_expense    = 3; // current calendar month EXPENSE sum
+  string monthly_net        = 4; // monthly_income - monthly_expense
+  double balance_change_pct = 5; // ((this_month_net - last_month_net) / |last_month_net|) * 100
+  repeated DailySpending weekly_spending  = 6; // Mon-Sun this week (up to 7 items)
+  repeated DailySpending spending_heatmap = 7; // last 84 days (12 weeks x 7)
+  repeated MonthlyFinancials monthly_series = 8; // last N months for trend charts
+}
+
 

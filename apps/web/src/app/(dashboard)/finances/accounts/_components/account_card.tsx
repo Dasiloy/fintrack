@@ -3,12 +3,13 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { format } from '@fintrack/utils/date';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import { RefreshCw, RotateCcw } from 'lucide-react';
 import { Button } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import type { MonoBankAccount } from '@fintrack/database/types';
 import { bankColor, maskNumber, STATUS_CONFIG } from '@/app/(dashboard)/finances/accounts/helper';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 // ---------------------------------------------------------------------------
 // AccountCard
@@ -31,6 +32,7 @@ export function AccountCard({
   onSync,
   isSyncing,
 }: AccountCardProps) {
+  const formatCurrency = useFormatCurrency();
   const color = bankColor(account.bankName);
   const status = STATUS_CONFIG[account.status];
   const needsRelink = account.status === 'UNAVAILABLE';
@@ -65,7 +67,7 @@ export function AccountCard({
           <p className="text-text-tertiary mt-0.5 text-[12px]">
             {maskNumber(account.accountNumber)}
             <span className="text-text-disabled mx-1.5">·</span>
-            {account.accountType.replace("_"," ")}
+            {account.accountType.replace('_', ' ')}
           </p>
           <p className="text-text-disabled mt-0.5 truncate text-[11px]">{account.accountName}</p>
         </div>
@@ -94,9 +96,6 @@ export function AccountCard({
       {/* Bottom row */}
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <div>
-          <p className="text-text-primary text-[15px] font-semibold tabular-nums">
-            {formatCurrency(account.accountBalance)}
-          </p>
           <p className="text-text-disabled mt-0.5 text-[11px]">
             {account.lastSyncedAt
               ? `Synced ${format(new Date(account.lastSyncedAt), 'MMM D, YYYY')}`

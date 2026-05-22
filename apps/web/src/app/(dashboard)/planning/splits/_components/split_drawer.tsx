@@ -23,7 +23,7 @@ import {
 import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { formatCurrency, onlyNumbers } from '@fintrack/utils/format';
+import { onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
 import type { Split, SplitParticipant } from '@fintrack/types/protos/finance/split';
 import { Usage } from '@fintrack/types/constants/plan.constants';
@@ -40,6 +40,8 @@ import {
   SectionLabel,
 } from '@/app/_components';
 import { progressBarColor, statusLabel, statusVariant, today } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
+import { TransactionPicker, type LinkedTransaction } from './transaction_picker';
 
 // ---------------------------------------------------------------------------
 // Settlement form — expands inline below each participant
@@ -53,7 +55,9 @@ interface SettlementFormProps {
 }
 
 function SettlementForm({ splitId, participantId, maxAmount, onDone }: SettlementFormProps) {
+  const formatCurrency = useFormatCurrency();
   const [amount, setAmount] = React.useState('');
+  const [linkedTx, setLinkedTx] = React.useState<LinkedTransaction | null>(null);
   const [paidAt, setPaidAt] = React.useState<Date>(today());
   const [calOpen, setCalOpen] = React.useState(false);
 
@@ -70,7 +74,7 @@ function SettlementForm({ splitId, participantId, maxAmount, onDone }: Settlemen
     onError: (err) => toast.error('Failed to record payment', { description: err.message }),
   });
 
-  const parsedAmount = parseFloat(amount) || 0;
+  const parsedAmount = linkedTx ? parseFloat(linkedTx.amount) || 0 : parseFloat(amount) || 0;
   const canSubmit = parsedAmount > 0 && parsedAmount <= maxAmount && !mutation.isPending;
 
   return (
@@ -80,14 +84,22 @@ function SettlementForm({ splitId, participantId, maxAmount, onDone }: Settlemen
       </p>
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
-          <input
-            type="text"
-            inputMode="decimal"
-            placeholder={`Amount (max ${formatCurrency(maxAmount)})`}
-            value={amount}
-            onChange={(e) => setAmount(onlyNumbers(e.target.value))}
-            className={cn(inputCls, 'flex-1')}
-          />
+          {linkedTx ? (
+            <input
+              readOnly
+              className={cn(inputCls, 'flex-1 cursor-not-allowed opacity-70')}
+              value={formatCurrency(parseFloat(linkedTx.amount))}
+            />
+          ) : (
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder={`Amount (max ${formatCurrency(maxAmount)})`}
+              value={amount}
+              onChange={(e) => setAmount(onlyNumbers(e.target.value))}
+              className={cn(inputCls, 'flex-1')}
+            />
+          )}
           <AnchoredPopover
             open={calOpen}
             onOpenChange={setCalOpen}
@@ -118,6 +130,7 @@ function SettlementForm({ splitId, participantId, maxAmount, onDone }: Settlemen
             />
           </AnchoredPopover>
         </div>
+        <TransactionPicker type="INCOME" value={linkedTx} onChange={setLinkedTx} />
         <div className="flex justify-end gap-2">
           <button
             type="button"
@@ -136,6 +149,7 @@ function SettlementForm({ splitId, participantId, maxAmount, onDone }: Settlemen
                 participantId,
                 paidAmount: parsedAmount,
                 paidAt: format(paidAt, 'YYYY-MM-DD'),
+                transactionId: linkedTx?.id,
               })
             }
           >
@@ -158,6 +172,7 @@ interface ParticipantRowProps {
 }
 
 function ParticipantRow({ participant, split, isSettled }: ParticipantRowProps) {
+  const formatCurrency = useFormatCurrency();
   const [payOpen, setPayOpen] = React.useState(false);
   const [deleteSettlementId, setDeleteSettlementId] = React.useState<string | null>(null);
 
@@ -375,7 +390,7 @@ function ParticipantEditRow({ participant, splitId, isSettled }: ParticipantEdit
         />
         <input
           className={cn(inputCls, isSettled && 'cursor-not-allowed')}
-          placeholder="Email (optional)"
+          placeholder="Email"
           type="email"
           value={email}
           disabled={isSettled}
@@ -444,9 +459,10 @@ function ParticipantEditRow({ participant, splitId, isSettled }: ParticipantEdit
 interface AddParticipantFormProps {
   splitId: string;
   onDone: () => void;
+  onPlanLimitHit: () => void;
 }
 
-function AddParticipantForm({ splitId, onDone }: AddParticipantFormProps) {
+function AddParticipantForm({ splitId, onDone, onPlanLimitHit }: AddParticipantFormProps) {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [amount, setAmount] = React.useState('');
@@ -464,7 +480,14 @@ function AddParticipantForm({ splitId, onDone }: AddParticipantFormProps) {
       setAmount('');
       onDone();
     },
-    onError: (err) => toast.error('Failed to add participant', { description: err.message }),
+    onError: (err) => {
+      if (err.data?.code === 'FORBIDDEN') {
+        onDone();
+        onPlanLimitHit();
+      } else {
+        toast.error('Failed to add participant', { description: err.message });
+      }
+    },
   });
 
   const parsedAmount = parseFloat(amount) || 0;
@@ -484,7 +507,7 @@ function AddParticipantForm({ splitId, onDone }: AddParticipantFormProps) {
         />
         <input
           className={inputCls}
-          placeholder="Email (optional)"
+          placeholder="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -536,11 +559,15 @@ interface SplitDrawerProps {
   initialEditMode?: boolean;
 }
 
-export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: SplitDrawerProps) {
+export function SplitDrawer({
+  splitId, onOpenChange, initialEditMode = false }: SplitDrawerProps) {
+  const formatCurrency = useFormatCurrency();
   const open = !!splitId;
   const [editMode, setEditMode] = React.useState(false);
   const [editName, setEditName] = React.useState('');
   const [editAmount, setEditAmount] = React.useState('');
+  // null = no change | 'UNLINK' = remove link | LinkedTransaction = link/relink
+  const [editLinkedTx, setEditLinkedTx] = React.useState<LinkedTransaction | 'UNLINK' | null>(null);
   const [addParticipantOpen, setAddParticipantOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -562,6 +589,17 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
     if (split && initializedForRef.current !== split.id) {
       setEditName(split.name);
       setEditAmount(String(split.amount));
+      setEditLinkedTx(
+        split.transaction
+          ? {
+              id: split.transaction.id,
+              description: split.transaction.description ?? null,
+              merchant: null,
+              amount: split.transaction.amount,
+              date: split.createdAt,
+            }
+          : null,
+      );
       initializedForRef.current = split.id;
     }
   }, [split]);
@@ -607,14 +645,23 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
 
   // Amount edit constraints: new amount must cover both settled payments and
   // participant allocations — whichever is larger.
-  const totalAllocated = split?.participants.reduce((s, p) => s + p.amount, 0) ?? 0;
+  const totalAllocated = (split?.participants ?? []).reduce((s, p) => s + p.amount, 0);
   const isFullyAllocated = totalAllocated >= amount - 0.000001;
   const minEditAmount = Math.max(totalPaid, totalAllocated);
   const parsedEditAmount = parseFloat(editAmount) || 0;
   const editAmountInvalid = parsedEditAmount > 0 && parsedEditAmount < minEditAmount - 0.000001;
   const splitNameDirty = !!split && editName.trim() !== split.name;
   const splitAmountDirty = !!split && parsedEditAmount !== split.amount;
-  const splitNothingDirty = !splitNameDirty && !splitAmountDirty;
+  const splitTxDirty =
+    editLinkedTx === 'UNLINK' ||
+    (typeof editLinkedTx === 'object' &&
+      editLinkedTx !== null &&
+      editLinkedTx.id !== (split?.transaction?.id ?? null));
+  const splitNothingDirty = !splitNameDirty && !splitAmountDirty && !splitTxDirty;
+
+  // When a transaction is linked in edit mode, amount should be readonly
+  const editAmountFromTx =
+    editLinkedTx !== null && editLinkedTx !== 'UNLINK' ? editLinkedTx : null;
 
   const handleSave = () => {
     if (!split || editAmountInvalid || splitNothingDirty) return;
@@ -622,6 +669,9 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
       id: split.id,
       name: splitNameDirty ? editName.trim() : undefined,
       amount: splitAmountDirty ? parsedEditAmount : undefined,
+      transactionId:
+        editLinkedTx !== null && editLinkedTx !== 'UNLINK' ? editLinkedTx.id : undefined,
+      unlinkTransaction: editLinkedTx === 'UNLINK' ? true : undefined,
     });
   };
 
@@ -643,6 +693,17 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
               if (split) {
                 setEditName(split.name);
                 setEditAmount(String(split.amount));
+                setEditLinkedTx(
+                  split.transaction
+                    ? {
+                        id: split.transaction.id,
+                        description: split.transaction.description ?? null,
+                        merchant: null,
+                        amount: split.transaction.amount,
+                        date: split.createdAt,
+                      }
+                    : null,
+                );
               }
             }}
             onClose={() => onOpenChange(false)}
@@ -666,17 +727,41 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
                         />
                       </EditRow>
                       <EditRow label="Amount (₦)">
-                        <input
-                          className={cn(inputCls, editAmountInvalid && 'ring-error ring-1')}
-                          inputMode="decimal"
-                          value={editAmount}
-                          onChange={(e) => setEditAmount(onlyNumbers(e.target.value))}
-                        />
-                        {editAmountInvalid && (
-                          <p className="text-error mt-0.5 text-[10px]">
-                            Min {formatCurrency(minEditAmount)} (covers settlements &amp; shares)
-                          </p>
+                        {editAmountFromTx ? (
+                          <div>
+                            <input
+                              readOnly
+                              className={cn(inputCls, 'cursor-not-allowed opacity-70')}
+                              value={formatCurrency(parseFloat(editAmountFromTx.amount))}
+                            />
+                            <p className="text-text-disabled mt-0.5 text-[10px]">Amount from linked transaction</p>
+                          </div>
+                        ) : (
+                          <>
+                            <input
+                              className={cn(inputCls, editAmountInvalid && 'ring-error ring-1')}
+                              inputMode="decimal"
+                              value={editAmount}
+                              onChange={(e) => setEditAmount(onlyNumbers(e.target.value))}
+                            />
+                            {editAmountInvalid && (
+                              <p className="text-error mt-0.5 text-[10px]">
+                                Min {formatCurrency(minEditAmount)} (covers settlements &amp; shares)
+                              </p>
+                            )}
+                          </>
                         )}
+                      </EditRow>
+                      <EditRow label="Linked Expense">
+                        <TransactionPicker
+                          type="EXPENSE"
+                          value={editLinkedTx === 'UNLINK' ? null : editLinkedTx}
+                          onChange={(tx) =>
+                            setEditLinkedTx(
+                              tx === null && split.transaction ? 'UNLINK' : tx,
+                            )
+                          }
+                        />
                       </EditRow>
                     </div>
                     <div className="flex justify-end px-3 py-2.5">
@@ -692,14 +777,14 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
                   </div>
                 </div>
 
-                {split.participants.length > 0 && (
+                {(split.participants ?? []).length > 0 && (
                   <div>
                     <SectionLabel>Participants</SectionLabel>
                     <p className="text-text-disabled mb-2 text-[11px]">
                       Each participant saves individually — use the row&apos;s Save button.
                     </p>
                     <div className="flex flex-col gap-2">
-                      {split.participants.map((participant) => (
+                      {(split.participants ?? []).map((participant) => (
                         <ParticipantEditRow
                           key={participant.id}
                           participant={participant}
@@ -758,12 +843,12 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
 
                 {/* Participants */}
                 <div>
-                  <SectionLabel>Participants ({split.participants.length})</SectionLabel>
-                  {split.participants.length === 0 ? (
+                  <SectionLabel>Participants ({(split.participants ?? []).length})</SectionLabel>
+                  {(split.participants ?? []).length === 0 ? (
                     <p className="text-text-disabled text-[12px]">No participants yet.</p>
                   ) : (
                     <div className="border-border-light divide-border-light divide-y rounded-lg border px-3">
-                      {split.participants.map((participant) => (
+                      {(split.participants ?? []).map((participant) => (
                         <ParticipantRow
                           key={participant.id}
                           participant={participant}
@@ -782,6 +867,7 @@ export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: 
                       <AddParticipantForm
                         splitId={split.id}
                         onDone={() => setAddParticipantOpen(false)}
+                        onPlanLimitHit={participantGate.openModal}
                       />
                     ) : isFullyAllocated ? (
                       <p className="text-text-disabled text-[11px]">Split is fully allocated</p>

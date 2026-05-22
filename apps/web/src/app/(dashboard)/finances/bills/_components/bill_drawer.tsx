@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { CalendarIcon, PauseCircle, PlayCircle, Trash2 } from 'lucide-react';
 import { format, parseLocalDate } from '@fintrack/utils/date';
-import { formatCurrency, onlyNumbers } from '@fintrack/utils/format';
+import { onlyNumbers } from '@fintrack/utils/format';
 import {
   Badge,
   Button,
@@ -36,6 +36,7 @@ import {
 } from '@/app/_components';
 import { FREQUENCIES, frequencyLabel, frequencyShort, toEditState } from '../helpers';
 import type { BillEditState } from '../types';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface BillDrawerProps {
   billId: string | null;
@@ -55,6 +56,7 @@ export function BillDrawer({
   initialEditMode = false,
   onDeleted,
 }: BillDrawerProps) {
+  const formatCurrency = useFormatCurrency();
   const [editMode, setEditMode] = React.useState(false);
   const [edit, setEdit] = React.useState<BillEditState>({
     name: '',

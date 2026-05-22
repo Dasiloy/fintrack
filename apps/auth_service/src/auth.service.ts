@@ -14,6 +14,8 @@ import { ClientGrpc, RpcException } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
 import {
+  Currency,
+  Language,
   Prisma,
   Session,
   User,
@@ -171,8 +173,13 @@ export class AuthService implements OnModuleInit {
           // account using that ID as providerAccountId (stable across email changes)
           const user = await tx.user.create({
             data: {
-              ...data,
+              email: data.email,
+              firstName: data.firstName,
+              lastName: data.lastName,
               password: hashedPassword,
+              ...(data.timezone ? { timezone: data.timezone } : {}),
+              ...(data.currency ? { currency: data.currency as Currency } : {}),
+              ...(data.language ? { language: data.language as Language } : {}),
             },
             select: {
               id: true,

@@ -58,7 +58,7 @@ export class SplitController {
   // ================================================================
   //. Create Split
   // ================================================================
-  @Post('create')
+  @Post('')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a split expense' })
   @ApiBody({ required: true, type: CreateSplitDto })

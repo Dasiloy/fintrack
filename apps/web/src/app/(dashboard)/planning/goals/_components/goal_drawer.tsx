@@ -40,7 +40,7 @@ import {
 import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { formatCurrency, onlyNumbers } from '@fintrack/utils/format';
+import { onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
 import {
   DrawerFooter,
@@ -55,6 +55,7 @@ import {
 import { GoalContributionForm } from './goal_contribution_form';
 import { progressBarColor, statusVariant, statusLabel, priorityVariant } from '../helpers';
 import type { Goal } from '@fintrack/types/protos/finance/goal';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 // ---------------------------------------------------------------------------
 // PaceStatusBadge
@@ -98,6 +99,7 @@ function PaceStatusBadge({ status }: { status: 'ON_TRACK' | 'BEHIND' | 'OVERDUE'
 // ---------------------------------------------------------------------------
 
 function PaceDetails({ goal, remaining }: { goal: Goal; remaining: number }) {
+  const formatCurrency = useFormatCurrency();
   const { paceRequired = 0, paceActual = 0, paceStatus, monthsLeft = 0 } = goal;
   const gap = Math.max(0, paceRequired - paceActual);
 
@@ -180,6 +182,7 @@ export function GoalDrawer({
   initialEditMode = false,
   initialAddFundsOpen = false,
 }: GoalDrawerProps) {
+  const formatCurrency = useFormatCurrency();
   const open = !!goalId;
 
   const [editMode, setEditMode] = React.useState(false);

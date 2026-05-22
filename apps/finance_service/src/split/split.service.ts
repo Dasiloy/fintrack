@@ -508,6 +508,28 @@ export class SplitService {
         updateData.status = nextStatus;
       }
 
+      if (data.unlinkTransaction) {
+        updateData.transaction = { disconnect: true };
+      } else if (data.transactionId) {
+        const tx = await this.prisma.transaction.findFirst({
+          where: { id: data.transactionId, userId, type: 'EXPENSE' },
+          select: { id: true, split: { select: { id: true } } },
+        });
+        if (!tx) {
+          throw new RpcException({
+            code: status.NOT_FOUND,
+            message: 'Transaction not found',
+          });
+        }
+        if (tx.split && tx.split.id !== split.id) {
+          throw new RpcException({
+            code: status.ALREADY_EXISTS,
+            message: 'This transaction is already linked to another split',
+          });
+        }
+        updateData.transaction = { connect: { id: data.transactionId } };
+      }
+
       const updatedSplit = await this.prisma.split.update({
         where: { id: split.id },
         data: updateData,

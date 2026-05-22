@@ -5,6 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { RpcException } from '@nestjs/microservices';
 
+import dayjs from '@fintrack/utils/date';
 import { PaginateService } from '@fintrack/common/services/paginate.service';
 import { PrismaService } from '@fintrack/database/service';
 import {
@@ -29,11 +30,15 @@ import {
   BatchCreateTransactionsReq,
   BatchCreateTransactionsRes,
   CreateTransactionReq,
+  DailySpending,
   DeleteTransactionReq,
   Empty,
   GetTransactionReq,
   GetTransactionsReq,
   GetTransactionsRes,
+  GetTransactionSummaryRes,
+  SearchTransactionsReq,
+  SearchTransactionsRes,
   Transaction as ProtoTransaction,
   UpdateTransactionReq,
   TransactionType as ProtoTransactionType,
@@ -52,6 +57,7 @@ import {
 } from '@fintrack/database/types';
 
 import { UtilsService } from '../utils.service';
+import { BalanceService } from './balance.service';
 
 export type TransactionWithOptionalJoins = Transaction & {
   category?: Category | null;
@@ -90,6 +96,7 @@ export class TransactionService {
     @InjectQueue(BUDGET_CHECK_QUEUE)
     private readonly budgetCheckQueue: Queue,
     private readonly utils: UtilsService,
+    private readonly balanceService: BalanceService,
   ) {}
 
   /**
@@ -108,12 +115,17 @@ export class TransactionService {
         userId,
         request.categorySlug,
       );
+
+      const txDate = new Date(request.date);
+      const txAmount = Number(request.amount);
+      const txType = this.ressolveType(request.type);
+
       const payload = {
-        userId: userId,
+        userId,
         categoryId: category.id!,
-        date: new Date(request.date),
-        amount: Number(request.amount),
-        type: this.ressolveType(request.type),
+        date: txDate,
+        amount: txAmount,
+        type: txType,
         source: this.ressolveSource(request.source),
         sourceId: request.sourceId,
         description: request.description,
@@ -122,14 +134,31 @@ export class TransactionService {
           sourceData: JSON.parse(request.sourceData),
         }),
       };
-      const createdTransaction = await this.prismaService.transaction.create({
-        data: payload,
-        include: {
-          category: true,
-        },
-      });
 
-      // call side effects events
+      const createdTransaction = await this.prismaService.$transaction(
+        async (tx) => {
+          await this.balanceService.ensureCurrentMonth(tx, userId);
+          const created = await tx.transaction.create({
+            data: payload,
+            include: { category: true },
+          });
+          await this.balanceService.applyBalanceDelta(
+            tx,
+            userId,
+            txType,
+            txAmount,
+            'ADD',
+            txDate,
+          );
+          return created;
+        },
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
       this.callevents(userId, createdTransaction, 'Transaction Created');
       if (createdTransaction.type === TransactionType.EXPENSE) {
         void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
@@ -177,35 +206,78 @@ export class TransactionService {
       const { transactions } = request;
       if (!transactions.length) return { created: 0, skipped: 0 };
 
-      const data = transactions.map((tx) => {
-        return {
-          userId,
-          categoryId: tx.categoryId,
-          date: new Date(tx.date),
-          amount: Number(tx.amount),
-          type: this.ressolveType(tx.type),
-          source: this.ressolveSource(tx.source),
-          sourceId: tx.sourceId,
-          description: tx.description,
-          narration: tx.narration,
-          merchant: tx.merchant,
-          monoBankAccountId: tx.monoBankAccountId,
-          bankTransactionId: tx.bankTransactionId,
-          aiClassified: tx.aiClassified ?? false,
-          ...(tx.sourceData && { sourceData: JSON.parse(tx.sourceData) }),
-        };
+      // createMany with skipDuplicates only returns a count, not which records
+      // were actually inserted. We need the exact set of new records for balance
+      // tracking, so we pre-query existing bankTransactionIds and compute the diff.
+      const inputBankIds = transactions
+        .map((t) => t.bankTransactionId)
+        .filter((id): id is string => !!id);
+
+      const existingBankIds = inputBankIds.length
+        ? (
+            await this.prismaService.transaction.findMany({
+              where: { userId, bankTransactionId: { in: inputBankIds } },
+              select: { bankTransactionId: true },
+            })
+          ).map((r) => r.bankTransactionId!)
+        : [];
+
+      const existingSet = new Set(existingBankIds);
+
+      // The truly new records whose balance contributions we must apply.
+      const newItems = transactions.filter(
+        (t) => !t.bankTransactionId || !existingSet.has(t.bankTransactionId),
+      );
+
+      const data = transactions.map((t) => ({
+        userId,
+        categoryId: t.categoryId,
+        date: new Date(t.date),
+        amount: Number(t.amount),
+        type: this.ressolveType(t.type),
+        source: this.ressolveSource(t.source),
+        sourceId: t.sourceId,
+        description: t.description,
+        narration: t.narration,
+        merchant: t.merchant,
+        monoBankAccountId: t.monoBankAccountId,
+        bankTransactionId: t.bankTransactionId,
+        aiClassified: t.aiClassified ?? false,
+        ...(t.sourceData && { sourceData: JSON.parse(t.sourceData) }),
+      }));
+
+      const result = await this.prismaService.$transaction(async (ptx) => {
+        if (newItems.length > 0) {
+          await this.balanceService.ensureCurrentMonth(ptx, userId);
+        }
+
+        const createResult = await ptx.transaction.createMany({
+          data,
+          skipDuplicates: true,
+        });
+
+        if (newItems.length > 0) {
+          await this.balanceService.applyBatchBalanceDelta(
+            ptx,
+            userId,
+            newItems.map((t) => ({
+              type: this.ressolveType(t.type),
+              amount: Number(t.amount),
+              date: new Date(t.date),
+            })),
+            'ADD',
+          );
+        }
+
+        return createResult;
       });
 
-      const result = await this.prismaService.transaction.createMany({
-        data,
-        skipDuplicates: true,
-      });
-
+      // Fire budget check only for categories belonging to newly inserted records.
       const expenseCategoryIds = [
         ...new Set(
-          transactions
-            .filter((tx) => tx.type === ProtoTransactionType.EXPENSE)
-            .map((tx) => tx.categoryId),
+          newItems
+            .filter((t) => t.type === ProtoTransactionType.EXPENSE)
+            .map((t) => t.categoryId),
         ),
       ];
       if (result.count > 0 && expenseCategoryIds.length > 0) {
@@ -305,6 +377,46 @@ export class TransactionService {
   }
 
   /**
+   * @description Full-text search across description, merchant, notes, narration with optional type filter.
+   * Uses ILIKE (case-insensitive substring) — no schema migration required.
+   */
+  async searchTransactions(
+    userId: string,
+    query: SearchTransactionsReq,
+  ): Promise<SearchTransactionsRes> {
+    try {
+      const limit = Math.min(query.limit || 20, 50);
+      const transactions = await this.prismaService.transaction.findMany({
+        where: {
+          userId,
+          ...(query.type && { type: query.type as TransactionType }),
+          OR: [
+            { description: { contains: query.q, mode: 'insensitive' } },
+            { merchant: { contains: query.q, mode: 'insensitive' } },
+            { notes: { contains: query.q, mode: 'insensitive' } },
+            { narration: { contains: query.q, mode: 'insensitive' } },
+            { sourceId: { contains: query.q, mode: 'default' } },
+          ],
+        },
+        orderBy: { date: 'desc' },
+        take: limit,
+        include: { category: true },
+      });
+
+      return {
+        transactions: transactions.map((t) => this.formatTransaction(t)),
+      };
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred while searching transactions',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
    * @description Get a transaction by id
    * @param userId - The user id
    * @param transactionId - The transaction id
@@ -353,10 +465,13 @@ export class TransactionService {
     request: UpdateTransactionReq,
   ): Promise<ProtoTransaction> {
     try {
-      const transaction = await this.prismaService.transaction.findFirst({
+      const existing = await this.prismaService.transaction.findFirst({
         where: { id: request.id, userId },
         select: {
           id: true,
+          type: true,
+          amount: true,
+          date: true,
           source: true,
           categoryId: true,
           narration: true,
@@ -364,15 +479,32 @@ export class TransactionService {
         },
       });
 
-      if (!transaction) {
+      if (!existing) {
         throw new RpcException({
           code: status.NOT_FOUND,
           message: 'Transaction not found',
         });
       }
+
       const category = request.categorySlug
         ? await this.utils.getCategory(userId, request.categorySlug)
         : undefined;
+
+      // Determine the effective post-update financial values for balance deltas.
+      const financiallyChanged =
+        request.amount !== undefined ||
+        request.date !== undefined ||
+        request.type !== undefined;
+
+      const newType =
+        request.type !== undefined
+          ? this.ressolveType(request.type)
+          : existing.type;
+      const newAmount =
+        request.amount !== undefined ? Number(request.amount) : existing.amount;
+      const newDate =
+        request.date !== undefined ? new Date(request.date) : existing.date;
+
       const payload: Prisma.TransactionUpdateInput = {
         ...(request.amount !== undefined && { amount: Number(request.amount) }),
         ...(request.date !== undefined && { date: new Date(request.date) }),
@@ -386,33 +518,62 @@ export class TransactionService {
         ...(request.notes !== undefined && { notes: request.notes }),
         ...(category?.id && { category: { connect: { id: category.id } } }),
       };
-      const updatedTransaction = await this.prismaService.transaction.update({
-        where: { id: transaction.id },
-        data: payload,
-        include: {
-          category: true,
-        },
-      });
 
-      const categoryChanged =
-        category && category.id !== transaction.categoryId;
+      const updatedTransaction = await this.prismaService.$transaction(
+        async (tx) => {
+          if (financiallyChanged) {
+            await this.balanceService.ensureCurrentMonth(tx, userId);
+          }
+          const updated = await tx.transaction.update({
+            where: { id: existing.id },
+            data: payload,
+            include: { category: true },
+          });
+          if (financiallyChanged) {
+            // Reverse the old contribution then apply the new one atomically.
+            await this.balanceService.applyBalanceDelta(
+              tx,
+              userId,
+              existing.type,
+              existing.amount,
+              'REMOVE',
+              existing.date,
+            );
+            await this.balanceService.applyBalanceDelta(
+              tx,
+              userId,
+              newType,
+              newAmount,
+              'ADD',
+              newDate,
+            );
+          }
+          return updated;
+        },
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
+      const categoryChanged = category && category.id !== existing.categoryId;
       if (
-        transaction.source === TransactionSource.BANK &&
-        transaction.aiClassified &&
+        existing.source === TransactionSource.BANK &&
+        existing.aiClassified &&
         categoryChanged &&
-        transaction.narration
+        existing.narration
       ) {
         await this.classificationCorrectionQueue.add(
           CLASSIFICATION_CORRECTION_JOB,
           {
             userId,
-            narration: transaction.narration,
+            narration: existing.narration,
             correctedSlug: request.categorySlug!,
           } satisfies ClassificationCorrectionJobPayload,
         );
       }
 
-      // dispatch side effects events
       this.callevents(userId, updatedTransaction, 'Transaction Updated');
       if (updatedTransaction.type === TransactionType.EXPENSE) {
         void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
@@ -426,7 +587,7 @@ export class TransactionService {
       if (error instanceof RpcException) throw error;
       throw new RpcException({
         code: status.INTERNAL,
-        message: 'An error occurred while getting the transaction',
+        message: 'An error occurred while updating the transaction',
         details: error.message,
       });
     }
@@ -443,30 +604,51 @@ export class TransactionService {
     request: DeleteTransactionReq,
   ): Promise<Empty> {
     try {
-      const transaction = await this.prismaService.transaction.findFirst({
+      const existing = await this.prismaService.transaction.findFirst({
         where: { id: request.id, userId },
         select: {
           id: true,
+          type: true,
+          amount: true,
+          date: true,
         },
       });
-      if (!transaction) {
+      if (!existing) {
         throw new RpcException({
           code: status.NOT_FOUND,
           message: 'Transaction not found',
         });
       }
 
-      const deletedTransaction = await this.prismaService.transaction.delete({
-        where: { id: transaction.id },
-        include: {
-          category: true,
-          monoBankAccount: true,
-          split: true,
-          goalContribution: true,
+      const deletedTransaction = await this.prismaService.$transaction(
+        async (tx) => {
+          await this.balanceService.ensureCurrentMonth(tx, userId);
+          const deleted = await tx.transaction.delete({
+            where: { id: existing.id },
+            include: {
+              category: true,
+              monoBankAccount: true,
+              split: true,
+              goalContribution: true,
+            },
+          });
+          await this.balanceService.applyBalanceDelta(
+            tx,
+            userId,
+            existing.type,
+            existing.amount,
+            'REMOVE',
+            existing.date,
+          );
+          return deleted;
         },
-      });
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
 
-      // dispatch side effects events
       this.callevents(userId, deletedTransaction, 'Transaction Deleted');
       return {};
     } catch (error) {
@@ -581,6 +763,129 @@ export class TransactionService {
       ANALYTICS_NOTIFICATION_JOB,
       analyticsData,
     );
+  }
+
+  /**
+   * @description Builds the dashboard transaction summary for a user in one round trip.
+   * Loads `UserBalance` (rolling net and current-month income/expense), up to 12
+   * `MonthlyBalanceSnapshot` rows (newest first), and a raw aggregate of daily EXPENSE
+   * totals for the heatmap window. Weekly spending and the 84-day heatmap are derived from
+   * that aggregate (missing days are zero-filled). `monthlySeries` is snapshots oldest→newest
+   * with the live current month appended last. `balanceChangePct` compares this month’s net
+   * to the most recent snapshot month’s stored net; it is `0` when there is no prior month
+   * or the prior net is zero.
+   *
+   * @public
+   * @param userId - Owner of the summary data
+   * @returns {@link GetTransactionSummaryRes} — net and monthly figures from balance,
+   *   `balanceChangePct` vs last completed snapshot month, Mon–Sun `weeklySpending` (ISO week),
+   *   84-day `spendingHeatmap` (EXPENSE only, decimal strings per day), and `monthlySeries` for charts
+   */
+  async getTransactionSummary(
+    userId: string,
+    months = 12,
+  ): Promise<GetTransactionSummaryRes> {
+    const now = dayjs();
+    const start84 = now.subtract(83, 'day').startOf('day').toDate();
+    const startOfWeek = now.startOf('isoWeek').toDate();
+
+    const [balance, snapshots, heatmapRaw] = await Promise.all([
+      this.prismaService.userBalance.findUnique({ where: { userId } }),
+
+      this.prismaService.monthlyBalanceSnapshot.findMany({
+        where: { userId },
+        orderBy: { monthYear: 'desc' },
+        take: months,
+      }),
+
+      this.prismaService.$queryRaw<Array<{ day: Date; total: unknown }>>`
+        SELECT DATE(date) AS day, SUM(amount) AS total
+        FROM "Transaction"
+        WHERE "userId" = ${userId}
+          AND type = 'EXPENSE'
+          AND date >= ${start84}
+        GROUP BY DATE(date)
+        ORDER BY day ASC
+      `,
+    ]);
+
+    // Build a date→amount lookup from the single raw query
+    const heatmapMap = new Map<string, string>();
+    for (const row of heatmapRaw) {
+      heatmapMap.set(
+        dayjs(row.day).format('YYYY-MM-DD'),
+        String(row.total ?? '0'),
+      );
+    }
+
+    // Heatmap: 84 days oldest→newest, zero-fill missing days
+    const spendingHeatmap: DailySpending[] = [];
+    for (let i = 83; i >= 0; i--) {
+      const d = now.subtract(i, 'day').format('YYYY-MM-DD');
+      spendingHeatmap.push({ date: d, amount: heatmapMap.get(d) ?? '0' });
+    }
+
+    // Weekly spending: derive from heatmap map (Mon–Sun ISO week, always 7 items)
+    const weeklySpending: DailySpending[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = dayjs(startOfWeek).add(i, 'day').format('YYYY-MM-DD');
+      weeklySpending.push({ date: d, amount: heatmapMap.get(d) ?? '0' });
+    }
+
+    const currentMonthYear = now.format('YYYY-MM');
+
+    // Only trust monthly counters if the balance row is tagged to the current month.
+    // If the rollover processor missed a cycle (inactive user or job failure), the
+    // counters belong to a stale month — the current month genuinely has 0 activity.
+    const balanceIsCurrentMonth = balance?.monthYear === currentMonthYear;
+    const ZERO = new Prisma.Decimal(0);
+    const monthlyIncome = balanceIsCurrentMonth
+      ? (balance?.monthlyIncome ?? ZERO)
+      : ZERO;
+    const monthlyExpense = balanceIsCurrentMonth
+      ? (balance?.monthlyExpense ?? ZERO)
+      : ZERO;
+    const thisMonthNet = monthlyIncome.sub(monthlyExpense);
+
+    // balance_change_pct: compare this month's net against the most recent archived month.
+    // If the balance is stale and was never archived (rollover failed), use the stale
+    // month's counters as the reference rather than silently returning 0.
+    let lastMonthNet: Prisma.Decimal | null = snapshots[0]?.net ?? null;
+    if (!lastMonthNet && !balanceIsCurrentMonth && balance) {
+      lastMonthNet = balance.monthlyIncome.sub(balance.monthlyExpense);
+    }
+    let balanceChangePct = 0;
+    if (lastMonthNet && !lastMonthNet.isZero()) {
+      balanceChangePct = thisMonthNet
+        .sub(lastMonthNet)
+        .div(lastMonthNet.abs())
+        .mul(100)
+        .toNumber();
+    }
+
+    // monthly_series: oldest→newest, append live current month at the end.
+    // Current month always uses the guarded counters above (0 if balance is stale).
+    const monthlySeries = [...snapshots].reverse().map((s) => ({
+      month: s.monthYear,
+      income: s.income.toString(),
+      expense: s.expense.toString(),
+    }));
+    monthlySeries.push({
+      month: currentMonthYear,
+      income: monthlyIncome.toString(),
+      expense: monthlyExpense.toString(),
+    });
+
+    return {
+      netBalance: (balance?.netBalance ?? new Prisma.Decimal(0)).toString(),
+      monthlyIncome: monthlyIncome.toString(),
+      monthlyExpense: monthlyExpense.toString(),
+      monthlyNet: thisMonthNet.toString(),
+      balanceChangePct,
+      weeklySpending,
+      spendingHeatmap,
+      monthlySeries,
+    };
   }
 
   /**

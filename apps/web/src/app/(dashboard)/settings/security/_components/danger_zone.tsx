@@ -93,7 +93,7 @@ export default function DangerZone() {
 
           <AlertDialog open={open} onOpenChange={handleOpenChange}>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
+              <Button variant="destructive" size="sm" className="text-white">
                 <Trash2 className="size-3.5" />
                 Delete Account
               </Button>
@@ -139,6 +139,7 @@ export default function DangerZone() {
                 <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
                 <Button
                   variant="destructive"
+                  className="text-white"
                   disabled={isPending || !canSubmit}
                   onClick={handleConfirm}
                 >
