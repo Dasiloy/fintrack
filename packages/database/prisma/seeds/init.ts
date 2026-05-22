@@ -44,7 +44,7 @@ import { openSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { ReadStream } from 'tty';
 import { fileURLToPath } from 'url';
-import { prisma } from '../src/client';
+import { prisma } from '../../src/client';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 

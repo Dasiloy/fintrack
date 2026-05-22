@@ -80,6 +80,12 @@ import { UserModule } from './user/user.module';
         STRIPE_SECRET_KEY: Joi.string().required(),
         MONO_SECRET_KEY: Joi.string().required(),
         MONO_WEBHOOK_SECRET: Joi.string().required(),
+        FINANCE_SERVICE_HOST: Joi.string().required(),
+        FINANCE_SERVICE_PORT: Joi.string().required(),
+        AI_SERVICE_HOST: Joi.string().required(),
+        AI_SERVICE_PORT: Joi.string().required(),
+        SCHEDULER_SERVICE_HOST: Joi.string().required(),
+        SCHEDULER_SERVICE_PORT: Joi.string().required(),
       }),
     }),
 

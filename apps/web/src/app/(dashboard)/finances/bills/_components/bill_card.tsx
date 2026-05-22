@@ -1,13 +1,16 @@
 'use client';
 
 import { cn } from '@ui/lib/utils/cn';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import { frequencyLabel, frequencyShort, nextRunUrgency } from '../helpers';
 import type { BillCardProps } from '../types';
 import { DueChip } from './deu_chip';
 import { BillMenu } from './bill_menu';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
-export function BillCard({ item, onView, onEdit, onToggle, onDelete, isDeleting }: BillCardProps) {
+export function BillCard({
+  item, onView, onEdit, onToggle, onDelete, isDeleting }: BillCardProps) {
+  const formatCurrency = useFormatCurrency();
   const accentColor = item.category?.color ?? '#6366f1';
   const initial = (item.merchant ?? item.name ?? '?')[0]?.toUpperCase() ?? '?';
   const urgency = nextRunUrgency(item.nextRunAt, item.isActive);

@@ -29,6 +29,8 @@ import { PaymentService } from './payment.service';
         STRIPE_WEBHOOK_SECRET: Joi.string().required(),
         STRIPE_SECRET_KEY: Joi.string().required(),
         STRIPE_PRO_MONTHLY_PRICE_ID: Joi.string().required(),
+        PAYMENT_SERVICE_HOST: Joi.string().required(),
+        PAYMENT_SERVICE_PORT: Joi.string().required(),
       }),
     }),
     DatabaseModule,

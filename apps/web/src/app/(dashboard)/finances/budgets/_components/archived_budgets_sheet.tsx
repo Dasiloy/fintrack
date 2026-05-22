@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ArchiveX, RefreshCw, Trash2, TriangleAlert } from 'lucide-react';
 import { format } from '@fintrack/utils/date';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -24,6 +24,7 @@ import {
 import { api_client } from '@/lib/trpc_app/api_client';
 import { DrawerHeader } from '@/app/_components';
 import type { Budget } from '@fintrack/types/protos/finance/budget';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface ArchivedBudgetsSheetProps {
   open: boolean;
@@ -41,6 +42,7 @@ function ArchivedBudgetItem({
   onDelete: () => void;
   isRestoring: boolean;
 }) {
+  const formatCurrency = useFormatCurrency();
   const color = budget.category?.color ?? '#7c7aff';
   return (
     <div className="flex items-center gap-3 py-3.5">
@@ -92,7 +94,8 @@ function ArchivedListSkeleton() {
   );
 }
 
-export function ArchivedBudgetsSheet({ open, onOpenChange }: ArchivedBudgetsSheetProps) {
+export function ArchivedBudgetsSheet({
+  open, onOpenChange }: ArchivedBudgetsSheetProps) {
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   const utils = api_client.useUtils();

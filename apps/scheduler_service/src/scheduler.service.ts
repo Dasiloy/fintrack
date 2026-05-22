@@ -6,6 +6,8 @@ import { Cron } from '@nestjs/schedule';
 
 import {
   ACCOUNT_CLEANUP_QUEUE,
+  BALANCE_ROLLOVER_JOB,
+  BALANCE_ROLLOVER_QUEUE,
   CREATE_RECURRING_TRANSACTION,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
@@ -23,6 +25,8 @@ export class SchedulerService {
     @InjectQueue(USAGE_TRACKING_QUEUE)
     private readonly usageTrackingQueue: Queue,
     @InjectQueue(RECURRING_QUEUE) private readonly reccuringQueue: Queue,
+    @InjectQueue(BALANCE_ROLLOVER_QUEUE)
+    private readonly balanceRolloverQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
@@ -49,6 +53,19 @@ export class SchedulerService {
       PURGE_USAGE_TRACKING_JOB,
       {},
       { jobId: PURGE_USAGE_TRACKING_JOB },
+    );
+  }
+
+  @Cron('1 0 1 * *') // 12:01am on the first day of the month
+  rolloverBalances() {
+    void this.balanceRolloverQueue.add(
+      BALANCE_ROLLOVER_JOB,
+      {},
+      {
+        jobId: BALANCE_ROLLOVER_JOB,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     );
   }
 }

@@ -4,7 +4,7 @@ import { TransactionType, TransactionSource } from '@fintrack/database/types';
 import { createTRPCRouter, protectedProcedure, protectedProcedureWithPlanLimits } from '../setup';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
-import type { Transaction } from '@fintrack/types/protos/finance/transaction';
+import type { Transaction, GetTransactionSummaryRes } from '@fintrack/types/protos/finance/transaction';
 import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 
 const TransactionTypeSchema = z.nativeEnum(TransactionType);
@@ -207,6 +207,35 @@ export const transactionRouter = createTRPCRouter({
     }),
 
   /**
+   * Searches transactions by partial text (union ILIKE across description, merchant, notes, narration).
+   * Returns up to `limit` results ordered by date descending.
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   */
+  search: protectedProcedure
+    .input(
+      z.object({
+        q: z.string().min(1),
+        type: z.nativeEnum(TransactionType).optional(),
+        limit: z.number().int().min(1).max(50).default(20),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const params = new URLSearchParams({ q: input.q, limit: String(input.limit) });
+      if (input.type) params.set('type', input.type);
+
+      const response = await fetch(
+        `${GATEWAY_URL}/api/transaction/search?${params.toString()}`,
+        { headers: gatewayHeaders(ctx.headers) },
+      );
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<Transaction[]> = await response.json();
+      return data;
+    }),
+
+  /**
    * Retrieves a single transaction by ID.
    *
    * @param id - Transaction ID
@@ -224,6 +253,20 @@ export const transactionRouter = createTRPCRouter({
       if (!response.ok) await throwGatewayError(response);
 
       const data: StandardResponse<Transaction> = await response.json();
+      return data;
+    }),
+
+  getSummary: protectedProcedure
+    .input(z.object({ months: z.number().int().min(1).max(120).optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      const params = new URLSearchParams();
+      if (input?.months) params.set('months', String(input.months));
+      const response = await fetch(
+        `${GATEWAY_URL}/api/transaction/summary?${params.toString()}`,
+        { headers: gatewayHeaders(ctx.headers) },
+      );
+      if (!response.ok) await throwGatewayError(response);
+      const data: StandardResponse<GetTransactionSummaryRes> = await response.json();
       return data;
     }),
 });

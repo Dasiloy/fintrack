@@ -1,8 +1,12 @@
 'use client';
 
+import * as React from 'react';
 import { Skeleton } from '@ui/components';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { GetSplitAggregateRes } from '@fintrack/types/protos/finance/split';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
+import { useUserPreferences } from '@/app/providers/user_preferences_provider';
+import { langToLocale } from '@fintrack/utils/format';
 
 interface SplitAggregatePanelProps {
   aggregate: GetSplitAggregateRes | undefined;
@@ -44,6 +48,20 @@ function FooterRow({ label, value }: FooterRowProps) {
 }
 
 export function SplitAggregatePanel({ aggregate, isLoading }: SplitAggregatePanelProps) {
+  const formatCurrency = useFormatCurrency();
+  const { currency, language } = useUserPreferences();
+  const locale = langToLocale(language);
+  const formatCompact = React.useCallback(
+    (amount: number) =>
+      new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency,
+        notation: 'compact',
+        maximumFractionDigits: 1,
+      }).format(amount),
+    [currency, locale],
+  );
+
   if (isLoading) {
     return (
       <div className="glass-card rounded-card border-border-subtle flex flex-col gap-5 border p-5">
@@ -82,8 +100,8 @@ export function SplitAggregatePanel({ aggregate, isLoading }: SplitAggregatePane
         <p className="text-text-disabled text-[10px] font-semibold tracking-wider uppercase">
           Total Owed
         </p>
-        <p className="text-amber-500 text-[36px] leading-none font-bold tabular-nums">
-          {formatCurrency(totalOwed)}
+        <p className="text-amber-500 text-[32px] leading-none font-bold tabular-nums">
+          {formatCompact(totalOwed)}
         </p>
         <p className="text-text-tertiary text-[11px]">across outstanding splits</p>
       </div>
