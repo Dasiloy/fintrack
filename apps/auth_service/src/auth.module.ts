@@ -48,6 +48,10 @@ import { AuthService } from './auth.service';
         AUTH_GOOGLE_ID: Joi.string().required(),
         AES_KEY: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
+        AUTH_SERVICE_HOST: Joi.string().required(),
+        AUTH_SERVICE_PORT: Joi.string().required(),
+        PAYMENT_SERVICE_HOST: Joi.string().required(),
+        PAYMENT_SERVICE_PORT: Joi.string().required(),
       }),
     }),
     JwtModule.registerAsync({

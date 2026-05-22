@@ -131,8 +131,9 @@ export class AuthController {
   })
   async register(
     @Body() body: RegisterUserDto,
+    @Device() device: DeviceInfo,
   ): Promise<StandardResponse<RegisterRes>> {
-    const user = await this.authService.register(body);
+    const user = await this.authService.register(body, device);
 
     return {
       success: true,

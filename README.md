@@ -138,8 +138,6 @@ fintrack/
 ### Features & Flows
 
 - [Features & DSA Mapping](docs/FEATURES.md)
-- [Transaction Creation Flow](docs/TRANSACTION-CREATION-FLOW.md)
-- [Transaction Auto-Categorisation](docs/TOKENIZATION.md)
 
 ### Security & Integrations
 
@@ -154,6 +152,7 @@ fintrack/
 ### Deployment & Operations
 
 - [Render Deployment](docs/RENDER.md)
+- [Database Migrations Guide](docs/DATABASE-MIGRATIONS.md)
 
 ### Reference
 

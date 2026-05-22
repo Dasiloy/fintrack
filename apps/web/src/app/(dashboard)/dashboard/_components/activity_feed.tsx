@@ -6,18 +6,21 @@ import { useAtomValue } from 'jotai';
 import {
   Activity,
   ArrowUpDown,
+  CheckCircle2,
   Coins,
   PiggyBank,
   RefreshCw,
   SplitSquareVertical,
   Target,
+  Users,
 } from 'lucide-react';
 import { Skeleton } from '@ui/components';
 import { cn } from '@ui/lib/utils';
 import { activityAtom } from '@/lib/jotai/activity';
 import { useActivity } from '@/hooks/use_activity';
 import type { ActivityLogs } from '@fintrack/database/types';
-import { capitalize, formatCurrency } from '@fintrack/utils/format';
+import { capitalize } from '@fintrack/utils/format';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 // =============================================================================
 // Helpers
@@ -43,6 +46,8 @@ const ENTITY_ICONS: Record<string, React.ReactNode> = {
   goal: <Target className="size-3.5" />,
   goal_contribution: <Coins className="size-3.5" />,
   split: <SplitSquareVertical className="size-3.5" />,
+  split_participant: <Users className="size-3.5" />,
+  split_settlement: <CheckCircle2 className="size-3.5" />,
   recurring: <RefreshCw className="size-3.5" />,
 };
 
@@ -52,6 +57,8 @@ const ENTITY_ICON_COLORS: Record<string, string> = {
   goal: 'border-amber-500/20 bg-amber-500/8 text-amber-400',
   goal_contribution: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400',
   split: 'border-emerald-500/20 bg-emerald-500/8 text-emerald-400',
+  split_participant: 'border-teal-500/20 bg-teal-500/8 text-teal-400',
+  split_settlement: 'border-sky-500/20 bg-sky-500/8 text-sky-400',
   recurring: 'border-cyan-500/20 bg-cyan-500/8 text-cyan-400',
 };
 
@@ -68,7 +75,7 @@ const SPLIT_STATUS_STYLES: Record<string, string> = {
   CANCELLED: 'bg-red-500/10 text-red-400',
 };
 
-function fmt(value: string | undefined) {
+function fmt(value: string | undefined, formatCurrency: (n: number) => string) {
   if (!value) return null;
   const n = Number(value);
   return isNaN(n) ? null : formatCurrency(n);
@@ -79,12 +86,13 @@ function fmt(value: string | undefined) {
 // =============================================================================
 
 function ActivityDetail({ log }: { log: ActivityLogs }) {
+  const formatCurrency = useFormatCurrency();
   const d = log.data as Record<string, string> | null;
   if (!d) return null;
 
   if (d.type === 'transaction') {
     const isExpense = d.transactionType === 'EXPENSE';
-    const amount = fmt(d.transactionAmount);
+    const amount = fmt(d.transactionAmount, formatCurrency);
     const date = d.transactionDate ? dayjs(d.transactionDate).format('DD MMM YYYY') : null;
     const source = d.transactionSource
       ? d.transactionSource.charAt(0) + d.transactionSource.slice(1).toLowerCase()
@@ -120,7 +128,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   }
 
   if (d.type === 'budget') {
-    const amount = fmt(d.budgetAmount);
+    const amount = fmt(d.budgetAmount, formatCurrency);
     const period = d.budgetPeriod
       ? d.budgetPeriod.charAt(0) + d.budgetPeriod.slice(1).toLowerCase()
       : null;
@@ -132,7 +140,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
         )}
         {amount && <span className="text-text-disabled text-[11px] tabular-nums">{amount}</span>}
         {period && (
-          <span className="rounded bg-border-light px-1.5 py-0.5 text-[10px] text-text-disabled">
+          <span className="bg-border-light text-text-disabled rounded px-1.5 py-0.5 text-[10px]">
             {period}
           </span>
         )}
@@ -141,7 +149,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   }
 
   if (d.type === 'goal') {
-    const target = fmt(d.goalTargetAmount);
+    const target = fmt(d.goalTargetAmount, formatCurrency);
     const statusStyle = d.goalStatus
       ? (GOAL_STATUS_STYLES[d.goalStatus] ?? 'bg-border-light text-text-disabled')
       : null;
@@ -166,7 +174,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   }
 
   if (d.type === 'goal_contribution') {
-    const amount = fmt(d.contributionAmount);
+    const amount = fmt(d.contributionAmount, formatCurrency);
     const date = d.contributionDate ? dayjs(d.contributionDate).format('DD MMM YYYY') : null;
     const goalName = d.goalName ?? null;
 
@@ -176,7 +184,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
           <span className="text-text-secondary text-[11px] font-medium">{goalName}</span>
         )}
         {amount && (
-          <span className="text-emerald-400 text-[11px] font-semibold tabular-nums">+{amount}</span>
+          <span className="text-[11px] font-semibold text-emerald-400 tabular-nums">+{amount}</span>
         )}
         {date && <span className="text-text-disabled text-[10px]">{date}</span>}
       </div>
@@ -184,7 +192,7 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
   }
 
   if (d.type === 'split') {
-    const amount = fmt(d.splitAmount);
+    const amount = fmt(d.splitAmount, formatCurrency);
     const statusStyle = d.splitStatus
       ? (SPLIT_STATUS_STYLES[d.splitStatus] ?? 'bg-border-light text-text-disabled')
       : null;
@@ -206,8 +214,35 @@ function ActivityDetail({ log }: { log: ActivityLogs }) {
     );
   }
 
+  if (d.type === 'split_participant') {
+    const amount = fmt(d.participantAmount, formatCurrency);
+
+    return (
+      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        {d.participantName && (
+          <span className="text-text-secondary text-[11px] font-medium">{d.participantName}</span>
+        )}
+        {amount && <span className="text-text-disabled text-[11px] tabular-nums">{amount}</span>}
+      </div>
+    );
+  }
+
+  if (d.type === 'split_settlement') {
+    const amount = fmt(d.paidAmount, formatCurrency);
+    const date = d.paidAt ? dayjs(d.paidAt).format('DD MMM YYYY') : null;
+
+    return (
+      <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        {amount && (
+          <span className="text-[11px] font-semibold text-sky-400 tabular-nums">+{amount}</span>
+        )}
+        {date && <span className="text-text-disabled text-[10px]">{date}</span>}
+      </div>
+    );
+  }
+
   if (d.type === 'recurring') {
-    const amount = fmt(d.recurringAmount);
+    const amount = fmt(d.recurringAmount, formatCurrency);
     const frequency = d.recurringFrequency
       ? d.recurringFrequency.charAt(0) + d.recurringFrequency.slice(1).toLowerCase()
       : null;
@@ -241,10 +276,10 @@ function ActivityRow({ log }: { log: ActivityLogs }) {
   const label = formatEventLabel(log.event);
 
   return (
-    <div className="flex items-start gap-3 py-3">
+    <div className="flex items-center gap-3 py-3">
       <div
         className={cn(
-          'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border',
+          'flex size-10 shrink-0 items-center justify-center rounded-md border',
           iconColor,
         )}
       >
@@ -292,7 +327,7 @@ export function ActivityFeed() {
 
   if (loading) {
     return (
-      <div className="divide-y divide-border-light">
+      <div className="divide-border-light divide-y">
         {Array.from({ length: 6 }).map((_, i) => (
           <ActivityRowSkeleton key={i} />
         ))}
@@ -310,7 +345,7 @@ export function ActivityFeed() {
   }
 
   return (
-    <div className="divide-y divide-border-light">
+    <div className="divide-border-light divide-y">
       {logs.map((log) => (
         <ActivityRow key={log.id} log={log} />
       ))}

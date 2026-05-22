@@ -36,6 +36,8 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         MAIL_TOKEN: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
+        NOTIFICATION_SERVICE_HOST: Joi.string().required(),
+        NOTIFICATION_SERVICE_PORT: Joi.string().required(),
       }),
     }),
     MailerModule.forRootAsync({

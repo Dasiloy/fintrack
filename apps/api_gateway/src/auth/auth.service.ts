@@ -5,6 +5,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 
 import { DeviceInfo } from '@fintrack/types/interfaces/device';
+import { countryToCurrency, countryToLanguage } from '@fintrack/utils/locale';
 
 import {
   AUTH_PACKAGE_NAME,
@@ -82,9 +83,21 @@ export class AuthService implements OnModuleInit {
    * @throws {ConflictException} If the user email is already registered (mapped from microservice ALREADY_EXISTS)
    * @throws {RequestTimeoutException} If the auth microservice times out (mapped from 15s timeout)
    */
-  async register(data: RegisterUserDto): Promise<RegisterRes> {
+  async register(
+    data: RegisterUserDto,
+    device: DeviceInfo,
+  ): Promise<RegisterRes> {
+    const country = device.locationData?.country ?? null;
+    const timezone = device.locationData?.timezone ?? null;
     const user = await lastValueFrom(
-      this.authService.register(data).pipe(timeout(25000)),
+      this.authService
+        .register({
+          ...data,
+          ...(timezone ? { timezone } : {}),
+          ...(country ? { currency: countryToCurrency(country) } : {}),
+          ...(country ? { language: countryToLanguage(country) } : {}),
+        })
+        .pipe(timeout(25000)),
     );
 
     return user;

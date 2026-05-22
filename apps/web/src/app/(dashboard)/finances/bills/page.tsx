@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { CirclePlay, Plus, PauseCircle, Repeat2, TrendingDown } from 'lucide-react';
 import { Button, toast } from '@ui/components';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import { api_client } from '@/lib/trpc_app/api_client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
@@ -18,9 +18,11 @@ import { BillCardSkeleton } from './_components/bill_card_skeleton';
 import { BillDrawer } from './_components/bill_drawer';
 import { BillFilters as BillFiltersPanel } from './_components/bill_filters';
 import { BillFormDialog } from './_components/bill_form_dialog';
-import { MetricCard } from './_components/metric_card';
+import { MetricCard } from '@/app/(dashboard)/_components/metric_card';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 export default function BillsPage() {
+  const formatCurrency = useFormatCurrency();
   // ── State ─────────────────────────────────────────────────────────────────
   const createGate = useProGate(Usage.MAX_RECURRING_ITEMS);
   const [filters, setFilters] = React.useState<BillFilters>(EMPTY_FILTERS);

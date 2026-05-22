@@ -13,9 +13,14 @@ service FinanceService {
     rpc CreateTransaction(CreateTransactionReq) returns (Transaction) {}
     rpc BatchCreateTransactions(BatchCreateTransactionsReq) returns (BatchCreateTransactionsRes) {}
     rpc GetTransactions(GetTransactionsReq) returns (GetTransactionsRes) {}
+    rpc SearchTransactions(SearchTransactionsReq) returns (SearchTransactionsRes) {}
     rpc GetTransaction(GetTransactionReq) returns (Transaction) {}
     rpc UpdateTransaction(UpdateTransactionReq) returns (Transaction) {}
     rpc DeleteTransaction(DeleteTransactionReq) returns (Empty) {}
+
+  // Analytics and Dashboard
+   rpc GetTransactionSummary (GetTransactionSummaryReq) returns (GetTransactionSummaryRes) {}
+
 
   // Budgets
    rpc CreateBudget (CreateBudgetReq) returns (Budget) {}
@@ -61,5 +66,8 @@ service FinanceService {
   rpc ContributeToGoal(CreateGoalContributionReq)    returns (Contribution) {}
   rpc UpdateGoalContribution(UpdateGoalContributionReq) returns (Contribution) {}
   rpc DeleteContribution (DeleteGoalContributionReq)  returns (Empty) {}
+
+
+
 }
 

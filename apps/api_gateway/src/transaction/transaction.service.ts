@@ -30,9 +30,12 @@ import {
 import {
   BatchCreateTransactionsReq,
   BatchCreateTransactionsRes,
+  GetTransactionSummaryRes,
   TransactionSource,
   TransactionType,
 } from '@fintrack/types/protos/finance/transaction';
+import { Usage } from '@fintrack/types/constants/plan.constants';
+import { UsageService } from '../usage/usage.service';
 import {
   AI_PACKAGE_NAME,
   AI_SERVICE_NAME,
@@ -46,11 +49,24 @@ import {
   UpdateTransactionDto,
 } from './dto/transaction.dto';
 import { TransactionQueryDto } from './dto/transaction_query.dto';
+import { TransactionSearchDto } from './dto/transaction_search.dto';
 import { BudgetService } from '../budget/budget.service';
 
 /**
- * API Gateway service for transaction CRUD operations.
- * Proxies HTTP requests to the Finance microservice via gRPC.
+ * API Gateway service for transaction operations.
+ *
+ * Proxies HTTP requests to the Finance microservice via gRPC and to the AI
+ * microservice for classification. Owns all OCR receipt-scanning state: draft
+ * upsert, job enqueueing, and the SSE stream that delivers extraction results.
+ *
+ * ## Dependencies
+ * - `FinanceServiceClient` (gRPC) — CRUD + batch import + financial summary
+ * - `AiServiceClient` (gRPC) — transaction classification
+ * - `BudgetService` — cache invalidation after any write
+ * - `UsageService` — per-user plan-limit lookup for analytics caps
+ * - `PrismaService` — OCRDraft persistence
+ * - `Redis` (subscriber) — OCR pub/sub fan-out for SSE
+ * - `OCR_QUEUE` (BullMQ) — OCR job dispatch
  *
  * @class TransactionService
  */
@@ -67,6 +83,7 @@ export class TransactionService implements OnModuleInit {
     private readonly budgetService: BudgetService,
     private readonly prisma: PrismaService,
     @Inject(REDIS_SUBSCRIBER) private readonly redisSubscriber: Redis,
+    private readonly usageService: UsageService,
   ) {}
 
   onModuleInit() {
@@ -131,6 +148,29 @@ export class TransactionService implements OnModuleInit {
             query.source?.map((source) => TransactionSource[source]) || [],
           startDate: query.startDate,
           endDate: query.endDate,
+        },
+        metadata,
+      ),
+    );
+  }
+
+  /**
+   * Searches transactions by partial text across description, merchant, notes, narration.
+   *
+   * @param dto - Search query and optional type/limit filters
+   * @param user - Authenticated user
+   * @returns Matching transactions (up to limit, ordered by date desc)
+   */
+  async searchTransactions(dto: TransactionSearchDto, user: User) {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+
+    return lastValueFrom(
+      this.financeServiceClient.searchTransactions(
+        {
+          q: dto.q,
+          type: dto.type ?? '',
+          limit: dto.limit ?? 20,
         },
         metadata,
       ),
@@ -435,5 +475,45 @@ export class TransactionService implements OnModuleInit {
 
       return cleanup;
     });
+  }
+
+  /**
+   * Returns a pre-materialised financial summary for the authenticated user.
+   *
+   * Reads from `UserBalance` (O(1)) and `MonthlyBalanceSnapshot` (O(months))
+   * in the Finance microservice — no full transaction scan. The `months` value
+   * controls how many calendar months of `monthlySeries` are returned and is
+   * capped server-side by the user's plan:
+   * - Free: `ANALYTICS_MONTHS_LIMIT` (6)
+   * - Pro: unlimited (plan value is `null`)
+   *
+   * @async
+   * @public
+   * @param {User} user - Authenticated user
+   * @param {number} [months] - Requested months of `monthlySeries`; defaults to 12
+   * @returns {Promise<GetTransactionSummaryRes>} Net balance, monthly cashflow,
+   *   weekly spending (7 items), 84-day heatmap, and monthly series
+   * @throws {RpcException} UNAUTHENTICATED — missing or invalid bearer token
+   * @throws {RpcException} INTERNAL — unexpected finance service error
+   */
+  async getTransactionSummary(
+    user: User,
+    months?: number,
+  ): Promise<GetTransactionSummaryRes> {
+    const { limits } = await this.usageService.getGatedUsage(user.id);
+    const monthsLimit = limits[Usage.ANALYTICS_MONTHS_LIMIT] as number | null;
+    const cappedMonths =
+      monthsLimit !== null
+        ? Math.min(months ?? 12, monthsLimit)
+        : (months ?? 12);
+
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+    return lastValueFrom(
+      this.financeServiceClient.getTransactionSummary(
+        { months: cappedMonths },
+        metadata,
+      ),
+    );
   }
 }

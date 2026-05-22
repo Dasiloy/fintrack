@@ -1,8 +1,9 @@
 'use client';
 
 import type { TooltipEntry } from '@/app/(dashboard)/finances/budgets/types';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { ChartConfig } from '@ui/components';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface SpendingTrendChartTooltipProps {
   active?: boolean;
@@ -17,6 +18,7 @@ export function SpendingTrendChartTooltip({
   label,
   config,
 }: SpendingTrendChartTooltipProps) {
+  const formatCurrency = useFormatCurrency();
   if (!active || !payload?.length) return null;
 
   return (
