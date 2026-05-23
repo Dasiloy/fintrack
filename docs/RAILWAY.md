@@ -43,29 +43,50 @@ For each of the 7 services below, follow the same sequence:
 | **Watch paths** | See per-service table below |
 | **Builder** | Nixpacks (auto-detected) |
 
-Every service shares the same four runtime packages (`common`, `database`, `utils`, `types`). Watch paths should include the service's own directory plus those four. Set them under **Settings → Source → Watch Paths**, one path per line:
+Set watch paths under **Railway → `<service>` → Settings → Source → Watch Paths**, one path per line.
 
-| Service | Watch paths (one per line in Railway) |
-|---------|--------------------------------------|
-| `api-gateway` | `apps/api_gateway/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `auth-service` | `apps/auth_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `finance-service` | `apps/finance_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `ai-service` | `apps/ai_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `payment-service` | `apps/payment_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `scheduler-service` | `apps/scheduler_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
-| `notification-service` | `apps/notification_service/**` `packages/common/**` `packages/database/**` `packages/types/**` `packages/utils/**` |
+Every service uses the same four shared packages. The only thing that changes per service is the first line.
 
-So for `api-gateway` you would enter exactly this in the Watch Paths field:
+**Universal shared block (same for every service):**
 
 ```
-apps/api_gateway/**
-packages/common/**
-packages/database/**
-packages/types/**
-packages/utils/**
+/packages/common/**
+/packages/database/**
+/packages/types/**
+/packages/utils/**
+/pnpm-lock.yaml
+/pnpm-workspace.yaml
+/package.json
+/.npmrc
 ```
 
-The other packages (`eslint-config`, `typescript-config`, `trpc_app`, `ui`, `react_query`, `next_auth`) are either build-only tooling or web-only — changes to them don't need to trigger a backend redeploy.
+**Per-service first line — paste the shared block below it:**
+
+| Service | Service path |
+|---------|-------------|
+| `api-gateway` | `/apps/api_gateway/**` |
+| `auth-service` | `/apps/auth_service/**` |
+| `finance-service` | `/apps/finance_service/**` |
+| `ai-service` | `/apps/ai_service/**` |
+| `payment-service` | `/apps/payment_service/**` |
+| `scheduler-service` | `/apps/scheduler_service/**` |
+| `notification-service` | `/apps/notification_service/**` |
+
+Example for `ai-service`:
+
+```
+/apps/ai_service/**
+/packages/common/**
+/packages/database/**
+/packages/types/**
+/packages/utils/**
+/pnpm-lock.yaml
+/pnpm-workspace.yaml
+/package.json
+/.npmrc
+```
+
+`turbo.json` and `tsconfig*.json` are intentionally excluded — they are build/type tooling config and have no effect on the running service.
 
 After creation, open **Settings → Networking**:
 - `api-gateway` only: click **Generate Domain** to get a public HTTPS URL.
