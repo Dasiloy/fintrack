@@ -28,7 +28,7 @@ export function SpendingBreakdownCard() {
     // Merge all byCategory entries across months (usually 1 here)
     const map = new Map<string, { name: string; color: string; amount: number }>();
     for (const month of months) {
-      for (const cat of month.byCategory) {
+      for (const cat of month.byCategory ?? []) {
         const existing = map.get(cat.name);
         if (existing) {
           existing.amount += cat.amount;
