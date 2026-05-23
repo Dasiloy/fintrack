@@ -1,0 +1,27 @@
+# Exclude local tooling from the build context entirely
+.claude/
+.agents/
+
+# Local env files — vars come from Railway, not files
+.env
+.env.*
+apps/**/.env
+apps/**/.env.*
+apps/**/.env.prod
+
+# Git
+.git/
+.github/
+
+# Dev tooling & docs
+.vscode/
+.idea/
+docs/
+*.md
+!apps/*/README.md
+
+# Test output
+coverage/
+
+# OS
+.DS_Store
