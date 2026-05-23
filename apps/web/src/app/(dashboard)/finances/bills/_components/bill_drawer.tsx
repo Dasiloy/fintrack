@@ -440,9 +440,9 @@ export function BillDrawer({
               </Section>
 
               {/* Recent transactions */}
-              {item.transactions.length > 0 && (
+              {(item.transactions ?? []).length > 0 && (
                 <Section label="Recent Transactions">
-                  {item.transactions.slice(0, 5).map((tx) => (
+                  {(item.transactions ?? []).slice(0, 5).map((tx) => (
                     <Row key={tx.id} label={format(parseLocalDate(tx.date.slice(0,10)), 'MMM D, YYYY')}>
                       <span className={tx.type === 'EXPENSE' ? 'text-error' : 'text-success'}>
                         {tx.type === 'INCOME' ? '+' : ''}
