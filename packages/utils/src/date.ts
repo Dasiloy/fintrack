@@ -85,4 +85,25 @@ export function parseLocalDate(s: string): Date {
   return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
 }
 
+/** Returns the server's current calendar month as a "YYYY-MM" string. */
+export const currentMonthYear = (): string => dayjs().format('YYYY-MM');
+
+/** Returns a given date formatted as a "YYYY-MM" string. */
+export const toMonthYear = (date: Date | string): string =>
+  dayjs(date).format('YYYY-MM');
+
+/**
+ * Returns the inclusive start and end Date boundaries of the current calendar
+ * month in local server time — used for bounded groupBy queries on the
+ * Transaction table which stores dates in local time.
+ */
+export const currentMonthBounds = (): { start: Date; end: Date } => ({
+  start: dayjs().startOf('month').toDate(),
+  end: dayjs().endOf('month').toDate(),
+});
+
+/** Returns true when two dates fall on the same calendar day. */
+export const isSameDay = (a: Date | string, b: Date | string): boolean =>
+  dayjs(a).isSame(b, 'day');
+
 export default dayjs;

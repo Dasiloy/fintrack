@@ -28,7 +28,7 @@ export default function AuthLayout({
         {/** BODY */}
         <div className="gap-space-6 flex flex-col">
           {/** FOORM */}
-          <Card>
+          <Card variant="elevated">
             <CardHeader className="text-center">
               {title && <CardTitle className="text-h3">{title}</CardTitle>}
               {description && <CardDescription>{description}</CardDescription>}

@@ -14,6 +14,7 @@ import {
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { BudgetCheckProcessor } from './budget_check.processor';
+import { BalanceService } from './balance.service';
 import { UtilsService } from '../utils.service';
 
 @Module({
@@ -31,6 +32,7 @@ import { UtilsService } from '../utils.service';
   providers: [
     TransactionService,
     BudgetCheckProcessor,
+    BalanceService,
     PaginateService,
     UtilsService,
   ],

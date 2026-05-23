@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { format } from '@fintrack/utils/date';
 import { Trash2, TriangleAlert } from 'lucide-react';
-import { formatCurrency, onlyNumbers } from '@fintrack/utils/format';
+import { onlyNumbers } from '@fintrack/utils/format';
 import {
   Button,
   ScrollArea,
@@ -34,6 +34,7 @@ import {
   SectionLabel,
 } from '@/app/_components';
 import { RING_RADIUS, RING_STROKE, RING_CIRCUMFERENCE, ringColorClass } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface BudgetDrawerProps {
   budgetId: string | null;
@@ -50,6 +51,7 @@ export function BudgetDrawer({
   onDeleted,
   selectedMonth,
 }: BudgetDrawerProps) {
+  const formatCurrency = useFormatCurrency();
   const open = !!budgetId;
 
   const [editMode, setEditMode] = React.useState(false);

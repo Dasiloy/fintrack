@@ -70,6 +70,10 @@ import {
   GetTransactionReq,
   GetTransactionsReq,
   GetTransactionsRes,
+  GetTransactionSummaryReq,
+  GetTransactionSummaryRes,
+  SearchTransactionsReq,
+  SearchTransactionsRes,
   Transaction,
   UpdateTransactionReq,
 } from "./transaction";
@@ -92,11 +96,17 @@ export interface FinanceServiceClient {
 
   getTransactions(request: GetTransactionsReq, metadata?: Metadata): Observable<GetTransactionsRes>;
 
+  searchTransactions(request: SearchTransactionsReq, metadata?: Metadata): Observable<SearchTransactionsRes>;
+
   getTransaction(request: GetTransactionReq, metadata?: Metadata): Observable<Transaction>;
 
   updateTransaction(request: UpdateTransactionReq, metadata?: Metadata): Observable<Transaction>;
 
   deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Observable<Empty>;
+
+  /** Analytics and Dashboard */
+
+  getTransactionSummary(request: GetTransactionSummaryReq, metadata?: Metadata): Observable<GetTransactionSummaryRes>;
 
   /** Budgets */
 
@@ -197,6 +207,11 @@ export interface FinanceServiceController {
     metadata?: Metadata,
   ): Promise<GetTransactionsRes> | Observable<GetTransactionsRes> | GetTransactionsRes;
 
+  searchTransactions(
+    request: SearchTransactionsReq,
+    metadata?: Metadata,
+  ): Promise<SearchTransactionsRes> | Observable<SearchTransactionsRes> | SearchTransactionsRes;
+
   getTransaction(
     request: GetTransactionReq,
     metadata?: Metadata,
@@ -208,6 +223,13 @@ export interface FinanceServiceController {
   ): Promise<Transaction> | Observable<Transaction> | Transaction;
 
   deleteTransaction(request: DeleteTransactionReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
+
+  /** Analytics and Dashboard */
+
+  getTransactionSummary(
+    request: GetTransactionSummaryReq,
+    metadata?: Metadata,
+  ): Promise<GetTransactionSummaryRes> | Observable<GetTransactionSummaryRes> | GetTransactionSummaryRes;
 
   /** Budgets */
 
@@ -347,9 +369,11 @@ export function FinanceServiceControllerMethods() {
       "createTransaction",
       "batchCreateTransactions",
       "getTransactions",
+      "searchTransactions",
       "getTransaction",
       "updateTransaction",
       "deleteTransaction",
+      "getTransactionSummary",
       "createBudget",
       "getBudgets",
       "getBudget",

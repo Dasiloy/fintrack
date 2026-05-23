@@ -22,10 +22,11 @@ import {
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import { format } from '@fintrack/utils/date';
 import type { Split } from '@fintrack/types/protos/finance/split';
 import { progressBarColor, statusLabel, statusVariant } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface SplitCardProps {
   split: Split;
@@ -33,7 +34,9 @@ interface SplitCardProps {
   onEdit: (id: string) => void;
 }
 
-export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
+export function SplitCard({
+  split, onOpen, onEdit }: SplitCardProps) {
+  const formatCurrency = useFormatCurrency();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -58,7 +61,7 @@ export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
       <div
         role="button"
         onClick={() => onOpen(split.id)}
-        className="border-border-subtle bg-bg-surface group focus-visible:ring-primary/40 relative flex cursor-pointer flex-col gap-0 rounded-xl border transition-shadow hover:shadow-lg focus-visible:ring-2 focus-visible:outline-none"
+        className="border-border-subtle bg-bg-surface group focus-visible:ring-primary/40 relative flex cursor-pointer flex-col gap-0 overflow-hidden rounded-xl border transition-shadow hover:shadow-lg focus-visible:ring-2 focus-visible:outline-none"
       >
         {/* ── Header ── */}
         <div className="flex items-start justify-between gap-2 p-4 pb-3">
@@ -79,11 +82,11 @@ export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
 
         {/* ── Progress ── */}
         <div className="px-4 pb-3">
-          <div className="mb-1.5 flex items-baseline justify-between gap-2">
-            <span className="text-text-primary text-[18px] font-bold tabular-nums">
+          <div className="mb-1.5 flex min-w-0 items-baseline justify-between gap-2">
+            <span className="text-text-primary min-w-0 flex-1 truncate text-[18px] font-bold tabular-nums">
               {formatCurrency(totalPaid)}
             </span>
-            <span className="text-text-tertiary text-[11px] tabular-nums">
+            <span className="text-text-tertiary shrink-0 text-[11px] tabular-nums">
               {formatCurrency(amount)}
             </span>
           </div>
@@ -93,7 +96,7 @@ export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
               style={{ width: `${pct}%` }}
             />
           </div>
-          <p className="text-text-tertiary mt-1.5 text-[11px]">
+          <p className="text-text-tertiary mt-1.5 truncate text-[11px]">
             {pct}% · {formatCurrency(totalOwed)} remaining
           </p>
         </div>
@@ -103,7 +106,7 @@ export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
           <div className="flex items-center gap-1.5">
             <Users className="text-text-disabled size-3" />
             <span className="text-text-tertiary text-[11px]">
-              {split.participants.length} participant{split.participants.length !== 1 ? 's' : ''}
+              {(split.participants ?? []).length} participant{(split.participants ?? []).length !== 1 ? 's' : ''}
             </span>
           </div>
 

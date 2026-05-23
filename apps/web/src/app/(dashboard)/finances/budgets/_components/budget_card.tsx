@@ -18,9 +18,10 @@ import {
   DropdownMenuTrigger,
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { Budget } from '@fintrack/types/protos/finance/budget';
 import { RING_RADIUS, RING_STROKE, RING_CIRCUMFERENCE, ringColorClass } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 // ─── props ────────────────────────────────────────────────────────────────────
 
@@ -32,7 +33,9 @@ interface BudgetCategoryCardProps {
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export function BudgetCategoryCard({ budget, onOpen, onDelete }: BudgetCategoryCardProps) {
+export function BudgetCategoryCard({
+  budget, onOpen, onDelete }: BudgetCategoryCardProps) {
+  const formatCurrency = useFormatCurrency();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);

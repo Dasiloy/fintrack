@@ -241,6 +241,30 @@ exports.Prisma.UsageTrackerScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserBalanceScalarFieldEnum = {
+  id: 'id',
+  netBalance: 'netBalance',
+  totalIncome: 'totalIncome',
+  totalExpense: 'totalExpense',
+  monthlyIncome: 'monthlyIncome',
+  monthlyExpense: 'monthlyExpense',
+  monthYear: 'monthYear',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
+exports.Prisma.MonthlyBalanceSnapshotScalarFieldEnum = {
+  id: 'id',
+  monthYear: 'monthYear',
+  income: 'income',
+  expense: 'expense',
+  net: 'net',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+};
+
 exports.Prisma.BackupCodesScalarFieldEnum = {
   id: 'id',
   usedAt: 'usedAt',
@@ -852,6 +876,8 @@ exports.Prisma.ModelName = {
   Subscription: 'Subscription',
   StripeWebhookEvent: 'StripeWebhookEvent',
   UsageTracker: 'UsageTracker',
+  UserBalance: 'UserBalance',
+  MonthlyBalanceSnapshot: 'MonthlyBalanceSnapshot',
   BackupCodes: 'BackupCodes',
   ActivityLogs: 'ActivityLogs',
   NotificationSetting: 'NotificationSetting',
