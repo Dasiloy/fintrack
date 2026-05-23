@@ -29,7 +29,7 @@ async function bootstrap() {
   /// MIDDLEWARES
   // 1. cors
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   });
   // 2. helmet
