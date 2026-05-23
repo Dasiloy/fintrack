@@ -1,0 +1,19 @@
+# Exclude local tooling that has no place in the build context
+.claude/
+.agents/
+
+# Local env files — secrets must come from Railway variables, not files
+.env
+.env.*
+apps/**/.env
+apps/**/.env.*
+
+# Dev tooling
+*.md
+docs/
+.github/
+.vscode/
+.idea/
+
+# Test output
+coverage/
