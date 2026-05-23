@@ -2,17 +2,16 @@
 # FinTrack — CI / CD Pipeline
 #
 # Triggers & job matrix:
-#   • push feat/**          → quality (type-check) + test
-#   • pull_request → main   → quality (type-check) + test
-#   • push main (merge)     → migrate (prisma migrate deploy → prod DB)
-#                             then Render auto-deploys via Git integration
+#   • push any branch except main  → quality (type-check) + test
+#   • push main (merge)            → migrate (prisma migrate deploy → prod DB)
+#                                    then Railway auto-deploys via Git integration
 #
 # Database strategy:
 #   Dev  DB → DATABASE_URL in .env (local) / placeholder in quality+test jobs
 #   Prod DB → PROD_DATABASE_URL + PROD_DATABASE_CA_CERTIFICATE GitHub secrets
 #
 # Migration ordering:
-#   The migrate job runs on main push in parallel with Render's auto-deploy.
+#   The migrate job runs on main push in parallel with Railway's auto-deploy.
 #   All migrations MUST be backwards-compatible (additive only — no column
 #   drops or type changes that break running code). This ensures the race
 #   between migration and deploy is always safe. For destructive migrations,
@@ -23,9 +22,7 @@ name: CI / CD
 
 on:
   push:
-    branches: [main, feat/**]
-  pull_request:
-    branches: [main]
+    branches: ['**']
 
 env:
   NODE_VERSION: '20'
@@ -36,7 +33,7 @@ jobs:
   quality:
     name: Type Check
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
+    if: github.ref != 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +69,7 @@ jobs:
     name: Test — ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: quality
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
+    if: github.ref != 'refs/heads/main'
 
     strategy:
       fail-fast: false
