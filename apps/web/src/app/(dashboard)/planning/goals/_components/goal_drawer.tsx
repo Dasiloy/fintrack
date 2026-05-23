@@ -513,7 +513,7 @@ export function GoalDrawer({
                     <Separator className="bg-border-light" />
                     <div>
                       <p className="text-text-disabled mb-3 text-[10px] font-semibold tracking-wider uppercase">
-                        Contributions ({goal.contributions.length})
+                        Contributions ({(goal.contributions ?? []).length})
                       </p>
                       <ul className="space-y-2">
                         {[...(goal.contributions ?? [])]
