@@ -1,11 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import { CalendarDays } from 'lucide-react';
 import dayjs from '@fintrack/utils/date';
 import { cn } from '@ui/lib/utils/cn';
-import { Skeleton } from '@ui/components';
+import { Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@ui/components';
 import { useFormatCurrency } from '@/hooks/use_format_currency';
 import type { GetTransactionSummaryRes } from '@fintrack/types/protos/finance/transaction';
 
@@ -25,10 +24,7 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
     }));
   }, [data]);
 
-  const maxAmount = React.useMemo(
-    () => Math.max(...cells.map((c) => c.amount), 1),
-    [cells],
-  );
+  const maxAmount = React.useMemo(() => Math.max(...cells.map((c) => c.amount), 1), [cells]);
 
   // Build 12 columns × 7 rows grid (week columns, day rows)
   const grid = React.useMemo<Array<Array<{ date: string; amount: number } | null>>>(() => {
@@ -67,10 +63,10 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
     <div className="glass-card rounded-card flex flex-col p-5">
       <div className="mb-3 flex items-start justify-between">
         <div>
-          <h3 className="text-[13px] font-semibold text-text-primary">Spending Activity</h3>
-          <p className="text-[11px] text-text-tertiary">Last 84 days</p>
+          <h3 className="text-text-primary text-[13px] font-semibold">Spending Activity</h3>
+          <p className="text-text-tertiary text-[11px]">Last 84 days</p>
         </div>
-        <CalendarDays className="mt-0.5 size-3.5 text-text-disabled" />
+        <CalendarDays className="text-text-disabled mt-0.5 size-3.5" />
       </div>
 
       {isLoading ? (
@@ -84,12 +80,12 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
           ))}
         </div>
       ) : (
-        <Tooltip.Provider delayDuration={120}>
+        <TooltipProvider delayDuration={120}>
           {/* Month label row */}
           <div className="mb-1 flex gap-[3px]">
             {grid.map((_, wi) => (
               <div key={wi} className="flex-1 overflow-hidden">
-                <span className="block truncate text-center text-[8px] leading-none text-text-disabled">
+                <span className="text-text-disabled block truncate text-center text-[8px] leading-none">
                   {monthLabels[wi] ?? ''}
                 </span>
               </div>
@@ -109,13 +105,13 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
                   const isToday = cell.date === dayjs().format('YYYY-MM-DD');
 
                   return (
-                    <Tooltip.Root key={di}>
-                      <Tooltip.Trigger asChild>
+                    <Tooltip key={di}>
+                      <TooltipTrigger asChild>
                         <div
                           className={cn(
                             'aspect-square w-full cursor-default rounded-sm border transition-all duration-150',
                             isToday
-                              ? 'ring-1 ring-primary ring-offset-1 ring-offset-bg-surface'
+                              ? 'ring-primary ring-offset-bg-surface ring-1 ring-offset-1'
                               : '',
                           )}
                           style={{
@@ -129,33 +125,30 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
                                 : `rgba(124, 122, 255, ${Math.min(intensity + 0.1, 1)})`,
                           }}
                         />
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        <Tooltip.Content
-                          className="glass-card z-50 rounded-lg px-2.5 py-1.5 text-[11px] shadow-card"
-                          sideOffset={4}
-                        >
-                          <p className="font-semibold text-text-primary">
-                            {dayjs(cell.date).format('D MMM YYYY')}
-                          </p>
-                          <p className="tabular-nums text-text-secondary">
-                            {cell.amount === 0 ? 'No spending' : formatCurrency(cell.amount)}
-                          </p>
-                          <Tooltip.Arrow className="fill-bg-surface" />
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        className="glass-card shadow-card z-50 rounded-lg px-2.5 py-1.5 text-[11px]"
+                        sideOffset={4}
+                      >
+                        <p className="text-text-primary font-semibold">
+                          {dayjs(cell.date).format('D MMM YYYY')}
+                        </p>
+                        <p className="text-text-secondary tabular-nums">
+                          {cell.amount === 0 ? 'No spending' : formatCurrency(cell.amount)}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   );
                 })}
               </div>
             ))}
           </div>
-        </Tooltip.Provider>
+        </TooltipProvider>
       )}
 
       {/* Legend */}
       <div className="mt-3 flex items-center justify-end gap-1.5">
-        <span className="text-[9px] text-text-disabled">Less</span>
+        <span className="text-text-disabled text-[9px]">Less</span>
         {[0, 0.2, 0.4, 0.65, 0.9].map((v) => (
           <div
             key={v}
@@ -166,7 +159,7 @@ export function SpendingHeatmap({ data, isLoading }: SpendingHeatmapProps) {
             }}
           />
         ))}
-        <span className="text-[9px] text-text-disabled">More</span>
+        <span className="text-text-disabled text-[9px]">More</span>
       </div>
     </div>
   );
