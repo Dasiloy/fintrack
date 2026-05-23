@@ -22,8 +22,10 @@
       "source": "TransactionSource enum int — MANUAL=0, BANK=1, RECURRING=2, OCR=3, SPLIT=4",
       "date": "string — ISO date",
       "description": "string (optional)",
-      "categoryId": "string",
-      "merchant": "string (optional)"
+      "category_slug": "string — resolved to category for this user or system",
+      "merchant": "string (optional)",
+      "source_id": "string",
+      "source_data": "string (optional) — JSON string merged into row"
     },
     "output": {
       "id": "string",
@@ -39,8 +41,9 @@
     },
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
-      "INVALID_ARGUMENT": "Amount ≤ 0 or missing required fields",
-      "NOT_FOUND": "categoryId does not exist",
+      "INVALID_ARGUMENT": "Unknown type/source enum",
+      "NOT_FOUND": "category_slug does not resolve",
+      "ALREADY_EXISTS": "Unique constraint violation (e.g. duplicate bank transaction)",
       "INTERNAL": "Unexpected error"
     }
   },
@@ -51,14 +54,15 @@
     "description": "Bulk-create transactions for the authenticated user. Used by the account sync pipeline after AI classification.",
     "authentication": "RpcAuthGuard — JWT in gRPC metadata",
     "input": {
-      "transactions": "array of CreateTransactionReq — each item matches the createTransaction input shape"
+      "transactions": "array of bank-import rows — each item uses categoryId (UUID), optional bankTransactionId for idempotency"
     },
     "output": {
-      "transactions": "array of Transaction objects"
+      "created": "int32 — rows inserted this call",
+      "skipped": "int32 — rows skipped as duplicates or unchanged"
     },
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
-      "INVALID_ARGUMENT": "Any item fails validation",
+      "INVALID_ARGUMENT": "Unknown type/source enum on any item",
       "INTERNAL": "Unexpected error"
     }
   },
@@ -83,6 +87,7 @@
     },
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
+      "INVALID_ARGUMENT": "Unknown type or source enum in filter arrays",
       "INTERNAL": "Unexpected error"
     }
   },
@@ -123,7 +128,8 @@
       "amount": "string (optional)",
       "type": "TransactionType int (optional)",
       "description": "string (optional)",
-      "categoryId": "string (optional)",
+      "category_slug": "string (optional)",
+      "notes": "string (optional)",
       "merchant": "string (optional)"
     },
     "output": {
@@ -133,8 +139,8 @@
     },
     "throws": {
       "UNAUTHENTICATED": "JWT missing or invalid",
-      "NOT_FOUND": "Transaction not found or not owned by user",
-      "INVALID_ARGUMENT": "Validation failed",
+      "NOT_FOUND": "Transaction not found, not owned by user, or category_slug does not resolve",
+      "INVALID_ARGUMENT": "Unknown type enum or invalid payload",
       "INTERNAL": "Unexpected error"
     }
   },
@@ -152,6 +158,27 @@
       "UNAUTHENTICATED": "JWT missing or invalid",
       "NOT_FOUND": "Transaction not found or not owned by user",
       "INTERNAL": "Unexpected error"
+    }
+  },
+
+  "getTransactionSummary": {
+    "rpc": "GetTransactionSummary",
+    "proto_method": "rpc GetTransactionSummary (Empty) returns (GetTransactionSummaryRes)",
+    "description": "Dashboard aggregates: net balance, current calendar month income/expense/net from UserBalance (when monthYear matches), balanceChangePct vs latest MonthlyBalanceSnapshot or stale balance fallback, Mon–Sun ISO week daily expenses, 84-day expense heatmap, and monthly income/expense series (snapshots plus live current month).",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": {},
+    "output": {
+      "netBalance": "string — decimal, all-time net",
+      "monthlyIncome": "string — decimal, current month (0 if balance row is stale month)",
+      "monthlyExpense": "string — decimal",
+      "monthlyNet": "string — monthlyIncome - monthlyExpense",
+      "balanceChangePct": "double — percent change vs reference prior month net",
+      "weeklySpending": "array DailySpending — 7 days Mon–Sun this ISO week",
+      "spendingHeatmap": "array DailySpending — 84 consecutive days, EXPENSE totals, zero-filled",
+      "monthlySeries": "array MonthlyFinancials — up to 12 archived months oldest→newest plus current month appended"
+    },
+    "throws": {
+      "UNAUTHENTICATED": "JWT missing or invalid"
     }
   }
 }

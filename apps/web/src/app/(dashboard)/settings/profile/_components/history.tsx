@@ -178,14 +178,16 @@ export function History() {
               </Text>
             </div>
           </SkeletonWrapper>
-          <SkeletonWrapper
-            loading={twoFaData.isPending}
-            className="mb-space-2 h-5 w-auto max-w-4/5"
-          >
-            <Text color={'secondary'} variant={'body-sm'} className="font-bold">
-              Complete 2FA to reach 100% security score.
-            </Text>
-          </SkeletonWrapper>
+          {!hasTwoFactor && (
+            <SkeletonWrapper
+              loading={twoFaData.isPending}
+              className="mb-space-2 h-5 w-auto max-w-4/5"
+            >
+              <Text color={'secondary'} variant={'body-sm'} className="font-bold">
+                Complete 2FA to reach 100% security score.
+              </Text>
+            </SkeletonWrapper>
+          )}
         </div>
         <Separator orientation={isMobile ? 'horizontal' : 'vertical'} />
         {/** LAST LOGIN */}

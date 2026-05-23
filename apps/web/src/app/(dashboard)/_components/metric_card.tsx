@@ -16,6 +16,7 @@ export interface MetricCardProps {
   isLoading?: boolean;
   /** Mount stagger delay in ms */
   delay?: number;
+  className?: string;
 }
 
 export function MetricCard({
@@ -26,6 +27,7 @@ export function MetricCard({
   accentColor,
   isLoading = false,
   delay = 0,
+  className,
 }: MetricCardProps) {
   const [mounted, setMounted] = React.useState(false);
 
@@ -36,7 +38,7 @@ export function MetricCard({
 
   if (isLoading) {
     return (
-      <div className="bg-bg-surface border-border-subtle flex items-center gap-3 rounded-xl border px-4 py-3">
+      <div className={cn('bg-bg-surface border-border-subtle flex items-center gap-3 rounded-xl border px-4 py-3', className)}>
         <Skeleton className="size-8 shrink-0 rounded-lg" />
         <div className="space-y-1.5">
           <Skeleton className="h-[10px] w-14 rounded" />
@@ -52,6 +54,7 @@ export function MetricCard({
         'bg-bg-surface border-border-subtle flex items-center gap-3 rounded-xl border px-4 py-3',
         'transition-all duration-500 ease-out',
         mounted ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
+        className,
       )}
     >
       {/* Icon badge */}
@@ -66,11 +69,11 @@ export function MetricCard({
       </div>
 
       {/* Label + value */}
-      <div className="min-w-0">
-        <p className="text-text-disabled text-[10px] leading-none font-semibold tracking-widest uppercase">
+      <div className="min-w-0 overflow-hidden">
+        <p className="text-text-disabled truncate text-[10px] leading-none font-semibold tracking-widest uppercase">
           {label}
         </p>
-        <p className="text-text-primary mt-1 text-[17px] leading-none font-bold tracking-tight tabular-nums">
+        <p className="text-text-primary mt-1 truncate text-[17px] leading-none font-bold tracking-tight tabular-nums">
           {format(value)}
         </p>
       </div>

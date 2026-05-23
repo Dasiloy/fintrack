@@ -25,15 +25,17 @@ import {
   StyledTableHeader,
   type ColumnDef,
 } from '@/app/_components/styledTable';
-import { capitalize, flattenObject, formatCurrency } from '@fintrack/utils/format';
+import { capitalize, flattenObject } from '@fintrack/utils/format';
 import { DateRange, Menu } from '@/app/_components';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
 import { useCsv } from '@ui/hooks';
 import { useProGate } from '@/hooks/use_pro_gate';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 export default function TransactionsPage() {
+  const formatCurrency = useFormatCurrency();
   // ── Hooks ────────────────────────────────────────────────────────────────
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = React.useState<CategoryTab>({

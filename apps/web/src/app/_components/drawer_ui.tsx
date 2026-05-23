@@ -53,7 +53,7 @@ export function Section({ label, children }: { label: string; children: React.Re
   return (
     <div>
       <SectionLabel>{label}</SectionLabel>
-      <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
+      <div className="bg-bg-surface shadow-card overflow-hidden rounded-lg">
         <div className="divide-border-light divide-y px-3">{children}</div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import {
   removeNotificationAtom,
 } from '@/lib/jotai/notification';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 type NotifData = Record<string, string> | null;
 
@@ -62,6 +63,7 @@ function getNotificationGroup(date: Date): NotificationGroupKey {
 }
 
 function NotificationCard({ notification }: { notification: NotificationItem }) {
+  const formatCurrency = useFormatCurrency();
   const isRead = notification.read;
   const createdAt = new Date(notification.createdAt);
   const removeNotification = useSetAtom(removeNotificationAtom);
@@ -189,8 +191,8 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
         {/* Entity detail line */}
         {data?.type === 'transaction' && data.transactionAmount && (
           <p className="text-text-disabled mt-0.5 pl-7.5 text-[10px] font-medium tabular-nums">
-            {data.transactionType === 'EXPENSE' ? '-' : '+'}₦
-            {Number(data.transactionAmount).toLocaleString('en-NG')}
+            {data.transactionType === 'EXPENSE' ? '-' : '+'}
+            {formatCurrency(Number(data.transactionAmount))}
             {data.transactionSource
               ? ` · ${data.transactionSource.charAt(0) + data.transactionSource.slice(1).toLowerCase()}`
               : ''}

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { format, parseLocalDate } from '@fintrack/utils/date';
-import { capitalize, formatCurrency, onlyNumbers } from '@fintrack/utils/format';
+import { capitalize, onlyNumbers } from '@fintrack/utils/format';
 import { Trash2 } from 'lucide-react';
 import {
   Badge,
@@ -37,6 +37,7 @@ import {
 } from '@/app/_components';
 import { useBanks } from '@/hooks/use_banks';
 import Image from 'next/image';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 // ---------------------------------------------------------------------------
 // Edit state shape
@@ -83,6 +84,7 @@ export function TransactionDrawer({
   categories,
   onDeleted,
 }: TransactionDrawerProps) {
+  const formatCurrency = useFormatCurrency();
   const [editMode, setEditMode] = React.useState(false);
   const [edit, setEdit] = React.useState<EditState>({
     amount: '',

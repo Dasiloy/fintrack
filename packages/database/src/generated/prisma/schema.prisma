@@ -282,6 +282,8 @@ model User {
   monoBankAccounts          MonoBankAccount[]
   notifications             Notification[]
   classificationCorrections ClassificationCorrection[]
+  userBalance               UserBalance?
+  monthlyBalanceSnapshots   MonthlyBalanceSnapshot[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -448,6 +450,40 @@ model UsageTracker {
 
   @@unique([userId, feature, periodStart])
   @@index([userId, feature])
+}
+
+model UserBalance {
+  id String @id @default(cuid())
+
+  netBalance     Decimal @default(0) @db.Decimal(20, 2)
+  totalIncome    Decimal @default(0) @db.Decimal(20, 2)
+  totalExpense   Decimal @default(0) @db.Decimal(20, 2)
+  monthlyIncome  Decimal @default(0) @db.Decimal(20, 2)
+  monthlyExpense Decimal @default(0) @db.Decimal(20, 2)
+  monthYear      String // "YYYY-MM" — which month the monthly counters belong to
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MonthlyBalanceSnapshot {
+  id String @id @default(cuid())
+
+  monthYear String // "YYYY-MM"
+  income    Decimal @db.Decimal(20, 2)
+  expense   Decimal @db.Decimal(20, 2)
+  net       Decimal @db.Decimal(20, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, monthYear])
 }
 
 model BackupCodes {
