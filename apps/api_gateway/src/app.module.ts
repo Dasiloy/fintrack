@@ -86,6 +86,7 @@ import { UserModule } from './user/user.module';
         AI_SERVICE_PORT: Joi.string().required(),
         SCHEDULER_SERVICE_HOST: Joi.string().required(),
         SCHEDULER_SERVICE_PORT: Joi.string().required(),
+        FIREBASE_SERVICE_ACCOUNT: Joi.string().required(),
       }),
     }),
 
