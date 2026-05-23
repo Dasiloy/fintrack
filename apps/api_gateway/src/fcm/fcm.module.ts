@@ -22,7 +22,7 @@ import { FcmProcessor } from './fcm.processor';
       useFactory: () => {
         return admin.initializeApp({
           credential: admin.credential.cert(
-            require.resolve('../../../../service.json') as admin.ServiceAccount,
+            JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!) as admin.ServiceAccount,
           ),
         });
       },
