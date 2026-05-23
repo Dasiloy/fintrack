@@ -135,6 +135,8 @@ export const splitRouter = createTRPCRouter({
         id: z.string().min(1),
         name: z.string().min(1).max(255).optional(),
         amount: z.number().min(0).optional(),
+        transactionId: z.string().min(1).optional(),
+        unlinkTransaction: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

@@ -60,6 +60,10 @@ export function SecurityLayout() {
             if (['email', 'two-factor'].includes(nav.id) && !data?.data?.hasPassword) {
               return undefined;
             }
+            // Social-linked accounts cannot change their email
+            if (nav.id === 'email' && data?.data?.hasSocial) {
+              return undefined;
+            }
             return nav;
           }).map(({ id, label, icon: Icon, danger }) => {
             const isActive = active === id;

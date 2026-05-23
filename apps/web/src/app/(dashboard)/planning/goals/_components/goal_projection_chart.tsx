@@ -14,9 +14,10 @@ import {
   ChartTooltipContent,
   Skeleton,
 } from '@ui/components';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { ProjectionPoint } from '@fintrack/types/protos/finance/goal';
 import { monthLabel, formatYAxisTick, goalProjectionChartConfig } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 type ViewRange = '6M' | '12M';
 
@@ -25,7 +26,9 @@ interface GoalProjectionChartProps {
   isLoading?: boolean;
 }
 
-export function GoalProjectionChart({ data, isLoading }: GoalProjectionChartProps) {
+export function GoalProjectionChart({
+  data, isLoading }: GoalProjectionChartProps) {
+  const formatCurrency = useFormatCurrency();
   const [range, setRange] = React.useState<ViewRange>('6M');
 
   if (isLoading) {

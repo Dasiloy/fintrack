@@ -62,6 +62,25 @@
     scrollbar-width: none;
   }
 
+  /** Thin styled scrollbar matching the dark design system */
+  .ft-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ft-color-border-light) transparent;
+  }
+  .ft-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .ft-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ft-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--ft-color-border-light);
+    border-radius: 999px;
+  }
+  .ft-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--ft-color-text-disabled);
+  }
+
   .animate-landing-float {
     animation: landing-float 20s infinite ease-in-out;
     will-change: transform;

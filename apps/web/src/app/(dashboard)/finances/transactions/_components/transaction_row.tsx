@@ -1,7 +1,7 @@
 import { TransactionSource } from '@fintrack/database/types';
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 import { format } from '@fintrack/utils/date';
-import { capitalize, formatCurrency } from '@fintrack/utils/format';
+import { capitalize } from '@fintrack/utils/format';
 import { cn } from '@ui/lib/utils';
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@ui/components';
 import { Edit2, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 export interface TransactionRowProps {
   transaction: Transaction;
@@ -26,6 +27,7 @@ export function TransactionRow({
   onEdit,
   onDelete,
 }: TransactionRowProps) {
+  const formatCurrency = useFormatCurrency();
   const expense = transaction.type;
   const recurring = transaction.source === TransactionSource.RECURRING;
   const time = format(transaction.date, 'h:mm a');

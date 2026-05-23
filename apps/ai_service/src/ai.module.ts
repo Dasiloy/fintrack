@@ -56,6 +56,8 @@ import { RegistoryModule } from './registory/registory.module';
         OPENAI_API_KEY: Joi.string().required(),
         ANTHROPIC_API_KEY: Joi.string().required(),
         GOOGLE_GEN_AI_API_KEY: Joi.string().required(),
+        AI_SERVICE_HOST: Joi.string().required(),
+        AI_SERVICE_PORT: Joi.string().required(),
       }),
     }),
     DatabaseModule,

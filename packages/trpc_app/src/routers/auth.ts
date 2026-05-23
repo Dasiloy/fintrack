@@ -25,29 +25,35 @@ export const authrouter = createTRPCRouter({
    * @returns `twoFactorEnabled` — whether TOTP is active
    * @returns `codeLeft` — number of unused backup codes remaining
    * @returns `hasPassword` — false for social-only accounts
+   * @returns `hasSocial` — true when the user has at least one OAuth provider linked
    * @throws INTERNAL_SERVER_ERROR on unexpected database failure
    */
   get2fa: protectedProcedure.query(async ({ ctx }) => {
     try {
-      const { twoFactorEnabled, password } = await ctx.db.user.findUniqueOrThrow({
-        where: { email: ctx.session.user.email },
-        select: {
-          twoFactorEnabled: true,
-          password: true,
-        },
-      });
-
-      const codeLeft = await ctx.db.backupCodes.count({
-        where: { userId: ctx.session.user.id, usedAt: null },
-      });
+      const [{ twoFactorEnabled, password }, codeLeft, socialCount] = await Promise.all([
+        ctx.db.user.findUniqueOrThrow({
+          where: { email: ctx.session.user.email },
+          select: {
+            twoFactorEnabled: true,
+            password: true,
+          },
+        }),
+        ctx.db.backupCodes.count({
+          where: { userId: ctx.session.user.id, usedAt: null },
+        }),
+        ctx.db.account.count({
+          where: { userId: ctx.session.user.id, NOT: { provider: 'LOCAL' } },
+        }),
+      ]);
 
       const data: StandardResponse<{
         codeLeft: number;
         twoFactorEnabled: boolean;
         hasPassword: boolean;
+        hasSocial: boolean;
       }> = {
         message: 'Count fetched successfully',
-        data: { codeLeft, twoFactorEnabled, hasPassword: !!password },
+        data: { codeLeft, twoFactorEnabled, hasPassword: !!password, hasSocial: socialCount > 0 },
         statusCode: 200,
         success: true,
       };
@@ -425,6 +431,16 @@ export const authrouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const socialCount = await ctx.db.account.count({
+        where: { userId: ctx.session.user.id, NOT: { provider: 'LOCAL' } },
+      });
+      if (socialCount > 0) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Email change is not available for accounts linked to a social provider.',
+        });
+      }
+
       const response = await fetch(`${GATEWAY_URL}/api/auth/email/initiate`, {
         method: 'POST',
         body: JSON.stringify(input),

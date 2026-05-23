@@ -13,8 +13,9 @@ import {
 import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { onlyNumbers, formatCurrency } from '@fintrack/utils/format';
+import { onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface GoalContributionFormProps {
   goalId: string;
@@ -29,6 +30,7 @@ export function GoalContributionForm({
   onSuccess,
   onCancel,
 }: GoalContributionFormProps) {
+  const formatCurrency = useFormatCurrency();
   const [amount, setAmount] = React.useState('');
   const [date, setDate] = React.useState<Date>(new Date());
   const [dateOpen, setDateOpen] = React.useState(false);

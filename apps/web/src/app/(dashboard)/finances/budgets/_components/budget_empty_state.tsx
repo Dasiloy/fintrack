@@ -2,6 +2,8 @@
 
 import { PiggyBank } from 'lucide-react';
 import { Button } from '@ui/components';
+import { langToLocale } from '@fintrack/utils/format';
+import { useUserPreferences } from '@/app/providers/user_preferences_provider';
 
 interface BudgetEmptyStateProps {
   month: Date;
@@ -9,7 +11,8 @@ interface BudgetEmptyStateProps {
 }
 
 export function BudgetEmptyState({ month, onNew }: BudgetEmptyStateProps) {
-  const monthName = month.toLocaleDateString('en-NG', { month: 'long', year: 'numeric' });
+  const { language } = useUserPreferences();
+  const monthName = month.toLocaleDateString(langToLocale(language), { month: 'long', year: 'numeric' });
 
   return (
     <div className="col-span-full flex flex-col items-center gap-4 py-16 text-center">

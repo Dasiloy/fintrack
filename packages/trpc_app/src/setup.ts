@@ -223,12 +223,13 @@ export const protectedProcedureWithPlanLimits = protectedProcedure
             }
             count = await ctx.db.splitParticipant.count({
               where: {
-                id: input.splitId,
+                splitId: input.splitId,
                 split: {
                   userId: ctx.session.user.id,
                 },
               },
             });
+            break;
 
           default:
             count = Infinity;

@@ -1,0 +1,97 @@
+'use client';
+
+import * as React from 'react';
+import { Goal } from 'lucide-react';
+import { Skeleton } from '@ui/components';
+import { cn } from '@ui/lib/utils/cn';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
+
+interface GoalFundingCardProps {
+  avgMonthlyContribution?: number;
+  monthlyIncome?: number;
+  isLoading: boolean;
+}
+
+export function GoalFundingCard({
+  avgMonthlyContribution = 0,
+  monthlyIncome = 0,
+  isLoading,
+}: GoalFundingCardProps) {
+  const formatCurrency = useFormatCurrency();
+
+  const pct = monthlyIncome > 0
+    ? Math.min((avgMonthlyContribution / monthlyIncome) * 100, 999)
+    : null;
+
+  const status = pct === null ? 'neutral'
+    : pct >= 10 ? 'green'
+    : pct >= 5 ? 'amber'
+    : 'red';
+
+  const label = pct === null
+    ? 'No income recorded'
+    : pct >= 10
+      ? 'Strong — 10%+ going to goals'
+      : pct >= 5
+        ? 'Moderate — aim for 10%'
+        : avgMonthlyContribution === 0
+          ? 'No goal contributions yet'
+          : 'Low — increase goal contributions';
+
+  return (
+    <div className="glass-card rounded-card flex flex-col gap-4 p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-text-primary text-[13px] font-semibold">Goal Funding Rate</h3>
+          <p className="text-text-tertiary text-[11px]">Avg monthly income directed to goals</p>
+        </div>
+        <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-bg-elevated">
+          <Goal className="text-text-disabled size-3.5" />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-24 rounded-lg" />
+          <Skeleton className="h-3 w-full rounded-full" />
+          <Skeleton className="h-4 w-40 rounded" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <span
+            className={cn(
+              'text-[28px] font-bold tabular-nums leading-none',
+              status === 'green' && 'text-emerald-400',
+              status === 'amber' && 'text-amber-400',
+              status === 'red' && 'text-red-400',
+              status === 'neutral' && 'text-text-disabled',
+            )}
+          >
+            {pct === null ? '—' : `${pct.toFixed(1)}%`}
+          </span>
+
+          {/* Progress bar */}
+          <div className="bg-border-light h-1.5 w-full overflow-hidden rounded-full">
+            <div
+              className={cn(
+                'h-full rounded-full transition-all',
+                status === 'green' && 'bg-emerald-400',
+                status === 'amber' && 'bg-amber-400',
+                status === 'red' && 'bg-red-400',
+                status === 'neutral' && 'bg-text-disabled',
+              )}
+              style={{ width: pct !== null ? `${Math.min(pct, 100)}%` : '0%' }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-text-tertiary text-[11px]">{label}</p>
+            <span className="text-text-tertiary shrink-0 text-[11px] tabular-nums">
+              {formatCurrency(avgMonthlyContribution)}/mo avg
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

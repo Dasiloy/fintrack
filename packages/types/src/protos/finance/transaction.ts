@@ -119,6 +119,19 @@ export interface GetTransactionsRes {
   meta: PaginateResponse | undefined;
 }
 
+export interface SearchTransactionsReq {
+  /** partial text — union ILIKE across description, merchant, notes, narration */
+  q: string;
+  /** "EXPENSE" | "INCOME" | "" (all) */
+  type: string;
+  /** default 20, max 50 */
+  limit: number;
+}
+
+export interface SearchTransactionsRes {
+  transactions: Transaction[];
+}
+
 export interface GetTransactionReq {
   id: string;
 }
@@ -168,6 +181,48 @@ export interface BatchCreateTransactionsReq {
 export interface BatchCreateTransactionsRes {
   created: number;
   skipped: number;
+}
+
+/** Daily expense total for a single calendar day. */
+export interface DailySpending {
+  /** "YYYY-MM-DD" */
+  date: string;
+  /** decimal string, expense amount only */
+  amount: string;
+}
+
+/** Aggregated income and expense for a single calendar month. */
+export interface MonthlyFinancials {
+  /** "YYYY-MM" */
+  month: string;
+  /** decimal string */
+  income: string;
+  /** decimal string */
+  expense: string;
+}
+
+export interface GetTransactionSummaryReq {
+  /** how many months of monthly_series to return (server caps per plan) */
+  months?: number | undefined;
+}
+
+export interface GetTransactionSummaryRes {
+  /** all-time income - expense */
+  netBalance: string;
+  /** current calendar month INCOME sum */
+  monthlyIncome: string;
+  /** current calendar month EXPENSE sum */
+  monthlyExpense: string;
+  /** monthly_income - monthly_expense */
+  monthlyNet: string;
+  /** ((this_month_net - last_month_net) / |last_month_net|) * 100 */
+  balanceChangePct: number;
+  /** Mon-Sun this week (up to 7 items) */
+  weeklySpending: DailySpending[];
+  /** last 84 days (12 weeks x 7) */
+  spendingHeatmap: DailySpending[];
+  /** last N months for trend charts */
+  monthlySeries: MonthlyFinancials[];
 }
 
 export const FINANCE_PACKAGE_NAME = "finance";

@@ -1,4 +1,7 @@
+import { join } from 'path';
+
 import { MailerService } from '@nestjs-modules/mailer';
+import type { ISendMailOptions } from '@nestjs-modules/mailer';
 
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -35,13 +38,27 @@ export class NotificationService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  private sendEmail(options: ISendMailOptions): Promise<unknown> {
+    return this.mailerService.sendMail({
+      ...options,
+      attachments: [
+        {
+          filename: 'logo-icon-white.png',
+          path: join(__dirname, '..', 'assets', 'logo-icon-white.png'),
+          cid: 'fintrack-logo',
+        },
+        ...(options.attachments ?? []),
+      ],
+    });
+  }
+
   /**
    * Sends a verification email with an OTP
    * @param {EmailVerificationPayload} data email, otp, firstName, lastName
    */
   async sendVerificationEmail(data: EmailVerificationPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Verify your email - Fintrack',
         template: './email_verification',
@@ -68,7 +85,7 @@ export class NotificationService {
    */
   async sendWelcomeEmail(data: WelcomeEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Welcome to Fintrack! Your account is verified',
         template: './welcome',
@@ -104,7 +121,7 @@ export class NotificationService {
    */
   async sendForgotPasswordEmail(data: ForgotPasswordEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Reset your password - Fintrack',
         template: './password_reset',
@@ -129,7 +146,7 @@ export class NotificationService {
    */
   async sendEmailChangeEmail(data: EmailChangePayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Confirm your new email address - Fintrack',
         template: './email_change',
@@ -155,7 +172,7 @@ export class NotificationService {
    */
   async sendEmailChangedEmail(data: EmailChangedPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.oldEmail,
         subject: 'Security Alert: Email Address Changed - Fintrack',
         template: './email_changed',
@@ -181,7 +198,7 @@ export class NotificationService {
    */
   async sendPasswordChangeEmail(data: PasswordChangeEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Security Alert: Password Changed - Fintrack',
         template: './password_change',
@@ -206,7 +223,7 @@ export class NotificationService {
    */
   async sendCheckoutSessionEmail(data: CheckoutSessionEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Subscription Activated - Fintrack',
         template: './stripe_checkout',
@@ -233,7 +250,7 @@ export class NotificationService {
    */
   async sendInvoicePaidEmail(data: InvoicePaidEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Invoice Paid - Fintrack',
         template: './invoice_paid',
@@ -264,7 +281,7 @@ export class NotificationService {
    */
   async sendPaymentFailedEmail(data: PaymentFailedEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Payment Failed - Fintrack',
         template: './payment_failed',
@@ -291,7 +308,7 @@ export class NotificationService {
     data: SubscriptionActivatedEmailPayload,
   ) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Subscription Activated - Fintrack',
         template: './subscription_activated',
@@ -318,7 +335,7 @@ export class NotificationService {
     data: SubscriptionCancelledEmailPayload,
   ) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Subscription Cancelled - Fintrack',
         template: './subscription_cancelled',
@@ -343,7 +360,7 @@ export class NotificationService {
    */
   async sendSubscriptionEndedEmail(data: SubscriptionEndedEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Subscription Ended - Fintrack',
         template: './subscription_ended',
@@ -370,7 +387,7 @@ export class NotificationService {
     data: NewUsageTrackersCreatedEmailPayload,
   ) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'New usage trackers created - Fintrack',
         template: './new_usage_trackers_created',
@@ -396,7 +413,7 @@ export class NotificationService {
    */
   async sendAccountDeletionEmail(data: AccountDeletionEmailPayload) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Account Deletion - Fintrack',
         template: './account_deletion',
@@ -422,7 +439,7 @@ export class NotificationService {
         ? 'Budget Alert — 1 budget needs attention'
         : `Budget Alert — ${count} budgets need attention`;
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject,
         template: './budget_alert',
@@ -461,7 +478,7 @@ export class NotificationService {
     data: RecurringTransactionsEmailPayload,
   ) {
     try {
-      await this.mailerService.sendMail({
+      await this.sendEmail({
         to: data.email,
         subject: 'Your recurring transactions have been processed - Fintrack',
         template: './recurring_transactions',

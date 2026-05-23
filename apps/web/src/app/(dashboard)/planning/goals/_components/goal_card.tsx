@@ -34,10 +34,11 @@ import {
 } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import { format } from '@fintrack/utils/date';
 import type { Goal } from '@fintrack/types/protos/finance/goal';
 import { progressBarColor, priorityVariant, statusVariant, statusLabel } from '../helpers';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface GoalCardProps {
   goal: Goal;
@@ -46,7 +47,9 @@ interface GoalCardProps {
   onEdit: (id: string) => void;
 }
 
-export function GoalCard({ goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
+export function GoalCard({
+  goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
+  const formatCurrency = useFormatCurrency();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
 

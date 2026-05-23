@@ -110,6 +110,10 @@ export interface UpdateSplitReq {
   id: string;
   name?: string | undefined;
   amount?: number | undefined;
+  /** UUID — link an EXPENSE transaction */
+  transactionId?: string | undefined;
+  /** true — remove existing transaction link */
+  unlinkTransaction?: boolean | undefined;
 }
 
 export interface AddParticipantReq {

@@ -2,17 +2,20 @@
 
 import { Flame } from 'lucide-react';
 import { Badge } from '@ui/components';
-import { formatCurrency } from '@fintrack/utils/format';
+
 import type { GoalsAggregate } from '@fintrack/types/protos/finance/goal';
 import { milestoneForStreak, monthLabel } from '../helpers';
 import { GoalHealthPanelSkeleton } from './goal_health_panel_skeleton';
+import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 interface GoalHealthPanelProps {
   aggregate: GoalsAggregate | undefined;
   isLoading: boolean;
 }
 
-export function GoalHealthPanel({ aggregate, isLoading }: GoalHealthPanelProps) {
+export function GoalHealthPanel({
+  aggregate, isLoading }: GoalHealthPanelProps) {
+  const formatCurrency = useFormatCurrency();
   if (isLoading) return <GoalHealthPanelSkeleton />;
 
   const streak = aggregate?.streakMonths ?? 0;
