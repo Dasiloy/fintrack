@@ -57,6 +57,6 @@ async function bootstrap() {
 
   // start microservice
   await app.listen();
-  logger.log(`Running on port ${process.env.AI_SERVICE_PORT}`);
+  logger.log(`Running on port ${process.env[`${serviceName}_PORT`]}`);
 }
 bootstrap();
