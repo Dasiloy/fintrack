@@ -49,7 +49,7 @@ export function ProfileLayout() {
       });
     },
     onSettled: () => {
-      setSaveTrack((prev) => ({
+      setSaveTrack(() => ({
         currency: false,
         locale: false,
         timezone: false,
@@ -77,7 +77,7 @@ export function ProfileLayout() {
         {/**Right */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <Sectionshell
-            disabled={updateMyProfile.isPending}
+            disabled={true}
             color="green"
             title="Primary Currency"
             onSave={() => {
@@ -87,7 +87,7 @@ export function ProfileLayout() {
               });
             }}
             isSaving={updateMyProfile.isPending && !!saveTrack.currency}
-            description="Define your global transaction unit"
+            description="Only NGN is supported at this time"
             Icon={<Currency className="size-6 text-green-700" aria-hidden />}
           >
             <Searchable
@@ -97,7 +97,7 @@ export function ProfileLayout() {
               placeholder="Select a currency"
               noItemsFound="No currencies found"
               items={currenciesData.map((currency) => currency.currency)}
-              disabled={currencies.isLoading}
+              disabled={true}
             />
           </Sectionshell>
           <Sectionshell

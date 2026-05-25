@@ -77,7 +77,8 @@ export function TransactionFormDialog({
   const createMutation = api_client.transaction.create.useMutation({
     onSuccess: () => {
       toast.success('Transaction created');
-      utils.transaction.getAll.invalidate();
+      void utils.transaction.getAll.invalidate();
+      void utils.transaction.getSummary.invalidate();
       onSuccess?.();
       onOpenChange(false);
     },
@@ -87,8 +88,9 @@ export function TransactionFormDialog({
   const updateMutation = api_client.transaction.update.useMutation({
     onSuccess: () => {
       toast.success('Transaction updated');
-      utils.transaction.getAll.invalidate();
-      utils.transaction.getById.invalidate({ id: transaction!.id });
+      void utils.transaction.getAll.invalidate();
+      void utils.transaction.getById.invalidate({ id: transaction!.id });
+      void utils.transaction.getSummary.invalidate();
       onSuccess?.();
       onOpenChange(false);
     },
