@@ -4,7 +4,6 @@ import { SidebarInset, SidebarProvider } from '@ui/components';
 import { AppSidebar } from '@/app/_components/app-sidebar';
 import type { Session } from 'next-auth';
 import { usePushNotifications } from '@/hooks/use_notifications';
-import { useAnalytics } from '@/hooks/use_analytics';
 import { useActivity } from '@/hooks/use_activity';
 
 export default function DashboardLayout({
@@ -14,7 +13,6 @@ export default function DashboardLayout({
   sidebarDefaultOpen = true,
 }: React.PropsWithChildren & { session: Session; isPro: boolean; sidebarDefaultOpen?: boolean }) {
   usePushNotifications();
-  useAnalytics();
   useActivity();
 
   return (

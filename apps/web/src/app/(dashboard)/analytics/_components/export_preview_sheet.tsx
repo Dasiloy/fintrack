@@ -117,13 +117,22 @@ function PreviewBody({
 
   if (mimeType === 'image/png') {
     const dataUrl = `data:image/png;base64,${base64}`;
+    const isEmpty = previewData?.rows.length === 0;
     return (
-      <div className="bg-bg-deep flex h-full w-full items-center justify-center overflow-auto p-4">
+      <div className="bg-bg-deep relative h-full w-full overflow-auto">
         <img
           src={dataUrl}
           alt="Export preview"
-          className="max-h-full max-w-full rounded-lg object-contain shadow-lg"
+          className="block h-auto w-full"
         />
+        {isEmpty && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="rounded-xl border border-border-subtle bg-bg-surface/90 px-5 py-3 text-center backdrop-blur-sm">
+              <p className="text-[12px] font-semibold text-text-primary">No data in this period</p>
+              <p className="mt-0.5 text-[10px] text-text-tertiary">The chart will populate once data is added</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

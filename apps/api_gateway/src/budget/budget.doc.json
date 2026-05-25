@@ -299,5 +299,10 @@
       "404": "Budget not found",
       "500": "Internal server error"
     }
+  },
+
+  "export_cache_invalidation": {
+    "description": "Successful budget mutations invalidate all Redis keys export:{userId}:* (fire-and-forget) so analytics exports regenerate on the next request.",
+    "service_methods": ["createBudget", "updateBudget", "deleteBudget", "restoreBudget"]
   }
 }

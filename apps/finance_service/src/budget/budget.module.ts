@@ -3,7 +3,6 @@ import { BullModule } from '@nestjs/bullmq';
 
 import {
   ACTIVITY_NOTIFICATION_QUEUE,
-  ANALYTICS_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { BudgetService } from './budget.service';
@@ -13,12 +12,7 @@ import { UtilsService } from '../utils.service';
 @Module({
   imports: [
     BullModule.registerQueue(
-      {
-        name: ACTIVITY_NOTIFICATION_QUEUE,
-      },
-      {
-        name: ANALYTICS_NOTIFICATION_QUEUE,
-      },
+      { name: ACTIVITY_NOTIFICATION_QUEUE },
     ),
   ],
   controllers: [BudgetController],
