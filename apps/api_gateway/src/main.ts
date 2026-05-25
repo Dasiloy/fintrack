@@ -26,10 +26,13 @@ async function bootstrap() {
   const logger = new Logger('API_GATEWAY');
   const configService = app.get<ConfigService>(ConfigService);
 
+  const origins = (process.env.NEXT_PUBLIC_APP_URL ?? '').split(',');
+  logger.log(origins);
+
   /// MIDDLEWARES
   // 1. cors
   app.enableCors({
-    origin: [process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'],
+    origin: origins,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   });
   // 2. helmet
