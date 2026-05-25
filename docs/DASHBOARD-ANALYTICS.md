@@ -1442,4 +1442,6 @@ Export buttons carry **no `useProGate` call**. The backend is the single enforce
 16. `pnpm --filter web tsc --noEmit` — no errors.
 
 responsiveness
-redocument export service and those services were invalidation was used
+ensure all pdf preview use app theme so they dont appear off in dark mode
+production transaction upload from receipt failed
+redocument all service and controller methods or export generators or services touched by export invalidations in modules concerned
