@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import dayjs from '@fintrack/utils/date';
 import { Metadata } from '@grpc/grpc-js';
 import { lastValueFrom } from 'rxjs';
 
