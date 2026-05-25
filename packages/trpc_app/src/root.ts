@@ -13,6 +13,7 @@ import {
   notificationRouter,
   banksRouter,
   merchantRouter,
+  exportRouter,
 } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
@@ -35,6 +36,7 @@ export const appRouter = createTRPCRouter({
   notification: notificationRouter,
   banks: banksRouter,
   merchant: merchantRouter,
+  export: exportRouter,
 });
 
 // Export type definition of API

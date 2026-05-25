@@ -41,6 +41,7 @@ import { SplitModule } from './split/split.module';
 import { AccountModule } from './account/account.module';
 import { UsageModule } from './usage/usage.module';
 import { UserModule } from './user/user.module';
+import { ExportModule } from './export/export.module';
 
 @Module({
   imports: [
@@ -204,6 +205,7 @@ import { UserModule } from './user/user.module';
     AccountModule,
     UsageModule,
     UserModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [
