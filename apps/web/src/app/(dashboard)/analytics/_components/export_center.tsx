@@ -13,7 +13,7 @@ import {
   Loader2,
   type LucideIcon,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { downloadFromBase64 } from '@fintrack/utils/file';
