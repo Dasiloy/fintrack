@@ -118,8 +118,9 @@ export function TransactionDrawer({
   const updateMutation = api_client.transaction.update.useMutation({
     onSuccess: () => {
       toast.success('Transaction updated');
-      utils.transaction.getAll.invalidate();
-      utils.transaction.getById.invalidate({ id: transaction!.id });
+      void utils.transaction.getAll.invalidate();
+      void utils.transaction.getById.invalidate({ id: transaction!.id });
+      void utils.transaction.getSummary.invalidate();
       setEditMode(false);
     },
     onError: (err) => toast.error('Failed to save', { description: err.message }),
@@ -128,7 +129,8 @@ export function TransactionDrawer({
   const deleteMutation = api_client.transaction.delete.useMutation({
     onSuccess: () => {
       toast.success('Transaction deleted');
-      utils.transaction.getAll.invalidate();
+      void utils.transaction.getAll.invalidate();
+      void utils.transaction.getSummary.invalidate();
       onOpenChange(false);
       onDeleted?.();
     },

@@ -27,7 +27,6 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
 
   const origins = (process.env.NEXT_PUBLIC_APP_URL ?? '').split(',');
-  logger.log(origins);
 
   /// MIDDLEWARES
   // 1. cors

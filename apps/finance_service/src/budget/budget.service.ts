@@ -10,8 +10,6 @@ import { Empty } from '@fintrack/types/protos/finance/transaction';
 import {
   ACTIVITY_NOTIFICATION_JOB,
   ACTIVITY_NOTIFICATION_QUEUE,
-  ANALYTICS_NOTIFICATION_JOB,
-  ANALYTICS_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
   Budget as ProtoBudget,
@@ -36,7 +34,6 @@ import {
 } from '@fintrack/database/types';
 
 import { UtilsService } from '../utils.service';
-import { AnalyticsNotificationPayload } from '@fintrack/types/interfaces/finance';
 
 type BudgetWithOptionalJoins = Budget & {
   category?: Category | null;
@@ -57,8 +54,6 @@ export class BudgetService {
     private readonly prismaService: PrismaService,
     @InjectQueue(ACTIVITY_NOTIFICATION_QUEUE)
     private readonly activityNotificationQueue: Queue,
-    @InjectQueue(ANALYTICS_NOTIFICATION_QUEUE)
-    private readonly analyticsNotificationQueue: Queue,
     private readonly utils: UtilsService,
   ) {}
 
@@ -845,16 +840,6 @@ export class BudgetService {
     };
     this.activityNotificationQueue.add(ACTIVITY_NOTIFICATION_JOB, activityData);
 
-    const analyticsData: AnalyticsNotificationPayload = {
-      userId,
-      event: normalizedEvent,
-      entityId: budget.id,
-      data,
-    };
-    this.analyticsNotificationQueue.add(
-      ANALYTICS_NOTIFICATION_JOB,
-      analyticsData,
-    );
   }
 
   /**

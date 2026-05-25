@@ -50,6 +50,11 @@ import {
  * - `createRecurring` and `deleteRecurring` also invalidate the gated usage
  *   cache via `UsageService.invalidateGatedUsageCache`.
  *
+ * ## Export cache invalidation
+ * All mutations call `invalidateExportCache(userId)` fire-and-forget, SCAN-deleting
+ * all Redis keys matching `export:{userId}:*`. Keeps spending-related exports fresh
+ * when recurring items change (scheduler-created transactions affect summaries).
+ *
  * @class RecurringService
  */
 @Injectable()
@@ -75,7 +80,7 @@ export class RecurringService implements OnModuleInit {
 
   /**
    * @description Forward a create request to the Finance microservice and
-   * invalidate the gated-usage and aggregate caches fire-and-forget.
+   * invalidate the gated-usage, aggregate, and analytics export caches fire-and-forget.
    *
    * @async
    * @public
@@ -107,6 +112,7 @@ export class RecurringService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     void this.invalidateAggregateCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
@@ -189,7 +195,7 @@ export class RecurringService implements OnModuleInit {
 
   /**
    * @description Forward a partial update to the Finance microservice and
-   * invalidate the aggregate cache fire-and-forget.
+   * invalidate the aggregate and analytics export caches fire-and-forget.
    *
    * @async
    * @public
@@ -209,12 +215,13 @@ export class RecurringService implements OnModuleInit {
       this.financeService.updateRecurring({ ...data, id }, metadata),
     );
     void this.invalidateAggregateCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * @description Toggle the `isActive` flag via gRPC and invalidate the
-   * aggregate cache fire-and-forget.
+   * aggregate and analytics export caches fire-and-forget.
    *
    * @async
    * @public
@@ -229,12 +236,13 @@ export class RecurringService implements OnModuleInit {
       this.financeService.toggleRecurring({ id }, metadata),
     );
     void this.invalidateAggregateCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
-   * @description Delete a recurring item via gRPC and invalidate both the
-   * gated-usage and aggregate caches fire-and-forget.
+   * @description Delete a recurring item via gRPC and invalidate the
+   * gated-usage, aggregate, and analytics export caches fire-and-forget.
    *
    * @async
    * @public
@@ -250,6 +258,7 @@ export class RecurringService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     void this.invalidateAggregateCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
@@ -270,5 +279,26 @@ export class RecurringService implements OnModuleInit {
           `Failed to invalidate recurring aggregate cache: ${err.message}`,
         ),
       );
+  }
+
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @private
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
+  private async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      cursor = next;
+      keys.push(...batch as string[]);
+    } while (cursor !== '0');
+    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

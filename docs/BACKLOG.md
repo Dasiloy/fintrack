@@ -15,6 +15,33 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🗂️ Backlog
 
+### [BL-012] Mono integration — go live (NGN only)
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Mono bank-linking is currently behind a dev/staging gate. Going live requires verifying the Mono production credentials are wired in, restricting supported currencies to NGN only, and confirming the full link → sync → transaction ingestion flow works end-to-end on production.
+- **Notes**:
+  - NGN is the only currency to support at launch — block or hide the link flow for any account that returns a non-NGN currency from Mono.
+  - Confirm `MONO_SECRET_KEY` and `MONO_APP_ID` production env vars are set on Railway for `finance_service` and `api_gateway`.
+  - End-to-end smoke test: link account → sync → verify transactions appear in the dashboard with correct NGN amounts.
+  - Currency restriction should live at the Mono webhook/sync layer so non-NGN accounts are rejected early with a clear user-facing error rather than silently ingested with wrong amounts.
+  - Unblock currency selector in Settings > Profile once multi-currency support is ready (see disabled state added in this sprint).
+  - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, `apps/web/src/app/(dashboard)/settings/profile/_components/profile_layout.tsx`.
+
+### [BL-011] Stripe integration — go live (NGN only)
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Stripe payments (subscription upgrades to PRO plan) are wired but using test keys. Going live requires switching to live Stripe keys, restricting the checkout to NGN pricing only, and confirming the full checkout → webhook → subscription activation flow works on production.
+- **Notes**:
+  - NGN is the only currency to support at launch — ensure Stripe products/prices are created in NGN and the checkout session is locked to `currency: 'ngn'`.
+  - Swap `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to production values on Railway for `api_gateway` and `scheduler_service`.
+  - Confirm `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set to the live publishable key on the `web` service.
+  - End-to-end smoke test: initiate upgrade → complete Stripe checkout → verify `subscription.plan` flips to `PRO` in DB → verify PRO features are unlocked in UI.
+  - Related files: `apps/api_gateway/src/payment/`, `apps/scheduler_service/src/`, `apps/web/src/app/(dashboard)/settings/billing/`.
+
 ### [BL-010] Field-level encryption for Mono bank account data
 
 - **Type**: Security
