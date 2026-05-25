@@ -1,0 +1,131 @@
+{
+  "__comment": "Export module documentation — apps/api_gateway/src/export/",
+  "meta_note": "HTTP routes are prefixed with /api/export and protected by ApiGuard (JWT bearer). Generation runs in-process in the API gateway: data is fetched from the Finance microservice via gRPC, then passed to format-specific generators. Results are cached in Redis (TTL 3600 s) unless force=true.",
+  "conventions": {
+    "access_token": "Authorization: Bearer <accessToken>",
+    "response_envelope": {
+      "success": "boolean",
+      "statusCode": "number",
+      "message": "string",
+      "data": "object | null"
+    },
+    "free_plan_cap": "FREE users have startDate silently clamped to the last ANALYTICS_MONTHS_LIMIT × 30 days (6 × 30 = 180 days). Pro users receive the requested window unchanged.",
+    "supported_formats_by_type": {
+      "transaction-history": ["csv", "xlsx"],
+      "monthly-summary": ["pdf"],
+      "spending-breakdown": ["image"],
+      "budget-performance": ["pdf", "xlsx"],
+      "goal-progress": ["pdf"],
+      "net-worth": ["pdf", "image"]
+    }
+  },
+
+  "generateExport": {
+    "route": "POST /api/export/generate",
+    "method": "POST",
+    "description": "Generate or return a cached analytics export for the authenticated user. Validates that format is supported for the requested document type, applies the free-plan date cap, checks Redis cache (unless force=true), fetches Finance data via gRPC, runs the appropriate generator, stores the result in cache, and returns the file as base64 inside the standard envelope.",
+    "authentication": "Bearer <accessToken>",
+    "input": {
+      "type": "body (required) — transaction-history | monthly-summary | spending-breakdown | budget-performance | goal-progress | net-worth",
+      "format": "body (required) — csv | xlsx | pdf | image (must be valid for type; see supported_formats_by_type)",
+      "startDate": "body (optional) — ISO date YYYY-MM-DD; used by transaction-history, monthly-summary, net-worth",
+      "endDate": "body (optional) — ISO date YYYY-MM-DD; used by transaction-history, monthly-summary, net-worth",
+      "txType": "body (optional) — INCOME | EXPENSE; filters transaction-history only",
+      "months": "body (optional, 1–12) — lookback for spending-breakdown (default 6 in service)",
+      "force": "body (optional, boolean) — when true, bypass cache and regenerate"
+    },
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Export generated | Served from cache",
+      "data": {
+        "bufferBase64": "string — file bytes encoded as base64",
+        "filename": "string — e.g. fintrack_transaction_history_20260525.xlsx",
+        "mimeType": "string — text/csv | application/vnd...sheet | application/pdf | image/png",
+        "generatedAt": "string — ISO datetime when the file was produced"
+      }
+    },
+    "responses": {
+      "200": "Export generated or served from cache",
+      "400": "Unsupported format for type, validation error, or unknown export type",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error (gRPC failure, generator failure, Puppeteer/PDFKit error)"
+    }
+  },
+
+  "invalidateExportCache": {
+    "route": "DELETE /api/export/cache",
+    "method": "DELETE",
+    "description": "Delete all Redis keys matching export:{userId}:* for the authenticated user. Used when analytics data may have changed and stale exports should not be served.",
+    "authentication": "Bearer <accessToken>",
+    "input": {},
+    "output": {
+      "success": true,
+      "statusCode": 200,
+      "message": "Export cache cleared",
+      "data": null
+    },
+    "responses": {
+      "200": "Cache cleared",
+      "401": "Access token invalid or expired",
+      "500": "Internal server error"
+    }
+  },
+
+  "exportService": {
+    "file": "apps/api_gateway/src/export/export.service.ts",
+    "description": "Orchestrates export generation: plan cap, cache read/write, gRPC data fetch, generator dispatch.",
+    "grpc_calls_by_type": {
+      "transaction-history": "getTransactions (paginated, 1000 per page until exhausted)",
+      "monthly-summary": "getTransactionSummary → monthlySeries filtered by date range",
+      "spending-breakdown": "getSpendingTrend({ months })",
+      "budget-performance": "getBudgets({ month, year } for current calendar month)",
+      "goal-progress": "getGoals({ status: [], priority: [] })",
+      "net-worth": "getTransactionSummary → monthlySeries + netBalance"
+    },
+    "generator_dispatch": {
+      "transaction-history": { "csv": "generateTransactionCsv", "xlsx": "generateTransactionXlsx" },
+      "monthly-summary": { "pdf": "generateMonthlySummaryPdf" },
+      "spending-breakdown": { "image": "generateSpendingBreakdownImage", "pdf": "generateSpendingBreakdownPdf" },
+      "budget-performance": { "pdf": "generateBudgetPerformancePdf", "xlsx": "generateBudgetXlsx" },
+      "goal-progress": { "pdf": "generateGoalProgressPdf" },
+      "net-worth": { "pdf": "generateNetWorthPdf", "image": "generateNetWorthImage" }
+    }
+  },
+
+  "exportCacheService": {
+    "file": "apps/api_gateway/src/export/export.cache.service.ts",
+    "description": "Redis cache for generated export buffers.",
+    "key_format": "export:{userId}:{type}:{format}:{sha256[:16]}",
+    "canonical_hash_fields": ["type", "format", "startDate", "endDate", "txType", "months"],
+    "ttl_seconds": 3600,
+    "stored_shape": "{ bufferBase64, filename, mimeType, generatedAt }"
+  },
+
+  "generators": {
+    "csv.generator.ts": {
+      "generateTransactionCsv": "UTF-8 CSV with Date, Type, Amount, Currency, Category, Merchant, Description, Notes, Source",
+      "generateBudgetCsv": "UTF-8 CSV for budget rows (not wired in ExportService dispatch today)"
+    },
+    "xlsx.generator.ts": {
+      "generateTransactionXlsx": "ExcelJS workbook: Transactions sheet + Summary sheet (income, expense, net, rate, count)",
+      "generateBudgetXlsx": "ExcelJS Budget Performance sheet with conditional Over formatting",
+      "generateGoalXlsx": "ExcelJS Goal Progress sheet (not wired in ExportService dispatch today)"
+    },
+    "pdf.generator.ts": {
+      "generateMonthlySummaryPdf": "PDFKit A4 — key metrics + month-by-month table",
+      "generateBudgetPerformancePdf": "PDFKit A4 — totals + per-budget table",
+      "generateGoalProgressPdf": "PDFKit A4 — per-goal progress blocks with pace status",
+      "generateNetWorthPdf": "PDFKit A4 — net balance + cumulative series table",
+      "generateSpendingBreakdownPdf": "PDFKit A4 — category breakdown from spending trend"
+    },
+    "image.generator.ts": {
+      "generateSpendingBreakdownImage": "Puppeteer PNG 800px — top 8 categories bar chart (dark theme)",
+      "generateNetWorthImage": "Puppeteer PNG 800px — net balance + SVG area chart"
+    },
+    "export.format.ts": {
+      "formatNGN": "Full NGN via formatCurrency",
+      "formatNGNCompact": "Compact labels (K/M) for charts"
+    }
+  }
+}

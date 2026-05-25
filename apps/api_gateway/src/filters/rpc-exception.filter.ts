@@ -125,6 +125,7 @@ export class AppExceptionFilter implements ExceptionFilter {
 
     // 5. Log unforeseen internal errors
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      this.logger.error(exception?.stack ?? exception?.message ?? exception);
       message = 'An error occured from our end, Please try again later!';
     }
 
