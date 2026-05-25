@@ -19,6 +19,11 @@ import type {
  * Cache key format: `export:{userId}:{type}:{format}:{sha256[:16]}`
  * TTL: EXPORT_CACHE_TTL_SECONDS (3600 s)
  *
+ * Invalidation is also triggered fire-and-forget from mutation services
+ * (`TransactionService`, `BudgetService`, `GoalService`, `RecurringService`)
+ * via duplicated SCAN helpers, and explicitly via {@link invalidateUser} from
+ * `ExportService.invalidateCache` (HTTP `DELETE /api/export/cache` or tRPC).
+ *
  * @class ExportCacheService
  */
 @Injectable()
@@ -119,7 +124,7 @@ export class ExportCacheService {
    */
   async invalidateUser(userId: string): Promise<void> {
     try {
-      const pattern = `export:v2:${userId}:*`;
+      const pattern = `export:${userId}:*`;
       let cursor = '0';
       const keys: string[] = [];
       do {

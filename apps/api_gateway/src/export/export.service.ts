@@ -146,6 +146,10 @@ export class ExportService implements OnModuleInit {
   /**
    * @description Remove all cached exports for a user (`export:{userId}:*`).
    *
+   * Used by `DELETE /api/export/cache` and tRPC `export.invalidateCache`.
+   * Domain mutations (transactions, budgets, goals, recurring) also invalidate
+   * the same key pattern fire-and-forget via local helpers in those services.
+   *
    * @async
    * @public
    * @param {string} userId Authenticated user ID

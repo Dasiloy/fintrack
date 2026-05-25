@@ -31,7 +31,6 @@ import { PaymentModule } from './payment/payment.module';
 import { UploadModule } from './upload/upload.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { CategoryModule } from './category/category.module';
-import { AnalyticsModule } from './analytics/analytics.module';
 import { ActivityModule } from './activity/activity.module';
 import { FcmModule } from './fcm/fcm.module';
 import { BudgetModule } from './budget/budget.module';
@@ -200,7 +199,6 @@ import { ExportModule } from './export/export.module';
     GoalModule,
     SplitModule,
     CategoryModule,
-    AnalyticsModule,
     ActivityModule,
     AccountModule,
     UsageModule,
