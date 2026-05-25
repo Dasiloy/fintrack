@@ -22,3 +22,18 @@ export function fileToBase64(file: File): Promise<string> {
 export function base64ToBufferingString(base64: string): string {
   return base64.replace(/^data:image\/\w+;base64,/, '');
 }
+
+/**
+ * Trigger a browser file download from a raw base64 string (no data-URL prefix).
+ * Safe to call in any browser context that has a DOM.
+ */
+export function downloadFromBase64(base64: string, filename: string, mimeType: string): void {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
