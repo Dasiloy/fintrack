@@ -15,6 +15,85 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🗂️ Backlog
 
+### [BL-010] Field-level encryption for Mono bank account data
+
+- **Type**: Security
+- **Priority**: High
+- **Status**: Pending
+- **Context**: All sensitive Mono-linked bank account fields (account number, BVN, NUBAN, balance, institution details, etc.) are currently stored in plain text in the database. These must be encrypted at rest to reduce exposure in the event of a database breach.
+- **Notes**:
+  - Use AES-256-GCM (symmetric, authenticated) with a secret key stored in an env var (`ENCRYPTION_KEY`). Never store the key in the DB or repo.
+  - Apply encryption/decryption transparently at the service layer (finance_service or api_gateway) so the rest of the app works unchanged.
+  - Fields to encrypt: account number, NUBAN, BVN, institution name/code, account name (PII), current balance, available balance, currency (optional — low sensitivity).
+  - Consider a Prisma middleware or a dedicated `CryptoService` that encrypt on `create`/`update` and decrypt on `findMany`/`findUnique` so encryption is not scattered across handlers.
+  - A one-time migration script is needed to encrypt existing plain-text rows; run it with a dry-run flag first.
+  - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, DB schema for `LinkedAccount` / `MonoAccount` model.
+
+### [BL-009] Research legal and compliance requirements for finance apps
+
+- **Type**: Tech Debt
+- **Priority**: High
+- **Status**: Pending
+- **Context**: As a fintech handling real bank account data (via Mono), FinTrack must comply with applicable Nigerian and international data regulations before public launch. A structured research doc should inform the legal copy, privacy policy, and technical controls.
+- **Notes**:
+  - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
+  - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) the implementation priority for each gap.
+  - This research should feed directly into BL-007 (legal pages), BL-008 (bank data handling copy), and BL-010 (encryption).
+  - Assign to: legal review + engineering lead before any production launch.
+
+### [BL-008] Marketing page — bank account data handling explainer
+
+- **Type**: Feature
+- **Priority**: Medium
+- **Status**: Pending
+- **Context**: Users need to understand exactly how their linked bank account data (via Mono) is accessed, stored, and protected before they trust the app with their financial credentials. A dedicated page or section should explain this clearly and honestly.
+- **Notes**:
+  - Suggested page: `/security` or `/how-we-protect-your-data` linked from the footer and from the Mono link flow.
+  - Content to cover: what data is read from Mono (read-only access, no transaction initiation), how long it is retained, whether it is shared with third parties, how it is encrypted (BL-010), and how users can revoke access.
+  - Tone: plain English, no legal jargon. Model after Plaid's "How Plaid Works" page or Mono's own transparency docs.
+  - Should include a visual diagram of the data flow: User → Mono widget → Mono API → FinTrack backend → encrypted DB.
+  - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
+
+### [BL-007] Marketing page — legal and security trust section
+
+- **Type**: Improvement
+- **Priority**: High
+- **Status**: Pending
+- **Context**: The marketing/landing page currently has no meaningful legal or security trust signals. Before any public launch, users need visible proof that FinTrack takes security and data privacy seriously. This covers both the copy/UI and ensuring real legal documents exist.
+- **Notes**:
+  - Add a "Security & Trust" section to the landing page: highlight encryption at rest (BL-010), read-only Mono access, no credential storage, and 2FA support (BL-005).
+  - Ensure real, accurate Privacy Policy and Terms of Service documents are linked from the footer. Replace any placeholder links. Minimum viable legal docs can be generated with a lawyer-reviewed template tailored to NDPR and CBN requirements (feeds from BL-009 research).
+  - Add trust badges where appropriate: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
+  - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing). See also BL-006 (static content audit).
+
+### [BL-006] Static content audit — realistic MVP copy and authorship
+
+- **Type**: Tech Debt
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Various pages and components across the web app contain placeholder copy, fake client logos, fake sponsor names, dummy team members, and demo data that should never appear in a real MVP. Everything visible to a logged-in or logged-out user must reflect the actual product and its sole author before any public release.
+- **Notes**:
+  - **Landing / marketing pages**: Remove any fake client logos, sponsor badges, or partner sections. Replace with honest feature-focused copy or leave those sections out entirely.
+  - **Team / about sections**: Update to show only the actual author — Damilare Oyewole. Remove any placeholder team members or avatars.
+  - **Testimonials / social proof**: Remove fake testimonials. If the section exists on a public page, either remove it or replace it with a factual product statement until real feedback is available.
+  - **Dashboard demo data**: Ensure the dashboard shows a proper empty state for new users — no seeded transactions, budgets, goals, or analytics. The onboarding tour (BL-004) covers guiding users through the empty state.
+  - **Footer / legal**: Confirm copyright year and author name are correct. Update any placeholder privacy policy or terms links to point to real documents or remove them.
+  - **App name and branding**: Confirm every instance of the product name, logo alt text, and meta tags (title, description, og:image) are accurate.
+  - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. A simple `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` pass will surface most issues.
+
+### [BL-005] Post-registration 2FA setup prompt
+
+- **Type**: Security
+- **Priority**: High
+- **Status**: Pending
+- **Context**: After a user registers or signs in for the first time, they should see a one-time modal prompting them to enable two-factor authentication (TOTP or SMS). The prompt appears once — if the user dismisses it or enables 2FA, it never appears again. This is the same pattern used by GitHub, Vercel, and Linear on first sign-in.
+- **Notes**:
+  - Gate the prompt on a `hasSeenTwoFaPrompt: boolean` field stored in the user's settings record (or a dedicated column). Write it via `user.updateSettings` on dismiss or on 2FA activation.
+  - The modal should be a non-blocking overlay — not a full-page gate. It should have two clear actions: **"Set up 2FA"** (navigates to `/settings/security` or opens an inline TOTP flow) and **"Remind me later"** (dismisses for the session but re-prompts on the next login until the user explicitly clicks "Don't show again").
+  - A third **"Don't show again"** link (small, muted) should permanently set the flag without enabling 2FA.
+  - Mount the prompt component in the dashboard root layout, after the session is confirmed. Gate it with `!user.twoFaEnabled && !user.hasSeenTwoFaPrompt`.
+  - Related files: `apps/web/src/app/(dashboard)/layout.tsx`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`, `apps/auth_service/src/`.
+
 ### [BL-004] Tooltip-based onboarding flow for new web users
 
 - **Type**: Feature
