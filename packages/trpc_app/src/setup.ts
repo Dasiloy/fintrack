@@ -31,10 +31,19 @@ import { UsageFeature } from '@fintrack/database/types';
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
 
+  // The browser can fire requests before getSession() resolves client-side,
+  // so Authorization may be absent on the first tRPC batch. The server always
+  // has the session via the NextAuth JWT cookie — inject the token so gateway
+  // calls never see a missing header regardless of client timing.
+  const headers = new Headers(opts.headers);
+  if (session?.accessToken && !headers.get('authorization')) {
+    headers.set('authorization', `Bearer ${session.accessToken}`);
+  }
+
   return {
     db,
     session,
-    ...opts,
+    headers,
   };
 };
 

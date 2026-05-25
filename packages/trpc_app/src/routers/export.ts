@@ -77,8 +77,9 @@ export const exportRouter = createTRPCRouter({
     }),
 
   /**
-   * Invalidates all cached exports for the authenticated user.
-   * Call after significant financial data changes or before forcing a fresh export.
+   * Invalidates all cached exports for the authenticated user (`DELETE /api/export/cache`).
+   * Use for explicit "Regenerate" / preview refresh. Gateway mutations (transactions,
+   * budgets, goals, recurring) already invalidate `export:{userId}:*` automatically.
    */
   invalidateCache: protectedProcedure.mutation(async ({ ctx }) => {
     const response = await fetch(`${GATEWAY_URL}/api/export/cache`, {

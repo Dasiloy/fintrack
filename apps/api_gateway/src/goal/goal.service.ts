@@ -52,6 +52,10 @@ import {
  * Both keys are invalidated (fire-and-forget) on every mutation that can change
  * goal state: create, update, delete, updateStatus, and all contribution writes.
  *
+ * ## Export cache invalidation
+ * The same mutations call `invalidateExportCache(userId)` fire-and-forget, SCAN-deleting
+ * all Redis keys matching `export:{userId}:*`. Primarily affects `goal-progress` exports.
+ *
  * @class GoalService
  */
 @Injectable()
@@ -181,7 +185,7 @@ export class GoalService implements OnModuleInit {
 
   /**
    * Creates a new savings goal for the authenticated user.
-   * Invalidates the goal list cache and the gated usage cache.
+   * Invalidates the goal list cache, gated usage cache, and analytics export cache.
    *
    * @param {User} user - Authenticated user
    * @param {CreateGoalDto} data - Goal creation payload
@@ -204,12 +208,13 @@ export class GoalService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Updates an existing goal's metadata.
-   * Invalidates goal list and aggregate caches.
+   * Invalidates goal list, aggregate, and analytics export caches.
    *
    * @param {User} user - Authenticated user
    * @param {string} id - Goal ID
@@ -227,13 +232,14 @@ export class GoalService implements OnModuleInit {
       this.financeService.updateGoal({ ...data, id }, metadata),
     );
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Transitions a goal between ACTIVE and ON_HOLD.
    * COMPLETED is system-managed and rejected by the finance service.
-   * Invalidates goal list and aggregate caches.
+   * Invalidates goal list, aggregate, and analytics export caches.
    *
    * @param {User} user - Authenticated user
    * @param {string} id - Goal ID
@@ -254,12 +260,13 @@ export class GoalService implements OnModuleInit {
       ),
     );
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Deletes a goal and all its contributions.
-   * Invalidates goal list, aggregate, and gated usage caches.
+   * Invalidates goal list, aggregate, gated usage, and analytics export caches.
    *
    * @param {User} user - Authenticated user
    * @param {string} id - Goal ID
@@ -273,12 +280,13 @@ export class GoalService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Adds a contribution to a goal.
-   * Invalidates goal list and aggregate caches (contribution affects totals and streak).
+   * Invalidates goal list, aggregate, and analytics export caches (contribution affects totals and streak).
    *
    * @param {User} user - Authenticated user
    * @param {string} goalId - Goal ID to contribute to
@@ -305,12 +313,13 @@ export class GoalService implements OnModuleInit {
       ),
     );
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Updates an existing goal contribution.
-   * Invalidates goal list and aggregate caches.
+   * Invalidates goal list, aggregate, and analytics export caches.
    *
    * @param {User} user - Authenticated user
    * @param {string} goalId - Goal ID
@@ -340,12 +349,13 @@ export class GoalService implements OnModuleInit {
       ),
     );
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * Deletes a contribution from a goal.
-   * Invalidates goal list and aggregate caches.
+   * Invalidates goal list, aggregate, and analytics export caches.
    *
    * @param {User} user - Authenticated user
    * @param {string} goalId - Goal ID
@@ -366,6 +376,28 @@ export class GoalService implements OnModuleInit {
       ),
     );
     this.invalidateGoalCache(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
+  }
+
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @private
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
+  private async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      cursor = next;
+      keys.push(...batch as string[]);
+    } while (cursor !== '0');
+    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

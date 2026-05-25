@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import SuperJSON from 'superjson';
-import { getSession } from 'next-auth/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchStreamLink, loggerLink } from '@trpc/client';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
@@ -47,14 +46,9 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
         httpBatchStreamLink({
           transformer: SuperJSON,
           url: getBaseUrl() + '/api/trpc',
-          headers: async () => {
+          headers: () => {
             const headers = new Headers();
             headers.set('x-trpc-source', 'nextjs-react');
-
-            const session = await getSession();
-            if (session?.accessToken) {
-              headers.set('Authorization', `Bearer ${session.accessToken}`);
-            }
 
             const deviceId = Cookies.get(env.NEXT_PUBLIC_DEVICE_ID_COOKIE_NAME);
             if (deviceId) {

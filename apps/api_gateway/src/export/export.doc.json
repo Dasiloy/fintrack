@@ -99,7 +99,32 @@
     "key_format": "export:{userId}:{type}:{format}:{sha256[:16]}",
     "canonical_hash_fields": ["type", "format", "startDate", "endDate", "txType", "months"],
     "ttl_seconds": 3600,
-    "stored_shape": "{ bufferBase64, filename, mimeType, generatedAt }"
+    "stored_shape": "{ bufferBase64, filename, mimeType, generatedAt, previewData }",
+    "invalidation": "SCAN + DEL on pattern export:{userId}:* — see mutation_driven_invalidation"
+  },
+
+  "mutation_driven_invalidation": {
+    "description": "After successful writes, domain services fire-and-forget SCAN-delete of export:{userId}:* so the next POST /api/export/generate regenerates. Does not block the HTTP response. Duplicates ExportCacheService.invalidateUser logic locally to avoid circular module imports.",
+    "pattern": "export:{userId}:*",
+    "user_initiated": "DELETE /api/export/cache or tRPC export.invalidateCache",
+    "by_module": {
+      "transaction.service.ts": {
+        "methods": ["createTransaction", "updateTransactionById", "deleteTransactionById", "batchCreateMonoTransactions"],
+        "export_types_affected": ["transaction-history", "monthly-summary", "spending-breakdown", "net-worth"]
+      },
+      "budget.service.ts": {
+        "methods": ["createBudget", "updateBudget", "deleteBudget", "restoreBudget"],
+        "export_types_affected": ["budget-performance", "spending-breakdown"]
+      },
+      "goal.service.ts": {
+        "methods": ["createGoal", "updateGoal", "updateGoalStatus", "deleteGoal", "contributeToGoal", "updateContribution", "deleteContribution"],
+        "export_types_affected": ["goal-progress"]
+      },
+      "recurring.service.ts": {
+        "methods": ["createRecurring", "updateRecurring", "toggleRecurring", "deleteRecurring"],
+        "export_types_affected": ["spending-breakdown", "monthly-summary"]
+      }
+    }
   },
 
   "generators": {
