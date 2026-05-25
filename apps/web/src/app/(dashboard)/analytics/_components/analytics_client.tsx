@@ -158,7 +158,7 @@ export function AnalyticsClient() {
         </div>
 
         {/* Export Center */}
-        <ExportCenter months={months} isProUser={isPro ?? false} />
+        <ExportCenter months={months} />
       </main>
     </div>
   );

@@ -20,7 +20,10 @@ import {
 import { PrismaService } from '@fintrack/database/service';
 import { OcrToTransactionJob } from '@fintrack/types/interfaces/finance';
 import { OCRDraft, OCRDraftStatus, User } from '@fintrack/database/types';
-import { REDIS_SUBSCRIBER } from '@fintrack/types/constants/redis.costants';
+import {
+  REDIS_CLIENT,
+  REDIS_SUBSCRIBER,
+} from '@fintrack/types/constants/redis.costants';
 import type Redis from 'ioredis';
 import {
   FINANCE_PACKAGE_NAME,
@@ -83,6 +86,7 @@ export class TransactionService implements OnModuleInit {
     private readonly budgetService: BudgetService,
     private readonly prisma: PrismaService,
     @Inject(REDIS_SUBSCRIBER) private readonly redisSubscriber: Redis,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly usageService: UsageService,
   ) {}
 
@@ -121,6 +125,7 @@ export class TransactionService implements OnModuleInit {
       ),
     );
     void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
@@ -225,6 +230,7 @@ export class TransactionService implements OnModuleInit {
       ),
     );
     void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
@@ -243,6 +249,7 @@ export class TransactionService implements OnModuleInit {
       this.financeServiceClient.deleteTransaction({ id }, metadata),
     );
     void this.budgetService.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
@@ -265,6 +272,7 @@ export class TransactionService implements OnModuleInit {
     );
     if (result.created > 0) {
       void this.budgetService.invalidateBudgetListAndTrend(userId);
+      void this.invalidateExportCache(userId);
     }
     return result;
   }
@@ -515,5 +523,23 @@ export class TransactionService implements OnModuleInit {
         metadata,
       ),
     );
+  }
+
+  private async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100,
+      );
+      cursor = next;
+      keys.push(...(batch as string[]));
+    } while (cursor !== '0');
+    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

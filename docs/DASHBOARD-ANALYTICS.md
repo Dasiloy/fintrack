@@ -693,7 +693,7 @@ export default function DashboardPage() {
 
 **Goal Funding Rate** — single-stat card: "On average, X% of your income goes toward goals." Formula: `GoalsAggregate.avgMonthlyContribution / GetTransactionSummaryRes.monthlyIncome × 100`. `avgMonthlyContribution` is the all-time average monthly contribution across all goals (not this month's figure). Frontend path: `goalAggregate.data.avgMonthlyContribution` and `summary.data.monthlyIncome` (both are inside `StandardResponse.data`). Cross-feature: goals × transactions.
 
-**Export row** (bottom, Pro-gated) — "Export CSV" + "Download PDF" — locked for free users.
+**Export row** (bottom, open to all) — "Export CSV" + "Download PDF" — available to all users; backend enforces the free-user date window silently.
 
 ### Layout
 
@@ -708,13 +708,13 @@ export default function DashboardPage() {
 ├──────────────────────┴───────────────────────────────────────────┤
 │  Subscription Burden (X% of income)  │  Goal Funding Rate (X%) │
 ├──────────────────────────────────────┴──────────────────────────┤
-│  [Export CSV — Pro]   [PDF Report — Pro]                        │
+│  [Export CSV]   [PDF Report]                                    │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Pro gating
 
-## Free users: time range capped at 6 months server-side (`ANALYTICS_MONTHS_LIMIT: 6`). "All time" button renders with a Pro badge and is disabled. Export buttons locked behind `useProGate(Usage.CSV_EXPORT)`.
+Free users: time range capped at 6 months server-side (`ANALYTICS_MONTHS_LIMIT: 6` from `plan.constants.ts`). "All time" button renders with a Pro badge and is disabled. **Export buttons are NOT gated** — all users can export all document types; the backend silently caps the date window to 120 days for free users.
 
 ## Full File Manifest
 
@@ -778,14 +778,16 @@ All six document types are built in this sprint. All file generation happens ser
 
 ### 4A — Document taxonomy (all 6 — build now)
 
-| # | Name | What the user gets | Best for | Formats | Gate |
-|---|------|--------------------|----------|---------|------|
-| 1 | **Transaction History** | Every transaction in the selected time range: date, amount, category, merchant, source. One row per transaction. | Tax prep, importing into a spreadsheet, reconciling with a bank statement | CSV, XLSX | Free (90-day cap) / Pro (unlimited) — **→ Build now** |
-| 2 | **Monthly Summary Report** | A narrative-style document: income vs. expense per month, savings rate trend, health score with plain-English explanation of each metric, biggest spending categories. Reads like a personal finance newsletter. | Monthly reviews, sharing with a financial advisor or partner | PDF | Pro — **→ Build now** |
-| 3 | **Spending Breakdown** | The Income Allocation donut and Net Worth trajectory charts rendered as a high-res image you can save or share. Numbers are labelled — no app needed to read it. | Sharing progress, social media, quick visual snapshot | PNG | Pro — **→ Build now** |
-| 4 | **Budget Performance Report** | Each budget category side-by-side with its limit; over/under amounts highlighted in red/green; total utilisation summary. | Reviewing last month before setting next month's budgets | PDF, XLSX | Pro — **→ Build now** |
-| 5 | **Goal Progress Report** | All active goals with target amount, saved so far, monthly contribution history, projection data, and on-track status — each explained in plain terms. | Annual review, sharing goal progress, long-term planning | PDF | Pro — **→ Build now** |
-| 6 | **Net Worth Statement** | Cumulative income minus expenses month by month — a running balance sheet. Includes all-time net balance, trend direction, and a brief interpretation ("you've built ₦X net worth in Y months"). | Financial milestones, tracking wealth over years | PDF, PNG | Pro — **→ Build now** |
+All 6 document types are available to **every user**. The only difference between Free and Pro is the date window: free users are capped at 6 months / 120 days server-side (derived from `PLAN_LIMITS.FREE.ANALYTICS_MONTHS_LIMIT = 6` in `plan.constants.ts`). Pro users have no date limit. The FE applies no gate — the backend enforces the cap silently.
+
+| #   | Name                          | What the user gets                                                                                                                                                                                               | Best for                                                                  | Formats   |
+| --- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --------- |
+| 1   | **Transaction History**       | Every transaction in the selected time range: date, amount, category, merchant, source. One row per transaction.                                                                                                 | Tax prep, importing into a spreadsheet, reconciling with a bank statement | CSV, XLSX |
+| 2   | **Monthly Summary Report**    | A narrative-style document: income vs. expense per month, savings rate trend, health score with plain-English explanation of each metric, biggest spending categories. Reads like a personal finance newsletter. | Monthly reviews, sharing with a financial advisor or partner              | PDF       |
+| 3   | **Spending Breakdown**        | The Income Allocation donut and Net Worth trajectory charts rendered as a high-res image you can save or share. Numbers are labelled — no app needed to read it.                                                 | Sharing progress, social media, quick visual snapshot                     | PNG       |
+| 4   | **Budget Performance Report** | Each budget category side-by-side with its limit; over/under amounts highlighted in red/green; total utilisation summary.                                                                                        | Reviewing last month before setting next month's budgets                  | PDF, XLSX |
+| 5   | **Goal Progress Report**      | All active goals with target amount, saved so far, monthly contribution history, projection data, and on-track status — each explained in plain terms.                                                           | Annual review, sharing goal progress, long-term planning                  | PDF       |
+| 6   | **Net Worth Statement**       | Cumulative income minus expenses month by month — a running balance sheet. Includes all-time net balance, trend direction, and a brief interpretation ("you've built ₦X net worth in Y months").                 | Financial milestones, tracking wealth over years                          | PDF, PNG  |
 
 ---
 
@@ -793,12 +795,12 @@ All six document types are built in this sprint. All file generation happens ser
 
 Every format is generated in the API gateway. No PDF library, canvas library, or file assembly code ships to the browser.
 
-| Format | Library (gateway) | Notes |
-|--------|-------------------|-------|
-| **CSV** | Native Node string | No dependency — `Array.join('\r\n')` is sufficient |
-| **XLSX** | `exceljs` | Multi-sheet workbook support; styled headers; runs in Node with no canvas requirement |
-| **PDF** | `@react-pdf/renderer` | Runs server-side in Node without a browser; produces clean A4 output from JSX-like templates |
-| **PNG** | `puppeteer` (headless Chromium) | Screenshots a dedicated internal `/export/preview/:type` Next.js route that renders the charts in isolation; produces pixel-perfect output matching the app's visual design |
+| Format   | Library (gateway)               | Notes                                                                                                                                                                       |
+| -------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **CSV**  | Native Node string              | No dependency — `Array.join('\r\n')` is sufficient                                                                                                                          |
+| **XLSX** | `exceljs`                       | Multi-sheet workbook support; styled headers; runs in Node with no canvas requirement                                                                                       |
+| **PDF**  | `@react-pdf/renderer`           | Runs server-side in Node without a browser; produces clean A4 output from JSX-like templates                                                                                |
+| **PNG**  | `puppeteer` (headless Chromium) | Screenshots a dedicated internal `/export/preview/:type` Next.js route that renders the charts in isolation; produces pixel-perfect output matching the app's visual design |
 
 #### Caching strategy
 
@@ -806,28 +808,44 @@ Generated files are cached in Redis. Repeat downloads within the TTL return the 
 
 **Cache key:** `export:{userId}:{docType}:{format}:{sha256(canonicalParams)}`
 
-**TTL:** 3 600 s (1 hour) by default, configurable via `EXPORT_CACHE_TTL_SECONDS` env var.
+**TTL:** `EXPORT_CACHE_TTL_SECONDS` — a compile-time constant defined in `packages/types/src/constants/export.constants.ts` (value: `3600`). Not an env var — the TTL is not environment-specific and should not require an operational knob.
 
 **Storage:** Redis stores the file as a binary buffer. Files above 8 MB are stored in object storage (S3/R2) instead; Redis holds the URL. In practice CSV and XLSX files are well under 1 MB for typical users; PDFs are 100–500 KB.
 
 **Cache invalidation** — invalidate all `export:{userId}:*` keys for a user when any of the following events occur:
 
-| Event | Trigger point |
-|-------|---------------|
+| Event                                   | Trigger point                                           |
+| --------------------------------------- | ------------------------------------------------------- |
 | Transaction created / updated / deleted | After the `$transaction` commit in `TransactionService` |
-| Budget created / updated / deleted | After the write in `BudgetService` |
-| Goal contribution added / removed | After the write in `GoalService` |
-| Recurring item toggled active/inactive | After the write in `RecurringService` |
+| Budget created / updated / deleted      | After the write in `BudgetService`                      |
+| Goal contribution added / removed       | After the write in `GoalService`                        |
+| Recurring item toggled active/inactive  | After the write in `RecurringService`                   |
 
 Invalidation is a synchronous Redis `DEL` pattern call (not a BullMQ job) — it must complete before the API returns so the next export request sees fresh data. The pattern scan is cheap: `SCAN … MATCH export:{userId}:*`.
 
 **User-initiated regeneration** — each export card has a "Regenerate" option (small refresh icon next to the download button). This calls the same mutation with a `force: true` flag, which skips the cache read, generates fresh, and overwrites the cache entry.
+
+#### Preview requirement
+
+Every export must be previewable before (or instead of) an immediate download. The preview flow is:
+
+1. User clicks **"Preview"** on an export card → the `generate` mutation fires normally.
+2. The response (base64 payload) is held in component state — **not** automatically downloaded.
+3. A **preview sheet** (`ExportPreviewSheet`) opens over the card grid displaying the document inline:
+   - **CSV / XLSX** — a styled `<table>` showing the first 20 rows with truncation notice if more rows exist.
+   - **PDF** — an `<iframe src="data:application/pdf;base64,…">` filling the sheet height (works in all modern browsers).
+   - **PNG** — an `<img src="data:image/png;base64,…">` with `object-fit: contain`.
+4. The sheet has a prominent **"Download"** button that calls `downloadFromBase64` (see §4E) immediately — no second network request needed since the buffer is already in state.
+5. The sheet also has a small secondary **"Regenerate"** icon button that re-runs the mutation with `force: true` and refreshes the preview in-place.
+
+The preview sheet is a `<Sheet>` (side panel, `side="bottom"`, `h-[80vh]`) so it works on both desktop and mobile. It is the same component for all document types — only the content renderer inside switches by `mimeType`.
 
 ---
 
 ### 4C — API Gateway — new `export` module
 
 **New files:**
+
 ```
 apps/api_gateway/src/export/
   export.module.ts
@@ -844,6 +862,7 @@ apps/api_gateway/src/export/
 ```
 
 **Install in `api_gateway`:**
+
 ```bash
 pnpm --filter api_gateway add @react-pdf/renderer exceljs puppeteer
 ```
@@ -862,8 +881,14 @@ export type ExportDocType =
 export type ExportFormat = 'csv' | 'xlsx' | 'pdf' | 'image';
 
 export class GenerateExportDto {
-  @IsIn(['transaction-history','monthly-summary','spending-breakdown',
-         'budget-performance','goal-progress','net-worth'])
+  @IsIn([
+    'transaction-history',
+    'monthly-summary',
+    'spending-breakdown',
+    'budget-performance',
+    'goal-progress',
+    'net-worth',
+  ])
   type: ExportDocType;
 
   @IsIn(['csv', 'xlsx', 'pdf', 'image'])
@@ -873,7 +898,7 @@ export class GenerateExportDto {
   @IsOptional() @IsDateString() endDate?: string;
   @IsOptional() @IsIn(['INCOME', 'EXPENSE']) txType?: string;
   @IsOptional() @IsInt() @Min(1) @Max(12) months?: number;
-  @IsOptional() @IsBoolean() force?: boolean;  // bypass cache
+  @IsOptional() @IsBoolean() force?: boolean; // bypass cache
 }
 ```
 
@@ -912,10 +937,12 @@ export class ExportController {
 
 ```typescript
 async generate(dto: GenerateExportDto, user: User): Promise<ExportResult> {
-  // Plan enforcement: free users capped at 90 days, only CSV allowed
+  // Plan enforcement: all users can export all formats and document types.
+  // Free users are silently capped to the last ANALYTICS_MONTHS_LIMIT months (120 days).
+  // The FE sends no gate — this is the single enforcement point.
   if (user.plan === 'FREE') {
-    if (dto.format !== 'csv') throw new ForbiddenException('Upgrade to Pro for PDF, XLSX, and image exports');
-    const cutoff = dayjs().subtract(90, 'days').toISOString();
+    const freeDays = PLAN_LIMITS.FREE.ANALYTICS_MONTHS_LIMIT * 20; // 6 months → 120 days
+    const cutoff = dayjs().subtract(freeDays, 'days').toISOString();
     dto.startDate = dto.startDate && dto.startDate > cutoff ? dto.startDate : cutoff;
   }
 
@@ -961,14 +988,15 @@ async invalidateUser(userId: string): Promise<void> {
 
 ```typescript
 const MIME_TYPES: Record<ExportFormat, string> = {
-  csv:   'text/csv',
-  xlsx:  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  pdf:   'application/pdf',
+  csv: 'text/csv',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pdf: 'application/pdf',
   image: 'image/png',
 };
 ```
 
 #### Register in `app.module.ts`:
+
 ```typescript
 ExportModule,
 ```
@@ -984,9 +1012,19 @@ Plain string construction — no library needed.
 ```typescript
 export function generateTransactionCsv(rows: Transaction[]): Buffer {
   const header = 'Date,Type,Amount,Currency,Category,Merchant,Description,Source';
-  const lines = rows.map(tx =>
-    [tx.date, tx.type, tx.amount, 'NGN', tx.category?.name ?? '',
-     tx.merchant ?? '', tx.description ?? '', tx.source].map(csvEscape).join(',')
+  const lines = rows.map((tx) =>
+    [
+      tx.date,
+      tx.type,
+      tx.amount,
+      'NGN',
+      tx.category?.name ?? '',
+      tx.merchant ?? '',
+      tx.description ?? '',
+      tx.source,
+    ]
+      .map(csvEscape)
+      .join(','),
   );
   return Buffer.from([header, ...lines].join('\r\n'), 'utf-8');
 }
@@ -1010,32 +1048,46 @@ export async function generateTransactionXlsx(rows: Transaction[]): Promise<Buff
 
   // Header row — bold, primary colour background
   ws.columns = [
-    { header: 'Date',        key: 'date',        width: 14 },
-    { header: 'Type',        key: 'type',        width: 10 },
-    { header: 'Amount (₦)', key: 'amount',      width: 16 },
-    { header: 'Category',    key: 'category',    width: 20 },
-    { header: 'Merchant',    key: 'merchant',    width: 24 },
+    { header: 'Date', key: 'date', width: 14 },
+    { header: 'Type', key: 'type', width: 10 },
+    { header: 'Amount (₦)', key: 'amount', width: 16 },
+    { header: 'Category', key: 'category', width: 20 },
+    { header: 'Merchant', key: 'merchant', width: 24 },
     { header: 'Description', key: 'description', width: 32 },
-    { header: 'Source',      key: 'source',      width: 14 },
+    { header: 'Source', key: 'source', width: 14 },
   ];
 
   ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
   ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7C7AFF' } };
 
-  rows.forEach(tx => ws.addRow({
-    date: tx.date, type: tx.type, amount: parseFloat(tx.amount),
-    category: tx.category?.name ?? '', merchant: tx.merchant ?? '',
-    description: tx.description ?? '', source: tx.source,
-  }));
+  rows.forEach((tx) =>
+    ws.addRow({
+      date: tx.date,
+      type: tx.type,
+      amount: parseFloat(tx.amount),
+      category: tx.category?.name ?? '',
+      merchant: tx.merchant ?? '',
+      description: tx.description ?? '',
+      source: tx.source,
+    }),
+  );
 
   // Conditional formatting: expense rows red-tinted, income rows green-tinted
   ws.addConditionalFormatting({
     ref: `B2:B${rows.length + 1}`,
     rules: [
-      { type: 'containsText', operator: 'containsText', text: 'EXPENSE',
-        style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '33FF453A' } } } },
-      { type: 'containsText', operator: 'containsText', text: 'INCOME',
-        style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '3330D158' } } } },
+      {
+        type: 'containsText',
+        operator: 'containsText',
+        text: 'EXPENSE',
+        style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '33FF453A' } } },
+      },
+      {
+        type: 'containsText',
+        operator: 'containsText',
+        text: 'INCOME',
+        style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '3330D158' } } },
+      },
     ],
   });
 
@@ -1055,9 +1107,7 @@ import React from 'react';
 
 // Monthly Summary PDF
 export async function generateMonthlySummaryPdf(data: ReportData): Promise<Buffer> {
-  return Buffer.from(await renderToBuffer(
-    React.createElement(MonthlySummaryDocument, { data })
-  ));
+  return Buffer.from(await renderToBuffer(React.createElement(MonthlySummaryDocument, { data })));
 }
 ```
 
@@ -1079,9 +1129,11 @@ Uses `puppeteer` to screenshot a dedicated internal chart-render route in the we
 ```typescript
 import puppeteer from 'puppeteer';
 
-export async function generateSpendingBreakdownImage(
-  params: { userId: string; token: string; months?: number }
-): Promise<Buffer> {
+export async function generateSpendingBreakdownImage(params: {
+  userId: string;
+  token: string;
+  months?: number;
+}): Promise<Buffer> {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
     headless: true,
@@ -1115,16 +1167,24 @@ tRPC cannot stream binary. The mutation calls the gateway, receives the file as 
 ```typescript
 export const exportRouter = router({
   generate: protectedProcedure
-    .input(z.object({
-      type: z.enum(['transaction-history','monthly-summary','spending-breakdown',
-                    'budget-performance','goal-progress','net-worth']),
-      format: z.enum(['csv','xlsx','pdf','image']),
-      startDate: z.string().optional(),
-      endDate:   z.string().optional(),
-      txType:    z.enum(['INCOME','EXPENSE']).optional(),
-      months:    z.number().int().min(1).max(12).optional(),
-      force:     z.boolean().optional(),
-    }))
+    .input(
+      z.object({
+        type: z.enum([
+          'transaction-history',
+          'monthly-summary',
+          'spending-breakdown',
+          'budget-performance',
+          'goal-progress',
+          'net-worth',
+        ]),
+        format: z.enum(['csv', 'xlsx', 'pdf', 'image']),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        txType: z.enum(['INCOME', 'EXPENSE']).optional(),
+        months: z.number().int().min(1).max(12).optional(),
+        force: z.boolean().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const response = await fetch(`${GATEWAY_URL}/api/export/generate`, {
         method: 'POST',
@@ -1134,10 +1194,11 @@ export const exportRouter = router({
       if (!response.ok) await throwGatewayError(response);
 
       const buffer = await response.arrayBuffer();
-      const filename = response.headers.get('Content-Disposition')
-        ?.match(/filename="(.+)"/)?.[1] ?? 'fintrack-export';
+      const filename =
+        response.headers.get('Content-Disposition')?.match(/filename="(.+)"/)?.[1] ??
+        'fintrack-export';
       const mimeType = response.headers.get('Content-Type') ?? 'application/octet-stream';
-      const cached   = response.headers.get('X-Export-Cached') === 'true';
+      const cached = response.headers.get('X-Export-Cached') === 'true';
       const generatedAt = response.headers.get('X-Export-Generated-At') ?? '';
 
       return {
@@ -1151,11 +1212,12 @@ export const exportRouter = router({
 });
 ```
 
-Client-side download trigger (utility used by `ExportCenter`):
+Client-side download trigger — add `downloadFromBase64` to the existing `packages/utils/src/file.ts` (alongside `fileToBase64` and `base64ToBufferingString` that are already used across the app for file uploads):
 
 ```typescript
-function downloadFromBase64(base64: string, filename: string, mimeType: string) {
-  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+// packages/utils/src/file.ts — append
+export function downloadFromBase64(base64: string, filename: string, mimeType: string): void {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
   const blob = new Blob([bytes], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1165,6 +1227,8 @@ function downloadFromBase64(base64: string, filename: string, mimeType: string) 
   URL.revokeObjectURL(url);
 }
 ```
+
+Import in `ExportCenter` and `ExportPreviewSheet` via `import { downloadFromBase64 } from '@fintrack/utils/file'`.
 
 Register `exportRouter` in `packages/trpc_app/src/routers/app.ts`.
 
@@ -1223,23 +1287,28 @@ A glass card with a header bar and a 3-column document card grid (1 column mobil
 
 #### Per-card anatomy
 
-- **Icon** (Lucide) + **title** + **plan badge** (`Free` green-tinted chip / `Pro` primary-tinted chip)
+- **Icon** (Lucide) + **title** (no plan badge — all formats are available to everyone)
 - **Description** — 2–3 sentences, plain English, no jargon
 - **"Best for:"** — muted subtext line
 - **Format selector** — small segmented control showing only formats available for this document; only one format active at a time
 - **Cache indicator** — small "cached · generated X min ago" pill shown when `cached === true` from the last response; "Regenerate" refresh icon beside it
-- **Download button** — full width, primary-outline. While generating: spinner + "Preparing your [doc]…". On error: red inline message with a retry option.
-
-Pro-locked cards dim to 60% opacity with a `Lock` icon overlaid on the download button. Clicking triggers `ProGateModal`.
-
-Free Transaction History card shows a note beneath the button: `"Free plan includes last 90 days · Upgrade for full history"`.
+- **Action buttons** — two side-by-side full-width buttons:
+  - **"Preview"** — generates the export, holds the buffer in state, opens `ExportPreviewSheet`
+  - **"Download"** — generates (or re-uses cached) and immediately triggers `downloadFromBase64` without showing the preview sheet
+  - Both show a spinner + "Preparing…" while the mutation is in-flight; on error show a red inline message with retry
+- Free users see a muted footnote beneath the buttons: `"Date range limited to 6 months on the free plan"` — no lock, no modal, no upgrade prompt in this component.
 
 #### Component types
 
 ```typescript
 type ExportFormat = 'csv' | 'xlsx' | 'pdf' | 'image';
-type ExportDocType = 'transaction-history' | 'monthly-summary' | 'spending-breakdown'
-                   | 'budget-performance' | 'goal-progress' | 'net-worth';
+type ExportDocType =
+  | 'transaction-history'
+  | 'monthly-summary'
+  | 'spending-breakdown'
+  | 'budget-performance'
+  | 'goal-progress'
+  | 'net-worth';
 
 interface ExportDoc {
   id: ExportDocType;
@@ -1249,8 +1318,8 @@ interface ExportDoc {
   icon: LucideIcon;
   formats: ExportFormat[];
   defaultFormat: ExportFormat;
-  proOnly: boolean;
-  freeNote?: string;
+  // No proOnly — all document types are available to every user.
+  // Backend enforces the 120-day date window for free users.
 }
 ```
 
@@ -1259,87 +1328,117 @@ The six `ExportDoc` definitions live as constants in `export_center.tsx`. The `g
 #### Per-card state
 
 ```typescript
-const [cardState, setCardState] = React.useState<
-  Record<ExportDocType, { format: ExportFormat; status: 'idle' | 'loading' | 'error'; cached?: boolean; generatedAt?: string }>
->(() => ({
-  'transaction-history':  { format: 'csv',   status: 'idle' },
-  'monthly-summary':      { format: 'pdf',   status: 'idle' },
-  'spending-breakdown':   { format: 'image', status: 'idle' },
-  'budget-performance':   { format: 'pdf',   status: 'idle' },
-  'goal-progress':        { format: 'pdf',   status: 'idle' },
-  'net-worth':            { format: 'pdf',   status: 'idle' },
+interface CardState {
+  format: ExportFormat;
+  status: 'idle' | 'loading' | 'error';
+  cached?: boolean;
+  generatedAt?: string;
+  // Preview sheet state — held here so re-opening doesn't re-fetch
+  previewBase64?: string;
+  previewMimeType?: string;
+  previewFilename?: string;
+  previewOpen?: boolean;
+}
+
+const [cardState, setCardState] = React.useState<Record<ExportDocType, CardState>>(() => ({
+  'transaction-history': { format: 'csv', status: 'idle' },
+  'monthly-summary': { format: 'pdf', status: 'idle' },
+  'spending-breakdown': { format: 'image', status: 'idle' },
+  'budget-performance': { format: 'pdf', status: 'idle' },
+  'goal-progress': { format: 'pdf', status: 'idle' },
+  'net-worth': { format: 'pdf', status: 'idle' },
 }));
 ```
+
+The `ExportPreviewSheet` component reads `previewBase64 / previewMimeType` from card state and renders the appropriate inline viewer. The "Download" button inside the sheet calls `downloadFromBase64` from `@fintrack/utils/file` — no second network request.
 
 ---
 
 ### 4H — Wire into `analytics_client.tsx`
 
 Replace the existing two-button row:
+
 ```tsx
-{/* Old: Export row — Pro gated */}
-<div className="glass-card …">…</div>
+{
+  /* Old: Export row */
+}
+<div className="glass-card …">…</div>;
 ```
 
 With:
+
 ```tsx
-<ExportCenter months={months} isProUser={isPro} />
+<ExportCenter months={months} />
 ```
 
+`months` is the analytics page's active range selector value (3 / 6 / 12 / null for all-time). The Export Center passes it into every `generate` mutation so exports respect the same time window the user is currently viewing. Backend caps this at 120 days for free users regardless of what `months` resolves to.
+
 No `chartsRef` needed — images are generated server-side via puppeteer.
+No `isProUser` prop — all gating logic lives in the backend.
 
 ---
 
-### 4I — Pro gate wiring
+### 4I — No FE gate on exports
 
-```typescript
-const pdfGate   = useProGate(Usage.PDF_REPORTS);   // covers PDF + XLSX + image
-const csvGate   = useProGate(Usage.CSV_EXPORT);     // covers Pro unlimited-range CSV
-```
+Export buttons carry **no `useProGate` call**. The backend is the single enforcement point for plan limits. Removing the FE gate means:
 
-Free-tier CSV is allowed without a gate modal — the gateway enforces the 90-day ceiling silently. All other formats and document types are Pro-only; clicking triggers `ProGateModal`.
+- No `ProGateModal` triggered by export actions.
+- No lock overlays or dimmed cards.
+- Free users see an informational footnote (`"Date range limited to 6 months on the free plan"`) — not a paywall.
+- `Usage.CSV_EXPORT` and `Usage.PDF_REPORTS` are no longer used in the Export Center. They remain in `plan.constants.ts` for potential future use elsewhere.
 
 ---
 
 ### Files to create / modify (Phase 4)
 
-| File | Action |
-|------|--------|
-| `apps/api_gateway/src/export/export.module.ts` | New NestJS module |
-| `apps/api_gateway/src/export/export.controller.ts` | `POST /api/export/generate`, `DELETE /api/export/cache` |
-| `apps/api_gateway/src/export/export.service.ts` | Generation dispatcher + plan enforcement |
-| `apps/api_gateway/src/export/export.cache.service.ts` | Redis cache read/write/invalidate |
-| `apps/api_gateway/src/export/generators/csv.generator.ts` | CSV buffer builder |
-| `apps/api_gateway/src/export/generators/xlsx.generator.ts` | `exceljs` workbook builder |
-| `apps/api_gateway/src/export/generators/pdf.generator.ts` | `@react-pdf/renderer` server-side PDF generation |
-| `apps/api_gateway/src/export/generators/image.generator.ts` | `puppeteer` screenshot of preview route |
-| `apps/api_gateway/src/export/dto/generate_export.dto.ts` | Request DTO |
-| `apps/api_gateway/src/app.module.ts` | Register `ExportModule` |
-| `apps/api_gateway/src/transaction/transaction.service.ts` | Call `exportCacheService.invalidateUser` after mutations |
-| `apps/api_gateway/src/budget/budget.service.ts` | Same — invalidate on budget mutations |
-| `apps/api_gateway/src/goal/goal.service.ts` | Same — invalidate on contribution mutations |
-| `apps/api_gateway/src/recurring/recurring.service.ts` | Same — invalidate on toggle mutations |
-| `packages/trpc_app/src/routers/export.ts` | New `generate` mutation |
-| `packages/trpc_app/src/routers/app.ts` | Add `exportRouter` to root router |
-| `apps/web/src/app/export/preview/[type]/page.tsx` | Internal puppeteer screenshot target route |
-| `apps/web/src/app/(dashboard)/analytics/_components/export_center.tsx` | Export Center UI component |
-| `apps/web/src/app/(dashboard)/analytics/_components/analytics_client.tsx` | Replace old export row with `<ExportCenter>` |
+| File                                                                          | Action                                                                |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `packages/types/src/constants/export.constants.ts`                            | New — `EXPORT_CACHE_TTL_SECONDS = 3600` constant                      |
+| `packages/utils/src/file.ts`                                                  | Add `downloadFromBase64` alongside existing `fileToBase64`            |
+| `apps/api_gateway/src/export/export.module.ts`                                | New NestJS module                                                     |
+| `apps/api_gateway/src/export/export.controller.ts`                            | `POST /api/export/generate`, `DELETE /api/export/cache`               |
+| `apps/api_gateway/src/export/export.service.ts`                               | Generation dispatcher + free-user 120-day cap (no format restriction) |
+| `apps/api_gateway/src/export/export.cache.service.ts`                         | Redis cache — uses `EXPORT_CACHE_TTL_SECONDS` constant                |
+| `apps/api_gateway/src/export/generators/csv.generator.ts`                     | CSV buffer builder                                                    |
+| `apps/api_gateway/src/export/generators/xlsx.generator.ts`                    | `exceljs` workbook builder                                            |
+| `apps/api_gateway/src/export/generators/pdf.generator.ts`                     | `@react-pdf/renderer` server-side PDF generation                      |
+| `apps/api_gateway/src/export/generators/image.generator.ts`                   | `puppeteer` screenshot of preview route                               |
+| `apps/api_gateway/src/export/dto/generate_export.dto.ts`                      | Request DTO                                                           |
+| `apps/api_gateway/src/app.module.ts`                                          | Register `ExportModule`                                               |
+| `apps/api_gateway/src/transaction/transaction.service.ts`                     | Call `exportCacheService.invalidateUser` after mutations              |
+| `apps/api_gateway/src/budget/budget.service.ts`                               | Same — invalidate on budget mutations                                 |
+| `apps/api_gateway/src/goal/goal.service.ts`                                   | Same — invalidate on contribution mutations                           |
+| `apps/api_gateway/src/recurring/recurring.service.ts`                         | Same — invalidate on toggle mutations                                 |
+| `packages/trpc_app/src/routers/export.ts`                                     | New `generate` mutation                                               |
+| `packages/trpc_app/src/routers/app.ts`                                        | Add `exportRouter` to root router                                     |
+| `apps/web/src/app/export/preview/[type]/page.tsx`                             | Internal puppeteer screenshot target route                            |
+| `apps/web/src/app/(dashboard)/analytics/_components/export_center.tsx`        | Export Center — no pro gates, Preview + Download buttons per card     |
+| `apps/web/src/app/(dashboard)/analytics/_components/export_preview_sheet.tsx` | New — inline CSV table / PDF iframe / PNG lightbox + Download button  |
+| `apps/web/src/app/(dashboard)/analytics/_components/analytics_client.tsx`     | Replace old export row with `<ExportCenter months={months} />`        |
 
 ---
 
 ### Phase 4 — Verification checklist
 
-1. Free user requests Transaction History CSV → gateway caps date range to 90 days, file downloads correctly.
-2. Free user attempts PDF / XLSX / image export → `ForbiddenException` returned → client shows `ProGateModal`.
-3. Pro user downloads Transaction History XLSX → styled workbook with conditional row colouring; Income rows green-tinted, Expense rows red-tinted.
-4. PDF Monthly Summary → A4 PDF with cover block, 4 metric cards, health score section, monthly trend table, category breakdown.
-5. PDF Budget Performance → each budget with limit, spent, over/under highlighted; summary sheet in XLSX variant.
-6. PDF Goal Progress → all active goals with saved, target, monthly contribution history, on-track badge.
-7. PDF Net Worth → cumulative balance sheet table + plain-English trend interpretation.
-8. PNG Spending Breakdown → 2× retina PNG with Income Allocation donut + Net Worth chart; dark background matches app theme.
-9. PNG Net Worth → full-width net worth area chart as PNG.
-10. Second download of same export within 1 hour → `X-Export-Cached: true` header; response is instant (no regeneration).
-11. "Regenerate" icon clicked → `force: true` sent → fresh file generated, cache overwritten, new `generatedAt` shown.
-12. Transaction created → subsequent export request produces a fresh file (cache invalidated).
-13. Pro-locked cards show reduced opacity + lock overlay. Clicking "Download" opens `ProGateModal` — no generation starts.
-14. `pnpm --filter web tsc --noEmit` — no errors.
+1. Free user requests any export format (CSV, PDF, XLSX, PNG) → request succeeds, no 403. Date range is silently capped to 120 days by the gateway.
+2. Free user on analytics page with "12mo" range selected → export contains only 120 days of data, card shows `"Date range limited to 6 months on the free plan"` footnote.
+3. Pro user requests Transaction History XLSX for full history → no date cap applied; styled workbook with conditional row colouring; Income rows green-tinted, Expense rows red-tinted.
+4. **Preview flow** — clicking "Preview" opens `ExportPreviewSheet`:
+   - CSV/XLSX → styled table of first 20 rows visible.
+   - PDF → `<iframe>` rendering the PDF inline.
+   - PNG → `<img>` displaying the chart image.
+   - "Download" button in the sheet calls `downloadFromBase64` from `@fintrack/utils/file` — no second request.
+5. **Direct download** — clicking "Download" on the card (not via preview) triggers `downloadFromBase64` immediately without opening the sheet.
+6. PDF Monthly Summary → A4 PDF with cover block, 4 metric cards, health score section, monthly trend table, category breakdown.
+7. PDF Budget Performance → each budget with limit, spent, over/under highlighted; summary sheet in XLSX variant.
+8. PDF Goal Progress → all active goals with saved, target, monthly contribution history, on-track badge.
+9. PDF Net Worth → cumulative balance sheet table + plain-English trend interpretation.
+10. PNG Spending Breakdown → 2× retina PNG with Income Allocation donut + Net Worth chart; dark background matches app theme.
+11. Second download of same export within 1 hour → `X-Export-Cached: true` header; response is instant (no regeneration).
+12. "Regenerate" icon clicked → `force: true` sent → fresh file generated, cache overwritten, new `generatedAt` shown.
+13. Transaction created → subsequent export request produces a fresh file (cache invalidated).
+14. No `ProGateModal` triggered anywhere in the Export Center. No lock overlays. No dimmed cards.
+15. `EXPORT_CACHE_TTL_SECONDS` is imported from `@fintrack/types/constants/export.constants` — not read from `process.env`.
+16. `pnpm --filter web tsc --noEmit` — no errors.
+
+responsiveness
