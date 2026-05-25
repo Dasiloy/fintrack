@@ -11,6 +11,9 @@ import { ExportCacheService } from './export.cache.service';
  * Wires HTTP routes, Redis-backed export cache, plan-gated date windows
  * (via UsageModule), and in-process CSV/XLSX/PDF/PNG generators.
  *
+ * Export cache invalidation on data changes is handled in Transaction, Budget,
+ * Goal, and Recurring services (fire-and-forget SCAN of `export:{userId}:*`).
+ *
  * @module ExportModule
  */
 @Module({

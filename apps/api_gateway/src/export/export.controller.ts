@@ -86,6 +86,10 @@ export class ExportController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Invalidate all cached exports for the current user',
+    description:
+      'User-initiated full cache clear. Mutation endpoints (transactions, budgets, goals, ' +
+      'recurring) also invalidate `export:{userId}:*` automatically after writes — clients ' +
+      'only need this route when forcing a fresh export without changing data.',
   })
   @ApiResponse({ status: 200, description: 'Cache cleared' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

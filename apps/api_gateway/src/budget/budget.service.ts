@@ -42,9 +42,13 @@ import {
 } from './dto/budget.dto';
 
 /**
- * Service responsible for managing user budgets
- * Handles HTTP requests for CRUD operations on budgets
- * Forwards requests to the Finance microservice
+ * Service responsible for managing user budgets.
+ * Handles HTTP requests for CRUD operations on budgets and forwards them to the Finance microservice.
+ *
+ * ## Export cache invalidation
+ * Budget mutations call `invalidateExportCache(userId)` fire-and-forget after a successful gRPC write.
+ * SCAN-deletes all Redis keys matching `export:{userId}:*`. Primarily affects `budget-performance`
+ * exports; also clears stale transaction-derived exports when spend totals change.
  *
  * @class BudgetService
  */
@@ -230,7 +234,7 @@ export class BudgetService implements OnModuleInit {
   /**
    * @description Creates a new budget (or re-activates a deactivated one for the same
    * category+period) via the Finance microservice.
-   * Invalidates the budget list, trend, and gated usage caches as fire-and-forget side effects.
+   * Invalidates the budget list, trend, gated usage, and analytics export caches as fire-and-forget side effects.
    *
    * @async
    * @public
@@ -247,12 +251,13 @@ export class BudgetService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     void this.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
   }
 
   /**
    * @description Updates an existing budget via the Finance microservice and invalidates the budget list,
-   * trend, and single-budget caches as fire-and-forget side effects.
+   * trend, single-budget, and analytics export caches as fire-and-forget side effects.
    *
    * @async
    * @public
@@ -272,6 +277,7 @@ export class BudgetService implements OnModuleInit {
       this.financeService.updateBudget({ ...data, id: budgetId }, metadata),
     );
     void this.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     void this.redis
       .keys(`${BUDGET_ONE_CACHE_PREFIX}:${budgetId}:*`)
       .then((keys) => keys.length && this.redis.del(...keys))
@@ -287,7 +293,7 @@ export class BudgetService implements OnModuleInit {
    * restored. When `hardDelete` is true the Budget row and all its history are
    * permanently removed.
    *
-   * Cache effects (fire-and-forget): always invalidates budget list and trend.
+   * Cache effects (fire-and-forget): always invalidates budget list, trend, and analytics exports.
    * Also invalidates the gated usage cache and all period-scoped single-budget
    * cache entries when `hardDelete` is true; period-scoped caches only when
    * soft-deactivating.
@@ -320,6 +326,7 @@ export class BudgetService implements OnModuleInit {
       void this.usageService.invalidateGatedUsageCache(user.id);
 
     void this.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     // Wildcard-clear all period-scoped detail caches for this budget
     void this.redis
       .keys(`${BUDGET_ONE_CACHE_PREFIX}:${budgetId}:*`)
@@ -345,7 +352,7 @@ export class BudgetService implements OnModuleInit {
 
   /**
    * @description Restores a soft-deleted budget via the Finance microservice.
-   * Invalidates the budget list, trend, and usage gate caches on success.
+   * Invalidates the budget list, trend, usage gate, and analytics export caches on success.
    *
    * @async
    * @public
@@ -361,6 +368,28 @@ export class BudgetService implements OnModuleInit {
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
     void this.invalidateBudgetListAndTrend(user.id);
+    void this.invalidateExportCache(user.id);
     return result;
+  }
+
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @private
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
+  private async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      cursor = next;
+      keys.push(...batch as string[]);
+    } while (cursor !== '0');
+    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

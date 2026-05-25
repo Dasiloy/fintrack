@@ -11,8 +11,6 @@ import { PrismaService } from '@fintrack/database/service';
 import {
   ACTIVITY_NOTIFICATION_JOB,
   ACTIVITY_NOTIFICATION_QUEUE,
-  ANALYTICS_NOTIFICATION_JOB,
-  ANALYTICS_NOTIFICATION_QUEUE,
   BUDGET_CHECK_JOB,
   BUDGET_CHECK_QUEUE,
   FCM_NOTIFICATION_JOB,
@@ -21,7 +19,6 @@ import {
   CLASSIFICATION_CORRECTION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import {
-  AnalyticsNotificationPayload,
   BudgetCheckJobPayload,
   ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
@@ -89,8 +86,6 @@ export class TransactionService {
     private readonly activityNotificationQueue: Queue,
     @InjectQueue(FCM_NOTIFICATION_QUEUE)
     private readonly fcmNotificationQueue: Queue,
-    @InjectQueue(ANALYTICS_NOTIFICATION_QUEUE)
-    private readonly analyticsNotificationQueue: Queue,
     @InjectQueue(CLASSIFICATION_CORRECTION_QUEUE)
     private readonly classificationCorrectionQueue: Queue,
     @InjectQueue(BUDGET_CHECK_QUEUE)
@@ -752,17 +747,6 @@ export class TransactionService {
     };
     this.fcmNotificationQueue.add(FCM_NOTIFICATION_JOB, fcmData);
 
-    // analytics notification
-    const analyticsData: AnalyticsNotificationPayload = {
-      userId,
-      event: event.split(' ').join('_').toLowerCase(),
-      entityId: transaction.id,
-      data,
-    };
-    this.analyticsNotificationQueue.add(
-      ANALYTICS_NOTIFICATION_JOB,
-      analyticsData,
-    );
   }
 
   /**
