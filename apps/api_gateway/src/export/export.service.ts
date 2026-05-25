@@ -114,7 +114,10 @@ export class ExportService implements OnModuleInit {
       if (hit) return hit;
     }
 
-    const { buffer, previewData } = await this.generateBufferAndPreview(effectiveDto, user);
+    const { buffer, previewData } = await this.generateBufferAndPreview(
+      effectiveDto,
+      user,
+    );
     const now = new Date().toISOString();
     const filename = this.buildFilename(
       effectiveDto.type,
@@ -259,16 +262,26 @@ export class ExportService implements OnModuleInit {
       previewData: {
         summary: [
           { label: 'Total Transactions', value: String(transactions.length) },
-          { label: 'Total Income', value: this.fmt(totalIncome), color: 'green' },
-          { label: 'Total Expense', value: this.fmt(totalExpense), color: 'red' },
+          {
+            label: 'Total Income',
+            value: this.fmt(totalIncome),
+            color: 'green',
+          },
+          {
+            label: 'Total Expense',
+            value: this.fmt(totalExpense),
+            color: 'red',
+          },
         ],
         headers: ['Date', 'Description', 'Amount', 'Type'],
-        rows: transactions.slice(0, 10).map((t) => [
-          t.date ?? '',
-          t.description ?? t.merchant ?? '—',
-          this.fmt(parseFloat(t.amount ?? '0')),
-          t.type === 'INCOME' ? 'Income' : 'Expense',
-        ]),
+        rows: transactions
+          .slice(0, 10)
+          .map((t) => [
+            t.date ?? '',
+            t.description ?? t.merchant ?? '—',
+            this.fmt(parseFloat(t.amount ?? '0')),
+            t.type === 'INCOME' ? 'Income' : 'Expense',
+          ]),
       },
     };
   }
@@ -349,15 +362,28 @@ export class ExportService implements OnModuleInit {
     const totalIncome = series.reduce((s, m) => s + parseFloat(m.income), 0);
     const totalExpense = series.reduce((s, m) => s + parseFloat(m.expense), 0);
     const netSaved = totalIncome - totalExpense;
-    const savingsRate = totalIncome > 0 ? ((netSaved / totalIncome) * 100).toFixed(1) : '0';
+    const savingsRate =
+      totalIncome > 0 ? ((netSaved / totalIncome) * 100).toFixed(1) : '0';
 
     return {
       buffer: await generateMonthlySummaryPdf(series, periodLabel),
       previewData: {
         summary: [
-          { label: 'Total Income', value: this.fmt(totalIncome), color: 'green' },
-          { label: 'Total Expense', value: this.fmt(totalExpense), color: 'red' },
-          { label: 'Net Saved', value: this.fmt(netSaved), color: netSaved >= 0 ? 'green' : 'red' },
+          {
+            label: 'Total Income',
+            value: this.fmt(totalIncome),
+            color: 'green',
+          },
+          {
+            label: 'Total Expense',
+            value: this.fmt(totalExpense),
+            color: 'red',
+          },
+          {
+            label: 'Net Saved',
+            value: this.fmt(netSaved),
+            color: netSaved >= 0 ? 'green' : 'red',
+          },
           { label: 'Savings Rate', value: `${savingsRate}%`, color: 'primary' },
         ],
         headers: ['Month', 'Income', 'Expense', 'Net'],
@@ -405,9 +431,7 @@ export class ExportService implements OnModuleInit {
         catMap.set(cat.name, (catMap.get(cat.name) ?? 0) + cat.amount);
       }
     }
-    const cats = [...catMap.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8);
+    const cats = [...catMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
     const total = cats.reduce((s, [, v]) => s + v, 0) || 1;
 
     return {
@@ -446,8 +470,13 @@ export class ExportService implements OnModuleInit {
     );
     const budgets = res.budgets ?? [];
     const totalLimit = budgets.reduce((s, b) => s + b.amount, 0);
-    const totalSpent = budgets.reduce((s, b) => s + parseFloat(b.spent ?? '0'), 0);
-    const over = budgets.filter((b) => parseFloat(b.spent ?? '0') > b.amount).length;
+    const totalSpent = budgets.reduce(
+      (s, b) => s + parseFloat(b.spent ?? '0'),
+      0,
+    );
+    const over = budgets.filter(
+      (b) => parseFloat(b.spent ?? '0') > b.amount,
+    ).length;
 
     return {
       buffer: await (dto.format === 'xlsx'
@@ -456,13 +485,26 @@ export class ExportService implements OnModuleInit {
       previewData: {
         summary: [
           { label: 'Total Budget', value: this.fmt(totalLimit) },
-          { label: 'Total Spent', value: this.fmt(totalSpent), color: totalSpent > totalLimit ? 'red' : 'green' },
-          { label: 'Over Limit', value: String(over), color: over > 0 ? 'red' : 'green' },
+          {
+            label: 'Total Spent',
+            value: this.fmt(totalSpent),
+            color: totalSpent > totalLimit ? 'red' : 'green',
+          },
+          {
+            label: 'Over Limit',
+            value: String(over),
+            color: over > 0 ? 'red' : 'green',
+          },
         ],
         headers: ['Budget', 'Limit', 'Spent', 'Status'],
         rows: budgets.map((b) => {
           const spent = parseFloat(b.spent ?? '0');
-          return [b.name, this.fmt(b.amount), this.fmt(spent), spent > b.amount ? 'Over' : 'OK'];
+          return [
+            b.name,
+            this.fmt(b.amount),
+            this.fmt(spent),
+            spent > b.amount ? 'Over' : 'OK',
+          ];
         }),
       },
     };
@@ -480,9 +522,10 @@ export class ExportService implements OnModuleInit {
     );
     const goals = res.goals ?? [];
     const onTrack = goals.filter((g) => {
-      const pct = g.targetAmount > 0
-        ? ((g.contributedAmount ?? 0) / g.targetAmount) * 100
-        : 0;
+      const pct =
+        g.targetAmount > 0
+          ? ((g.contributedAmount ?? 0) / g.targetAmount) * 100
+          : 0;
       return pct >= 50;
     }).length;
 
@@ -494,15 +537,25 @@ export class ExportService implements OnModuleInit {
         summary: [
           { label: 'Total Goals', value: String(goals.length) },
           { label: 'On Track', value: String(onTrack), color: 'green' },
-          { label: 'Behind', value: String(goals.length - onTrack), color: goals.length - onTrack > 0 ? 'red' : 'green' },
+          {
+            label: 'Behind',
+            value: String(goals.length - onTrack),
+            color: goals.length - onTrack > 0 ? 'red' : 'green',
+          },
         ],
         headers: ['Goal', 'Target', 'Current', 'Progress'],
         rows: goals.map((g) => {
           const contributed = g.contributedAmount ?? 0;
-          const pct = g.targetAmount > 0
-            ? ((contributed / g.targetAmount) * 100).toFixed(1)
-            : '0';
-          return [g.name, this.fmt(g.targetAmount), this.fmt(contributed), `${pct}%`];
+          const pct =
+            g.targetAmount > 0
+              ? ((contributed / g.targetAmount) * 100).toFixed(1)
+              : '0';
+          return [
+            g.name,
+            this.fmt(g.targetAmount),
+            this.fmt(contributed),
+            `${pct}%`,
+          ];
         }),
       },
     };
@@ -535,7 +588,11 @@ export class ExportService implements OnModuleInit {
         : generateNetWorthPdf(series, summary.netBalance)),
       previewData: {
         summary: [
-          { label: 'Net Balance', value: this.fmt(netBalance), color: netBalance >= 0 ? 'green' : 'red' },
+          {
+            label: 'Net Balance',
+            value: this.fmt(netBalance),
+            color: netBalance >= 0 ? 'green' : 'red',
+          },
           { label: 'Months Tracked', value: String(series.length) },
         ],
         headers: ['Month', 'Cumulative Net Worth'],
