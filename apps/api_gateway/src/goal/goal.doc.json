@@ -230,5 +230,10 @@
       "404": "Contribution not found",
       "500": "Internal server error"
     }
+  },
+
+  "export_cache_invalidation": {
+    "description": "Successful goal and contribution mutations invalidate all Redis keys export:{userId}:* (fire-and-forget) so goal-progress exports regenerate on the next request.",
+    "service_methods": ["createGoal", "updateGoal", "updateGoalStatus", "deleteGoal", "contributeToGoal", "updateContribution", "deleteContribution"]
   }
 }
