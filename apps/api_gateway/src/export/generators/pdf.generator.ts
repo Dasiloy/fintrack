@@ -46,7 +46,11 @@ function coverBlock(doc: PDFKit.PDFDocument, title: string, subtitle: string) {
   if (LOGO_WHITE_PATH) {
     doc.image(LOGO_WHITE_PATH, 50, 40, { width: 56, height: 56 });
   } else {
-    doc.fillColor('#ffffff').fontSize(18).font('Helvetica-Bold').text('FT', 66, 54);
+    doc
+      .fillColor('#ffffff')
+      .fontSize(18)
+      .font('Helvetica-Bold')
+      .text('FT', 66, 54);
   }
 
   doc
