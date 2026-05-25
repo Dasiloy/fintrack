@@ -65,8 +65,14 @@ import { BudgetService } from '../budget/budget.service';
  * ## Dependencies
  * - `FinanceServiceClient` (gRPC) — CRUD + batch import + financial summary
  * - `AiServiceClient` (gRPC) — transaction classification
- * - `BudgetService` — cache invalidation after any write
+ * - `BudgetService` — budget list/trend cache invalidation after any write
  * - `UsageService` — per-user plan-limit lookup for analytics caps
+ *
+ * ## Export cache invalidation
+ * Mutations that change transaction data call `invalidateExportCache(userId)`
+ * fire-and-forget after a successful gRPC write. SCAN-deletes all Redis keys
+ * matching `export:{userId}:*` so the next analytics export misses cache.
+ * Affects: transaction-history, monthly-summary, spending-breakdown, net-worth.
  * - `PrismaService` — OCRDraft persistence
  * - `Redis` (subscriber) — OCR pub/sub fan-out for SSE
  * - `OCR_QUEUE` (BullMQ) — OCR job dispatch
@@ -105,6 +111,8 @@ export class TransactionService implements OnModuleInit {
    * @param user - Authenticated user
    * @param createTransactionDto - Transaction payload
    * @returns The created transaction
+   * @description Side effects (fire-and-forget): invalidates budget list/trend cache
+   *   and all cached analytics exports (`export:{userId}:*`).
    */
   async createTransaction(
     user: User,
@@ -207,6 +215,8 @@ export class TransactionService implements OnModuleInit {
    * @param user - Authenticated user
    * @param updateTransactionDto - Fields to update
    * @returns The updated transaction
+   * @description Side effects (fire-and-forget): invalidates budget list/trend cache
+   *   and all cached analytics exports (`export:{userId}:*`).
    */
   async updateTransactionById(
     id: string,
@@ -240,6 +250,8 @@ export class TransactionService implements OnModuleInit {
    * @param id - Transaction ID to delete
    * @param user - Authenticated user
    * @returns Empty response on success
+   * @description Side effects (fire-and-forget): invalidates budget list/trend cache
+   *   and all cached analytics exports (`export:{userId}:*`).
    */
   async deleteTransactionById(id: string, user: User) {
     const metadata = new Metadata();
@@ -260,6 +272,8 @@ export class TransactionService implements OnModuleInit {
    *
    * @param userId - ID of the owning user
    * @param req - Batch request with transactions + optional monoBankAccountId
+   * @description When `created > 0`, fire-and-forget invalidates budget list/trend cache
+   *   and all cached analytics exports (`export:{userId}:*`).
    */
   async batchCreateMonoTransactions(
     userId: string,
@@ -525,6 +539,15 @@ export class TransactionService implements OnModuleInit {
     );
   }
 
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @private
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
   private async invalidateExportCache(userId: string): Promise<void> {
     const pattern = `export:${userId}:*`;
     let cursor = '0';

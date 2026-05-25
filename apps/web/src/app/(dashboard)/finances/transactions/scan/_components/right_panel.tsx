@@ -78,9 +78,7 @@ export function RightPanel({
         </div>
         <div className="text-center">
           <p className="text-text-secondary text-[13px] font-medium">Ready to scan</p>
-          <p className="text-text-disabled mt-0.5 text-[12px]">
-            Upload a receipt on the left to get started
-          </p>
+          <p className="text-text-disabled mt-0.5 text-[12px]">Upload a receipt to get started</p>
         </div>
       </div>
     );
@@ -88,7 +86,10 @@ export function RightPanel({
 
   if (phase === 'uploading') {
     return (
-      <div key="uploading" className="animate-in fade-in-0 duration-300 flex flex-col gap-4 md:min-h-0 md:flex-1">
+      <div
+        key="uploading"
+        className="animate-in fade-in-0 flex flex-col gap-4 duration-300 md:min-h-0 md:flex-1"
+      >
         <ReceiptScanPreview fileUrl={fileUrl} isPdf={isPdf} phase={phase} dotCount={dotCount} />
         <div className="no-scrollbar flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
           <Skeleton className="h-10 w-full rounded-lg" />
@@ -105,7 +106,10 @@ export function RightPanel({
 
   if (phase === 'scanning') {
     return (
-      <div key="scanning" className="animate-in fade-in-0 duration-300 flex flex-col gap-4 md:min-h-0 md:flex-1">
+      <div
+        key="scanning"
+        className="animate-in fade-in-0 flex flex-col gap-4 duration-300 md:min-h-0 md:flex-1"
+      >
         <ReceiptScanPreview fileUrl={fileUrl} isPdf={isPdf} phase={phase} dotCount={dotCount} />
         <div className="no-scrollbar flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">
           <Skeleton className="h-10 w-full rounded-lg" />
@@ -121,7 +125,10 @@ export function RightPanel({
   }
 
   return (
-    <div key="done" className="animate-in fade-in-0 duration-300 flex flex-col gap-4 md:min-h-0 md:flex-1">
+    <div
+      key="done"
+      className="animate-in fade-in-0 flex flex-col gap-4 duration-300 md:min-h-0 md:flex-1"
+    >
       <ReceiptScanPreview fileUrl={fileUrl} isPdf={isPdf} phase={phase} dotCount={dotCount} />
 
       <div className="flex flex-col gap-3 md:min-h-0 md:flex-1 md:overflow-y-auto">

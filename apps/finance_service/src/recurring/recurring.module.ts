@@ -3,7 +3,6 @@ import { BullModule } from '@nestjs/bullmq';
 
 import {
   ACTIVITY_NOTIFICATION_QUEUE,
-  ANALYTICS_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { RecurringService } from './recurring.service';
@@ -15,7 +14,6 @@ import { TransactionModule } from '../transaction/transaction.module';
   imports: [
     BullModule.registerQueue(
       { name: ACTIVITY_NOTIFICATION_QUEUE },
-      { name: ANALYTICS_NOTIFICATION_QUEUE },
     ),
     TransactionModule,
   ],

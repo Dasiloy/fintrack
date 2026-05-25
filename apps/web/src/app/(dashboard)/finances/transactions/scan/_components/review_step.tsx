@@ -51,7 +51,8 @@ export function ReviewStep({ initialData, onSuccess, onStartOver }: ReviewStepPr
   const createMutation = api_client.transaction.create.useMutation({
     onSuccess: () => {
       toast.success('Transaction added');
-      utils.transaction.getAll.invalidate();
+      void utils.transaction.getAll.invalidate();
+      void utils.transaction.getSummary.invalidate();
       onSuccess();
     },
     onError: (err) => toast.error('Failed to save', { description: err.message }),
