@@ -386,9 +386,15 @@ export class BudgetService implements OnModuleInit {
     let cursor = '0';
     const keys: string[] = [];
     do {
-      const [next, batch] = await this.redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100,
+      );
       cursor = next;
-      keys.push(...batch as string[]);
+      keys.push(...(batch as string[]));
     } while (cursor !== '0');
     if (keys.length > 0) await this.redis.del(...keys);
   }
