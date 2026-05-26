@@ -31,7 +31,7 @@ export function InsightsRecommendationsList({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-2.5 px-4 py-3 text-left hover:bg-bg-surface-hover transition-colors"
+        className="flex w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left hover:bg-bg-surface-hover transition-colors"
         aria-expanded={expanded}
       >
         <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-success/10">

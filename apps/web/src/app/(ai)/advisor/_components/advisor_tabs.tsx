@@ -14,6 +14,8 @@ interface AdvisorTabsProps {
   onTabChange: (tab: 'insights' | 'advisor') => void;
   expandedSections: Record<string, boolean>;
   onToggleSection: (id: string) => void;
+  activeConversationId: string | null;
+  onFirstMessageSent: () => void;
 }
 
 export function AdvisorTabs({
@@ -21,9 +23,10 @@ export function AdvisorTabs({
   onTabChange: _onTabChange,
   expandedSections,
   onToggleSection,
+  activeConversationId,
+  onFirstMessageSent,
 }: AdvisorTabsProps) {
   return (
-    // h-full + overflow-hidden: each child panel manages its own scroll
     <div className="flex h-full flex-col overflow-hidden bg-bg-deep">
       {activeTab === 'insights' ? (
         <InsightsPanel
@@ -31,7 +34,10 @@ export function AdvisorTabs({
           onToggleSection={onToggleSection}
         />
       ) : (
-        <ChatPanel />
+        <ChatPanel
+          activeConversationId={activeConversationId}
+          onFirstMessageSent={onFirstMessageSent}
+        />
       )}
     </div>
   );
