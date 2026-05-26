@@ -19,7 +19,7 @@ export function ContextBudgetSection() {
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center gap-2 px-4 py-3 text-left hover:bg-bg-surface-hover transition-colors"
+        className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-bg-surface-hover"
         aria-expanded={expanded}
       >
         <PieChart className="size-3.5 shrink-0 text-text-tertiary" aria-hidden />

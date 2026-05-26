@@ -18,7 +18,7 @@
 //     autoSaveId persists the layout to localStorage so it survives HMR/refresh.
 
 import * as React from 'react';
-import type { PanelImperativeHandle } from 'react-resizable-panels';
+import type { PanelImperativeHandle } from '@ui/components';
 import { Sheet, SheetContent } from '@ui/components';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@ui/components';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
@@ -76,14 +76,35 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
     }
   }, []);
 
+  // Guards the New Conversation action: true once the user sends their first
+  // message in a null-id session. Starts true if a real conversation is selected.
+  const [chatHasMessages, setChatHasMessages] = React.useState(
+    pageState.activeConversationId !== null,
+  );
+
   const update = (patch: Partial<AdvisorPageState>) =>
     setPageState((prev) => ({ ...prev, ...patch }));
 
-  // Selecting a conversation always switches to the Advisor (chat) tab
-  const selectConversation = (id: string) =>
+  // Selecting a conversation always switches to the Advisor (chat) tab.
+  // Stub conversations always carry messages, so the guard is lifted immediately.
+  const selectConversation = (id: string) => {
+    setChatHasMessages(true);
     update({ activeConversationId: id, activeTab: 'advisor' });
+  };
 
-  const newConversation = () => update({ activeConversationId: null, activeTab: 'advisor' });
+  // No-op when already in the empty state (null id, no messages sent yet).
+  // This prevents double-clicking "New Conversation" from doing anything.
+  const newConversation = () => {
+    if (pageState.activeConversationId === null && !chatHasMessages) return;
+    setChatHasMessages(false);
+    update({ activeConversationId: null, activeTab: 'advisor' });
+  };
+
+  // Called by ChatPanel when the user sends their very first message.
+  // Lifts the guard so a subsequent "New Conversation" click works.
+  const handleFirstMessageSent = React.useCallback(() => {
+    setChatHasMessages(true);
+  }, []);
 
   const isAdvisorTab = pageState.activeTab === 'advisor';
 
@@ -130,13 +151,7 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
       </Sheet>
 
       {/* ── Main content area ──────────────────────────────────────────────── */}
-      {/*
-       * position: relative + flex-1 gives this div a concrete pixel size.
-       * The desktop group uses absolute inset-0 so react-resizable-panels
-       * measures exact pixel dimensions on its first useLayoutEffect — not a
-       * flex-resolved size that may still be zero at that point in the lifecycle.
-       */}
-      <div className="relative flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden">
         {/* ── Mobile / Tablet layout (< lg) ────────────────────────────────── */}
         <div className="flex h-full lg:hidden">
           {/* Inline left sidebar — md only; content swaps based on active tab */}
@@ -163,18 +178,14 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
               onTabChange={(tab) => update({ activeTab: tab })}
               expandedSections={expandedSections}
               onToggleSection={toggleSection}
+              activeConversationId={pageState.activeConversationId}
+              onFirstMessageSent={handleFirstMessageSent}
             />
           </div>
         </div>
 
         {/* ── Desktop 3-panel layout (lg+) ─────────────────────────────────── */}
-        {/*
-         * absolute inset-0 is the key — it gives the ResizablePanelGroup
-         * a parent with exact pixel dimensions from the first measurement,
-         * bypassing the flex cascade that resolves asynchronously and causes
-         * the library to snap panels to zero on initial layout.
-         */}
-        <div className="absolute inset-0 hidden lg:block">
+        <div className="hidden h-full overflow-hidden lg:flex">
           <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
             {/* Left: content swaps per tab; panel is always present to keep index stable */}
             <ResizablePanel defaultSize="20" minSize="14" maxSize="28" className="min-w-0">
@@ -202,6 +213,8 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
                 onTabChange={(tab) => update({ activeTab: tab })}
                 expandedSections={expandedSections}
                 onToggleSection={toggleSection}
+                activeConversationId={pageState.activeConversationId}
+                onFirstMessageSent={handleFirstMessageSent}
               />
             </ResizablePanel>
 

@@ -1,15 +1,28 @@
 'use client';
 
 // ── ChatPanel ─────────────────────────────────────────────────────────────────
-// Advisor chat: scrollable message list (flex-1) + pinned input (shrink-0).
-// Owns ChatState; simulates LLM streaming via a setInterval at 40ms/word.
+// Advisor chat: two visual modes depending on message state.
 //
-// Streaming approach: when the user sends a message, an empty assistant message
-// is inserted immediately (with a unique tempId). A setInterval then appends
-// words one at a time into that message. On completion the message is finalised
-// and an optional proposedAction is attached.
-// This pattern requires mutating by tempId — the comment below the interval
-// explains why this is necessary for streaming UX.
+// EMPTY MODE (no messages):
+//   Full-height centered column — greeting → input → suggested prompts.
+//   Matches the Claude / ChatGPT UX where the input is the page centrepiece.
+//   The input is NOT pinned to the bottom in this mode.
+//
+// ACTIVE MODE (has messages):
+//   Scrollable message list (flex-1) + input pinned to the bottom (shrink-0).
+//
+// Switching between modes happens automatically as `messages` transitions from
+// 0 → 1 (first send) or 1 → 0 (conversation reset via activeConversationId).
+//
+// Streaming: an empty placeholder message identified by tempId is inserted on
+// send. A setInterval appends words at 40ms each. On completion the message is
+// finalised in-place by matching tempId (index-stable even if new user messages
+// arrive during streaming).
+//
+// activeConversationId drives reset: when it changes to null the chat clears;
+// when it changes to a known id the stub messages load.
+// onFirstMessageSent is called on the first user send so the parent can update
+// its "has messages" guard and unblock the New Conversation button.
 
 import * as React from 'react';
 import { ScrollArea } from '@ui/components';
@@ -21,14 +34,8 @@ import { STUB_MESSAGES } from '../_lib/advisor.stub';
 import { STREAM_INTERVAL_MS } from '../_lib/advisor.constants';
 
 // ── Stub responses ────────────────────────────────────────────────────────────
-// Deterministic replies keyed to certain input patterns.
-// All others get the fallback. Real system replaces this with an SSE stream.
 
-const STUB_RESPONSES: Array<{
-  match: RegExp;
-  response: string;
-  action?: AdvisorAction;
-}> = [
+const STUB_RESPONSES: Array<{ match: RegExp; response: string; action?: AdvisorAction }> = [
   {
     match: /food|dining|restaurant|chowdeck/i,
     response:
@@ -72,23 +79,44 @@ const STUB_RESPONSES: Array<{
 const FALLBACK_RESPONSE =
   "I've checked your accounts and here's what I found based on your question.\n\nYour overall financial health looks stable this month. Total spend is tracking about 12% above your monthly budget, primarily due to food and dining. Three of your four savings goals are on pace.\n\nWould you like me to dig into a specific area, or would a full monthly summary be helpful?";
 
-export function ChatPanel() {
-  const [chatState, setChatState] = React.useState<ChatState>({
-    messages: STUB_MESSAGES,
+// ── Component ─────────────────────────────────────────────────────────────────
+
+interface ChatPanelProps {
+  activeConversationId: string | null;
+  onFirstMessageSent: () => void;
+}
+
+export function ChatPanel({ activeConversationId, onFirstMessageSent }: ChatPanelProps) {
+  const [chatState, setChatState] = React.useState<ChatState>(() => ({
+    messages: activeConversationId ? STUB_MESSAGES : [],
     inputText: '',
     attachments: [],
     isStreaming: false,
-  });
+  }));
 
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const streamIntervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+  // Tracks whether onFirstMessageSent has been fired for this conversation session.
+  const hasNotifiedRef = React.useRef(activeConversationId !== null);
 
-  // Scroll to bottom whenever messages change
+  // Reset chat state whenever the active conversation changes.
+  React.useEffect(() => {
+    if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
+    hasNotifiedRef.current = activeConversationId !== null;
+    setChatState({
+      messages: activeConversationId ? STUB_MESSAGES : [],
+      inputText: '',
+      attachments: [],
+      isStreaming: false,
+    });
+  }, [activeConversationId]);
+
+  // Scroll to bottom whenever messages change (active mode only)
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatState.messages]);
 
-  // Clean up interval on unmount to avoid memory leaks
+  // Cancel stream on unmount
   React.useEffect(() => {
     return () => {
       if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
@@ -96,10 +124,6 @@ export function ChatPanel() {
   }, []);
 
   // ── Simulated streaming ───────────────────────────────────────────────────
-  // Inserts an empty placeholder message identified by tempId, then fills it
-  // word-by-word. On completion, the message is finalised in-place by matching
-  // tempId. We mutate by id (not by array index) because new user messages may
-  // arrive during the interval, shifting indices.
   const simulateStream = (fullResponse: string, action?: AdvisorAction) => {
     const tempId = crypto.randomUUID();
     const words = fullResponse.split(' ');
@@ -117,7 +141,6 @@ export function ChatPanel() {
     streamIntervalRef.current = setInterval(() => {
       if (i >= words.length) {
         if (streamIntervalRef.current) clearInterval(streamIntervalRef.current);
-        // Finalise: replace accumulated content with the full string and attach action
         setChatState((prev) => ({
           ...prev,
           isStreaming: false,
@@ -148,6 +171,12 @@ export function ChatPanel() {
     const text = chatState.inputText.trim();
     if ((!text && chatState.attachments.length === 0) || chatState.isStreaming) return;
 
+    // Notify parent on the very first message so the New Conversation guard lifts
+    if (!hasNotifiedRef.current) {
+      hasNotifiedRef.current = true;
+      onFirstMessageSent();
+    }
+
     const userMessage: AdvisorMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -162,16 +191,14 @@ export function ChatPanel() {
       attachments: [],
     }));
 
-    // Pick the first matching stub response, or use the fallback
     const match = STUB_RESPONSES.find((r) => r.match.test(text));
     const responseText = match?.response ?? FALLBACK_RESPONSE;
     const responseAction = match?.action;
 
-    // Small delay before the assistant "starts typing"
     setTimeout(() => simulateStream(responseText, responseAction), 400);
   };
 
-  // ── Action state callbacks ─────────────────────────────────────────────────
+  // ── Action callbacks ──────────────────────────────────────────────────────
   const handleActionApprove = (messageId: string) => {
     setChatState((prev) => ({
       ...prev,
@@ -190,52 +217,62 @@ export function ChatPanel() {
     }));
   };
 
+  // ── Shared input props ────────────────────────────────────────────────────
+  const inputProps = {
+    value: chatState.inputText,
+    attachments: chatState.attachments,
+    isStreaming: chatState.isStreaming,
+    onChange: (v: string) => setChatState((prev) => ({ ...prev, inputText: v })),
+    onSend: handleSend,
+    onAttach: (att: PendingAttachment) =>
+      setChatState((prev) => ({ ...prev, attachments: [...prev.attachments, att] })),
+    onRemoveAttachment: (id: string) =>
+      setChatState((prev) => ({
+        ...prev,
+        attachments: prev.attachments.filter((a) => a.id !== id),
+      })),
+  };
+
   const isEmpty = chatState.messages.length === 0;
 
+  // ── Empty state — centered layout, input is in the flow ───────────────────
+  if (isEmpty) {
+    return (
+      <div className="flex h-full overflow-y-auto">
+        <div className="flex min-h-full w-full items-center justify-center px-4 py-10">
+          <div className="w-full max-w-xl">
+            <ChatEmptyState
+              onPromptSelect={(p) => setChatState((prev) => ({ ...prev, inputText: p }))}
+              inputSlot={<ChatInput {...inputProps} />}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Active chat — scrollable messages + pinned input ──────────────────────
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* ── Message list ────────────────────────────────────────────────────── */}
-      <ScrollArea className="flex-1 overflow-y-auto">
-        {isEmpty ? (
-          <ChatEmptyState onPromptSelect={(p) => setChatState((prev) => ({ ...prev, inputText: p }))} />
-        ) : (
-          <div className="flex flex-col gap-4 px-4 py-4">
-            {chatState.messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                message={message}
-                onActionApprove={handleActionApprove}
-                onActionReject={handleActionReject}
-              />
-            ))}
-            {/* Streaming indicator — shown when the assistant is "typing" but has no content yet */}
-            {chatState.isStreaming &&
-              chatState.messages[chatState.messages.length - 1]?.content === '' && (
-                <TypingIndicator />
-              )}
-            {/* Scroll anchor */}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+      <ScrollArea className="flex-1 overflow-hidden">
+        <div className="flex flex-col gap-4 px-4 py-4">
+          {chatState.messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              onActionApprove={handleActionApprove}
+              onActionReject={handleActionReject}
+            />
+          ))}
+          {chatState.isStreaming &&
+            chatState.messages[chatState.messages.length - 1]?.content === '' && (
+              <TypingIndicator />
+            )}
+          <div ref={messagesEndRef} />
+        </div>
       </ScrollArea>
 
-      {/* ── Pinned input ─────────────────────────────────────────────────── */}
-      <ChatInput
-        value={chatState.inputText}
-        attachments={chatState.attachments}
-        isStreaming={chatState.isStreaming}
-        onChange={(v) => setChatState((prev) => ({ ...prev, inputText: v }))}
-        onSend={handleSend}
-        onAttach={(att) =>
-          setChatState((prev) => ({ ...prev, attachments: [...prev.attachments, att] }))
-        }
-        onRemoveAttachment={(id) =>
-          setChatState((prev) => ({
-            ...prev,
-            attachments: prev.attachments.filter((a) => a.id !== id),
-          }))
-        }
-      />
+      <ChatInput {...inputProps} />
     </div>
   );
 }
@@ -246,13 +283,13 @@ function TypingIndicator() {
   return (
     <div className="flex items-center gap-2.5">
       <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15">
-        <span className="text-[10px] text-primary font-bold">AI</span>
+        <span className="text-[10px] font-bold text-primary">AI</span>
       </div>
       <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-bg-surface px-4 py-3">
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="size-1.5 rounded-full bg-text-disabled animate-bounce"
+            className="size-1.5 animate-bounce rounded-full bg-text-disabled"
             style={{ animationDelay: `${i * 150}ms` }}
           />
         ))}

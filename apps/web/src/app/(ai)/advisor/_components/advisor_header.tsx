@@ -7,12 +7,11 @@
 //  desktop : shows only logo + tab switcher; both panels are always visible
 
 import * as React from 'react';
-import { PanelLeft, SlidersHorizontal, ArrowLeft } from 'lucide-react';
+import { PanelLeft, SlidersHorizontal, ArrowLeft, MessageCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Badge, Button, Separator } from '@ui/components';
 import { cn } from '@ui/lib/utils';
-import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 interface AdvisorHeaderProps {
   activeTab: 'insights' | 'advisor';
@@ -27,17 +26,20 @@ export function AdvisorHeader({
   onHistoryOpen,
   onToolsOpen,
 }: AdvisorHeaderProps) {
+  const router = useRouter();
+
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border-subtle bg-bg-elevated px-3 sm:px-4">
 
       {/* Back to dashboard */}
-      <Link
-        href={DASHBOARD_ROUTES.DASHBOARD}
+      <button
+        type="button"
+        onClick={() => router.back()}
         className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-bg-surface-hover hover:text-text-primary"
         aria-label="Back to dashboard"
       >
         <ArrowLeft className="size-4" />
-      </Link>
+      </button>
 
       <Separator orientation="vertical" className="h-4 opacity-30" />
 
@@ -69,7 +71,7 @@ export function AdvisorHeader({
             className="h-4 w-auto"
           />
         </div>
-        <span className="text-text-primary font-semibold text-sm truncate">
+        <span className="hidden sm:block text-text-primary font-semibold text-sm truncate">
           Fintrack Advisor
         </span>
         <Badge
@@ -98,8 +100,20 @@ export function AdvisorHeader({
                 ? 'bg-primary text-white'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover',
             )}
+            aria-label={tab === 'insights' ? 'Insights' : 'Advisor'}
           >
-            {tab === 'insights' ? 'Insights' : 'Advisor'}
+            {/* Icon on mobile, label on sm+ */}
+            {tab === 'advisor' ? (
+              <>
+                <MessageCircle className="size-3.5 sm:hidden" aria-hidden />
+                <span className="hidden sm:inline">Advisor</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-3.5 sm:hidden" aria-hidden />
+                <span className="hidden sm:inline">Insights</span>
+              </>
+            )}
           </button>
         ))}
       </div>
