@@ -27,23 +27,26 @@ pnpm install \
   langchain \
   @langchain/core \
   @langchain/langgraph \
+  @langchain/langgraph-checkpoint-postgres \
   @langchain/openai \
   @langchain/anthropic \
   @langchain/google-genai \
   openai \
   @anthropic-ai/sdk \
   @google/generative-ai \
-  zod
+  zod \
+  pdf-parse \
+  sharp
 ```
 
-### Web app only (chat UI streaming)
+### Web app only (advisor UI streaming)
 
 ```bash
 # Install in apps/web only
 pnpm install ai
 ```
 
-The Vercel AI SDK (`ai`) is only needed in `apps/web` for the `useChat` hook and `createDataStreamResponse`
+The Vercel AI SDK (`ai`) is only needed in `apps/web` for the `useChat` hook and `createDataStreamResponse`.
 
 ### Environment variables (`apps/ai_service/.env`)
 
@@ -51,10 +54,11 @@ The Vercel AI SDK (`ai`) is only needed in `apps/web` for the `useChat` hook and
 MICROSERVICE_NAME=AI_SERVICE
 
 OPENAI_API_KEY=sk-...
-
 ANTHROPIC_API_KEY=sk-ant-...
-
 GOOGLE_GEN_AI_API_KEY=...
+
+# Financial oracle (free tier)
+ALPHA_VANTAGE_API_KEY=...   # free — 25 calls/day
 ```
 
 ### TypeScript config
@@ -75,23 +79,23 @@ LangGraph and LangChain require `"moduleResolution": "bundler"` or `"node16"` in
 
 ## What the AI Service Is Responsible For
 
-Three distinct domains. Each is a separate NestJS module.
+Four distinct domains. Each is a separate NestJS module.
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      ai_service                         │
-│                                                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │Classification│  │   Insights   │  │     Chat     │  │
-│  │   Module     │  │   Module     │  │   Module     │  │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘  │
-│         │                 │                  │          │
-│         └─────────────────┴──────────────────┘          │
-│                           │                             │
-│              RegistoryModule  (@Global)                 │
-│   LangChainService · LangGraphService · ModelRessolver  │
-│         OpenAI     ·   Anthropic     ·    Google        │
-└───────────────────────────┬─────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                          ai_service                              │
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
+│  │Classification│  │   Insights   │  │      Advisor         │   │
+│  │   Module     │  │   Module     │  │      Module          │   │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘   │
+│         │                 │                      │               │
+│         └─────────────────┴──────────────────────┘               │
+│                           │                                      │
+│              RegistoryModule  (@Global)                          │
+│   LangChainService · LangGraphService · ModelRessolver           │
+│         OpenAI     ·   Anthropic     ·    Google                 │
+└───────────────────────────┬──────────────────────────────────────┘
                             │ gRPC
               ┌─────────────┴──────────────┐
               │       api_gateway          │
@@ -176,7 +180,7 @@ export interface BuildStructuredChainOptions<TOutput extends Record<string, unkn
 export interface CompileGraphOptions {
   // 'memory' → new MemorySaver()  |  BaseCheckpointSaver → passed through  |  false → stateless
   checkpointer?: BaseCheckpointSaver | 'memory' | false;
-  // 'memory' → new InMemoryStore()  |  BaseStore → passed through (e.g. PostgresStore-backed)  |  false → none
+  // 'memory' → new InMemoryStore()  |  BaseStore → passed through  |  false → none
   store?: BaseStore | 'memory' | false;
   interruptBefore?: string[];
   interruptAfter?: string[];
@@ -185,7 +189,7 @@ export interface CompileGraphOptions {
 export interface InvokeGraphOptions {
   threadId?: string;
   configurable?: Record<string, unknown>;
-  context?: Record<string, unknown>; // passed to runtime.context inside nodes
+  context?: Record<string, unknown>;
 }
 
 export interface StreamGraphOptions extends InvokeGraphOptions {
@@ -195,7 +199,16 @@ export interface StreamGraphOptions extends InvokeGraphOptions {
 // Discriminated union yielded by LangGraphService.streamEvents()
 export type GraphStreamEvent<TState> =
   | { type: 'token'; content: string }
-  | { type: 'state'; node: string; state: Partial<TState> };
+  | { type: 'state'; node: string; state: Partial<TState> }
+  | { type: 'approval_required'; action: AdvisorAction }; // human-in-the-loop pause
+
+// Advisor action types — proposals requiring explicit user approval before execution
+export type AdvisorAction =
+  | { kind: 'adjust_budget'; budgetId: string; categorySlug: string; currentLimit: number; proposedLimit: number; reason: string }
+  | { kind: 'create_budget'; categorySlug: string; proposedLimit: number; reason: string }
+  | { kind: 'adjust_goal_contribution'; goalId: string; currentAmount: number; proposedAmount: number; reason: string }
+  | { kind: 'suggest_recurring'; name: string; amount: number; categorySlug: string; frequency: string; reason: string }
+  | { kind: 'flag_subscription'; name: string; amount: number; categorySlug: string; reason: string };
 ```
 
 #### `services/langchain.service.ts`
@@ -228,7 +241,6 @@ export class LangChainService {
   }
 
   // Layout: [prompt →] model.withStructuredOutput(schema)
-  // Return type is inferred from Zod schema — no manual casting at call site.
   buildStructuredChain<TOutput extends Record<string, unknown>>(
     opts: BuildStructuredChainOptions<TOutput>,
   ): Runnable<BaseMessage[], TOutput> {
@@ -242,7 +254,6 @@ export class LangChainService {
     return structured as Runnable<BaseMessage[], TOutput>;
   }
 
-  // Escape hatch — returns raw BaseChatModel for tool binding or direct invocation.
   getModel(modelId: ChatModelId): BaseChatModel {
     return this.resolver.getRunnable(modelId);
   }
@@ -269,15 +280,13 @@ import {
   InvokeGraphOptions,
   StreamGraphOptions,
   GraphStreamEvent,
+  AdvisorAction,
 } from './langchain.types';
 
 @Injectable()
 export class LangGraphService {
   constructor(private readonly resolver: ModelRessolver) {}
 
-  // Feature modules call new StateGraph(...), add nodes/edges, hand it here.
-  // checkpointer: 'memory' → MemorySaver (short-term, per-thread conversation history)
-  // store: 'memory'        → InMemoryStore (long-term, cross-thread user context)
   compile<S = any, U = any, N extends string = string>(
     graph: StateGraph<any, S, U, N>,
     opts?: CompileGraphOptions,
@@ -306,7 +315,6 @@ export class LangGraphService {
     return graph.invoke(input, this.buildConfig(opts)) as Promise<TState>;
   }
 
-  // Raw stream — use when you need a specific streamMode not covered by streamEvents().
   async stream<TState>(
     graph: CompiledStateGraph<TState, any, any>,
     input: Partial<TState>,
@@ -318,8 +326,6 @@ export class LangGraphService {
     });
   }
 
-  // Mixed stream using streamMode: ['messages', 'updates'].
-  // Yields token chunks AND node state updates in one pass — no need to run the graph twice.
   async *streamEvents<TState>(
     graph: CompiledStateGraph<TState, any, any>,
     input: Partial<TState>,
@@ -340,13 +346,17 @@ export class LangGraphService {
         if (text) yield { type: 'token', content: text };
       } else if (mode === 'updates') {
         for (const [node, state] of Object.entries(payload as Record<string, Partial<TState>>)) {
-          yield { type: 'state', node, state };
+          if (node === '__interrupt__') {
+            const action = (state as any)?.pendingAction as AdvisorAction | undefined;
+            if (action) yield { type: 'approval_required', action };
+          } else {
+            yield { type: 'state', node, state };
+          }
         }
       }
     }
   }
 
-  // Graph nodes call this to access a model without importing ModelRessolver directly.
   getModel(modelId: ChatModelId): BaseChatModel {
     return this.resolver.getRunnable(modelId);
   }
@@ -363,17 +373,13 @@ export class LangGraphService {
 }
 ```
 
-#### `registory.module.ts` (updated)
+#### `registory.module.ts`
 
 ```typescript
 import { Global, Module } from '@nestjs/common';
 import {
-  OpenAiRepo,
-  AnthropicRepo,
-  GoogleRepo,
-  OpenAiEmbeddingRepo,
-  GoogleEmbeddingRepo,
-  ModelRessolver,
+  OpenAiRepo, AnthropicRepo, GoogleRepo,
+  OpenAiEmbeddingRepo, GoogleEmbeddingRepo, ModelRessolver,
 } from './repositories';
 import { LangChainService } from './services/langchain.service';
 import { LangGraphService } from './services/langgraph.service';
@@ -381,16 +387,9 @@ import { LangGraphService } from './services/langgraph.service';
 @Global()
 @Module({
   providers: [
-    // Chat providers
-    OpenAiRepo,
-    AnthropicRepo,
-    GoogleRepo,
-    // Embedding providers
-    OpenAiEmbeddingRepo,
-    GoogleEmbeddingRepo,
-    // Resolver — routes ChatModelId → provider
+    OpenAiRepo, AnthropicRepo, GoogleRepo,
+    OpenAiEmbeddingRepo, GoogleEmbeddingRepo,
     ModelRessolver,
-    // Composition services — globally available, no extra imports needed
     LangChainService,
     LangGraphService,
   ],
@@ -401,250 +400,68 @@ export class RegistoryModule {}
 
 ### Layer 2: Feature Layer
 
-Feature modules own their own state schema, node functions, and graph topology. Because `RegistoryModule` is `@Global`, they inject `LangChainService` and `LangGraphService` directly — no extra `imports` needed.
-
-```typescript
-// In each feature module — no imports[] required
-@Module({
-  controllers: [...],
-  providers: [...],
-})
-```
+Feature modules own their own state schema, node functions, and graph topology. Because `RegistoryModule` is `@Global`, they inject `LangChainService` and `LangGraphService` directly.
 
 ---
 
 ## LangChain & LangGraph — Types and API Reference
 
-This section explains every type, interface, and API method used in `LangChainService` and `LangGraphService`. Each entry covers what the thing is, why we chose it, and how it maps to our specific usage. Read this once before building either service file.
-
----
-
 ### LangChain
 
 #### `Runnable<TInput, TOutput>`
 
-**What it is:** The core interface in LangChain. Anything that has an `invoke(input: TInput): Promise<TOutput>` method is a `Runnable`. Chat models, prompt templates, output parsers, and entire chains are all `Runnable`.
-
-**Why we use it:** It is the type contract that makes LCEL pipe composition possible. Because everything shares the same interface, you can chain them without any glue code.
-
-**In our service:**
-
-```typescript
-export interface BuildChainOptions<TInput = BaseMessage[], TOutput = string> {
-  prompt?: Runnable<TInput, BaseMessage[]> | null;
-  parser?: Runnable<BaseMessage, TOutput> | null;
-}
-```
-
-`prompt` and `parser` are typed as `Runnable` — not `ChatPromptTemplate` or `StringOutputParser` specifically — so callers can pass any compatible transform without depending on a concrete class.
-
-📄 [Runnable interface docs](https://reference.langchain.com/javascript/langchain-core/runnables)
-
----
+The core interface in LangChain. Anything that has `invoke(input): Promise<TOutput>` is a `Runnable`. Chat models, prompt templates, output parsers, and entire chains are all `Runnable`. Makes LCEL pipe composition possible because everything shares the same interface.
 
 #### LCEL — `pipe()` composition
 
-**What it is:** LangChain Expression Language. The `pipe()` method on any `Runnable` returns a new `Runnable` whose `invoke()` feeds its output into the next component's `invoke()`. No callbacks, no manual wiring.
-
 ```typescript
-// Each .pipe() returns a Runnable — the whole chain is still a Runnable
 const chain = prompt.pipe(model).pipe(parser);
 chain.invoke({ question: '...' }); // → parsed output
 ```
 
-**Why we use it:** It eliminates boilerplate in `LangChainService.buildChain()`. The feature module just calls `buildChain()` and gets back a single `Runnable` it can invoke or stream.
-
-**In our service:**
-
-```typescript
-buildChain(opts) {
-  const model = this.resolver.getRunnable(opts.modelId);
-  const parser = opts.parser ?? new StringOutputParser();
-  if (opts.prompt) {
-    return opts.prompt.pipe(model).pipe(parser); // ← LCEL composition
-  }
-  return RunnableSequence.from([model, parser]);
-}
-```
-
-`RunnableSequence.from([a, b, c])` is the array equivalent of `a.pipe(b).pipe(c)` — use it when building from a dynamic list rather than a known chain.
-
-📄 [LCEL concept docs](https://reference.langchain.com/javascript/langchain-core/runnables/RunnableSequence)
-
----
+`RunnableSequence.from([a, b, c])` is equivalent to `a.pipe(b).pipe(c)`.
 
 #### `BaseChatModel`
 
-**What it is:** The abstract base class for all LangChain chat models. `ChatOpenAI`, `ChatAnthropic`, and `ChatGoogleGenerativeAI` all extend it. It is also a `Runnable<BaseMessage[], AIMessage>`.
+Abstract base class for all LangChain chat models. `ModelRessolver.getRunnable()` returns `BaseChatModel` — graph nodes call models without depending on a provider-specific class.
 
-**Why we use it:** `ModelRessolver.getRunnable()` returns `BaseChatModel` rather than a provider-specific type. `LangChainService` and `LangGraphService` both expose `getModel(modelId): BaseChatModel` so graph nodes can call the model without importing `ModelRessolver` directly.
-
-**In our service:**
+#### Message types
 
 ```typescript
-// LangChainService
-getModel(modelId: ChatModelId): BaseChatModel {
-  return this.resolver.getRunnable(modelId);
-}
-
-// Graph node usage
-const model = this.langGraph.getModel('anthropic:claude-sonnet-4.6');
-const response = await model.invoke([systemMessage, ...state.messages]);
+new SystemMessage('You are a financial advisor.');
+new HumanMessage('How much did I spend on food?');
+new AIMessage('You spent ₦12,500 on food.');
 ```
-
-📄 [Chat models concept docs](https://reference.langchain.com/javascript/langchain-core/language_models/chat_models/BaseChatModel)
-
----
-
-#### Message types — `BaseMessage`, `HumanMessage`, `AIMessage`, `SystemMessage`
-
-**What they are:** Every LangChain chat model takes and returns messages, not raw strings. The four types map directly to chat roles:
-
-```typescript
-new SystemMessage('You are a financial assistant.'); // role: "system"
-new HumanMessage('How much did I spend on food?'); // role: "user"
-new AIMessage('You spent ₦12,500 on food.'); // role: "assistant"
-```
-
-`BaseMessage` is the parent class — use it when a type accepts any message.
-
-**Why we use them:** Provider APIs differ in how they encode roles. LangChain normalises everything to these classes and handles provider-specific serialisation internally. We never need to write `{ role: "user", content: "..." }` objects.
-
-**In our service:** Chat state uses `MessagesValue` (a LangGraph reducer) which stores `BaseMessage[]`. Every node appends to that array using these concrete types.
-
-📄 [Messages concept docs](https://reference.langchain.com/javascript/langchain-core/messages/BaseMessage)
-
----
 
 #### `model.withStructuredOutput(schema, options?)`
 
-**What it is:** A method on `BaseChatModel` that wraps the model with a structured extraction contract. The model is instructed to return data matching the schema, and LangChain deserialises it automatically.
-
-There are three schema types. The `method` option depends on which one you pass:
-
-**1. Zod schema (what we use everywhere) — no `method` needed**
+Wraps the model with a structured extraction contract. Use Zod schemas with `strict: true` for maximum reliability:
 
 ```typescript
 const structured = model.withStructuredOutput(
   z.object({ category: z.string(), confidence: z.number() }),
-  { strict: true }, // strict: true enforces the schema at API level — no extra fields
+  { strict: true },
 );
-const result = await structured.invoke(messages);
-// result is typed as { category: string; confidence: number }
+const result = await structured.invoke(messages); // typed as { category: string; confidence: number }
 ```
 
-Zod is the default and preferred. LangChain detects it automatically — no `method` required. `strict: true` is still recommended for gpt-4o: it enforces the schema at the API level rather than post-processing the output.
+#### Output Parsers
 
-**2. Raw JSON Schema — requires `method: 'jsonSchema'`**
+- `StringOutputParser` — extracts `.content` as plain string. Default in `buildChain()`. Use for all prose outputs (summaries, advisor responses, narratives).
+- `JsonOutputParser` — parses model output as JSON. Use when `withStructuredOutput` is unavailable.
 
-```typescript
-const structured = model.withStructuredOutput(
-  {
-    type: 'object',
-    properties: { category: { type: 'string' } },
-    required: ['category'],
-  },
-  { method: 'jsonSchema' }, // must be explicit — LangChain can't auto-detect JSON Schema
-);
-```
-
-Use when you need maximum interoperability (e.g. sharing a schema with a non-TypeScript system).
-
-**3. Standard Schema (any library implementing the Standard Schema spec) — no `method` needed**
-
-Validated at runtime via the schema's `~standard.validate()` method. Works the same as Zod from the caller's perspective.
-
-**Why we use Zod:** It removes all manual JSON parsing and error handling from classification. The schema is the same one TypeScript uses for type-checking — one definition, two purposes.
-
-**In our service:**
-
-```typescript
-buildStructuredChain<TOutput extends Record<string, unknown>>(
-  opts: BuildStructuredChainOptions<TOutput>,
-): Runnable<BaseMessage[], TOutput> {
-  const model = this.resolver.getRunnable(opts.modelId);
-  const structured = model.withStructuredOutput(opts.schema, {
-    name:   opts.structuredOutputOptions?.name,
-    method: opts.structuredOutputOptions?.method,   // undefined for Zod; 'jsonSchema' for raw JSON schema
-    strict: opts.structuredOutputOptions?.strict,
-  });
-  if (opts.prompt) return opts.prompt.pipe(structured);
-  return structured;
-}
-```
-
-📄 [Structured output how-to](https://docs.langchain.com/oss/javascript/langchain/structured-output)
-
----
-
-#### Output Parsers — `StringOutputParser` and `JsonOutputParser`
-
-Parsers are the last step in a `buildChain()` pipeline. They receive an `AIMessage` and transform its `.content` into the output type the caller needs.
-
-**Critical rule: parsers belong to `buildChain()` only — never to `buildStructuredChain()`.**
-
-`withStructuredOutput()` wraps the model itself and handles deserialization internally. The result is already a typed object — there is no `AIMessage` to parse. Attaching a parser after `withStructuredOutput` would receive a structured object and try to stringify or re-parse it, which breaks the chain.
-
-```
-buildChain():          prompt → model → parser → TOutput
-buildStructuredChain(): prompt → model.withStructuredOutput(schema) → TOutput
-                                         ↑
-                               no parser step — model already returns structured data
-```
-
----
-
-**`StringOutputParser`** — extracts `.content` as a plain string.
-
-```typescript
-import { StringOutputParser } from '@langchain/core/output_parsers';
-
-// model.invoke(...) → AIMessage { content: "The total is ₦12,400." }
-// parser.invoke(aiMessage) → "The total is ₦12,400."
-```
-
-Default in `buildChain()` when no parser is supplied. Use for all free-text outputs: chat responses, narrative summaries, insight paragraphs.
-
----
-
-**`JsonOutputParser`** — parses the model's string output as JSON.
-
-```typescript
-import { JsonOutputParser } from '@langchain/core/output_parsers';
-
-const parser = new JsonOutputParser<{ total: number; currency: string }>();
-// model output: '{ "total": 12400, "currency": "NGN" }'
-// parser.invoke(aiMessage) → { total: 12400, currency: "NGN" }
-```
-
-Use when you want a structured object from `buildChain()` but the model doesn't support function calling (e.g. some open-source models), or when the schema is too dynamic to define upfront with Zod. For everything else — use `buildStructuredChain()` with a Zod schema instead: it's more reliable because the schema is enforced at the API level with `strict: true`, not parsed from free text.
-
-**`StructuredOutputParser`** (do not use) — an older LangChain approach that injects format instructions directly into the prompt and parses the output. Superseded by `withStructuredOutput()` and `JsonOutputParser`. Not used anywhere in this service.
-
----
+**Critical rule:** Parsers belong to `buildChain()` only. Never attach a parser to `buildStructuredChain()` — `withStructuredOutput` already returns a typed object and there is no `AIMessage` to parse.
 
 #### `ChatPromptTemplate.fromMessages()`
 
-**What it is:** A prompt template that takes named variables and returns a formatted message array. Feature modules build their prompts here; `buildChain()` accepts the template as the optional `prompt` field.
-
 ```typescript
 const prompt = ChatPromptTemplate.fromMessages([
-  ['system', 'You are a classifier. Categories: {categories_json}'],
-  ['human', '{transactions_json}'],
+  ['system', 'You are a financial advisor. User context: {context}'],
+  ['human', '{question}'],
 ]);
-// prompt.invoke({ categories_json: "...", transactions_json: "..." })
-// → [SystemMessage, HumanMessage] with values substituted
 ```
 
-**Why we chose `fromMessages()` over `fromTemplate()`:** Single-string templates only produce a `HumanMessage`. `fromMessages()` lets us set system context separately, which consistently improves classification accuracy.
-
-📄 [Prompt templates concept docs](https://docs.langchain.com/langsmith/create-a-prompt)
-
----
-
 #### `tool(fn, { name, schema })`
-
-**What it is:** A LangChain helper from `@langchain/core/tools` that wraps an async function as a tool the model can call. The `schema` is a Zod object — LangChain serialises it into the function definition the provider API expects.
 
 ```typescript
 import { tool } from '@langchain/core/tools';
@@ -653,14 +470,11 @@ const getSpendingSummary = tool(
   async ({ userId, period }) => prisma.transaction.groupBy(...),
   {
     name: 'getSpendingSummary',
+    description: 'Get total spending by category for a period.',
     schema: z.object({ userId: z.string(), period: z.string() }),
   }
 );
 ```
-
-**Why we use it:** Tools are how the chat agent fetches real data from Postgres and pgvector. The model decides which tool to call and with what arguments; LangGraph's `ToolNode` executes the call and appends the result to the message history.
-
-📄 [Tools concept docs](https://docs.langchain.com/oss/javascript/langchain/tools)
 
 ---
 
@@ -668,44 +482,23 @@ const getSpendingSummary = tool(
 
 #### `StateGraph` and what state means
 
-**What it is:** The central LangGraph class. A `StateGraph` is a directed graph where each node is an async function that receives the current state and returns a partial update. LangGraph merges the update into the state using a reducer before moving to the next node.
-
-**Key insight:** Nodes never mutate state directly. They return `{ fieldName: newValue }`. LangGraph applies the returned object as a patch:
+Nodes never mutate state directly. They return a partial update and LangGraph merges it:
 
 ```typescript
-// Wrong — never do this
-const node = async (state) => {
-  state.summary = '...';
-  return state;
-};
-
-// Correct — return only what changed
-const node = async (state) => ({ summary: '...' });
+const node = async (state) => ({ summary: '...' }); // correct — return only what changed
 ```
-
-📄 [LangGraph StateGraph docs](https://docs.langchain.com/oss/javascript/langgraph/overview)
-
----
 
 #### Defining state — `Annotation.Root()` and reducers
 
-**What it is:** The way you declare the shape and merge behaviour of graph state in LangGraph TypeScript.
-
 ```typescript
-import { Annotation, MessagesAnnotation } from '@langchain/langgraph';
+import { Annotation } from '@langchain/langgraph';
 
 const MyState = Annotation.Root({
-  // Simple scalar — last-write-wins (default)
   summary: Annotation<string>({ default: () => '' }),
-
-  // List with custom reducer — appends updates rather than replacing
   anomalies: Annotation<string[]>({
     default: () => [],
     reducer: (current, update) => current.concat(update),
   }),
-
-  // Messages — special reducer provided by LangGraph that handles
-  // message deduplication and ordering automatically
   messages: Annotation<BaseMessage[]>({
     reducer: messagesReducer,
     default: () => [],
@@ -713,284 +506,102 @@ const MyState = Annotation.Root({
 });
 ```
 
-`Annotation.Root()` is the **canonical TypeScript LangGraph API**. The doc also references `StateSchema` (Zod-based) — that is an alternate API available in some LangGraph versions; both produce equivalent state graphs.
-
-**`MessagesValue`** — shorthand for the messages annotation above. Use it when your state needs a chat history field:
-
-```typescript
-const ChatState = Annotation.Root({
-  messages: MessagesAnnotation.spec.messages, // or: MessagesValue
-  userId: Annotation<string>(),
-});
-```
-
-📄 [State and reducers docs](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#state)
-
----
-
 #### `START` and `END`
 
-**What they are:** Sentinel string constants from `@langchain/langgraph` that represent the graph's virtual entry and exit nodes. Every graph must have at least one `addEdge(START, 'firstNode')` and at least one path that reaches `END`.
-
-```typescript
-import { START, END } from '@langchain/langgraph';
-
-builder
-  .addEdge(START, 'summarize') // graph starts here
-  .addEdge('summarize', 'detect')
-  .addEdge('detect', END); // graph exits here
-```
-
-They are just strings (`'__start__'` and `'__end__'`) — the constants exist to avoid typos.
-
----
+Sentinel constants for graph entry/exit. Every graph must have `addEdge(START, 'firstNode')` and at least one path reaching `END`.
 
 #### `graph.addNode()`, `graph.addEdge()`, `graph.addConditionalEdges()`
 
 ```typescript
-// addNode: register an async function as a named node
-builder.addNode('summarize', async (state) => ({ summary: '...' }));
-
-// addEdge: unconditional transition after a node completes
-builder.addEdge('summarize', 'detect');
-
-// addConditionalEdges: the node's return value picks the next node
+builder.addNode('guardian', guardianNode);
+builder.addEdge(START, 'guardian');
 builder.addConditionalEdges(
-  'respond', // from this node
-  (state) =>
-    state.messages.at(-1)?.tool_calls?.length
-      ? 'tools' // if model called a tool
-      : END, // if model gave a final answer
-  ['tools', END], // declare all possible targets
+  'respond',
+  (state) => state.messages.at(-1)?.tool_calls?.length ? 'tools' : END,
+  ['tools', END],
 );
 ```
 
-`addConditionalEdges` is how agent loops are built — the condition function receives the current state and returns the name of the next node (or `END`).
+#### `graph.compile({ checkpointer, store, interruptBefore })`
 
-📄 [Nodes and edges docs](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#nodes)
+| Option            | Type                  | Effect                                            |
+| ----------------- | --------------------- | ------------------------------------------------- |
+| `checkpointer`    | `BaseCheckpointSaver` | Thread-scoped state persistence (conversation history) |
+| `store`           | `BaseStore`           | Cross-thread key-value + semantic storage (long-term memory) |
+| `interruptBefore` | `string[]`            | Pause before named nodes — enables human-in-the-loop |
+| `interruptAfter`  | `string[]`            | Pause after named nodes                           |
 
----
+#### `MemorySaver` and `PostgresSaver`
 
-#### `graph.compile({ checkpointer, store })`
+Short-term memory per thread. Dev: `MemorySaver()` (in-process, lost on restart). Prod: `PostgresSaver` from `@langchain/langgraph-checkpoint-postgres` (durable, creates `langgraph_checkpoints` table).
 
-**What it is:** Turns the builder (`StateGraph`) into a runnable graph (`CompiledStateGraph`). Nothing can be invoked until after `.compile()`. The two important options:
+#### `InMemoryStore` and `PostgresStore`
 
-| Option         | Type                  | Effect                                                      |
-| -------------- | --------------------- | ----------------------------------------------------------- |
-| `checkpointer` | `BaseCheckpointSaver` | Enables thread-scoped state persistence (short-term memory) |
-| `store`        | `BaseStore`           | Enables cross-thread key-value storage (long-term memory)   |
-
-Neither is required. Omit both for stateless graphs (e.g. insights).
-
-**In our service:**
+Cross-thread long-term memory. Nodes access via the `runtime` second parameter. Supports semantic search with `{ query, limit }` when configured with an embeddings index.
 
 ```typescript
-compile(graph, opts) {
-  const checkpointer = opts?.checkpointer === 'memory' ? new MemorySaver() : opts?.checkpointer;
-  const store       = opts?.store       === 'memory' ? new InMemoryStore() : opts?.store;
-  return graph.compile({ checkpointer, store });
-}
-```
-
-The `'memory'` string shorthand lets feature modules request in-process memory without importing `MemorySaver` or `InMemoryStore` directly.
-
-📄 [Compilation docs](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#compiling-your-graph)
-
----
-
-#### `MemorySaver` and `BaseCheckpointSaver`
-
-**What they are:** The checkpointer is a persistence backend for LangGraph's short-term memory. After every node runs, LangGraph serialises the full state and saves it under a `thread_id`. On the next invocation with the same `thread_id`, the state is restored before the graph starts.
-
-```
-Turn 1: graph.invoke({ messages: [HumanMessage("Hi")] }, { configurable: { thread_id: "conv-1" } })
-  → MemorySaver stores state for "conv-1"
-
-Turn 2: graph.invoke({ messages: [HumanMessage("What was my last question?")] }, { configurable: { thread_id: "conv-1" } })
-  → MemorySaver restores state for "conv-1" — model sees Turn 1 messages
-```
-
-`MemorySaver` stores state in a JS `Map` in process — it is lost on restart. For production, swap it for a database-backed checkpointer (e.g. `PostgresSaver` from `@langchain/langgraph-checkpoint-postgres`).
-
-`BaseCheckpointSaver` is the abstract base class. Our `CompileGraphOptions.checkpointer` is typed to it so feature modules can pass any implementation.
-
-📄 [Persistence and checkpointers docs](https://langchain-ai.github.io/langgraphjs/concepts/persistence/)
-
----
-
-#### `InMemoryStore` and `BaseStore`
-
-**What they are:** The store is LangGraph's long-term, cross-thread memory. Unlike the checkpointer (which is scoped to one `thread_id`), the store is a key-value namespace shared across all threads.
-
-Nodes access the store through the **`runtime` second parameter** of the node function — not via `config.store` or `getStore()`. The store is compiled in at graph build time; `runtime` delivers it to each node at execution time. `userId` (and any other per-invocation context) is passed at call time via `context` and read from `runtime.context`.
-
-```typescript
-// Node function signature: (state, runtime) => {}
-const myNode = async (state: typeof GraphState.State, runtime) => {
+const respondNode = async (state, runtime) => {
   const userId = runtime.context?.userId as string;
-
-  // Read — plain scan (all items in namespace)
-  const prefs = await runtime.store?.search(['user', userId, 'preferences']);
-
-  // Read — semantic search (requires index config on the store)
-  const relevant = await runtime.store?.search(['user', userId, 'context'], {
-    query: 'what is the user saving for',
-    limit: 5,
-  });
-
-  // Write
-  await runtime.store?.put(['user', userId, 'preferences'], 'currency', { value: 'NGN' });
+  const prefs = await runtime.store?.search(['user', userId, 'preferences']); // plain scan
+  const context = await runtime.store?.search(['user', userId, 'context'], { query: userMessage, limit: 5 }); // semantic
 };
-
-// Compile: store attached at build time
-const graph = builder.compile({ store });
-
-// Invoke: userId passed at call time via context
-await graph.invoke(
-  { messages: [...] },
-  {
-    configurable: { thread_id: 'conv-1' },
-    context: { userId: 'user-abc' },       // → runtime.context.userId inside every node
-  },
-);
 ```
 
-Namespace is an array of strings acting as a path. The store is compiled in; context is per-invocation.
+#### Human-in-the-loop — `interrupt_before`
 
-`InMemoryStore` is the in-process implementation (same caveats as `MemorySaver` — lost on restart). Production: swap for `PostgresStore` from `@langchain/langgraph-checkpoint-postgres` — same package as `PostgresSaver`, same Postgres connection.
+The advisor pauses execution before taking an action that requires user approval. State is serialised to the checkpointer; the SSE stream emits `{ type: 'approval_required', action }`; the frontend shows an approval card; the user's response resumes the graph.
 
-**Why we separate checkpointer from store:**
+```
+[advisor_node] → decides action needed
+      ↓
+[__interrupt__] ← graph pauses, state saved
+      ↓ user approves / rejects via frontend
+[action_node]   → executes if approved, skips if rejected
+      ↓
+[respond_node]  → confirms action to user
+```
 
-|           | Checkpointer                  | Store                                   |
-| --------- | ----------------------------- | --------------------------------------- |
-| Scope     | One thread (one conversation) | All threads for a user                  |
-| Lifecycle | Lost when conversation ends   | Persists indefinitely                   |
-| Use case  | Message history, tool results | User prefs, financial context, patterns |
+```typescript
+// Compile with interrupt
+this.graph = this.langGraph.compile(builder, {
+  checkpointer: this.checkpointer,
+  interruptBefore: ['action'],
+});
 
-📄 [Memory architecture docs](https://langchain-ai.github.io/langgraphjs/concepts/memory/)
-
----
+// Resume after user decision
+await this.graph.invoke(
+  { approved: userDecision },
+  { configurable: { thread_id: conversationId } },
+);
+```
 
 #### `graph.invoke()` and `graph.stream()`
 
-**`invoke(input, config?)`** — runs the graph to completion and returns the final state object. Use for insights and classification where you want the full result at once.
+`invoke` returns the final state. `stream` yields incremental updates via `streamMode`:
+
+| `streamMode`              | Each chunk                                      |
+| ------------------------- | ----------------------------------------------- |
+| `'values'`                | Full state after each node                      |
+| `'updates'`               | Partial update each node returned               |
+| `'messages'`              | Individual token chunks (for streaming to UI)   |
+| `['messages', 'updates']` | Both — tokens for display, state for server     |
+
+#### `thread_id` and `configurable`
 
 ```typescript
-const result = await graph.invoke(
-  { userId: '123', transactions: [...] },
-  { configurable: { thread_id: 'conv-abc' } },
-);
-// result: full InsightState after all nodes have run
+graph.invoke({ messages: [msg] }, { configurable: { thread_id: 'conv-abc' } });
+// Next turn: LangGraph restores state for 'conv-abc' automatically
 ```
 
-**`stream(input, config?)`** — same as `invoke` but returns an `AsyncIterable` that yields incremental updates. The `streamMode` option controls what each yielded chunk contains:
-
-| `streamMode`              | Each chunk is                                                      |
-| ------------------------- | ------------------------------------------------------------------ |
-| `'values'`                | The full state after each node                                     |
-| `'updates'`               | Only the partial update each node returned                         |
-| `'messages'`              | Individual token chunks (for streaming text to clients)            |
-| `['messages', 'updates']` | Both — use this for chat UI: tokens for display, updates for state |
-
-**In our `streamEvents()` helper:**
+#### `GraphStreamEvent<TState>` — discriminated union
 
 ```typescript
-const s = await graph.stream(input, {
-  configurable: { thread_id: opts.threadId },
-  streamMode: ['messages', 'updates'],   // ← dual mode
-});
-
-for await (const chunk of s) {
-  const [mode, payload] = chunk;         // LangGraph tags each chunk with its mode
-  if (mode === 'messages') { yield { type: 'token', content: text }; }
-  if (mode === 'updates')  { yield { type: 'state', node, state }; }
-}
-```
-
-📄 [Streaming docs](https://langchain-ai.github.io/langgraphjs/concepts/streaming/)
-
----
-
-#### `thread_id` and the `configurable` object
-
-**What it is:** The mechanism that connects a graph invocation to its stored checkpoint. Every `graph.invoke()` or `graph.stream()` call takes an optional second argument `{ configurable: { thread_id: '...' } }`. LangGraph uses this string to look up (and save) the checkpoint.
-
-```typescript
-// First message in a conversation
-graph.invoke({ messages: [msg1] }, { configurable: { thread_id: 'conv-abc' } });
-
-// Second message — LangGraph rehydrates 'conv-abc' automatically
-graph.invoke({ messages: [msg2] }, { configurable: { thread_id: 'conv-abc' } });
-```
-
-Without a `thread_id`, every invocation starts from scratch even if a checkpointer is configured. This is intentional for stateless uses like insights.
-
-**In our service:** `InvokeGraphOptions.threadId` is the caller-facing field. `buildConfig()` maps it to the correct `configurable.thread_id` shape:
-
-```typescript
-private buildConfig(opts?: InvokeGraphOptions) {
-  if (!opts?.threadId && !opts?.configurable) return undefined;
-  return {
-    configurable: {
-      ...(opts.threadId && { thread_id: opts.threadId }),
-      ...opts.configurable,
-    },
-  };
-}
-```
-
----
-
-#### `GraphStreamEvent<TState>` — how the discriminated union was designed
-
-`LangGraphService.streamEvents()` needs to yield two conceptually different things from the same stream: token text for the UI and state updates for the server. A single type would require callers to check fields before using them, leading to bugs.
-
-A **discriminated union** solves this cleanly — the `type` field narrows the shape unambiguously:
-
-```typescript
-type GraphStreamEvent<TState> =
-  | { type: 'token'; content: string } // safe to read .content
-  | { type: 'state'; node: string; state: Partial<TState> }; // safe to read .node/.state
-
-// Caller-side usage — TypeScript narrows inside each branch
 for await (const event of langGraph.streamEvents(graph, input, opts)) {
-  if (event.type === 'token') {
-    res.write(event.content); // .content exists here
-  } else {
-    log(event.node, event.state); // .node and .state exist here
-  }
+  if (event.type === 'token') res.write(event.content);
+  else if (event.type === 'approval_required') sendApprovalCard(event.action);
+  else log(event.node, event.state);
 }
 ```
-
-The pattern is idiomatic TypeScript for heterogeneous async streams. `event.content` is a compile-time error outside the `type === 'token'` branch.
-
----
-
-#### `CompileGraphOptions` — how the interface was designed
-
-The raw LangGraph `.compile()` signature looks like:
-
-```typescript
-graph.compile({
-  checkpointer?: BaseCheckpointSaver;
-  store?: BaseStore;
-  interruptBefore?: string[];
-  interruptAfter?: string[];
-})
-```
-
-`BaseCheckpointSaver` and `BaseStore` require importing their classes and constructing instances, which means feature modules would need to know about `MemorySaver` and `InMemoryStore`. Our wrapper adds the `'memory'` string literal as a shorthand:
-
-```typescript
-checkpointer?: BaseCheckpointSaver | 'memory' | false;
-store?:        BaseStore | 'memory' | false;
-```
-
-- `'memory'` → the service constructs the in-process instance
-- a class instance → passed through (for production implementations)
-- `false` / omitted → stateless graph
-
-Feature modules only write `{ checkpointer: 'memory', store: 'memory' }` — they never import `MemorySaver` or `InMemoryStore`.
 
 ---
 
@@ -1002,25 +613,16 @@ Receives transactions that scored 0 in token scoring (Mono said `unknown`, no me
 
 ### Why LangChain (not LangGraph)
 
-This is a single, stateless, structured extraction call — no agent loop, no tool use, no branching. LangChain's chain primitive (`prompt | llm | outputParser`) is exactly right and adds zero overhead.
+Single, stateless, structured extraction call — no agent loop, no tool use, no branching.
 
 ### Data shapes
 
 ```typescript
-// gRPC request
 interface ClassifyTransactionsReq {
-  transactions: Array<{
-    id: string;
-    narration: string; // Transaction.narration — immutable raw Mono text
-    bankCategory: string; // Transaction.bankCategory — e.g. "food_and_drinks"
-  }>;
-  categories: Array<{
-    name: string; // e.g. "Food & Dining"
-    slug: string; // e.g. "food-dining"
-  }>;
+  transactions: Array<{ id: string; narration: string; bankCategory: string }>;
+  categories: Array<{ name: string; slug: string }>;
 }
 
-// gRPC response
 interface ClassifyTransactionsRes {
   assignments: Record<string, string>; // { [transactionId]: categorySlug }
 }
@@ -1038,7 +640,7 @@ ClassifyTransactionsReq
              Return JSON: { [id]: slug }"
     human:  "{transactions_json}"
   │
-  ChatOpenAI (gpt-4o — withStructuredOutput, jsonSchema mode)
+  ChatGoogleGenerativeAI (gemini-2.5-flash — withStructuredOutput, strict mode)
   │
   validate: every slug in response exists in user's category list
   │
@@ -1057,170 +659,22 @@ rpc ClassifyTransactions(ClassifyTransactionsReq) returns (ClassifyTransactionsR
 
 ### Feedback Loop — Learning from User Corrections
 
-#### The problem
-
-After the AI classifies a Mono bank transaction, the user may disagree with the assigned category and change it in the UI. Without a feedback loop, that correction is a dead end — the next similar transaction from the same merchant hits the same prompt and gets the same wrong answer.
-
-#### The solution: few-shot RAG from stored corrections
-
-When a user corrects a category, store the narration with a pgvector embedding in a `classification_corrections` table. Before the next classification call, embed the incoming narration, retrieve the top-k most similar past corrections via cosine search, and inject them as few-shot examples in the prompt. The model now learns from the user's own correction history without any fine-tuning.
+When a user corrects a category, embed the narration and store it in `classification_corrections`. Before the next classification call, retrieve the top-5 most similar past corrections via cosine search and inject them as few-shot examples.
 
 ```
 User changes category (UI)
   │
-  finance_service publishes:  { event: 'CategoryCorrected', transactionId, userId, narration, correctedSlug }
+  finance_service: BullMQ → { event: 'CategoryCorrected', narration, correctedSlug }
   │
-  ai_service EmbeddingWorker picks up event
+  ai_service EmbeddingWorker: embed narration → store in classification_corrections
   │
-  embeds narration → stores { userId, narration, embedding, correctedSlug } in classification_corrections
+  ─────────────────────────────────────────────────────────
+  Next classification call for same userId
   │
-  ─────────────────────────────────────────────────────────────────────────────
-
-Next classification call for same userId
+  embed incoming narrations → cosine search top-5 corrections
   │
-  embed incoming narrations (batch)
-  │
-  cosine search: SELECT top-5 corrections WHERE user_id = userId ORDER BY embedding <=> $vector
-  │
-  inject as few-shot examples in the ChatPromptTemplate
-  │
-  LLM produces corrected assignments guided by the user's own history
+  inject as few-shot examples in ChatPromptTemplate
 ```
-
-#### Event flow
-
-The `finance_service` owns the category-update logic. When a user changes a Mono transaction's category it publishes a BullMQ event — it does not call the AI service directly.
-
-```typescript
-// finance_service — inside UpdateTransactionCategory handler
-// transaction.narration is the immutable bank narration field (never description)
-await this.correctionQueue.add('ai:category-corrected', {
-  userId,
-  transactionId,
-  narration: transaction.narration, // Transaction.narration — raw Mono text
-  correctedSlug: newCategorySlug,
-});
-```
-
-The AI service registers a BullMQ worker for that queue:
-
-```typescript
-// ai_service — EmbeddingWorker (same worker handles both transaction embeddings and corrections)
-@Processor('ai:category-corrected')
-export class CorrectionWorker {
-  constructor(
-    private readonly embeddingRepo: OpenAiEmbeddingRepo,
-    private readonly prisma: PrismaService,
-  ) {}
-
-  @Process()
-  async handle(job: Job<{ userId: string; narration: string; correctedSlug: string }>) {
-    const { userId, narration, correctedSlug } = job.data;
-
-    const [embedding] = await this.embeddingRepo.embed([narration], {
-      model: 'text-embedding-3-small',
-    });
-
-    await this.prisma.$executeRaw`
-      INSERT INTO classification_corrections (id, user_id, narration, corrected_slug, embedding, created_at)
-      VALUES (gen_random_uuid(), ${userId}, ${narration}, ${correctedSlug}, ${embedding}::vector, now())
-    `;
-  }
-}
-```
-
-#### ClassificationService — dynamic few-shot augmentation
-
-```typescript
-@Injectable()
-export class ClassificationService implements OnModuleInit {
-  private chain: Runnable<any, TransactionClassification>;
-
-  constructor(
-    private readonly langChain: LangChainService,
-    private readonly embeddingRepo: OpenAiEmbeddingRepo,
-    private readonly prisma: PrismaService,
-  ) {}
-
-  onModuleInit() {
-    // Chain is built once — prompt is dynamically augmented per call, not at build time.
-    const schema = z.object({
-      assignments: z.record(z.string()), // { transactionId: categorySlug }
-    });
-
-    this.chain = this.langChain.buildStructuredChain({
-      modelId: 'openai:gpt-4o',
-      schema,
-      structuredOutputOptions: { strict: true },
-    });
-  }
-
-  async classify(
-    userId: string,
-    transactions: Array<{ id: string; narration: string; monoCategory: string }>,
-    categories: Array<{ name: string; slug: string }>,
-  ) {
-    // 1. Retrieve top-5 user corrections most similar to each transaction (batch by userId)
-    const fewShotExamples = await this.fetchFewShotExamples(userId, transactions);
-
-    // 2. Build the prompt with few-shot block injected
-    const prompt = ChatPromptTemplate.fromMessages([
-      [
-        'system',
-        `You are a financial transaction classifier.
-User's categories: {categories_json}
-
-${
-  fewShotExamples.length > 0
-    ? `This user has previously corrected these classifications — follow their preferences:
-{few_shot_block}
-
-`
-    : ''
-}Return a JSON object mapping each transaction id to the best matching category slug.`,
-      ],
-      ['human', '{transactions_json}'],
-    ]);
-
-    return prompt.pipe(this.chain).invoke({
-      categories_json: JSON.stringify(categories),
-      transactions_json: JSON.stringify(transactions),
-      few_shot_block: fewShotExamples
-        .map((e) => `"${e.narration}" → "${e.correctedSlug}"`)
-        .join('\n'),
-    });
-  }
-
-  private async fetchFewShotExamples(
-    userId: string,
-    transactions: Array<{ narration: string }>,
-  ): Promise<Array<{ narration: string; correctedSlug: string }>> {
-    if (transactions.length === 0) return [];
-
-    // Embed the first transaction as a representative query (batching optimisation)
-    const [queryVector] = await this.embeddingRepo.embed([transactions[0].narration], {
-      model: 'text-embedding-3-small',
-    });
-
-    return this.prisma.$queryRaw<Array<{ narration: string; corrected_slug: string }>>`
-      SELECT narration, corrected_slug
-      FROM classification_corrections
-      WHERE user_id = ${userId}
-        AND embedding IS NOT NULL
-      ORDER BY embedding <=> ${queryVector}::vector
-      LIMIT 5
-    `.then((rows) =>
-      rows.map((r) => ({ narration: r.narration, correctedSlug: r.corrected_slug })),
-    );
-  }
-}
-```
-
-#### Degraded-gracefully behaviour
-
-- No corrections yet → `fewShotExamples` is empty → the `few_shot_block` block is omitted from the prompt entirely. No regression for new users.
-- Embedding call fails → catch the error, skip few-shot injection, classify without examples. The correction is not lost — the BullMQ job retries independently.
-- Wrong correction (user flip-flopped) → later corrections overwrite earlier ones via recency in the cosine ranking because the same narration appears twice; the more recent embedding will be an exact match and rank highest.
 
 ---
 
@@ -1228,17 +682,24 @@ ${
 
 ### What it does
 
-Proactively generates human-readable observations about a user's financial patterns — not charts, but sentences derived from pre-computed analytics data.
+Proactively generates a rich set of observations about a user's financial patterns. Not charts — prose, ranked recommendations, and goal alerts derived from their real data. Runs on a schedule and on significant events.
 
-Examples:
+### Insight types produced
 
-- "You spent 43% more on food this month than last month."
-- "Your transport costs have been consistently above your budget for 3 months."
-- "At your current savings rate, you'll hit your Laptop goal 2 weeks ahead of schedule."
+| Insight | Trigger | Example |
+|---------|---------|---------|
+| **Spending anomaly** | Post-sync / daily | "Food spend up 3× vs weekly average — ₦47k this week" |
+| **Monthly narrative** | Month-end | Full prose summary with comparisons and one recommendation |
+| **Budget breach warning** | Real-time on tx create (≥60%) | "Food budget 68% used with 12 days left. On track to overspend ₦8,200." |
+| **Goal pacing alert** | Weekly | "Emergency Fund 2 months behind target. ₦3,000/mo extra gets you back on track." |
+| **Subscription detection** | Weekly | "3 streaming services totalling ₦12,400/mo detected." |
+| **Cash flow forecast** | Weekly | "Based on recurring items, ₦28,500 available after the 15th." |
+| **Split nudge** | Weekly | "Emeka owes ₦15,000 — open 47 days. Your other splits settled in < 2 weeks." |
+| **Macro context** | On generation | "₦8,000 grocery increase partially explained by ~18% Nigerian food CPI." |
 
 ### Why LangGraph (not a plain chain)
 
-Generating a meaningful insight set is not one call. The model needs to: decide which metrics are interesting, optionally request additional context, filter out obvious observations, and return a ranked list. That decision loop is a graph, not a linear chain.
+Generating a meaningful insight set involves decision logic — which metrics are interesting, whether to fetch additional context, and how to rank observations. That loop is a graph.
 
 ### LangGraph workflow
 
@@ -1246,188 +707,131 @@ Generating a meaningful insight set is not one call. The model needs to: decide 
 [start]
   │
   ▼
-[summarize_node]           ← google:gemini-2.5-pro
-  reads transactions, builds concise summary
-  │
-  ▼
-[detect_anomalies_node]    ← anthropic:claude-sonnet-4.6
-  identifies spending anomalies from summary
-  │
-  ▼
-[recommend_node]           ← openai:gpt-4o
-  generates ranked financial recommendations
-  │
-  ▼
-[end] → InsightSet { summary, anomalies[], recommendations[] }
-```
-
-Each node picks its own model — different strengths for different steps. The graph is **stateless** (`checkpointer: false`) because insights are triggered by the scheduler and stored to MongoDB, not held in memory between requests.
-
-### Memory Architecture
-
-```
-Short-term   None — each run is independent. State flows through nodes
-             but is not persisted between runs. No checkpointer needed.
-
-Long-term    MongoDB stores every generated InsightSet with a timestamp.
-             At the start of each new run, the graph loads the last 3
-             insight sets as context so nodes can detect trends over time
-             ("last month you also flagged high food spend") rather than
-             treating every run as a fresh start.
-
-RAG          The summarizeNode receives raw transactions but does not embed
-             them for vector search — the volume is too high and the question
-             is structured ("what patterns exist?"), not semantic. Instead,
-             the loadContextNode fetches pre-computed MongoDB analytics
-             snapshots (monthly breakdowns, budget utilisation) and injects
-             them as structured context before the summarize step.
-
-Compaction   When transaction volume is large (>500 rows), the summarizeNode
-             receives a pre-aggregated snapshot from MongoDB rather than raw
-             rows. Gemini 2.5 Pro's large context window handles the rest.
-             No message compaction is needed — each graph run starts fresh.
-```
-
-**Updated workflow with long-term context:**
-
-```
-[start]
-  │
-  ▼
 [load_context_node]
-  reads: last 3 InsightSets from MongoDB (trend awareness)
-  reads: current analytics snapshots from MongoDB
+  reads: last 3 InsightSets from Postgres ai_insights table (trend awareness)
+  reads: current analytics snapshots from Postgres analytics_snapshots table
+  reads: goals, budgets, recurring_items, splits from Postgres
+  reads: macro context from financial oracle (CBN rate, CPI) via Redis-cached tools
   │
   ▼
-[summarize_node]           ← google:gemini-2.5-pro
-  context: analytics snapshot + historical insight summaries
+[summarize_node]              ← google:gemini-2.5-pro
+  builds concise financial summary from all context
   │
   ▼
-[detect_anomalies_node]    ← anthropic:claude-sonnet-4.6
+[detect_anomalies_node]       ← anthropic:claude-sonnet-4.6
+  identifies spending anomalies, budget breaches, subscription patterns
   │
   ▼
-[recommend_node]           ← openai:gpt-4o
+[goal_pacing_node]            ← google:gemini-2.5-flash
+  evaluates goal progress against target dates, computes gap
   │
   ▼
-[end] → writes InsightSet to MongoDB → invalidates Redis cache
+[cash_flow_node]              ← google:gemini-2.5-flash
+  models upcoming cash flow from recurring items + income patterns
+  │
+  ▼
+[recommend_node]              ← anthropic:claude-sonnet-4.6
+  generates ranked, concrete recommendations — not generic advice
+  │
+  ▼
+[end] → upserts AiInsight row in Postgres → invalidates Redis cache
 ```
 
-**Updated state:**
+### State
 
 ```typescript
-const InsightState = new StateSchema({
-  userId: z.string(),
-  transactions: z.array(z.any()),
-  historicalInsights: z.array(z.any()).default(() => []), // loaded from MongoDB
-  analyticsSnapshot: z.any().optional(), // pre-aggregated
-  summary: z.string().default(''),
-  anomalies: new ReducedValue(
-    z.array(z.string()).default(() => []),
-    { reducer: (curr, upd) => curr.concat(upd) },
-  ),
-  recommendations: z.array(z.string()).default(() => []),
+const InsightState = Annotation.Root({
+  userId: Annotation<string>(),
+  transactions: Annotation<any[]>({ default: () => [] }),
+  historicalInsights: Annotation<any[]>({ default: () => [] }),
+  analyticsSnapshot: Annotation<any>(),
+  goals: Annotation<any[]>({ default: () => [] }),
+  budgets: Annotation<any[]>({ default: () => [] }),
+  recurringItems: Annotation<any[]>({ default: () => [] }),
+  splits: Annotation<any[]>({ default: () => [] }),
+  macroContext: Annotation<MacroContext>(),
+  summary: Annotation<string>({ default: () => '' }),
+  anomalies: Annotation<string[]>({
+    default: () => [],
+    reducer: (curr, upd) => curr.concat(upd),
+  }),
+  goalAlerts: Annotation<string[]>({
+    default: () => [],
+    reducer: (curr, upd) => curr.concat(upd),
+  }),
+  cashFlowForecast: Annotation<string>({ default: () => '' }),
+  recommendations: Annotation<InsightRecommendation[]>({ default: () => [] }),
 });
+
+interface InsightRecommendation {
+  text: string;
+  priority: 'high' | 'medium' | 'low';
+  category: 'budget' | 'goal' | 'spending' | 'saving' | 'cashflow';
+  actionable: boolean;
+}
+
+interface MacroContext {
+  ngnUsdRate: number;
+  foodCpiYoY: number;      // % change YoY
+  cbnPolicyRate: number;
+  fetchedAt: string;
+}
 ```
 
 ### Data shapes
 
 ```typescript
-// BullMQ job payload published by scheduler_service
 interface InsightsJobPayload {
   userId: string;
-  trigger: 'daily' | 'post_sync'; // post_sync fires after a bank sync with >10 new transactions
+  trigger: 'daily' | 'post_sync' | 'month_end' | 'budget_breach';
+  metadata?: { categorySlug?: string; budgetId?: string };
 }
 
-// gRPC request
-interface GenerateInsightsReq {
-  userId: string;
-}
-
-// gRPC response — also the shape written to MongoDB and served from Redis
 interface GenerateInsightsRes {
-  summary: string; // 2–3 sentence spending overview
-  anomalies: string[]; // e.g. ["Food spend up 43% vs last month"]
-  recommendations: string[]; // ranked, e.g. ["Set a ₦30,000 food budget"]
-  generatedAt: string; // ISO 8601 timestamp
-}
-
-// MongoDB document shape (ai_insights collection)
-interface AiInsightDocument {
-  userId: string;
-  generatedAt: Date;
   summary: string;
   anomalies: string[];
-  recommendations: string[];
+  goalAlerts: string[];
+  cashFlowForecast: string;
+  recommendations: InsightRecommendation[];
+  macroContext: MacroContext;
+  generatedAt: string;
+}
+```
+
+### Real-time budget breach trigger
+
+Budget breach warnings fire immediately when a transaction pushes a category past 60%, not on the next scheduled run.
+
+```typescript
+// finance_service — inside createTransaction handler
+const budgetCheck = await checkBudgetUtilisation(userId, categorySlug, db);
+if (budgetCheck.pct >= 0.6) {
+  await insightsQueue.add('insights:budget_breach', {
+    userId,
+    trigger: 'budget_breach',
+    metadata: { categorySlug, budgetId: budgetCheck.budgetId },
+  });
 }
 ```
 
 ### When insights are generated
 
-Not on demand per page load. The `scheduler_service` triggers insight generation once per day per user (or after a sync completes with >10 new transactions). Result stored in MongoDB, served from Redis cache.
-
 ```
 scheduler_service (daily cron)
-  → BullMQ: InsightsJobPayload { userId, trigger: "daily" }
-  → ai_service InsightsWorker picks up job
-  → runs LangGraph insights workflow
-  → writes GenerateInsightsRes to MongoDB (ai_insights collection)
-  → invalidates Redis cache key "insights:{userId}"
+  → BullMQ: InsightsJobPayload { trigger: 'daily' }
 
-frontend tRPC call: ai.getInsights()
-  → reads Redis cache key "insights:{userId}"  (TTL 1h)
-  → on miss: reads MongoDB, populates Redis
-  → returns GenerateInsightsRes
-```
+scheduler_service (month-end cron)
+  → BullMQ: InsightsJobPayload { trigger: 'month_end' }
 
-### Service pattern
+finance_service (post bank sync, >10 new transactions)
+  → BullMQ: InsightsJobPayload { trigger: 'post_sync' }
 
-```typescript
-@Injectable()
-export class InsightService implements OnModuleInit {
-  private graph: any;
+finance_service (budget utilisation ≥ 60%)
+  → BullMQ: InsightsJobPayload { trigger: 'budget_breach', metadata: { categorySlug } }
 
-  constructor(private readonly langGraph: LangGraphService) {}
-
-  onModuleInit() {
-    const InsightState = new StateSchema({
-      transactions: z.array(z.any()),
-      summary: z.string().default(''),
-      anomalies: new ReducedValue(
-        z.array(z.string()).default(() => []),
-        { reducer: (curr, upd) => curr.concat(upd) },
-      ),
-      recommendations: z.array(z.string()).default(() => []),
-    });
-
-    const summarizeNode = async (state: typeof InsightState.State) => {
-      const model = this.langGraph.getModel('google:gemini-2.5-pro');
-      const response = await model.invoke([
-        new HumanMessage(
-          `Summarize these ${state.transactions.length} financial transactions concisely.`,
-        ),
-      ]);
-      return { summary: response.content as string };
-    };
-
-    // ... anomalyNode, recommendNode ...
-
-    this.graph = this.langGraph.compile(
-      new StateGraph(InsightState)
-        .addNode('summarize', summarizeNode)
-        .addNode('detectAnomalies', anomalyNode)
-        .addNode('recommend', recommendNode)
-        .addEdge(START, 'summarize')
-        .addEdge('summarize', 'detectAnomalies')
-        .addEdge('detectAnomalies', 'recommend')
-        .addEdge('recommend', END),
-      { checkpointer: false },
-    );
-  }
-
-  async analyze(transactions: any[]) {
-    return this.langGraph.invoke(this.graph, { transactions });
-  }
-}
+frontend tRPC: advisor.getInsights()
+  → Redis cache key "insights:{userId}" (TTL 1h)
+  → miss: Postgres → populate Redis
 ```
 
 ### gRPC method
@@ -1436,512 +840,826 @@ export class InsightService implements OnModuleInit {
 rpc GenerateInsights(GenerateInsightsReq) returns (GenerateInsightsRes) {}
 ```
 
----
+### Implementation Phases — AI Insights
 
-## Domain 3 — Financial Chat Assistant
+Build in this order. Each phase is independently testable before moving to the next.
 
-### What it does
+#### Phase 1: Postgres migrations
 
-A conversational assistant that answers natural language questions about the user's actual finances — not generic advice.
+Add `AnalyticsSnapshot` and `AiInsight` models to `schema.prisma` (models defined in the Analytics Architecture section below). Run:
 
-Examples:
+```bash
+pnpm --filter @fintrack/database prisma migrate dev --name add_analytics_insights
+```
 
-- "How much did I spend on food last month?"
-- "Am I on track with my savings goals?"
-- "When did I last really splurge?"
-- "Find any payments that look like forgotten subscriptions."
+Verify the GIN index on the `data` JSONB column is present in the generated SQL. Both tables must appear in Neon's table explorer before proceeding.
 
-### Why LangGraph
+#### Phase 2: Nightly aggregation job (scheduler_service)
 
-The assistant is an **agent with tools**. The model decides which data to fetch based on the question, fetches it, processes the result, and decides whether it has enough to answer or needs more. That loop requires LangGraph.
+Build an `AnalyticsAggregationJob` in `scheduler_service` that runs nightly. For each active user, compute:
 
-### Data shapes
+- `totalIncome` / `totalExpense` / `netSavings` via Prisma aggregation on current month's transactions
+- `topCategories` — group by `categoryId`, sum amounts, take top 10
+- `budgetUtilisation` — for each active budget, compute current month spend vs limit
+- `goalProgress` — for each goal, current `savedAmount` vs `targetAmount`
+
+Upsert the result into `analytics_snapshots` using `@@unique([userId, period, type])` where `period = 'YYYY-MM'` and `type = 'monthly_summary'`. On month end (last day of month), also upsert `quarterly_summary` and `yearly_summary` rollups.
+
+Test: run the job manually for a single `userId`. Verify an `analytics_snapshots` row is written with the correct JSON shape.
+
+#### Phase 3: InsightsModule scaffold
+
+Create in `apps/ai_service/src/insights/`:
+
+```
+insights.module.ts
+insights.service.ts
+insights.controller.ts   — gRPC GenerateInsights handler
+insights.worker.ts       — BullMQ consumer for InsightsJobPayload
+```
+
+Wire `InsightsModule` into `AppModule`. The BullMQ worker registers on the `insights` queue and delegates to `InsightsService.runGraph(payload)`. The gRPC `GenerateInsights` handler calls `InsightsService.runGraph` directly (used by the scheduler when a synchronous response is needed). At this stage `runGraph` can return a hardcoded stub — unblock the queue → service → gRPC path end-to-end before adding graph nodes.
+
+#### Phase 4: `load_context_node`
+
+First real graph node. Queries all inputs the graph needs in parallel:
 
 ```typescript
-// gRPC request — one message per turn
-interface ChatMessageReq {
-  conversationId: string; // maps to LangGraph thread_id
-  userId: string;
-  message: string;
-}
+const loadContextNode = async (state: typeof InsightState.State) => {
+  const [historicalInsights, snapshot, goals, budgets, recurringItems, splits, macroContext] =
+    await Promise.all([
+      prisma.aiInsight.findMany({
+        where: { userId: state.userId },
+        orderBy: { generatedAt: 'desc' },
+        take: 3,
+      }),
+      prisma.analyticsSnapshot.findFirst({
+        where: { userId: state.userId, type: 'monthly_summary' },
+        orderBy: { computedAt: 'desc' },
+      }),
+      financeClient.getGoals({ userId: state.userId }),
+      financeClient.getBudgets({ userId: state.userId }),
+      financeClient.getRecurringItems({ userId: state.userId }),
+      financeClient.getSplits({ userId: state.userId, status: 'OPEN' }),
+      oracleService.getMacroContext(),   // Redis-cached NGN rate + CPI
+    ]);
+  return { historicalInsights, analyticsSnapshot: snapshot?.data, goals, budgets, recurringItems, splits, macroContext };
+};
+```
 
-// gRPC streaming response — one chunk per token
-interface ChatChunkRes {
-  delta: string; // partial token text
-  done: boolean; // true on final chunk
+Test: assert that after this node runs, `InsightState` is fully populated and `macroContext.ngnUsdRate` is a non-null float.
+
+#### Phase 5: `summarize_node`
+
+Uses `google:gemini-2.5-pro`. Input: all loaded context from Phase 4. Output: a concise 3–5 sentence prose summary of the user's current financial position. The prompt must instruct the model to reference concrete numbers from the `analyticsSnapshot` (income, spend, savings rate, largest category). The summary feeds into all subsequent nodes as grounding context.
+
+Test: invoke with a real user's data. Verify the output references actual amounts from their snapshot, not placeholder figures.
+
+#### Phase 6: `detect_anomalies_node`
+
+Uses `anthropic:claude-sonnet-4.6`. Input: summary + transaction data (last 30 days, grouped by week and category). Detects:
+
+- Category spend spikes (this week vs 4-week rolling average per category)
+- Potential subscriptions (same merchant, similar amounts, weekly or monthly cadence)
+- Unusual single transactions (>2σ from the user's typical spend in that category)
+
+Output: `anomalies[]` — prose strings like `"Food spend ₦47k this week vs ₦15k weekly average."` Include macro context when a spend increase may be partially explained by CPI data.
+
+Test: seed 4 weeks of normal food spend and one spike week. Verify the spike is detected. Verify inflation context is appended when the spike aligns with CPI data.
+
+#### Phase 7: `goal_pacing_node`
+
+Uses `google:gemini-2.5-flash`. Input: goals array from Phase 4. For each active goal compute:
+
+- Days remaining = `targetDate − today`
+- Monthly contribution needed = `(targetAmount − savedAmount) / monthsRemaining`
+- Current monthly contribution = average of last 3 months' contributions to that goal
+- Pacing status = ahead / on-track / behind
+
+Output: `goalAlerts[]` — include only goals that are behind or at risk. Example: `"Emergency Fund is ₦45,000 short. ₦3,750/mo extra gets you back on track by your December deadline."`
+
+Test: create a goal that is 2 months behind schedule. Verify the alert fires with the correct catch-up amount.
+
+#### Phase 8: `cash_flow_node`
+
+Uses `google:gemini-2.5-flash`. Input: recurring items + current month transactions. Computes:
+
+- Recurring expenses already paid this month (matched against logged transactions)
+- Recurring expenses still due this month (not yet logged)
+- Expected income from recurring income items due this month
+- Net available = current balance + expected income − remaining dues
+
+Output: `cashFlowForecast` — single prose sentence: `"After recurring bills, ₦28,500 available after the 15th."`
+
+Test: seed 3 recurring expenses (₦5k, ₦10k, ₦8k) and 1 recurring income (₦150k). Verify the forecast arithmetic is correct and the sentence reads naturally.
+
+#### Phase 9: `recommend_node`
+
+Uses `anthropic:claude-sonnet-4.6`. Input: the full `InsightState` (summary + anomalies + goal alerts + cash flow). Output: ranked concrete recommendations — `InsightRecommendation[]` with `text`, `priority`, `category`, and `actionable` fields.
+
+Requirements:
+- Must be actionable — not generic advice ("save more money" is rejected)
+- Must reference specific amounts and categories from the user's data
+- Ranked by priority: `'high' | 'medium' | 'low'`
+- At most 5 recommendations per run
+
+Test: run with a user who has one spending anomaly (food spike) and one behind-track goal. Verify both surface as separate recommendations with the correct priority and specific numbers.
+
+#### Phase 10: Write result + cache invalidation
+
+After `recommend_node` completes, upsert the result and clear the Redis cache:
+
+```typescript
+await prisma.aiInsight.create({
+  data: {
+    userId,
+    trigger: payload.trigger,
+    summary: state.summary,
+    anomalies: state.anomalies,
+    goalAlerts: state.goalAlerts,
+    cashFlowForecast: state.cashFlowForecast ?? null,
+    recommendations: state.recommendations,
+    macroContext: state.macroContext,
+  },
+});
+await redis.del(`insights:${userId}`);
+```
+
+The key is deleted (not set) — the tRPC endpoint re-populates it on the next read. Verify the `ai_insights` row appears in the database after the job completes.
+
+#### Phase 11: Real-time budget breach trigger
+
+Wire into `finance_service.createTransaction`. After the transaction is persisted and category spend is updated:
+
+```typescript
+const budgetCheck = await checkBudgetUtilisation(userId, categorySlug, db);
+if (budgetCheck.pct >= 0.6) {
+  await insightsQueue.add('insights:budget_breach', {
+    userId,
+    trigger: 'budget_breach',
+    metadata: { categorySlug, budgetId: budgetCheck.budgetId },
+  });
 }
 ```
 
-### Tools the agent has access to
+The job fires immediately — not on the next cron tick. The graph receives `trigger: 'budget_breach'` and the `detect_anomalies_node` receives the specific category slug in its payload, ensuring the output is focused on the breach rather than generating a full insights run.
+
+Test: create a transaction that pushes Food to 65% of its budget. Verify a `budget_breach` insight is generated within seconds and mentions Food specifically.
+
+#### Phase 12: tRPC endpoint + Redis cache
+
+Add `advisor.getInsights` to the tRPC router in `api_gateway`:
 
 ```typescript
-// SQL tools — structured, precise questions
+getInsights: protectedProcedure.query(async ({ ctx }) => {
+  const cacheKey = `insights:${ctx.session.user.id}`;
+  const cached = await redis.get(cacheKey);
+  if (cached) return JSON.parse(cached);
+
+  const insight = await prisma.aiInsight.findFirst({
+    where: { userId: ctx.session.user.id },
+    orderBy: { generatedAt: 'desc' },
+  });
+  if (!insight) return null;
+
+  await redis.set(cacheKey, JSON.stringify(insight), 'EX', 3600);
+  return insight;
+}),
+```
+
+Test the three paths:
+- Redis HIT → returns cached data, no Postgres query
+- Redis MISS → hits Postgres, populates cache
+- After a `budget_breach` job runs (which calls `redis.del`) → next `getInsights` re-fetches from Postgres
+
+#### Phase 13: Insights UI
+
+Build the combined Insights + Advisor page at `/dashboard/advisor` (design provided separately). The insights panel renders:
+
+- **Summary card** — the `summary` prose text
+- **Anomaly chips** — each `anomalies[]` item as a dismissible card with a warning icon
+- **Goal alert cards** — each `goalAlerts[]` item with a "Fix it" CTA that deep-links to the goals page
+- **Cash flow forecast** — single card with the `cashFlowForecast` string
+- **Recommendation list** — sorted by priority, each with category icon and an `actionable` badge
+
+All data fetched via `advisor.getInsights` tRPC call on page load. No polling — insights update in the background via cron and budget breach triggers and are fresh on the next load.
+
+---
+
+## Domain 3 — Financial Advisor
+
+### What it does
+
+A proactive financial advisor — not a chatbot. The advisor knows the user's actual financial position, acts on their behalf with approval, and communicates like a trusted advisor rather than a search engine. It responds only to finance-related questions, accepts images and PDFs, and can propose concrete actions the user approves in one tap.
+
+Examples of advisor behaviour:
+
+- "You've spent ₦47k on food this week — 3× your usual ₦15k. Want me to flag when any category hits 2× your weekly average?"
+- "Looking at your bank statement PDF, I can see 3 direct debits you haven't categorised. Want me to add them as recurring items?"
+- "Your rent clears on the 28th. Based on your current balance and upcoming bills, you'll need ₦85k available by then. You're on track."
+- *[approval card]* "Raise Food budget ₦30k → ₦42k?" → one tap approve
+
+### Finance Guardian — Token-efficient intent filter
+
+The first node on every invocation. Uses the cheapest model to classify the message as finance-related or not, short-circuiting before any tool calls or expensive model runs.
+
+```
+[START]
+  │
+  ▼
+[guardian_node]  ← google:gemini-2.5-flash (~200 tokens — cheap, fast)
+  outputs: { relevant: boolean }
+  │
+  ├── relevant = false → [reject_node] → canned response → END
+  │
+  └── relevant = true → [compact_node] → [respond_node] → ...
+```
+
+**Cost:** ~200 tokens per rejected message vs ~2,000+ for a full advisor round-trip.
+
+```typescript
+const GuardianSchema = z.object({ relevant: z.boolean() });
+
+const guardianNode = async (state: typeof AdvisorState.State) => {
+  const lastMessage = state.messages.at(-1)?.content as string;
+  const chain = langChain.buildStructuredChain({
+    modelId: 'google:gemini-2.5-flash',
+    schema: GuardianSchema,
+    structuredOutputOptions: { strict: true },
+  });
+  const result = await chain.invoke([
+    new SystemMessage(
+      `Finance relevance classifier. Return relevant: true only if the user message is about
+       personal finance — spending, budgets, goals, savings, transactions, income, bills,
+       bank accounts, or financial planning. Be permissive in a financial app context.
+       Off-topic messages (general knowledge, coding, recipes, etc.) return relevant: false.`,
+    ),
+    new HumanMessage(lastMessage),
+  ]);
+  return { guardianResult: result };
+};
+```
+
+### Advisor Identity — System Prompt
+
+Every request builds a rich system prompt from the user's current financial position. This grounds every response in real data without requiring tool calls for basic context.
+
+```typescript
+function buildAdvisorSystemPrompt(context: AdvisorContext): SystemMessage {
+  return new SystemMessage(`You are Fintrack Advisor — a personal financial advisor for ${context.userName}.
+
+## Your role
+You are an advisor, not a chatbot. Give concrete, specific recommendations backed by the user's
+actual numbers. Do not give generic financial advice. Every response should reference something
+specific about this user's finances.
+
+## User's current position (as of ${context.date})
+- Monthly income: ${formatNGN(context.monthlyIncome)}
+- Monthly spending (this month so far): ${formatNGN(context.monthlySpending)}
+- Savings rate: ${context.savingsRate}%
+- Active budgets: ${context.budgetSummary}
+- Goals: ${context.goalsSummary}
+- Net balance this month: ${formatNGN(context.netBalance)}
+
+## Communication style
+- Speak plainly. No jargon.
+- Lead with the insight, follow with the number, end with a recommendation.
+- When you need data, call a tool — do not guess.
+- If the user is off-track financially, say so directly but constructively.
+- Use ₦ for amounts. Format large numbers with commas (₦12,500).
+- Keep responses focused: one insight, one number, one recommendation per message.
+
+## Nigerian context
+Be aware of Nigerian payment services (Kuda, OPay, GTBank, Access, UBA), seasonal spending
+(school fees Jan/Sept, Christmas Dec), and NGN inflation effects on purchasing power.
+
+## Boundaries
+Finance questions only. You can read images and PDFs — analyse bank statements, receipts,
+and financial documents the user shares.`);
+}
+```
+
+### Multimodal Input — Images and PDFs
+
+The advisor accepts image files and PDFs alongside text messages. Files are passed as multimodal message content — Gemini 1.5+ accepts PDFs natively, Claude 3+ accepts base64 images.
+
+```typescript
+interface FileAttachment {
+  type: 'image' | 'pdf';
+  base64: string;
+  mimeType: string;
+  filename?: string;
+}
+
+const buildMultimodalMessage = (text: string, attachments: FileAttachment[]): HumanMessage => {
+  if (!attachments.length) return new HumanMessage(text);
+
+  const content: any[] = [{ type: 'text', text }];
+  for (const attachment of attachments) {
+    if (attachment.type === 'image') {
+      content.push({
+        type: 'image_url',
+        image_url: { url: `data:${attachment.mimeType};base64,${attachment.base64}` },
+      });
+    } else if (attachment.type === 'pdf') {
+      content.push({ type: 'media', data: attachment.base64, mimeType: 'application/pdf' });
+    }
+  }
+  return new HumanMessage({ content });
+};
+```
+
+**Use cases:**
+- Bank statement PDF → advisor extracts transactions, identifies patterns, suggests categories
+- Receipt image → identifies merchant, amount, category, suggests transaction entry
+- Screenshot of a bill → identifies recurring payment, offers to add as recurring item
+
+### Financial Data Oracle Tools
+
+The advisor can call external financial data feeds for macroeconomic context. All results are Redis-cached before being returned to the agent.
+
+```typescript
+// NGN/USD exchange rate — free tier
+const getNgnExchangeRate = tool(
+  async () => {
+    const cached = await redis.get('oracle:ngn_rate');
+    if (cached) return JSON.parse(cached);
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await res.json();
+    const result = { usdToNgn: data.rates.NGN, fetchedAt: new Date().toISOString() };
+    await redis.set('oracle:ngn_rate', JSON.stringify(result), 'EX', 3600); // 1h TTL
+    return result;
+  },
+  {
+    name: 'getNgnExchangeRate',
+    description: 'Get current USD/NGN exchange rate. Use when user asks about forex or foreign currency amounts.',
+    schema: z.object({}),
+  },
+);
+
+// Nigerian inflation / CPI — World Bank (completely free, no key)
+const getNigerianInflation = tool(
+  async ({ year }: { year?: number }) => {
+    const targetYear = year ?? new Date().getFullYear() - 1;
+    const cacheKey = `oracle:ng_cpi:${targetYear}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+    const res = await fetch(
+      `https://api.worldbank.org/v2/country/NG/indicator/FP.CPI.TOTL.ZG?format=json&date=${targetYear}`,
+    );
+    const [, data] = await res.json();
+    const result = { year: targetYear, inflationRate: data[0]?.value ?? null };
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 86400); // 24h TTL
+    return result;
+  },
+  {
+    name: 'getNigerianInflation',
+    description: 'Get Nigerian annual CPI inflation rate. Use when contextualising year-over-year spending increases.',
+    schema: z.object({ year: z.number().optional() }),
+  },
+);
+
+// Alpha Vantage — forex, stocks, economic indicators (free tier: 25 calls/day)
+const getMarketData = tool(
+  async ({ symbol, type }: { symbol: string; type: 'forex' | 'stock' }) => {
+    const cacheKey = `oracle:market:${type}:${symbol}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+    const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
+    const fn = type === 'forex' ? 'CURRENCY_EXCHANGE_RATE' : 'GLOBAL_QUOTE';
+    const param = type === 'forex' ? `from_currency=${symbol}&to_currency=NGN` : `symbol=${symbol}`;
+    const res = await fetch(`https://www.alphavantage.co/query?function=${fn}&${param}&apikey=${apiKey}`);
+    const data = await res.json();
+    await redis.set(cacheKey, JSON.stringify(data), 'EX', 14400); // 4h TTL
+    return data;
+  },
+  {
+    name: 'getMarketData',
+    description: 'Get forex rates or stock quotes via Alpha Vantage. Use for investment context or foreign currency exposure.',
+    schema: z.object({
+      symbol: z.string().describe('Currency code (e.g. USD, GBP) or stock ticker'),
+      type: z.enum(['forex', 'stock']),
+    }),
+  },
+);
+```
+
+**Oracle cache TTLs:**
+
+| Oracle | Rate limit | Cache TTL |
+|--------|-----------|-----------|
+| exchangerate-api.com | 1,500 req/month free | 1h |
+| World Bank | Unlimited (public) | 24h |
+| Alpha Vantage | 25 req/day free | 4h |
+
+### Postgres Tools (User Data)
+
+Full set of tools the advisor can call against the user's real financial data:
+
+```typescript
 const getTransactions = tool(
-  async ({ userId, startDate, endDate, categorySlug, limit }) => {
-    /* prisma query */
+  async ({ userId, startDate, endDate, categorySlug, type, limit }) => {
+    return prisma.transaction.findMany({
+      where: {
+        userId,
+        ...(startDate && { date: { gte: new Date(startDate) } }),
+        ...(endDate && { date: { lte: new Date(endDate) } }),
+        ...(categorySlug && { category: { slug: categorySlug } }),
+        ...(type && { type }),
+      },
+      include: { category: true },
+      orderBy: { date: 'desc' },
+      take: limit ?? 20,
+    });
   },
   {
     name: 'getTransactions',
+    description: 'Fetch recent transactions with optional filters for date range, category, and type.',
     schema: z.object({
       userId: z.string(),
-      startDate: z.string().optional(), // ISO 8601
+      startDate: z.string().optional(),
       endDate: z.string().optional(),
       categorySlug: z.string().optional(),
+      type: z.enum(['INCOME', 'EXPENSE']).optional(),
       limit: z.number().int().max(100).default(20),
     }),
   },
 );
 
 const getSpendingSummary = tool(
-  async ({ userId, period, groupBy }) => {
-    /* prisma aggregation */
-  },
+  async ({ userId, period, groupBy }) => { /* prisma aggregation */ },
   {
     name: 'getSpendingSummary',
+    description: 'Get total spending grouped by category or time period.',
     schema: z.object({
       userId: z.string(),
-      period: z.enum(['this_month', 'last_month', 'last_3_months', 'this_year']),
+      period: z.enum(['this_week', 'this_month', 'last_month', 'last_3_months', 'this_year']),
       groupBy: z.enum(['category', 'week', 'month']).default('category'),
     }),
   },
 );
 
 const getBudgets = tool(
-  async ({ userId, period }) => {
-    /* prisma query */
-  },
+  async ({ userId }) => { /* prisma query with current period spend vs limit */ },
   {
     name: 'getBudgets',
-    schema: z.object({
-      userId: z.string(),
-      period: z.enum(['MONTHLY', 'WEEKLY', 'QUARTERLY', 'YEARLY']).optional(),
-    }),
+    description: 'Get all user budgets with current period spend vs limit.',
+    schema: z.object({ userId: z.string() }),
   },
 );
 
 const getGoals = tool(
-  async ({ userId }) => {
-    /* prisma query */
-  },
-  { name: 'getGoals', schema: z.object({ userId: z.string() }) },
-);
-
-const getRecurringBills = tool(
-  async ({ userId }) => {
-    /* prisma query */
-  },
-  { name: 'getRecurringBills', schema: z.object({ userId: z.string() }) },
-);
-
-const getCategoryBreakdown = tool(
-  async ({ userId, startDate, endDate }) => {
-    /* prisma aggregation */
-  },
+  async ({ userId }) => { /* prisma query with contribution history and pacing */ },
   {
-    name: 'getCategoryBreakdown',
+    name: 'getGoals',
+    description: 'Get savings goals with target amounts, saved amounts, and deadline pacing.',
+    schema: z.object({ userId: z.string() }),
+  },
+);
+
+const getRecurringItems = tool(
+  async ({ userId }) => { /* prisma query */ },
+  {
+    name: 'getRecurringItems',
+    description: 'Get all recurring income and expense items (bills, subscriptions, income).',
+    schema: z.object({ userId: z.string() }),
+  },
+);
+
+const getSplits = tool(
+  async ({ userId, status }) => { /* prisma query with participant details and settlement status */ },
+  {
+    name: 'getSplits',
+    description: 'Get group expense splits — open, settled, or all.',
     schema: z.object({
       userId: z.string(),
-      startDate: z.string(),
-      endDate: z.string(),
+      status: z.enum(['OPEN', 'SETTLED', 'ALL']).default('OPEN'),
     }),
   },
 );
 
-// Vector tool — semantic, fuzzy questions (see RAG section)
-const semanticSearchTransactions = tool(
-  async ({ userId, query, limit }) => {
-    /* pgvector cosine search */
+const getCategoryBreakdown = tool(
+  async ({ userId, startDate, endDate }) => { /* prisma aggregation */ },
+  {
+    name: 'getCategoryBreakdown',
+    description: 'Get spending breakdown by category for a custom date range.',
+    schema: z.object({ userId: z.string(), startDate: z.string(), endDate: z.string() }),
   },
+);
+
+// Vector tool — semantic fuzzy questions
+const semanticSearchTransactions = tool(
+  async ({ userId, query, limit }) => { /* pgvector cosine search — see RAG section */ },
   {
     name: 'semanticSearchTransactions',
+    description: 'Find transactions semantically matching a natural language description. Use for fuzzy questions like "forgotten subscriptions" or "last time I splurged".',
     schema: z.object({
       userId: z.string(),
-      query: z.string(), // natural language — embedded at query time
+      query: z.string(),
       limit: z.number().int().max(20).default(10),
     }),
   },
 );
 ```
 
-### LangGraph agent loop
+### Agentic Actions — Proposals with Human-in-the-Loop Approval
+
+The advisor can propose concrete changes to the user's financial setup. These always require explicit user approval. The `action_node` is never reached without the user accepting via the approval card in the UI.
+
+**Action types:**
+
+| Action | Description |
+|--------|-------------|
+| `adjust_budget` | Raise or lower an existing budget limit |
+| `create_budget` | Create a new budget for an un-budgeted category |
+| `adjust_goal_contribution` | Increase monthly contribution to a goal |
+| `suggest_recurring` | Create a new recurring item from a detected pattern |
+| `flag_subscription` | Mark a transaction pattern as a subscription |
+
+**Graph flow:**
 
 ```
-[start] user message arrives
+[respond_node] model outputs { proposedAction: AdvisorAction }
   │
   ▼
-[call_model_node]
-  model sees: system prompt + conversation history + tool definitions
-  model outputs: tool call OR final answer
+[__interrupt__]  ← graph pauses, checkpointed
+                   SSE stream yields { type: 'approval_required', action }
+                   Frontend renders inline approval card in advisor UI
+
+User taps Approve → POST /api/advisor/resume { approved: true }
+User taps Reject  → POST /api/advisor/resume { approved: false }
   │
-  ┌──────────────────┐
-  │ tool call?        │
-  └──┬───────────┬───┘
-    YES           NO
-     │             │
-     ▼             ▼
-[tool_node]      [end]
-  execute          stream final answer
-  append result
-  to messages
-     │
-     ▼
-[call_model_node]  ← loop: model now sees tool result
+  ▼
+[action_node]
+  approved: execute action via internal gRPC call to finance_service
+  rejected: record rejection in store — never re-propose the same thing
+  │
+  ▼
+[respond_node] confirms: "Done — your Food budget is now ₦42,000."
+```
+
+```typescript
+const actionNode = async (state: typeof AdvisorState.State, runtime) => {
+  if (!state.approved || !state.proposedAction) {
+    // Record rejection so advisor doesn't re-propose
+    const userId = runtime.context?.userId as string;
+    if (state.proposedAction) {
+      await runtime.store?.put(
+        ['user', userId, 'rejections'],
+        `${state.proposedAction.kind}:${JSON.stringify(state.proposedAction)}`,
+        { rejectedAt: new Date().toISOString() },
+      );
+    }
+    return { proposedAction: null, actionResult: 'rejected' };
+  }
+
+  const action = state.proposedAction;
+  const userId = runtime.context?.userId as string;
+
+  switch (action.kind) {
+    case 'adjust_budget':
+      await financeClient.updateBudget({ budgetId: action.budgetId, limit: action.proposedLimit, userId });
+      return { actionResult: `Budget updated to ₦${action.proposedLimit.toLocaleString()}`, proposedAction: null };
+
+    case 'create_budget':
+      await financeClient.createBudget({ categorySlug: action.categorySlug, limit: action.proposedLimit, userId });
+      return { actionResult: `Budget created`, proposedAction: null };
+
+    case 'adjust_goal_contribution':
+      await financeClient.updateGoalContribution({ goalId: action.goalId, monthlyAmount: action.proposedAmount, userId });
+      return { actionResult: `Monthly contribution updated`, proposedAction: null };
+
+    case 'suggest_recurring':
+      await financeClient.createRecurringItem({ ...action, userId });
+      return { actionResult: `Recurring item added`, proposedAction: null };
+  }
+};
+```
+
+### Transaction-time Advisor Triggers (FE inline)
+
+The frontend shows advisor suggestions inline during transaction creation without requiring a full advisor conversation. Fast Postgres query — no AI involved.
+
+```typescript
+// tRPC procedure
+checkBudgetImpact: protectedProcedure
+  .input(z.object({ categorySlug: z.string(), amount: z.number(), date: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const budget = await getBudgetForCategory(ctx.session.user.id, input.categorySlug);
+    if (!budget) return { willBreach: false, willWarn: false };
+
+    const currentSpend = await getMonthlySpend(ctx.session.user.id, input.categorySlug, startOfMonth(new Date(input.date)));
+    const projectedPct = (currentSpend + input.amount) / budget.limit;
+
+    return {
+      willBreach: projectedPct > 1,
+      willWarn: projectedPct > 0.8,
+      currentPct: currentSpend / budget.limit,
+      projectedPct,
+      budgetLimit: budget.limit,
+      currentSpend,
+    };
+  }),
+```
+
+FE usage in transaction form: when category or amount changes, debounce 300ms → query `advisor.checkBudgetImpact` → if `willWarn` or `willBreach`, show inline banner: *"Food budget is 68% used (₦20,400 of ₦30,000). Adding this will push it to 82%."*
+
+### LangGraph Agent Loop
+
+```
+[START]
+  │
+  ▼
+[guardian_node]      ← gemini-2.5-flash — finance relevance check (~200 tokens)
+  │
+  ├── irrelevant → [reject_node] → END
+  │
+  └── relevant
+        │
+        ▼
+[compact_node]       ← no-op if messages ≤ 20, else summarise oldest
+  │
+  ▼
+[respond_node]       ← claude-sonnet-4.6 — main advisor (tools + oracle + user data)
+  │
+  ├── tool call   → [tool_node] → [compact_node] → (loop)
+  │
+  ├── action proposal → [__interrupt__] → (wait for user) → [action_node] → [respond_node]
+  │
+  └── final answer  → END
 ```
 
 ### State
 
 ```typescript
-// Using StateSchema (Zod-based) with MessagesValue reducer
-const ChatState = new StateSchema({
-  messages: MessagesValue, // full conversation history, built-in reducer
-  userId: z.string(),
+const AdvisorState = Annotation.Root({
+  messages: Annotation<BaseMessage[]>({
+    reducer: messagesStateReducer,
+    default: () => [],
+  }),
+  userId: Annotation<string>(),
+  guardianResult: Annotation<{ relevant: boolean } | null>({ default: () => null }),
+  proposedAction: Annotation<AdvisorAction | null>({ default: () => null }),
+  approved: Annotation<boolean | null>({ default: () => null }),
+  actionResult: Annotation<string | null>({ default: () => null }),
+  attachments: Annotation<FileAttachment[]>({ default: () => [] }),
 });
 ```
-
-State persists across turns using LangGraph's built-in checkpointing (`checkpointer: 'memory'`), so the model remembers earlier turns in the same conversation thread.
 
 ### Memory Architecture
 
-LangGraph has two distinct memory types. The chat agent uses both.
-
 ```
-Short-term memory (checkpointer — thread-scoped)
+Short-term (checkpointer — per thread)
   What:  Full message history for the current conversation
-  Scope: One thread_id = one conversation
-  Dev:   MemorySaver()       — in-process, lost on restart
-  Prod:  PostgresSaver       — durable, survives restarts
+  Dev:   MemorySaver()
+  Prod:  PostgresSaver (langgraph_checkpoints table)
 
-Long-term memory (store — cross-thread)
-  What:  User preferences, financial context, recurring patterns
-         that should persist across separate conversations
-  Scope: Keyed by [userId, namespace, key]
-  Dev:   InMemoryStore({ index: { embeddings, dims: 1536 } })   — in-process
-  Prod:  PostgresStore(pool, { index: { embeddings, dims: 1536 } }) — durable, vector-backed
-  Note:  The index config enables store.search(ns, { query, limit }) — semantic similarity
-         lookup within a namespace. Without it, search() returns all items (plain scan).
+Long-term (store — cross thread)
+  What:  User preferences, detected patterns, rejected proposals
+  Dev:   InMemoryStore({ index: { embeddings, dims: 1536 } })
+  Prod:  PostgresStore (langgraph_store table + vector index)
 
-RAG (semantic search tool)
-  What:  Vector search over transaction embeddings
-  When:  Model picks semanticSearchTransactions() for fuzzy questions
-  See:   RAG section below for full detail
+Store namespaces:
+  ['user', userId, 'preferences']  — currency, tone
+  ['user', userId, 'context']      — "freelancer", "saving for house", semantic-searched
+  ['user', userId, 'patterns']     — recurring flags, known merchants, semantic-searched
+  ['user', userId, 'rejections']   — proposals user has previously rejected
 
-Short-term management techniques (three layers, applied in order):
-  1. Compaction  — when history ≥ 20 messages, summarise oldest messages into
-                   a single SystemMessage. Primary strategy. Lossless.
-  2. Trimming    — trimMessages() inside respondNode: hard token-budget cap.
-                   Safety guard after compaction. Drops oldest messages that
-                   still exceed maxTokens. Precise but lossy.
-  3. RemoveMessage — selective deletion of specific messages by ID.
-                   Used to clear large tool result payloads after processing.
+Compaction thresholds:
+  COMPACTION_THRESHOLD = 20   messages before summarising oldest
+  MESSAGES_TO_KEEP = 6        always keep the most recent N messages
 ```
 
-**Short-term: how it works**
-
-LangGraph's checkpointer automatically saves and restores the full `messages` state on every turn keyed by `thread_id`. No extra code needed — the `MessagesValue` reducer appends each new message to the history automatically.
-
-```
-Turn 1: user sends "How much did I spend on food?"
-  → graph runs, appends HumanMessage + AIMessage to state
-  → checkpointer saves state under thread_id: "conv-abc"
-
-Turn 2: user sends "What about last month?"
-  → checkpointer restores state (includes Turn 1 messages)
-  → model sees full history, understands "last month" refers to food
-```
-
-**Long-term: what gets stored**
+### Service Pattern
 
 ```typescript
-// Namespace structure in the store:
-['user', userId, 'preferences'][('user', userId, 'context')][('user', userId, 'patterns')]; // preferred currency, date format, tone // "user is saving for a house", "freelancer with irregular income" // recurring flagged categories, known merchants
-```
-
-Store is accessed through the **`runtime` second parameter** of the node. `userId` is not read from state — it comes from `runtime.context`, which is populated at invocation time by the caller. `store.search(namespace)` with no options is a plain scan; `store.search(namespace, { query, limit })` is a **semantic vector search** that embeds the query and finds the most similar stored items. The `index` config on the store enables this.
-
-```typescript
-// Node receives (state, runtime) — runtime carries store + context
-const respondNode = async (state: typeof ChatState.State, runtime) => {
-  const userId = runtime.context?.userId as string;
-  const userMessage = state.messages.at(-1)?.content as string;
-
-  const [prefs, context, patterns] = await Promise.all([
-    // Preferences are small — plain scan, always load all
-    runtime.store?.search(['user', userId, 'preferences']),
-
-    // Context can grow large — semantic search returns only what's relevant to this question
-    runtime.store?.search(['user', userId, 'context'], { query: userMessage, limit: 5 }),
-
-    // Patterns: recurring behaviours flagged in past conversations
-    runtime.store?.search(['user', userId, 'patterns'], { query: userMessage, limit: 3 }),
-  ]);
-
-  const model = this.langGraph.getModel('anthropic:claude-sonnet-4.6');
-  const systemMessage = buildSystemPrompt(prefs, context, patterns);
-  const response = await model.invoke([systemMessage, ...state.messages]);
-
-  // Write back: persist newly detected pattern for future conversations
-  if (newPatternDetected) {
-    await runtime.store?.put(['user', userId, 'patterns'], patternKey, { summary: pattern });
-  }
-
-  return { messages: [response] };
-};
-```
-
-**What gets stored in each namespace:**
-
-| Namespace                         | Typical items                                                                     | Search strategy                                             |
-| --------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `['user', userId, 'preferences']` | `{ currency: 'NGN', tone: 'casual' }`                                             | Plain scan — always load all                                |
-| `['user', userId, 'context']`     | `"user is saving for a house"`, `"freelancer with irregular income"`              | Semantic — retrieve what's relevant to the current question |
-| `['user', userId, 'patterns']`    | `"always categorises 'KUDA NIP' as Income"`, `"frequently asks about food spend"` | Semantic — retrieve what's relevant                         |
-
-**Compile with both memory types:**
-
-```typescript
-// Dev — in-process, wiped on restart
-this.graph = this.langGraph.compile(builder, {
-  checkpointer: 'memory', // MemorySaver()
-  store: 'memory', // InMemoryStore()
-});
-
-// Prod — inject PostgresSaver + PostgresStore via NestJS DI (see ChatModule below)
-this.graph = this.langGraph.compile(builder, {
-  checkpointer: this.checkpointer, // PostgresSaver — durable, survives restarts
-  store: this.store, // PostgresStore — durable, shared across instances
-});
-```
-
-Both `PostgresSaver` and `PostgresStore` come from `@langchain/langgraph-checkpoint-postgres` and reuse the existing Neon `DATABASE_URL`. Each calls `.setup()` once on module init to create their internal tables (`langgraph_checkpoints`, `langgraph_store`).
-
-**Compaction: preventing unbounded context growth**
-
-Without compaction, a long conversation eventually exceeds the model's context window (or becomes very expensive). The compaction node uses `OpenAiRepo.summarize()` — already implemented in the provider layer — to condense old messages.
-
-```typescript
-const COMPACTION_THRESHOLD = 20; // messages before compaction kicks in
-const MESSAGES_TO_KEEP = 6; // always keep the most recent N messages fresh
-
-const compactionNode = async (state: typeof ChatState.State) => {
-  if (state.messages.length <= COMPACTION_THRESHOLD) return {}; // no-op
-
-  const toCompress = state.messages.slice(0, -MESSAGES_TO_KEEP);
-  const recent = state.messages.slice(-MESSAGES_TO_KEEP);
-
-  // OpenAiRepo.summarize() is already built — condenses history to one string
-  const summary = await openAiRepo.summarize(toCompress);
-
-  return {
-    messages: [new SystemMessage(`Conversation summary so far: ${summary}`), ...recent],
-  };
-};
-```
-
-The compaction node runs before every model call. It's a no-op until the threshold is hit, then it compresses transparently:
-
-```
-[start]
-  │
-  ▼
-[compaction_node]   ← no-op if messages.length ≤ 20, else compress
-  │
-  ▼
-[call_model_node]   ← always sees a bounded context window
-  │
-  ┌─────────────────┐
-  │ tool call?       │
-  └──┬──────────┬───┘
-    YES          NO
-     │            │
-     ▼            ▼
-[tool_node]     [end]
-     │
-     ▼
-[compaction_node]   ← check again on next loop iteration
-```
-
-**Message trimming — the token-budget safety guard**
-
-Compaction is the primary strategy. Trimming is the complementary guard: it runs inside `respondNode` and hard-drops messages that still exceed the token budget after compaction. Compaction preserves meaning through summarisation (lossless); trimming drops the oldest messages that don't fit (lossy but precise).
-
-```typescript
-import { trimMessages } from '@langchain/core/messages';
-
-const respondNode = async (state: typeof ChatState.State) => {
-  // Run after compaction — compaction has already shrunk the history,
-  // trimming is the hard cap in case it's still too large for the model.
-  const trimmed = await trimMessages(state.messages, {
-    maxTokens: 4000,
-    strategy: 'last', // keep the most recent messages
-    tokenCounter: model, // use the actual model tokenizer for accurate count
-    includeSystem: true, // never drop the system prompt
-    startOn: 'human', // first kept message must be from the user (LLM constraint)
-  });
-
-  const response = await model.invoke([systemMessage, ...trimmed]);
-  return { messages: [response] };
-};
-```
-
-| Technique  | Mechanism                                          | When to use                                                                   |
-| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Compaction | Summarise oldest N messages → single SystemMessage | Primary: graceful degradation as conversation grows                           |
-| Trimming   | Hard-drop messages exceeding token limit           | Safety guard: keeps model calls within budget regardless of compaction result |
-
-**`RemoveMessage` — selective deletion**
-
-For removing specific messages by ID — useful for clearing large tool results after they've been processed, preventing accumulation of verbose JSON payloads across turns.
-
-```typescript
-import { RemoveMessage } from '@langchain/langgraph';
-
-// In a post-tool cleanup node — remove the raw tool response once it's been summarised
-const cleanupNode = async (state: typeof ChatState.State) => {
-  const toolMessages = state.messages.filter((m) => m._getType() === 'tool');
-  return {
-    messages: toolMessages.map((m) => new RemoveMessage({ id: m.id! })),
-  };
-};
-```
-
-`RemoveMessage` is processed by the `messagesStateReducer` — the reducer sees the special remove marker and deletes the corresponding message from the thread by ID.
-
-### Service pattern
-
-`ChatModule` wires production-grade memory backends via NestJS DI. Both use the existing Neon `DATABASE_URL` — no extra infrastructure needed.
-
-```typescript
-// chat.module.ts
-import { Module } from '@nestjs/common';
-import { PostgresSaver, PostgresStore } from '@langchain/langgraph-checkpoint-postgres';
-import { Pool } from 'pg';
-import { RegistoryModule } from '../registory/registory.module';
-import { ChatService } from './chat.service';
-
-export const CHAT_CHECKPOINTER = Symbol('CHAT_CHECKPOINTER');
-export const CHAT_STORE = Symbol('CHAT_STORE');
-
+// advisor.module.ts
 @Module({
-  imports: [RegistoryModule],
   providers: [
     {
-      provide: CHAT_CHECKPOINTER,
+      provide: ADVISOR_CHECKPOINTER,
       useFactory: async () => {
         const saver = new PostgresSaver(new Pool({ connectionString: process.env.DATABASE_URL }));
-        await saver.setup(); // creates langgraph_checkpoints table (idempotent)
+        await saver.setup();
         return saver;
       },
     },
     {
-      provide: CHAT_STORE,
+      provide: ADVISOR_STORE,
       useFactory: async (embeddingRepo: OpenAiEmbeddingRepo) => {
-        const store = new PostgresStore(new Pool({ connectionString: process.env.DATABASE_URL }), {
-          index: {
-            embeddings: embeddingRepo.getEmbeddings(), // OpenAIEmbeddings instance
-            dims: 1536, // text-embedding-3-small dimensions
-          },
-        });
-        await store.setup(); // creates langgraph_store table + vector index (idempotent)
+        const store = new PostgresStore(
+          new Pool({ connectionString: process.env.DATABASE_URL }),
+          { index: { embeddings: embeddingRepo.getEmbeddings(), dims: 1536 } },
+        );
+        await store.setup();
         return store;
       },
       inject: [OpenAiEmbeddingRepo],
     },
-    ChatService,
+    AdvisorService,
   ],
-  exports: [ChatService],
+  exports: [AdvisorService],
 })
-export class ChatModule {}
+export class AdvisorModule {}
 ```
 
 ```typescript
-// chat.service.ts
-import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
-import { PostgresSaver, PostgresStore } from '@langchain/langgraph-checkpoint-postgres';
-import { CHAT_CHECKPOINTER, CHAT_STORE } from './chat.module';
-
+// advisor.service.ts (core structure)
 @Injectable()
-export class ChatService implements OnModuleInit {
-  private graph: any;
+export class AdvisorService implements OnModuleInit {
+  private graph: CompiledStateGraph<any, any, any>;
 
   constructor(
     private readonly langGraph: LangGraphService,
-    @Inject(CHAT_CHECKPOINTER) private readonly checkpointer: PostgresSaver,
-    @Inject(CHAT_STORE) private readonly store: PostgresStore,
+    private readonly langChain: LangChainService,
+    @Inject(ADVISOR_CHECKPOINTER) private readonly checkpointer: PostgresSaver,
+    @Inject(ADVISOR_STORE) private readonly store: PostgresStore,
+    private readonly prisma: PrismaService,
+    private readonly financeClient: FinanceServiceClient,
   ) {}
 
   onModuleInit() {
-    const ChatState = new StateGraph(
-      Annotation.Root({
-        messages: Annotation<BaseMessage[]>({ reducer: messagesStateReducer }),
-        userId: Annotation<string>(),
-      }),
-    );
+    const tools = this.buildTools();           // all Postgres + oracle tools
+    const toolNode = new ToolNode(tools);
+    const model = this.langGraph.getModel('anthropic:claude-sonnet-4.6').bindTools(tools);
 
-    const compactionNode = async (state: typeof ChatState.State) => {
-      if (state.messages.length <= 20) return {};
-      const toCompress = state.messages.slice(0, -6);
-      const recent = state.messages.slice(-6);
-      const summary = await this.openAiRepo.summarize(toCompress);
-      return {
-        messages: [new SystemMessage(`Conversation summary: ${summary}`), ...recent],
-      };
-    };
+    const builder = new StateGraph(AdvisorState)
+      .addNode('guardian', this.buildGuardianNode())
+      .addNode('reject', () => ({
+        messages: [new AIMessage("I'm your financial advisor — finance questions only.")],
+      }))
+      .addNode('compact', this.buildCompactNode())
+      .addNode('respond', this.buildRespondNode(model))
+      .addNode('tools', toolNode)
+      .addNode('action', this.buildActionNode())
+      .addEdge(START, 'guardian')
+      .addConditionalEdges('guardian',
+        (s) => s.guardianResult?.relevant ? 'compact' : 'reject',
+        ['compact', 'reject'])
+      .addEdge('reject', END)
+      .addEdge('compact', 'respond')
+      .addConditionalEdges('respond', this.shouldContinue, ['tools', 'action', END])
+      .addEdge('tools', 'compact')
+      .addEdge('action', 'respond');
 
-    // runtime second parameter — carries store + per-invocation context
-    const respondNode = async (state: typeof ChatState.State, runtime) => {
-      const userId = runtime.context?.userId as string;
-      const userMessage = state.messages.at(-1)?.content as string;
-
-      const [prefs, context, patterns] = await Promise.all([
-        runtime.store?.search(['user', userId, 'preferences']), // plain scan
-        runtime.store?.search(['user', userId, 'context'], { query: userMessage, limit: 5 }), // semantic
-        runtime.store?.search(['user', userId, 'patterns'], { query: userMessage, limit: 3 }), // semantic
-      ]);
-
-      const model = this.langGraph.getModel('anthropic:claude-sonnet-4.6');
-      const systemMessage = buildSystemPrompt(prefs, context, patterns);
-
-      const trimmed = await trimMessages(state.messages, {
-        maxTokens: 4000,
-        strategy: 'last',
-        tokenCounter: model,
-        includeSystem: true,
-        startOn: 'human',
-      });
-
-      const response = await model.invoke([systemMessage, ...trimmed]);
-      return { messages: [response] };
-    };
-
-    const shouldContinue = (state: typeof ChatState.State) =>
-      state.messages.at(-1)?.tool_calls?.length ? 'tools' : END;
-
-    this.graph = this.langGraph.compile(
-      ChatState.addNode('compact', compactionNode)
-        .addNode('respond', respondNode)
-        .addNode('tools', toolNode)
-        .addEdge(START, 'compact')
-        .addEdge('compact', 'respond')
-        .addConditionalEdges('respond', shouldContinue, ['tools', END])
-        .addEdge('tools', 'compact'),
-      {
-        checkpointer: this.checkpointer, // PostgresSaver — durable, per-thread history
-        store: this.store, // PostgresStore — durable, cross-thread user context
-      },
-    );
+    this.graph = this.langGraph.compile(builder, {
+      checkpointer: this.checkpointer,
+      store: this.store,
+      interruptBefore: ['action'],
+    });
   }
 
-  // userId passed via context — available as runtime.context.userId inside every node
-  async *streamResponse(req: ChatMessageReq) {
+  async *streamResponse(req: AdvisorMessageReq) {
+    const userContext = await this.buildUserContext(req.userId);
     yield* this.langGraph.streamEvents(
       this.graph,
-      { messages: [new HumanMessage(req.message)] },
+      {
+        messages: [buildMultimodalMessage(req.message, req.attachments ?? [])],
+        userId: req.userId,
+        attachments: req.attachments ?? [],
+      },
       {
         threadId: req.conversationId,
-        context: { userId: req.userId },
+        context: { userId: req.userId, userContext },
       },
     );
   }
+
+  async resumeAfterApproval(req: AdvisorApprovalReq) {
+    return this.graph.invoke(
+      { approved: req.approved },
+      { configurable: { thread_id: req.conversationId } },
+    );
+  }
+
+  private shouldContinue(state: typeof AdvisorState.State) {
+    const last = state.messages.at(-1);
+    if (last?.tool_calls?.length) return 'tools';
+    if (state.proposedAction) return 'action';
+    return END;
+  }
+}
+```
+
+### Data shapes
+
+```typescript
+interface AdvisorMessageReq {
+  conversationId: string;   // maps to LangGraph thread_id
+  userId: string;
+  message: string;
+  attachments?: FileAttachment[];
+}
+
+interface AdvisorChunkRes {
+  delta: string;
+  done: boolean;
+}
+
+interface AdvisorApprovalReq {
+  conversationId: string;
+  userId: string;
+  approved: boolean;
 }
 ```
 
@@ -1949,76 +1667,279 @@ export class ChatService implements OnModuleInit {
 
 ```
 Browser
-  useChat() hook  ← Vercel AI SDK manages message state, loading, abort
+  useChat({ api: '/api/advisor' })  ← Vercel AI SDK — message state, loading, abort
   │  HTTP stream (AI SDK wire format)
   ▼
-Next.js Route Handler  /api/chat
+Next.js Route Handler  /api/advisor/route.ts
   proxies SSE chunks via createDataStreamResponse()
+  surfaces approval_required as custom data annotations
   │  fetch/SSE
   ▼
-api_gateway  (NestJS SSE endpoint)
+api_gateway  /ai/advisor  (NestJS SSE endpoint)
   │  gRPC server-stream
   ▼
-ai_service  LangGraph chat agent
+ai_service  AdvisorService  LangGraph agent
 ```
 
-**Next.js route handler (`apps/web/src/app/api/chat/route.ts`):**
+### gRPC methods
+
+```proto
+rpc SendAdvisorMessage(AdvisorMessageReq) returns (stream AdvisorChunkRes) {}
+rpc ResumeAdvisorApproval(AdvisorApprovalReq) returns (AdvisorResumeRes) {}
+```
+
+### Implementation Phases — Financial Advisor
+
+Build in this order. Each phase is independently testable before moving to the next.
+
+#### Phase 1: Rename pass (Chat → Advisor)
+
+Execute all renames from the Rename Map table. In order:
+
+1. Rename directory: `apps/ai_service/src/chat/` → `apps/ai_service/src/advisor/`
+2. Update all import paths in `AppModule` and any consumers
+3. Rename classes: `ChatService` → `AdvisorService`, `ChatModule` → `AdvisorModule`, `ChatController` → `AdvisorController`
+4. Rename types: `ChatMessageReq` → `AdvisorMessageReq`, `ChatChunkRes` → `AdvisorChunkRes`
+5. Rename constants: `CHAT_CHECKPOINTER` → `ADVISOR_CHECKPOINTER`, `CHAT_STORE` → `ADVISOR_STORE`
+6. Update proto file: `rpc Chat(...)` → `rpc SendAdvisorMessage(...)`; regenerate with `pnpm proto:gen`
+7. Update Next.js route: `apps/web/src/app/api/chat/route.ts` → `apps/web/src/app/api/advisor/route.ts`
+8. Update tRPC router key: `ai.chat` → `advisor.send`
+9. Update FE component: `chat.tsx` → `advisor.tsx`
+10. Update pricing copy: all instances of `"AI chat"` → `"AI Advisor"`
+
+Verification: `grep -rn "chat" apps/ai_service/src/ apps/web/src/app/\(dashboard\)/advisor/` should return zero matches in advisor-related files.
+
+#### Phase 2: Postgres memory infrastructure
+
+Set up `PostgresSaver` and `PostgresStore` before writing a single graph node. Use environment-gated factories:
 
 ```typescript
-import { createDataStreamResponse } from 'ai';
+// Development
+const checkpointer = new MemorySaver();
+const store = new InMemoryStore({ index: { embeddings, dims: 1536 } });
 
-export async function POST(req: Request) {
-  const { messages, conversationId } = await req.json();
-  return createDataStreamResponse({
-    execute: async (dataStream) => {
-      const upstream = await fetch(`${GATEWAY_URL}/ai/chat`, {
-        method: 'POST',
-        body: JSON.stringify({ messages, conversationId }),
-        headers: { Authorization: req.headers.get('Authorization') ?? '' },
-      });
-      const reader = upstream.body!.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        dataStream.write(decoder.decode(value));
-      }
+// Production
+const checkpointer = new PostgresSaver(new Pool({ connectionString: process.env.DATABASE_URL }));
+await checkpointer.setup();   // creates langgraph_checkpoints table
+
+const store = new PostgresStore(
+  new Pool({ connectionString: process.env.DATABASE_URL }),
+  { index: { embeddings: embeddingRepo.getEmbeddings(), dims: 1536 } },
+);
+await store.setup();           // creates langgraph_store table + vector index
+```
+
+Wire `ADVISOR_CHECKPOINTER` and `ADVISOR_STORE` providers in `AdvisorModule` with `NODE_ENV`-based factories (see Service Pattern above). Verify both tables appear in Neon before adding any nodes.
+
+#### Phase 3: Guardian node
+
+Implement the finance relevance classifier as the first graph node. Wire the minimal graph skeleton — `guardian_node` and `reject_node` only:
+
+```
+START → guardian → (relevant? → compact : reject) → END
+```
+
+Test both branches independently before adding anything downstream:
+
+- Finance question (`"How much did I spend on food?"`) → `guardianResult.relevant = true` → routes to `compact`
+- Off-topic question (`"What is the capital of France?"`) → `guardianResult.relevant = false` → routes to `reject` → canned response
+
+Measure token cost on the reject path — should be 150–250 tokens total. This validates the cost-efficiency of the guardian before the expensive path is built.
+
+#### Phase 4: Compact node + respond node (core conversation loop)
+
+Build the core advisor loop in three steps:
+
+1. **`buildAdvisorSystemPrompt(context)`** — accepts `AdvisorContext`, returns a `SystemMessage` with the user's real financial position. Query the user's current month income, spending, savings rate, active budgets, and goals from Postgres to populate this. This runs on every invocation to ensure the advisor always has fresh context.
+
+2. **`compactNode`** — no-op if `state.messages.length ≤ 20`. When the threshold is hit, summarise the oldest `(messages.length − MESSAGES_TO_KEEP)` messages into a single `SystemMessage` via `OpenAiRepo.summarize()`, then splice: `[compaction_summary, ...last_6_messages]`.
+
+3. **`respondNode`** — invokes `claude-sonnet-4.6` with the system prompt + compacted message history. At this stage bind no tools — just verify the model responds in advisor voice with specific references to the user's real numbers from the system prompt.
+
+Extend the graph:
+
+```
+START → guardian → compact → respond → END
+```
+
+Test: send `"Am I saving enough?"`. Verify the response mentions the user's actual savings rate and income figures, not generic advice.
+
+#### Phase 5: Postgres tools (one at a time)
+
+Add tools to `respondNode`'s binding one at a time. After adding each tool, test it independently via a direct `tool(...)` call before wiring into the graph.
+
+Build and test in this order:
+
+1. **`getTransactions`** — test: `"What did I spend on food last week?"` → tool called with `categorySlug: 'food'` and correct date range → response lists real transactions with amounts.
+
+2. **`getSpendingSummary`** — test: `"How much did I spend this month by category?"` → `groupBy: 'category'` → response matches Prisma aggregation totals.
+
+3. **`getBudgets`** — test: `"Which budgets am I close to hitting?"` → returns budgets with utilisation ≥ 70%.
+
+4. **`getGoals`** — test: `"Am I on track for my Emergency Fund?"` → response includes calculated pacing.
+
+5. **`getRecurringItems`** — test: `"What bills do I have coming up?"` → returns all active recurring expenses with amounts and frequencies.
+
+6. **`getSplits`** — test: `"Who owes me money?"` → returns OPEN splits with participant names and outstanding amounts.
+
+7. **`getCategoryBreakdown`** — test: custom date range → correctly groups spend, totals match direct Prisma query.
+
+8. **`semanticSearchTransactions`** — requires pgvector embeddings to be populated (from the embedding worker). Test last: `"Any transactions that look like forgotten subscriptions?"` → returns semantically matching results.
+
+After all 8 tools pass individual tests, run the full graph with all tools bound and verify the model selects the correct tool for each question type without hallucinating data.
+
+#### Phase 6: Oracle tools + Redis caching
+
+Add the three oracle tools to the tool set. Test each in isolation:
+
+1. **`getNgnExchangeRate`** — cold call → Redis key `oracle:ngn_rate` is populated, TTL = 3600s. Warm call → returns cached result with zero HTTP requests. Verify with `"What's the dollar rate today?"`.
+
+2. **`getNigerianInflation`** — cold call → World Bank API queried, result cached 24h. Test with `year: 2024` (current year may return null from the World Bank API). Verify `inflationRate` is a float, not null.
+
+3. **`getMarketData`** — cold call with `symbol: 'GBP', type: 'forex'` → Alpha Vantage queried, cached 4h. Do not call the live Alpha Vantage API in automated tests (25 req/day limit) — stub this in unit tests, test live only manually.
+
+After all three pass, verify a conversation that mentions `"the CBN rate"` or `"inflation"` triggers the appropriate oracle tool call automatically.
+
+#### Phase 7: Streaming via Vercel AI SDK
+
+Wire the full end-to-end streaming path:
+
+1. **`ai_service`** — `AdvisorService.streamResponse()` calls `LangGraphService.streamEvents()` which yields `GraphStreamEvent` objects via gRPC server-stream.
+
+2. **`api_gateway`** — SSE endpoint `/ai/advisor` consumes the gRPC stream and forwards chunks to the HTTP client as they arrive.
+
+3. **`apps/web/src/app/api/advisor/route.ts`** — Next.js route handler wraps the api_gateway stream in `createDataStreamResponse()`. When an `approval_required` event arrives from the stream, emit it as a custom data annotation: `dataStream.writeData({ type: 'approval_required', action })`.
+
+4. **`apps/web` advisor component** — uses `useChat({ api: '/api/advisor' })`. Subscribe to `data` from `useChat` to detect `approval_required` annotations alongside the normal token stream.
+
+Tests:
+- Send a message → streaming tokens appear in the UI within 500ms of the model beginning its response.
+- Abort mid-stream → `useChat`'s abort controller cancels cleanly with no dangling gRPC streams.
+
+#### Phase 8: Multimodal input
+
+Add file attachment support to the advisor input:
+
+1. **FE input**: add a file picker (accept: `image/*,application/pdf`) to the advisor message input area. On file select, read as base64 and attach to the next `useChat` message send as `body: { attachments: FileAttachment[] }`.
+
+2. **`buildMultimodalMessage(text, attachments)`** — already defined above. Wire it in `AdvisorService.streamResponse()` so attachments are passed as multimodal content when present.
+
+3. **Model routing**: route requests with PDF attachments to `google:gemini-2.5-pro` (native PDF support). Route requests with image attachments to `anthropic:claude-sonnet-4.6` (Claude 3+ vision). Text-only requests use `claude-sonnet-4.6` as normal.
+
+4. Enforce 10 MB per-attachment limit — reject oversized files with a user-facing error before the request is sent.
+
+Tests:
+- Upload a bank statement PDF → verify the advisor extracts transactions and identifies patterns.
+- Upload a receipt photo → verify the advisor identifies merchant, amount, and suggested category.
+- Message with no attachment still works identically to before.
+
+#### Phase 9: Long-term memory writes
+
+After each `respond_node` turn, write detected patterns and preferences to `PostgresStore` so they persist across conversations:
+
+```typescript
+// Every 5 turns, update long-term memory
+if (state.messages.length % 5 === 0) {
+  const patterns = await extractPatterns(state.messages.slice(-10), langChain);
+  await store.put(
+    ['user', state.userId, 'patterns'],
+    state.userId,
+    {
+      knownMerchants: patterns.knownMerchants,
+      detectedSubscriptions: patterns.detectedSubscriptions,
+      lastUpdated: new Date().toISOString(),
     },
-  });
-}
-```
-
-**Chat component (`apps/web/src/app/(dashboard)/ai/chat/_components/chat.tsx`):**
-
-```typescript
-import { useChat } from 'ai/react';
-
-export function FinancialChat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: '/api/chat',
-  });
-  return (
-    <div>
-      {messages.map((m) => (
-        <div key={m.id}>
-          <span>{m.role === 'user' ? 'You' : 'Fintrack AI'}</span>
-          <p>{m.content}</p>
-        </div>
-      ))}
-      <form onSubmit={handleSubmit}>
-        <input value={input} onChange={handleInputChange} />
-        <button disabled={isLoading}>Send</button>
-      </form>
-    </div>
   );
 }
 ```
 
-### gRPC method
+On graph start, read from `['user', userId, 'context']` and `['user', userId, 'preferences']` and inject into the system prompt as supplementary context.
 
-```proto
-rpc Chat(stream ChatMessageReq) returns (stream ChatChunkRes) {}
+Test: have a 10-message conversation about food spending patterns. Start a new conversation (new `threadId`). Verify the advisor references previously detected food patterns without the user re-stating them.
+
+#### Phase 10: HITL interrupt + action node
+
+Implement human-in-the-loop for agentic proposals:
+
+1. Compile graph with `interruptBefore: ['action']`.
+
+2. In `respondNode`: when the model detects an actionable opportunity (overspend, goal risk, subscription), it outputs a structured `proposedAction: AdvisorAction` field via a tool call or structured output wrapper alongside its prose message.
+
+3. `LangGraphService.streamEvents()` surfaces the `__interrupt__` checkpoint as a `{ type: 'approval_required', action: AdvisorAction }` stream event — forwarded to the FE via the custom data annotation mechanism from Phase 7.
+
+4. FE: detect the `approval_required` data event. Render an approval card inline below the advisor message showing a human-readable action summary. The card has two buttons: **Approve** and **Reject**.
+
+5. Approve → `POST /api/advisor/resume { conversationId, approved: true }` → `AdvisorService.resumeAfterApproval()` → `graph.invoke({ approved: true }, { configurable: { thread_id } })` → `actionNode` executes the action via `financeClient` gRPC.
+
+6. Reject → same flow with `approved: false` → `actionNode` writes a rejection entry to `['user', userId, 'rejections']` in `PostgresStore` so the advisor never re-proposes the same action.
+
+Implement and test all 5 action types:
+
+- `adjust_budget` → `financeClient.updateBudget` → verify budget limit changes in DB
+- `create_budget` → `financeClient.createBudget` → verify new budget appears
+- `adjust_goal_contribution` → `financeClient.updateGoalContribution` → verify goal updated
+- `suggest_recurring` → `financeClient.createRecurringItem` → verify recurring item created
+- `flag_subscription` → marks the transaction pattern — no write to finance_service, write to store only
+
+Test rejection persistence: reject a proposal → start a new conversation → verify the advisor does not re-propose the same action.
+
+#### Phase 11: Transaction-time inline warning
+
+Implement `advisor.checkBudgetImpact` as a fast tRPC procedure — no AI, no LangGraph, pure Postgres:
+
+```typescript
+checkBudgetImpact: protectedProcedure
+  .input(z.object({ categorySlug: z.string(), amount: z.number(), date: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const budget = await getBudgetForCategory(ctx.session.user.id, input.categorySlug);
+    if (!budget) return { willBreach: false, willWarn: false };
+
+    const currentSpend = await getMonthlySpend(
+      ctx.session.user.id,
+      input.categorySlug,
+      startOfMonth(new Date(input.date)),
+    );
+    const projectedPct = (currentSpend + input.amount) / budget.limit;
+
+    return {
+      willBreach: projectedPct > 1,
+      willWarn: projectedPct > 0.8,
+      currentPct: currentSpend / budget.limit,
+      projectedPct,
+      budgetLimit: budget.limit,
+      currentSpend,
+    };
+  }),
 ```
+
+Wire into `transaction_form_dialog.tsx`:
+- Debounce 300ms on `categorySlug` or `amount` change
+- `willWarn` (≥ 80%): yellow inline banner — `"Food budget 68% used. Adding this will push it to 82%."`
+- `willBreach` (> 100%): red inline banner — `"This transaction exceeds your Food budget."`
+- No budget for that category: no banner, no query
+
+Test: create a Food budget at ₦30,000. Set current spend to ₦20,400 (68%). Enter ₦4,200 in the form → warning banner appears. Verify the query is debounced and fires once, not on every keystroke.
+
+#### Phase 12: Conversation history UI
+
+Build the conversation list panel alongside the advisor chat:
+
+- Query `langgraph_checkpoints` for distinct `thread_id` values belonging to the user, ordered by latest `checkpoint_at` DESC (the `PostgresSaver` table schema includes this timestamp)
+- Display each thread with: first message preview (truncated to 60 chars), timestamp, message count
+- Clicking a thread sets the active `threadId` in `useChat` — LangGraph restores full conversation state from the checkpointer, and the full history renders
+- **New conversation** button generates a fresh `threadId` (UUID v4) and clears the chat window
+
+Test: start a conversation, close the browser, reopen, click the previous thread — verify the full conversation history is restored without re-sending any messages.
+
+#### Phase 13: Compaction + trimming verification
+
+End-to-end test of the memory compaction path:
+
+1. Send 22 consecutive messages in a single conversation thread.
+2. After message 20, verify `compactNode` fires: inspect `state.messages` — should contain 6 messages, with the first being a `SystemMessage` whose content is the compaction summary.
+3. Verify the advisor's response to messages 21 and 22 correctly references content from messages 1–5 (which were compacted into the summary) — confirms the summary preserves semantic continuity.
+4. Verify the compaction summary is coherent prose, not a JSON dump of messages.
+5. Run a 40-message conversation. Verify compaction fires again after the next threshold, producing a second-generation summary that incorporates the first.
 
 ---
 
@@ -2029,7 +1950,7 @@ rpc Chat(stream ChatMessageReq) returns (stream ChatChunkRes) {}
 SQL tools handle structured questions precisely:
 
 ```
-"How much did I spend on food last month?"  →  getSpendingSummary({ period: 'last_month', groupBy: 'category' })
+"How much did I spend on food last month?" → getSpendingSummary({ period: 'last_month' })
 ```
 
 But some questions are semantically vague and don't map to SQL predicates:
@@ -2040,126 +1961,73 @@ But some questions are semantically vague and don't map to SQL predicates:
 "Which payments feel like mistakes?"
 ```
 
-There is no `WHERE feels_like_mistake = true` column. These require understanding what the user _means_ and finding the semantically closest transactions — that is what vector embeddings enable. Without them the agent either returns nothing or hallucinates.
+There is no `WHERE feels_like_mistake = true` column. These require vector embeddings.
 
 ### What is a vector embedding?
 
-A list of numbers representing the _meaning_ of a piece of text. The embedding model outputs a fixed-length array — for `text-embedding-3-small` that's 1536 numbers.
-
-```
-"KFC IKEJA Food & Dining expense paid amount 4500 March 2026"
-  │
-  text-embedding-3-small
-  │
-  [0.023, -0.417, 0.891, 0.003, -0.210, ... ]  ← 1536 numbers
-```
-
-Texts with similar meaning produce similar vectors. "Fast food dinner" and "KFC IKEJA Food & Dining" are different strings but their vectors will be close in 1536-dimensional space. "Bank transfer to John" will be far away.
+A list of 1536 numbers representing the _meaning_ of text. "KFC IKEJA food expense" and "fast food dinner payment" are different strings but their vectors are close in embedding space.
 
 ### Why pgvector — no new database
 
-Postgres has the `pgvector` extension: a `vector` column type and approximate nearest-neighbour search with a single `ORDER BY embedding <=> $query_vector` clause. You are already on Postgres — this is a schema change, not a new infrastructure component.
-
 ```
-External vector DB (unnecessary complexity):
-  Postgres (transactions) ←→ Sync ←→ Pinecone (embeddings)
-  Two databases, two failure modes, extra cost.
-
 pgvector (what we use):
   Postgres (transactions + embeddings in the same row)
   One database, one query, joins work naturally.
+  No sync, no extra infrastructure.
 ```
 
 ### Schema setup
 
-Already in `packages/database/prisma/schema.prisma`. The relevant fields on `Transaction`:
-
 ```prisma
 model Transaction {
-  // ...
-  narration    String?                      // raw Mono bank narration — source text for embedding
-  bankCategory String?                      // raw Mono category enum — also embedded as context
-  embedding    Unsupported("vector(1536)")? // nullable — backfilled async by EmbeddingWorker
-  // ...
+  narration    String?
+  bankCategory String?
+  embedding    Unsupported("vector(1536)")?
 }
 ```
 
-The HNSW index and `vector` extension are applied in migration `20260419212421_init_db`:
+HNSW index in migration:
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
-
 CREATE INDEX transactions_embedding_hnsw
   ON "Transaction"
   USING hnsw (embedding vector_cosine_ops);
 ```
 
-Use **HNSW** (not IVFFlat): no training phase, handles continuous inserts without degrading search quality. Use `vector_cosine_ops` for text embeddings — measures angle between vectors, captures semantic similarity regardless of text length.
+Use **HNSW** (not IVFFlat): no training phase, handles continuous inserts without degrading search quality. Use `vector_cosine_ops` — measures angle between vectors, captures semantic similarity regardless of text length.
 
 ### What gets embedded
 
 ```typescript
 function buildEmbeddingDocument(tx: Transaction, categoryName: string): string {
   return [
-    tx.narration ?? tx.description, // narration = immutable bank text; fallback to description for manual transactions
+    tx.narration ?? tx.description,
     categoryName,
     tx.type === 'INCOME' ? 'income received' : 'expense paid',
     `amount ${tx.amount}`,
     format(tx.date, 'MMMM YYYY'),
   ].join(' ');
 }
-// e.g. "KFC IKEJA Food & Dining expense paid amount 4500 March 2026"
+// "KFC IKEJA Food & Dining expense paid amount 4500 March 2026"
 ```
 
 ### When embeddings are generated
 
-Not synchronously during transaction creation — the bank sync batch must not block on embedding calls. Background job via BullMQ:
-
-```typescript
-// BullMQ job payload published by finance_service after batchCreateTransactions
-interface EmbeddingJobPayload {
-  userId: string;
-  transactionIds: string[]; // IDs of newly created transactions to embed
-}
-```
+Background job via BullMQ after `batchCreateTransactions` completes:
 
 ```
 finance_service: batchCreateTransactions completes
   → BullMQ: EmbeddingJobPayload { userId, transactionIds }
-  → ai_service EmbeddingWorker picks up job
-  → batches of 100: buildEmbeddingDocument() → OpenAI batch request
-  → UPDATE transactions SET embedding = $vector WHERE id = $id
+  → ai_service EmbeddingWorker: buildEmbeddingDocument() → OpenAI batch → UPDATE embedding
 ```
 
 ### The `semanticSearchTransactions` tool
 
 ```typescript
-// Return type — what the agent sees when this tool resolves
-interface SemanticSearchResult {
-  id: string;
-  narration: string | null;
-  description: string | null;
-  amount: number;
-  type: 'INCOME' | 'EXPENSE';
-  date: Date;
-  categoryId: string;
-  similarity: number; // 0–1 cosine similarity score
-}
-
-async function semanticSearchTransactions({
-  userId,
-  query,
-  limit = 10,
-}: {
-  userId: string;
-  query: string;
-  limit?: number;
-}): Promise<SemanticSearchResult[]> {
-  // 1. Embed the natural language question
+async function semanticSearchTransactions({ userId, query, limit = 10 }) {
   const [queryVector] = await embeddingRepo.embed([query], { model: 'text-embedding-3-small' });
-
-  // 2. Cosine similarity search
-  return prisma.$queryRaw<SemanticSearchResult[]>`
+  return prisma.$queryRaw`
     SELECT id, narration, description, amount, type, date, category_id,
            1 - (embedding <=> ${queryVector}::vector) AS similarity
     FROM transactions
@@ -2171,19 +2039,18 @@ async function semanticSearchTransactions({
 }
 ```
 
-### Two retrieval paths in the chat agent
+### Two retrieval paths in the advisor
 
 ```
 User question arrives
   │
   ▼
-LangGraph: call_model_node  →  model decides:
+LangGraph respond_node → model decides:
   │
-  ├─ structured question ──► SQL tool ──► Postgres (exact aggregation)
+  ├── structured question → SQL tool → Postgres (exact aggregation)
   │
-  └─ semantic question   ──► semanticSearchTransactions ──► pgvector cosine search
-                                                           top-k transactions injected as context
-                                                           ──► model generates grounded answer
+  └── semantic question → semanticSearchTransactions → pgvector cosine
+                                                       top-k → grounded answer
 ```
 
 ---
@@ -2192,25 +2059,27 @@ LangGraph: call_model_node  →  model decides:
 
 ### Two things called "analytics"
 
-1. **Aggregated metrics** — "Total spent on food in March: ₦45,000". Computed from Postgres transactions via SQL aggregation.
-2. **AI insights** — "You're spending significantly more on food than last month". Generated by the AI service from the aggregated metrics.
+1. **Aggregated metrics** — numbers computed via SQL. "Total spent on food in March: ₦45,000."
+2. **AI insights** — observations generated by the AI service. "You're spending significantly more on food than last month."
 
-Do not conflate them. Aggregated metrics are numbers. AI insights are observations drawn from those numbers.
+### Why Postgres (JSONB) for analytics snapshots
 
-### Why MongoDB for analytics snapshots
+Analytics snapshots and AI insights are stored in two Postgres tables using `JSONB` columns for the flexible payload. Postgres 14+ supports full JSON operators, GIN indexing on JSONB, and partial updates — there is no reason to run a separate MongoDB instance. Everything stays in the same Neon database already used for the rest of the app.
 
-Pre-computed analytics snapshots (monthly breakdowns, year-over-year comparisons, budget utilisation history) are documents with flexible shape that vary by time period and aggregation level. MongoDB's document model fits this without requiring schema versioning for every new aggregation shape. Its native `$group` / `$sum` aggregation pipelines are exactly what analytics computation needs.
+| Requirement | How Postgres handles it |
+|---|---|
+| Flexible snapshot shape (varies by period/type) | `JSONB` column — no schema migration per new aggregation shape |
+| Efficient reads by `userId` + `period` | B-tree index on `(user_id, period)` |
+| JSON field queries (e.g. `data->>'totalIncome'`) | Native JSONB operators (`->`, `->>`, `@>`) |
+| Historical insight lookups (last 3 runs) | `ORDER BY generated_at DESC LIMIT 3` — standard SQL |
+| Atomic upsert of snapshot + invalidate Redis | Single transaction — no cross-database saga |
 
-### Why Redis for serving analytics
-
-Analytics don't change on every page load:
+### Why Redis for serving
 
 ```
-GET insights:{userId}   → Redis HIT  → return immediately (TTL 1h)
-                        → Redis MISS → MongoDB → populate Redis → return
+GET insights:{userId}   → Redis HIT → return immediately (TTL 1h)
+                        → Redis MISS → Postgres → populate Redis → return
 ```
-
-Redis is already in the project for BullMQ and the Mono auth flow — no new infrastructure.
 
 ### Data flow
 
@@ -2220,61 +2089,132 @@ Postgres transactions
   scheduler_service (nightly aggregation job)
   │
   ├─ computes: monthly totals, category breakdown, budget utilisation, goal progress
-  ├─ writes: analytics snapshots → MongoDB
-  └─ publishes: BullMQ job → ai_service → generate insights → write to MongoDB
+  ├─ upserts: analytics_snapshots table (JSONB)
+  └─ publishes: BullMQ job → ai_service → generate insights → upserts ai_insights table (JSONB)
 
-api_gateway tRPC (analytics.getSummary, ai.getInsights)
+api_gateway tRPC (analytics.getSummary, advisor.getInsights)
   │
-  Redis cache → (miss) → MongoDB
+  Redis cache → (miss) → Postgres JSONB tables
 ```
 
-### MongoDB document shapes
+### Postgres table schemas
+
+```sql
+-- analytics_snapshots: one row per (user, period, type)
+CREATE TABLE analytics_snapshots (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     TEXT        NOT NULL,
+  period      TEXT        NOT NULL,  -- "2026-03" (YYYY-MM)
+  type        TEXT        NOT NULL,  -- 'monthly_summary' | 'quarterly_summary' | 'yearly_summary'
+  data        JSONB       NOT NULL,  -- flexible payload, see shape below
+  computed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  CONSTRAINT uq_snapshot UNIQUE (user_id, period, type)
+);
+
+CREATE INDEX idx_snapshots_user_period ON analytics_snapshots (user_id, period);
+CREATE INDEX idx_snapshots_data ON analytics_snapshots USING GIN (data);
+
+-- ai_insights: one row per generation run
+CREATE TABLE ai_insights (
+  id             TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id        TEXT        NOT NULL,
+  generated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  trigger        TEXT        NOT NULL,  -- 'daily' | 'post_sync' | 'month_end' | 'budget_breach'
+  summary        TEXT        NOT NULL,
+  anomalies      JSONB       NOT NULL DEFAULT '[]',
+  goal_alerts    JSONB       NOT NULL DEFAULT '[]',
+  cash_flow_forecast TEXT,
+  recommendations JSONB      NOT NULL DEFAULT '[]',
+  macro_context  JSONB       NOT NULL DEFAULT '{}'
+);
+
+CREATE INDEX idx_insights_user_date ON ai_insights (user_id, generated_at DESC);
+```
+
+Prisma models (add to `schema.prisma`):
+
+```prisma
+model AnalyticsSnapshot {
+  id          String   @id @default(cuid())
+  userId      String
+  period      String   // "2026-03"
+  type        String   // monthly_summary | quarterly_summary | yearly_summary
+  data        Json
+  computedAt  DateTime @default(now())
+
+  @@unique([userId, period, type])
+  @@index([userId, period])
+  @@map("analytics_snapshots")
+}
+
+model AiInsight {
+  id                String   @id @default(cuid())
+  userId            String
+  generatedAt       DateTime @default(now())
+  trigger           String
+  summary           String
+  anomalies         Json     @default("[]")
+  goalAlerts        Json     @default("[]")
+  cashFlowForecast  String?
+  recommendations   Json     @default("[]")
+  macroContext      Json     @default("{}")
+
+  @@index([userId, generatedAt(sort: Desc)])
+  @@map("ai_insights")
+}
+```
+
+### TypeScript shapes (JSONB payloads)
 
 ```typescript
-// Collection: analytics_snapshots
-interface AnalyticsSnapshotDocument {
-  userId: string;
-  period: string; // "2026-03" — YYYY-MM
-  type: 'monthly_summary' | 'quarterly_summary' | 'yearly_summary';
-  data: {
-    totalIncome: number;
-    totalExpense: number;
-    netSavings: number;
-    topCategories: Array<{ slug: string; total: number; transactionCount: number }>;
-    budgetUtilisation: Array<{
-      categorySlug: string;
-      budgeted: number;
-      spent: number;
-      pct: number;
-    }>;
-    goalProgress: Array<{ goalId: string; targetAmount: number; savedAmount: number; pct: number }>;
-  };
-  computedAt: Date;
+// data field of AnalyticsSnapshot
+interface AnalyticsSnapshotData {
+  totalIncome: number;
+  totalExpense: number;
+  netSavings: number;
+  topCategories: Array<{ slug: string; total: number; transactionCount: number }>;
+  budgetUtilisation: Array<{ categorySlug: string; budgeted: number; spent: number; pct: number }>;
+  goalProgress: Array<{ goalId: string; targetAmount: number; savedAmount: number; pct: number }>;
 }
 
-// Collection: category_breakdowns
-interface CategoryBreakdownDocument {
-  userId: string;
-  period: string; // "2026-03"
-  categories: Array<{
-    slug: string;
-    name: string;
-    total: number;
-    count: number;
-    budget: number | null; // null if no budget set for this category
-  }>;
-  computedAt: Date;
-}
-
-// Collection: ai_insights  (same shape as GenerateInsightsRes above)
-interface AiInsightDocument {
+// Represents a full AiInsight row with typed JSON fields
+interface AiInsightRecord {
+  id: string;
   userId: string;
   generatedAt: Date;
+  trigger: 'daily' | 'post_sync' | 'month_end' | 'budget_breach';
   summary: string;
   anomalies: string[];
-  recommendations: string[];
+  goalAlerts: string[];
+  cashFlowForecast: string | null;
+  recommendations: InsightRecommendation[];
+  macroContext: MacroContext;
 }
 ```
+
+---
+
+## Rename Map — Chat → Advisor
+
+All instances of "chat" are renamed to "advisor" across FE and BE.
+
+| Old | New |
+|-----|-----|
+| `apps/ai_service/src/chat/` | `apps/ai_service/src/advisor/` |
+| `ChatService` | `AdvisorService` |
+| `ChatController` | `AdvisorController` |
+| `ChatModule` | `AdvisorModule` |
+| `ChatMessageReq` | `AdvisorMessageReq` |
+| `ChatChunkRes` | `AdvisorChunkRes` |
+| `CHAT_CHECKPOINTER` | `ADVISOR_CHECKPOINTER` |
+| `CHAT_STORE` | `ADVISOR_STORE` |
+| `/api/chat` (Next.js route) | `/api/advisor` |
+| `ai.chat` (tRPC router key) | `advisor.send` |
+| `chat.tsx` component | `advisor.tsx` |
+| `"AI chat (10 messages/mo)"` (pricing) | `"AI Advisor (10 messages/mo)"` |
+| `"Unlimited AI chat"` (pricing) | `"Unlimited AI Advisor"` |
+| Proto `rpc Chat(...)` | `rpc SendAdvisorMessage(...)` |
 
 ---
 
@@ -2288,51 +2228,18 @@ service AiService {
   // Domain 2: called by scheduler_service via BullMQ
   rpc GenerateInsights(GenerateInsightsReq) returns (GenerateInsightsRes) {}
 
-  // Domain 3: called by api_gateway for the chat UI
-  rpc Chat(stream ChatMessageReq) returns (stream ChatChunkRes) {}
+  // Domain 3: called by api_gateway for advisor UI
+  rpc SendAdvisorMessage(AdvisorMessageReq) returns (stream AdvisorChunkRes) {}
+  rpc ResumeAdvisorApproval(AdvisorApprovalReq) returns (AdvisorResumeRes) {}
 }
 ```
-
----
-
-## Implementation Order
-
-### Step 1 — RegistoryModule composition layer (unblocks everything)
-
-Add `services/langchain.service.ts` and `services/langgraph.service.ts` inside `apps/ai_service/src/registory/`. Register both in `RegistoryModule` as providers and exports. No feature logic yet — feature modules get `LangChainService` and `LangGraphService` injected automatically because `RegistoryModule` is `@Global`.
-
-Deliverable: `pnpm --filter ai_service build` passes clean.
-
-### Step 2 — Classification (unblock bank sync)
-
-Build the classification chain in `ClassificationService`. Implement the `ClassifyTransactions` gRPC method. No MongoDB, no streaming, no agent loops.
-
-Deliverable: `ClassifyTransactions` gRPC method working end-to-end.
-
-### Step 3 — Analytics data pipeline (unblock insights)
-
-Build the MongoDB collections and the `scheduler_service` aggregation job. No AI yet — just numbers flowing from Postgres into MongoDB snapshots. Expose a tRPC endpoint reading those snapshots with Redis caching.
-
-Deliverable: `analytics.getSummary` returning real monthly totals from MongoDB.
-
-### Step 4 — Insights (LangGraph practice)
-
-Build the LangGraph insights workflow reading from MongoDB. Wire it into the scheduler_service so it runs after aggregation.
-
-Deliverable: `ai.getInsights` returning real AI observations about the user's spending.
-
-### Step 5 — Chat assistant (LangGraph agent)
-
-Define the Postgres query tools first (no AI), test they return correct data, then wire them into the LangGraph agent. Add pgvector RAG tool. Add streaming last.
-
-Deliverable: Chat UI talking to a live agent with access to the user's real data.
 
 ---
 
 ## What to Ignore (Non-Goals)
 
 - **Voice interface** — out of scope
-- **Predictive budgeting (ML forecasting)** — token scoring + AI insights cover the meaningful signals; a full forecasting model is V3 work
-- **Receipt OCR** — separate concern, not part of ai_service
-- **Fine-tuning** — not needed; prompt engineering with gpt-4o or Claude Sonnet is sufficient for all three domains
-- **External vector databases** — pgvector inside Postgres is sufficient; Pinecone/Weaviate/Qdrant add ops overhead with no benefit at this scale
+- **Predictive ML forecasting** — insights pipeline covers the meaningful signals
+- **Fine-tuning** — prompt engineering + few-shot with Claude Sonnet is sufficient
+- **External vector databases** — pgvector inside Postgres is sufficient at this scale
+- **Multi-currency advisor** — NGN only for now; currency selector disabled until multi-currency ships
