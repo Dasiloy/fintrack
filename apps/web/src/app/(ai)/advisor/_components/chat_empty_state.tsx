@@ -1,8 +1,15 @@
 'use client';
 
 // ── ChatEmptyState ────────────────────────────────────────────────────────────
-// First-run empty state for the advisor chat panel.
-// Shows a greeting + 6 suggested prompts that pre-fill the input on click.
+// Centered empty state for the advisor chat. Renders:
+//   1. Greeting avatar + tagline
+//   2. inputSlot — the ChatInput component injected by ChatPanel so the input
+//      sits between the greeting and the prompts (matching Claude / ChatGPT UX)
+//   3. Suggested prompt chips
+//
+// The input is NOT pinned to the bottom here; it lives in the flow of the
+// centered column. ChatPanel renders this instead of the normal layout when
+// there are no messages yet.
 
 import * as React from 'react';
 import { BrainCircuit, Sparkles } from 'lucide-react';
@@ -10,17 +17,18 @@ import { SUGGESTED_PROMPTS } from '../_lib/advisor.constants';
 
 interface ChatEmptyStateProps {
   onPromptSelect: (prompt: string) => void;
+  inputSlot: React.ReactNode;
 }
 
-export function ChatEmptyState({ onPromptSelect }: ChatEmptyStateProps) {
+export function ChatEmptyState({ onPromptSelect, inputSlot }: ChatEmptyStateProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-10">
-      {/* Logo / avatar */}
-      <div className="flex flex-col items-center gap-3">
+    <div className="flex w-full flex-col gap-6">
+      {/* ── Greeting ── */}
+      <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10">
           <BrainCircuit className="size-7 text-primary" aria-hidden />
         </div>
-        <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-col items-center gap-1">
           <h2 className="text-[16px] font-semibold text-text-primary">FinTrack Advisor</h2>
           <p className="max-w-[260px] text-[13px] text-text-tertiary">
             Your personal AI financial advisor. Ask me anything about your spending, budgets, or goals.
@@ -28,8 +36,11 @@ export function ChatEmptyState({ onPromptSelect }: ChatEmptyStateProps) {
         </div>
       </div>
 
-      {/* Suggested prompts grid */}
-      <div className="w-full max-w-md">
+      {/* ── Input slot — passed in from ChatPanel ── */}
+      {inputSlot}
+
+      {/* ── Suggested prompts ── */}
+      <div>
         <div className="mb-3 flex items-center gap-1.5">
           <Sparkles className="size-3.5 text-text-disabled" aria-hidden />
           <span className="text-[11px] font-medium uppercase tracking-wide text-text-disabled">
@@ -42,7 +53,7 @@ export function ChatEmptyState({ onPromptSelect }: ChatEmptyStateProps) {
               key={prompt}
               type="button"
               onClick={() => onPromptSelect(prompt)}
-              className="rounded-xl border border-border-subtle bg-bg-surface px-3 py-3 text-left text-[12px] text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary min-h-[44px]"
+              className="min-h-[44px] cursor-pointer rounded-xl border border-border-subtle bg-bg-surface px-3 py-3 text-left text-[12px] text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary"
             >
               {prompt}
             </button>

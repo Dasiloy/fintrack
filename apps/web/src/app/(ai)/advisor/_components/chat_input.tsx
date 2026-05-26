@@ -100,7 +100,7 @@ export function ChatInput({
               <button
                 type="button"
                 onClick={() => onRemoveAttachment(att.id)}
-                className="text-text-disabled hover:text-text-tertiary transition-colors"
+                className="cursor-pointer text-text-disabled hover:text-text-tertiary transition-colors"
                 aria-label={`Remove ${att.name}`}
               >
                 <X className="size-3" />
@@ -127,7 +127,7 @@ export function ChatInput({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="mb-1 flex size-8 shrink-0 items-center justify-center rounded-lg text-text-tertiary transition-colors hover:bg-bg-elevated hover:text-text-secondary"
+          className="mb-1 flex size-8 cursor-pointer shrink-0 items-center justify-center rounded-lg text-text-tertiary transition-colors hover:bg-bg-elevated hover:text-text-secondary"
           aria-label="Attach file"
         >
           <Paperclip className="size-4" aria-hidden />
@@ -156,7 +156,7 @@ export function ChatInput({
           onClick={handleSend}
           disabled={!canSend}
           className={cn(
-            'mb-1 flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors',
+            'mb-1 flex size-8 cursor-pointer shrink-0 items-center justify-center rounded-lg transition-colors',
             canSend
               ? 'bg-primary text-white hover:bg-primary/90'
               : 'bg-bg-elevated text-text-disabled',
