@@ -31,8 +31,9 @@ async function bootstrap() {
   /// MIDDLEWARES
   // 1. cors
   app.enableCors({
-    origin: origins,
+    origin: origins.map((o) => o.trim()),
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    credentials: true,
   });
   // 2. helmet
   app.use(
