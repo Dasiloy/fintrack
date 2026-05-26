@@ -23,7 +23,7 @@ export function ConversationItem({ thread, isActive, onClick }: ConversationItem
       onClick={onClick}
       className={cn(
         // Base: full-width, left-aligned, min 44px touch target
-        'flex w-full min-h-[44px] items-start gap-2.5 rounded-lg px-3 py-2.5 text-left',
+        'flex w-full min-h-[44px] cursor-pointer items-start gap-2.5 rounded-lg px-3 py-2.5 text-left',
         'transition-colors duration-150',
         isActive
           ? 'bg-primary/10 text-text-primary'

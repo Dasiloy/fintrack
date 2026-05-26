@@ -24,7 +24,7 @@ export function InsightsAnomalyList({ anomalies, expanded, onToggle }: InsightsA
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-2.5 px-4 py-3 text-left hover:bg-bg-surface-hover transition-colors"
+        className="flex w-full cursor-pointer items-center gap-2.5 px-4 py-3 text-left hover:bg-bg-surface-hover transition-colors"
         aria-expanded={expanded}
       >
         <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-warning/10">
@@ -55,7 +55,7 @@ export function InsightsAnomalyList({ anomalies, expanded, onToggle }: InsightsA
               No anomalies detected — all clear.
             </p>
           ) : (
-            visible.map((anomaly, visibleIdx) => {
+            visible.map((anomaly) => {
               // Map back to original index for dismiss tracking
               const originalIdx = anomalies.findIndex(
                 (a, i) => a === anomaly && !dismissed.has(i),
