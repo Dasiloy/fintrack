@@ -839,7 +839,6 @@ export class BudgetService {
       data,
     };
     this.activityNotificationQueue.add(ACTIVITY_NOTIFICATION_JOB, activityData);
-
   }
 
   /**
