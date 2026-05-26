@@ -7,7 +7,7 @@ import {
   BarChart3,
   Landmark,
   LayoutDashboard,
-  MessageCircle,
+  BrainCircuit,
   Repeat2,
   Settings2,
   ShieldCheck,
@@ -55,7 +55,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Analytics & AI',
     items: [
       { title: 'Analytics', url: DASHBOARD_ROUTES.ANALYTICS, icon: BarChart3 },
-      { title: 'Chat', url: DASHBOARD_ROUTES.ANALYTICS_CHAT, icon: MessageCircle, isPro: true },
+      { title: 'Advisor', url: DASHBOARD_ROUTES.ANALYTICS_CHAT, icon: BrainCircuit, isPro: true },
     ],
   },
   {

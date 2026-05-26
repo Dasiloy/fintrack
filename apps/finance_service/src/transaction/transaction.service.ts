@@ -746,7 +746,6 @@ export class TransactionService {
       data,
     };
     this.fcmNotificationQueue.add(FCM_NOTIFICATION_JOB, fcmData);
-
   }
 
   /**
