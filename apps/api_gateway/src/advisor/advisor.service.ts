@@ -12,6 +12,8 @@ import {
   INSIGHTS_CACHE_TTL,
   INSIGHTS_UNREAD_CACHE_PREFIX,
   INSIGHTS_UNREAD_CACHE_TTL,
+  INSIGHTS_COOLDOWN,
+  INSIGHTS_COOLDOWN_TTL,
 } from '@fintrack/types/constants/redis.costants';
 import {
   INSIGHTS_JOB,
@@ -220,7 +222,7 @@ export class AdvisorService {
   async triggerInsights(
     userId: string,
   ): Promise<{ queued: boolean; cooldownSeconds?: number }> {
-    const cooldownKey = `insights_trigger_cooldown:${userId}`;
+    const cooldownKey = `${INSIGHTS_COOLDOWN}:${userId}`;
     const ttl = await this.redis.ttl(cooldownKey);
 
     if (ttl > 0) {
@@ -233,7 +235,9 @@ export class AdvisorService {
     } satisfies InsightsJobPayload);
 
     // Set cooldown — fire-and-forget; a Redis failure just means no cooldown enforcement
-    void this.redis.setex(cooldownKey, 600, '1').catch(() => {});
+    void this.redis
+      .setex(cooldownKey, INSIGHTS_COOLDOWN_TTL, '1')
+      .catch(() => {});
 
     return { queued: true };
   }

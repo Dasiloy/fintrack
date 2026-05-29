@@ -3,7 +3,10 @@ import { BullModule } from '@nestjs/bullmq';
 
 import { AccountController } from './account.controller';
 import { AccountService } from './account.service';
-import { MONO_QUEUE } from '@fintrack/types/constants/queus.constants';
+import {
+  INSIGHTS_QUEUE,
+  MONO_QUEUE,
+} from '@fintrack/types/constants/queus.constants';
 import { TransactionModule } from '../transaction/transaction.module';
 import { MonoAccountSyncProcessor } from './account.processor';
 import { FcmModule } from '../fcm/fcm.module';
