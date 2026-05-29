@@ -43,6 +43,8 @@ export interface UnbudgetedCategory {
   color: string;
   icon: string;
   spent: number;
+  id: string;
+  isUserOwned: boolean;
 }
 
 export interface GetBudgetsReq {
