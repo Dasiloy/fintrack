@@ -68,6 +68,53 @@ export const userRouter = createTRPCRouter({
     }),
 
   /**
+   * Permanently dismisses the 2FA setup prompt.
+   * Sets hasSeenTwoFaPrompt = true — the modal will never reappear.
+   * Invalidates the getMe cache so the updated flag is reflected immediately.
+   */
+  dismissTwoFaPrompt: protectedProcedure.mutation(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/user/dismiss-2fa-prompt`, {
+      method: 'PATCH',
+      headers: gatewayHeaders(ctx.headers),
+    });
+
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<null> = await response.json();
+    return data;
+  }),
+
+  /**
+   * Mark the onboarding tour as completed (persists to DB, prevents re-trigger).
+   */
+  completeTour: protectedProcedure.mutation(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/user/complete-tour`, {
+      method: 'PATCH',
+      headers: gatewayHeaders(ctx.headers),
+    });
+
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<null> = await response.json();
+    return data;
+  }),
+
+  /**
+   * Reset the onboarding tour so it can be replayed from Settings.
+   */
+  resetTour: protectedProcedure.mutation(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/user/reset-tour`, {
+      method: 'PATCH',
+      headers: gatewayHeaders(ctx.headers),
+    });
+
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<null> = await response.json();
+    return data;
+  }),
+
+  /**
    * Update the current user's notification settings.
    * Invalidates the Redis user profile cache in the gateway.
    */

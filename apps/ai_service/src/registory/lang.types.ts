@@ -57,4 +57,44 @@ export interface StreamGraphOptions<
 // Discriminated union yielded by LangGraphService.streamEvents()
 export type GraphStreamEvent<TState> =
   | { type: 'token'; content: string }
-  | { type: 'state'; node: string; state: Partial<TState> };
+  | { type: 'state'; node: string; state: Partial<TState> }
+  | { type: 'approval_required'; action: AdvisorAction }; // human-in-the-loop pause
+
+// Advisor action types — proposals requiring explicit user approval before execution
+export type AdvisorAction =
+  | {
+      kind: 'adjust_budget';
+      budgetId: string;
+      categorySlug: string;
+      currentLimit: number;
+      proposedLimit: number;
+      reason: string;
+    }
+  | {
+      kind: 'create_budget';
+      categorySlug: string;
+      proposedLimit: number;
+      reason: string;
+    }
+  | {
+      kind: 'adjust_goal_contribution';
+      goalId: string;
+      currentAmount: number;
+      proposedAmount: number;
+      reason: string;
+    }
+  | {
+      kind: 'suggest_recurring';
+      name: string;
+      amount: number;
+      categorySlug: string;
+      frequency: string;
+      reason: string;
+    }
+  | {
+      kind: 'flag_subscription';
+      name: string;
+      amount: number;
+      categorySlug: string;
+      reason: string;
+    };

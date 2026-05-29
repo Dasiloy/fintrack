@@ -1,0 +1,277 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Financial Insight - Fintrack</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f4f5;
+        color: #3f3f46;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrapper {
+        background-color: #f4f4f5;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 520px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e4e4e7;
+      }
+
+      .header {
+        padding: 40px 40px 28px 40px;
+        text-align: center;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .hero-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #18181b;
+        letter-spacing: -0.02em;
+        margin: 0 0 10px 0;
+        line-height: 1.3;
+      }
+
+      .hero-subtitle {
+        font-size: 14px;
+        color: #71717a;
+        margin: 0;
+      }
+
+      .content {
+        padding: 32px 40px 40px 40px;
+      }
+
+      .greeting {
+        font-size: 16px;
+        font-weight: 600;
+        color: #18181b;
+        margin: 0 0 8px 0;
+      }
+
+      .intro {
+        font-size: 14px;
+        color: #52525b;
+        margin: 0 0 24px 0;
+      }
+
+      .severity-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .severity-badge.critical {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      .severity-badge.warning {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+
+      .severity-badge.info {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .insight-box {
+        background-color: #f9f9fb;
+        border: 1px solid #e4e4e7;
+        border-left: 4px solid #18181b;
+        padding: 20px;
+        margin: 0 0 24px 0;
+        font-size: 14px;
+        color: #27272a;
+        line-height: 1.7;
+      }
+
+      .insight-box.critical {
+        border-left-color: #dc2626;
+        background-color: #fff8f8;
+      }
+
+      .insight-box.warning {
+        border-left-color: #f59e0b;
+        background-color: #fffbf0;
+      }
+
+      .insight-box.info {
+        border-left-color: #3b82f6;
+        background-color: #f8faff;
+      }
+
+      .cta-block {
+        text-align: center;
+        margin: 8px 0 24px 0;
+      }
+
+      .cta-button {
+        display: inline-block;
+        padding: 12px 28px;
+        background-color: #18181b;
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        letter-spacing: 0.01em;
+      }
+
+      .cta-button.critical {
+        background-color: #dc2626;
+      }
+
+      .note {
+        font-size: 13px;
+        color: #71717a;
+        background-color: #f4f4f5;
+        border-left: 3px solid #d4d4d8;
+        padding: 12px 16px;
+        margin: 0 0 8px 0;
+      }
+
+      .footer {
+        padding: 28px 40px;
+        text-align: center;
+        border-top: 1px solid #e4e4e7;
+        background-color: #fafafa;
+      }
+
+      .footer-text {
+        font-size: 13px;
+        color: #71717a;
+        margin: 0 0 12px 0;
+      }
+
+      .social-links {
+        margin-bottom: 16px;
+      }
+
+      .social-links a {
+        color: #7c7aff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        margin: 0 10px;
+      }
+
+      .legal {
+        font-size: 11px;
+        color: #a1a1aa;
+        margin: 0;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='wrapper'>
+      <div class='container'>
+        <div class='header'>
+          <table
+            cellpadding='0'
+            cellspacing='0'
+            border='0'
+            style='display: inline-table; margin-bottom: 20px;'
+          >
+            <tr>
+              <td
+                style='background-color: #7c7aff; border-radius: 10px; width: 40px; height: 40px; text-align: center; vertical-align: middle; padding: 0;'
+              >
+                <img
+                  src='cid:fintrack-logo'
+                  width='22'
+                  height='22'
+                  alt=''
+                  style='display:block; margin: 9px auto;'
+                />
+              </td>
+              <td style='padding-left: 10px; vertical-align: middle;'>
+                <span
+                  style="font-size: 17px; font-weight: 700; color: #18181b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.02em; white-space: nowrap;"
+                >FinTrack</span>
+              </td>
+            </tr>
+          </table>
+          {{#if (eq severity 'critical')}}
+            <h1 class='hero-title'>Action Needed</h1>
+            <p class='hero-subtitle'>Your advisor has flagged something that
+              needs your attention.</p>
+          {{else if (eq severity 'warning')}}
+            <h1 class='hero-title'>Financial Heads-Up</h1>
+            <p class='hero-subtitle'>Your advisor has noticed something worth
+              reviewing.</p>
+          {{else}}
+            <h1 class='hero-title'>New Financial Insight</h1>
+            <p class='hero-subtitle'>Your advisor has a new observation about
+              your finances.</p>
+          {{/if}}
+        </div>
+
+        <div class='content'>
+          <p class='greeting'>Hi {{firstName}},</p>
+
+          {{#if (eq severity 'critical')}}
+            <p class='intro'>Your Fintrack Advisor has flagged a critical issue
+              with your finances that may need immediate attention:</p>
+            <div class='severity-badge critical'>Critical</div>
+          {{else if (eq severity 'warning')}}
+            <p class='intro'>Your Fintrack Advisor has spotted a pattern in your
+              finances worth keeping an eye on:</p>
+            <div class='severity-badge warning'>Warning</div>
+          {{else}}
+            <p class='intro'>Your Fintrack Advisor has a new insight about your
+              financial activity:</p>
+            <div class='severity-badge info'>Insight</div>
+          {{/if}}
+
+          <div class='insight-box {{severity}}'>
+            {{summary}}
+          </div>
+
+          {{#if conversationThreadId}}
+            <p class='note'>
+              Your advisor has already prepared context for this insight. Open
+              the conversation to discuss it and take action directly.
+            </p>
+          {{/if}}
+
+          <div class='cta-block'>
+            <a
+              href='https://www.fintrack.live/advisor'
+              class='cta-button {{severity}}'
+            >Open Advisor</a>
+          </div>
+        </div>
+
+        <div class='footer'>
+          <p class='footer-text'>The only financial tool you'll ever need.</p>
+          <div class='social-links'>
+            <a href='https://www.fintrack.live/support'>Support</a>
+            <a href='https://www.fintrack.live/community'>Community</a>
+          </div>
+          <p class='legal'>
+            &copy; 2026 Fintrack Inc. All rights reserved.<br />
+            You're receiving this because you have AI advisor notifications
+            enabled.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

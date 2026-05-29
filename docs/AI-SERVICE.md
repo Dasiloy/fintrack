@@ -182,8 +182,6 @@ export interface CompileGraphOptions {
   checkpointer?: BaseCheckpointSaver | 'memory' | false;
   // 'memory' → new InMemoryStore()  |  BaseStore → passed through  |  false → none
   store?: BaseStore | 'memory' | false;
-  interruptBefore?: string[];
-  interruptAfter?: string[];
 }
 
 export interface InvokeGraphOptions {
@@ -266,6 +264,7 @@ export class LangChainService {
 import {
   StateGraph,
   CompiledStateGraph,
+  Command,
   MemorySaver,
   BaseCheckpointSaver,
   InMemoryStore,
@@ -299,12 +298,7 @@ export class LangGraphService {
     if (opts?.store === 'memory') store = new InMemoryStore();
     else if (opts?.store && opts.store !== false) store = opts.store;
 
-    return graph.compile({
-      checkpointer,
-      store,
-      interruptBefore: opts?.interruptBefore,
-      interruptAfter: opts?.interruptAfter,
-    });
+    return graph.compile({ checkpointer, store });
   }
 
   async invoke<TState>(
@@ -345,12 +339,15 @@ export class LangGraphService {
             : ((msgChunk?.content as any)?.[0]?.text ?? '');
         if (text) yield { type: 'token', content: text };
       } else if (mode === 'updates') {
-        for (const [node, state] of Object.entries(payload as Record<string, Partial<TState>>)) {
-          if (node === '__interrupt__') {
-            const action = (state as any)?.pendingAction as AdvisorAction | undefined;
-            if (action) yield { type: 'approval_required', action };
-          } else {
-            yield { type: 'state', node, state };
+        const updates = payload as Record<string, unknown>;
+        if ('__interrupt__' in updates) {
+          // interrupt() surfaces its argument as interrupts[0].value
+          const interrupts = updates['__interrupt__'] as Array<{ value: unknown; when: string }>;
+          const action = interrupts?.[0]?.value as AdvisorAction | undefined;
+          if (action) yield { type: 'approval_required', action };
+        } else {
+          for (const [node, state] of Object.entries(updates)) {
+            yield { type: 'state', node, state: state as Partial<TState> };
           }
         }
       }
@@ -522,14 +519,12 @@ builder.addConditionalEdges(
 );
 ```
 
-#### `graph.compile({ checkpointer, store, interruptBefore })`
+#### `graph.compile({ checkpointer, store })`
 
-| Option            | Type                  | Effect                                            |
-| ----------------- | --------------------- | ------------------------------------------------- |
-| `checkpointer`    | `BaseCheckpointSaver` | Thread-scoped state persistence (conversation history) |
-| `store`           | `BaseStore`           | Cross-thread key-value + semantic storage (long-term memory) |
-| `interruptBefore` | `string[]`            | Pause before named nodes — enables human-in-the-loop |
-| `interruptAfter`  | `string[]`            | Pause after named nodes                           |
+| Option         | Type                  | Effect                                                         |
+| -------------- | --------------------- | -------------------------------------------------------------- |
+| `checkpointer` | `BaseCheckpointSaver` | Thread-scoped state persistence (conversation history)         |
+| `store`        | `BaseStore`           | Cross-thread key-value + semantic storage (long-term memory)   |
 
 #### `MemorySaver` and `PostgresSaver`
 
@@ -547,30 +542,45 @@ const respondNode = async (state, runtime) => {
 };
 ```
 
-#### Human-in-the-loop — `interrupt_before`
+#### Human-in-the-loop — `interrupt()`
 
-The advisor pauses execution before taking an action that requires user approval. State is serialised to the checkpointer; the SSE stream emits `{ type: 'approval_required', action }`; the frontend shows an approval card; the user's response resumes the graph.
+The advisor pauses execution inside `action_node` by calling `interrupt(proposedAction)`. LangGraph checkpoints state at that point; the stream surfaces the interrupt value as `{ type: 'approval_required', action }`; the frontend shows an approval card; the user's response resumes the graph via `Command({ resume: approved })`.
 
 ```
-[advisor_node] → decides action needed
+[respond_node] → detects actionable opportunity → sets proposedAction in state
       ↓
-[__interrupt__] ← graph pauses, state saved
-      ↓ user approves / rejects via frontend
-[action_node]   → executes if approved, skips if rejected
+[action_node]  → calls interrupt(state.proposedAction)
+                 ← graph pauses here, checkpointed
+                   stream yields { type: 'approval_required', action }
+                   frontend renders inline approval card
+      ↓ Command({ resume: true/false })
+[action_node]  → interrupt() returns the resume value (true/false)
+                 approved: execute via financeClient
+                 rejected: write to store, skip
       ↓
-[respond_node]  → confirms action to user
+[respond_node]  → confirms outcome to user
 ```
 
 ```typescript
-// Compile with interrupt
+import { interrupt, Command } from '@langchain/langgraph';
+
+// Inside action_node — no compile-time configuration needed
+const actionNode = async (state: typeof AdvisorState.State, runtime) => {
+  // Pauses graph and surfaces the action to the user.
+  // Returns the value passed to Command({ resume: ... }) when graph is resumed.
+  const approved = interrupt(state.proposedAction);
+  // ...
+};
+
+// No interruptBefore needed at compile time
 this.graph = this.langGraph.compile(builder, {
   checkpointer: this.checkpointer,
-  interruptBefore: ['action'],
+  store: this.store,
 });
 
 // Resume after user decision
 await this.graph.invoke(
-  { approved: userDecision },
+  new Command({ resume: userDecision }),
   { configurable: { thread_id: conversationId } },
 );
 ```
@@ -682,7 +692,11 @@ User changes category (UI)
 
 ### What it does
 
-Proactively generates a rich set of observations about a user's financial patterns. Not charts — prose, ranked recommendations, and goal alerts derived from their real data. Runs on a schedule and on significant events.
+AI Insights is the **proactive arm of the financial advisor**. It runs in the background, continuously monitors the user's financial position, and acts on their behalf — opening advisor threads, sending push notifications, and dispatching emails — without waiting for the user to initiate a chat.
+
+The advisor chat (Domain 3) is **reactive**: it responds when the user speaks. Insights is **proactive**: it speaks first. Every actionable insight seeds an advisor conversation thread so the user can go from notification → one-tap open → immediate context-aware conversation with zero friction.
+
+Generates a rich set of observations about a user's financial patterns. Not charts — prose, ranked recommendations, and goal alerts derived from their real data. Runs on a schedule and on significant events.
 
 ### Insight types produced
 
@@ -690,7 +704,8 @@ Proactively generates a rich set of observations about a user's financial patter
 |---------|---------|---------|
 | **Spending anomaly** | Post-sync / daily | "Food spend up 3× vs weekly average — ₦47k this week" |
 | **Monthly narrative** | Month-end | Full prose summary with comparisons and one recommendation |
-| **Budget breach warning** | Real-time on tx create (≥60%) | "Food budget 68% used with 12 days left. On track to overspend ₦8,200." |
+| **Budget breach warning** | Real-time on tx create — within 20% of user's budget threshold | "Food budget 72% used — 8% from your 80% threshold. 12 days left, projected ₦8,200 overspend." |
+| **Budget breach critical** | Real-time on tx create — at or above user's budget threshold | "Food budget 85% used — past your 80% threshold. 12 days left, projected ₦14,600 overspend." |
 | **Goal pacing alert** | Weekly | "Emergency Fund 2 months behind target. ₦3,000/mo extra gets you back on track." |
 | **Subscription detection** | Weekly | "3 streaming services totalling ₦12,400/mo detected." |
 | **Cash flow forecast** | Weekly | "Based on recurring items, ₦28,500 available after the 15th." |
@@ -735,6 +750,10 @@ Generating a meaningful insight set involves decision logic — which metrics ar
   │
   ▼
 [end] → upserts AiInsight row in Postgres → invalidates Redis cache
+       → if any recommendation is actionable: creates advisor conversation thread (idempotent)
+       → dispatches notifications:
+           severity=info/warning : FCM push  (email fallback if no FCM token)
+           severity=critical      : FCM push AND email, immediately
 ```
 
 ### State
@@ -761,6 +780,8 @@ const InsightState = Annotation.Root({
   }),
   cashFlowForecast: Annotation<string>({ default: () => '' }),
   recommendations: Annotation<InsightRecommendation[]>({ default: () => [] }),
+  // Computed in recommend_node; drives notification routing and advisor thread creation
+  severity: Annotation<'info' | 'warning' | 'critical'>({ default: () => 'info' }),
 });
 
 interface InsightRecommendation {
@@ -784,10 +805,40 @@ interface MacroContext {
 interface InsightsJobPayload {
   userId: string;
   trigger: 'daily' | 'post_sync' | 'month_end' | 'budget_breach';
-  metadata?: { categorySlug?: string; budgetId?: string };
+  metadata?: {
+    categorySlug?: string;
+    budgetId?: string;
+    severity?: 'warning' | 'critical'; // budget_breach only
+    currentPct?: number;
+    threshold?: number;
+  };
+}
+
+// Persisted in ai_insights table
+interface AiInsightRecord {
+  id: string;
+  userId: string;
+  trigger: InsightsJobPayload['trigger'];
+  severity: 'info' | 'warning' | 'critical';
+  // null until an actionable insight seeds a thread; stored for deep-link from notification
+  conversationThreadId: string | null;
+  summary: string;
+  anomalies: string[];
+  goalAlerts: string[];
+  cashFlowForecast: string;
+  recommendations: InsightRecommendation[];
+  macroContext: MacroContext;
+  generatedAt: Date;
+  // null = unread; set when user opens the insight card
+  readAt: Date | null;
+  // set after FCM/email dispatch; prevents re-notification on cache miss
+  notifiedAt: Date | null;
 }
 
 interface GenerateInsightsRes {
+  insightId: string;
+  severity: 'info' | 'warning' | 'critical';
+  conversationThreadId: string | null;
   summary: string;
   anomalies: string[];
   goalAlerts: string[];
@@ -800,16 +851,37 @@ interface GenerateInsightsRes {
 
 ### Real-time budget breach trigger
 
-Budget breach warnings fire immediately when a transaction pushes a category past 60%, not on the next scheduled run.
+Budget breach warnings fire immediately when a transaction pushes a category into or above the user's alert zone. The alert zone has two levels based on the user's `budgetAlertThreshold` preference (e.g. `0.80`):
+
+| Level | Condition | Meaning |
+|-------|-----------|---------|
+| `warning` | `currentPct >= threshold - 0.20` | Within 20 percentage points of the user's threshold |
+| `critical` | `currentPct >= threshold` | At or above the user's threshold |
+
+The `critical` severity carries a projected month-end overspend computed from the remaining days in the billing period — more days left means a larger projected excess.
 
 ```typescript
 // finance_service — inside createTransaction handler
-const budgetCheck = await checkBudgetUtilisation(userId, categorySlug, db);
-if (budgetCheck.pct >= 0.6) {
+const [budgetCheck, userPrefs] = await Promise.all([
+  checkBudgetUtilisation(userId, categorySlug, db),
+  getUserPreferences(userId, db),
+]);
+
+const threshold = userPrefs.budgetAlertThreshold; // e.g. 0.80
+const warnAt = threshold - 0.20;                  // e.g. 0.60
+
+if (budgetCheck.pct >= warnAt) {
+  const severity = budgetCheck.pct >= threshold ? 'critical' : 'warning';
   await insightsQueue.add('insights:budget_breach', {
     userId,
     trigger: 'budget_breach',
-    metadata: { categorySlug, budgetId: budgetCheck.budgetId },
+    metadata: {
+      categorySlug,
+      budgetId: budgetCheck.budgetId,
+      severity,
+      currentPct: budgetCheck.pct,
+      threshold,
+    },
   });
 }
 ```
@@ -826,13 +898,152 @@ scheduler_service (month-end cron)
 finance_service (post bank sync, >10 new transactions)
   → BullMQ: InsightsJobPayload { trigger: 'post_sync' }
 
-finance_service (budget utilisation ≥ 60%)
-  → BullMQ: InsightsJobPayload { trigger: 'budget_breach', metadata: { categorySlug } }
+finance_service (budget utilisation enters user's warning or critical zone)
+  → BullMQ: InsightsJobPayload { trigger: 'budget_breach', metadata: { categorySlug, severity, currentPct, threshold } }
+
+ai_service InsightsWorker (after graph completes)
+  → if actionable recommendations: create advisor LangGraph thread (idempotent)
+  → dispatch notifications (see below)
+  → upsert AiInsight in Postgres (readAt=null, notifiedAt=now)
+  → redis.del("insights:{userId}")
 
 frontend tRPC: advisor.getInsights()
   → Redis cache key "insights:{userId}" (TTL 1h)
-  → miss: Postgres → populate Redis
+  → miss: Postgres ai_insights → populate Redis
+  → always includes unreadCount alongside latest insight
 ```
+
+### Post-generation dispatch
+
+After the insights graph completes, `InsightsService` runs three downstream steps before returning.
+
+#### 1 — Idempotent advisor conversation thread
+
+For every insight that contains at least one `actionable: true` recommendation, a LangGraph conversation thread is pre-seeded with the insight context. This lets the user tap a notification → land directly in a ready-to-go advisor conversation.
+
+```typescript
+// Idempotency key: one thread per insight record
+const threadId = `insight:${insightId}`;
+
+// Check if thread already exists (re-runs must not duplicate messages)
+const existing = await checkpointer.getTuple({ configurable: { thread_id: threadId } });
+if (!existing) {
+  const actionableItems = recommendations.filter(r => r.actionable);
+  const seedMessage = buildInsightSeedMessage(summary, actionableItems);
+
+  await advisorGraph.invoke(
+    { messages: [new AIMessage(seedMessage)], userId },
+    { configurable: { thread_id: threadId } },
+  );
+}
+
+// Store thread ID on the AiInsight row so the FE can deep-link
+await prisma.aiInsight.update({
+  where: { id: insightId },
+  data: { conversationThreadId: threadId },
+});
+```
+
+The seed message is written as an `AIMessage` (the advisor speaking first), summarising the actionable findings and ending with an open question — e.g. *"I noticed your Food budget is 85% used with 12 days left. Want me to raise it or adjust your spending plan?"*
+
+#### 2 — Notification routing
+
+| Severity | FCM available | Email available | Action |
+|----------|--------------|-----------------|--------|
+| `info` / `warning` | yes | — | FCM push only |
+| `info` / `warning` | no | yes | Email only |
+| `critical` | yes | yes | FCM push **and** email, immediately |
+| `critical` | no | yes | Email only (FCM unavailable) |
+| `critical` | yes | no | FCM push only |
+
+FCM availability is determined by whether the user has a stored FCM token (`UserFcmToken` table, upserted on app launch). Email availability is always assumed true for registered users.
+
+```typescript
+async dispatchNotification(insight: AiInsightRecord, userId: string) {
+  const [fcmToken, user] = await Promise.all([
+    prisma.userFcmToken.findFirst({ where: { userId } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { email: true } }),
+  ]);
+
+  const hasFcm = !!fcmToken?.token;
+  const { severity, summary, conversationThreadId } = insight;
+
+  const notificationPayload = {
+    title: severity === 'critical' ? '⚠️ Action needed' : 'Financial insight',
+    body: summary.slice(0, 140),  // FCM body limit
+    data: {
+      type: 'insight',
+      insightId: insight.id,
+      conversationThreadId: conversationThreadId ?? '',
+      severity,
+    },
+  };
+
+  const tasks: Promise<void>[] = [];
+
+  if (hasFcm) {
+    tasks.push(fcmClient.send({ token: fcmToken!.token, notification: notificationPayload }));
+  }
+
+  // Critical always includes email; non-critical uses email only as FCM fallback
+  const shouldEmail = severity === 'critical' || !hasFcm;
+  if (shouldEmail && user?.email) {
+    tasks.push(emailClient.send({
+      to: user.email,
+      subject: notificationPayload.title,
+      template: severity === 'critical' ? 'insight-critical' : 'insight-info',
+      data: { summary, conversationThreadId, insightId: insight.id },
+    }));
+  }
+
+  await Promise.all(tasks);
+
+  await prisma.aiInsight.update({
+    where: { id: insight.id },
+    data: { notifiedAt: new Date() },
+  });
+}
+```
+
+#### 3 — Deduplication guard
+
+The `notifiedAt` field prevents re-notification. Before dispatching, check:
+
+```typescript
+if (insight.notifiedAt) return; // already dispatched — skip
+```
+
+This matters for re-runs: if the insights graph re-executes for the same period (e.g. cache miss forces a re-generate), the notification does not fire a second time.
+
+### Sidebar unread badge
+
+The advisor sidebar item shows a live badge count of unread insights. An insight is **unread** when `readAt IS NULL`.
+
+```
+Advisor  [3]   ← 3 unread insights
+```
+
+**Reading an insight** clears it: when the user opens an insight card (or navigates to the advisor page and the insight is visible), call `advisor.markInsightRead(insightId)`. When all insights are read the badge disappears.
+
+```typescript
+// tRPC
+markInsightRead: protectedProcedure
+  .input(z.object({ insightId: z.string() }))
+  .mutation(async ({ ctx, input }) => {
+    await prisma.aiInsight.updateMany({
+      where: { id: input.insightId, userId: ctx.session.user.id, readAt: null },
+      data: { readAt: new Date() },
+    });
+  }),
+
+getUnreadInsightsCount: protectedProcedure.query(async ({ ctx }) => {
+  return prisma.aiInsight.count({
+    where: { userId: ctx.session.user.id, readAt: null },
+  });
+}),
+```
+
+The sidebar fetches `advisor.getUnreadInsightsCount` once on mount and refetches after every `markInsightRead` mutation. No polling — the count only changes when the user reads something or a new insight is generated (the latter invalidates the cache, which triggers the tRPC query to refetch on the next page focus).
 
 ### gRPC method
 
@@ -846,7 +1057,20 @@ Build in this order. Each phase is independently testable before moving to the n
 
 #### Phase 1: Postgres migrations
 
-Add `AnalyticsSnapshot` and `AiInsight` models to `schema.prisma` (models defined in the Analytics Architecture section below). Run:
+Add `AnalyticsSnapshot`, `AiInsight`, and `UserFcmToken` models to `schema.prisma` (models defined in the Analytics Architecture section below).
+
+`AiInsight` must include:
+- `severity String` — `'info' | 'warning' | 'critical'`
+- `conversationThreadId String?` — LangGraph thread ID seeded from this insight; null until Phase 14
+- `readAt DateTime?` — null = unread; set by `markInsightRead`
+- `notifiedAt DateTime?` — null = not yet dispatched; set by `dispatchNotification`
+
+`UserFcmToken`:
+- `userId String @unique` — one active token per user (upsert on login)
+- `token String`
+- `updatedAt DateTime @updatedAt`
+
+Run:
 
 ```bash
 pnpm --filter @fintrack/database prisma migrate dev --name add_analytics_insights
@@ -992,19 +1216,36 @@ The key is deleted (not set) — the tRPC endpoint re-populates it on the next r
 Wire into `finance_service.createTransaction`. After the transaction is persisted and category spend is updated:
 
 ```typescript
-const budgetCheck = await checkBudgetUtilisation(userId, categorySlug, db);
-if (budgetCheck.pct >= 0.6) {
+const [budgetCheck, userPrefs] = await Promise.all([
+  checkBudgetUtilisation(userId, categorySlug, db),
+  getUserPreferences(userId, db),
+]);
+
+const threshold = userPrefs.budgetAlertThreshold; // user-configurable, e.g. 0.80
+const warnAt = threshold - 0.20;                  // warn when within 20pp of threshold
+
+if (budgetCheck.pct >= warnAt) {
+  const severity = budgetCheck.pct >= threshold ? 'critical' : 'warning';
   await insightsQueue.add('insights:budget_breach', {
     userId,
     trigger: 'budget_breach',
-    metadata: { categorySlug, budgetId: budgetCheck.budgetId },
+    metadata: {
+      categorySlug,
+      budgetId: budgetCheck.budgetId,
+      severity,
+      currentPct: budgetCheck.pct,
+      threshold,
+    },
   });
 }
 ```
 
-The job fires immediately — not on the next cron tick. The graph receives `trigger: 'budget_breach'` and the `detect_anomalies_node` receives the specific category slug in its payload, ensuring the output is focused on the breach rather than generating a full insights run.
+The job fires immediately — not on the next cron tick. The graph receives `trigger: 'budget_breach'` and `metadata.severity` so `detect_anomalies_node` can tailor the insight message: a `warning` message nudges the user to slow spending; a `critical` message includes the projected month-end overspend derived from the current daily burn rate and `daysRemaining`.
 
-Test: create a transaction that pushes Food to 65% of its budget. Verify a `budget_breach` insight is generated within seconds and mentions Food specifically.
+Test:
+- Set `budgetAlertThreshold = 0.80`. Create a transaction that pushes Food to 65% (warning zone). Verify a `warning` insight fires and mentions the threshold gap.
+- Create another transaction that pushes Food to 83% (critical zone). Verify a `critical` insight fires with a projected overspend amount.
+- Set `budgetAlertThreshold = 0.90`. Repeat — confirm the trigger thresholds shift accordingly.
 
 #### Phase 12: tRPC endpoint + Redis cache
 
@@ -1040,9 +1281,40 @@ Build the combined Insights + Advisor page at `/dashboard/advisor` (design provi
 - **Anomaly chips** — each `anomalies[]` item as a dismissible card with a warning icon
 - **Goal alert cards** — each `goalAlerts[]` item with a "Fix it" CTA that deep-links to the goals page
 - **Cash flow forecast** — single card with the `cashFlowForecast` string
-- **Recommendation list** — sorted by priority, each with category icon and an `actionable` badge
+- **Recommendation list** — sorted by priority, each with category icon and an `actionable` badge; actionable items show a "Discuss in Advisor" button that opens `conversationThreadId` if set
+
+**Read-marking**: when the insights panel mounts (user is looking at it), call `advisor.markInsightRead(insightId)` for the displayed insight. On sections tab switch to Insights, mark any visible insight as read immediately.
 
 All data fetched via `advisor.getInsights` tRPC call on page load. No polling — insights update in the background via cron and budget breach triggers and are fresh on the next load.
+
+#### Phase 14: Idempotent advisor thread creation
+
+> **Deferred to Domain 3, Phase 14.** This step invokes `advisorGraph` to seed a LangGraph conversation thread from the completed insight. Because `advisorGraph` is built in Domain 3, this phase cannot run until Domain 3 Phase 2 (Postgres memory infrastructure) is complete. See Domain 3 → Phase 14 for the full implementation spec.
+
+#### Phase 15: FCM + email notification dispatch ✅
+
+**Implemented.** `InsightService.dispatchNotification()` is called fire-and-forget from `runGraph()` after the `AiInsight` row is persisted. Failure does not fail the insight job.
+
+Implementation lives in `apps/ai_service/src/insights/insights.service.ts`.
+
+Routing:
+
+- `info`/`warning` + FCM token present → FCM push only (enqueued to `FCM_NOTIFICATION_QUEUE`)
+- `info`/`warning` + no FCM token → email only (enqueued to `TOKEN_NOTIFICATION_QUEUE` with `INSIGHT_NOTIFICATION_JOB`)
+- `critical` → FCM **and** email in parallel, each with independent error handling
+- `notifiedAt` guard — second call for the same insight is a no-op
+
+Email template: `apps/notification_service/templates/insight_notification.hbs`
+Email handler: `notification_service` `TokenNotification` processor → `NotificationService.sendInsightNotificationEmail()`
+
+#### Phase 16: Sidebar unread badge
+
+1. Add `advisor.getUnreadInsightsCount` tRPC query (defined above).
+2. In the sidebar nav component for the Advisor route, fetch this count. Display as a numeric badge when `count > 0`; hidden when `count === 0`.
+3. After `advisor.markInsightRead` resolves, invalidate the `getUnreadInsightsCount` query so the badge decrements immediately.
+4. On initial load of the Advisor page, mark all currently visible insights as read in a single batch call.
+
+Test: generate 3 insights for a test user. Load the sidebar — badge shows `3`. Open the advisor page — badge drops to `0`. Reload and verify it stays `0`.
 
 ---
 
@@ -1382,15 +1654,15 @@ The advisor can propose concrete changes to the user's financial setup. These al
 [respond_node] model outputs { proposedAction: AdvisorAction }
   │
   ▼
-[__interrupt__]  ← graph pauses, checkpointed
-                   SSE stream yields { type: 'approval_required', action }
-                   Frontend renders inline approval card in advisor UI
+[action_node]  calls interrupt(state.proposedAction)
+               ← graph pauses here, checkpointed
+                 SSE stream yields { type: 'approval_required', action }
+                 Frontend renders inline approval card in advisor UI
 
 User taps Approve → POST /api/advisor/resume { approved: true }
 User taps Reject  → POST /api/advisor/resume { approved: false }
-  │
-  ▼
-[action_node]
+               ↓ Command({ resume: approved })
+[action_node]  interrupt() returns approved (true/false)
   approved: execute action via internal gRPC call to finance_service
   rejected: record rejection in store — never re-propose the same thing
   │
@@ -1399,22 +1671,26 @@ User taps Reject  → POST /api/advisor/resume { approved: false }
 ```
 
 ```typescript
+import { interrupt } from '@langchain/langgraph';
+
 const actionNode = async (state: typeof AdvisorState.State, runtime) => {
-  if (!state.approved || !state.proposedAction) {
+  const userId = runtime.context?.userId as string;
+
+  // Pause execution and surface the proposed action to the user.
+  // Returns the value from Command({ resume: ... }) when the graph is resumed.
+  const approved: boolean = interrupt(state.proposedAction);
+
+  if (!approved) {
     // Record rejection so advisor doesn't re-propose
-    const userId = runtime.context?.userId as string;
-    if (state.proposedAction) {
-      await runtime.store?.put(
-        ['user', userId, 'rejections'],
-        `${state.proposedAction.kind}:${JSON.stringify(state.proposedAction)}`,
-        { rejectedAt: new Date().toISOString() },
-      );
-    }
+    await runtime.store?.put(
+      ['user', userId, 'rejections'],
+      `${state.proposedAction!.kind}:${JSON.stringify(state.proposedAction)}`,
+      { rejectedAt: new Date().toISOString() },
+    );
     return { proposedAction: null, actionResult: 'rejected' };
   }
 
-  const action = state.proposedAction;
-  const userId = runtime.context?.userId as string;
+  const action = state.proposedAction!;
 
   switch (action.kind) {
     case 'adjust_budget':
@@ -1432,6 +1708,14 @@ const actionNode = async (state: typeof AdvisorState.State, runtime) => {
     case 'suggest_recurring':
       await financeClient.createRecurringItem({ ...action, userId });
       return { actionResult: `Recurring item added`, proposedAction: null };
+
+    case 'flag_subscription':
+      await runtime.store?.put(
+        ['user', userId, 'subscriptions'],
+        `${action.name}:${action.amount}`,
+        { flaggedAt: new Date().toISOString(), ...action },
+      );
+      return { actionResult: `${action.name} flagged as subscription`, proposedAction: null };
   }
 };
 ```
@@ -1445,24 +1729,69 @@ The frontend shows advisor suggestions inline during transaction creation withou
 checkBudgetImpact: protectedProcedure
   .input(z.object({ categorySlug: z.string(), amount: z.number(), date: z.string() }))
   .query(async ({ ctx, input }) => {
-    const budget = await getBudgetForCategory(ctx.session.user.id, input.categorySlug);
-    if (!budget) return { willBreach: false, willWarn: false };
+    const [budget, userPrefs] = await Promise.all([
+      getBudgetForCategory(ctx.session.user.id, input.categorySlug),
+      getUserPreferences(ctx.session.user.id),
+    ]);
 
-    const currentSpend = await getMonthlySpend(ctx.session.user.id, input.categorySlug, startOfMonth(new Date(input.date)));
-    const projectedPct = (currentSpend + input.amount) / budget.limit;
+    // Always return spend totals even when no budget is configured
+    const txDate = new Date(input.date);
+    const currentSpend = await getMonthlySpend(
+      ctx.session.user.id,
+      input.categorySlug,
+      startOfMonth(txDate),
+    );
+
+    if (!budget) {
+      return {
+        status: 'no_budget' as const,
+        currentSpend,
+        budgetLimit: null,
+        currentPct: null,
+        projectedPct: null,
+        projectedOverspend: null,
+        daysRemaining: null,
+        threshold: null,
+      };
+    }
+
+    const threshold = userPrefs.budgetAlertThreshold; // e.g. 0.80
+    const warnAt = threshold - 0.20;                  // e.g. 0.60
+
+    const projectedSpend = currentSpend + input.amount;
+    const currentPct = currentSpend / budget.limit;
+    const projectedPct = projectedSpend / budget.limit;
+
+    // Project month-end spend at current daily burn rate
+    const today = new Date();
+    const daysInMonth = getDaysInMonth(today);
+    const daysElapsed = today.getDate();
+    const daysRemaining = daysInMonth - daysElapsed;
+    const dailyBurnRate = projectedSpend / daysElapsed;
+    const projectedMonthEndSpend = projectedSpend + dailyBurnRate * daysRemaining;
+    const projectedOverspend = Math.max(0, projectedMonthEndSpend - budget.limit);
+
+    let status: 'ok' | 'warning' | 'critical' = 'ok';
+    if (projectedPct >= threshold) status = 'critical';
+    else if (projectedPct >= warnAt) status = 'warning';
 
     return {
-      willBreach: projectedPct > 1,
-      willWarn: projectedPct > 0.8,
-      currentPct: currentSpend / budget.limit,
-      projectedPct,
-      budgetLimit: budget.limit,
+      status,
       currentSpend,
+      budgetLimit: budget.limit,
+      currentPct,
+      projectedPct,
+      projectedOverspend,
+      daysRemaining,
+      threshold,
     };
   }),
 ```
 
-FE usage in transaction form: when category or amount changes, debounce 300ms → query `advisor.checkBudgetImpact` → if `willWarn` or `willBreach`, show inline banner: *"Food budget is 68% used (₦20,400 of ₦30,000). Adding this will push it to 82%."*
+FE usage in transaction form: when category or amount changes, debounce 300ms → query `advisor.checkBudgetImpact` → always show spend totals; additionally show an inline banner when `status` is `warning` or `critical`:
+
+- `warning`: *"Food: ₦20,400 of ₦30,000 used. Adding this puts you 8% from your 80% threshold."*
+- `critical`: *"Food: ₦25,200 of ₦30,000 used — past your 80% threshold. On track to overspend ₦4,800 by month end (12 days left)."*
 
 ### LangGraph Agent Loop
 
@@ -1484,7 +1813,7 @@ FE usage in transaction form: when category or amount changes, debounce 300ms �
   │
   ├── tool call   → [tool_node] → [compact_node] → (loop)
   │
-  ├── action proposal → [__interrupt__] → (wait for user) → [action_node] → [respond_node]
+  ├── action proposal → [action_node] → interrupt() → (wait for user) → [respond_node]
   │
   └── final answer  → END
 ```
@@ -1500,7 +1829,8 @@ const AdvisorState = Annotation.Root({
   userId: Annotation<string>(),
   guardianResult: Annotation<{ relevant: boolean } | null>({ default: () => null }),
   proposedAction: Annotation<AdvisorAction | null>({ default: () => null }),
-  approved: Annotation<boolean | null>({ default: () => null }),
+  // approved is NOT in state — it is the return value of interrupt() inside action_node,
+  // passed via Command({ resume: approved }) when the graph is resumed.
   actionResult: Annotation<string | null>({ default: () => null }),
   attachments: Annotation<FileAttachment[]>({ default: () => [] }),
 });
@@ -1605,7 +1935,7 @@ export class AdvisorService implements OnModuleInit {
     this.graph = this.langGraph.compile(builder, {
       checkpointer: this.checkpointer,
       store: this.store,
-      interruptBefore: ['action'],
+      // No interruptBefore — action_node calls interrupt() directly
     });
   }
 
@@ -1627,7 +1957,7 @@ export class AdvisorService implements OnModuleInit {
 
   async resumeAfterApproval(req: AdvisorApprovalReq) {
     return this.graph.invoke(
-      { approved: req.approved },
+      new Command({ resume: req.approved }),
       { configurable: { thread_id: req.conversationId } },
     );
   }
@@ -1861,17 +2191,17 @@ Test: have a 10-message conversation about food spending patterns. Start a new c
 
 Implement human-in-the-loop for agentic proposals:
 
-1. Compile graph with `interruptBefore: ['action']`.
+1. In `action_node`, call `interrupt(state.proposedAction)` — this pauses the graph and surfaces the action value to the stream. No `interruptBefore` at compile time.
 
 2. In `respondNode`: when the model detects an actionable opportunity (overspend, goal risk, subscription), it outputs a structured `proposedAction: AdvisorAction` field via a tool call or structured output wrapper alongside its prose message.
 
-3. `LangGraphService.streamEvents()` surfaces the `__interrupt__` checkpoint as a `{ type: 'approval_required', action: AdvisorAction }` stream event — forwarded to the FE via the custom data annotation mechanism from Phase 7.
+3. `LangGraphService.streamEvents()` detects the `__interrupt__` key in the `updates` stream chunk and yields `{ type: 'approval_required', action: interrupts[0].value }` — forwarded to the FE via the custom data annotation mechanism from Phase 7.
 
 4. FE: detect the `approval_required` data event. Render an approval card inline below the advisor message showing a human-readable action summary. The card has two buttons: **Approve** and **Reject**.
 
-5. Approve → `POST /api/advisor/resume { conversationId, approved: true }` → `AdvisorService.resumeAfterApproval()` → `graph.invoke({ approved: true }, { configurable: { thread_id } })` → `actionNode` executes the action via `financeClient` gRPC.
+5. Approve → `POST /api/advisor/resume { conversationId, approved: true }` → `AdvisorService.resumeAfterApproval()` → `graph.invoke(new Command({ resume: true }), { configurable: { thread_id } })` → `interrupt()` inside `action_node` returns `true` and execution continues.
 
-6. Reject → same flow with `approved: false` → `actionNode` writes a rejection entry to `['user', userId, 'rejections']` in `PostgresStore` so the advisor never re-proposes the same action.
+6. Reject → same flow with `approved: false` → `interrupt()` returns `false` → `actionNode` writes a rejection entry to `['user', userId, 'rejections']` in `PostgresStore` so the advisor never re-proposes the same action.
 
 Implement and test all 5 action types:
 
@@ -1940,6 +2270,25 @@ End-to-end test of the memory compaction path:
 3. Verify the advisor's response to messages 21 and 22 correctly references content from messages 1–5 (which were compacted into the summary) — confirms the summary preserves semantic continuity.
 4. Verify the compaction summary is coherent prose, not a JSON dump of messages.
 5. Run a 40-message conversation. Verify compaction fires again after the next threshold, producing a second-generation summary that incorporates the first.
+
+#### Phase 14: Idempotent thread seeding from Insights
+
+After `InsightsService.runGraph()` persists an `AiInsight` row, any insight with at least one `actionable: true` recommendation should land in a pre-seeded advisor conversation so the user can tap the notification and immediately start a context-aware chat.
+
+**Prerequisite:** Domain 3 Phase 2 (Postgres checkpointer + store) must be complete — `advisorGraph` must be compiled and injectable.
+
+Implementation in `InsightService` (called after `dispatchNotification`):
+
+1. Filter `recommendations` for `actionable: true` items. If none, skip.
+2. Derive `threadId = "insight:${insightId}"`.
+3. Check `checkpointer.getTuple({ configurable: { thread_id: threadId } })` — skip if the thread already exists (idempotency on re-runs).
+4. Construct a seed `AIMessage` that summarises the actionable findings and ends with an open question inviting the user to act (e.g. *"I noticed your Food budget is 85% used with 12 days left. Want me to raise it or adjust your spending plan?"*).
+5. Call `advisorGraph.invoke({ messages: [seedMessage], userId }, { configurable: { thread_id: threadId } })`.
+6. Update `aiInsight.conversationThreadId = threadId` in Postgres.
+
+The `conversationThreadId` is already stored on the `AiInsight` row and surfaced in notifications so the frontend can deep-link directly into the seeded conversation.
+
+Test: generate an insight with one actionable recommendation. Verify a LangGraph checkpoint exists for `threadId = "insight:{id}"`. Re-run the same insight — verify no duplicate checkpoint and `conversationThreadId` is unchanged.
 
 ---
 
