@@ -145,7 +145,7 @@ function selectSections(): Promise<Set<SectionId>> {
 
 // ─── JSON fixture loader ──────────────────────────────────────────────────────
 function loadFixture<T>(filename: string): T {
-  return JSON.parse(readFileSync(join(__dirname, 'json', filename), 'utf-8')) as T;
+  return JSON.parse(readFileSync(join(__dirname, '..', 'json', filename), 'utf-8')) as T;
 }
 
 // ─── Fixture types ────────────────────────────────────────────────────────────

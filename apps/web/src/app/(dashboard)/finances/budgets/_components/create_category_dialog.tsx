@@ -32,12 +32,16 @@ const PRESET_COLORS = [
   '#38bdf8',
 ] as const;
 
-interface CreateCategoryDialogProps {
+interface CategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Pass to put the dialog in edit mode. */
+  editCategory?: { id: string; name: string; color: string } | null;
 }
 
-export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialogProps) {
+export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDialogProps) {
+  const isEditing = !!editCategory;
+
   const [name, setName] = React.useState('');
   const [color, setColor] = React.useState<string>(PRESET_COLORS[0]);
   const [description, setDescription] = React.useState('');
@@ -46,32 +50,55 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
 
   React.useEffect(() => {
     if (!open) return;
-    setName('');
-    setColor(PRESET_COLORS[0]);
-    setDescription('');
-  }, [open]);
+    if (isEditing && editCategory) {
+      setName(editCategory.name);
+      setColor(editCategory.color || PRESET_COLORS[0]);
+      setDescription('');
+    } else {
+      setName('');
+      setColor(PRESET_COLORS[0]);
+      setDescription('');
+    }
+  }, [open, isEditing, editCategory]);
 
   const createMutation = api_client.category.create.useMutation({
     onSuccess: () => {
       toast.success('Category created');
       void utils.category.getAll.invalidate();
+      void utils.budget.getAll.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to create category', { description: err.message }),
   });
 
-  const descriptionValid = description.trim() === '' || description.trim().length >= 10;
-  const canSubmit = !!name.trim() && !!color && descriptionValid;
+  const updateMutation = api_client.category.update.useMutation({
+    onSuccess: () => {
+      toast.success('Category updated');
+      void utils.category.getAll.invalidate();
+      void utils.budget.getAll.invalidate();
+      onOpenChange(false);
+    },
+    onError: (err) => toast.error('Failed to update category', { description: err.message }),
+  });
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const descriptionValid = description.trim() === '' || description.trim().length >= 10;
+  const canSubmit = !!name.trim() && !!color && (isEditing || descriptionValid);
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!canSubmit) return;
-    createMutation.mutate({
-      feature: Usage.MAX_CUSTOM_CATEGORIES,
-      name: name.trim(),
-      color,
-      description: description.trim() || undefined,
-    });
+
+    if (isEditing && editCategory) {
+      updateMutation.mutate({ id: editCategory.id, name: name.trim(), color });
+    } else {
+      createMutation.mutate({
+        feature: Usage.MAX_CUSTOM_CATEGORIES,
+        name: name.trim(),
+        color,
+        description: description.trim() || undefined,
+      });
+    }
   };
 
   const isCustomColor = !(PRESET_COLORS as readonly string[]).includes(color);
@@ -80,7 +107,7 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>New Category</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Category' : 'New Category'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -140,23 +167,25 @@ export function CreateCategoryDialog({ open, onOpenChange }: CreateCategoryDialo
             </div>
           </Field>
 
-          <Field>
-            <Label>
-              Description <span className="text-text-disabled font-normal">(optional)</span>
-            </Label>
-            <Input
-              placeholder="Short note about this category"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            {description.trim().length > 0 && !descriptionValid && (
-              <p className="text-error mt-1 text-[11px]">Must be at least 10 characters.</p>
-            )}
-          </Field>
+          {!isEditing && (
+            <Field>
+              <Label>
+                Description <span className="text-text-disabled font-normal">(optional)</span>
+              </Label>
+              <Input
+                placeholder="Short note about this category"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              {description.trim().length > 0 && !descriptionValid && (
+                <p className="text-error mt-1 text-[11px]">Must be at least 10 characters.</p>
+              )}
+            </Field>
+          )}
 
           <DialogFooter showCloseButton>
-            <Button type="submit" loading={createMutation.isPending} disabled={!canSubmit}>
-              Create Category
+            <Button type="submit" loading={isPending} disabled={!canSubmit}>
+              {isEditing ? 'Save Changes' : 'Create Category'}
             </Button>
           </DialogFooter>
         </form>
