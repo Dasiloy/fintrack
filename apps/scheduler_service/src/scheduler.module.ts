@@ -12,6 +12,7 @@ import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import {
   ACCOUNT_CLEANUP_QUEUE,
+  ANALYTICS_AGGREGATION_QUEUE,
   BALANCE_ROLLOVER_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
@@ -26,6 +27,7 @@ import { CleanupProcessor } from './processors/cleanup.processor';
 import { UsageProcessor } from './processors/usage_tracker.processor';
 import { RecurringProcessor } from './processors/recurring.processor';
 import { BalanceRolloverProcessor } from './processors/balance_rollover.processor';
+import { AnalyticsAggregationProcessor } from './processors/analytics_aggregation.processor';
 
 @Module({
   imports: [
@@ -37,7 +39,6 @@ import { BalanceRolloverProcessor } from './processors/balance_rollover.processo
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         SCHEDULER_SERVICE_HOST: Joi.string().required(),
         SCHEDULER_SERVICE_PORT: Joi.string().required(),
@@ -64,6 +65,7 @@ import { BalanceRolloverProcessor } from './processors/balance_rollover.processo
       { name: RECURRING_QUEUE },
       { name: TOKEN_NOTIFICATION_QUEUE },
       { name: BALANCE_ROLLOVER_QUEUE },
+      { name: ANALYTICS_AGGREGATION_QUEUE },
     ),
   ],
   providers: [
@@ -72,6 +74,7 @@ import { BalanceRolloverProcessor } from './processors/balance_rollover.processo
     UsageProcessor,
     RecurringProcessor,
     BalanceRolloverProcessor,
+    AnalyticsAggregationProcessor,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,

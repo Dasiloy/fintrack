@@ -8,7 +8,7 @@ import { ChevronDown, FileText } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 
 interface InsightsSummaryCardProps {
-  summary: string;
+  summary: string | null;
   expanded: boolean;
   onToggle: () => void;
 }
@@ -41,7 +41,13 @@ export function InsightsSummaryCard({ summary, expanded, onToggle }: InsightsSum
       {/* Collapsible body */}
       {expanded && (
         <div className="px-4 pb-4 pt-1">
-          <p className="text-[13px] leading-relaxed text-text-secondary">{summary}</p>
+          {summary ? (
+            <p className="text-[13px] leading-relaxed text-text-secondary">{summary}</p>
+          ) : (
+            <p className="text-[12px] text-text-disabled py-1">
+              No summary available yet.
+            </p>
+          )}
         </div>
       )}
     </div>

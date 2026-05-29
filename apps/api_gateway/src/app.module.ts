@@ -41,6 +41,7 @@ import { AccountModule } from './account/account.module';
 import { UsageModule } from './usage/usage.module';
 import { UserModule } from './user/user.module';
 import { ExportModule } from './export/export.module';
+import { AdvisorModule } from './advisor/advisor.module';
 
 @Module({
   imports: [
@@ -64,7 +65,6 @@ import { ExportModule } from './export/export.module';
         API_GATEWAY_PORT: Joi.string().required(),
         API_GATEWAY_HOST: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         NEXT_PUBLIC_APP_URL: Joi.string().required(),
         CLOUDINARY_URL: Joi.string().required(),
         CLOUDINARY_SIGNATURE_EXPIRATION: Joi.string().required(),
@@ -204,6 +204,7 @@ import { ExportModule } from './export/export.module';
     UsageModule,
     UserModule,
     ExportModule,
+    AdvisorModule,
   ],
   controllers: [AppController],
   providers: [

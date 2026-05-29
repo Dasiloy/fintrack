@@ -7,7 +7,7 @@ import * as React from 'react';
 import { ChevronDown, Lightbulb, Zap } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 import { getPriorityColor, getPriorityBg } from '../_lib/advisor.helpers';
-import type { InsightRecommendation } from '../_lib/advisor.types';
+import type { InsightRecommendation } from '../_lib/advisor.helpers';
 
 interface InsightsRecommendationsListProps {
   recommendations: InsightRecommendation[];
@@ -61,9 +61,9 @@ export function InsightsRecommendationsList({
               No recommendations at this time.
             </p>
           ) : (
-            sorted.map((rec) => (
+            sorted.map((rec, idx) => (
               <div
-                key={rec.id}
+                key={idx}
                 className="flex items-start gap-3 rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2.5"
               >
                 {/* Priority dot */}

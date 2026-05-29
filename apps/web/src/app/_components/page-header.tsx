@@ -70,7 +70,7 @@ export function PageHeader({
     >
       {showTrigger && (
         <>
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger id="onborda-mobile-nav" className="-ml-1" />
           <Separator orientation="vertical" className="mr-1 h-4 opacity-30" />
         </>
       )}

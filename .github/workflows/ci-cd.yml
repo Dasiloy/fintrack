@@ -57,7 +57,6 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: 'true'
           DATABASE_URL: 'postgresql://user:pass@localhost/db'
-          DATABASE_CA_CERTIFICATE: 'your-database-ca-certificate-in-base64'
 
       - name: Type check all apps
         run: pnpm check-types
@@ -141,10 +140,8 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: 'true'
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
-          DATABASE_CA_CERTIFICATE: ${{ secrets.PROD_DATABASE_CA_CERTIFICATE }}
 
       - name: Apply migrations to production
         run: pnpm --filter @fintrack/database db:deploy
         env:
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
-          DATABASE_CA_CERTIFICATE: ${{ secrets.PROD_DATABASE_CA_CERTIFICATE }}
