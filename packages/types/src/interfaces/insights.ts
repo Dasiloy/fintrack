@@ -1,6 +1,6 @@
 export interface InsightsJobPayload {
   userId: string;
-  trigger: 'daily' | 'post_sync' | 'month_end' | 'budget_breach' | 'manual';
+  trigger: 'daily' | 'budget_breach' | 'manual'; // only manual is implemented
   metadata?: {
     categorySlug?: string;
     budgetId?: string;
@@ -8,7 +8,7 @@ export interface InsightsJobPayload {
     severity?: 'warning' | 'critical';
     currentPct?: number;
     threshold?: number;
-  };
+  }[];
 }
 
 export interface InsightRecommendation {

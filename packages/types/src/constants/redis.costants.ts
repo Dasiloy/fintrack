@@ -46,3 +46,6 @@ export const INSIGHTS_CACHE_TTL = 3600; // 1 hour
 
 export const INSIGHTS_UNREAD_CACHE_PREFIX = 'insights_unread'; // insights_unread:{userId}
 export const INSIGHTS_UNREAD_CACHE_TTL = 300; // 5 minutes
+
+export const INSIGHTS_COOLDOWN = 'insights_trigger_cooldown';
+export const INSIGHTS_COOLDOWN_TTL = 600;

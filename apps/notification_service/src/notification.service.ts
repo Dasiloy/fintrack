@@ -433,44 +433,6 @@ export class NotificationService {
     }
   }
 
-  async sendBudgetAlertEmail(data: BudgetAlertEmailPayload) {
-    const count = data.alerts.length;
-    const subject =
-      count === 1
-        ? 'Budget Alert — 1 budget needs attention'
-        : `Budget Alert — ${count} budgets need attention`;
-    try {
-      await this.sendEmail({
-        to: data.email,
-        subject,
-        template: './budget_alert',
-        context: {
-          firstName: data.firstName,
-          count,
-          alerts: data.alerts.map((a) => ({
-            ...a,
-            spentFormatted: formatCurrency(a.spent),
-            limitFormatted: formatCurrency(a.limit),
-            isOverBudget: a.percentage >= 100,
-          })),
-        },
-      });
-      await this.prismaService.budget.updateMany({
-        where: { id: { in: data.budgetIds } },
-        data: { alertedAt: new Date() },
-      });
-      this.logger.log(
-        `Budget alert email sent to ${data.email} (${data.alerts.length} budget(s))`,
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to send budget alert email to ${data.email}`,
-        error.stack,
-      );
-      throw error;
-    }
-  }
-
   /**
    * Sends a summary email listing all recurring transactions created in a scheduler run
    * @param {RecurringTransactionsEmailPayload} data email, firstName, lastName, date, items

@@ -28,8 +28,10 @@ export interface ClassificationCorrectionJobPayload {
 // budget check job
 export interface BudgetCheckJobPayload {
   userId: string;
-  categoryIds: string[];
-  referenceDate: string;
+  transactions: {
+    categoryId: string;
+    referenceDate: string;
+  }[];
 }
 
 /**
