@@ -48,8 +48,8 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         return {
           transport: MailtrapTransport({
             token: config.getOrThrow('MAIL_TOKEN'),
-            testInboxId: config.getOrThrow('MAIL_TRAP_SANDBOX_INBOX_ID'),
-            sandbox: config.getOrThrow('MAIL_TRAP_SANDBOX'),
+            testInboxId: config.get('MAIL_TRAP_SANDBOX_INBOX_ID'),
+            sandbox: config.get('MAIL_TRAP_SANDBOX'),
           }),
           defaults: {
             from: `"Fintrack" <${config.get('MAIL_FROM')}>`,
