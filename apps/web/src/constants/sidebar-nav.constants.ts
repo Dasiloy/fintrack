@@ -23,6 +23,8 @@ export interface NavItem {
   url: string;
   icon: LucideIcon;
   isPro?: boolean;
+  showUnreadBadge?: boolean;
+  tourId?: string;
 }
 
 export interface NavCollapsibleItem {
@@ -45,9 +47,9 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Finances',
     items: [
-      { title: 'Transactions', url: DASHBOARD_ROUTES.FINANCES_TRANSACTIONS, icon: ArrowLeftRight },
+      { title: 'Transactions', url: DASHBOARD_ROUTES.FINANCES_TRANSACTIONS, icon: ArrowLeftRight, tourId: 'onborda-nav-transactions' },
       { title: 'Bills & Recurring', url: DASHBOARD_ROUTES.FINANCES_BILLS, icon: Repeat2 },
-      { title: 'Budgets', url: DASHBOARD_ROUTES.FINANCES_BUDGETS, icon: Wallet },
+      { title: 'Budgets', url: DASHBOARD_ROUTES.FINANCES_BUDGETS, icon: Wallet, tourId: 'onborda-nav-budgets' },
       { title: 'Accounts', url: DASHBOARD_ROUTES.FINANCES_ACCOUNTS, icon: Landmark },
     ],
   },
@@ -55,14 +57,14 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Analytics & AI',
     items: [
       { title: 'Analytics', url: DASHBOARD_ROUTES.ANALYTICS, icon: BarChart3 },
-      { title: 'Advisor', url: DASHBOARD_ROUTES.ANALYTICS_CHAT, icon: BrainCircuit, isPro: true },
+      { title: 'Advisor', url: DASHBOARD_ROUTES.ANALYTICS_CHAT, icon: BrainCircuit, isPro: true, showUnreadBadge: true },
     ],
   },
   {
     label: 'Planning',
     items: [
-      { title: 'Goals', url: DASHBOARD_ROUTES.PLANNING_GOALS, icon: Target },
-      { title: 'Split Bills', url: DASHBOARD_ROUTES.PLANNING_SPLITS, icon: Users },
+      { title: 'Goals', url: DASHBOARD_ROUTES.PLANNING_GOALS, icon: Target, tourId: 'onborda-nav-goals' },
+      { title: 'Split Bills', url: DASHBOARD_ROUTES.PLANNING_SPLITS, icon: Users, tourId: 'onborda-nav-splits' },
     ],
   },
 ];

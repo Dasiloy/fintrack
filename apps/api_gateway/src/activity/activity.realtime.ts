@@ -39,7 +39,9 @@ import { WsExceptionFilter } from '../filters/ws_exception';
  */
 @WebSocketGateway({
   cors: {
-    origin: (process.env.NEXT_PUBLIC_APP_URL ?? '').split(',').map((o) => o.trim()),
+    origin: (process.env.NEXT_PUBLIC_APP_URL ?? '')
+      .split(',')
+      .map((o) => o.trim()),
     credentials: true,
   },
   namespace: ACTIVITY_LOGS_NAMESPACE,

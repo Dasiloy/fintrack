@@ -30,7 +30,7 @@ export const DEFAULT_EXPANDED_SECTIONS: Record<string, boolean> = {
 // Postgres tools are free (user's own DB); oracle tools call external APIs
 // with rate limits, so they start disabled and the user opts in.
 
-export const STUB_TOOLS: AdvisorTool[] = [
+export const ADVISOR_TOOLS: AdvisorTool[] = [
   // ── Your Data (Postgres) ──
   {
     id: 'get_transactions',

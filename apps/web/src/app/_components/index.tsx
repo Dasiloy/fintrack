@@ -6,6 +6,7 @@ export * from './logo';
 export * from './menu';
 export * from './date_range';
 export * from './drawer_ui';
+export * from './typing_indicator';
 export { CookieConsentBanner } from './cookie_consent_banner';
 export { GoogleAnalytics } from './google_analytics';
 export { DeviceIdInit } from './device_id_init';

@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef, useState } from 'react';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 import {
   Button,
@@ -23,6 +25,7 @@ import { useRouter } from '@bprogress/next';
 
 import StyledLink from '@/app/_components/styled_linkt';
 import { axiosClient } from '@/lib/axios/axios_client';
+import { env } from '@/env';
 
 const signupSchema = z
   .object({
@@ -51,6 +54,8 @@ interface SignupFormProps extends React.ComponentProps<'form'> {
 
 export function SignupForm({ className, email }: SignupFormProps) {
   const router = useRouter();
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  const [cfTurnstileToken, setCfTurnstileToken] = useState<string | null>(null);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -64,12 +69,21 @@ export function SignupForm({ className, email }: SignupFormProps) {
   });
 
   const onSubmit = async (_data: SignupFormValues) => {
+    if (!cfTurnstileToken) {
+      toast.error('Please complete the CAPTCHA verification.');
+      return;
+    }
+
     try {
-      await axiosClient.post('/proxy-auth/signup', _data);
+      await axiosClient.post('/proxy-auth/signup', { ..._data, cfTurnstileToken });
 
       form.reset();
       router.push(AUTH_ROUTES.VERIFY_EMAIL);
     } catch (error: any) {
+      // Reset widget so the user can get a fresh token on retry
+      turnstileRef.current?.reset();
+      setCfTurnstileToken(null);
+
       toast.error('Failed to sign up', {
         description: ServerFormatter.formatError(error),
       });
@@ -144,12 +158,21 @@ export function SignupForm({ className, email }: SignupFormProps) {
           <FieldError errors={[form.formState.errors.confirmPassword]} />
         </Field>
 
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          onSuccess={(token) => setCfTurnstileToken(token)}
+          onExpire={() => setCfTurnstileToken(null)}
+          onError={() => setCfTurnstileToken(null)}
+          options={{ theme: 'auto', size: 'flexible' }}
+        />
+
         <Field className="mb-2">
           <Button
             className="mb-1"
             type="submit"
             loading={form.formState.isSubmitting}
-            disabled={form.formState.isSubmitting}
+            disabled={form.formState.isSubmitting || !cfTurnstileToken}
           >
             Sign Up
           </Button>

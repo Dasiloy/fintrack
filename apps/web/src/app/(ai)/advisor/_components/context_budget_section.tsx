@@ -1,18 +1,26 @@
 'use client';
 
 // ── ContextBudgetSection ──────────────────────────────────────────────────────
-// Budget utilisation mini-bars in the right context panel.
-// Shows how each budget category is tracking against its limit for the month.
-// Bars fill proportionally — red when over budget, yellow when over 80%.
+// Budget utilisation mini-bars for the current calendar month.
+// Bars fill proportionally — red when over budget, yellow when ≥ 80%.
 
 import * as React from 'react';
 import { PieChart, ChevronDown } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
+import { Skeleton } from '@ui/components';
+import { api_client } from '@/lib/trpc_app/api_client';
 import { formatNGN } from '../_lib/advisor.helpers';
-import { STUB_BUDGETS } from '../_lib/advisor.stub';
 
 export function ContextBudgetSection() {
   const [expanded, setExpanded] = React.useState(true);
+
+  const now = new Date();
+  const { data, isLoading } = api_client.budget.getAll.useQuery(
+    { month: now.getMonth(), year: now.getFullYear() },
+    { staleTime: 120_000 },
+  );
+
+  const budgets = data?.data?.budgets ?? [];
 
   return (
     <div className="border-b border-border-subtle">
@@ -35,47 +43,58 @@ export function ContextBudgetSection() {
 
       {expanded && (
         <div className="flex flex-col gap-2.5 px-4 pb-4">
-          {STUB_BUDGETS.map((budget) => {
-            const pct = Math.min((budget.spent / budget.budgeted) * 100, 100);
-            const isOver = budget.spent > budget.budgeted;
-            const isWarning = !isOver && pct >= 80;
+          {isLoading && (
+            <>
+              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-8 w-full rounded" />
+            </>
+          )}
 
-            return (
-              <div key={budget.categorySlug} className="flex flex-col gap-1">
-                {/* Label row */}
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-text-secondary">
-                    {budget.label}
-                  </span>
-                  <span
-                    className={cn(
-                      'text-[11px] tabular-nums font-medium',
-                      isOver ? 'text-error' : isWarning ? 'text-warning' : 'text-text-tertiary',
-                    )}
-                  >
-                    {formatNGN(budget.spent)}{' '}
-                    <span className="font-normal text-text-disabled">/ {formatNGN(budget.budgeted)}</span>
-                  </span>
-                </div>
+          {!isLoading && budgets.length === 0 && (
+            <p className="py-2 text-[11px] text-text-disabled">No budgets set for this month.</p>
+          )}
 
-                {/* Progress bar */}
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-elevated">
-                  <div
-                    className={cn(
-                      'h-full rounded-full transition-all duration-300',
-                      isOver ? 'bg-error' : isWarning ? 'bg-warning' : 'bg-success',
-                    )}
-                    style={{ width: `${pct}%` }}
-                    role="progressbar"
-                    aria-valuenow={Math.round(pct)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={`${budget.label} budget: ${Math.round(pct)}% used`}
-                  />
+          {!isLoading &&
+            budgets.map((budget) => {
+              const spent = Number(budget.spent ?? 0);
+              const limit = Number(budget.amount ?? 0);
+              const pct = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
+              const isOver = spent > limit;
+              const isWarning = !isOver && pct >= 80;
+              const label = budget.category?.name ?? budget.name;
+
+              return (
+                <div key={budget.id} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-medium text-text-secondary">{label}</span>
+                    <span
+                      className={cn(
+                        'text-[11px] tabular-nums font-medium',
+                        isOver ? 'text-error' : isWarning ? 'text-warning' : 'text-text-tertiary',
+                      )}
+                    >
+                      {formatNGN(spent)}{' '}
+                      <span className="font-normal text-text-disabled">/ {formatNGN(limit)}</span>
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-elevated">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all duration-300',
+                        isOver ? 'bg-error' : isWarning ? 'bg-warning' : 'bg-success',
+                      )}
+                      style={{ width: `${pct}%` }}
+                      role="progressbar"
+                      aria-valuenow={Math.round(pct)}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${label} budget: ${Math.round(pct)}% used`}
+                    />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       )}
     </div>

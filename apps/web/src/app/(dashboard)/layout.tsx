@@ -25,6 +25,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
 
   let isPro = false;
   let userPrefs: UserPreferences = PREF_DEFAULTS;
+  let showTwoFaPrompt = false;
 
   try {
     [isPro] = await Promise.all([
@@ -37,6 +38,13 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
             timezone: r.data.timezone,
             dateFormat: r.data.dateFormat,
           };
+          // Only surface the 2FA prompt after the user has been through the
+          // onboarding flow (flag is set immediately when the welcome dialog fires).
+          // This prevents 2FA and onboarding from competing on first login.
+          showTwoFaPrompt =
+            r.data.hasCompletedOnboarding &&
+            !r.data.twoFactorEnabled &&
+            !r.data.hasSeenTwoFaPrompt;
         }
       }),
     ]);
@@ -51,7 +59,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
   return (
     <SocketProvider>
       <UserPreferencesProvider initialPrefs={userPrefs}>
-        <DashboardLayout session={session} isPro={isPro} sidebarDefaultOpen={sidebarDefaultOpen}>
+        <DashboardLayout session={session} isPro={isPro} sidebarDefaultOpen={sidebarDefaultOpen} showTwoFaPrompt={showTwoFaPrompt}>
           {children}
         </DashboardLayout>
       </UserPreferencesProvider>
