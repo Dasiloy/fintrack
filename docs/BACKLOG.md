@@ -15,7 +15,17 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🗂️ Backlog
 
-### [BL-012] Mono integration — go live (NGN only)
+### [BL-011] Introduce Import Transactions data from csv files
+
+- **Type**: Ferature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users need to be able to download and export high quality csv and pdf files containing account information, Should be ideally just past 7 days, and contains account statement. Intense export will be in dashboard screen
+  **Notes**:
+- Exports need to beautiful high ressolution pdfs and csv files
+- multi sheet csv and excels should be possible
+
+### [BL-010] Mono integration — go live (NGN only)
 
 - **Type**: Feature
 - **Priority**: High
@@ -29,7 +39,7 @@ Items are grouped by type. Each entry follows the format:
   - Unblock currency selector in Settings > Profile once multi-currency support is ready (see disabled state added in this sprint).
   - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, `apps/web/src/app/(dashboard)/settings/profile/_components/profile_layout.tsx`.
 
-### [BL-011] Stripe integration — go live (NGN only)
+### [BL-09] Stripe integration — go live (NGN only)
 
 - **Type**: Feature
 - **Priority**: High
@@ -42,7 +52,7 @@ Items are grouped by type. Each entry follows the format:
   - End-to-end smoke test: initiate upgrade → complete Stripe checkout → verify `subscription.plan` flips to `PRO` in DB → verify PRO features are unlocked in UI.
   - Related files: `apps/api_gateway/src/payment/`, `apps/scheduler_service/src/`, `apps/web/src/app/(dashboard)/settings/billing/`.
 
-### [BL-010] Field-level encryption for Mono bank account data
+### [BL-08] Field-level encryption for Mono bank account data
 
 - **Type**: Security
 - **Priority**: High
@@ -56,19 +66,7 @@ Items are grouped by type. Each entry follows the format:
   - A one-time migration script is needed to encrypt existing plain-text rows; run it with a dry-run flag first.
   - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, DB schema for `LinkedAccount` / `MonoAccount` model.
 
-### [BL-009] Research legal and compliance requirements for finance apps
-
-- **Type**: Tech Debt
-- **Priority**: High
-- **Status**: Pending
-- **Context**: As a fintech handling real bank account data (via Mono), FinTrack must comply with applicable Nigerian and international data regulations before public launch. A structured research doc should inform the legal copy, privacy policy, and technical controls.
-- **Notes**:
-  - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
-  - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) the implementation priority for each gap.
-  - This research should feed directly into BL-007 (legal pages), BL-008 (bank data handling copy), and BL-010 (encryption).
-  - Assign to: legal review + engineering lead before any production launch.
-
-### [BL-008] Marketing page — bank account data handling explainer
+### [BL-007] Marketing page — bank account data handling explainer
 
 - **Type**: Feature
 - **Priority**: Medium
@@ -81,7 +79,7 @@ Items are grouped by type. Each entry follows the format:
   - Should include a visual diagram of the data flow: User → Mono widget → Mono API → FinTrack backend → encrypted DB.
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
-### [BL-007] Marketing page — legal and security trust section
+### [BL-006] Marketing page — legal and security trust section
 
 - **Type**: Improvement
 - **Priority**: High
@@ -93,7 +91,7 @@ Items are grouped by type. Each entry follows the format:
   - Add trust badges where appropriate: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
   - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing). See also BL-006 (static content audit).
 
-### [BL-006] Static content audit — realistic MVP copy and authorship
+### [BL-005] Static content audit — realistic MVP copy and authorship
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -101,14 +99,26 @@ Items are grouped by type. Each entry follows the format:
 - **Context**: Various pages and components across the web app contain placeholder copy, fake client logos, fake sponsor names, dummy team members, and demo data that should never appear in a real MVP. Everything visible to a logged-in or logged-out user must reflect the actual product and its sole author before any public release.
 - **Notes**:
   - **Landing / marketing pages**: Remove any fake client logos, sponsor badges, or partner sections. Replace with honest feature-focused copy or leave those sections out entirely.
-  - **Team / about sections**: Update to show only the actual author — Damilare Oyewole. Remove any placeholder team members or avatars.
+  - **Team / about sections**: Update to show only the actual author — Damilare Oyewole. Remove any placeholder team members or avatars. Point to damilare limnkedin account and also to his giyhub account
   - **Testimonials / social proof**: Remove fake testimonials. If the section exists on a public page, either remove it or replace it with a factual product statement until real feedback is available.
   - **Dashboard demo data**: Ensure the dashboard shows a proper empty state for new users — no seeded transactions, budgets, goals, or analytics. The onboarding tour (BL-004) covers guiding users through the empty state.
   - **Footer / legal**: Confirm copyright year and author name are correct. Update any placeholder privacy policy or terms links to point to real documents or remove them.
   - **App name and branding**: Confirm every instance of the product name, logo alt text, and meta tags (title, description, og:image) are accurate.
   - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. A simple `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` pass will surface most issues.
 
-### [BL-005] Post-registration 2FA setup prompt
+  ### [BL-004] Research legal and compliance requirements for finance apps
+
+- **Type**: Tech Debt
+- **Priority**: High
+- **Status**: Pending
+- **Context**: As a fintech handling real bank account data (via Mono), FinTrack must comply with applicable Nigerian and international data regulations before public launch. A structured research doc should inform the legal copy, privacy policy, and technical controls.
+- **Notes**:
+  - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
+  - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) the implementation priority for each gap.
+  - This research should feed directly into BL-007 (legal pages), BL-008 (bank data handling copy), and BL-010 (encryption).
+  - Assign to: legal review + engineering lead before any production launch.
+
+### [BL-003] Post-registration 2FA setup prompt
 
 - **Type**: Security
 - **Priority**: High
@@ -121,7 +131,7 @@ Items are grouped by type. Each entry follows the format:
   - Mount the prompt component in the dashboard root layout, after the session is confirmed. Gate it with `!user.twoFaEnabled && !user.hasSeenTwoFaPrompt`.
   - Related files: `apps/web/src/app/(dashboard)/layout.tsx`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`, `apps/auth_service/src/`.
 
-### [BL-004] Tooltip-based onboarding flow for new web users
+### [BL-002] Tooltip-based onboarding flow for new web users
 
 - **Type**: Feature
 - **Priority**: High
@@ -143,7 +153,7 @@ Items are grouped by type. Each entry follows the format:
   - The tour should be skippable at any step and should not block any user action — it should dissolve immediately on outside click or Esc.
   - Related files: `apps/web/src/app/(dashboard)/_components/dashboard_client.tsx`, `apps/web/src/app/(dashboard)/_components/`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`.
 
-### [BL-002] Use Mailtrap sandbox API in dev and Mailtrap sending API in production
+### [BL-001] Use Mailtrap sandbox API in dev and Mailtrap sending API in production
 
 - **Type**: Improvement
 - **Priority**: High
@@ -155,16 +165,6 @@ Items are grouped by type. Each entry follows the format:
   - Add `MAIL_ENV` (or rely on `NODE_ENV`) and separate env vars `MAIL_TOKEN_SANDBOX` / `MAIL_TOKEN_PROD` (or a single `MAIL_TOKEN` set per environment) to `apps/notification_service/.env.example`.
   - The `MAIL_FROM` address must match the verified sending domain configured in the Mailtrap account.
   - Related files: `apps/notification_service/src/notification.module.ts`, `apps/notification_service/.env.example`.
-
-### [BL-001] Introduce Import Transactions data from csv files
-
-- **Type**: Ferature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Users need to be able to download and export high quality csv and pdf files containing account information, Should be ideally just past 7 days, and contains account statement. Intense export will be in dashboard screen
-  **Notes**:
-- Exports need to beautiful high ressolution pdfs and csv files
-- multi sheet csv and excels should be possible
 
 ---
 
