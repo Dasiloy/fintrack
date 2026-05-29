@@ -68,6 +68,20 @@ import { promisify } from '@fintrack/utils/promise';
 // Sub-components
 // ---------------------------------------------------------------------------
 
+/** Fetches and displays the unread insight count as a small badge. */
+function UnreadBadge() {
+  const { data } = api_client.advisor.getUnreadCount.useQuery(undefined, {
+    staleTime: 60_000,
+  });
+  const count = data?.data?.count ?? 0;
+  if (count === 0) return null;
+  return (
+    <span className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-white group-data-[collapsible=icon]:hidden">
+      {count > 9 ? '9+' : count}
+    </span>
+  );
+}
+
 /** Single flat nav item (not collapsible) */
 function NavItemRow({
   item,
@@ -81,7 +95,7 @@ function NavItemRow({
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <SidebarMenuItem>
+    <SidebarMenuItem id={item.tourId}>
       <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
         <Link href={item.url} onClick={() => isMobile && setOpenMobile(false)}>
           <item.icon />
@@ -91,6 +105,7 @@ function NavItemRow({
               Pro
             </Badge>
           )}
+          {item.showUnreadBadge && isPro && <UnreadBadge />}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>

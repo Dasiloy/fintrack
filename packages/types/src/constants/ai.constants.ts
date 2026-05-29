@@ -183,33 +183,6 @@ export const MODEL_CONFIGS: Record<ModelId, ModelProviderConfig> = {
     timeout: 30_000,
     streaming: true,
   },
-  'google:gemini-2.0-flash': {
-    model: 'gemini-2.0-flash',
-    provider: 'google',
-    cache: true,
-    maxTokens: 2048,
-    temperature: 0.7,
-    timeout: 20_000,
-    streaming: true,
-  },
-  'google:gemini-1.5-pro': {
-    model: 'gemini-1.5-pro-002',
-    provider: 'google',
-    cache: true,
-    maxTokens: 4096,
-    temperature: 0.7,
-    timeout: 30_000,
-    streaming: true,
-  },
-  'google:gemini-1.5-flash': {
-    model: 'gemini-1.5-flash-002',
-    provider: 'google',
-    cache: true,
-    maxTokens: 2048,
-    temperature: 0.7,
-    timeout: 15_000,
-    streaming: true,
-  },
 
   // ─── Google embeddings ────────────────────────────────────────────────────
   'google:gemini-embedding-2': {

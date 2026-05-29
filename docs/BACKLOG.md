@@ -112,7 +112,7 @@ Items are grouped by type. Each entry follows the format:
 
 - **Type**: Security
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: After a user registers or signs in for the first time, they should see a one-time modal prompting them to enable two-factor authentication (TOTP or SMS). The prompt appears once — if the user dismisses it or enables 2FA, it never appears again. This is the same pattern used by GitHub, Vercel, and Linear on first sign-in.
 - **Notes**:
   - Gate the prompt on a `hasSeenTwoFaPrompt: boolean` field stored in the user's settings record (or a dedicated column). Write it via `user.updateSettings` on dismiss or on 2FA activation.
@@ -125,10 +125,10 @@ Items are grouped by type. Each entry follows the format:
 
 - **Type**: Feature
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: New users landing on the dashboard for the first time have no guidance on what each section does or how to get started. A modern spotlight/tooltip-driven onboarding tour — similar to what Notion, Linear, and Intercom use — should walk first-time users through the key areas of the app: the dashboard overview, adding a first transaction, setting up a budget, and creating a goal. The tour activates automatically on the user's first login and can be re-triggered from Settings. Each step anchors a highlighted popover to the relevant UI element with a short description, a step counter, and Prev / Next / Skip controls.
 - **Notes**:
-  - Use a library like **Shepherd.js** (`shepherd.js`) or **driver.js** (`driver.js`) — both are framework-agnostic and work cleanly with Next.js App Router. `driver.js` is lighter (~5 kB gzip) and has a simpler API; Shepherd has more theming flexibility. Either should be styled to match the FinTrack design system (CSS var overrides).
+  - Use a library the Onborda library thats nextjs compatible and app router aware
   - Tour steps to cover (in order):
     1. **Dashboard hero** — net balance chip and month selector
     2. **Stat cards** — income, expense, savings, transactions count
@@ -143,7 +143,7 @@ Items are grouped by type. Each entry follows the format:
   - The tour should be skippable at any step and should not block any user action — it should dissolve immediately on outside click or Esc.
   - Related files: `apps/web/src/app/(dashboard)/_components/dashboard_client.tsx`, `apps/web/src/app/(dashboard)/_components/`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`.
 
-### [BL-001] Use Mailtrap sandbox API in dev and Mailtrap sending API in production
+### [BL-002] Use Mailtrap sandbox API in dev and Mailtrap sending API in production
 
 - **Type**: Improvement
 - **Priority**: High
@@ -156,7 +156,7 @@ Items are grouped by type. Each entry follows the format:
   - The `MAIL_FROM` address must match the verified sending domain configured in the Mailtrap account.
   - Related files: `apps/notification_service/src/notification.module.ts`, `apps/notification_service/.env.example`.
 
-### [BL-002] Introduce Import Transactions data from csv files
+### [BL-001] Introduce Import Transactions data from csv files
 
 - **Type**: Ferature
 - **Priority**: High
