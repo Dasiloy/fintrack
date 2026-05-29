@@ -1,4 +1,5 @@
 import { Queue, Job } from 'bullmq';
+import dayjs from '@fintrack/utils/date';
 
 import { Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -10,10 +11,13 @@ import {
   BUDGET_ALERT_EMAIL_JOB,
   BUDGET_CHECK_JOB,
   BUDGET_CHECK_QUEUE,
+  INSIGHTS_JOB,
+  INSIGHTS_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { BudgetCheckJobPayload } from '@fintrack/types/interfaces/finance';
 import { BudgetAlertEmailPayload } from '@fintrack/types/interfaces/mail.interface';
+import { InsightsJobPayload } from '@fintrack/types/interfaces/insights';
 
 import { UtilsService } from '../utils.service';
 
@@ -25,10 +29,21 @@ import { UtilsService } from '../utils.service';
  * response immediately — the alert evaluation and email dispatch happen in
  * the background within seconds rather than blocking the request.
  *
- * ## Job handled
+ * ## Jobs handled
  * | Job name          | Payload                  | Handler               |
  * |-------------------|--------------------------|-----------------------|
  * | `BUDGET_CHECK_JOB`| `BudgetCheckJobPayload`  | `handleBudgetCheck()` |
+ *
+ * ## Dual dispatch (Phase 11)
+ * For each breached budget, two independent actions fire:
+ * 1. Email alert (existing) — suppressed by `alertedAt` to prevent duplicate emails.
+ * 2. Insights job — enqueued for both warning and critical zones with daily
+ *    deduplication via BullMQ `jobId` so the AI pipeline runs at most once
+ *    per budget per severity level per day.
+ *
+ * Alert zone levels (based on per-budget `alertThreshold`, e.g. 0.80):
+ *   warning  — ratio >= threshold − 0.20  (within 20pp of threshold)
+ *   critical — ratio >= threshold          (at or above threshold)
  *
  * @class BudgetCheckProcessor
  */
@@ -41,6 +56,8 @@ export class BudgetCheckProcessor extends WorkerHost {
     private readonly utils: UtilsService,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE)
     private readonly tokenNotificationQueue: Queue,
+    @InjectQueue(INSIGHTS_QUEUE)
+    private readonly insightsQueue: Queue,
   ) {
     super();
   }
@@ -58,11 +75,13 @@ export class BudgetCheckProcessor extends WorkerHost {
 
   /**
    * Evaluates whether any budget covering the given categories has breached
-   * its alert threshold and, if so, enqueues a budget-alert email job.
+   * its alert threshold and, if so:
+   *   1. Enqueues a budget-alert email (suppressed by alertedAt frequency guard).
+   *   2. Enqueues an insights job for the AI pipeline (daily dedup via jobId).
    *
-   * Alert suppression: an alert is skipped when `alertedAt` is non-null,
-   * falls within the current budget period, and is more recent than the
-   * budget's `alertAtFrequency` window — preventing duplicate emails.
+   * The insights trigger fires for both the warning zone (threshold − 0.20)
+   * and critical zone (>= threshold), carrying the severity and current %
+   * so the graph can tailor its messaging.
    *
    * Errors are logged and re-thrown so BullMQ can retry the job.
    */
@@ -96,12 +115,17 @@ export class BudgetCheckProcessor extends WorkerHost {
             },
             _sum: { amount: true },
           });
-          return { budget, spent: Number(_sum.amount ?? 0), periodStart };
+          return {
+            budget,
+            spent: Number(_sum.amount ?? 0),
+            periodStart,
+            ratio: Number(_sum.amount ?? 0) / Number(budget.amount),
+          };
         }),
       );
 
-      const newBreaches = results.filter(({ budget, spent, periodStart }) => {
-        const ratio = spent / Number(budget.amount);
+      // ── 1. Email alert (existing, suppression-guarded) ───────────────────
+      const newBreaches = results.filter(({ budget, ratio, periodStart }) => {
         const throttleCutoff = new Date(
           referenceDate.getTime() - budget.alertAtFrequency * 86_400_000,
         );
@@ -112,27 +136,67 @@ export class BudgetCheckProcessor extends WorkerHost {
         return ratio >= budget.alertThreshold && !suppressed;
       });
 
-      if (newBreaches.length === 0) return;
+      if (newBreaches.length > 0) {
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true, firstName: true, lastName: true },
+        });
+        if (user) {
+          await this.tokenNotificationQueue.add(BUDGET_ALERT_EMAIL_JOB, {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            budgetIds: newBreaches.map(({ budget }) => budget.id),
+            alerts: newBreaches.map(({ budget, spent }) => ({
+              budgetName: budget.name,
+              categoryName: budget.category.name,
+              spent,
+              limit: Number(budget.amount),
+              percentage: Math.round((spent / Number(budget.amount)) * 100),
+            })),
+          } satisfies BudgetAlertEmailPayload);
+        }
+      }
 
-      const user = await this.prisma.user.findUnique({
-        where: { id: userId },
-        select: { email: true, firstName: true, lastName: true },
-      });
-      if (!user) return;
+      // ── 2. Insights job (Phase 11, fires for both warning and critical) ──
+      // Each budget in the warning zone triggers the AI insights pipeline so
+      // the user gets a tailored, data-driven message rather than a generic email.
+      //
+      // Daily deduplication: BullMQ skips the enqueue if a job with the same
+      // `jobId` is already waiting. Format: `budget_breach:{budgetId}:{severity}:{date}`
+      // This allows a severity escalation (warning→critical) on the same day to
+      // still fire as a distinct insights run.
+      const today = dayjs(referenceDate).format('YYYY-MM-DD');
 
-      await this.tokenNotificationQueue.add(BUDGET_ALERT_EMAIL_JOB, {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        budgetIds: newBreaches.map(({ budget }) => budget.id),
-        alerts: newBreaches.map(({ budget, spent }) => ({
-          budgetName: budget.name,
-          categoryName: budget.category.name,
-          spent,
-          limit: Number(budget.amount),
-          percentage: Math.round((spent / Number(budget.amount)) * 100),
-        })),
-      } satisfies BudgetAlertEmailPayload);
+      const insightTasks = results
+        .filter(({ budget, ratio }) => {
+          const warnAt = Number(budget.alertThreshold) - 0.2;
+          return ratio >= warnAt;
+        })
+        .map(({ budget, ratio }) => {
+          const threshold = Number(budget.alertThreshold);
+          const severity: 'warning' | 'critical' =
+            ratio >= threshold ? 'critical' : 'warning';
+          const jobId = `budget_breach:${budget.id}:${severity}:${today}`;
+
+          return this.insightsQueue.add(
+            INSIGHTS_JOB,
+            {
+              userId,
+              trigger: 'budget_breach',
+              metadata: {
+                categorySlug: budget.category.slug,
+                budgetId: budget.id,
+                severity,
+                currentPct: ratio,
+                threshold,
+              },
+            } satisfies InsightsJobPayload,
+            { jobId }, // BullMQ deduplicates: same jobId already queued → skip
+          );
+        });
+
+      await Promise.all(insightTasks);
     } catch (error) {
       this.logger.error('handleBudgetCheck error', error);
       throw error;

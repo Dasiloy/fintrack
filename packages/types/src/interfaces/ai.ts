@@ -25,12 +25,17 @@ export type ChatModelId =
   | 'anthropic:claude-3-opus'
   | 'anthropic:claude-sonnet-4.6'
   | 'anthropic:claude-opus-4.6'
-  // Google
+  // Google — 2.5 series (current stable)
   | 'google:gemini-2.5-pro'
-  | 'google:gemini-2.5-flash'
-  | 'google:gemini-2.0-flash'
-  | 'google:gemini-1.5-pro'
-  | 'google:gemini-1.5-flash';
+  | 'google:gemini-2.5-flash';
+
+// ─── Canonical Google model constants ────────────────────────────────────────
+// Import these instead of inlining raw strings so every usage stays in sync.
+
+/** Gemini 2.5 Pro — deep reasoning, structured output, tool use. */
+export const GOOGLE_GEMINI_2_5_PRO = 'google:gemini-2.5-pro' as const;
+/** Gemini 2.5 Flash — fast, cost-efficient text generation and summarisation. */
+export const GOOGLE_GEMINI_2_5_FLASH = 'google:gemini-2.5-flash' as const;
 
 // ─── Embedding model IDs ──────────────────────────────────────────────────────
 

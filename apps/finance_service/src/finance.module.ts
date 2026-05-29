@@ -29,7 +29,6 @@ import { SplitModule } from './split/split.module';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         FINANCE_SERVICE_HOST: Joi.string().required(),
         FINANCE_SERVICE_PORT: Joi.string().required(),

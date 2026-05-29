@@ -151,6 +151,8 @@ exports.Prisma.UserScalarFieldEnum = {
   twoFactorEnabled: 'twoFactorEnabled',
   twoFactorSecret: 'twoFactorSecret',
   twoFactorLastUsedAt: 'twoFactorLastUsedAt',
+  hasSeenTwoFaPrompt: 'hasSeenTwoFaPrompt',
+  hasCompletedOnboarding: 'hasCompletedOnboarding',
   currency: 'currency',
   language: 'language',
   timezone: 'timezone',
@@ -520,6 +522,34 @@ exports.Prisma.ClassificationCorrectionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AnalyticsSnapshotScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  period: 'period',
+  type: 'type',
+  data: 'data',
+  computedAt: 'computedAt'
+};
+
+exports.Prisma.AiInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  generatedAt: 'generatedAt',
+  trigger: 'trigger',
+  severity: 'severity',
+  summary: 'summary',
+  anomalies: 'anomalies',
+  goalAlerts: 'goalAlerts',
+  cashFlowForecast: 'cashFlowForecast',
+  recommendations: 'recommendations',
+  macroContext: 'macroContext',
+  conversationThreadId: 'conversationThreadId',
+  readAt: 'readAt',
+  notifiedAt: 'notifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -865,6 +895,26 @@ exports.MonoBankAccountStatus = exports.$Enums.MonoBankAccountStatus = {
   UNAVAILABLE: 'UNAVAILABLE'
 };
 
+exports.SnapshotType = exports.$Enums.SnapshotType = {
+  MONTHLY_SUMMARY: 'MONTHLY_SUMMARY',
+  QUARTERLY_SUMMARY: 'QUARTERLY_SUMMARY',
+  YEARLY_SUMMARY: 'YEARLY_SUMMARY'
+};
+
+exports.InsightTrigger = exports.$Enums.InsightTrigger = {
+  DAILY: 'DAILY',
+  POST_SYNC: 'POST_SYNC',
+  MONTH_END: 'MONTH_END',
+  BUDGET_BREACH: 'BUDGET_BREACH',
+  MANUAL: 'MANUAL'
+};
+
+exports.InsightSeverity = exports.$Enums.InsightSeverity = {
+  INFO: 'INFO',
+  WARNING: 'WARNING',
+  CRITICAL: 'CRITICAL'
+};
+
 exports.Prisma.ModelName = {
   Currencies: 'Currencies',
   Locale: 'Locale',
@@ -896,7 +946,9 @@ exports.Prisma.ModelName = {
   MonoBankAccount: 'MonoBankAccount',
   FcmDevice: 'FcmDevice',
   Notification: 'Notification',
-  ClassificationCorrection: 'ClassificationCorrection'
+  ClassificationCorrection: 'ClassificationCorrection',
+  AnalyticsSnapshot: 'AnalyticsSnapshot',
+  AiInsight: 'AiInsight'
 };
 
 /**

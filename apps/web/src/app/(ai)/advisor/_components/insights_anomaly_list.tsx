@@ -72,7 +72,7 @@ export function InsightsAnomalyList({ anomalies, expanded, onToggle }: InsightsA
                   <button
                     type="button"
                     onClick={() => setDismissed((prev) => new Set([...prev, originalIdx]))}
-                    className="mt-0.5 shrink-0 text-text-disabled hover:text-text-tertiary transition-colors"
+                    className="mt-0.5 shrink-0 cursor-pointer text-text-disabled hover:text-text-tertiary transition-colors"
                     aria-label="Dismiss anomaly"
                   >
                     <X className="size-3.5" />
