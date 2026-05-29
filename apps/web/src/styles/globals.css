@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 /* Scan shared UI package so Tailwind generates utilities used there (monorepo) */
 @source "../../../../packages/ui/src/**/*.{ts,tsx,css}";
+/* Scan Onborda dist so its Tailwind classes are included */
+@source "../../node_modules/onborda/dist/**/*.{js,ts,jsx,tsx}";
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fintrack/ui/styles';

@@ -24,6 +24,7 @@ import {
   AccountDeletionEmailPayload,
   BudgetAlertEmailPayload,
   RecurringTransactionsEmailPayload,
+  InsightNotificationEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
 
 /**
@@ -496,6 +497,38 @@ export class NotificationService {
     } catch (error) {
       this.logger.error(
         `Failed to send recurring transactions email to ${data.email}`,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  // ── Section: AI Advisor Insights ─────────────────────────────────────────
+
+  async sendInsightNotificationEmail(data: InsightNotificationEmailPayload) {
+    const subject =
+      data.severity === 'critical'
+        ? 'Action needed — Fintrack Advisor'
+        : 'New financial insight — Fintrack Advisor';
+    try {
+      await this.sendEmail({
+        to: data.email,
+        subject,
+        template: './insight_notification',
+        context: {
+          firstName: data.firstName,
+          severity: data.severity,
+          summary: data.summary,
+          insightId: data.insightId,
+          conversationThreadId: data.conversationThreadId,
+        },
+      });
+      this.logger.log(
+        `Insight notification email sent to ${data.email} (severity=${data.severity}, insightId=${data.insightId})`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send insight notification email to ${data.email}`,
         error.stack,
       );
       throw error;

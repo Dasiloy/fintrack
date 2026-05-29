@@ -14,6 +14,7 @@ import {
   ACCOUNT_DELETION_EMAIL_JOB,
   BUDGET_ALERT_EMAIL_JOB,
   RECURRING_TRANSACTIONS_EMAIL_JOB,
+  INSIGHT_NOTIFICATION_JOB,
 } from '@fintrack/types/constants/queus.constants';
 
 import { NotificationService } from '../notification.service';
@@ -93,6 +94,8 @@ export class TokenNotification extends WorkerHost {
         return this.notificationService.sendRecurringTransactionsEmail(
           job.data,
         );
+      case INSIGHT_NOTIFICATION_JOB:
+        return this.notificationService.sendInsightNotificationEmail(job.data);
       default:
         return;
     }

@@ -31,8 +31,7 @@ import { AdvisorTabs } from './advisor_tabs';
 import { ContextPanel } from './context_panel';
 
 import type { AdvisorPageState, AdvisorTool } from '../_lib/advisor.types';
-import { STUB_THREADS } from '../_lib/advisor.stub';
-import { STUB_TOOLS } from '../_lib/advisor.constants';
+import { ADVISOR_TOOLS } from '../_lib/advisor.constants';
 
 interface AdvisorPageClientProps {
   isPro: boolean;
@@ -41,12 +40,12 @@ interface AdvisorPageClientProps {
 export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
   const [pageState, setPageState] = React.useState<AdvisorPageState>({
     activeTab: 'advisor',
-    activeConversationId: STUB_THREADS[0]?.id ?? null,
+    activeConversationId: null,
     historySheetOpen: false,
     toolsSheetOpen: false,
   });
 
-  const [tools, setTools] = React.useState<AdvisorTool[]>(STUB_TOOLS);
+  const [tools, setTools] = React.useState<AdvisorTool[]>(ADVISOR_TOOLS);
   const [isContextCollapsed, setIsContextCollapsed] = React.useState(false);
   const contextPanelRef = React.useRef<PanelImperativeHandle | null>(null);
 
@@ -127,7 +126,7 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
       >
         <SheetContent side="left" className="w-72 p-0">
           <ConversationSidebar
-            threads={STUB_THREADS}
+            threads={[]}
             activeId={pageState.activeConversationId}
             onSelect={(id) => {
               selectConversation(id);
@@ -158,7 +157,7 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
           <div className="border-border-subtle hidden shrink-0 flex-col border-r md:flex md:w-60">
             {isAdvisorTab ? (
               <ConversationSidebar
-                threads={STUB_THREADS}
+                threads={[]}
                 activeId={pageState.activeConversationId}
                 onSelect={selectConversation}
                 onNewConversation={newConversation}
@@ -191,7 +190,7 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
             <ResizablePanel defaultSize="20" minSize="14" maxSize="28" className="min-w-0">
               {isAdvisorTab ? (
                 <ConversationSidebar
-                  threads={STUB_THREADS}
+                  threads={[]}
                   activeId={pageState.activeConversationId}
                   onSelect={selectConversation}
                   onNewConversation={newConversation}

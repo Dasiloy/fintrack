@@ -71,6 +71,52 @@ export class UserController {
     };
   }
 
+  @Patch('dismiss-2fa-prompt')
+  @ApiOperation({ summary: 'Permanently dismiss the 2FA setup prompt' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Prompt dismissed' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async dismissTwoFaPrompt(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.userService.dismissTwoFaPrompt(user.id);
+    return {
+      success: true,
+      data: null,
+      statusCode: HttpStatus.OK,
+      message: 'Prompt dismissed',
+    };
+  }
+
+  @Patch('complete-tour')
+  @ApiOperation({ summary: 'Mark onboarding tour as completed' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Tour completed' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async completeTour(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.userService.completeTour(user.id);
+    return {
+      success: true,
+      data: null,
+      statusCode: HttpStatus.OK,
+      message: 'Tour completed',
+    };
+  }
+
+  @Patch('reset-tour')
+  @ApiOperation({ summary: 'Reset onboarding tour so it can be replayed' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Tour reset' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async resetTour(@CurrentUser() user: User): Promise<StandardResponse<null>> {
+    await this.userService.resetTour(user.id);
+    return {
+      success: true,
+      data: null,
+      statusCode: HttpStatus.OK,
+      message: 'Tour reset',
+    };
+  }
+
   @Patch('settings')
   @ApiOperation({ summary: 'Update notification settings' })
   @ApiBody({ type: UpdateSettingsDto })

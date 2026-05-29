@@ -11,7 +11,6 @@
  *
  * REQUIRED ENV VARS (same as normal DB connection):
  *   DATABASE_URL
- *   DATABASE_CA_CERTIFICATE
  *
  * IDEMPOTENCY:
  *   Safe to run multiple times. UserBalance rows are upsert-skipped if they
