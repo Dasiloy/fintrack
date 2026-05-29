@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from '@bprogress/next';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 import { AUTH_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { env } from '@/env';
 
 /**
  * Bottom CTA section.
@@ -13,10 +15,13 @@ import { AUTH_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.con
  */
 export function CTASection() {
   const [email, setEmail] = useState('');
+  const [cfTurnstileToken, setCfTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!cfTurnstileToken) return;
 
     const params = new URLSearchParams();
     if (email.trim()) {
@@ -51,14 +56,25 @@ export function CTASection() {
         />
         <button
           type="submit"
-          disabled={!email.trim()}
+          disabled={!email.trim() || !cfTurnstileToken}
           className="glossy-button rounded-button text-body text-white px-6 py-3 font-bold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50"
         >
           Get Started
         </button>
       </form>
 
-      <p className="text-caption text-text-disabled mt-4">
+      <div className="mx-auto mt-4 max-w-md">
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          onSuccess={(token) => setCfTurnstileToken(token)}
+          onExpire={() => setCfTurnstileToken(null)}
+          onError={() => setCfTurnstileToken(null)}
+          options={{ theme: 'auto', size: 'flexible' }}
+        />
+      </div>
+
+      <p className="text-caption text-text-disabled mt-3">
         By signing up, you agree to our{' '}
         <Link
           href={STATIC_ROUTES.TERMS}

@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Mail, CheckCircle } from 'lucide-react';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
+
+import { env } from '@/env';
 
 /**
  * Newsletter signup CTA — shows a simple email form.
@@ -10,9 +13,11 @@ import { Mail, CheckCircle } from 'lucide-react';
 export function NewsletterCta() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [cfTurnstileToken, setCfTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleSubmit = () => {
-    if (!email.includes('@')) return;
+    if (!email.includes('@') || !cfTurnstileToken) return;
     setSubmitted(true);
   };
 
@@ -71,11 +76,24 @@ export function NewsletterCta() {
                   </div>
                   <button
                     onClick={handleSubmit}
-                    className="glossy-button rounded-button text-body text-white shadow-glow whitespace-nowrap px-6 py-3 font-bold"
+                    disabled={!email.includes('@') || !cfTurnstileToken}
+                    className="glossy-button rounded-button text-body text-white shadow-glow whitespace-nowrap px-6 py-3 font-bold disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Subscribe
                   </button>
                 </div>
+
+                <div className="mt-3">
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setCfTurnstileToken(token)}
+                    onExpire={() => setCfTurnstileToken(null)}
+                    onError={() => setCfTurnstileToken(null)}
+                    options={{ theme: 'auto', size: 'flexible' }}
+                  />
+                </div>
+
                 <p className="text-caption text-text-disabled mt-3 text-center md:text-left">
                   No spam — unsubscribe at any time.
                 </p>
