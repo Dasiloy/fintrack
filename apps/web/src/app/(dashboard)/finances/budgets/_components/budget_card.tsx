@@ -33,8 +33,7 @@ interface BudgetCategoryCardProps {
 
 // ─── component ────────────────────────────────────────────────────────────────
 
-export function BudgetCategoryCard({
-  budget, onOpen, onDelete }: BudgetCategoryCardProps) {
+export function BudgetCategoryCard({ budget, onOpen, onDelete }: BudgetCategoryCardProps) {
   const formatCurrency = useFormatCurrency();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);

@@ -156,11 +156,22 @@ export class TransactionService {
 
       this.callevents(userId, createdTransaction, 'Transaction Created');
       if (createdTransaction.type === TransactionType.EXPENSE) {
-        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
-          userId,
-          categoryIds: [createdTransaction.categoryId],
-          referenceDate: createdTransaction.date.toISOString(),
-        } satisfies BudgetCheckJobPayload);
+        void this.budgetCheckQueue.add(
+          BUDGET_CHECK_JOB,
+          {
+            userId,
+            transactions: [
+              {
+                categoryId: createdTransaction.categoryId,
+                referenceDate: createdTransaction.date.toISOString(),
+              },
+            ],
+          } satisfies BudgetCheckJobPayload,
+          {
+            removeOnComplete: true,
+            removeOnFail: true, // its inconsiquential, at most insights run daily so users will still get insight updated at end of day
+          },
+        );
       }
       return this.formatTransaction(createdTransaction);
     } catch (error) {
@@ -276,10 +287,13 @@ export class TransactionService {
         ),
       ];
       if (result.count > 0 && expenseCategoryIds.length > 0) {
+        // fetch tranwaction
         void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
-          categoryIds: expenseCategoryIds,
-          referenceDate: new Date().toISOString(),
+          transactions: expenseCategoryIds.map((catId) => ({
+            categoryId: catId,
+            referenceDate: new Date().toISOString(),
+          })),
         } satisfies BudgetCheckJobPayload);
       }
 
@@ -573,8 +587,12 @@ export class TransactionService {
       if (updatedTransaction.type === TransactionType.EXPENSE) {
         void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
-          categoryIds: [updatedTransaction.categoryId],
-          referenceDate: updatedTransaction.date.toISOString(),
+          transactions: [
+            {
+              categoryId: updatedTransaction.categoryId,
+              referenceDate: updatedTransaction.date.toISOString(),
+            },
+          ],
         } satisfies BudgetCheckJobPayload);
       }
       return this.formatTransaction(updatedTransaction);

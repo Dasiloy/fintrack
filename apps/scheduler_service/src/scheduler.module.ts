@@ -14,6 +14,7 @@ import {
   ACCOUNT_CLEANUP_QUEUE,
   ANALYTICS_AGGREGATION_QUEUE,
   BALANCE_ROLLOVER_QUEUE,
+  INSIGHTS_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
@@ -66,6 +67,7 @@ import { AnalyticsAggregationProcessor } from './processors/analytics_aggregatio
       { name: TOKEN_NOTIFICATION_QUEUE },
       { name: BALANCE_ROLLOVER_QUEUE },
       { name: ANALYTICS_AGGREGATION_QUEUE },
+      { name: INSIGHTS_QUEUE },
     ),
   ],
   providers: [

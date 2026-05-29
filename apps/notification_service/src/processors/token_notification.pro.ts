@@ -88,8 +88,6 @@ export class TokenNotification extends WorkerHost {
         return this.notificationService.sendEmailChangedEmail(job.data);
       case ACCOUNT_DELETION_EMAIL_JOB:
         return this.notificationService.sendAccountDeletionEmail(job.data);
-      case BUDGET_ALERT_EMAIL_JOB:
-        return this.notificationService.sendBudgetAlertEmail(job.data);
       case RECURRING_TRANSACTIONS_EMAIL_JOB:
         return this.notificationService.sendRecurringTransactionsEmail(
           job.data,

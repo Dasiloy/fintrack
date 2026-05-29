@@ -407,14 +407,9 @@ export class BudgetService {
         effectiveLimitRows.map((h) => [h.budgetId, h.limit]),
       );
 
-      const unbudgetedSpend = allSpend.filter(
-        (r) => !budgetedIds.has(r.categoryId),
-      );
-      const unbudgetedCategories = unbudgetedSpend.length
-        ? await this.prismaService.category.findMany({
-            where: { id: { in: unbudgetedSpend.map((r) => r.categoryId) } },
-          })
-        : [];
+      const unbudgetedCategories = await this.prismaService.category.findMany({
+        where: { id: { notIn: budgets.map((b) => b.categoryId) } },
+      });
 
       return {
         budgets: budgets.map((b) =>
@@ -430,6 +425,8 @@ export class BudgetService {
           color: c.color ?? '',
           icon: c.icon ?? '',
           spent: spentMap.get(c.id) ?? 0,
+          id: c.id,
+          isUserOwned: !c.isSystem && !!c.userId,
         })),
       };
     } catch (error) {
