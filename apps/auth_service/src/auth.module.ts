@@ -34,7 +34,6 @@ import { AuthService } from './auth.service';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
         JWT_OTP_SECRET: Joi.string().required(),

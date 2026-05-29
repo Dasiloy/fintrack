@@ -169,8 +169,8 @@ export class LangraphService {
     if (!opts?.threadId && !opts?.configurable) return undefined;
     return {
       configurable: {
-        ...(opts.threadId && { thread_id: opts.threadId }),
         ...opts.configurable,
+        ...(opts.threadId && { thread_id: opts.threadId }),
       },
     };
   }

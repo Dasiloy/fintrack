@@ -29,3 +29,20 @@ export const GOAL_AGGREGATE_CACHE_TTL = 1200; // 20 minutes => Goals do not chna
 
 export const OCR_RESULT_CACHE_PREFIX = 'ocr_result'; // ocr_result:{draftId}
 export const OCR_RESULT_CACHE_TTL = 3600; // 1 hour — terminal OCR results are immutable
+
+export const ORACLE_MACRO_CACHE_KEY = 'oracle:macro_context';
+export const ORACLE_MACRO_CACHE_TTL = 6 * 60 * 60; // 6 hours — macro data changes slowly
+
+// ── Insights cache ────────────────────────────────────────────────────────
+// insights:{userId}              — latest AiInsight row for the user
+// insights_unread:{userId}       — unread insight count (badge)
+//
+// Invalidation:
+//   insights:{userId}           deleted by ai_service InsightService.runGraph()
+//                               after every successful graph completion
+//   insights_unread:{userId}    deleted after markInsightRead / markAllRead
+export const INSIGHTS_CACHE_PREFIX = 'insights'; // insights:{userId}
+export const INSIGHTS_CACHE_TTL = 3600; // 1 hour
+
+export const INSIGHTS_UNREAD_CACHE_PREFIX = 'insights_unread'; // insights_unread:{userId}
+export const INSIGHTS_UNREAD_CACHE_TTL = 300; // 5 minutes

@@ -8,15 +8,16 @@ import * as React from 'react';
 import { ChevronDown, Globe } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 import { relativeTime } from '../_lib/advisor.helpers';
-import type { MacroContext } from '../_lib/advisor.types';
+import type { MacroContext } from '../_lib/advisor.helpers';
 
 interface InsightsMacroCardProps {
-  context: MacroContext;
+  context: MacroContext | null;
   expanded: boolean;
   onToggle: () => void;
 }
 
 export function InsightsMacroCard({ context, expanded, onToggle }: InsightsMacroCardProps) {
+  if (!context) return null;
   return (
     <div className="rounded-xl border border-border-subtle bg-bg-surface overflow-hidden">
       <button

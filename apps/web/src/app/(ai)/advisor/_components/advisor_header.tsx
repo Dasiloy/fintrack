@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { PanelLeft, SlidersHorizontal, ArrowLeft, MessageCircle, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@bprogress/next';
 import { Badge, Button, Separator } from '@ui/components';
 import { cn } from '@ui/lib/utils';
 
@@ -29,13 +29,12 @@ export function AdvisorHeader({
   const router = useRouter();
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border-subtle bg-bg-elevated px-3 sm:px-4">
-
+    <header className="border-border-subtle bg-bg-elevated flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
       {/* Back to dashboard */}
       <button
         type="button"
         onClick={() => router.back()}
-        className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-bg-surface-hover hover:text-text-primary"
+        className="text-text-tertiary hover:bg-bg-surface-hover hover:text-text-primary flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors"
         aria-label="Back to dashboard"
       >
         <ArrowLeft className="size-4" />
@@ -48,7 +47,7 @@ export function AdvisorHeader({
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden size-9 shrink-0 cursor-pointer"
+          className="size-9 shrink-0 cursor-pointer md:hidden"
           onClick={onHistoryOpen}
           aria-label="Open conversation history"
         >
@@ -61,8 +60,8 @@ export function AdvisorHeader({
       )}
 
       {/* Logo + title */}
-      <div className="flex flex-1 items-center gap-2 min-w-0">
-        <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="bg-primary flex size-7 shrink-0 items-center justify-center rounded-lg shadow-sm">
           <Image
             src="/logo-icon-white.png"
             alt="FinTrack"
@@ -71,13 +70,10 @@ export function AdvisorHeader({
             className="h-4 w-auto"
           />
         </div>
-        <span className="hidden sm:block text-text-primary font-semibold text-sm truncate">
+        <span className="text-text-primary hidden truncate text-sm font-semibold sm:block">
           Fintrack Advisor
         </span>
-        <Badge
-          variant="outline"
-          className="hidden sm:inline-flex text-[10px] h-4 px-1.5 shrink-0"
-        >
+        <Badge variant="outline" className="hidden h-4 shrink-0 px-1.5 text-[10px] sm:inline-flex">
           Beta
         </Badge>
       </div>
@@ -88,14 +84,14 @@ export function AdvisorHeader({
        * On desktop the main tab content is driven from advisor_tabs.tsx,
        * but the switcher lives here so it's always in the header.
        */}
-      <div className="flex shrink-0 overflow-hidden rounded-lg border border-border-light bg-bg-surface">
+      <div className="border-border-light bg-bg-surface flex shrink-0 overflow-hidden rounded-lg border">
         {(['advisor', 'insights'] as const).map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => onTabChange(tab)}
             className={cn(
-              'cursor-pointer px-3 py-1.5 text-xs font-medium transition-colors duration-150 capitalize',
+              'cursor-pointer px-3 py-1.5 text-xs font-medium capitalize transition-colors duration-150',
               activeTab === tab
                 ? 'bg-primary text-white'
                 : 'text-text-secondary hover:text-text-primary hover:bg-bg-surface-hover',
@@ -122,7 +118,7 @@ export function AdvisorHeader({
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden size-9 shrink-0 cursor-pointer"
+        className="size-9 shrink-0 cursor-pointer lg:hidden"
         onClick={onToolsOpen}
         aria-label="Open tools panel"
       >

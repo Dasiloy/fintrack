@@ -61,7 +61,7 @@ export function InsightsGoalAlertList({ goalAlerts, expanded, onToggle }: Insigh
                 {/* "Fix it" CTA — stub navigation */}
                 <button
                   type="button"
-                  className="mt-0.5 flex shrink-0 items-center gap-0.5 text-[11px] font-medium text-primary hover:underline"
+                  className="mt-0.5 flex shrink-0 cursor-pointer items-center gap-0.5 text-[11px] font-medium text-primary hover:underline"
                   aria-label="Go to goals page"
                 >
                   Fix it

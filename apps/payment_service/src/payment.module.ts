@@ -24,7 +24,6 @@ import { PaymentService } from './payment.service';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         STRIPE_WEBHOOK_SECRET: Joi.string().required(),
         STRIPE_SECRET_KEY: Joi.string().required(),

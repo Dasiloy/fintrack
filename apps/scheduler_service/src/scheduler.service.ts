@@ -6,6 +6,8 @@ import { Cron } from '@nestjs/schedule';
 
 import {
   ACCOUNT_CLEANUP_QUEUE,
+  ANALYTICS_AGGREGATION_JOB,
+  ANALYTICS_AGGREGATION_QUEUE,
   BALANCE_ROLLOVER_JOB,
   BALANCE_ROLLOVER_QUEUE,
   CREATE_RECURRING_TRANSACTION,
@@ -27,6 +29,8 @@ export class SchedulerService {
     @InjectQueue(RECURRING_QUEUE) private readonly reccuringQueue: Queue,
     @InjectQueue(BALANCE_ROLLOVER_QUEUE)
     private readonly balanceRolloverQueue: Queue,
+    @InjectQueue(ANALYTICS_AGGREGATION_QUEUE)
+    private readonly analyticsAggregationQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
@@ -63,6 +67,19 @@ export class SchedulerService {
       {},
       {
         jobId: BALANCE_ROLLOVER_JOB,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    );
+  }
+
+  @Cron('0 2 * * *') // 2:00am every day — after balance rollover (12:01am on 1st)
+  aggregateAnalytics() {
+    void this.analyticsAggregationQueue.add(
+      ANALYTICS_AGGREGATION_JOB,
+      {},
+      {
+        jobId: ANALYTICS_AGGREGATION_JOB,
         removeOnComplete: true,
         removeOnFail: false,
       },

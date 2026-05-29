@@ -132,3 +132,12 @@ export interface RecurringTransactionsEmailPayload {
   date: string;
   items: RecurringTransactionItem[];
 }
+
+export interface InsightNotificationEmailPayload {
+  email: string;
+  firstName: string;
+  severity: 'info' | 'warning' | 'critical';
+  summary: string;
+  insightId: string;
+  conversationThreadId: string | null;
+}
