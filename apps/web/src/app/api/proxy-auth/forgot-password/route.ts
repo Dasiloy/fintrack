@@ -3,17 +3,30 @@ import { NextResponse } from 'next/server';
 import type { ForgotPasswordRes } from '@fintrack/types/protos/auth/auth';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import { parseJwtExpiration } from '@fintrack/utils/jwt';
+import { verifyTurnstileToken, getClientIp, extractCaptchaToken } from '@/lib/captcha';
+import type { NextRequest } from 'next/server';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const { token, rest: forgotBody } = extractCaptchaToken(body);
+
+    if (!token) {
+      return Response.json({ message: 'CAPTCHA verification required.' }, { status: 400 });
+    }
+
+    const verified = await verifyTurnstileToken(token, getClientIp(request));
+    if (!verified) {
+      return Response.json(
+        { message: 'CAPTCHA verification failed. Please try again.' },
+        { status: 400 },
+      );
+    }
 
     const response = await fetch(`${env.API_GATEWAY_URL}/api/auth/forgot-password`, {
       method: 'POST',
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      body: JSON.stringify(forgotBody),
+      headers: { 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {
@@ -35,6 +48,6 @@ export async function POST(request: Request) {
     return res;
   } catch (error) {
     console.error(error);
-    return Response.json({ message: 'An eeror occured!' }, { status: 500 });
+    return Response.json({ message: 'An error occured!' }, { status: 500 });
   }
 }
