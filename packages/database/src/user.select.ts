@@ -11,6 +11,9 @@ export const USER_SELECT = {
   dateFormat: true,
   timezone: true,
   lastLoginAt: true,
+  twoFactorEnabled: true,
+  hasSeenTwoFaPrompt: true,
+  hasCompletedOnboarding: true,
   setting: {
     select: {
       budgetAlertMail: true,

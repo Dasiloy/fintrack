@@ -7,6 +7,7 @@ import {
   BUDGET_CHECK_QUEUE,
   CLASSIFICATION_CORRECTION_QUEUE,
   FCM_NOTIFICATION_QUEUE,
+  INSIGHTS_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
@@ -24,6 +25,7 @@ import { UtilsService } from '../utils.service';
       { name: CLASSIFICATION_CORRECTION_QUEUE },
       { name: TOKEN_NOTIFICATION_QUEUE },
       { name: BUDGET_CHECK_QUEUE },
+      { name: INSIGHTS_QUEUE },
     ),
   ],
   controllers: [TransactionController],

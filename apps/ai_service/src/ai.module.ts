@@ -51,7 +51,6 @@ import { RegistoryModule } from './registory/registory.module';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        DATABASE_CA_CERTIFICATE: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         OPENAI_API_KEY: Joi.string().required(),
         ANTHROPIC_API_KEY: Joi.string().required(),

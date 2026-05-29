@@ -168,6 +168,16 @@ export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
  * 
  */
 export type ClassificationCorrection = $Result.DefaultSelection<Prisma.$ClassificationCorrectionPayload>
+/**
+ * Model AnalyticsSnapshot
+ * 
+ */
+export type AnalyticsSnapshot = $Result.DefaultSelection<Prisma.$AnalyticsSnapshotPayload>
+/**
+ * Model AiInsight
+ * 
+ */
+export type AiInsight = $Result.DefaultSelection<Prisma.$AiInsightPayload>
 
 /**
  * Enums
@@ -551,6 +561,35 @@ export const MonoBankAccountStatus: {
 
 export type MonoBankAccountStatus = (typeof MonoBankAccountStatus)[keyof typeof MonoBankAccountStatus]
 
+
+export const SnapshotType: {
+  MONTHLY_SUMMARY: 'MONTHLY_SUMMARY',
+  QUARTERLY_SUMMARY: 'QUARTERLY_SUMMARY',
+  YEARLY_SUMMARY: 'YEARLY_SUMMARY'
+};
+
+export type SnapshotType = (typeof SnapshotType)[keyof typeof SnapshotType]
+
+
+export const InsightTrigger: {
+  DAILY: 'DAILY',
+  POST_SYNC: 'POST_SYNC',
+  MONTH_END: 'MONTH_END',
+  BUDGET_BREACH: 'BUDGET_BREACH',
+  MANUAL: 'MANUAL'
+};
+
+export type InsightTrigger = (typeof InsightTrigger)[keyof typeof InsightTrigger]
+
+
+export const InsightSeverity: {
+  INFO: 'INFO',
+  WARNING: 'WARNING',
+  CRITICAL: 'CRITICAL'
+};
+
+export type InsightSeverity = (typeof InsightSeverity)[keyof typeof InsightSeverity]
+
 }
 
 export type Currency = $Enums.Currency
@@ -636,6 +675,18 @@ export const SplitStatus: typeof $Enums.SplitStatus
 export type MonoBankAccountStatus = $Enums.MonoBankAccountStatus
 
 export const MonoBankAccountStatus: typeof $Enums.MonoBankAccountStatus
+
+export type SnapshotType = $Enums.SnapshotType
+
+export const SnapshotType: typeof $Enums.SnapshotType
+
+export type InsightTrigger = $Enums.InsightTrigger
+
+export const InsightTrigger: typeof $Enums.InsightTrigger
+
+export type InsightSeverity = $Enums.InsightSeverity
+
+export const InsightSeverity: typeof $Enums.InsightSeverity
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1063,6 +1114,26 @@ export class PrismaClient<
     * ```
     */
   get classificationCorrection(): Prisma.ClassificationCorrectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.analyticsSnapshot`: Exposes CRUD operations for the **AnalyticsSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AnalyticsSnapshots
+    * const analyticsSnapshots = await prisma.analyticsSnapshot.findMany()
+    * ```
+    */
+  get analyticsSnapshot(): Prisma.AnalyticsSnapshotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.aiInsight`: Exposes CRUD operations for the **AiInsight** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AiInsights
+    * const aiInsights = await prisma.aiInsight.findMany()
+    * ```
+    */
+  get aiInsight(): Prisma.AiInsightDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1527,7 +1598,9 @@ export namespace Prisma {
     MonoBankAccount: 'MonoBankAccount',
     FcmDevice: 'FcmDevice',
     Notification: 'Notification',
-    ClassificationCorrection: 'ClassificationCorrection'
+    ClassificationCorrection: 'ClassificationCorrection',
+    AnalyticsSnapshot: 'AnalyticsSnapshot',
+    AiInsight: 'AiInsight'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1543,7 +1616,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3841,6 +3914,154 @@ export namespace Prisma {
           }
         }
       }
+      AnalyticsSnapshot: {
+        payload: Prisma.$AnalyticsSnapshotPayload<ExtArgs>
+        fields: Prisma.AnalyticsSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnalyticsSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnalyticsSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.AnalyticsSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnalyticsSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.AnalyticsSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.AnalyticsSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.AnalyticsSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnalyticsSnapshotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>[]
+          }
+          delete: {
+            args: Prisma.AnalyticsSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          update: {
+            args: Prisma.AnalyticsSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnalyticsSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnalyticsSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AnalyticsSnapshotUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>[]
+          }
+          upsert: {
+            args: Prisma.AnalyticsSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.AnalyticsSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnalyticsSnapshot>
+          }
+          groupBy: {
+            args: Prisma.AnalyticsSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnalyticsSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
+      AiInsight: {
+        payload: Prisma.$AiInsightPayload<ExtArgs>
+        fields: Prisma.AiInsightFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AiInsightFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AiInsightFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          findFirst: {
+            args: Prisma.AiInsightFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AiInsightFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          findMany: {
+            args: Prisma.AiInsightFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>[]
+          }
+          create: {
+            args: Prisma.AiInsightCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          createMany: {
+            args: Prisma.AiInsightCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AiInsightCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>[]
+          }
+          delete: {
+            args: Prisma.AiInsightDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          update: {
+            args: Prisma.AiInsightUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          deleteMany: {
+            args: Prisma.AiInsightDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AiInsightUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AiInsightUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>[]
+          }
+          upsert: {
+            args: Prisma.AiInsightUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AiInsightPayload>
+          }
+          aggregate: {
+            args: Prisma.AiInsightAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAiInsight>
+          }
+          groupBy: {
+            args: Prisma.AiInsightGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AiInsightGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AiInsightCountArgs<ExtArgs>
+            result: $Utils.Optional<AiInsightCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3980,6 +4201,8 @@ export namespace Prisma {
     fcmDevice?: FcmDeviceOmit
     notification?: NotificationOmit
     classificationCorrection?: ClassificationCorrectionOmit
+    analyticsSnapshot?: AnalyticsSnapshotOmit
+    aiInsight?: AiInsightOmit
   }
 
   /* Types for Logging */
@@ -4078,6 +4301,8 @@ export namespace Prisma {
     notifications: number
     classificationCorrections: number
     monthlyBalanceSnapshots: number
+    analyticsSnapshots: number
+    aiInsights: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4099,6 +4324,8 @@ export namespace Prisma {
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     classificationCorrections?: boolean | UserCountOutputTypeCountClassificationCorrectionsArgs
     monthlyBalanceSnapshots?: boolean | UserCountOutputTypeCountMonthlyBalanceSnapshotsArgs
+    analyticsSnapshots?: boolean | UserCountOutputTypeCountAnalyticsSnapshotsArgs
+    aiInsights?: boolean | UserCountOutputTypeCountAiInsightsArgs
   }
 
   // Custom InputTypes
@@ -4236,6 +4463,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountMonthlyBalanceSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MonthlyBalanceSnapshotWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAnalyticsSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalyticsSnapshotWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAiInsightsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AiInsightWhereInput
   }
 
 
@@ -6545,6 +6786,8 @@ export namespace Prisma {
     twoFactorEnabled: boolean | null
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    hasSeenTwoFaPrompt: boolean | null
+    hasCompletedOnboarding: boolean | null
     currency: $Enums.Currency | null
     language: $Enums.Language | null
     timezone: string | null
@@ -6569,6 +6812,8 @@ export namespace Prisma {
     twoFactorEnabled: boolean | null
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    hasSeenTwoFaPrompt: boolean | null
+    hasCompletedOnboarding: boolean | null
     currency: $Enums.Currency | null
     language: $Enums.Language | null
     timezone: string | null
@@ -6593,6 +6838,8 @@ export namespace Prisma {
     twoFactorEnabled: number
     twoFactorSecret: number
     twoFactorLastUsedAt: number
+    hasSeenTwoFaPrompt: number
+    hasCompletedOnboarding: number
     currency: number
     language: number
     timezone: number
@@ -6629,6 +6876,8 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    hasSeenTwoFaPrompt?: true
+    hasCompletedOnboarding?: true
     currency?: true
     language?: true
     timezone?: true
@@ -6653,6 +6902,8 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    hasSeenTwoFaPrompt?: true
+    hasCompletedOnboarding?: true
     currency?: true
     language?: true
     timezone?: true
@@ -6677,6 +6928,8 @@ export namespace Prisma {
     twoFactorEnabled?: true
     twoFactorSecret?: true
     twoFactorLastUsedAt?: true
+    hasSeenTwoFaPrompt?: true
+    hasCompletedOnboarding?: true
     currency?: true
     language?: true
     timezone?: true
@@ -6788,6 +7041,8 @@ export namespace Prisma {
     twoFactorEnabled: boolean
     twoFactorSecret: string | null
     twoFactorLastUsedAt: Date | null
+    hasSeenTwoFaPrompt: boolean
+    hasCompletedOnboarding: boolean
     currency: $Enums.Currency
     language: $Enums.Language
     timezone: string
@@ -6831,6 +7086,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: boolean
     language?: boolean
     timezone?: boolean
@@ -6859,6 +7116,8 @@ export namespace Prisma {
     classificationCorrections?: boolean | User$classificationCorrectionsArgs<ExtArgs>
     userBalance?: boolean | User$userBalanceArgs<ExtArgs>
     monthlyBalanceSnapshots?: boolean | User$monthlyBalanceSnapshotsArgs<ExtArgs>
+    analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
+    aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6877,6 +7136,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: boolean
     language?: boolean
     timezone?: boolean
@@ -6901,6 +7162,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: boolean
     language?: boolean
     timezone?: boolean
@@ -6925,6 +7188,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: boolean
     twoFactorLastUsedAt?: boolean
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: boolean
     language?: boolean
     timezone?: boolean
@@ -6934,7 +7199,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "twoFactorAttempts" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorLastUsedAt" | "currency" | "language" | "timezone" | "dateFormat" | "scheduledDeletionAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "loginAttempts" | "emailVerified" | "emailVerifiedAt" | "firstName" | "lastName" | "avatar" | "lastLoginAt" | "twoFactorAttempts" | "twoFactorEnabled" | "twoFactorSecret" | "twoFactorLastUsedAt" | "hasSeenTwoFaPrompt" | "hasCompletedOnboarding" | "currency" | "language" | "timezone" | "dateFormat" | "scheduledDeletionAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
@@ -6957,6 +7222,8 @@ export namespace Prisma {
     classificationCorrections?: boolean | User$classificationCorrectionsArgs<ExtArgs>
     userBalance?: boolean | User$userBalanceArgs<ExtArgs>
     monthlyBalanceSnapshots?: boolean | User$monthlyBalanceSnapshotsArgs<ExtArgs>
+    analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
+    aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6986,6 +7253,8 @@ export namespace Prisma {
       classificationCorrections: Prisma.$ClassificationCorrectionPayload<ExtArgs>[]
       userBalance: Prisma.$UserBalancePayload<ExtArgs> | null
       monthlyBalanceSnapshots: Prisma.$MonthlyBalanceSnapshotPayload<ExtArgs>[]
+      analyticsSnapshots: Prisma.$AnalyticsSnapshotPayload<ExtArgs>[]
+      aiInsights: Prisma.$AiInsightPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7002,6 +7271,8 @@ export namespace Prisma {
       twoFactorEnabled: boolean
       twoFactorSecret: string | null
       twoFactorLastUsedAt: Date | null
+      hasSeenTwoFaPrompt: boolean
+      hasCompletedOnboarding: boolean
       currency: $Enums.Currency
       language: $Enums.Language
       timezone: string
@@ -7424,6 +7695,8 @@ export namespace Prisma {
     classificationCorrections<T extends User$classificationCorrectionsArgs<ExtArgs> = {}>(args?: Subset<T, User$classificationCorrectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClassificationCorrectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userBalance<T extends User$userBalanceArgs<ExtArgs> = {}>(args?: Subset<T, User$userBalanceArgs<ExtArgs>>): Prisma__UserBalanceClient<$Result.GetResult<Prisma.$UserBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     monthlyBalanceSnapshots<T extends User$monthlyBalanceSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyBalanceSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyBalanceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    analyticsSnapshots<T extends User$analyticsSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, User$analyticsSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    aiInsights<T extends User$aiInsightsArgs<ExtArgs> = {}>(args?: Subset<T, User$aiInsightsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7467,6 +7740,8 @@ export namespace Prisma {
     readonly twoFactorEnabled: FieldRef<"User", 'Boolean'>
     readonly twoFactorSecret: FieldRef<"User", 'String'>
     readonly twoFactorLastUsedAt: FieldRef<"User", 'DateTime'>
+    readonly hasSeenTwoFaPrompt: FieldRef<"User", 'Boolean'>
+    readonly hasCompletedOnboarding: FieldRef<"User", 'Boolean'>
     readonly currency: FieldRef<"User", 'Currency'>
     readonly language: FieldRef<"User", 'Language'>
     readonly timezone: FieldRef<"User", 'String'>
@@ -8348,6 +8623,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MonthlyBalanceSnapshotScalarFieldEnum | MonthlyBalanceSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * User.analyticsSnapshots
+   */
+  export type User$analyticsSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    where?: AnalyticsSnapshotWhereInput
+    orderBy?: AnalyticsSnapshotOrderByWithRelationInput | AnalyticsSnapshotOrderByWithRelationInput[]
+    cursor?: AnalyticsSnapshotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AnalyticsSnapshotScalarFieldEnum | AnalyticsSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * User.aiInsights
+   */
+  export type User$aiInsightsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    where?: AiInsightWhereInput
+    orderBy?: AiInsightOrderByWithRelationInput | AiInsightOrderByWithRelationInput[]
+    cursor?: AiInsightWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AiInsightScalarFieldEnum | AiInsightScalarFieldEnum[]
   }
 
   /**
@@ -40670,6 +40993,2258 @@ export namespace Prisma {
 
 
   /**
+   * Model AnalyticsSnapshot
+   */
+
+  export type AggregateAnalyticsSnapshot = {
+    _count: AnalyticsSnapshotCountAggregateOutputType | null
+    _min: AnalyticsSnapshotMinAggregateOutputType | null
+    _max: AnalyticsSnapshotMaxAggregateOutputType | null
+  }
+
+  export type AnalyticsSnapshotMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    period: string | null
+    type: $Enums.SnapshotType | null
+    computedAt: Date | null
+  }
+
+  export type AnalyticsSnapshotMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    period: string | null
+    type: $Enums.SnapshotType | null
+    computedAt: Date | null
+  }
+
+  export type AnalyticsSnapshotCountAggregateOutputType = {
+    id: number
+    userId: number
+    period: number
+    type: number
+    data: number
+    computedAt: number
+    _all: number
+  }
+
+
+  export type AnalyticsSnapshotMinAggregateInputType = {
+    id?: true
+    userId?: true
+    period?: true
+    type?: true
+    computedAt?: true
+  }
+
+  export type AnalyticsSnapshotMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    period?: true
+    type?: true
+    computedAt?: true
+  }
+
+  export type AnalyticsSnapshotCountAggregateInputType = {
+    id?: true
+    userId?: true
+    period?: true
+    type?: true
+    data?: true
+    computedAt?: true
+    _all?: true
+  }
+
+  export type AnalyticsSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnalyticsSnapshot to aggregate.
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsSnapshots to fetch.
+     */
+    orderBy?: AnalyticsSnapshotOrderByWithRelationInput | AnalyticsSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnalyticsSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AnalyticsSnapshots
+    **/
+    _count?: true | AnalyticsSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnalyticsSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnalyticsSnapshotMaxAggregateInputType
+  }
+
+  export type GetAnalyticsSnapshotAggregateType<T extends AnalyticsSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnalyticsSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnalyticsSnapshot[P]>
+      : GetScalarType<T[P], AggregateAnalyticsSnapshot[P]>
+  }
+
+
+
+
+  export type AnalyticsSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalyticsSnapshotWhereInput
+    orderBy?: AnalyticsSnapshotOrderByWithAggregationInput | AnalyticsSnapshotOrderByWithAggregationInput[]
+    by: AnalyticsSnapshotScalarFieldEnum[] | AnalyticsSnapshotScalarFieldEnum
+    having?: AnalyticsSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnalyticsSnapshotCountAggregateInputType | true
+    _min?: AnalyticsSnapshotMinAggregateInputType
+    _max?: AnalyticsSnapshotMaxAggregateInputType
+  }
+
+  export type AnalyticsSnapshotGroupByOutputType = {
+    id: string
+    userId: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonValue
+    computedAt: Date
+    _count: AnalyticsSnapshotCountAggregateOutputType | null
+    _min: AnalyticsSnapshotMinAggregateOutputType | null
+    _max: AnalyticsSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetAnalyticsSnapshotGroupByPayload<T extends AnalyticsSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnalyticsSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnalyticsSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnalyticsSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], AnalyticsSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnalyticsSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    period?: boolean
+    type?: boolean
+    data?: boolean
+    computedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analyticsSnapshot"]>
+
+  export type AnalyticsSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    period?: boolean
+    type?: boolean
+    data?: boolean
+    computedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analyticsSnapshot"]>
+
+  export type AnalyticsSnapshotSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    period?: boolean
+    type?: boolean
+    data?: boolean
+    computedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["analyticsSnapshot"]>
+
+  export type AnalyticsSnapshotSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    period?: boolean
+    type?: boolean
+    data?: boolean
+    computedAt?: boolean
+  }
+
+  export type AnalyticsSnapshotOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "period" | "type" | "data" | "computedAt", ExtArgs["result"]["analyticsSnapshot"]>
+  export type AnalyticsSnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AnalyticsSnapshotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AnalyticsSnapshotIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AnalyticsSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AnalyticsSnapshot"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      period: string
+      type: $Enums.SnapshotType
+      data: Prisma.JsonValue
+      computedAt: Date
+    }, ExtArgs["result"]["analyticsSnapshot"]>
+    composites: {}
+  }
+
+  type AnalyticsSnapshotGetPayload<S extends boolean | null | undefined | AnalyticsSnapshotDefaultArgs> = $Result.GetResult<Prisma.$AnalyticsSnapshotPayload, S>
+
+  type AnalyticsSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnalyticsSnapshotFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnalyticsSnapshotCountAggregateInputType | true
+    }
+
+  export interface AnalyticsSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AnalyticsSnapshot'], meta: { name: 'AnalyticsSnapshot' } }
+    /**
+     * Find zero or one AnalyticsSnapshot that matches the filter.
+     * @param {AnalyticsSnapshotFindUniqueArgs} args - Arguments to find a AnalyticsSnapshot
+     * @example
+     * // Get one AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnalyticsSnapshotFindUniqueArgs>(args: SelectSubset<T, AnalyticsSnapshotFindUniqueArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AnalyticsSnapshot that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnalyticsSnapshotFindUniqueOrThrowArgs} args - Arguments to find a AnalyticsSnapshot
+     * @example
+     * // Get one AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnalyticsSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, AnalyticsSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnalyticsSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotFindFirstArgs} args - Arguments to find a AnalyticsSnapshot
+     * @example
+     * // Get one AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnalyticsSnapshotFindFirstArgs>(args?: SelectSubset<T, AnalyticsSnapshotFindFirstArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnalyticsSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotFindFirstOrThrowArgs} args - Arguments to find a AnalyticsSnapshot
+     * @example
+     * // Get one AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnalyticsSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, AnalyticsSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AnalyticsSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AnalyticsSnapshots
+     * const analyticsSnapshots = await prisma.analyticsSnapshot.findMany()
+     * 
+     * // Get first 10 AnalyticsSnapshots
+     * const analyticsSnapshots = await prisma.analyticsSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const analyticsSnapshotWithIdOnly = await prisma.analyticsSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnalyticsSnapshotFindManyArgs>(args?: SelectSubset<T, AnalyticsSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AnalyticsSnapshot.
+     * @param {AnalyticsSnapshotCreateArgs} args - Arguments to create a AnalyticsSnapshot.
+     * @example
+     * // Create one AnalyticsSnapshot
+     * const AnalyticsSnapshot = await prisma.analyticsSnapshot.create({
+     *   data: {
+     *     // ... data to create a AnalyticsSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnalyticsSnapshotCreateArgs>(args: SelectSubset<T, AnalyticsSnapshotCreateArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AnalyticsSnapshots.
+     * @param {AnalyticsSnapshotCreateManyArgs} args - Arguments to create many AnalyticsSnapshots.
+     * @example
+     * // Create many AnalyticsSnapshots
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnalyticsSnapshotCreateManyArgs>(args?: SelectSubset<T, AnalyticsSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AnalyticsSnapshots and returns the data saved in the database.
+     * @param {AnalyticsSnapshotCreateManyAndReturnArgs} args - Arguments to create many AnalyticsSnapshots.
+     * @example
+     * // Create many AnalyticsSnapshots
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AnalyticsSnapshots and only return the `id`
+     * const analyticsSnapshotWithIdOnly = await prisma.analyticsSnapshot.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnalyticsSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, AnalyticsSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AnalyticsSnapshot.
+     * @param {AnalyticsSnapshotDeleteArgs} args - Arguments to delete one AnalyticsSnapshot.
+     * @example
+     * // Delete one AnalyticsSnapshot
+     * const AnalyticsSnapshot = await prisma.analyticsSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one AnalyticsSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnalyticsSnapshotDeleteArgs>(args: SelectSubset<T, AnalyticsSnapshotDeleteArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AnalyticsSnapshot.
+     * @param {AnalyticsSnapshotUpdateArgs} args - Arguments to update one AnalyticsSnapshot.
+     * @example
+     * // Update one AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnalyticsSnapshotUpdateArgs>(args: SelectSubset<T, AnalyticsSnapshotUpdateArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AnalyticsSnapshots.
+     * @param {AnalyticsSnapshotDeleteManyArgs} args - Arguments to filter AnalyticsSnapshots to delete.
+     * @example
+     * // Delete a few AnalyticsSnapshots
+     * const { count } = await prisma.analyticsSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnalyticsSnapshotDeleteManyArgs>(args?: SelectSubset<T, AnalyticsSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnalyticsSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AnalyticsSnapshots
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnalyticsSnapshotUpdateManyArgs>(args: SelectSubset<T, AnalyticsSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnalyticsSnapshots and returns the data updated in the database.
+     * @param {AnalyticsSnapshotUpdateManyAndReturnArgs} args - Arguments to update many AnalyticsSnapshots.
+     * @example
+     * // Update many AnalyticsSnapshots
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AnalyticsSnapshots and only return the `id`
+     * const analyticsSnapshotWithIdOnly = await prisma.analyticsSnapshot.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AnalyticsSnapshotUpdateManyAndReturnArgs>(args: SelectSubset<T, AnalyticsSnapshotUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AnalyticsSnapshot.
+     * @param {AnalyticsSnapshotUpsertArgs} args - Arguments to update or create a AnalyticsSnapshot.
+     * @example
+     * // Update or create a AnalyticsSnapshot
+     * const analyticsSnapshot = await prisma.analyticsSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a AnalyticsSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AnalyticsSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnalyticsSnapshotUpsertArgs>(args: SelectSubset<T, AnalyticsSnapshotUpsertArgs<ExtArgs>>): Prisma__AnalyticsSnapshotClient<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AnalyticsSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotCountArgs} args - Arguments to filter AnalyticsSnapshots to count.
+     * @example
+     * // Count the number of AnalyticsSnapshots
+     * const count = await prisma.analyticsSnapshot.count({
+     *   where: {
+     *     // ... the filter for the AnalyticsSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnalyticsSnapshotCountArgs>(
+      args?: Subset<T, AnalyticsSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnalyticsSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AnalyticsSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnalyticsSnapshotAggregateArgs>(args: Subset<T, AnalyticsSnapshotAggregateArgs>): Prisma.PrismaPromise<GetAnalyticsSnapshotAggregateType<T>>
+
+    /**
+     * Group by AnalyticsSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnalyticsSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnalyticsSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: AnalyticsSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnalyticsSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnalyticsSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AnalyticsSnapshot model
+   */
+  readonly fields: AnalyticsSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AnalyticsSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnalyticsSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AnalyticsSnapshot model
+   */
+  interface AnalyticsSnapshotFieldRefs {
+    readonly id: FieldRef<"AnalyticsSnapshot", 'String'>
+    readonly userId: FieldRef<"AnalyticsSnapshot", 'String'>
+    readonly period: FieldRef<"AnalyticsSnapshot", 'String'>
+    readonly type: FieldRef<"AnalyticsSnapshot", 'SnapshotType'>
+    readonly data: FieldRef<"AnalyticsSnapshot", 'Json'>
+    readonly computedAt: FieldRef<"AnalyticsSnapshot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AnalyticsSnapshot findUnique
+   */
+  export type AnalyticsSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsSnapshot to fetch.
+     */
+    where: AnalyticsSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsSnapshot findUniqueOrThrow
+   */
+  export type AnalyticsSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsSnapshot to fetch.
+     */
+    where: AnalyticsSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsSnapshot findFirst
+   */
+  export type AnalyticsSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsSnapshot to fetch.
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsSnapshots to fetch.
+     */
+    orderBy?: AnalyticsSnapshotOrderByWithRelationInput | AnalyticsSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnalyticsSnapshots.
+     */
+    cursor?: AnalyticsSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnalyticsSnapshots.
+     */
+    distinct?: AnalyticsSnapshotScalarFieldEnum | AnalyticsSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsSnapshot findFirstOrThrow
+   */
+  export type AnalyticsSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsSnapshot to fetch.
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsSnapshots to fetch.
+     */
+    orderBy?: AnalyticsSnapshotOrderByWithRelationInput | AnalyticsSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnalyticsSnapshots.
+     */
+    cursor?: AnalyticsSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnalyticsSnapshots.
+     */
+    distinct?: AnalyticsSnapshotScalarFieldEnum | AnalyticsSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsSnapshot findMany
+   */
+  export type AnalyticsSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsSnapshots to fetch.
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsSnapshots to fetch.
+     */
+    orderBy?: AnalyticsSnapshotOrderByWithRelationInput | AnalyticsSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AnalyticsSnapshots.
+     */
+    cursor?: AnalyticsSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsSnapshots.
+     */
+    skip?: number
+    distinct?: AnalyticsSnapshotScalarFieldEnum | AnalyticsSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsSnapshot create
+   */
+  export type AnalyticsSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AnalyticsSnapshot.
+     */
+    data: XOR<AnalyticsSnapshotCreateInput, AnalyticsSnapshotUncheckedCreateInput>
+  }
+
+  /**
+   * AnalyticsSnapshot createMany
+   */
+  export type AnalyticsSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AnalyticsSnapshots.
+     */
+    data: AnalyticsSnapshotCreateManyInput | AnalyticsSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AnalyticsSnapshot createManyAndReturn
+   */
+  export type AnalyticsSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * The data used to create many AnalyticsSnapshots.
+     */
+    data: AnalyticsSnapshotCreateManyInput | AnalyticsSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AnalyticsSnapshot update
+   */
+  export type AnalyticsSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AnalyticsSnapshot.
+     */
+    data: XOR<AnalyticsSnapshotUpdateInput, AnalyticsSnapshotUncheckedUpdateInput>
+    /**
+     * Choose, which AnalyticsSnapshot to update.
+     */
+    where: AnalyticsSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsSnapshot updateMany
+   */
+  export type AnalyticsSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AnalyticsSnapshots.
+     */
+    data: XOR<AnalyticsSnapshotUpdateManyMutationInput, AnalyticsSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which AnalyticsSnapshots to update
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * Limit how many AnalyticsSnapshots to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnalyticsSnapshot updateManyAndReturn
+   */
+  export type AnalyticsSnapshotUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * The data used to update AnalyticsSnapshots.
+     */
+    data: XOR<AnalyticsSnapshotUpdateManyMutationInput, AnalyticsSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which AnalyticsSnapshots to update
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * Limit how many AnalyticsSnapshots to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AnalyticsSnapshot upsert
+   */
+  export type AnalyticsSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AnalyticsSnapshot to update in case it exists.
+     */
+    where: AnalyticsSnapshotWhereUniqueInput
+    /**
+     * In case the AnalyticsSnapshot found by the `where` argument doesn't exist, create a new AnalyticsSnapshot with this data.
+     */
+    create: XOR<AnalyticsSnapshotCreateInput, AnalyticsSnapshotUncheckedCreateInput>
+    /**
+     * In case the AnalyticsSnapshot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnalyticsSnapshotUpdateInput, AnalyticsSnapshotUncheckedUpdateInput>
+  }
+
+  /**
+   * AnalyticsSnapshot delete
+   */
+  export type AnalyticsSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter which AnalyticsSnapshot to delete.
+     */
+    where: AnalyticsSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsSnapshot deleteMany
+   */
+  export type AnalyticsSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnalyticsSnapshots to delete
+     */
+    where?: AnalyticsSnapshotWhereInput
+    /**
+     * Limit how many AnalyticsSnapshots to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnalyticsSnapshot without action
+   */
+  export type AnalyticsSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsSnapshot
+     */
+    select?: AnalyticsSnapshotSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsSnapshot
+     */
+    omit?: AnalyticsSnapshotOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalyticsSnapshotInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AiInsight
+   */
+
+  export type AggregateAiInsight = {
+    _count: AiInsightCountAggregateOutputType | null
+    _min: AiInsightMinAggregateOutputType | null
+    _max: AiInsightMaxAggregateOutputType | null
+  }
+
+  export type AiInsightMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    generatedAt: Date | null
+    trigger: $Enums.InsightTrigger | null
+    severity: $Enums.InsightSeverity | null
+    summary: string | null
+    cashFlowForecast: string | null
+    conversationThreadId: string | null
+    readAt: Date | null
+    notifiedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AiInsightMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    generatedAt: Date | null
+    trigger: $Enums.InsightTrigger | null
+    severity: $Enums.InsightSeverity | null
+    summary: string | null
+    cashFlowForecast: string | null
+    conversationThreadId: string | null
+    readAt: Date | null
+    notifiedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AiInsightCountAggregateOutputType = {
+    id: number
+    userId: number
+    generatedAt: number
+    trigger: number
+    severity: number
+    summary: number
+    anomalies: number
+    goalAlerts: number
+    cashFlowForecast: number
+    recommendations: number
+    macroContext: number
+    conversationThreadId: number
+    readAt: number
+    notifiedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AiInsightMinAggregateInputType = {
+    id?: true
+    userId?: true
+    generatedAt?: true
+    trigger?: true
+    severity?: true
+    summary?: true
+    cashFlowForecast?: true
+    conversationThreadId?: true
+    readAt?: true
+    notifiedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AiInsightMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    generatedAt?: true
+    trigger?: true
+    severity?: true
+    summary?: true
+    cashFlowForecast?: true
+    conversationThreadId?: true
+    readAt?: true
+    notifiedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AiInsightCountAggregateInputType = {
+    id?: true
+    userId?: true
+    generatedAt?: true
+    trigger?: true
+    severity?: true
+    summary?: true
+    anomalies?: true
+    goalAlerts?: true
+    cashFlowForecast?: true
+    recommendations?: true
+    macroContext?: true
+    conversationThreadId?: true
+    readAt?: true
+    notifiedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AiInsightAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AiInsight to aggregate.
+     */
+    where?: AiInsightWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AiInsights to fetch.
+     */
+    orderBy?: AiInsightOrderByWithRelationInput | AiInsightOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AiInsightWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AiInsights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AiInsights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AiInsights
+    **/
+    _count?: true | AiInsightCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AiInsightMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AiInsightMaxAggregateInputType
+  }
+
+  export type GetAiInsightAggregateType<T extends AiInsightAggregateArgs> = {
+        [P in keyof T & keyof AggregateAiInsight]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAiInsight[P]>
+      : GetScalarType<T[P], AggregateAiInsight[P]>
+  }
+
+
+
+
+  export type AiInsightGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AiInsightWhereInput
+    orderBy?: AiInsightOrderByWithAggregationInput | AiInsightOrderByWithAggregationInput[]
+    by: AiInsightScalarFieldEnum[] | AiInsightScalarFieldEnum
+    having?: AiInsightScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AiInsightCountAggregateInputType | true
+    _min?: AiInsightMinAggregateInputType
+    _max?: AiInsightMaxAggregateInputType
+  }
+
+  export type AiInsightGroupByOutputType = {
+    id: string
+    userId: string
+    generatedAt: Date
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies: JsonValue
+    goalAlerts: JsonValue
+    cashFlowForecast: string | null
+    recommendations: JsonValue
+    macroContext: JsonValue
+    conversationThreadId: string | null
+    readAt: Date | null
+    notifiedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AiInsightCountAggregateOutputType | null
+    _min: AiInsightMinAggregateOutputType | null
+    _max: AiInsightMaxAggregateOutputType | null
+  }
+
+  type GetAiInsightGroupByPayload<T extends AiInsightGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AiInsightGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AiInsightGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AiInsightGroupByOutputType[P]>
+            : GetScalarType<T[P], AiInsightGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AiInsightSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    generatedAt?: boolean
+    trigger?: boolean
+    severity?: boolean
+    summary?: boolean
+    anomalies?: boolean
+    goalAlerts?: boolean
+    cashFlowForecast?: boolean
+    recommendations?: boolean
+    macroContext?: boolean
+    conversationThreadId?: boolean
+    readAt?: boolean
+    notifiedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["aiInsight"]>
+
+  export type AiInsightSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    generatedAt?: boolean
+    trigger?: boolean
+    severity?: boolean
+    summary?: boolean
+    anomalies?: boolean
+    goalAlerts?: boolean
+    cashFlowForecast?: boolean
+    recommendations?: boolean
+    macroContext?: boolean
+    conversationThreadId?: boolean
+    readAt?: boolean
+    notifiedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["aiInsight"]>
+
+  export type AiInsightSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    generatedAt?: boolean
+    trigger?: boolean
+    severity?: boolean
+    summary?: boolean
+    anomalies?: boolean
+    goalAlerts?: boolean
+    cashFlowForecast?: boolean
+    recommendations?: boolean
+    macroContext?: boolean
+    conversationThreadId?: boolean
+    readAt?: boolean
+    notifiedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["aiInsight"]>
+
+  export type AiInsightSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    generatedAt?: boolean
+    trigger?: boolean
+    severity?: boolean
+    summary?: boolean
+    anomalies?: boolean
+    goalAlerts?: boolean
+    cashFlowForecast?: boolean
+    recommendations?: boolean
+    macroContext?: boolean
+    conversationThreadId?: boolean
+    readAt?: boolean
+    notifiedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AiInsightOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "generatedAt" | "trigger" | "severity" | "summary" | "anomalies" | "goalAlerts" | "cashFlowForecast" | "recommendations" | "macroContext" | "conversationThreadId" | "readAt" | "notifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["aiInsight"]>
+  export type AiInsightInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AiInsightIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AiInsightIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AiInsightPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AiInsight"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      generatedAt: Date
+      trigger: $Enums.InsightTrigger
+      severity: $Enums.InsightSeverity
+      summary: string
+      anomalies: Prisma.JsonValue
+      goalAlerts: Prisma.JsonValue
+      cashFlowForecast: string | null
+      recommendations: Prisma.JsonValue
+      macroContext: Prisma.JsonValue
+      conversationThreadId: string | null
+      readAt: Date | null
+      notifiedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["aiInsight"]>
+    composites: {}
+  }
+
+  type AiInsightGetPayload<S extends boolean | null | undefined | AiInsightDefaultArgs> = $Result.GetResult<Prisma.$AiInsightPayload, S>
+
+  type AiInsightCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AiInsightFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AiInsightCountAggregateInputType | true
+    }
+
+  export interface AiInsightDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AiInsight'], meta: { name: 'AiInsight' } }
+    /**
+     * Find zero or one AiInsight that matches the filter.
+     * @param {AiInsightFindUniqueArgs} args - Arguments to find a AiInsight
+     * @example
+     * // Get one AiInsight
+     * const aiInsight = await prisma.aiInsight.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AiInsightFindUniqueArgs>(args: SelectSubset<T, AiInsightFindUniqueArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AiInsight that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AiInsightFindUniqueOrThrowArgs} args - Arguments to find a AiInsight
+     * @example
+     * // Get one AiInsight
+     * const aiInsight = await prisma.aiInsight.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AiInsightFindUniqueOrThrowArgs>(args: SelectSubset<T, AiInsightFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AiInsight that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightFindFirstArgs} args - Arguments to find a AiInsight
+     * @example
+     * // Get one AiInsight
+     * const aiInsight = await prisma.aiInsight.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AiInsightFindFirstArgs>(args?: SelectSubset<T, AiInsightFindFirstArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AiInsight that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightFindFirstOrThrowArgs} args - Arguments to find a AiInsight
+     * @example
+     * // Get one AiInsight
+     * const aiInsight = await prisma.aiInsight.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AiInsightFindFirstOrThrowArgs>(args?: SelectSubset<T, AiInsightFindFirstOrThrowArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AiInsights that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AiInsights
+     * const aiInsights = await prisma.aiInsight.findMany()
+     * 
+     * // Get first 10 AiInsights
+     * const aiInsights = await prisma.aiInsight.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const aiInsightWithIdOnly = await prisma.aiInsight.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AiInsightFindManyArgs>(args?: SelectSubset<T, AiInsightFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AiInsight.
+     * @param {AiInsightCreateArgs} args - Arguments to create a AiInsight.
+     * @example
+     * // Create one AiInsight
+     * const AiInsight = await prisma.aiInsight.create({
+     *   data: {
+     *     // ... data to create a AiInsight
+     *   }
+     * })
+     * 
+     */
+    create<T extends AiInsightCreateArgs>(args: SelectSubset<T, AiInsightCreateArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AiInsights.
+     * @param {AiInsightCreateManyArgs} args - Arguments to create many AiInsights.
+     * @example
+     * // Create many AiInsights
+     * const aiInsight = await prisma.aiInsight.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AiInsightCreateManyArgs>(args?: SelectSubset<T, AiInsightCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AiInsights and returns the data saved in the database.
+     * @param {AiInsightCreateManyAndReturnArgs} args - Arguments to create many AiInsights.
+     * @example
+     * // Create many AiInsights
+     * const aiInsight = await prisma.aiInsight.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AiInsights and only return the `id`
+     * const aiInsightWithIdOnly = await prisma.aiInsight.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AiInsightCreateManyAndReturnArgs>(args?: SelectSubset<T, AiInsightCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AiInsight.
+     * @param {AiInsightDeleteArgs} args - Arguments to delete one AiInsight.
+     * @example
+     * // Delete one AiInsight
+     * const AiInsight = await prisma.aiInsight.delete({
+     *   where: {
+     *     // ... filter to delete one AiInsight
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AiInsightDeleteArgs>(args: SelectSubset<T, AiInsightDeleteArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AiInsight.
+     * @param {AiInsightUpdateArgs} args - Arguments to update one AiInsight.
+     * @example
+     * // Update one AiInsight
+     * const aiInsight = await prisma.aiInsight.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AiInsightUpdateArgs>(args: SelectSubset<T, AiInsightUpdateArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AiInsights.
+     * @param {AiInsightDeleteManyArgs} args - Arguments to filter AiInsights to delete.
+     * @example
+     * // Delete a few AiInsights
+     * const { count } = await prisma.aiInsight.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AiInsightDeleteManyArgs>(args?: SelectSubset<T, AiInsightDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AiInsights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AiInsights
+     * const aiInsight = await prisma.aiInsight.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AiInsightUpdateManyArgs>(args: SelectSubset<T, AiInsightUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AiInsights and returns the data updated in the database.
+     * @param {AiInsightUpdateManyAndReturnArgs} args - Arguments to update many AiInsights.
+     * @example
+     * // Update many AiInsights
+     * const aiInsight = await prisma.aiInsight.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AiInsights and only return the `id`
+     * const aiInsightWithIdOnly = await prisma.aiInsight.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AiInsightUpdateManyAndReturnArgs>(args: SelectSubset<T, AiInsightUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AiInsight.
+     * @param {AiInsightUpsertArgs} args - Arguments to update or create a AiInsight.
+     * @example
+     * // Update or create a AiInsight
+     * const aiInsight = await prisma.aiInsight.upsert({
+     *   create: {
+     *     // ... data to create a AiInsight
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AiInsight we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AiInsightUpsertArgs>(args: SelectSubset<T, AiInsightUpsertArgs<ExtArgs>>): Prisma__AiInsightClient<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AiInsights.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightCountArgs} args - Arguments to filter AiInsights to count.
+     * @example
+     * // Count the number of AiInsights
+     * const count = await prisma.aiInsight.count({
+     *   where: {
+     *     // ... the filter for the AiInsights we want to count
+     *   }
+     * })
+    **/
+    count<T extends AiInsightCountArgs>(
+      args?: Subset<T, AiInsightCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AiInsightCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AiInsight.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AiInsightAggregateArgs>(args: Subset<T, AiInsightAggregateArgs>): Prisma.PrismaPromise<GetAiInsightAggregateType<T>>
+
+    /**
+     * Group by AiInsight.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AiInsightGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AiInsightGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AiInsightGroupByArgs['orderBy'] }
+        : { orderBy?: AiInsightGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AiInsightGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAiInsightGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AiInsight model
+   */
+  readonly fields: AiInsightFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AiInsight.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AiInsightClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AiInsight model
+   */
+  interface AiInsightFieldRefs {
+    readonly id: FieldRef<"AiInsight", 'String'>
+    readonly userId: FieldRef<"AiInsight", 'String'>
+    readonly generatedAt: FieldRef<"AiInsight", 'DateTime'>
+    readonly trigger: FieldRef<"AiInsight", 'InsightTrigger'>
+    readonly severity: FieldRef<"AiInsight", 'InsightSeverity'>
+    readonly summary: FieldRef<"AiInsight", 'String'>
+    readonly anomalies: FieldRef<"AiInsight", 'Json'>
+    readonly goalAlerts: FieldRef<"AiInsight", 'Json'>
+    readonly cashFlowForecast: FieldRef<"AiInsight", 'String'>
+    readonly recommendations: FieldRef<"AiInsight", 'Json'>
+    readonly macroContext: FieldRef<"AiInsight", 'Json'>
+    readonly conversationThreadId: FieldRef<"AiInsight", 'String'>
+    readonly readAt: FieldRef<"AiInsight", 'DateTime'>
+    readonly notifiedAt: FieldRef<"AiInsight", 'DateTime'>
+    readonly createdAt: FieldRef<"AiInsight", 'DateTime'>
+    readonly updatedAt: FieldRef<"AiInsight", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AiInsight findUnique
+   */
+  export type AiInsightFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter, which AiInsight to fetch.
+     */
+    where: AiInsightWhereUniqueInput
+  }
+
+  /**
+   * AiInsight findUniqueOrThrow
+   */
+  export type AiInsightFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter, which AiInsight to fetch.
+     */
+    where: AiInsightWhereUniqueInput
+  }
+
+  /**
+   * AiInsight findFirst
+   */
+  export type AiInsightFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter, which AiInsight to fetch.
+     */
+    where?: AiInsightWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AiInsights to fetch.
+     */
+    orderBy?: AiInsightOrderByWithRelationInput | AiInsightOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AiInsights.
+     */
+    cursor?: AiInsightWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AiInsights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AiInsights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AiInsights.
+     */
+    distinct?: AiInsightScalarFieldEnum | AiInsightScalarFieldEnum[]
+  }
+
+  /**
+   * AiInsight findFirstOrThrow
+   */
+  export type AiInsightFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter, which AiInsight to fetch.
+     */
+    where?: AiInsightWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AiInsights to fetch.
+     */
+    orderBy?: AiInsightOrderByWithRelationInput | AiInsightOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AiInsights.
+     */
+    cursor?: AiInsightWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AiInsights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AiInsights.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AiInsights.
+     */
+    distinct?: AiInsightScalarFieldEnum | AiInsightScalarFieldEnum[]
+  }
+
+  /**
+   * AiInsight findMany
+   */
+  export type AiInsightFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter, which AiInsights to fetch.
+     */
+    where?: AiInsightWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AiInsights to fetch.
+     */
+    orderBy?: AiInsightOrderByWithRelationInput | AiInsightOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AiInsights.
+     */
+    cursor?: AiInsightWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AiInsights from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AiInsights.
+     */
+    skip?: number
+    distinct?: AiInsightScalarFieldEnum | AiInsightScalarFieldEnum[]
+  }
+
+  /**
+   * AiInsight create
+   */
+  export type AiInsightCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AiInsight.
+     */
+    data: XOR<AiInsightCreateInput, AiInsightUncheckedCreateInput>
+  }
+
+  /**
+   * AiInsight createMany
+   */
+  export type AiInsightCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AiInsights.
+     */
+    data: AiInsightCreateManyInput | AiInsightCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AiInsight createManyAndReturn
+   */
+  export type AiInsightCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * The data used to create many AiInsights.
+     */
+    data: AiInsightCreateManyInput | AiInsightCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AiInsight update
+   */
+  export type AiInsightUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AiInsight.
+     */
+    data: XOR<AiInsightUpdateInput, AiInsightUncheckedUpdateInput>
+    /**
+     * Choose, which AiInsight to update.
+     */
+    where: AiInsightWhereUniqueInput
+  }
+
+  /**
+   * AiInsight updateMany
+   */
+  export type AiInsightUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AiInsights.
+     */
+    data: XOR<AiInsightUpdateManyMutationInput, AiInsightUncheckedUpdateManyInput>
+    /**
+     * Filter which AiInsights to update
+     */
+    where?: AiInsightWhereInput
+    /**
+     * Limit how many AiInsights to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AiInsight updateManyAndReturn
+   */
+  export type AiInsightUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * The data used to update AiInsights.
+     */
+    data: XOR<AiInsightUpdateManyMutationInput, AiInsightUncheckedUpdateManyInput>
+    /**
+     * Filter which AiInsights to update
+     */
+    where?: AiInsightWhereInput
+    /**
+     * Limit how many AiInsights to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AiInsight upsert
+   */
+  export type AiInsightUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AiInsight to update in case it exists.
+     */
+    where: AiInsightWhereUniqueInput
+    /**
+     * In case the AiInsight found by the `where` argument doesn't exist, create a new AiInsight with this data.
+     */
+    create: XOR<AiInsightCreateInput, AiInsightUncheckedCreateInput>
+    /**
+     * In case the AiInsight was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AiInsightUpdateInput, AiInsightUncheckedUpdateInput>
+  }
+
+  /**
+   * AiInsight delete
+   */
+  export type AiInsightDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+    /**
+     * Filter which AiInsight to delete.
+     */
+    where: AiInsightWhereUniqueInput
+  }
+
+  /**
+   * AiInsight deleteMany
+   */
+  export type AiInsightDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AiInsights to delete
+     */
+    where?: AiInsightWhereInput
+    /**
+     * Limit how many AiInsights to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AiInsight without action
+   */
+  export type AiInsightDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AiInsight
+     */
+    select?: AiInsightSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AiInsight
+     */
+    omit?: AiInsightOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AiInsightInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -40720,6 +43295,8 @@ export namespace Prisma {
     twoFactorEnabled: 'twoFactorEnabled',
     twoFactorSecret: 'twoFactorSecret',
     twoFactorLastUsedAt: 'twoFactorLastUsedAt',
+    hasSeenTwoFaPrompt: 'hasSeenTwoFaPrompt',
+    hasCompletedOnboarding: 'hasCompletedOnboarding',
     currency: 'currency',
     language: 'language',
     timezone: 'timezone',
@@ -41176,6 +43753,40 @@ export namespace Prisma {
   export type ClassificationCorrectionScalarFieldEnum = (typeof ClassificationCorrectionScalarFieldEnum)[keyof typeof ClassificationCorrectionScalarFieldEnum]
 
 
+  export const AnalyticsSnapshotScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    period: 'period',
+    type: 'type',
+    data: 'data',
+    computedAt: 'computedAt'
+  };
+
+  export type AnalyticsSnapshotScalarFieldEnum = (typeof AnalyticsSnapshotScalarFieldEnum)[keyof typeof AnalyticsSnapshotScalarFieldEnum]
+
+
+  export const AiInsightScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    generatedAt: 'generatedAt',
+    trigger: 'trigger',
+    severity: 'severity',
+    summary: 'summary',
+    anomalies: 'anomalies',
+    goalAlerts: 'goalAlerts',
+    cashFlowForecast: 'cashFlowForecast',
+    recommendations: 'recommendations',
+    macroContext: 'macroContext',
+    conversationThreadId: 'conversationThreadId',
+    readAt: 'readAt',
+    notifiedAt: 'notifiedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AiInsightScalarFieldEnum = (typeof AiInsightScalarFieldEnum)[keyof typeof AiInsightScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -41612,6 +44223,48 @@ export namespace Prisma {
    */
   export type ListEnumMonoBankAccountStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MonoBankAccountStatus[]'>
     
+
+
+  /**
+   * Reference to a field of type 'SnapshotType'
+   */
+  export type EnumSnapshotTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SnapshotType'>
+    
+
+
+  /**
+   * Reference to a field of type 'SnapshotType[]'
+   */
+  export type ListEnumSnapshotTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SnapshotType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InsightTrigger'
+   */
+  export type EnumInsightTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightTrigger'>
+    
+
+
+  /**
+   * Reference to a field of type 'InsightTrigger[]'
+   */
+  export type ListEnumInsightTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightTrigger[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InsightSeverity'
+   */
+  export type EnumInsightSeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightSeverity'>
+    
+
+
+  /**
+   * Reference to a field of type 'InsightSeverity[]'
+   */
+  export type ListEnumInsightSeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightSeverity[]'>
+    
   /**
    * Deep Input Types
    */
@@ -41739,6 +44392,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFilter<"User"> | boolean
     twoFactorSecret?: StringNullableFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFilter<"User"> | boolean
+    hasCompletedOnboarding?: BoolFilter<"User"> | boolean
     currency?: EnumCurrencyFilter<"User"> | $Enums.Currency
     language?: EnumLanguageFilter<"User"> | $Enums.Language
     timezone?: StringFilter<"User"> | string
@@ -41767,6 +44422,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionListRelationFilter
     userBalance?: XOR<UserBalanceNullableScalarRelationFilter, UserBalanceWhereInput> | null
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotListRelationFilter
+    analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
+    aiInsights?: AiInsightListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -41784,6 +44441,8 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrderInput | SortOrder
     twoFactorLastUsedAt?: SortOrderInput | SortOrder
+    hasSeenTwoFaPrompt?: SortOrder
+    hasCompletedOnboarding?: SortOrder
     currency?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
@@ -41812,6 +44471,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionOrderByRelationAggregateInput
     userBalance?: UserBalanceOrderByWithRelationInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotOrderByRelationAggregateInput
+    analyticsSnapshots?: AnalyticsSnapshotOrderByRelationAggregateInput
+    aiInsights?: AiInsightOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -41832,6 +44493,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFilter<"User"> | boolean
     twoFactorSecret?: StringNullableFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFilter<"User"> | boolean
+    hasCompletedOnboarding?: BoolFilter<"User"> | boolean
     currency?: EnumCurrencyFilter<"User"> | $Enums.Currency
     language?: EnumLanguageFilter<"User"> | $Enums.Language
     timezone?: StringFilter<"User"> | string
@@ -41860,6 +44523,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionListRelationFilter
     userBalance?: XOR<UserBalanceNullableScalarRelationFilter, UserBalanceWhereInput> | null
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotListRelationFilter
+    analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
+    aiInsights?: AiInsightListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -41877,6 +44542,8 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrderInput | SortOrder
     twoFactorLastUsedAt?: SortOrderInput | SortOrder
+    hasSeenTwoFaPrompt?: SortOrder
+    hasCompletedOnboarding?: SortOrder
     currency?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
@@ -41909,6 +44576,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolWithAggregatesFilter<"User"> | boolean
     twoFactorSecret?: StringNullableWithAggregatesFilter<"User"> | string | null
     twoFactorLastUsedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    hasSeenTwoFaPrompt?: BoolWithAggregatesFilter<"User"> | boolean
+    hasCompletedOnboarding?: BoolWithAggregatesFilter<"User"> | boolean
     currency?: EnumCurrencyWithAggregatesFilter<"User"> | $Enums.Currency
     language?: EnumLanguageWithAggregatesFilter<"User"> | $Enums.Language
     timezone?: StringWithAggregatesFilter<"User"> | string
@@ -44238,6 +46907,177 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ClassificationCorrection"> | Date | string
   }
 
+  export type AnalyticsSnapshotWhereInput = {
+    AND?: AnalyticsSnapshotWhereInput | AnalyticsSnapshotWhereInput[]
+    OR?: AnalyticsSnapshotWhereInput[]
+    NOT?: AnalyticsSnapshotWhereInput | AnalyticsSnapshotWhereInput[]
+    id?: StringFilter<"AnalyticsSnapshot"> | string
+    userId?: StringFilter<"AnalyticsSnapshot"> | string
+    period?: StringFilter<"AnalyticsSnapshot"> | string
+    type?: EnumSnapshotTypeFilter<"AnalyticsSnapshot"> | $Enums.SnapshotType
+    data?: JsonFilter<"AnalyticsSnapshot">
+    computedAt?: DateTimeFilter<"AnalyticsSnapshot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AnalyticsSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    period?: SortOrder
+    type?: SortOrder
+    data?: SortOrder
+    computedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AnalyticsSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_period_type?: AnalyticsSnapshotUserIdPeriodTypeCompoundUniqueInput
+    AND?: AnalyticsSnapshotWhereInput | AnalyticsSnapshotWhereInput[]
+    OR?: AnalyticsSnapshotWhereInput[]
+    NOT?: AnalyticsSnapshotWhereInput | AnalyticsSnapshotWhereInput[]
+    userId?: StringFilter<"AnalyticsSnapshot"> | string
+    period?: StringFilter<"AnalyticsSnapshot"> | string
+    type?: EnumSnapshotTypeFilter<"AnalyticsSnapshot"> | $Enums.SnapshotType
+    data?: JsonFilter<"AnalyticsSnapshot">
+    computedAt?: DateTimeFilter<"AnalyticsSnapshot"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_period_type">
+
+  export type AnalyticsSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    period?: SortOrder
+    type?: SortOrder
+    data?: SortOrder
+    computedAt?: SortOrder
+    _count?: AnalyticsSnapshotCountOrderByAggregateInput
+    _max?: AnalyticsSnapshotMaxOrderByAggregateInput
+    _min?: AnalyticsSnapshotMinOrderByAggregateInput
+  }
+
+  export type AnalyticsSnapshotScalarWhereWithAggregatesInput = {
+    AND?: AnalyticsSnapshotScalarWhereWithAggregatesInput | AnalyticsSnapshotScalarWhereWithAggregatesInput[]
+    OR?: AnalyticsSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: AnalyticsSnapshotScalarWhereWithAggregatesInput | AnalyticsSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AnalyticsSnapshot"> | string
+    userId?: StringWithAggregatesFilter<"AnalyticsSnapshot"> | string
+    period?: StringWithAggregatesFilter<"AnalyticsSnapshot"> | string
+    type?: EnumSnapshotTypeWithAggregatesFilter<"AnalyticsSnapshot"> | $Enums.SnapshotType
+    data?: JsonWithAggregatesFilter<"AnalyticsSnapshot">
+    computedAt?: DateTimeWithAggregatesFilter<"AnalyticsSnapshot"> | Date | string
+  }
+
+  export type AiInsightWhereInput = {
+    AND?: AiInsightWhereInput | AiInsightWhereInput[]
+    OR?: AiInsightWhereInput[]
+    NOT?: AiInsightWhereInput | AiInsightWhereInput[]
+    id?: StringFilter<"AiInsight"> | string
+    userId?: StringFilter<"AiInsight"> | string
+    generatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+    trigger?: EnumInsightTriggerFilter<"AiInsight"> | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFilter<"AiInsight"> | $Enums.InsightSeverity
+    summary?: StringFilter<"AiInsight"> | string
+    anomalies?: JsonFilter<"AiInsight">
+    goalAlerts?: JsonFilter<"AiInsight">
+    cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
+    recommendations?: JsonFilter<"AiInsight">
+    macroContext?: JsonFilter<"AiInsight">
+    conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
+    readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    createdAt?: DateTimeFilter<"AiInsight"> | Date | string
+    updatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AiInsightOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    generatedAt?: SortOrder
+    trigger?: SortOrder
+    severity?: SortOrder
+    summary?: SortOrder
+    anomalies?: SortOrder
+    goalAlerts?: SortOrder
+    cashFlowForecast?: SortOrderInput | SortOrder
+    recommendations?: SortOrder
+    macroContext?: SortOrder
+    conversationThreadId?: SortOrderInput | SortOrder
+    readAt?: SortOrderInput | SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AiInsightWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AiInsightWhereInput | AiInsightWhereInput[]
+    OR?: AiInsightWhereInput[]
+    NOT?: AiInsightWhereInput | AiInsightWhereInput[]
+    userId?: StringFilter<"AiInsight"> | string
+    generatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+    trigger?: EnumInsightTriggerFilter<"AiInsight"> | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFilter<"AiInsight"> | $Enums.InsightSeverity
+    summary?: StringFilter<"AiInsight"> | string
+    anomalies?: JsonFilter<"AiInsight">
+    goalAlerts?: JsonFilter<"AiInsight">
+    cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
+    recommendations?: JsonFilter<"AiInsight">
+    macroContext?: JsonFilter<"AiInsight">
+    conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
+    readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    createdAt?: DateTimeFilter<"AiInsight"> | Date | string
+    updatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type AiInsightOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    generatedAt?: SortOrder
+    trigger?: SortOrder
+    severity?: SortOrder
+    summary?: SortOrder
+    anomalies?: SortOrder
+    goalAlerts?: SortOrder
+    cashFlowForecast?: SortOrderInput | SortOrder
+    recommendations?: SortOrder
+    macroContext?: SortOrder
+    conversationThreadId?: SortOrderInput | SortOrder
+    readAt?: SortOrderInput | SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AiInsightCountOrderByAggregateInput
+    _max?: AiInsightMaxOrderByAggregateInput
+    _min?: AiInsightMinOrderByAggregateInput
+  }
+
+  export type AiInsightScalarWhereWithAggregatesInput = {
+    AND?: AiInsightScalarWhereWithAggregatesInput | AiInsightScalarWhereWithAggregatesInput[]
+    OR?: AiInsightScalarWhereWithAggregatesInput[]
+    NOT?: AiInsightScalarWhereWithAggregatesInput | AiInsightScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AiInsight"> | string
+    userId?: StringWithAggregatesFilter<"AiInsight"> | string
+    generatedAt?: DateTimeWithAggregatesFilter<"AiInsight"> | Date | string
+    trigger?: EnumInsightTriggerWithAggregatesFilter<"AiInsight"> | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityWithAggregatesFilter<"AiInsight"> | $Enums.InsightSeverity
+    summary?: StringWithAggregatesFilter<"AiInsight"> | string
+    anomalies?: JsonWithAggregatesFilter<"AiInsight">
+    goalAlerts?: JsonWithAggregatesFilter<"AiInsight">
+    cashFlowForecast?: StringNullableWithAggregatesFilter<"AiInsight"> | string | null
+    recommendations?: JsonWithAggregatesFilter<"AiInsight">
+    macroContext?: JsonWithAggregatesFilter<"AiInsight">
+    conversationThreadId?: StringNullableWithAggregatesFilter<"AiInsight"> | string | null
+    readAt?: DateTimeNullableWithAggregatesFilter<"AiInsight"> | Date | string | null
+    notifiedAt?: DateTimeNullableWithAggregatesFilter<"AiInsight"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AiInsight"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AiInsight"> | Date | string
+  }
+
   export type CurrenciesCreateInput = {
     id?: string
     currency: $Enums.Currency
@@ -44365,6 +47205,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -44393,6 +47235,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -44410,6 +47254,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -44438,6 +47284,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -44455,6 +47303,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -44483,6 +47333,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -44500,6 +47352,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -44528,6 +47382,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -44545,6 +47401,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -44569,6 +47427,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -44593,6 +47453,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -47140,6 +50002,200 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AnalyticsSnapshotCreateInput = {
+    id?: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+    user: UserCreateNestedOneWithoutAnalyticsSnapshotsInput
+  }
+
+  export type AnalyticsSnapshotUncheckedCreateInput = {
+    id?: string
+    userId: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+  }
+
+  export type AnalyticsSnapshotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAnalyticsSnapshotsNestedInput
+  }
+
+  export type AnalyticsSnapshotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsSnapshotCreateManyInput = {
+    id?: string
+    userId: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+  }
+
+  export type AnalyticsSnapshotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsSnapshotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightCreateInput = {
+    id?: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAiInsightsInput
+  }
+
+  export type AiInsightUncheckedCreateInput = {
+    id?: string
+    userId: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AiInsightUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAiInsightsNestedInput
+  }
+
+  export type AiInsightUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightCreateManyInput = {
+    id?: string
+    userId: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AiInsightUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -47452,6 +50508,18 @@ export namespace Prisma {
     none?: MonthlyBalanceSnapshotWhereInput
   }
 
+  export type AnalyticsSnapshotListRelationFilter = {
+    every?: AnalyticsSnapshotWhereInput
+    some?: AnalyticsSnapshotWhereInput
+    none?: AnalyticsSnapshotWhereInput
+  }
+
+  export type AiInsightListRelationFilter = {
+    every?: AiInsightWhereInput
+    some?: AiInsightWhereInput
+    none?: AiInsightWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -47529,6 +50597,14 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type AnalyticsSnapshotOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AiInsightOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     email?: SortOrder
@@ -47544,6 +50620,8 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    hasSeenTwoFaPrompt?: SortOrder
+    hasCompletedOnboarding?: SortOrder
     currency?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
@@ -47573,6 +50651,8 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    hasSeenTwoFaPrompt?: SortOrder
+    hasCompletedOnboarding?: SortOrder
     currency?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
@@ -47597,6 +50677,8 @@ export namespace Prisma {
     twoFactorEnabled?: SortOrder
     twoFactorSecret?: SortOrder
     twoFactorLastUsedAt?: SortOrder
+    hasSeenTwoFaPrompt?: SortOrder
+    hasCompletedOnboarding?: SortOrder
     currency?: SortOrder
     language?: SortOrder
     timezone?: SortOrder
@@ -49573,6 +52655,137 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type EnumSnapshotTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SnapshotType | EnumSnapshotTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSnapshotTypeFilter<$PrismaModel> | $Enums.SnapshotType
+  }
+
+  export type AnalyticsSnapshotUserIdPeriodTypeCompoundUniqueInput = {
+    userId: string
+    period: string
+    type: $Enums.SnapshotType
+  }
+
+  export type AnalyticsSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    period?: SortOrder
+    type?: SortOrder
+    data?: SortOrder
+    computedAt?: SortOrder
+  }
+
+  export type AnalyticsSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    period?: SortOrder
+    type?: SortOrder
+    computedAt?: SortOrder
+  }
+
+  export type AnalyticsSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    period?: SortOrder
+    type?: SortOrder
+    computedAt?: SortOrder
+  }
+
+  export type EnumSnapshotTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SnapshotType | EnumSnapshotTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSnapshotTypeWithAggregatesFilter<$PrismaModel> | $Enums.SnapshotType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSnapshotTypeFilter<$PrismaModel>
+    _max?: NestedEnumSnapshotTypeFilter<$PrismaModel>
+  }
+
+  export type EnumInsightTriggerFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightTrigger | EnumInsightTriggerFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightTriggerFilter<$PrismaModel> | $Enums.InsightTrigger
+  }
+
+  export type EnumInsightSeverityFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightSeverity | EnumInsightSeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightSeverityFilter<$PrismaModel> | $Enums.InsightSeverity
+  }
+
+  export type AiInsightCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    generatedAt?: SortOrder
+    trigger?: SortOrder
+    severity?: SortOrder
+    summary?: SortOrder
+    anomalies?: SortOrder
+    goalAlerts?: SortOrder
+    cashFlowForecast?: SortOrder
+    recommendations?: SortOrder
+    macroContext?: SortOrder
+    conversationThreadId?: SortOrder
+    readAt?: SortOrder
+    notifiedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AiInsightMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    generatedAt?: SortOrder
+    trigger?: SortOrder
+    severity?: SortOrder
+    summary?: SortOrder
+    cashFlowForecast?: SortOrder
+    conversationThreadId?: SortOrder
+    readAt?: SortOrder
+    notifiedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AiInsightMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    generatedAt?: SortOrder
+    trigger?: SortOrder
+    severity?: SortOrder
+    summary?: SortOrder
+    cashFlowForecast?: SortOrder
+    conversationThreadId?: SortOrder
+    readAt?: SortOrder
+    notifiedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumInsightTriggerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightTrigger | EnumInsightTriggerFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightTriggerWithAggregatesFilter<$PrismaModel> | $Enums.InsightTrigger
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInsightTriggerFilter<$PrismaModel>
+    _max?: NestedEnumInsightTriggerFilter<$PrismaModel>
+  }
+
+  export type EnumInsightSeverityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightSeverity | EnumInsightSeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightSeverityWithAggregatesFilter<$PrismaModel> | $Enums.InsightSeverity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInsightSeverityFilter<$PrismaModel>
+    _max?: NestedEnumInsightSeverityFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -49733,6 +52946,20 @@ export namespace Prisma {
     connect?: MonthlyBalanceSnapshotWhereUniqueInput | MonthlyBalanceSnapshotWhereUniqueInput[]
   }
 
+  export type AnalyticsSnapshotCreateNestedManyWithoutUserInput = {
+    create?: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput> | AnalyticsSnapshotCreateWithoutUserInput[] | AnalyticsSnapshotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnalyticsSnapshotCreateOrConnectWithoutUserInput | AnalyticsSnapshotCreateOrConnectWithoutUserInput[]
+    createMany?: AnalyticsSnapshotCreateManyUserInputEnvelope
+    connect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+  }
+
+  export type AiInsightCreateNestedManyWithoutUserInput = {
+    create?: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput> | AiInsightCreateWithoutUserInput[] | AiInsightUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AiInsightCreateOrConnectWithoutUserInput | AiInsightCreateOrConnectWithoutUserInput[]
+    createMany?: AiInsightCreateManyUserInputEnvelope
+    connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -49875,6 +53102,20 @@ export namespace Prisma {
     connectOrCreate?: MonthlyBalanceSnapshotCreateOrConnectWithoutUserInput | MonthlyBalanceSnapshotCreateOrConnectWithoutUserInput[]
     createMany?: MonthlyBalanceSnapshotCreateManyUserInputEnvelope
     connect?: MonthlyBalanceSnapshotWhereUniqueInput | MonthlyBalanceSnapshotWhereUniqueInput[]
+  }
+
+  export type AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput> | AnalyticsSnapshotCreateWithoutUserInput[] | AnalyticsSnapshotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnalyticsSnapshotCreateOrConnectWithoutUserInput | AnalyticsSnapshotCreateOrConnectWithoutUserInput[]
+    createMany?: AnalyticsSnapshotCreateManyUserInputEnvelope
+    connect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+  }
+
+  export type AiInsightUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput> | AiInsightCreateWithoutUserInput[] | AiInsightUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AiInsightCreateOrConnectWithoutUserInput | AiInsightCreateOrConnectWithoutUserInput[]
+    createMany?: AiInsightCreateManyUserInputEnvelope
+    connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -50183,6 +53424,34 @@ export namespace Prisma {
     deleteMany?: MonthlyBalanceSnapshotScalarWhereInput | MonthlyBalanceSnapshotScalarWhereInput[]
   }
 
+  export type AnalyticsSnapshotUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput> | AnalyticsSnapshotCreateWithoutUserInput[] | AnalyticsSnapshotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnalyticsSnapshotCreateOrConnectWithoutUserInput | AnalyticsSnapshotCreateOrConnectWithoutUserInput[]
+    upsert?: AnalyticsSnapshotUpsertWithWhereUniqueWithoutUserInput | AnalyticsSnapshotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AnalyticsSnapshotCreateManyUserInputEnvelope
+    set?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    disconnect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    delete?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    connect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    update?: AnalyticsSnapshotUpdateWithWhereUniqueWithoutUserInput | AnalyticsSnapshotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AnalyticsSnapshotUpdateManyWithWhereWithoutUserInput | AnalyticsSnapshotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AnalyticsSnapshotScalarWhereInput | AnalyticsSnapshotScalarWhereInput[]
+  }
+
+  export type AiInsightUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput> | AiInsightCreateWithoutUserInput[] | AiInsightUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AiInsightCreateOrConnectWithoutUserInput | AiInsightCreateOrConnectWithoutUserInput[]
+    upsert?: AiInsightUpsertWithWhereUniqueWithoutUserInput | AiInsightUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AiInsightCreateManyUserInputEnvelope
+    set?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    disconnect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    delete?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    update?: AiInsightUpdateWithWhereUniqueWithoutUserInput | AiInsightUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AiInsightUpdateManyWithWhereWithoutUserInput | AiInsightUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -50463,6 +53732,34 @@ export namespace Prisma {
     update?: MonthlyBalanceSnapshotUpdateWithWhereUniqueWithoutUserInput | MonthlyBalanceSnapshotUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: MonthlyBalanceSnapshotUpdateManyWithWhereWithoutUserInput | MonthlyBalanceSnapshotUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: MonthlyBalanceSnapshotScalarWhereInput | MonthlyBalanceSnapshotScalarWhereInput[]
+  }
+
+  export type AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput> | AnalyticsSnapshotCreateWithoutUserInput[] | AnalyticsSnapshotUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AnalyticsSnapshotCreateOrConnectWithoutUserInput | AnalyticsSnapshotCreateOrConnectWithoutUserInput[]
+    upsert?: AnalyticsSnapshotUpsertWithWhereUniqueWithoutUserInput | AnalyticsSnapshotUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AnalyticsSnapshotCreateManyUserInputEnvelope
+    set?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    disconnect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    delete?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    connect?: AnalyticsSnapshotWhereUniqueInput | AnalyticsSnapshotWhereUniqueInput[]
+    update?: AnalyticsSnapshotUpdateWithWhereUniqueWithoutUserInput | AnalyticsSnapshotUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AnalyticsSnapshotUpdateManyWithWhereWithoutUserInput | AnalyticsSnapshotUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AnalyticsSnapshotScalarWhereInput | AnalyticsSnapshotScalarWhereInput[]
+  }
+
+  export type AiInsightUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput> | AiInsightCreateWithoutUserInput[] | AiInsightUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AiInsightCreateOrConnectWithoutUserInput | AiInsightCreateOrConnectWithoutUserInput[]
+    upsert?: AiInsightUpsertWithWhereUniqueWithoutUserInput | AiInsightUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AiInsightCreateManyUserInputEnvelope
+    set?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    disconnect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    delete?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+    update?: AiInsightUpdateWithWhereUniqueWithoutUserInput | AiInsightUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AiInsightUpdateManyWithWhereWithoutUserInput | AiInsightUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -51603,6 +54900,46 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClassificationCorrectionsInput, UserUpdateWithoutClassificationCorrectionsInput>, UserUncheckedUpdateWithoutClassificationCorrectionsInput>
   }
 
+  export type UserCreateNestedOneWithoutAnalyticsSnapshotsInput = {
+    create?: XOR<UserCreateWithoutAnalyticsSnapshotsInput, UserUncheckedCreateWithoutAnalyticsSnapshotsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnalyticsSnapshotsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumSnapshotTypeFieldUpdateOperationsInput = {
+    set?: $Enums.SnapshotType
+  }
+
+  export type UserUpdateOneRequiredWithoutAnalyticsSnapshotsNestedInput = {
+    create?: XOR<UserCreateWithoutAnalyticsSnapshotsInput, UserUncheckedCreateWithoutAnalyticsSnapshotsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnalyticsSnapshotsInput
+    upsert?: UserUpsertWithoutAnalyticsSnapshotsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAnalyticsSnapshotsInput, UserUpdateWithoutAnalyticsSnapshotsInput>, UserUncheckedUpdateWithoutAnalyticsSnapshotsInput>
+  }
+
+  export type UserCreateNestedOneWithoutAiInsightsInput = {
+    create?: XOR<UserCreateWithoutAiInsightsInput, UserUncheckedCreateWithoutAiInsightsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAiInsightsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumInsightTriggerFieldUpdateOperationsInput = {
+    set?: $Enums.InsightTrigger
+  }
+
+  export type EnumInsightSeverityFieldUpdateOperationsInput = {
+    set?: $Enums.InsightSeverity
+  }
+
+  export type UserUpdateOneRequiredWithoutAiInsightsNestedInput = {
+    create?: XOR<UserCreateWithoutAiInsightsInput, UserUncheckedCreateWithoutAiInsightsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAiInsightsInput
+    upsert?: UserUpsertWithoutAiInsightsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAiInsightsInput, UserUpdateWithoutAiInsightsInput>, UserUncheckedUpdateWithoutAiInsightsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -52264,6 +55601,57 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMonoBankAccountStatusFilter<$PrismaModel>
     _max?: NestedEnumMonoBankAccountStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSnapshotTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SnapshotType | EnumSnapshotTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSnapshotTypeFilter<$PrismaModel> | $Enums.SnapshotType
+  }
+
+  export type NestedEnumSnapshotTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SnapshotType | EnumSnapshotTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SnapshotType[] | ListEnumSnapshotTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSnapshotTypeWithAggregatesFilter<$PrismaModel> | $Enums.SnapshotType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSnapshotTypeFilter<$PrismaModel>
+    _max?: NestedEnumSnapshotTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInsightTriggerFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightTrigger | EnumInsightTriggerFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightTriggerFilter<$PrismaModel> | $Enums.InsightTrigger
+  }
+
+  export type NestedEnumInsightSeverityFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightSeverity | EnumInsightSeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightSeverityFilter<$PrismaModel> | $Enums.InsightSeverity
+  }
+
+  export type NestedEnumInsightTriggerWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightTrigger | EnumInsightTriggerFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightTriggerWithAggregatesFilter<$PrismaModel> | $Enums.InsightTrigger
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInsightTriggerFilter<$PrismaModel>
+    _max?: NestedEnumInsightTriggerFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInsightSeverityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InsightSeverity | EnumInsightSeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InsightSeverity[] | ListEnumInsightSeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumInsightSeverityWithAggregatesFilter<$PrismaModel> | $Enums.InsightSeverity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInsightSeverityFilter<$PrismaModel>
+    _max?: NestedEnumInsightSeverityFilter<$PrismaModel>
   }
 
   export type AccountCreateWithoutUserInput = {
@@ -53027,6 +56415,78 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AnalyticsSnapshotCreateWithoutUserInput = {
+    id?: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+  }
+
+  export type AnalyticsSnapshotUncheckedCreateWithoutUserInput = {
+    id?: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+  }
+
+  export type AnalyticsSnapshotCreateOrConnectWithoutUserInput = {
+    where: AnalyticsSnapshotWhereUniqueInput
+    create: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput>
+  }
+
+  export type AnalyticsSnapshotCreateManyUserInputEnvelope = {
+    data: AnalyticsSnapshotCreateManyUserInput | AnalyticsSnapshotCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AiInsightCreateWithoutUserInput = {
+    id?: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AiInsightUncheckedCreateWithoutUserInput = {
+    id?: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AiInsightCreateOrConnectWithoutUserInput = {
+    where: AiInsightWhereUniqueInput
+    create: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput>
+  }
+
+  export type AiInsightCreateManyUserInputEnvelope = {
+    data: AiInsightCreateManyUserInput | AiInsightCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -53737,6 +57197,72 @@ export namespace Prisma {
     userId?: StringFilter<"MonthlyBalanceSnapshot"> | string
   }
 
+  export type AnalyticsSnapshotUpsertWithWhereUniqueWithoutUserInput = {
+    where: AnalyticsSnapshotWhereUniqueInput
+    update: XOR<AnalyticsSnapshotUpdateWithoutUserInput, AnalyticsSnapshotUncheckedUpdateWithoutUserInput>
+    create: XOR<AnalyticsSnapshotCreateWithoutUserInput, AnalyticsSnapshotUncheckedCreateWithoutUserInput>
+  }
+
+  export type AnalyticsSnapshotUpdateWithWhereUniqueWithoutUserInput = {
+    where: AnalyticsSnapshotWhereUniqueInput
+    data: XOR<AnalyticsSnapshotUpdateWithoutUserInput, AnalyticsSnapshotUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AnalyticsSnapshotUpdateManyWithWhereWithoutUserInput = {
+    where: AnalyticsSnapshotScalarWhereInput
+    data: XOR<AnalyticsSnapshotUpdateManyMutationInput, AnalyticsSnapshotUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AnalyticsSnapshotScalarWhereInput = {
+    AND?: AnalyticsSnapshotScalarWhereInput | AnalyticsSnapshotScalarWhereInput[]
+    OR?: AnalyticsSnapshotScalarWhereInput[]
+    NOT?: AnalyticsSnapshotScalarWhereInput | AnalyticsSnapshotScalarWhereInput[]
+    id?: StringFilter<"AnalyticsSnapshot"> | string
+    userId?: StringFilter<"AnalyticsSnapshot"> | string
+    period?: StringFilter<"AnalyticsSnapshot"> | string
+    type?: EnumSnapshotTypeFilter<"AnalyticsSnapshot"> | $Enums.SnapshotType
+    data?: JsonFilter<"AnalyticsSnapshot">
+    computedAt?: DateTimeFilter<"AnalyticsSnapshot"> | Date | string
+  }
+
+  export type AiInsightUpsertWithWhereUniqueWithoutUserInput = {
+    where: AiInsightWhereUniqueInput
+    update: XOR<AiInsightUpdateWithoutUserInput, AiInsightUncheckedUpdateWithoutUserInput>
+    create: XOR<AiInsightCreateWithoutUserInput, AiInsightUncheckedCreateWithoutUserInput>
+  }
+
+  export type AiInsightUpdateWithWhereUniqueWithoutUserInput = {
+    where: AiInsightWhereUniqueInput
+    data: XOR<AiInsightUpdateWithoutUserInput, AiInsightUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AiInsightUpdateManyWithWhereWithoutUserInput = {
+    where: AiInsightScalarWhereInput
+    data: XOR<AiInsightUpdateManyMutationInput, AiInsightUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AiInsightScalarWhereInput = {
+    AND?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
+    OR?: AiInsightScalarWhereInput[]
+    NOT?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
+    id?: StringFilter<"AiInsight"> | string
+    userId?: StringFilter<"AiInsight"> | string
+    generatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+    trigger?: EnumInsightTriggerFilter<"AiInsight"> | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFilter<"AiInsight"> | $Enums.InsightSeverity
+    summary?: StringFilter<"AiInsight"> | string
+    anomalies?: JsonFilter<"AiInsight">
+    goalAlerts?: JsonFilter<"AiInsight">
+    cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
+    recommendations?: JsonFilter<"AiInsight">
+    macroContext?: JsonFilter<"AiInsight">
+    conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
+    readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
+    createdAt?: DateTimeFilter<"AiInsight"> | Date | string
+    updatedAt?: DateTimeFilter<"AiInsight"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -53752,6 +57278,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -53779,6 +57307,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -53796,6 +57326,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -53823,6 +57355,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -53856,6 +57390,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -53883,6 +57419,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -53900,6 +57438,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -53927,6 +57467,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -53944,6 +57486,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -53971,6 +57515,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -53988,6 +57534,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54015,6 +57563,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -54048,6 +57598,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54075,6 +57627,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -54092,6 +57646,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54119,6 +57675,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -54136,6 +57694,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54163,6 +57723,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -54180,6 +57742,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54207,6 +57771,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -54240,6 +57806,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54267,6 +57835,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -54284,6 +57854,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54311,6 +57883,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -54328,6 +57902,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54355,6 +57931,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -54372,6 +57950,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54399,6 +57979,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -54432,6 +58014,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54459,6 +58043,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -54476,6 +58062,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54503,6 +58091,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -54520,6 +58110,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54547,6 +58139,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -54564,6 +58158,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54591,6 +58187,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -54624,6 +58222,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54651,6 +58251,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -54668,6 +58270,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54695,6 +58299,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserBalanceInput = {
@@ -54712,6 +58318,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54739,6 +58347,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserBalanceInput = {
@@ -54756,6 +58366,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54783,6 +58395,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserBalanceInput = {
@@ -54816,6 +58430,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54843,6 +58459,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserBalanceInput = {
@@ -54860,6 +58478,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -54887,6 +58507,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -54904,6 +58526,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54931,6 +58555,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -54948,6 +58574,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -54975,6 +58603,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyBalanceSnapshotsInput = {
@@ -55008,6 +58638,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55035,6 +58667,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyBalanceSnapshotsInput = {
@@ -55052,6 +58686,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55079,6 +58715,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -55096,6 +58734,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55123,6 +58763,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -55140,6 +58782,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55167,6 +58811,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -55200,6 +58846,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55227,6 +58875,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -55244,6 +58894,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55271,6 +58923,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutActivityLogsInput = {
@@ -55288,6 +58942,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55315,6 +58971,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -55332,6 +58990,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55359,6 +59019,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -55392,6 +59054,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55419,6 +59083,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -55436,6 +59102,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55463,6 +59131,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingInput = {
@@ -55480,6 +59150,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55507,6 +59179,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingInput = {
@@ -55524,6 +59198,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55551,6 +59227,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingInput = {
@@ -55584,6 +59262,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55611,6 +59291,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingInput = {
@@ -55628,6 +59310,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55655,6 +59339,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCategoriesInput = {
@@ -55672,6 +59358,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55699,6 +59387,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -55716,6 +59406,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -55743,6 +59435,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -55932,6 +59626,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -55959,6 +59655,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -55976,6 +59674,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -56003,6 +59703,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -56105,6 +59807,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56132,6 +59836,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -56149,6 +59855,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56176,6 +59884,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -56280,6 +59990,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -56307,6 +60019,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -56324,6 +60038,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -56351,6 +60067,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetHistoryUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -56481,6 +60199,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56508,6 +60228,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOcrDraftsInput = {
@@ -56525,6 +60247,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56552,6 +60276,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOcrDraftsInput = {
@@ -56585,6 +60311,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -56612,6 +60340,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOcrDraftsInput = {
@@ -56629,6 +60359,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -56656,6 +60388,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutTransactionsInput = {
@@ -56710,6 +60444,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56737,6 +60473,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -56754,6 +60492,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -56781,6 +60521,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -57025,6 +60767,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57052,6 +60796,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -57069,6 +60815,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57096,6 +60844,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type RecurringItemUpsertWithoutTransactionsInput = {
@@ -57343,6 +61093,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -57370,6 +61122,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRecurringItemsInput = {
@@ -57387,6 +61141,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -57414,6 +61170,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRecurringItemsInput = {
@@ -57552,6 +61310,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57579,6 +61339,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRecurringItemsInput = {
@@ -57596,6 +61358,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57623,6 +61387,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutRecurringItemInput = {
@@ -57656,6 +61422,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -57683,6 +61451,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -57700,6 +61470,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -57727,6 +61499,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -57792,6 +61566,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57819,6 +61595,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -57836,6 +61614,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -57863,6 +61643,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type GoalContributionUpsertWithWhereUniqueWithoutGoalInput = {
@@ -58099,6 +61881,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -58126,6 +61910,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSplitsInput = {
@@ -58143,6 +61929,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -58170,6 +61958,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSplitsInput = {
@@ -58318,6 +62108,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -58345,6 +62137,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSplitsInput = {
@@ -58362,6 +62156,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -58389,6 +62185,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithoutSplitInput = {
@@ -58862,6 +62660,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -58889,6 +62689,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonoBankAccountsInput = {
@@ -58906,6 +62708,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -58933,6 +62737,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonoBankAccountsInput = {
@@ -59028,6 +62834,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59055,6 +62863,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonoBankAccountsInput = {
@@ -59072,6 +62882,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59099,6 +62911,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutMonoBankAccountInput = {
@@ -59132,6 +62946,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59159,6 +62975,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFcmDevicesInput = {
@@ -59176,6 +62994,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59203,6 +63023,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFcmDevicesInput = {
@@ -59236,6 +63058,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59263,6 +63087,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFcmDevicesInput = {
@@ -59280,6 +63106,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59307,6 +63135,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -59324,6 +63154,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59351,6 +63183,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -59368,6 +63202,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59395,6 +63231,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -59428,6 +63266,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59455,6 +63295,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -59472,6 +63314,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59499,6 +63343,8 @@ export namespace Prisma {
     classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutClassificationCorrectionsInput = {
@@ -59516,6 +63362,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59543,6 +63391,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClassificationCorrectionsInput = {
@@ -59560,6 +63410,8 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     twoFactorSecret?: string | null
     twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
     currency?: $Enums.Currency
     language?: $Enums.Language
     timezone?: string
@@ -59587,6 +63439,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClassificationCorrectionsInput = {
@@ -59620,6 +63474,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59647,6 +63503,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClassificationCorrectionsInput = {
@@ -59664,6 +63522,8 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
     twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
     currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
     timezone?: StringFieldUpdateOperationsInput | string
@@ -59691,6 +63551,424 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutAnalyticsSnapshotsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAnalyticsSnapshotsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAnalyticsSnapshotsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAnalyticsSnapshotsInput, UserUncheckedCreateWithoutAnalyticsSnapshotsInput>
+  }
+
+  export type UserUpsertWithoutAnalyticsSnapshotsInput = {
+    update: XOR<UserUpdateWithoutAnalyticsSnapshotsInput, UserUncheckedUpdateWithoutAnalyticsSnapshotsInput>
+    create: XOR<UserCreateWithoutAnalyticsSnapshotsInput, UserUncheckedCreateWithoutAnalyticsSnapshotsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAnalyticsSnapshotsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAnalyticsSnapshotsInput, UserUncheckedUpdateWithoutAnalyticsSnapshotsInput>
+  }
+
+  export type UserUpdateWithoutAnalyticsSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAnalyticsSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutAiInsightsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAiInsightsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAiInsightsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAiInsightsInput, UserUncheckedCreateWithoutAiInsightsInput>
+  }
+
+  export type UserUpsertWithoutAiInsightsInput = {
+    update: XOR<UserUpdateWithoutAiInsightsInput, UserUncheckedUpdateWithoutAiInsightsInput>
+    create: XOR<UserCreateWithoutAiInsightsInput, UserUncheckedCreateWithoutAiInsightsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAiInsightsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAiInsightsInput, UserUncheckedUpdateWithoutAiInsightsInput>
+  }
+
+  export type UserUpdateWithoutAiInsightsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAiInsightsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -59914,6 +64192,32 @@ export namespace Prisma {
     income: Decimal | DecimalJsLike | number | string
     expense: Decimal | DecimalJsLike | number | string
     net: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AnalyticsSnapshotCreateManyUserInput = {
+    id?: string
+    period: string
+    type: $Enums.SnapshotType
+    data: JsonNullValueInput | InputJsonValue
+    computedAt?: Date | string
+  }
+
+  export type AiInsightCreateManyUserInput = {
+    id?: string
+    generatedAt?: Date | string
+    trigger: $Enums.InsightTrigger
+    severity: $Enums.InsightSeverity
+    summary: string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: string | null
+    readAt?: Date | string | null
+    notifiedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -60613,6 +64917,84 @@ export namespace Prisma {
     income?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     expense?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     net?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsSnapshotUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsSnapshotUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsSnapshotUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    period?: StringFieldUpdateOperationsInput | string
+    type?: EnumSnapshotTypeFieldUpdateOperationsInput | $Enums.SnapshotType
+    data?: JsonNullValueInput | InputJsonValue
+    computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AiInsightUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trigger?: EnumInsightTriggerFieldUpdateOperationsInput | $Enums.InsightTrigger
+    severity?: EnumInsightSeverityFieldUpdateOperationsInput | $Enums.InsightSeverity
+    summary?: StringFieldUpdateOperationsInput | string
+    anomalies?: JsonNullValueInput | InputJsonValue
+    goalAlerts?: JsonNullValueInput | InputJsonValue
+    cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
+    recommendations?: JsonNullValueInput | InputJsonValue
+    macroContext?: JsonNullValueInput | InputJsonValue
+    conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
+    readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -157,6 +157,40 @@ export class UserService {
   }
 
   /**
+   * @description Permanently dismisses the 2FA setup prompt for the given user.
+   * Sets `hasSeenTwoFaPrompt = true` and invalidates the profile cache.
+   *
+   * @async
+   * @public
+   * @param {string} userId The authenticated user's ID
+   */
+  async dismissTwoFaPrompt(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hasSeenTwoFaPrompt: true },
+    });
+    await this.invalidateUserProfileCache(userId);
+  }
+
+  // ── Onboarding tour ────────────────────────────────────────────────────────
+
+  async completeTour(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hasCompletedOnboarding: true },
+    });
+    await this.invalidateUserProfileCache(userId);
+  }
+
+  async resetTour(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hasCompletedOnboarding: false },
+    });
+    await this.invalidateUserProfileCache(userId);
+  }
+
+  /**
    * @description Removes the cached user profile entry for the given user.
    * Fire-and-forget — errors are logged but not re-thrown.
    *

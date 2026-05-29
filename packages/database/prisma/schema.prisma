@@ -250,11 +250,15 @@ model User {
   avatar          String?
   lastLoginAt     DateTime?
 
-  // 2FA fileds
-  twoFactorAttempts   Int       @default(0)
-  twoFactorEnabled    Boolean   @default(false)
-  twoFactorSecret     String? // base32 TOTP secret, null until setup initiated => Encrypted
-  twoFactorLastUsedAt DateTime?
+  // 2FA fields
+  twoFactorAttempts    Int       @default(0)
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?   // base32 TOTP secret, null until setup initiated => Encrypted
+  twoFactorLastUsedAt  DateTime?
+  hasSeenTwoFaPrompt   Boolean   @default(false)
+
+  // onboarding
+  hasCompletedOnboarding Boolean @default(false)
 
   // preferences
   currency   Currency   @default(NGN)
@@ -282,8 +286,10 @@ model User {
   monoBankAccounts          MonoBankAccount[]
   notifications             Notification[]
   classificationCorrections ClassificationCorrection[]
-  userBalance             UserBalance?
-  monthlyBalanceSnapshots MonthlyBalanceSnapshot[]
+  userBalance               UserBalance?
+  monthlyBalanceSnapshots   MonthlyBalanceSnapshot[]
+  analyticsSnapshots        AnalyticsSnapshot[]
+  aiInsights                AiInsight[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -1014,4 +1020,59 @@ model ClassificationCorrection {
 
   @@unique([userId, narration])
   @@index([userId])
+}
+
+enum SnapshotType {
+  MONTHLY_SUMMARY
+  QUARTERLY_SUMMARY
+  YEARLY_SUMMARY
+}
+
+enum InsightTrigger {
+  DAILY
+  POST_SYNC
+  MONTH_END
+  BUDGET_BREACH
+  MANUAL
+}
+
+enum InsightSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+model AnalyticsSnapshot {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period     String       // "YYYY-MM"
+  type       SnapshotType
+  data       Json
+  computedAt DateTime     @default(now())
+
+  @@unique([userId, period, type])
+  @@index([userId, period])
+}
+
+model AiInsight {
+  id                   String          @id @default(cuid())
+  userId               String
+  user                 User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generatedAt          DateTime        @default(now())
+  trigger              InsightTrigger
+  severity             InsightSeverity
+  summary              String
+  anomalies            Json            @default("[]")
+  goalAlerts           Json            @default("[]")
+  cashFlowForecast     String?
+  recommendations      Json            @default("[]")
+  macroContext         Json            @default("{}")
+  conversationThreadId String?
+  readAt               DateTime?
+  notifiedAt           DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@index([userId, generatedAt(sort: Desc)])
 }
