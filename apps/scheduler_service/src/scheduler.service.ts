@@ -11,6 +11,7 @@ import {
   BALANCE_ROLLOVER_JOB,
   BALANCE_ROLLOVER_QUEUE,
   CREATE_RECURRING_TRANSACTION,
+  INSIGHTS_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
   RECURRING_QUEUE,
@@ -31,13 +32,15 @@ export class SchedulerService {
     private readonly balanceRolloverQueue: Queue,
     @InjectQueue(ANALYTICS_AGGREGATION_QUEUE)
     private readonly analyticsAggregationQueue: Queue,
+    @InjectQueue(INSIGHTS_QUEUE)
+    private readonly insightsQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
   purgeScheduledAccountDeletion() {
     void this.cleanupQueue.add(
       PURGE_SCHEDULED_DELETIONS_JOB,
-      {},
+      { removeOnComplete: true, removeOnFail: false },
       { jobId: PURGE_SCHEDULED_DELETIONS_JOB },
     );
   }
@@ -47,7 +50,11 @@ export class SchedulerService {
     void this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
       {},
-      { removeOnComplete: true, removeOnFail: false },
+      {
+        jobId: CREATE_RECURRING_TRANSACTION,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     );
   }
 
@@ -56,7 +63,11 @@ export class SchedulerService {
     void this.usageTrackingQueue.add(
       PURGE_USAGE_TRACKING_JOB,
       {},
-      { jobId: PURGE_USAGE_TRACKING_JOB },
+      {
+        jobId: PURGE_USAGE_TRACKING_JOB,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
     );
   }
 
@@ -85,4 +96,17 @@ export class SchedulerService {
       },
     );
   }
+
+  // @Cron('0 4 * * *') // 4:00am every day — after aggregate analytics
+  // generateUsersInsights() {
+  //   void this.analyticsAggregationQueue.add(
+  //     ANALYTICS_AGGREGATION_JOB,
+  //     {},
+  //     {
+  //       jobId: ANALYTICS_AGGREGATION_JOB,
+  //       removeOnComplete: true,
+  //       removeOnFail: false,
+  //     },
+  //   );
+  // }
 }

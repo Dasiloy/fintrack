@@ -37,28 +37,34 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         MICROSERVICE_NAME: Joi.string().required(),
         NOTIFICATION_SERVICE_HOST: Joi.string().required(),
         NOTIFICATION_SERVICE_PORT: Joi.string().required(),
+        MAIL_TRAP_SANDBOX_INBOX_ID: Joi.string().optional(),
+        MAIL_TRAP_SANDBOX: Joi.bool().optional(),
       }),
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: MailtrapTransport({
-          token: config.getOrThrow('MAIL_TOKEN'),
-        }),
-        defaults: {
-          from: `"Fintrack" <${config.get('MAIL_FROM')}>`,
-        },
-        template: {
-          dir: join(__dirname, '..', 'templates'),
-          adapter: new HandlebarsAdapter({
-            eq: (a: unknown, b: unknown) => a === b,
+      useFactory: (config: ConfigService) => {
+        return {
+          transport: MailtrapTransport({
+            token: config.getOrThrow('MAIL_TOKEN'),
+            testInboxId: config.getOrThrow('MAIL_TRAP_SANDBOX_INBOX_ID'),
+            sandbox: config.getOrThrow('MAIL_TRAP_SANDBOX'),
           }),
-          options: {
-            strict: true,
+          defaults: {
+            from: `"Fintrack" <${config.get('MAIL_FROM')}>`,
           },
-        },
-      }),
+          template: {
+            dir: join(__dirname, '..', 'templates'),
+            adapter: new HandlebarsAdapter({
+              eq: (a: unknown, b: unknown) => a === b,
+            }),
+            options: {
+              strict: true,
+            },
+          },
+        };
+      },
     }),
     DatabaseModule,
     BullModule.forRootAsync({

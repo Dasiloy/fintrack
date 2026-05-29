@@ -157,7 +157,7 @@ Items are grouped by type. Each entry follows the format:
 
 - **Type**: Improvement
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Mailtrap provides two distinct API modes: a **sandbox** (emails are captured in a Mailtrap inbox and never delivered — free, no domain required, ideal for dev/staging) and a **sending API** (emails are actually delivered to real inboxes using a verified domain — charged per volume, for production). The Notification Service currently uses `MailtrapTransport` unconditionally without switching modes. In production, the sending API should be used with the verified domain so OTP codes, welcome emails, and security alerts reach real users.
 - **Notes**:
   - Both modes use the same `MailtrapTransport` from `mailtrap` — the difference is which API token is provided and whether `testInboxId` is set (sandbox) or omitted (sending).
@@ -170,7 +170,15 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🐛 Bugs
 
----
+### [BG-001] Component Export issues on Budget Page
+
+- **Type**: Bug
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Unbudgeted category card does not apply edit and delete props.The page goes into constanst errors of 500 with complaints of mixed exports
+  **Notes**:
+- Edit and Delete must be fully functional on those cards for user generated category
+- No 500 error from mixed exports
 
 ## 📌 Notes
 

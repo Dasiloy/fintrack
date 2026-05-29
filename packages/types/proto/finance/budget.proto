@@ -32,11 +32,13 @@ message CreateBudgetReq {
 }
 
 message UnbudgetedCategory {
-  string slug = 1;
-  string name        = 2;
-  string color       = 3;
-  string icon        = 4;
-  float  spent       = 5;
+  string slug          = 1;
+  string name          = 2;
+  string color         = 3;
+  string icon          = 4;
+  float  spent         = 5;
+  string id            = 6;
+  bool   is_user_owned = 7;
 }
 
 message GetBudgetsReq {
