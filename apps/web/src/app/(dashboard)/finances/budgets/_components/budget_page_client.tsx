@@ -15,8 +15,9 @@ import { BudgetFormDialog } from './budget_form_dialog';
 import { BudgetDrawer } from './budget_drawer';
 import { UnbudgetedCategoryCard } from './unbudgeted_category_card';
 import { UnbudgetedCategoryCardSkeletons } from './unbudgeted_category_card_skeleton';
-import { CreateCategoryDialog } from './create_category_dialog';
+import { CategoryDialog } from './create_category_dialog';
 import { ArchivedBudgetsSheet } from './archived_budgets_sheet';
+import type { UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
 
 interface BudgetPageClientProps {
   trendNode: React.ReactNode;
@@ -32,7 +33,10 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   const [drawerBudgetId, setDrawerBudgetId] = React.useState<string | null>(null);
   const [drawerEditMode, setDrawerEditMode] = React.useState(false);
   const [prefilledCategoryId, setPrefilledCategoryId] = React.useState<string | undefined>();
-  const [createCategoryOpen, setCreateCategoryOpen] = React.useState(false);
+  // Single dialog state: null = closed, {} = create mode, { id, name, color } = edit mode
+  const [categoryDialog, setCategoryDialog] = React.useState<{
+    editCategory?: { id: string; name: string; color: string };
+  } | null>(null);
   const [archivedOpen, setArchivedOpen] = React.useState(false);
 
   const utils = api_client.useUtils();
@@ -45,13 +49,24 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   const budgets = data?.data?.budgets ?? [];
   const unbudgeted = data?.data?.unbudgeted ?? [];
 
-  const deleteMutation = api_client.budget.delete.useMutation({
+  const deleteBudgetMutation = api_client.budget.delete.useMutation({
     onSuccess: () => {
       void utils.budget.getAll.invalidate();
       toast.success('Budget deactivated');
     },
     onError: (error) => {
       toast.error(error.message);
+    },
+  });
+
+  const deleteCategoryMutation = api_client.category.delete.useMutation({
+    onSuccess: () => {
+      void utils.budget.getAll.invalidate();
+      void utils.category.getAll.invalidate();
+      toast.success('Category deleted');
+    },
+    onError: (error) => {
+      toast.error('Failed to delete category', { description: error.message });
     },
   });
 
@@ -66,6 +81,15 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
     setCreateOpen(open);
     if (!open) setPrefilledCategoryId(undefined);
   };
+
+  const onDeletCategory = async (c: UnbudgetedCategory) => {
+    await deleteCategoryMutation.mutateAsync({ id: c.id });
+  };
+
+  const onEditCategory = (c: UnbudgetedCategory) =>
+    setCategoryDialog({
+      editCategory: { id: c.id, name: c.name, color: c.color },
+    });
 
   return (
     <div className="flex flex-col">
@@ -119,7 +143,10 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                   {isLoading ? (
                     <BudgetCardSkeleton count={4} />
                   ) : budgets.length === 0 ? (
-                    <BudgetEmptyState month={selectedMonth} onNew={() => createGate.triggerGate(() => setCreateOpen(true))} />
+                    <BudgetEmptyState
+                      month={selectedMonth}
+                      onNew={() => createGate.triggerGate(() => setCreateOpen(true))}
+                    />
                   ) : (
                     budgets.map((budget) => (
                       <BudgetCategoryCard
@@ -129,7 +156,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                           setDrawerBudgetId(id);
                           setDrawerEditMode(!!editMode);
                         }}
-                        onDelete={(id) => deleteMutation.mutateAsync({ id })}
+                        onDelete={(id) => deleteBudgetMutation.mutateAsync({ id })}
                       />
                     ))
                   )}
@@ -138,14 +165,14 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
             </div>
 
             {/* ── Right: unbudgeted sidebar ── */}
-            <aside className="w-full lg:w-[260px] lg:shrink-0">
-              <div className="glass-card rounded-card border-border-subtle border p-4">
+            <aside className="w-full lg:top-4 lg:w-[260px] lg:shrink-0">
+              <div className="glass-card rounded-card border-border-subtle ft-scrollbar flex-col overflow-y-scroll border p-4 lg:h-[calc(100vh-150px)]">
                 <div className="mb-4 flex items-center justify-between gap-2">
                   <h2 className="text-text-primary text-sm font-semibold">Unbudgeted</h2>
                   {!isLoading && (
                     <button
                       type="button"
-                      onClick={() => setCreateCategoryOpen(true)}
+                      onClick={() => setCategoryDialog({})}
                       className="bg-primary/10 text-primary hover:bg-primary/20 flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors"
                     >
                       <Plus className="size-3" />
@@ -171,21 +198,27 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setCreateCategoryOpen(true)}
+                      onClick={() => setCategoryDialog({})}
                       className="text-primary hover:text-primary/80 cursor-pointer text-[11px] font-medium underline-offset-2 transition-colors hover:underline"
                     >
                       Create a new category
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-                    {unbudgeted.map((cat) => (
-                      <UnbudgetedCategoryCard
-                        key={cat.slug}
-                        category={cat}
-                        onSetBudget={handleSetBudget}
-                      />
-                    ))}
+                  <div className="min-h-0 flex-1 pr-0.5">
+                    <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+                      {unbudgeted.map((cat) => {
+                        return (
+                          <UnbudgetedCategoryCard
+                            key={cat.slug}
+                            category={cat}
+                            onSetBudget={handleSetBudget}
+                            onEdit={onEditCategory}
+                            onDelete={onDeletCategory}
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -195,9 +228,19 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
       </div>
 
       {/* ── Dialogs / drawers ── */}
-      <ProGateModal feature={Usage.MAX_BUDGETS} open={createGate.open} onClose={createGate.onClose} />
+      <ProGateModal
+        feature={Usage.MAX_BUDGETS}
+        open={createGate.open}
+        onClose={createGate.onClose}
+      />
       <ArchivedBudgetsSheet open={archivedOpen} onOpenChange={setArchivedOpen} />
-      <CreateCategoryDialog open={createCategoryOpen} onOpenChange={setCreateCategoryOpen} />
+      <CategoryDialog
+        open={categoryDialog !== null}
+        onOpenChange={(open) => {
+          if (!open) setCategoryDialog(null);
+        }}
+        editCategory={categoryDialog?.editCategory}
+      />
       <BudgetFormDialog
         open={createOpen}
         onOpenChange={handleCreateOpenChange}

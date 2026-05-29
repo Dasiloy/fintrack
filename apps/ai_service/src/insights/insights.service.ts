@@ -131,7 +131,7 @@ export class InsightService implements OnModuleInit {
       const graph = this.buildGraph();
       const result = await this.langraph.invoke(
         graph,
-        { userId: payload.userId },
+        { userId: payload.userId, ...payload.metadata },
         // Pass userId in configurable so the ToolNode can forward it to the
         // fetch_transactions tool at call time — tool never accepts userId as input.
         { configurable: { userId: payload.userId } },
@@ -190,18 +190,15 @@ export class InsightService implements OnModuleInit {
   private async dispatchNotification(insight: AiInsight): Promise<void> {
     if (insight.notifiedAt) return;
 
-    const [user, devices] = await Promise.all([
-      this.prisma.user.findUnique({
-        where: { id: insight.userId },
-        select: { email: true, firstName: true },
-      }),
-      this.prisma.fcmDevice.findMany({ where: { userId: insight.userId } }),
-    ]);
+    const user = await this.prisma.user.findUnique({
+      where: { id: insight.userId },
+      select: { email: true, firstName: true, fcmDevices: true },
+    });
 
     // early return for misssing user
     if (!user) return;
 
-    const hasFcm = devices.length > 0;
+    const hasFcm = user.fcmDevices.length > 0;
     // InsightSeverity enum → lowercase for payload/template consumption
     const severity = insight.severity.toLowerCase() as
       | 'info'
