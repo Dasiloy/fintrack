@@ -72,7 +72,7 @@ function DialogContent({
               'top-space-4 right-space-4 absolute inline-flex size-8 items-center justify-center',
               'rounded-button border-border-light bg-bg-surface/80 text-text-tertiary border',
               'hover:bg-bg-surface hover:text-text-primary',
-              'opacity-70 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50',
+              'cursor-pointer opacity-70 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50',
               'duration-smooth transition-colors',
               'focus-visible:ring-primary/50 outline-none focus-visible:ring-2',
               "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",

@@ -408,7 +408,15 @@ export class BudgetService {
       );
 
       const unbudgetedCategories = await this.prismaService.category.findMany({
-        where: { id: { notIn: budgets.map((b) => b.categoryId) } },
+        where: {
+          id: { notIn: budgets.map((b) => b.categoryId) },
+          OR: [
+            {
+              isSystem: true,
+            },
+            { userId },
+          ],
+        },
       });
 
       return {
@@ -425,7 +433,6 @@ export class BudgetService {
           color: c.color ?? '',
           icon: c.icon ?? '',
           spent: spentMap.get(c.id) ?? 0,
-          id: c.id,
           isUserOwned: !c.isSystem && !!c.userId,
         })),
       };

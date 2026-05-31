@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { ArrowLeft } from 'lucide-react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 import {
   Button,
@@ -35,7 +34,6 @@ import type { StandardResponse } from '@fintrack/types/interfaces/server_respons
 import type { LoginRes } from '@fintrack/types/protos/auth/auth';
 import { useRouter } from '@bprogress/next';
 import AuthLayout from '@/app/layouts/auth_layout';
-import { env } from '@/env';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -88,8 +86,6 @@ interface LoginFormProps {
 
 export function LoginForm({ authError }: LoginFormProps) {
   const router = useRouter();
-  const turnstileRef = useRef<TurnstileInstance>(null);
-  const [cfTurnstileToken, setCfTurnstileToken] = useState<string | null>(null);
 
   // Credentials step state
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
@@ -141,15 +137,9 @@ export function LoginForm({ authError }: LoginFormProps) {
   // ── Credentials submit ────────────────────────────────────────────────────
 
   const onSubmit = async (data: LoginValues) => {
-    if (!cfTurnstileToken) {
-      toast.error('Please complete the CAPTCHA verification.');
-      return;
-    }
-
     try {
       const response = await axiosClient.post('/proxy-auth/login', {
         ...data,
-        cfTurnstileToken,
       });
       const resData: StandardResponse<LoginRes> | any = response.data;
 
@@ -165,10 +155,6 @@ export function LoginForm({ authError }: LoginFormProps) {
       toast.success('Login successful', { description: 'Redirecting...' });
       await completeSignIn(resData.data!.accessToken!, resData.data!.refreshToken!);
     } catch (error: any) {
-      // Reset widget so user gets a fresh token on retry
-      turnstileRef.current?.reset();
-      setCfTurnstileToken(null);
-
       const code = error?.response?.data?.code;
       const httpStatus = error?.response?.status;
 
@@ -431,21 +417,12 @@ export function LoginForm({ authError }: LoginFormProps) {
               </p>
             )}
 
-            <Turnstile
-              ref={turnstileRef}
-              siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-              onSuccess={(token) => setCfTurnstileToken(token)}
-              onExpire={() => setCfTurnstileToken(null)}
-              onError={() => setCfTurnstileToken(null)}
-              options={{ theme: 'auto', size: 'flexible' }}
-            />
-
             <Field className="mb-2">
               <Button
                 className="mb-1"
                 type="submit"
                 loading={form.formState.isSubmitting}
-                disabled={(isAnyLoading && !form.formState.isSubmitting) || loginLocked || !cfTurnstileToken}
+                disabled={(isAnyLoading && !form.formState.isSubmitting) || loginLocked}
               >
                 Login
               </Button>

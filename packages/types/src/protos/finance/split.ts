@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/split.proto
 
- 
+/* eslint-disable */
 import { PaginateResponse } from "../paginate";
 import { Transaction } from "./transaction";
 
@@ -109,9 +109,13 @@ export interface CreateSplitReq {
 export interface UpdateSplitReq {
   id: string;
   name?: string | undefined;
-  amount?: number | undefined;
+  amount?:
+    | number
+    | undefined;
   /** UUID — link an EXPENSE transaction */
-  transactionId?: string | undefined;
+  transactionId?:
+    | string
+    | undefined;
   /** true — remove existing transaction link */
   unlinkTransaction?: boolean | undefined;
 }

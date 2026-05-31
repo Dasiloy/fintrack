@@ -16,6 +16,7 @@ export interface MetricCardProps {
   isLoading?: boolean;
   /** Mount stagger delay in ms */
   delay?: number;
+  applyValuecolor?: boolean;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ export function MetricCard({
   accentColor,
   isLoading = false,
   delay = 0,
+  applyValuecolor = false,
   className,
 }: MetricCardProps) {
   const [mounted, setMounted] = React.useState(false);
@@ -38,7 +40,12 @@ export function MetricCard({
 
   if (isLoading) {
     return (
-      <div className={cn('bg-bg-surface border-border-subtle flex items-center gap-3 rounded-xl border px-4 py-3', className)}>
+      <div
+        className={cn(
+          'bg-bg-surface border-border-subtle flex items-center gap-3 rounded-xl border px-4 py-3',
+          className,
+        )}
+      >
         <Skeleton className="size-8 shrink-0 rounded-lg" />
         <div className="space-y-1.5">
           <Skeleton className="h-[10px] w-14 rounded" />
@@ -73,8 +80,17 @@ export function MetricCard({
         <p className="text-text-disabled truncate text-[10px] leading-none font-semibold tracking-widest uppercase">
           {label}
         </p>
-        <p className="text-text-primary mt-1 truncate text-[17px] leading-none font-bold tracking-tight tabular-nums">
-          {format(value)}
+        <p
+          className={cn(
+            'mt-1 truncate text-[17px] leading-none font-bold tracking-tight tabular-nums',
+            {
+              'text-text-primary': value === 0 || !applyValuecolor,
+              'text-emerald-400': value > 0 && applyValuecolor,
+              'text-red-400': value < 0 && applyValuecolor,
+            },
+          )}
+        >
+          {format(Math.abs(value))}
         </p>
       </div>
     </div>

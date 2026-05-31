@@ -119,19 +119,6 @@ export interface GetTransactionsRes {
   meta: PaginateResponse | undefined;
 }
 
-export interface SearchTransactionsReq {
-  /** partial text — union ILIKE across description, merchant, notes, narration */
-  q: string;
-  /** "EXPENSE" | "INCOME" | "" (all) */
-  type: string;
-  /** default 20, max 50 */
-  limit: number;
-}
-
-export interface SearchTransactionsRes {
-  transactions: Transaction[];
-}
-
 export interface GetTransactionReq {
   id: string;
 }
@@ -199,6 +186,19 @@ export interface MonthlyFinancials {
   income: string;
   /** decimal string */
   expense: string;
+}
+
+export interface SearchTransactionsReq {
+  /** partial text — union ILIKE across description, merchant, notes, narration */
+  q: string;
+  /** "EXPENSE" | "INCOME" | "" (all) */
+  type: string;
+  /** default 20, max 50 */
+  limit: number;
+}
+
+export interface SearchTransactionsRes {
+  transactions: Transaction[];
 }
 
 export interface GetTransactionSummaryReq {
