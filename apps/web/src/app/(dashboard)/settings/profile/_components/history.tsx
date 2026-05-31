@@ -15,7 +15,7 @@ import {
   toast,
 } from '@ui/components';
 import { CheckCircle2 } from 'lucide-react';
-import { useCsv, useIsMobile } from '@ui/hooks';
+import { useCsv, BREAKPOINTS, useBreakPoint } from '@ui/hooks';
 import dayjs from '@fintrack/utils/date';
 import type { Session } from '@fintrack/database/types';
 import { UiSession } from '@/app/(dashboard)/settings/_components/session';
@@ -52,7 +52,10 @@ const getSecurityScore = ({
 // ==================================
 export function History() {
   // custom hooks
-  const isMobile = useIsMobile();
+  const isMobile = useBreakPoint({
+    breakPoint: BREAKPOINTS.md - 1,
+    match: 'max-width',
+  });
 
   const { downloadCsv, isDownloading } = useCsv('profile.csv');
   const csvGate = useProGate(Usage.CSV_EXPORT);
@@ -134,17 +137,19 @@ export function History() {
               </Text>
             </div>
           </SkeletonWrapper>
-          <SkeletonWrapper loading={isPending} className="h-5 w-auto max-w-3/5">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="text-success size-4" />
-              <Text variant={'body-sm'} color="success">
-                Active until{' '}
-                {user?.subscription?.stripeCurrentPeriodEnd
-                  ? dayjs(user.subscription.stripeCurrentPeriodEnd).format('dddd, MMMM DD YYYY')
-                  : '...'}
-              </Text>
-            </div>
-          </SkeletonWrapper>
+          {user?.subscription?.plan !== 'FREE' && (
+            <SkeletonWrapper loading={isPending} className="h-5 w-auto max-w-3/5">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-success size-4" />
+                <Text variant={'body-sm'} color="success">
+                  Active until{' '}
+                  {user?.subscription?.stripeCurrentPeriodEnd
+                    ? dayjs(user.subscription.stripeCurrentPeriodEnd).format('dddd, MMMM DD YYYY')
+                    : '...'}
+                </Text>
+              </div>
+            </SkeletonWrapper>
+          )}
         </div>
         <Separator orientation={isMobile ? 'horizontal' : 'vertical'} />
         {/** SECURITY */}

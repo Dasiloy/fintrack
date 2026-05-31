@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Slot } from 'radix-ui';
 import { PanelLeft } from 'lucide-react';
 
-import { useIsMobile } from '@ui/hooks/use_mobile';
+import { BREAKPOINTS, useBreakPoint } from '@ui/hooks/use_breakpoint';
 import { cn } from '@ui/lib/utils/cn';
 import { Button } from './button';
 import { Input } from './input';
@@ -60,7 +60,10 @@ export function SidebarProvider({
   children,
   ...props
 }: SidebarProviderProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useBreakPoint({
+    breakPoint: BREAKPOINTS.md - 1,
+    match: 'max-width',
+  });
   const [openMobile, setOpenMobile] = React.useState(false);
 
   // Controlled vs. uncontrolled
@@ -215,10 +218,10 @@ export function Sidebar({
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
           variant === 'floating'
-            ? 'rounded-card shadow-card top-2 h-[calc(100svh-(--spacing(4)))] border border-border-light'
+            ? 'rounded-card shadow-card border-border-light top-2 h-[calc(100svh-(--spacing(4)))] border'
             : variant === 'inset'
               ? 'rounded-card top-2 h-[calc(100svh-(--spacing(4)))]'
-              : 'border-r border-border-light',
+              : 'border-border-light border-r',
           'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[collapsible=icon]:overflow-hidden',
           className,
         )}
@@ -229,7 +232,8 @@ export function Sidebar({
           data-sidebar="sidebar"
           className="bg-bg-elevated group-data-[variant=floating]:rounded-card flex h-full w-full flex-col"
           style={{
-            background: 'linear-gradient(180deg, var(--ft-color-bg-elevated) 0%, var(--ft-color-bg-deep) 100%)',
+            background:
+              'linear-gradient(180deg, var(--ft-color-bg-elevated) 0%, var(--ft-color-bg-deep) 100%)',
           }}
         >
           {children}
@@ -284,7 +288,7 @@ export function SidebarRail({ className, ...props }: React.ComponentProps<'butto
         'group-data-[side=left]:-right-4 group-data-[side=right]:left-0',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
-        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-bg-surface-hover',
+        'group-data-[collapsible=offcanvas]:hover:bg-bg-surface-hover group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
         'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
         className,
       )}
@@ -378,7 +382,7 @@ export function SidebarSeparator({ className, ...props }: React.ComponentProps<t
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn('w-full bg-border-light', className)}
+      className={cn('bg-border-light w-full', className)}
       {...props}
     />
   );
@@ -659,7 +663,7 @@ export function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        'mx-3.5 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-border-light py-0.5 pl-2.5',
+        'border-border-light mx-3.5 flex min-w-0 translate-x-px flex-col gap-0.5 border-l py-0.5 pl-2.5',
         'group-data-[collapsible=icon]:hidden',
         className,
       )}

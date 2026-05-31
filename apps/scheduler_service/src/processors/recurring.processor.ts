@@ -1,7 +1,8 @@
 import { Queue } from 'bullmq';
 import { Job } from 'bullmq';
+import type Redis from 'ioredis';
 
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 
@@ -12,6 +13,10 @@ import {
   TOKEN_NOTIFICATION_QUEUE,
   RECURRING_TRANSACTIONS_EMAIL_JOB,
 } from '@fintrack/types/constants/queus.constants';
+import {
+  BUDGET_TREND_CACHE_PREFIX,
+  REDIS_CLIENT,
+} from '@fintrack/types/constants/redis.costants';
 import { Category, Prisma, RecurringItem } from '@fintrack/database/types';
 import { computeNextRunAt } from '@fintrack/utils/recurring';
 import { genRecurringSourceId } from '@fintrack/utils/format';
@@ -24,6 +29,7 @@ export class RecurringProcessor extends WorkerHost {
     private readonly prisma: PrismaService,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE)
     private readonly emailQueue: Queue,
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
     super();
   }
@@ -128,6 +134,11 @@ export class RecurringProcessor extends WorkerHost {
       }
     }
 
+    // Invalidate budget trend + export caches for every user that got new transactions
+    if (createdByUser.size > 0) {
+      await this.invalidateCachesForUsers([...createdByUser.keys()]);
+    }
+
     // Dispatch per-user in-app activity notification + email summary
     for (const [userId, items] of createdByUser.entries()) {
       if (items.length === 0) continue;
@@ -162,6 +173,39 @@ export class RecurringProcessor extends WorkerHost {
           `Failed to dispatch recurring email for user ${userId}: ${err.message}`,
           err.stack,
         );
+      }
+    }
+  }
+
+  /**
+   * Invalidates budget-trend and export Redis caches for each affected user
+   * so the dashboard and export endpoints reflect the newly created transactions
+   * without waiting for TTL expiry.
+   */
+  private async invalidateCachesForUsers(userIds: string[]): Promise<void> {
+    for (const userId of userIds) {
+      try {
+        // Budget spending-trend keys: budget_trend:{userId}:*
+        const trendKeys = await this.redis.keys(`${BUDGET_TREND_CACHE_PREFIX}:${userId}:*`);
+
+        // Export keys: export:{userId}:* — use SCAN to avoid blocking on large keyspaces
+        const exportKeys: string[] = [];
+        let cursor = '0';
+        do {
+          const [next, batch] = await this.redis.scan(
+            cursor, 'MATCH', `export:${userId}:*`, 'COUNT', 100,
+          );
+          cursor = next;
+          exportKeys.push(...(batch as string[]));
+        } while (cursor !== '0');
+
+        const all = [...trendKeys, ...exportKeys];
+        if (all.length > 0) {
+          await this.redis.del(...all);
+        }
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.logger.warn(`Cache invalidation failed for user ${userId}: ${error.message}`);
       }
     }
   }

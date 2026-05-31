@@ -13,17 +13,14 @@ import { BudgetCardSkeleton } from './budget_card_skeleton';
 import { BudgetEmptyState } from './budget_empty_state';
 import { BudgetFormDialog } from './budget_form_dialog';
 import { BudgetDrawer } from './budget_drawer';
-import { UnbudgetedCategoryCard } from './unbudgeted_category_card';
+import { UnbudgetedCard } from './unbudgeted_card';
 import { UnbudgetedCategoryCardSkeletons } from './unbudgeted_category_card_skeleton';
 import { CategoryDialog } from './create_category_dialog';
 import { ArchivedBudgetsSheet } from './archived_budgets_sheet';
 import type { UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
+import { BudgetSpendingTrend } from '@/app/(dashboard)/finances/budgets/_components/budget_spending_trend';
 
-interface BudgetPageClientProps {
-  trendNode: React.ReactNode;
-}
-
-export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
+export function BudgetPageClient() {
   const createGate = useProGate(Usage.MAX_BUDGETS);
   const [selectedMonth, setSelectedMonth] = React.useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -35,13 +32,13 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   const [prefilledCategoryId, setPrefilledCategoryId] = React.useState<string | undefined>();
   // Single dialog state: null = closed, {} = create mode, { id, name, color } = edit mode
   const [categoryDialog, setCategoryDialog] = React.useState<{
-    editCategory?: { id: string; name: string; color: string };
+    editCategory?: { slug: string; name: string; color: string };
   } | null>(null);
   const [archivedOpen, setArchivedOpen] = React.useState(false);
 
   const utils = api_client.useUtils();
 
-  const { data, isLoading } = api_client.budget.getAll.useQuery({
+  const { data, isLoading, refetch } = api_client.budget.getAll.useQuery({
     month: selectedMonth.getMonth(),
     year: selectedMonth.getFullYear(),
   });
@@ -83,12 +80,12 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
   };
 
   const onDeletCategory = async (c: UnbudgetedCategory) => {
-    await deleteCategoryMutation.mutateAsync({ id: c.id });
+    await deleteCategoryMutation.mutateAsync({ slug: c.slug });
   };
 
   const onEditCategory = (c: UnbudgetedCategory) =>
     setCategoryDialog({
-      editCategory: { id: c.id, name: c.name, color: c.color },
+      editCategory: { slug: c.slug, name: c.name, color: c.color },
     });
 
   return (
@@ -123,7 +120,7 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
             <div className="min-w-0 flex-1 space-y-5">
               {/* Spending trend */}
               <div className="glass-card rounded-card border-border-subtle w-full min-w-0 overflow-hidden border p-4 sm:p-5">
-                {trendNode}
+                <BudgetSpendingTrend defaultMonths={6} />
               </div>
 
               {/* Budget cards */}
@@ -209,12 +206,12 @@ export function BudgetPageClient({ trendNode }: BudgetPageClientProps) {
                     <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
                       {unbudgeted.map((cat) => {
                         return (
-                          <UnbudgetedCategoryCard
+                          <UnbudgetedCard
                             key={cat.slug}
                             category={cat}
                             onSetBudget={handleSetBudget}
-                            onEdit={onEditCategory}
-                            onDelete={onDeletCategory}
+                            deleteCategory={onDeletCategory}
+                            editCategory={onEditCategory}
                           />
                         );
                       })}

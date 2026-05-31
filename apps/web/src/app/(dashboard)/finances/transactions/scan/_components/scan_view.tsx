@@ -69,6 +69,7 @@ export function ScanView() {
     onSuccess: () => {
       toast.success('Transaction added from receipt');
       utils.transaction.getAll.invalidate();
+      utils.transaction.getSummary.invalidate();
       router.push('/finances/transactions');
     },
     onError: (err) => toast.error('Failed to save', { description: err.message }),
