@@ -382,7 +382,7 @@ export function BillDrawer({
 
                 <p
                   className={cn(
-                    'text-[28px] font-bold tracking-tight tabular-nums',
+                    'truncate text-[28px] font-bold tracking-tight tabular-nums',
                     item.type === 'EXPENSE' ? 'text-text-primary' : 'text-success',
                   )}
                 >

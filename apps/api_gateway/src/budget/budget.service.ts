@@ -23,12 +23,8 @@ import {
   GetSpendingTrendRes,
 } from '@fintrack/types/protos/finance/budget';
 import {
-  BUDGET_LIST_CACHE_PREFIX,
-  BUDGET_LIST_CACHE_TTL,
   BUDGET_TREND_CACHE_PREFIX,
   BUDGET_TREND_CACHE_TTL,
-  BUDGET_ONE_CACHE_PREFIX,
-  BUDGET_ONE_CACHE_TTL,
   REDIS_CLIENT,
 } from '@fintrack/types/constants/redis.costants';
 
@@ -99,11 +95,10 @@ export class BudgetService implements OnModuleInit {
    * @returns {Promise<void>}
    */
   async invalidateBudgetListAndTrend(userId: string): Promise<void> {
-    const [listKeys, trendKeys] = await Promise.all([
-      this.redis.keys(`${BUDGET_LIST_CACHE_PREFIX}:${userId}:*`),
+    const [listKeys] = await Promise.all([
       this.redis.keys(`${BUDGET_TREND_CACHE_PREFIX}:${userId}:*`),
     ]);
-    const all = [...listKeys, ...trendKeys];
+    const all = [...listKeys];
     if (all.length) {
       await this.redis
         .del(...all)
@@ -131,10 +126,6 @@ export class BudgetService implements OnModuleInit {
     user: User,
     query: GetBudgetsQueryDto,
   ): Promise<GetBudgetsRes> {
-    const cacheKey = `${BUDGET_LIST_CACHE_PREFIX}:${user.id}:${this.monthKey(query.year, query.month)}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached) as GetBudgetsRes;
-
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
     const result = await lastValueFrom(
@@ -144,11 +135,6 @@ export class BudgetService implements OnModuleInit {
       ),
     );
 
-    this.redis
-      .setex(cacheKey, BUDGET_LIST_CACHE_TTL, JSON.stringify(result))
-      .catch((err) =>
-        this.logger.warn(`Failed to cache budget list: ${err.message}`),
-      );
     return result;
   }
 
@@ -169,9 +155,6 @@ export class BudgetService implements OnModuleInit {
     budgetId: string,
   ): Promise<BudgetDetail> {
     const { month, year } = query;
-    const cacheKey = `${BUDGET_ONE_CACHE_PREFIX}:${budgetId}:${this.monthKey(year, month)}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached) as BudgetDetail;
 
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
@@ -186,11 +169,6 @@ export class BudgetService implements OnModuleInit {
       ),
     );
 
-    this.redis
-      .setex(cacheKey, BUDGET_ONE_CACHE_TTL, JSON.stringify(result))
-      .catch((err) =>
-        this.logger.warn(`Failed to cache budget: ${err.message}`),
-      );
     return result;
   }
 
@@ -278,10 +256,6 @@ export class BudgetService implements OnModuleInit {
     );
     void this.invalidateBudgetListAndTrend(user.id);
     void this.invalidateExportCache(user.id);
-    void this.redis
-      .keys(`${BUDGET_ONE_CACHE_PREFIX}:${budgetId}:*`)
-      .then((keys) => keys.length && this.redis.del(...keys))
-      .catch(() => {});
     return result;
   }
 
@@ -328,10 +302,7 @@ export class BudgetService implements OnModuleInit {
     void this.invalidateBudgetListAndTrend(user.id);
     void this.invalidateExportCache(user.id);
     // Wildcard-clear all period-scoped detail caches for this budget
-    void this.redis
-      .keys(`${BUDGET_ONE_CACHE_PREFIX}:${budgetId}:*`)
-      .then((keys) => keys.length && this.redis.del(...keys))
-      .catch(() => {});
+
     return result;
   }
 
