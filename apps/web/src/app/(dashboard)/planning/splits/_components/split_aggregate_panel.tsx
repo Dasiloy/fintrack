@@ -100,7 +100,7 @@ export function SplitAggregatePanel({ aggregate, isLoading }: SplitAggregatePane
         <p className="text-text-disabled text-[10px] font-semibold tracking-wider uppercase">
           Total Owed
         </p>
-        <p className="text-amber-500 text-[32px] leading-none font-bold tabular-nums">
+        <p className="text-amber-500 truncate text-[32px] leading-none font-bold tabular-nums">
           {formatCompact(totalOwed)}
         </p>
         <p className="text-text-tertiary text-[11px]">across outstanding splits</p>

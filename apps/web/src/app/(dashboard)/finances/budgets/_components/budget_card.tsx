@@ -177,23 +177,23 @@ export function BudgetCategoryCard({ budget, onOpen, onDelete }: BudgetCategoryC
         {/* ── Amounts ── */}
         <div className="mt-auto space-y-0.5">
           <div className="flex items-baseline justify-between gap-1">
-            <span className="text-text-tertiary text-[11px]">Spent</span>
-            <span className="text-text-primary text-[13px] font-semibold tabular-nums">
+            <span className="text-text-tertiary shrink-0 text-[11px]">Spent</span>
+            <span className="text-text-primary min-w-0 truncate text-[13px] font-semibold tabular-nums">
               {formatCurrency(spent)}
             </span>
           </div>
           <div className="flex items-baseline justify-between gap-1">
-            <span className="text-text-tertiary text-[11px]">Limit</span>
-            <span className="text-text-secondary text-[12px] tabular-nums">
+            <span className="text-text-tertiary shrink-0 text-[11px]">Limit</span>
+            <span className="text-text-secondary min-w-0 truncate text-[12px] tabular-nums">
               {formatCurrency(limit)}
             </span>
           </div>
           <div className="border-border-light mt-1.5 border-t pt-1.5">
             <div className="flex items-baseline justify-between gap-1">
-              <span className="text-text-tertiary text-[11px]">Remaining</span>
+              <span className="text-text-tertiary shrink-0 text-[11px]">Remaining</span>
               <span
                 className={cn(
-                  'text-[12px] font-medium tabular-nums',
+                  'min-w-0 truncate text-[12px] font-medium tabular-nums',
                   ratio >= 1 ? 'text-error' : 'text-text-primary',
                 )}
               >
