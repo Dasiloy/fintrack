@@ -723,7 +723,7 @@ model Transaction {
 
   // classification
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   // ownership
   userId String?

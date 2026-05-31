@@ -37,32 +37,6 @@ const nextConfig = {
       },
     ],
   },
-  async headers() {
-    return [
-      {
-        // HTML documents must never be served from cache after a deployment —
-        // stale HTML references old chunk hashes that 404, causing a reload loop.
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
-          },
-        ],
-      },
-      {
-        // Next.js immutable static assets are content-addressed (hash in filename)
-        // and safe to cache forever in the browser.
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

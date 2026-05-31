@@ -202,11 +202,11 @@ function ParticipantRow({ participant, split, isSettled }: ParticipantRowProps) 
             <p className="text-text-tertiary text-[11px]">{participant.email}</p>
           )}
         </div>
-        <div className="shrink-0 text-right">
-          <p className="text-text-primary text-[12px] font-semibold tabular-nums">
+        <div className="min-w-0 max-w-[45%] text-right">
+          <p className="text-text-primary truncate text-[12px] font-semibold tabular-nums">
             {formatCurrency(participant.amount)}
           </p>
-          <p className="text-text-tertiary text-[11px] tabular-nums">paid {formatCurrency(paid)}</p>
+          <p className="text-text-tertiary truncate text-[11px] tabular-nums">paid {formatCurrency(paid)}</p>
         </div>
       </div>
 
@@ -810,10 +810,10 @@ export function SplitDrawer({
                 {/* Progress */}
                 <div>
                   <div className="mb-1 flex items-baseline justify-between gap-2">
-                    <span className="text-text-primary text-[22px] font-bold tabular-nums">
+                    <span className="text-text-primary min-w-0 truncate text-[22px] font-bold tabular-nums">
                       {formatCurrency(totalPaid)}
                     </span>
-                    <span className="text-text-tertiary text-[12px] tabular-nums">
+                    <span className="text-text-tertiary shrink-0 text-[12px] tabular-nums">
                       of {formatCurrency(amount)}
                     </span>
                   </div>

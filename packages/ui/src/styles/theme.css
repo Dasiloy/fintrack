@@ -371,6 +371,11 @@
   color: #ffffff;
 }
 
+/* Sonner toast close button cursor */
+[data-sonner-toast] [data-close-button] {
+  cursor: pointer !important;
+}
+
 @layer utilities {
   .glass-card {
     @apply bg-bg-surface/60 backdrop-blur-glass;

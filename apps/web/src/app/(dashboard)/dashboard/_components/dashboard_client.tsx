@@ -11,7 +11,9 @@ import { WeeklySpendingChart } from './weekly_spending_chart';
 import { SpendingBreakdownCard } from './spending_breakdown_card';
 import { SpendingHeatmap } from './spending_heatmap';
 import { ActivityFeed } from './activity_feed';
+import { BREAKPOINTS, useBreakPoint } from '@fintrack/ui/hooks/use_breakpoint';
 import { TourWelcomeDialog } from '@/app/(dashboard)/_components/onboarding_tour/tour_welcome_dialog';
+import { useStaticBody } from '@/hooks/use_static_body';
 
 const TOUR_SESSION_KEY = 'ft_tour_prompt_seen';
 
@@ -22,6 +24,11 @@ interface DashboardClientProps {
 export function DashboardClient({ balanceHidden }: DashboardClientProps) {
   const { data, isLoading } = api_client.transaction.getSummary.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
+  });
+
+  const isTabletOrAbove = useBreakPoint({
+    breakPoint: BREAKPOINTS.md,
+    match: 'min-width',
   });
 
   const { data: meData } = api_client.user.getMe.useQuery();
@@ -46,23 +53,13 @@ export function DashboardClient({ balanceHidden }: DashboardClientProps) {
       setShowWelcome(true);
       markSeen();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me?.hasCompletedOnboarding]);
 
   // Lock body scroll on tablet/desktop (≥768 px) so spotlight targets stay in
   // place. On mobile the tour card can extend off-screen, so scroll must remain
   // available for the user to reach it.
-  React.useEffect(() => {
-    const isTabletOrAbove = window.matchMedia('(min-width: 768px)').matches;
-    if (isOnbordaVisible && isTabletOrAbove) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOnbordaVisible]);
+  useStaticBody(isOnbordaVisible && isTabletOrAbove);
 
   const handleStartTour = () => {
     setShowWelcome(false);
@@ -80,7 +77,11 @@ export function DashboardClient({ balanceHidden }: DashboardClientProps) {
       <main className="flex flex-1 flex-col gap-4 p-6">
         {/* Hero — net balance + income/expense chips */}
         <div id="onborda-hero">
-          <DashboardHero data={summary} isLoading={isLoading} initialBalanceHidden={balanceHidden} />
+          <DashboardHero
+            data={summary}
+            isLoading={isLoading}
+            initialBalanceHidden={balanceHidden}
+          />
         </div>
 
         {/* Stat row — 4 metric cards */}
