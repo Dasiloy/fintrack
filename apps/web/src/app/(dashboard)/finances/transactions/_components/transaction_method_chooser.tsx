@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useIsMobile } from '@ui/hooks';
+import { BREAKPOINTS, useBreakPoint } from '@ui/hooks';
 import { cn } from '@ui/lib/utils/cn';
 import { useRouter } from '@bprogress/next';
 import { ChevronRight, Landmark, PenLine, Plus, ScanLine, X } from 'lucide-react';
@@ -81,7 +81,10 @@ interface TransactionMethodChooserProps {
 
 export function TransactionMethodChooser({ onManual }: TransactionMethodChooserProps) {
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useBreakPoint({
+    breakPoint: BREAKPOINTS.md - 1,
+    match: 'max-width',
+  });
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (key: Method['key']) => {

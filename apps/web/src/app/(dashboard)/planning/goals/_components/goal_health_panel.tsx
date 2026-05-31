@@ -132,9 +132,9 @@ export function GoalHealthPanel({
 
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between py-2.5">
-      <span className="text-text-tertiary text-[12px]">{label}</span>
-      <span className="text-text-primary text-[12px] font-medium tabular-nums">{value}</span>
+    <div className="flex items-center justify-between gap-2 py-2.5">
+      <span className="text-text-tertiary shrink-0 text-[12px]">{label}</span>
+      <span className="text-text-primary min-w-0 truncate text-[12px] font-medium tabular-nums">{value}</span>
     </div>
   );
 }

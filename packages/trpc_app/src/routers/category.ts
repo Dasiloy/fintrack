@@ -78,7 +78,7 @@ export const categoryRouter = createTRPCRouter({
   update: protectedProcedure
     .input(
       z.object({
-        id: z.string().min(1),
+        slug: z.string().min(1),
         name: z.string().min(1).max(100).optional(),
         description: z.string().min(1).max(255).optional(),
         icon: z.string().optional(),
@@ -86,9 +86,9 @@ export const categoryRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...body } = input;
+      const { slug, ...body } = input;
 
-      const response = await fetch(`${GATEWAY_URL}/api/category/${id}`, {
+      const response = await fetch(`${GATEWAY_URL}/api/category/${slug}`, {
         method: 'PATCH',
         body: JSON.stringify(body),
         headers: gatewayHeaders(ctx.headers, ContentType.JSON),
@@ -110,9 +110,9 @@ export const categoryRouter = createTRPCRouter({
    * @throws FORBIDDEN if attempting to delete a system category
    */
   delete: protectedProcedure
-    .input(z.object({ id: z.string().min(1) }))
+    .input(z.object({ slug: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const response = await fetch(`${GATEWAY_URL}/api/category/${input.id}`, {
+      const response = await fetch(`${GATEWAY_URL}/api/category/${input.slug}`, {
         method: 'DELETE',
         headers: gatewayHeaders(ctx.headers),
       });

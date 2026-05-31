@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: finance/budget.proto
 
- 
+/* eslint-disable */
 import { Category } from "./transaction";
 
 export const protobufPackage = "finance";
@@ -43,7 +43,6 @@ export interface UnbudgetedCategory {
   color: string;
   icon: string;
   spent: number;
-  id: string;
   isUserOwned: boolean;
 }
 
