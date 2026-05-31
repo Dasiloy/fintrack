@@ -123,8 +123,17 @@ export function DashboardHero({
               ••••••
             </p>
           ) : (
-            <p className="text-text-primary text-[1.875rem] leading-none font-bold tracking-tight tabular-nums sm:text-[2.25rem]">
-              {formatCurrency(netBalance)}
+            <p
+              className={cn(
+                'text-[1.875rem] leading-none font-bold tracking-tight tabular-nums sm:text-[2.25rem]',
+                {
+                  'text-text-primary': netBalance === 0,
+                  'text-emerald-400': netBalance > 0,
+                  'text-red-400': netBalance < 0,
+                },
+              )}
+            >
+              {formatCurrency(Math.abs(netBalance))}
             </p>
           )}
 

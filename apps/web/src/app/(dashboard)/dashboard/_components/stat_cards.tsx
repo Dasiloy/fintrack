@@ -45,6 +45,7 @@ export function StatCards({ data, isLoading }: StatCardsProps) {
         value={net}
         format={formatCurrency}
         icon={Wallet}
+        applyValuecolor
         accentColor={net >= 0 ? '#7c7aff' : '#ff9f0a'}
         isLoading={isLoading}
         className="shadow-card"
@@ -53,6 +54,7 @@ export function StatCards({ data, isLoading }: StatCardsProps) {
       <MetricCard
         label="Savings Rate"
         value={savingsRate}
+        applyValuecolor
         format={(n) => `${n.toFixed(1)}%`}
         icon={TrendingUp}
         accentColor="#0a84ff"

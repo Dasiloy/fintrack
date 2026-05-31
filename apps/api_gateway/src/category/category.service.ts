@@ -198,8 +198,6 @@ export class CategoryService {
           OR: [
             {
               slug,
-              userId: user.id,
-              isSystem: false,
             },
             {
               slug: 'cat-misc',
@@ -210,6 +208,8 @@ export class CategoryService {
         select: {
           id: true,
           slug: true,
+          userId: true,
+          isSystem: true,
         },
       });
       if (categories.length < 2)
@@ -221,9 +221,13 @@ export class CategoryService {
       if (!misCategory) throw new NotFoundException('Category not found');
 
       const deleteCategory = categories.find(
-        (category) => category.slug === slug,
+        (category) => category.slug === slug && category.userId === user.id,
       );
       if (!deleteCategory) throw new NotFoundException('Category not found');
+
+      if (deleteCategory.isSystem) {
+        throw new BadRequestException('System Categories cannot be deleted');
+      }
 
       await this.prismaService.$transaction([
         this.prismaService.transaction.updateMany({
