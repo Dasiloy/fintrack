@@ -15,6 +15,41 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🗂️ Backlog
 
+### [BL-013] Recurring billing reminders — frequency-aware advance notice
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users have no advance warning when a recurring bill is about to charge. A single reminder notification should fire once before each upcoming occurrence, with the lead time scaled to the billing frequency — a daily charge doesn't need a week's notice, but a yearly subscription should warn well in advance.
+- **Notes**:
+  - Send exactly **one** reminder per billing cycle. Once the reminder for a given occurrence is sent, do not re-send until the next cycle.
+  - Lead time by frequency:
+    - `DAILY` → 1 hour before
+    - `WEEKLY` → 1 day before
+    - `BIWEEKLY` → 2 days before
+    - `MONTHLY` → 3 days before
+    - `QUARTERLY` → 7 days before
+    - `YEARLY` → 14 days before
+  - The scheduler service already drives recurring items. Add a pre-reminder job that runs at `nextDueDate - leadTime`. Track whether the reminder has been sent for the current cycle to avoid duplicates — a `lastReminderSentAt` column on `RecurringItem` or a Redis key keyed by `recurringItemId:cycleDate` both work.
+  - Add an opt-in `reminderEnabled` boolean to `RecurringItem` (default `true`) so users can silence individual items without deleting them.
+  - Notification channel: in-app notification + push (if enabled). No email — per-bill email reminders are noisy.
+  - Only send for `ACTIVE` items where `reminderEnabled = true`.
+  - Related files: `apps/scheduler_service/src/`, `packages/database/prisma/schema.prisma` (`RecurringItem` model), notification service, `apps/web/src/app/(dashboard)/finances/bills/`.
+
+### [BL-012] Category deletion — reassign or transfer related entities
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: When a user deletes a user-owned category, any entities that reference it (transactions, budgets, recurring items) currently are automaticvally movee to miscellanoue for transactions while others are lost. Instead, the user should be prompted to choose where those entities move before the category is removed — similar to how WordPress handles post-category deletion.
+- **Notes**:
+  - On delete, if the category has linked entities, show a reassignment dialog: "X transactions, Y budgets, and Z recurring items are using this category. Reassign them to:" with a category picker defaulting to a sensible system category (e.g. "Uncategorized" or "General").
+  - If the category has zero linked entities, skip the dialog and delete immediately.
+  - Backend: the delete endpoint should accept an optional `transferToCategoryId` (or `transferToCategorySlug`) parameter. If provided, run a single DB transaction that updates all `transactions.categoryId`, `budgets.categoryId`, and `recurringItems.categoryId` to the target before removing the source category.
+  - If `transferToCategoryId` is omitted and linked entities exist, return a `409 CONFLICT` with counts so the client can prompt the user.
+  - The "Uncategorized" / fallback system category should be seeded and guaranteed to exist (`isSystem: true`) so it is always a valid transfer target.
+  - Related files: `apps/api_gateway/src/category/`, `apps/finance_service/src/category/` (if it exists), `packages/database/prisma/schema.prisma` (Category model — check `onDelete` behaviour on relations), `apps/web/src/app/(dashboard)/finances/budgets/_components/unbudgeted_card.tsx` (delete confirmation dialog).
+
 ### [BL-011] Introduce Import Transactions data from csv files
 
 - **Type**: Ferature
@@ -170,11 +205,23 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🐛 Bugs
 
-### [BG-001] Component Export issues on Budget Page
+### [BG-003] Access & refresh tokens expiring faster than configured TTLs
 
 - **Type**: Bug
 - **Priority**: High
 - **Status**: Pending
+- **Context**: Access and refresh tokens are expiring well under their configured durations (1d and 7d respectively). Confirmed on Google OAuth logins; unknown whether local email/password logins are also affected. Users get logged out unexpectedly.
+- **Notes**:
+  - Investigate token generation in the auth service — check that `ACCESS_TOKEN_EXPIRY` and `REFRESH_TOKEN_EXPIRY` env vars are being read at runtime and not falling back to a hardcoded short default.
+  - Google OAuth tokens may be issued with a different TTL path than local logins — compare both flows side by side.
+  - Check if token signing happens at gateway vs auth service and whether the env vars are set on the correct Railway service.
+  - Reproduce by logging in with Google, inspecting the JWT `exp` claim, and comparing against `Date.now() + 1d` / `7d`.
+
+### [BG-001] Component Export issues on Budget Page
+
+- **Type**: Bug
+- **Priority**: High
+- **Status**: Done
 - **Context**: Unbudgeted category card does not apply edit and delete props.The page goes into constanst errors of 500 with complaints of mixed exports
   **Notes**:
 - Edit and Delete must be fully functional on those cards for user generated category

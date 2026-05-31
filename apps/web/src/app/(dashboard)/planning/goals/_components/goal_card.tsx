@@ -213,11 +213,11 @@ export function GoalCard({
         {/* ── Progress ── */}
         <div className="px-4 pb-3">
           <div className="mb-2 flex items-baseline justify-between gap-1">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-text-primary text-[17px] leading-none font-bold tabular-nums">
+            <div className="min-w-0 flex items-baseline gap-1.5 overflow-hidden">
+              <span className="text-text-primary min-w-0 truncate text-[17px] leading-none font-bold tabular-nums">
                 {formatCurrency(contributed)}
               </span>
-              <span className="text-text-disabled text-[11px] tabular-nums">
+              <span className="text-text-disabled shrink-0 text-[11px] tabular-nums">
                 /{formatCurrency(target)}
               </span>
             </div>

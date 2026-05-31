@@ -36,7 +36,7 @@ interface CategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Pass to put the dialog in edit mode. */
-  editCategory?: { id: string; name: string; color: string } | null;
+  editCategory?: { slug: string; name: string; color: string } | null;
 }
 
 export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDialogProps) {
@@ -90,7 +90,7 @@ export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDia
     if (!canSubmit) return;
 
     if (isEditing && editCategory) {
-      updateMutation.mutate({ id: editCategory.id, name: name.trim(), color });
+      updateMutation.mutate({ slug: editCategory.slug, name: name.trim(), color });
     } else {
       createMutation.mutate({
         feature: Usage.MAX_CUSTOM_CATEGORIES,

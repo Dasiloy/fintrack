@@ -40,20 +40,20 @@ export class SchedulerService {
   purgeScheduledAccountDeletion() {
     void this.cleanupQueue.add(
       PURGE_SCHEDULED_DELETIONS_JOB,
-      { removeOnComplete: true, removeOnFail: false },
-      { jobId: PURGE_SCHEDULED_DELETIONS_JOB },
+      {},
+      { removeOnComplete: true, removeOnFail: { count: 10 } },
     );
   }
 
-  @Cron('0 * * * *') // Runs every hour
+  @Cron('0 * * * *') // Runs every 1hr
   createRecurringTransactions() {
+    console.warn('This ran in 5 minuites');
     void this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
       {},
       {
-        jobId: CREATE_RECURRING_TRANSACTION,
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: { count: 10 },
       },
     );
   }
@@ -64,9 +64,8 @@ export class SchedulerService {
       PURGE_USAGE_TRACKING_JOB,
       {},
       {
-        jobId: PURGE_USAGE_TRACKING_JOB,
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: { count: 10 },
       },
     );
   }
@@ -77,9 +76,8 @@ export class SchedulerService {
       BALANCE_ROLLOVER_JOB,
       {},
       {
-        jobId: BALANCE_ROLLOVER_JOB,
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: { count: 10 },
       },
     );
   }
@@ -90,9 +88,8 @@ export class SchedulerService {
       ANALYTICS_AGGREGATION_JOB,
       {},
       {
-        jobId: ANALYTICS_AGGREGATION_JOB,
         removeOnComplete: true,
-        removeOnFail: false,
+        removeOnFail: { count: 10 },
       },
     );
   }
@@ -104,8 +101,8 @@ export class SchedulerService {
   //     {},
   //     {
   //       jobId: ANALYTICS_AGGREGATION_JOB,
-  //       removeOnComplete: true,
-  //       removeOnFail: false,
+  // removeOnComplete: true,
+  //     removeOnFail: { count: 10 },
   //     },
   //   );
   // }
