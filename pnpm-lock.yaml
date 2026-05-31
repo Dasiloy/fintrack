@@ -1043,6 +1043,9 @@ importers:
       grpc-health-check:
         specifier: ^2.1.0
         version: 2.1.0
+      ioredis:
+        specifier: ^5.10.1
+        version: 5.10.1
       joi:
         specifier: ^18.0.2
         version: 18.0.2
