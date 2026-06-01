@@ -8,14 +8,17 @@ import { AdvisorPageClient } from './_components/advisor_page_client';
 
 export const metadata = { title: 'AI Advisor — FinTrack' };
 
-export default async function AdvisorPage() {
-  let isPro = false;
+export default async function AdvisorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; section?: string }>;
+}) {
+  const { tab, section } = await searchParams;
 
-  try {
-    isPro = await api_caller.subscription.isPro().then((r) => r.data ?? false);
-  } catch {
-    // non-fatal — free-user gate applies
-  }
-
-  return <AdvisorPageClient isPro={isPro} />;
+  return (
+    <AdvisorPageClient
+      initialTab={tab === 'insights' ? 'insights' : undefined}
+      initialSection={section}
+    />
+  );
 }

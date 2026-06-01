@@ -11,6 +11,7 @@ import {
   BALANCE_ROLLOVER_JOB,
   BALANCE_ROLLOVER_QUEUE,
   CREATE_RECURRING_TRANSACTION,
+  DAILY_INSIGHTS_JOB,
   INSIGHTS_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
@@ -45,7 +46,7 @@ export class SchedulerService {
     );
   }
 
-  @Cron('0 * * * *') // Runs every 1hr
+  @Cron('0 * * * *') // Runs every hour
   createRecurringTransactions() {
     console.warn('This ran in 5 minuites');
     void this.reccuringQueue.add(
@@ -94,16 +95,12 @@ export class SchedulerService {
     );
   }
 
-  // @Cron('0 4 * * *') // 4:00am every day — after aggregate analytics
-  // generateUsersInsights() {
-  //   void this.analyticsAggregationQueue.add(
-  //     ANALYTICS_AGGREGATION_JOB,
-  //     {},
-  //     {
-  //       jobId: ANALYTICS_AGGREGATION_JOB,
-  // removeOnComplete: true,
-  //     removeOnFail: { count: 10 },
-  //     },
-  //   );
-  // }
+  @Cron('0 8 * * *') // 8:00 AM daily — after analytics aggregation (2am)
+  triggerDailyInsights() {
+    void this.insightsQueue.add(
+      DAILY_INSIGHTS_JOB,
+      {},
+      { removeOnComplete: true, removeOnFail: { count: 5 } },
+    );
+  }
 }

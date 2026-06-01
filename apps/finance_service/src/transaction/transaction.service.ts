@@ -54,7 +54,7 @@ import {
 } from '@fintrack/database/types';
 
 import { UtilsService } from '../utils.service';
-import { BalanceService } from './balance.service';
+import { BalanceService } from '@fintrack/common/services/balance.service';
 
 export type TransactionWithOptionalJoins = Transaction & {
   category?: Category | null;
@@ -358,11 +358,6 @@ export class TransactionService {
           where: options,
         }),
       ]);
-
-      this.logger.log(
-        `Found ${total} transactions for user ${userId}`,
-        transactions,
-      );
 
       return {
         transactions: transactions.map((transaction) =>

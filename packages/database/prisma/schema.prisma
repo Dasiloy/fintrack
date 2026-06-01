@@ -1030,8 +1030,6 @@ enum SnapshotType {
 
 enum InsightTrigger {
   DAILY
-  POST_SYNC
-  MONTH_END
   BUDGET_BREACH
   MANUAL
 }
@@ -1068,6 +1066,7 @@ model AiInsight {
   cashFlowForecast     String?
   recommendations      Json            @default("[]")
   macroContext         Json            @default("{}")
+  budgetBreach         Json            @default("[]")
   conversationThreadId String?
   readAt               DateTime?
   notifiedAt           DateTime?
