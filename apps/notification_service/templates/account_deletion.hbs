@@ -1,0 +1,174 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Account Deletion - Fintrack</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f4f5;
+        color: #3f3f46;
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrapper {
+        background-color: #f4f4f5;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 440px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #e4e4e7;
+      }
+
+      .header {
+        padding: 40px 40px 28px 40px;
+        text-align: center;
+        border-bottom: 1px solid #e4e4e7;
+      }
+
+      .brand-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #18181b;
+        letter-spacing: 0.1em;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      .content {
+        padding: 32px 40px 40px 40px;
+        text-align: center;
+      }
+
+      .greeting {
+        font-size: 16px;
+        font-weight: 600;
+        color: #18181b;
+        margin: 0 0 12px 0;
+      }
+
+      .text {
+        font-size: 14px;
+        color: #71717a;
+        margin: 0 0 24px 0;
+        line-height: 1.6;
+      }
+
+      .notice-box {
+        background-color: #fff7f7;
+        border: 1px solid #fecaca;
+        padding: 20px;
+        margin: 24px 0;
+        text-align: left;
+      }
+
+      .notice-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #ef4444;
+        margin: 0 0 10px 0;
+        font-weight: 700;
+      }
+
+      .notice-date {
+        font-size: 18px;
+        font-weight: 700;
+        color: #18181b;
+        margin: 0 0 8px 0;
+      }
+
+      .notice-detail {
+        font-size: 13px;
+        color: #71717a;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #e4e4e7;
+        margin: 24px 0;
+      }
+
+      .text-small {
+        font-size: 13px;
+        color: #a1a1aa;
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      .footer {
+        padding: 24px 40px;
+        text-align: center;
+        border-top: 1px solid #e4e4e7;
+        background-color: #fafafa;
+        font-size: 11px;
+        color: #a1a1aa;
+      }
+
+      .footer a {
+        color: #7c7aff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='wrapper'>
+      <div class='container'>
+        <div class='header'>
+          <table cellpadding="0" cellspacing="0" border="0" style="display: inline-table; margin-bottom: 20px;">
+            <tr>
+              <td style="background-color: #7c7aff; border-radius: 10px; width: 40px; height: 40px; text-align: center; vertical-align: middle; padding: 0;">
+                <img src="cid:fintrack-logo" width="22" height="22" alt="" style="display:block; margin: 9px auto;" />
+              </td>
+              <td style="padding-left: 10px; vertical-align: middle;">
+                <span style="font-size: 17px; font-weight: 700; color: #18181b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.02em; white-space: nowrap;">FinTrack</span>
+              </td>
+            </tr>
+          </table>
+          <h1 class='brand-name'>Fintrack</h1>
+        </div>
+
+        <div class='content'>
+          <p class='greeting'>Hello {{firstName}},</p>
+          <p class='text'>
+            We received a request to permanently delete your Fintrack account
+            associated with <strong>{{email}}</strong>. Your account has been
+            scheduled for deletion on the date below.
+          </p>
+
+          <div class='notice-box'>
+            <p class='notice-label'>Scheduled Deletion</p>
+            <p class='notice-date'>{{deletionDate}}</p>
+            <p class='notice-detail'>
+              All your data — transactions, budgets, goals, and account history
+              — will be permanently removed and cannot be recovered.
+            </p>
+          </div>
+
+          <hr class='divider' />
+
+          <p class='text-small'>
+            If you did not request this or you've changed your mind, log back
+            in to Fintrack before the deletion date to cancel the request.
+          </p>
+        </div>
+
+        <div class='footer'>
+          <p>&copy; 2026 Fintrack Inc. &bull;
+            <a href='https://fintrack.live'>fintrack.live</a></p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

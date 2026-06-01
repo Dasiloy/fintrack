@@ -543,6 +543,7 @@ exports.Prisma.AiInsightScalarFieldEnum = {
   cashFlowForecast: 'cashFlowForecast',
   recommendations: 'recommendations',
   macroContext: 'macroContext',
+  budgetBreach: 'budgetBreach',
   conversationThreadId: 'conversationThreadId',
   readAt: 'readAt',
   notifiedAt: 'notifiedAt',
@@ -903,8 +904,6 @@ exports.SnapshotType = exports.$Enums.SnapshotType = {
 
 exports.InsightTrigger = exports.$Enums.InsightTrigger = {
   DAILY: 'DAILY',
-  POST_SYNC: 'POST_SYNC',
-  MONTH_END: 'MONTH_END',
   BUDGET_BREACH: 'BUDGET_BREACH',
   MANUAL: 'MANUAL'
 };

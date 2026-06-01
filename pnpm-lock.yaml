@@ -1333,6 +1333,12 @@ importers:
 
   packages/common:
     dependencies:
+      '@fintrack/database':
+        specifier: workspace:*
+        version: link:../database
+      '@fintrack/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@grpc/grpc-js':
         specifier: ^1.14.3
         version: 1.14.3
