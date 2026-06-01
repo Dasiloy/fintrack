@@ -5,9 +5,12 @@ import type Redis from 'ioredis';
 import { Inject, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
+import { BalanceService } from '@fintrack/common/services/balance.service';
 
 import { PrismaService } from '@fintrack/database/service';
 import {
+  BUDGET_CHECK_JOB,
+  BUDGET_CHECK_QUEUE,
   CREATE_RECURRING_TRANSACTION,
   RECURRING_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
@@ -17,7 +20,12 @@ import {
   BUDGET_TREND_CACHE_PREFIX,
   REDIS_CLIENT,
 } from '@fintrack/types/constants/redis.costants';
-import { Category, Prisma, RecurringItem } from '@fintrack/database/types';
+import {
+  Category,
+  Prisma,
+  RecurringItem,
+  TransactionType,
+} from '@fintrack/database/types';
 import { computeNextRunAt } from '@fintrack/utils/recurring';
 import { genRecurringSourceId } from '@fintrack/utils/format';
 
@@ -27,8 +35,11 @@ export class RecurringProcessor extends WorkerHost {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly balanceService: BalanceService,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE)
     private readonly emailQueue: Queue,
+    @InjectQueue(BUDGET_CHECK_QUEUE)
+    private readonly budgetCheckQueue: Queue,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
     super();
@@ -139,6 +150,22 @@ export class RecurringProcessor extends WorkerHost {
       await this.invalidateCachesForUsers([...createdByUser.keys()]);
     }
 
+    // Dispatch budget check for each user whose expense recurring transactions were created
+    for (const [userId, items] of createdByUser.entries()) {
+      const expenseItems = items.filter(
+        (i) => i.type === TransactionType.EXPENSE,
+      );
+      if (expenseItems.length === 0) continue;
+
+      void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+        userId,
+        transactions: expenseItems.map((i) => ({
+          categoryId: i.categoryId,
+          referenceDate: i.nextRunAt.toISOString(),
+        })),
+      });
+    }
+
     // Dispatch per-user in-app activity notification + email summary
     for (const [userId, items] of createdByUser.entries()) {
       if (items.length === 0) continue;
@@ -186,17 +213,23 @@ export class RecurringProcessor extends WorkerHost {
     for (const userId of userIds) {
       try {
         // Budget spending-trend keys: budget_trend:{userId}:*
-        const trendKeys = await this.redis.keys(`${BUDGET_TREND_CACHE_PREFIX}:${userId}:*`);
+        const trendKeys = await this.redis.keys(
+          `${BUDGET_TREND_CACHE_PREFIX}:${userId}:*`,
+        );
 
         // Export keys: export:{userId}:* — use SCAN to avoid blocking on large keyspaces
         const exportKeys: string[] = [];
         let cursor = '0';
         do {
           const [next, batch] = await this.redis.scan(
-            cursor, 'MATCH', `export:${userId}:*`, 'COUNT', 100,
+            cursor,
+            'MATCH',
+            `export:${userId}:*`,
+            'COUNT',
+            100,
           );
           cursor = next;
-          exportKeys.push(...(batch as string[]));
+          exportKeys.push(...batch);
         } while (cursor !== '0');
 
         const all = [...trendKeys, ...exportKeys];
@@ -205,7 +238,9 @@ export class RecurringProcessor extends WorkerHost {
         }
       } catch (err: unknown) {
         const error = err instanceof Error ? err : new Error(String(err));
-        this.logger.warn(`Cache invalidation failed for user ${userId}: ${error.message}`);
+        this.logger.warn(
+          `Cache invalidation failed for user ${userId}: ${error.message}`,
+        );
       }
     }
   }
@@ -241,6 +276,9 @@ export class RecurringProcessor extends WorkerHost {
 
     await this.prisma.$transaction(
       async (tx) => {
+        // Step 1: ensure balance row is on the current month before creating the transaction
+        await this.balanceService.ensureCurrentMonth(tx, item.userId);
+
         await tx.transaction.create({
           data: {
             userId: item.userId,
@@ -267,6 +305,16 @@ export class RecurringProcessor extends WorkerHost {
             },
           },
         });
+
+        // Step 2: apply balance delta after the transaction row exists
+        await this.balanceService.applyBalanceDelta(
+          tx,
+          item.userId,
+          item.type,
+          Number(item.amount),
+          'ADD',
+          item.nextRunAt,
+        );
 
         await tx.recurringItem.update({
           where: { id: item.id },

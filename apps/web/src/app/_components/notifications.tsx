@@ -21,9 +21,13 @@ function resolveNotificationNav(data: NotifData) {
   if (!data?.type) return null;
   switch (data.type) {
     case 'transaction':
-      return { href: '/finances/transactions', txId: data.transactionId ?? null };
+      return { href: '/finances/transactions', txId: data.transactionId ?? null, section: null };
     case 'bank_sync':
-      return { href: '/finances/transactions', txId: null };
+      return { href: '/finances/transactions', txId: null, section: null };
+    case 'insight':
+      return { href: '/advisor', txId: null, section: 'summary' };
+    case 'budget_breach':
+      return { href: '/advisor', txId: null, section: 'anomalies' };
     default:
       return null;
   }
@@ -99,9 +103,19 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
   }
   function handleCardClick() {
     if (!nav) return;
-    if (!isRead) handleMarkAsRead(notification.notificationId);
-    const url = nav.txId ? `${nav.href}?txId=${nav.txId}` : nav.href;
-    router.push(url);
+    // Fire-and-forget: optimistic atom update + API call, never blocks navigation
+    if (!isRead) {
+      markNotificationAsRead(notification.notificationId);
+      void markAsRead({ notificationId: notification.notificationId });
+    }
+    const params = new URLSearchParams();
+    if (nav.txId) params.set('txId', nav.txId);
+    if (nav.section) {
+      params.set('tab', 'insights');
+      params.set('section', nav.section);
+    }
+    const qs = params.toString();
+    router.push(qs ? `${nav.href}?${qs}` : nav.href);
   }
 
   return (
@@ -201,6 +215,9 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
         )}
         {data?.type === 'bank_sync' && (
           <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">→ View transactions</p>
+        )}
+        {(data?.type === 'insight' || data?.type === 'budget_breach') && (
+          <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">→ View in AI Advisor</p>
         )}
 
         <div className="text-text-disabled mt-1.5 flex items-center gap-1.5 pl-7.5 text-[10px]">

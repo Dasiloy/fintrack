@@ -14,7 +14,7 @@ import {
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { BudgetCheckProcessor } from './budget_check.processor';
-import { BalanceService } from './balance.service';
+import { BalanceService } from '@fintrack/common/services/balance.service';
 import { UtilsService } from '../utils.service';
 
 @Module({
