@@ -5,7 +5,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 
 import { PrismaService } from '@fintrack/database/service';
-import { AiInsight } from '@fintrack/database/types';
+import { AiInsight, UsageFeature } from '@fintrack/database/types';
+import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
 import {
   REDIS_CLIENT,
   INSIGHTS_CACHE_PREFIX,
@@ -215,13 +216,38 @@ export class AdvisorService {
    * guard that prevents duplicate jobs from racing through the cooldown window.
    *
    * @param {string} userId - Authenticated user ID
-   * @returns {Promise<{ queued: boolean; cooldownSeconds?: number }>}
+   * @returns {Promise<{ queued: boolean; cooldownSeconds?: number ,limitReached?: boolean}>}
    *   `queued: true` when the job was enqueued, or
    *   `queued: false` + `cooldownSeconds` remaining when the cooldown is active.
    */
-  async triggerInsights(
-    userId: string,
-  ): Promise<{ queued: boolean; cooldownSeconds?: number }> {
+  async triggerInsights(userId: string): Promise<{
+    queued: boolean;
+    cooldownSeconds?: number;
+    limitReached?: boolean;
+  }> {
+    // Resolve plan + usage tracker together.
+    const sub = await this.prisma.subscription.findFirst({
+      where: { userId },
+      select: { plan: true },
+    });
+
+    // No subscription row → cannot proceed.
+    if (!sub) return { queued: false, limitReached: true };
+
+    if (sub.plan !== 'PRO') {
+      const limit = PLAN_LIMITS['FREE'][
+        Usage.AI_INSIGHTS_QUERIES_PER_MONTH
+      ] as number;
+      const tracker = await this.prisma.usageTracker.findFirst({
+        where: { userId, feature: UsageFeature.AI_INSIGHTS_QUERIES },
+        select: { count: true },
+      });
+      // No tracker row or quota exhausted → block.
+      if (!tracker || tracker.count >= limit) {
+        return { queued: false, limitReached: true };
+      }
+    }
+
     const cooldownKey = `${INSIGHTS_COOLDOWN}:${userId}`;
     const ttl = await this.redis.ttl(cooldownKey);
 

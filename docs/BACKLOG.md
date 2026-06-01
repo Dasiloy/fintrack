@@ -205,18 +205,6 @@ Items are grouped by type. Each entry follows the format:
 
 ## 🐛 Bugs
 
-### [BG-003] Access & refresh tokens expiring faster than configured TTLs
-
-- **Type**: Bug
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Access and refresh tokens are expiring well under their configured durations (1d and 7d respectively). Confirmed on Google OAuth logins; unknown whether local email/password logins are also affected. Users get logged out unexpectedly.
-- **Notes**:
-  - Investigate token generation in the auth service — check that `ACCESS_TOKEN_EXPIRY` and `REFRESH_TOKEN_EXPIRY` env vars are being read at runtime and not falling back to a hardcoded short default.
-  - Google OAuth tokens may be issued with a different TTL path than local logins — compare both flows side by side.
-  - Check if token signing happens at gateway vs auth service and whether the env vars are set on the correct Railway service.
-  - Reproduce by logging in with Google, inspecting the JWT `exp` claim, and comparing against `Date.now() + 1d` / `7d`.
-
 ### [BG-001] Component Export issues on Budget Page
 
 - **Type**: Bug

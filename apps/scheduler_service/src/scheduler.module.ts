@@ -14,6 +14,7 @@ import {
   ACCOUNT_CLEANUP_QUEUE,
   ANALYTICS_AGGREGATION_QUEUE,
   BALANCE_ROLLOVER_QUEUE,
+  BUDGET_CHECK_QUEUE,
   INSIGHTS_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
@@ -22,6 +23,7 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 
 import { SchedulerService } from './scheduler.service';
+import { BalanceService } from '@fintrack/common/services/balance.service';
 
 // PROCESORS
 import { CleanupProcessor } from './processors/cleanup.processor';
@@ -29,6 +31,7 @@ import { UsageProcessor } from './processors/usage_tracker.processor';
 import { RecurringProcessor } from './processors/recurring.processor';
 import { BalanceRolloverProcessor } from './processors/balance_rollover.processor';
 import { AnalyticsAggregationProcessor } from './processors/analytics_aggregation.processor';
+import { InsightsDailyProcessor } from './processors/insights_daily.processor';
 
 @Module({
   imports: [
@@ -68,15 +71,18 @@ import { AnalyticsAggregationProcessor } from './processors/analytics_aggregatio
       { name: BALANCE_ROLLOVER_QUEUE },
       { name: ANALYTICS_AGGREGATION_QUEUE },
       { name: INSIGHTS_QUEUE },
+      { name: BUDGET_CHECK_QUEUE },
     ),
   ],
   providers: [
+    BalanceService,
     SchedulerService,
     CleanupProcessor,
     UsageProcessor,
     RecurringProcessor,
     BalanceRolloverProcessor,
     AnalyticsAggregationProcessor,
+    InsightsDailyProcessor,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,

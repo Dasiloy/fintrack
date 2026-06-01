@@ -76,7 +76,7 @@ export const advisorRouter = createTRPCRouter({
 
     if (!response.ok) await throwGatewayError(response);
 
-    const data: StandardResponse<{ queued: boolean; cooldownSeconds: number | null }> =
+    const data: StandardResponse<{ queued: boolean; cooldownSeconds: number | null; limitReached: boolean }> =
       await response.json();
     return data;
   }),
