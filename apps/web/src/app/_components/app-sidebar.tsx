@@ -76,22 +76,14 @@ function UnreadBadge() {
   const count = data?.data?.count ?? 0;
   if (count === 0) return null;
   return (
-    <span className="ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-white group-data-[collapsible=icon]:hidden">
+    <span className="bg-primary ml-auto flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full px-1 text-[10px] leading-none font-semibold text-white group-data-[collapsible=icon]:hidden">
       {count > 9 ? '9+' : count}
     </span>
   );
 }
 
 /** Single flat nav item (not collapsible) */
-function NavItemRow({
-  item,
-  isActive,
-  isPro,
-}: {
-  item: NavItem;
-  isActive: boolean;
-  isPro: boolean;
-}) {
+function NavItemRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
@@ -100,12 +92,7 @@ function NavItemRow({
         <Link href={item.url} onClick={() => isMobile && setOpenMobile(false)}>
           <item.icon />
           <span className="flex-1 truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
-          {item.isPro && !isPro && (
-            <Badge className="bg-warning/10 text-warning ml-auto shrink-0 border-0 px-1.5 py-0 text-[10px] font-semibold group-data-[collapsible=icon]:hidden">
-              Pro
-            </Badge>
-          )}
-          {item.showUnreadBadge && isPro && <UnreadBadge />}
+          {item.showUnreadBadge && <UnreadBadge />}
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -219,15 +206,7 @@ function NavCollapsibleRow({
 }
 
 /** Renders a full nav group with a label + its items */
-function NavGroupSection({
-  group,
-  pathname,
-  isPro,
-}: {
-  group: NavGroup;
-  pathname: string;
-  isPro: boolean;
-}) {
+function NavGroupSection({ group, pathname }: { group: NavGroup; pathname: string }) {
   const isActive = (url: string) => pathname === url || pathname.startsWith(url + '/');
 
   return (
@@ -249,12 +228,7 @@ function NavGroupSection({
             }
             const navItem = item as NavItem;
             return (
-              <NavItemRow
-                key={navItem.title}
-                item={navItem}
-                isActive={isActive(navItem.url)}
-                isPro={isPro}
-              />
+              <NavItemRow key={navItem.title} item={navItem} isActive={isActive(navItem.url)} />
             );
           })}
         </SidebarMenu>
@@ -267,7 +241,7 @@ function NavGroupSection({
 function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
   // hooks
   const { isMobile } = useSidebar();
-  const { start, stop, set, setOptions } = useProgress();
+  const { start, stop, setOptions } = useProgress();
 
   // helpers
   const initials = user.name
@@ -456,12 +430,12 @@ export function AppSidebar({ session, isPro }: { session: Session; isPro: boolea
       {/* ── Scrollable: all nav groups + Account + user (Settings sublinks stay in flow) ── */}
       <SidebarContent>
         {NAV_GROUPS.map((group) => (
-          <NavGroupSection key={group.label} group={group} pathname={pathname} isPro={isPro} />
+          <NavGroupSection key={group.label} group={group} pathname={pathname} />
         ))}
 
         <SidebarSeparator />
 
-        <NavGroupSection group={ACCOUNT_GROUP} pathname={pathname} isPro={isPro} />
+        <NavGroupSection group={ACCOUNT_GROUP} pathname={pathname} />
 
         {/* User profile at bottom of scroll (no footer; nothing gets cut off) */}
         <SidebarSeparator />

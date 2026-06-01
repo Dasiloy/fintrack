@@ -21,8 +21,6 @@ import * as React from 'react';
 import type { PanelImperativeHandle } from '@ui/components';
 import { Sheet, SheetContent } from '@ui/components';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@ui/components';
-import { ProGateModal } from '@/app/_components/pro_gate_modal';
-import { Usage } from '@fintrack/types/constants/plan.constants';
 
 import { AdvisorHeader } from './advisor_header';
 import { ConversationSidebar } from './conversation_sidebar';
@@ -33,13 +31,20 @@ import { ContextPanel } from './context_panel';
 import type { AdvisorPageState, AdvisorTool } from '../_lib/advisor.types';
 import { ADVISOR_TOOLS } from '../_lib/advisor.constants';
 
-interface AdvisorPageClientProps {
-  isPro: boolean;
+const SECTION_IDS = ['summary', 'anomalies', 'goal_alerts', 'cash_flow', 'recommendations', 'macro'] as const;
+
+function buildInitialSections(initialSection?: string): Record<string, boolean> {
+  return Object.fromEntries(SECTION_IDS.map((id) => [id, id === initialSection]));
 }
 
-export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
+interface AdvisorPageClientProps {
+  initialTab?: 'insights' | 'advisor';
+  initialSection?: string;
+}
+
+export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageClientProps) {
   const [pageState, setPageState] = React.useState<AdvisorPageState>({
-    activeTab: 'advisor',
+    activeTab: initialTab ?? 'advisor',
     activeConversationId: null,
     historySheetOpen: false,
     toolsSheetOpen: false,
@@ -50,15 +55,19 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
   const contextPanelRef = React.useRef<PanelImperativeHandle | null>(null);
 
   // Insights section expand/collapse — lifted here so InsightsSidebarNav and
-  // InsightsPanel can share the same state. All sections start closed.
-  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>({
-    summary: false,
-    anomalies: false,
-    goal_alerts: false,
-    cash_flow: false,
-    recommendations: false,
-    macro: false,
-  });
+  // InsightsPanel can share the same state.
+  // When arriving from a notification deep-link, pre-open the targeted section.
+  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>(
+    () => buildInitialSections(initialSection),
+  );
+
+  // Scroll the pre-opened section into view after the first paint.
+  React.useEffect(() => {
+    if (!initialSection) return;
+    const el = document.getElementById(`insight-section-${initialSection}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const toggleSection = React.useCallback((id: string) => {
     setExpandedSections((prev) => ({ ...prev, [id]: !prev[id] }));
   }, []);
@@ -241,14 +250,6 @@ export function AdvisorPageClient({ isPro }: AdvisorPageClientProps) {
         </div>
       </div>
 
-      {/* ── Persistent pro gate ────────────────────────────────────────────── */}
-      <ProGateModal
-        feature={Usage.AI_CHAT_MESSAGES_PER_MONTH}
-        title="AI Advisor"
-        description="Chat with your personal AI financial advisor for unlimited insights, budget recommendations, and real-time spending analysis."
-        open={!isPro}
-        onClose={() => {}}
-      />
     </div>
   );
 }

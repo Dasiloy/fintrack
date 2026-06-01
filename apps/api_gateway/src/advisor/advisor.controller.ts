@@ -280,21 +280,26 @@ export class AdvisorController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal server error',
   })
-  async triggerInsights(
-    @CurrentUser() user: User,
-  ): Promise<
-    StandardResponse<{ queued: boolean; cooldownSeconds: number | null }>
+  async triggerInsights(@CurrentUser() user: User): Promise<
+    StandardResponse<{
+      queued: boolean;
+      cooldownSeconds: number | null;
+      limitReached: boolean;
+    }>
   > {
     const result = await this.advisorService.triggerInsights(user.id);
     return {
       success: true,
       message: result.queued
         ? 'New insights are on the way'
-        : 'Insights were recently generated — please wait before triggering again',
+        : result.limitReached
+          ? 'Monthly insights limit reached'
+          : 'Insights were recently generated — please wait before triggering again',
       statusCode: HttpStatus.ACCEPTED,
       data: {
         queued: result.queued,
         cooldownSeconds: result.cooldownSeconds ?? null,
+        limitReached: result.limitReached ?? false,
       },
     };
   }

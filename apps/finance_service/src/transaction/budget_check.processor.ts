@@ -103,6 +103,7 @@ export class BudgetCheckProcessor extends WorkerHost {
         },
         include: { category: true },
       });
+      this.logger.log(`Budgets: ${JSON.stringify(budgets)}`);
       if (budgets.length === 0) return;
 
       const results = await Promise.all(
