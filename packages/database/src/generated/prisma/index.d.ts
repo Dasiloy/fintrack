@@ -573,8 +573,6 @@ export type SnapshotType = (typeof SnapshotType)[keyof typeof SnapshotType]
 
 export const InsightTrigger: {
   DAILY: 'DAILY',
-  POST_SYNC: 'POST_SYNC',
-  MONTH_END: 'MONTH_END',
   BUDGET_BREACH: 'BUDGET_BREACH',
   MANUAL: 'MANUAL'
 };
@@ -1364,7 +1362,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends BigInt
+  : T extends bigint
   ? False
   : T extends object
   ? True
@@ -42111,6 +42109,7 @@ export namespace Prisma {
     cashFlowForecast: number
     recommendations: number
     macroContext: number
+    budgetBreach: number
     conversationThreadId: number
     readAt: number
     notifiedAt: number
@@ -42162,6 +42161,7 @@ export namespace Prisma {
     cashFlowForecast?: true
     recommendations?: true
     macroContext?: true
+    budgetBreach?: true
     conversationThreadId?: true
     readAt?: true
     notifiedAt?: true
@@ -42254,6 +42254,7 @@ export namespace Prisma {
     cashFlowForecast: string | null
     recommendations: JsonValue
     macroContext: JsonValue
+    budgetBreach: JsonValue
     conversationThreadId: string | null
     readAt: Date | null
     notifiedAt: Date | null
@@ -42290,6 +42291,7 @@ export namespace Prisma {
     cashFlowForecast?: boolean
     recommendations?: boolean
     macroContext?: boolean
+    budgetBreach?: boolean
     conversationThreadId?: boolean
     readAt?: boolean
     notifiedAt?: boolean
@@ -42310,6 +42312,7 @@ export namespace Prisma {
     cashFlowForecast?: boolean
     recommendations?: boolean
     macroContext?: boolean
+    budgetBreach?: boolean
     conversationThreadId?: boolean
     readAt?: boolean
     notifiedAt?: boolean
@@ -42330,6 +42333,7 @@ export namespace Prisma {
     cashFlowForecast?: boolean
     recommendations?: boolean
     macroContext?: boolean
+    budgetBreach?: boolean
     conversationThreadId?: boolean
     readAt?: boolean
     notifiedAt?: boolean
@@ -42350,6 +42354,7 @@ export namespace Prisma {
     cashFlowForecast?: boolean
     recommendations?: boolean
     macroContext?: boolean
+    budgetBreach?: boolean
     conversationThreadId?: boolean
     readAt?: boolean
     notifiedAt?: boolean
@@ -42357,7 +42362,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AiInsightOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "generatedAt" | "trigger" | "severity" | "summary" | "anomalies" | "goalAlerts" | "cashFlowForecast" | "recommendations" | "macroContext" | "conversationThreadId" | "readAt" | "notifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["aiInsight"]>
+  export type AiInsightOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "generatedAt" | "trigger" | "severity" | "summary" | "anomalies" | "goalAlerts" | "cashFlowForecast" | "recommendations" | "macroContext" | "budgetBreach" | "conversationThreadId" | "readAt" | "notifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["aiInsight"]>
   export type AiInsightInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -42385,6 +42390,7 @@ export namespace Prisma {
       cashFlowForecast: string | null
       recommendations: Prisma.JsonValue
       macroContext: Prisma.JsonValue
+      budgetBreach: Prisma.JsonValue
       conversationThreadId: string | null
       readAt: Date | null
       notifiedAt: Date | null
@@ -42825,6 +42831,7 @@ export namespace Prisma {
     readonly cashFlowForecast: FieldRef<"AiInsight", 'String'>
     readonly recommendations: FieldRef<"AiInsight", 'Json'>
     readonly macroContext: FieldRef<"AiInsight", 'Json'>
+    readonly budgetBreach: FieldRef<"AiInsight", 'Json'>
     readonly conversationThreadId: FieldRef<"AiInsight", 'String'>
     readonly readAt: FieldRef<"AiInsight", 'DateTime'>
     readonly notifiedAt: FieldRef<"AiInsight", 'DateTime'>
@@ -43777,6 +43784,7 @@ export namespace Prisma {
     cashFlowForecast: 'cashFlowForecast',
     recommendations: 'recommendations',
     macroContext: 'macroContext',
+    budgetBreach: 'budgetBreach',
     conversationThreadId: 'conversationThreadId',
     readAt: 'readAt',
     notifiedAt: 'notifiedAt',
@@ -46983,6 +46991,7 @@ export namespace Prisma {
     cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
     recommendations?: JsonFilter<"AiInsight">
     macroContext?: JsonFilter<"AiInsight">
+    budgetBreach?: JsonFilter<"AiInsight">
     conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
     readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
     notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
@@ -47003,6 +47012,7 @@ export namespace Prisma {
     cashFlowForecast?: SortOrderInput | SortOrder
     recommendations?: SortOrder
     macroContext?: SortOrder
+    budgetBreach?: SortOrder
     conversationThreadId?: SortOrderInput | SortOrder
     readAt?: SortOrderInput | SortOrder
     notifiedAt?: SortOrderInput | SortOrder
@@ -47026,6 +47036,7 @@ export namespace Prisma {
     cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
     recommendations?: JsonFilter<"AiInsight">
     macroContext?: JsonFilter<"AiInsight">
+    budgetBreach?: JsonFilter<"AiInsight">
     conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
     readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
     notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
@@ -47046,6 +47057,7 @@ export namespace Prisma {
     cashFlowForecast?: SortOrderInput | SortOrder
     recommendations?: SortOrder
     macroContext?: SortOrder
+    budgetBreach?: SortOrder
     conversationThreadId?: SortOrderInput | SortOrder
     readAt?: SortOrderInput | SortOrder
     notifiedAt?: SortOrderInput | SortOrder
@@ -47071,6 +47083,7 @@ export namespace Prisma {
     cashFlowForecast?: StringNullableWithAggregatesFilter<"AiInsight"> | string | null
     recommendations?: JsonWithAggregatesFilter<"AiInsight">
     macroContext?: JsonWithAggregatesFilter<"AiInsight">
+    budgetBreach?: JsonWithAggregatesFilter<"AiInsight">
     conversationThreadId?: StringNullableWithAggregatesFilter<"AiInsight"> | string | null
     readAt?: DateTimeNullableWithAggregatesFilter<"AiInsight"> | Date | string | null
     notifiedAt?: DateTimeNullableWithAggregatesFilter<"AiInsight"> | Date | string | null
@@ -50075,6 +50088,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -50095,6 +50109,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -50113,6 +50128,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50133,6 +50149,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50152,6 +50169,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -50170,6 +50188,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50189,6 +50208,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -52729,6 +52749,7 @@ export namespace Prisma {
     cashFlowForecast?: SortOrder
     recommendations?: SortOrder
     macroContext?: SortOrder
+    budgetBreach?: SortOrder
     conversationThreadId?: SortOrder
     readAt?: SortOrder
     notifiedAt?: SortOrder
@@ -56452,6 +56473,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -56470,6 +56492,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -57256,6 +57279,7 @@ export namespace Prisma {
     cashFlowForecast?: StringNullableFilter<"AiInsight"> | string | null
     recommendations?: JsonFilter<"AiInsight">
     macroContext?: JsonFilter<"AiInsight">
+    budgetBreach?: JsonFilter<"AiInsight">
     conversationThreadId?: StringNullableFilter<"AiInsight"> | string | null
     readAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
     notifiedAt?: DateTimeNullableFilter<"AiInsight"> | Date | string | null
@@ -64215,6 +64239,7 @@ export namespace Prisma {
     cashFlowForecast?: string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
@@ -64956,6 +64981,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64974,6 +65000,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -64992,6 +65019,7 @@ export namespace Prisma {
     cashFlowForecast?: NullableStringFieldUpdateOperationsInput | string | null
     recommendations?: JsonNullValueInput | InputJsonValue
     macroContext?: JsonNullValueInput | InputJsonValue
+    budgetBreach?: JsonNullValueInput | InputJsonValue
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -19,8 +19,6 @@ export const SUMMARY_MODEL = GOOGLE_GEMINI_2_5_FLASH;
 
 export const TRIGGER_MAP: Record<string, InsightTrigger> = {
   daily: InsightTrigger.DAILY,
-  post_sync: InsightTrigger.POST_SYNC,
-  month_end: InsightTrigger.MONTH_END,
   budget_breach: InsightTrigger.BUDGET_BREACH,
   manual: InsightTrigger.MANUAL,
 };

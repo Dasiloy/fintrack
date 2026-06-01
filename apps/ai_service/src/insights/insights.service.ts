@@ -10,20 +10,22 @@ import {
 import { END, START, StateGraph } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { Queue } from 'bullmq';
-import dayjs from '@fintrack/utils/date';
+import dayjs, { getTimeFromNow } from '@fintrack/utils/date';
 import { formatCurrency } from '@fintrack/utils/format';
 
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ClientGrpc, RpcException } from '@nestjs/microservices';
 
+import { slugToName } from '@fintrack/utils/format';
 import { PrismaService } from '@fintrack/database/service';
 import {
   AiInsight,
   InsightSeverity,
-  InsightTrigger,
   SnapshotType,
+  UsageFeature,
 } from '@fintrack/database/types';
+import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
 import { FINANCE_PACKAGE_NAME } from '@fintrack/types/protos/finance/finance';
 import {
   FinanceServiceClient,
@@ -126,12 +128,21 @@ export class InsightService implements OnModuleInit {
 
   async runGraph(
     payload: InsightsJobPayload,
-  ): Promise<typeof InsightState.State> {
+  ): Promise<typeof InsightState.State | null> {
+    // Silently drop the job if the user has exhausted their monthly insight quota.
+    const allowed = await this.isInsightAllowed(payload.userId!);
+    if (!allowed) {
+      this.logger.log(
+        `[InsightService] Skipping insights — userId=${payload.userId} has reached monthly limit`,
+      );
+      return null;
+    }
+
     try {
       const graph = this.buildGraph();
       const result = await this.langraph.invoke(
         graph,
-        { userId: payload.userId, ...payload.metadata },
+        { userId: payload.userId, trigger: payload.trigger },
         // Pass userId in configurable so the ToolNode can forward it to the
         // fetch_transactions tool at call time — tool never accepts userId as input.
         { configurable: { userId: payload.userId } },
@@ -142,7 +153,7 @@ export class InsightService implements OnModuleInit {
 
       const insight = await this.prisma.aiInsight.create({
         data: {
-          userId: payload.userId,
+          userId: payload.userId!,
           trigger: TRIGGER_MAP[payload.trigger],
           severity: SEVERITY_MAP[result.severity],
           summary: result.summary,
@@ -153,15 +164,20 @@ export class InsightService implements OnModuleInit {
           macroContext: result.macroContext as any,
         },
       });
+
+      // Increment monthly usage — fire-and-forget, never block the happy path.
+      void this.incrementInsightUsage(payload.userId!);
+
       await this.redis.del(`insights:${payload.userId}:**`).catch((err) => {
-        // log error as no up
         this.logger.error(
-          'Redis invalidation failed for insighst',
+          'Redis invalidation failed for insights',
           JSON.stringify(err),
         );
       });
       // Fire-and-forget — notification failure must not fail the insight job.
-      this.dispatchNotification(insight).catch((err) =>
+      this.dispatchNotification(insight, {
+        skipEmail: payload.trigger === 'daily',
+      }).catch((err) =>
         this.logger.error(`dispatchNotification failed: ${err.message}`),
       );
       return result;
@@ -172,6 +188,39 @@ export class InsightService implements OnModuleInit {
         message: 'An error occured',
       });
     }
+  }
+
+  // ── Plan limit helpers ────────────────────────────────────────────────────
+
+  private async isInsightAllowed(userId: string): Promise<boolean> {
+    const sub = await this.prisma.subscription.findFirst({
+      where: { userId },
+      select: { plan: true },
+    });
+
+    // No sub - early return
+    if (!sub) return false;
+
+    // PRO plan — always allowed.
+    if (sub.plan === 'PRO') return true;
+
+    const limit = PLAN_LIMITS['FREE'][
+      Usage.AI_INSIGHTS_QUERIES_PER_MONTH
+    ] as number;
+
+    const tracker = await this.prisma.usageTracker.findFirst({
+      where: { userId, feature: UsageFeature.AI_INSIGHTS_QUERIES },
+      select: { count: true },
+    });
+
+    return !tracker || tracker.count < limit;
+  }
+
+  private async incrementInsightUsage(userId: string): Promise<void> {
+    await this.prisma.usageTracker.updateMany({
+      where: { userId, feature: UsageFeature.AI_INSIGHTS_QUERIES },
+      data: { count: { increment: 1 } },
+    });
   }
 
   // ── Notification dispatch ─────────────────────────────────────────────────
@@ -187,7 +236,10 @@ export class InsightService implements OnModuleInit {
    *
    * `notifiedAt` guard prevents re-dispatch on re-runs of the same insight.
    */
-  private async dispatchNotification(insight: AiInsight): Promise<void> {
+  private async dispatchNotification(
+    insight: AiInsight,
+    options?: { skipEmail?: boolean },
+  ): Promise<void> {
     if (insight.notifiedAt) return;
 
     const user = await this.prisma.user.findUnique({
@@ -230,8 +282,9 @@ export class InsightService implements OnModuleInit {
       );
     }
 
-    // Critical always sends email; non-critical uses email only as FCM fallback
-    const shouldEmail = isCritical || !hasFcm;
+    // Critical always sends email; non-critical uses email only as FCM fallback.
+    // Daily trigger suppresses email entirely (FCM-only by design).
+    const shouldEmail = (isCritical || !hasFcm) && !options?.skipEmail;
     if (shouldEmail) {
       const emailPayload: InsightNotificationEmailPayload = {
         email: user.email,
@@ -417,8 +470,31 @@ export class InsightService implements OnModuleInit {
         settled(splitsRes, { splits: [] } as any, 'splits').splits ?? [];
       const snapshot = settled(snapshotRes, null as any, 'snapshot');
 
+      const historicalSummaries = historicalInsights
+        .map((h: any) => h.summary as string)
+        .filter(Boolean);
+
+      const historicalAnomalies = historicalInsights.flatMap(
+        (h: any) => (Array.isArray(h.anomalies) ? h.anomalies : []) as string[],
+      );
+
+      const historicalRecommendations = historicalInsights.flatMap((h: any) =>
+        (Array.isArray(h.recommendations) ? h.recommendations : []).map(
+          (r: any) => r.text as string,
+        ),
+      );
+
+      const lastInsight = historicalInsights[0] as any;
+      const insightGap: string = lastInsight?.generatedAt
+        ? getTimeFromNow(new Date(lastInsight.generatedAt))
+        : 'first insight';
+
       return {
         historicalInsights,
+        historicalSummaries,
+        historicalAnomalies,
+        historicalRecommendations,
+        insightGap,
         analyticsSnapshot: snapshot?.data ?? null,
         goals,
         budgets,
@@ -449,29 +525,41 @@ export class InsightService implements OnModuleInit {
       const {
         userBalance,
         analyticsSnapshot,
-        historicalInsights,
+        historicalSummaries,
         macroContext,
+        trigger,
+        insightGap,
       } = state;
       if (!userBalance) return { summary: '' };
 
+      const today = dayjs();
       const topCategories = (
         (analyticsSnapshot as any)?.topCategories ?? []
       ).slice(0, 3);
-      const prevSummary = (historicalInsights[0] as any)?.summary ?? null;
+
+      const systemPrompt = SUMMARIZE_SYSTEM.replace(
+        '{historicalSummaries}',
+        historicalSummaries.length
+          ? historicalSummaries.map((s, i) => `${i + 1}. "${s}"`).join('\n')
+          : '(none yet)',
+      );
 
       const human = [
-        `Month: ${userBalance.monthYear}`,
-        `Balance: ${formatCurrency(userBalance.netBalance)} | Income: ${formatCurrency(userBalance.monthlyIncome)} | Expenses: ${formatCurrency(userBalance.monthlyExpense)}`,
-        `Top spend categories: ${topCategories.map((c: any) => `${c.slug} ${formatCurrency(c.total)}`).join(', ') || 'none recorded'}`,
+        `Today: ${today.format('YYYY-MM-DD')} (day ${today.date()} of ${today.daysInMonth()}, ${today.format('MMMM YYYY')})`,
+        `Trigger: ${trigger}`,
+        `Last insight generated: ${insightGap}`,
+        `Balance: ${formatCurrency(userBalance.netBalance)} | Monthly income so far: ${formatCurrency(userBalance.monthlyIncome)} | Monthly expenses so far: ${formatCurrency(userBalance.monthlyExpense)}`,
+        topCategories.length > 0
+          ? `Top spend categories this month: ${topCategories.map((c: any) => `${c.name ?? slugToName(c.slug)}: ${formatCurrency(c.total)} (${c.transactionCount ?? 0} transactions)`).join('; ')}`
+          : 'Top spend categories this month: none recorded yet',
         `NGN/USD rate: ${macroContext.ngnUsdRate} | Food CPI YoY: ${macroContext.foodCpiYoY}%`,
-        prevSummary ? `Previous month summary: "${prevSummary}"` : '',
       ]
         .filter(Boolean)
         .join('\n');
 
       try {
         const res = await this.summaryModel.invoke([
-          new SystemMessage(SUMMARIZE_SYSTEM),
+          new SystemMessage(systemPrompt),
           new HumanMessage(human),
         ]);
         return { summary: extractText(res.content) };
@@ -516,7 +604,19 @@ export class InsightService implements OnModuleInit {
         macroContext,
         recurringItems,
         userBalance,
+        historicalAnomalies,
+        trigger,
+        insightGap,
       } = state;
+
+      const anomalyContext = historicalAnomalies.length
+        ? historicalAnomalies.map((a, i) => `${i + 1}. ${a}`).join('\n')
+        : '(none yet)';
+
+      const analysisThinkSystem = ANALYSIS_THINK_SYSTEM.replace(
+        '{historicalAnomalies}',
+        anomalyContext,
+      );
 
       const isFirstCall = messages.length === 0;
       const newMessages: BaseMessage[] = [];
@@ -526,13 +626,81 @@ export class InsightService implements OnModuleInit {
         const goalProgress = (analyticsSnapshot as any)?.goalProgress ?? [];
         const utilisation = (analyticsSnapshot as any)?.budgetUtilisation ?? [];
 
+        // Build lookup maps so analytics-snapshot entries can resolve names
+        const goalNameMap = new Map(
+          goals.map((g: any) => [g.id, g.name as string]),
+        );
+        const budgetCatMap = new Map(
+          budgets.map((b: any) => [
+            b.category?.slug,
+            b.category?.name as string,
+          ]),
+        );
+
+        // Clean entities — strip all IDs, slugs, and internal fields
+        const cleanBudgets = budgets.map((b: any) => ({
+          name: b.name,
+          category: b.category?.name ?? slugToName(b.category?.slug ?? ''),
+          limit: formatCurrency(b.amount),
+          spent: formatCurrency(Number(b.spent) || 0),
+          utilisation:
+            b.amount > 0
+              ? `${Math.round((Number(b.spent) / b.amount) * 100)}%`
+              : '0%',
+          alertAt: `${Math.round(b.alertThreshold * 100)}%`,
+          period: (b.period as string)?.toLowerCase(),
+        }));
+
+        const cleanUtilisation = utilisation.map((u: any) => ({
+          category:
+            budgetCatMap.get(u.categorySlug) ?? slugToName(u.categorySlug),
+          budget: formatCurrency(u.budgeted),
+          spent: formatCurrency(u.spent),
+          utilisation: `${Math.round(u.pct * 100)}%`,
+          status:
+            u.pct >= 1
+              ? 'OVER BUDGET'
+              : u.pct >= 0.8
+                ? 'NEAR LIMIT'
+                : 'within limit',
+        }));
+
+        const cleanGoals = goals.map((g: any) => ({
+          name: g.name,
+          target: formatCurrency(g.targetAmount),
+          saved: formatCurrency(g.contributedAmount ?? 0),
+          deadline: g.targetDate,
+          paceStatus: g.paceStatus ?? g.status,
+          monthsLeft: g.monthsLeft,
+        }));
+
+        const cleanGoalProgress = goalProgress.map((gp: any) => ({
+          goal: goalNameMap.get(gp.goalId) ?? 'Unknown goal',
+          target: formatCurrency(gp.targetAmount),
+          saved: formatCurrency(gp.savedAmount),
+          progress: `${Math.round(gp.pct * 100)}%`,
+        }));
+
+        const cleanRecurrings = recurringItems.map((r: any) => ({
+          name: r.name,
+          category: r.category?.name ?? slugToName(r.category?.slug ?? ''),
+          amount: formatCurrency(r.amount),
+          type: (r.type as string)?.toLowerCase(),
+          frequency: (r.frequency as string)?.toLowerCase(),
+          merchant: r.merchant || undefined,
+          nextDue: r.nextRunAt
+            ? dayjs(r.nextRunAt).format('DD MMM')
+            : undefined,
+        }));
+
         const context = [
           `Date: ${today.format('YYYY-MM-DD')} (day ${today.date()} of ${today.daysInMonth()}, ${today.format('MMMM YYYY')})`,
-          `Active budgets: ${JSON.stringify(budgets)}`,
-          `Budget utilisation: ${JSON.stringify(utilisation)}`,
-          `Active goals: ${JSON.stringify(goals)}`,
-          `Goal progress snapshot: ${JSON.stringify(goalProgress)}`,
-          `Recurring items: ${JSON.stringify(recurringItems)}`,
+          `Trigger: ${trigger} | Last insight: ${insightGap}`,
+          `Active budgets: ${JSON.stringify(cleanBudgets)}`,
+          `Budget utilisation: ${JSON.stringify(cleanUtilisation)}`,
+          `Active goals: ${JSON.stringify(cleanGoals)}`,
+          `Goal progress: ${JSON.stringify(cleanGoalProgress)}`,
+          `Recurring items: ${JSON.stringify(cleanRecurrings)}`,
           `Macro: NGN/USD ${macroContext.ngnUsdRate}, Food CPI YoY ${macroContext.foodCpiYoY}%, CBN rate ${macroContext.cbnPolicyRate}%`,
           userBalance
             ? `Balance: ${formatCurrency(userBalance.netBalance)} | Monthly income: ${formatCurrency(userBalance.monthlyIncome)} | Monthly expense: ${formatCurrency(userBalance.monthlyExpense)}`
@@ -545,7 +713,7 @@ export class InsightService implements OnModuleInit {
       }
 
       const allMessages: BaseMessage[] = [
-        new SystemMessage(ANALYSIS_THINK_SYSTEM),
+        new SystemMessage(analysisThinkSystem),
         ...messages,
         ...newMessages,
       ];
@@ -579,15 +747,24 @@ export class InsightService implements OnModuleInit {
     });
 
     return async (state: typeof InsightState.State) => {
-      const { messages } = state;
+      const { messages, historicalAnomalies } = state;
 
       if (!messages.length) {
         return { anomalies: [], goalAlerts: [] };
       }
 
+      const anomalyContext = historicalAnomalies.length
+        ? historicalAnomalies.map((a, i) => `${i + 1}. ${a}`).join('\n')
+        : '(none yet)';
+
+      const analysisParseSystem = ANALYSIS_PARSE_SYSTEM.replace(
+        '{historicalAnomalies}',
+        anomalyContext,
+      );
+
       try {
         const res = (await parseModel.invoke([
-          new SystemMessage(ANALYSIS_PARSE_SYSTEM),
+          new SystemMessage(analysisParseSystem),
           ...messages,
         ])) as any;
         return {
@@ -616,12 +793,30 @@ export class InsightService implements OnModuleInit {
       if (!userBalance) return { cashFlowForecast: '' };
 
       const today = dayjs();
+
+      const cleanRecurrings = recurringItems.map((r: any) => ({
+        name: r.name,
+        category: r.category?.name ?? slugToName(r.category?.slug ?? ''),
+        amount: formatCurrency(r.amount),
+        type: (r.type as string)?.toLowerCase(),
+        frequency: (r.frequency as string)?.toLowerCase(),
+        merchant: r.merchant || undefined,
+        nextDue: r.nextRunAt ? dayjs(r.nextRunAt).format('DD MMM') : undefined,
+      }));
+
+      const cleanSplits = splits.map((s: any) => ({
+        name: s.name,
+        totalAmount: formatCurrency(s.amount),
+        outstanding: formatCurrency(s.amount - (s.totalPaid ?? 0)),
+        status: (s.status as string)?.toLowerCase().replace(/_/g, ' '),
+      }));
+
       const human = [
         `Current net balance: ${formatCurrency(userBalance.netBalance)}`,
-        `Monthly income: ${formatCurrency(userBalance.monthlyIncome)}`,
+        `Monthly income so far: ${formatCurrency(userBalance.monthlyIncome)}`,
         `Days remaining in month: ${today.daysInMonth() - today.date()}`,
-        `Recurring items (bills/subscriptions): ${JSON.stringify(recurringItems)}`,
-        `Outstanding bill splits: ${JSON.stringify(splits)}`,
+        `Recurring items (bills/subscriptions): ${JSON.stringify(cleanRecurrings)}`,
+        `Outstanding bill splits: ${JSON.stringify(cleanSplits)}`,
       ].join('\n');
 
       try {
@@ -661,9 +856,17 @@ export class InsightService implements OnModuleInit {
         userBalance,
         macroContext,
         nodeErrors,
+        historicalRecommendations,
       } = state;
 
       const skippedAnalyses = Object.keys(nodeErrors ?? {});
+
+      const recommendSystem = RECOMMEND_SYSTEM.replace(
+        '{historicalRecommendations}',
+        historicalRecommendations.length
+          ? historicalRecommendations.map((r, i) => `${i + 1}. ${r}`).join('\n')
+          : '(none yet)',
+      );
 
       const human = [
         summary ? `Financial summary: ${summary}` : '',
@@ -688,7 +891,7 @@ export class InsightService implements OnModuleInit {
 
       try {
         const res = (await structuredModel.invoke([
-          new SystemMessage(RECOMMEND_SYSTEM),
+          new SystemMessage(recommendSystem),
           new HumanMessage(human),
         ])) as any;
         return {
