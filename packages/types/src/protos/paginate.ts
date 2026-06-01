@@ -4,7 +4,7 @@
 //   protoc               v6.33.5
 // source: paginate.proto
 
-/* eslint-disable */
+ 
 
 export const protobufPackage = "";
 

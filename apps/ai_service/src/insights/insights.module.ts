@@ -17,6 +17,7 @@ import { InsightService } from './insights.service';
 import { InsightsController } from './insights.controller';
 import { InsightsWorker } from './insights.worker';
 import { InsightsOracleService } from './insights.oracle.service';
+import { BudgetBreachService } from './budget_breach.service';
 
 /**
  * InsightsModule — AI-powered proactive spending insights.
@@ -59,7 +60,12 @@ import { InsightsOracleService } from './insights.oracle.service';
     ]),
   ],
   controllers: [InsightsController],
-  providers: [InsightService, InsightsWorker, InsightsOracleService],
+  providers: [
+    InsightService,
+    InsightsWorker,
+    InsightsOracleService,
+    BudgetBreachService,
+  ],
   exports: [InsightService],
 })
 export class InsightsModule {}
