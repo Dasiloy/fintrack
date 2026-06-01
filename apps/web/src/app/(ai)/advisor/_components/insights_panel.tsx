@@ -11,6 +11,9 @@ import { Button, ScrollArea, Skeleton, toast } from '@ui/components';
 import { cn } from '@ui/lib/utils';
 import { api_client } from '@/lib/trpc_app/api_client';
 
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { Usage } from '@fintrack/types/constants/plan.constants';
+
 import { InsightsSummaryCard } from './insights_summary_card';
 import { InsightsAnomalyList } from './insights_anomaly_list';
 import { InsightsGoalAlertList } from './insights_goal_alert_list';
@@ -33,6 +36,7 @@ interface InsightsPanelProps {
 
 export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPanelProps) {
   const utils = api_client.useUtils();
+  const [limitGateOpen, setLimitGateOpen] = React.useState(false);
 
   const { data, isLoading } = api_client.advisor.getInsights.useQuery(
     { limit: 1 },
@@ -42,7 +46,12 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
   const { mutate: trigger, isPending: isTriggering } =
     api_client.advisor.triggerInsights.useMutation({
       onSuccess: (res) => {
-        const { queued, cooldownSeconds } = res.data ?? {};
+        const { queued, cooldownSeconds, limitReached } = res.data ?? {};
+
+        if (limitReached) {
+          setLimitGateOpen(true);
+          return;
+        }
 
         if (queued) {
           toast.success('Generating insights', {
@@ -198,6 +207,14 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
         </div>
       </ScrollArea>
+
+      <ProGateModal
+        feature={Usage.AI_INSIGHTS_QUERIES_PER_MONTH}
+        title="Monthly insights limit reached"
+        description="You've used all 10 AI insight generations included in the free plan this month. Upgrade to Pro for unlimited insights."
+        open={limitGateOpen}
+        onClose={() => setLimitGateOpen(false)}
+      />
     </div>
   );
 }

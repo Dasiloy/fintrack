@@ -129,7 +129,10 @@ function shortHash(s: string): string {
 
 /** Generates a reference ID for manually created or OCR-scanned transactions. */
 export function genTransactionSourceId(date: Date): string {
-  const rand = Math.floor(Math.random() * 2176782336).toString(36).toUpperCase().padStart(6, '0');
+  const rand = Math.floor(Math.random() * 2176782336)
+    .toString(36)
+    .toUpperCase()
+    .padStart(6, '0');
   return `TXN-${yymmdd(date)}-${rand}`;
 }
 
@@ -150,4 +153,9 @@ export function genRecurringSourceId(itemId: string, runAt: Date): string {
 export function genBankSourceId(monoTxId: string, txDate: string | Date): string {
   const d = typeof txDate === 'string' ? new Date(txDate) : txDate;
   return `BNK-${yymmdd(d)}-${shortHash(monoTxId)}`;
+}
+
+/** Converts a kebab-case slug to a Title Case display name for LLM output. */
+export function slugToName(slug: string): string {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }

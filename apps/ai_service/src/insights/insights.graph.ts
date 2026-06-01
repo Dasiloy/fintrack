@@ -21,9 +21,37 @@ import {
  */
 export const InsightState = Annotation.Root({
   userId: Annotation<string>(),
+  /** Trigger type for this generation run */
+  trigger: Annotation<'manual' | 'daily' | 'budget_breach'>({
+    value: (_, upd) => upd,
+    default: () => 'manual' as const,
+  }),
+  /**
+   * Human-readable description of time elapsed since the previous insight,
+   * e.g. "2 hours ago", "3 days ago", "first insight". Derived in load_context.
+   */
+  insightGap: Annotation<string>({
+    value: (_, upd: string) => upd,
+    default: () => 'first insight',
+  }),
   /** Last 3 AiInsight rows — provides trend awareness for the LLM */
   historicalInsights: Annotation<any[]>({
     value: (_, upd: any[]) => upd,
+    default: () => [],
+  }),
+  /** Last 3 summary strings — used by SUMMARIZE_SYSTEM anti-repetition directive */
+  historicalSummaries: Annotation<string[]>({
+    value: (_, upd: string[]) => upd,
+    default: () => [],
+  }),
+  /** Flattened anomaly strings from last 3 insights — used by ANALYSIS prompts */
+  historicalAnomalies: Annotation<string[]>({
+    value: (_, upd: string[]) => upd,
+    default: () => [],
+  }),
+  /** Flattened recommendation text from last 3 insights — used by RECOMMEND_SYSTEM */
+  historicalRecommendations: Annotation<string[]>({
+    value: (_, upd: string[]) => upd,
     default: () => [],
   }),
   /** Latest monthly AnalyticsSnapshot data payload */
