@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { ArrowLeft } from 'lucide-react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
 import {
   Button,
@@ -29,6 +30,7 @@ import {
 import StyledLink from '@/app/_components/styled_linkt';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { ServerFormatter } from '@fintrack/utils/server';
+import { env } from '@/env';
 import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { LoginRes } from '@fintrack/types/protos/auth/auth';
@@ -91,6 +93,8 @@ export function LoginForm({ authError }: LoginFormProps) {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'apple' | null>(null);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [loginLocked, setLoginLocked] = useState(false);
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  const [cfTurnstileToken, setCfTurnstileToken] = useState<string | null>(null);
 
   // 2FA step state
   const [step, setStep] = useState<LoginStep>('credentials');
@@ -137,9 +141,15 @@ export function LoginForm({ authError }: LoginFormProps) {
   // ── Credentials submit ────────────────────────────────────────────────────
 
   const onSubmit = async (data: LoginValues) => {
+    if (!cfTurnstileToken) {
+      toast.error('Please complete the CAPTCHA verification.');
+      return;
+    }
+
     try {
       const response = await axiosClient.post('/proxy-auth/login', {
         ...data,
+        cfTurnstileToken,
       });
       const resData: StandardResponse<LoginRes> | any = response.data;
 
@@ -187,6 +197,10 @@ export function LoginForm({ authError }: LoginFormProps) {
           return;
         }
       }
+
+      // Reset CAPTCHA so the user gets a fresh token on next attempt
+      turnstileRef.current?.reset();
+      setCfTurnstileToken(null);
 
       toast.error('Login failed', { description: ServerFormatter.formatError(error) });
     }
@@ -417,12 +431,21 @@ export function LoginForm({ authError }: LoginFormProps) {
               </p>
             )}
 
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setCfTurnstileToken(token)}
+              onExpire={() => setCfTurnstileToken(null)}
+              onError={() => setCfTurnstileToken(null)}
+              options={{ theme: 'auto', size: 'flexible' }}
+            />
+
             <Field className="mb-2">
               <Button
                 className="mb-1"
                 type="submit"
                 loading={form.formState.isSubmitting}
-                disabled={(isAnyLoading && !form.formState.isSubmitting) || loginLocked}
+                disabled={(isAnyLoading && !form.formState.isSubmitting) || loginLocked || !cfTurnstileToken}
               >
                 Login
               </Button>

@@ -1,7 +1,7 @@
 import { Mail, LifeBuoy, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export const CONTACT_EMAIL = 'support@fintrack.live';
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL!;
 
 export interface ContactChannel {
   icon: LucideIcon;
