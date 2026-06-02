@@ -1,4 +1,18 @@
-import { Check, Lock, Infinity as InfinityIcon, BarChart3, FileText, Download, Brain, MessageCircle, Receipt, Target, Repeat2, PieChart, Users } from 'lucide-react';
+import {
+  Check,
+  Lock,
+  Infinity as InfinityIcon,
+  BarChart3,
+  FileText,
+  Download,
+  Brain,
+  MessageCircle,
+  Receipt,
+  Target,
+  Repeat2,
+  PieChart,
+  Users,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface PlanFeature {
@@ -32,6 +46,8 @@ export interface ComparisonRow {
   category?: string;
 }
 
+export const PRO_PRICE_NGN = Number(process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_NGN!);
+
 export const PRICING_PLANS: PricingPlan[] = [
   {
     key: 'free',
@@ -55,7 +71,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     key: 'pro',
     name: 'Pro',
-    price: 5,
+    price: PRO_PRICE_NGN,
     period: '/month',
     tagline: 'Unlock unlimited power for serious financial tracking.',
     badge: 'Most popular',
