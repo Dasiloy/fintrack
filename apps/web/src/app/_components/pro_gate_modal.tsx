@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import {
   BarChart3,
@@ -19,6 +18,8 @@ import {
 } from 'lucide-react';
 import { Button, Dialog, DialogContent } from '@ui/components';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { useRegionCheck } from '@/hooks/use_region_check';
+import { RegionGateModal } from './region_gate_modal';
 
 // ── Feature config ────────────────────────────────────────────────────────────
 
@@ -131,8 +132,22 @@ export function ProGateModal({
   const resolvedImage = imageSrc ?? config.imageSrc;
   const resolvedTitle = title ?? config.title;
   const resolvedDescription = description ?? config.description;
+  const { checkRegion, isPending: isCheckingRegion } = useRegionCheck();
+  const [regionGateOpen, setRegionGateOpen] = React.useState(false);
+
+  const handleUpgradeClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { isNigeria } = await checkRegion();
+    if (!isNigeria) {
+      setRegionGateOpen(true);
+      return;
+    }
+    onClose();
+    window.location.href = '/pricing';
+  };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent showCloseButton={false} className="overflow-hidden p-0 sm:max-w-sm">
         {/* ── Illustration area ── */}
@@ -183,11 +198,14 @@ export function ProGateModal({
 
           {/* CTAs */}
           <div className="flex flex-col gap-2 pt-1">
-            <Button asChild className="w-full gap-2">
-              <Link href="/pricing" onClick={onClose}>
-                <Sparkles className="size-3.5" />
-                Upgrade to Pro
-              </Link>
+            <Button
+              className="w-full gap-2"
+              loading={isCheckingRegion}
+              disabled={isCheckingRegion}
+              onClick={handleUpgradeClick}
+            >
+              <Sparkles className="size-3.5" />
+              Upgrade to Pro
             </Button>
             <Button
               variant="ghost"
@@ -201,5 +219,7 @@ export function ProGateModal({
         </div>
       </DialogContent>
     </Dialog>
+    <RegionGateModal open={regionGateOpen} onClose={() => setRegionGateOpen(false)} />
+    </>
   );
 }

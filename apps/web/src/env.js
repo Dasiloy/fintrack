@@ -32,6 +32,8 @@ export const env = createEnv({
     NEXT_PUBLIC_API_GATEWAY_URL: z.string().url(),
     NEXT_PUBLIC_FIREBASE_VAPID_KEY: z.string(),
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string(),
+    NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL: z.string().email(),
+    NEXT_PUBLIC_PRO_MONTHLY_PRICE_NGN: z.coerce.number().int().positive(),
   },
 
   /**
@@ -56,6 +58,8 @@ export const env = createEnv({
     NEXT_PUBLIC_API_GATEWAY_URL: process.env.NEXT_PUBLIC_API_GATEWAY_URL,
     NEXT_PUBLIC_FIREBASE_VAPID_KEY: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL: process.env.NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL,
+    NEXT_PUBLIC_PRO_MONTHLY_PRICE_NGN: process.env.NEXT_PUBLIC_PRO_MONTHLY_PRICE_NGN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
