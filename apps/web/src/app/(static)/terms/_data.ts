@@ -5,8 +5,10 @@
  * touching any component or layout code.
  */
 
-export const LAST_UPDATED = 'March 1, 2026';
-export const LAST_UPDATED_ISO = '2026-03-01';
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL!;
+
+export const LAST_UPDATED = 'June 2, 2026';
+export const LAST_UPDATED_ISO = '2026-06-02';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ export const SECTIONS: TermsSection[] = [
     title: '2. Description of Service',
     content: [
       'FinTrack is a personal finance management platform that enables users to track income and expenses, set and manage budgets, establish financial goals, view spending analytics, and receive AI-powered insights based on their financial behaviour.',
+      'The Service is designed primarily for users managing finances in Nigerian Naira (₦). All monetary features, budgets, and financial tracking within the platform operate in NGN.',
       'The Service is provided for personal, non-commercial use only. FinTrack does not provide financial, investment, tax, or legal advice. Information displayed on the platform is for informational purposes only and should not be relied upon as professional financial guidance.',
     ],
   },
@@ -42,7 +45,7 @@ export const SECTIONS: TermsSection[] = [
     items: [
       'You must provide accurate, current, and complete information when creating an account.',
       'You are solely responsible for safeguarding your account credentials and for all activity that occurs under your account.',
-      'You must notify us immediately at support@fintrack.live if you suspect any unauthorised use of your account.',
+      `You must notify us immediately at ${SUPPORT_EMAIL} if you suspect any unauthorised use of your account.`,
       'One account per individual is permitted. You may not transfer or sell your account to another party.',
       'Accounts created using automated methods, bots, or scripts are strictly prohibited.',
     ],
@@ -51,19 +54,34 @@ export const SECTIONS: TermsSection[] = [
     id: 'billing',
     title: '4. Subscription Plans & Billing',
     content: [
-      'FinTrack offers a free tier with limited features and one or more paid subscription tiers ("Pro") that unlock additional functionality.',
+      'FinTrack offers a free tier with limited features and a paid subscription tier ("Pro") that unlocks additional functionality.',
     ],
     items: [
-      'Paid subscriptions are billed in advance on a monthly or annual basis in USD.',
-      'Subscriptions automatically renew at the end of each billing period unless cancelled before the renewal date.',
+      'Paid (Pro) subscriptions are currently only available to users in Nigeria. Billing is processed in Nigerian Naira (₦) via Paystack.',
+      'Subscriptions are billed in advance on a monthly or annual basis and automatically renew at the end of each billing period unless cancelled before the renewal date.',
       'You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period; no partial refunds are issued for unused time.',
       'We reserve the right to change subscription pricing with at least 30 days notice. Continued use after the notice period constitutes acceptance of the new pricing.',
       'If payment fails, we may suspend access to paid features until payment is resolved.',
+      'Users outside Nigeria may use the free tier without restriction. Paid plan availability will be extended to additional African markets in future updates.',
+    ],
+  },
+  {
+    id: 'geographic',
+    title: '5. Geographic Availability',
+    content: [
+      'The free tier of FinTrack is accessible globally. However, certain features — including Pro subscriptions and bank account connectivity — are currently limited to users in Nigeria.',
+    ],
+    items: [
+      'Pro (paid) subscriptions are currently only available to users in Nigeria due to payment processing limitations.',
+      'Bank account connection via open banking is currently only supported for Nigerian financial institutions.',
+      'All financial tracking, budgets, and monetary values within the platform are denominated in Nigerian Naira (₦). The platform does not currently support multi-currency tracking.',
+      'We are actively working to expand service availability to additional African markets. Users outside Nigeria who wish to be notified when Pro becomes available in their region may contact us.',
+      'We reserve the right to restrict access to the Service or specific features based on geographic location at any time, particularly to comply with applicable laws and payment regulations.',
     ],
   },
   {
     id: 'acceptable-use',
-    title: '5. Acceptable Use',
+    title: '6. Acceptable Use',
     content: ['You agree not to use the Service to:'],
     items: [
       'Violate any applicable local, national, or international law or regulation.',
@@ -77,9 +95,9 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'financial-data',
-    title: '6. Financial Data & Third-Party Connections',
+    title: '7. Financial Data & Third-Party Connections',
     content: [
-      'The Service may allow you to connect your bank accounts and financial institutions via third-party data aggregation providers. By connecting an account, you authorise FinTrack to retrieve and display financial information on your behalf.',
+      'The Service may allow you to connect your bank accounts and financial institutions via third-party data aggregation providers. By connecting an account, you authorise FinTrack to retrieve and display financial information on your behalf. Bank connectivity is currently available for Nigerian financial institutions only.',
     ],
     items: [
       'FinTrack does not store your banking credentials. Credentials are handled exclusively by the third-party aggregation provider.',
@@ -90,7 +108,7 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'ip',
-    title: '7. Intellectual Property',
+    title: '8. Intellectual Property',
     content: [
       'The Service and all associated content, features, and functionality — including but not limited to software, design, text, graphics, and logos — are the exclusive property of FinTrack and are protected by applicable intellectual property laws.',
       'Your financial data belongs to you. By using the Service, you grant FinTrack a limited, non-exclusive, royalty-free licence to process, store, and display your data solely for the purpose of providing the Service to you. We do not sell your data.',
@@ -99,14 +117,14 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'privacy',
-    title: '8. Privacy',
+    title: '9. Privacy',
     content: [
       'Your use of the Service is governed by our Privacy Policy, which is incorporated into these Terms by reference. By using the Service, you agree to the collection and use of information as described in the Privacy Policy.',
     ],
   },
   {
     id: 'disclaimers',
-    title: '9. Disclaimers of Warranties',
+    title: '10. Disclaimers of Warranties',
     content: [
       'THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.',
       'We do not warrant that the Service will be uninterrupted, error-free, or free from viruses or other harmful components. We do not warrant the accuracy or completeness of any financial data displayed through the Service.',
@@ -114,7 +132,7 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'liability',
-    title: '10. Limitation of Liability',
+    title: '11. Limitation of Liability',
     content: [
       'TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, FINTRACK AND ITS DIRECTORS, EMPLOYEES, PARTNERS, AND AGENTS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES — INCLUDING LOSS OF PROFITS, DATA, GOODWILL, OR BUSINESS OPPORTUNITIES — ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.',
       'Our total cumulative liability to you for any claim arising from or relating to the Service shall not exceed the amount you paid us in the twelve (12) months preceding the claim.',
@@ -122,7 +140,7 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'termination',
-    title: '11. Termination',
+    title: '12. Termination',
     content: [
       'You may delete your account at any time from your account settings. Upon deletion, your personal data will be removed in accordance with our Privacy Policy.',
       'We reserve the right to suspend or permanently terminate your account, without prior notice or liability, if we determine that you have violated these Terms or engaged in conduct harmful to other users, third parties, or FinTrack.',
@@ -130,7 +148,7 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'changes',
-    title: '12. Changes to These Terms',
+    title: '13. Changes to These Terms',
     content: [
       'We may update these Terms from time to time. When we do, we will revise the "Last updated" date at the top of this page and, for material changes, notify you by email or by a prominent notice within the Service.',
       'Your continued use of the Service after changes take effect constitutes your acceptance of the revised Terms.',
@@ -138,16 +156,16 @@ export const SECTIONS: TermsSection[] = [
   },
   {
     id: 'governing-law',
-    title: '13. Governing Law',
+    title: '14. Governing Law',
     content: [
-      'These Terms are governed by and construed in accordance with applicable law. Any disputes arising under these Terms shall be resolved through binding arbitration or in a court of competent jurisdiction, as appropriate.',
+      'These Terms are governed by and construed in accordance with the laws of the Federal Republic of Nigeria, including the Nigeria Data Protection Act 2023 (NDPA) and applicable regulations issued by the Federal Competition and Consumer Protection Commission (FCCPC). Any disputes arising under these Terms shall first be subject to good-faith negotiation, and thereafter to binding arbitration or the jurisdiction of a competent Nigerian court.',
     ],
   },
   {
     id: 'contact',
-    title: '14. Contact Us',
+    title: '15. Contact Us',
     content: [
-      'If you have questions about these Terms, please contact our legal team at legal@fintrack.app. We aim to respond to all enquiries within 5 business days.',
+      `If you have questions about these Terms, please contact our legal team at ${SUPPORT_EMAIL}. We aim to respond to all enquiries within 5 business days.`,
     ],
   },
 ];
