@@ -10,9 +10,6 @@ import { DatabaseModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 
-import { FinanceController } from './finance.controller';
-import { FinanceService } from './finance.service';
-
 import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
@@ -55,9 +52,7 @@ import { SplitModule } from './split/split.module';
     GoalModule,
     SplitModule,
   ],
-  controllers: [FinanceController],
   providers: [
-    FinanceService,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,
