@@ -1,14 +1,16 @@
 'use client';
 import { Check, X, Sparkles } from 'lucide-react';
-
+import { useState } from 'react';
 import { cn } from '@ui/lib/utils';
-import { PRICING_PLANS } from '../_data';
+import { PRICING_PLANS, PRO_PRICE_NGN } from '../_data';
 import { useRouter } from '@bprogress/next';
 import type { Session } from 'next-auth';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { Button, toast } from '@ui/components';
 import { useMemo } from 'react';
+import { useRegionCheck } from '@/hooks/use_region_check';
+import { RegionGateModal } from '@/app/_components/region_gate_modal';
 
 interface PlanCardsProps {
   session: Session | null;
@@ -18,13 +20,14 @@ interface PlanCardsProps {
  * Side-by-side plan cards (Free & Pro).
  * Animates in with a staggered slide-up via an inline keyframe style block.
  */
-
 export function PlanCards({ session }: PlanCardsProps) {
   const router = useRouter();
   const userData = api_client.user.getMe.useQuery();
   const user = useMemo(() => userData.data?.data, [userData.data]);
+  const isPro = user?.subscription?.plan === 'PRO';
+  const { checkRegion, isPending: isCheckingRegion } = useRegionCheck();
+  const [regionGateOpen, setRegionGateOpen] = useState(false);
 
-  // mutation
   const subscribe = api_client.subscription.createSubscription.useMutation({
     onSuccess: (data) => {
       if (data.success) {
@@ -33,116 +36,131 @@ export function PlanCards({ session }: PlanCardsProps) {
     },
     onError: (error) => {
       console.error(error);
-      toast.error('Error', {
-        description: error.message,
-      });
+      toast.error('Error', { description: error.message });
     },
   });
+
+  const handleUpgradeClick = async () => {
+    // Already subscribed — should not reach here, but guard anyway
+    if (isPro) return;
+
+    if (!session?.user) {
+      void router.push(AUTH_ROUTES.SIGNUP);
+      return;
+    }
+
+    const { isNigeria } = await checkRegion();
+    if (!isNigeria) {
+      setRegionGateOpen(true);
+      return;
+    }
+
+    subscribe.mutate();
+  };
+
+  const isUpgradeLoading = subscribe.isPending || isCheckingRegion;
+
   return (
-    <section className="mx-auto max-w-[900px] px-4 pb-16 md:px-6">
-      <style>{`
-        @keyframes _ft-plan-up {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .ft-plan-card {
-          opacity: 0;
-          animation: _ft-plan-up 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
-        }
-      `}</style>
+    <>
+      <section className="mx-auto max-w-[900px] px-4 pb-16 md:px-6">
+        <style>{`
+          @keyframes _ft-plan-up {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+          .ft-plan-card {
+            opacity: 0;
+            animation: _ft-plan-up 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+          }
+        `}</style>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        {PRICING_PLANS.map((plan, idx) => (
-          <div
-            key={plan.key}
-            className={cn(
-              'ft-plan-card rounded-card duration-smooth flex flex-col border p-7 transition-all',
-              plan.popular
-                ? 'bg-bg-elevated border-primary/40 relative overflow-hidden shadow-[0_0_40px_rgba(124,122,255,0.14)]'
-                : 'bg-bg-elevated border-border-light',
-            )}
-            style={{ animationDelay: `${idx * 120}ms` }}
-          >
-            {/* Popular glow backdrop */}
-            {plan.popular && (
-              <div
-                aria-hidden="true"
-                className="from-primary/8 pointer-events-none absolute inset-0 bg-linear-to-br to-transparent"
-              />
-            )}
-
-            <div className="relative z-10 flex flex-1 flex-col">
-              {/* Badge */}
-              {plan.badge && (
-                <span className="bg-primary/15 text-primary mb-4 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
-                  <Sparkles size={11} aria-hidden="true" />
-                  {plan.badge}
-                </span>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {PRICING_PLANS.map((plan, idx) => (
+            <div
+              key={plan.key}
+              className={cn(
+                'ft-plan-card rounded-card duration-smooth flex flex-col border p-7 transition-all',
+                plan.popular
+                  ? 'bg-bg-elevated border-primary/40 relative overflow-hidden shadow-[0_0_40px_rgba(124,122,255,0.14)]'
+                  : 'bg-bg-elevated border-border-light',
+              )}
+              style={{ animationDelay: `${idx * 120}ms` }}
+            >
+              {plan.popular && (
+                <div
+                  aria-hidden="true"
+                  className="from-primary/8 pointer-events-none absolute inset-0 bg-linear-to-br to-transparent"
+                />
               )}
 
-              {/* Plan name + price */}
-              <div className="mb-2 flex items-end gap-1">
-                <span className="font-manrope text-text-primary text-4xl leading-none font-bold">
-                  {plan.price === 0 ? 'Free' : `$${plan.price}`}
-                </span>
-                {plan.price > 0 && (
-                  <span className="text-body text-text-tertiary mb-0.5">{plan.period}</span>
+              <div className="relative z-10 flex flex-1 flex-col">
+                {plan.badge && (
+                  <span className="bg-primary/15 text-primary mb-4 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
+                    <Sparkles size={11} aria-hidden="true" />
+                    {plan.badge}
+                  </span>
                 )}
-              </div>
 
-              <p className="text-body-sm text-text-tertiary mb-6 leading-relaxed">{plan.tagline}</p>
+                {/* Price */}
+                <div className="mb-2 flex items-end gap-1">
+                  <span className="font-manrope text-text-primary text-4xl leading-none font-bold">
+                    {plan.price === 0
+                      ? 'Free'
+                      : `₦${PRO_PRICE_NGN.toLocaleString('en-NG')}`}
+                  </span>
+                  {plan.price > 0 && (
+                    <span className="text-body text-text-tertiary mb-0.5">{plan.period}</span>
+                  )}
+                </div>
 
-              {/* Feature list */}
-              <ul className="mb-8 flex flex-1 flex-col gap-2.5">
-                {plan.highlights.map((feat) => (
-                  <li key={feat.label} className="flex items-start gap-2.5">
-                    {feat.included ? (
-                      <Check
-                        size={16}
-                        className="text-primary mt-0.5 shrink-0"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <X
-                        size={16}
-                        className="text-text-disabled mt-0.5 shrink-0"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span
-                      className={cn(
-                        'text-body-sm',
-                        feat.included ? 'text-text-secondary' : 'text-text-disabled line-through',
+                <p className="text-body-sm text-text-tertiary mb-6 leading-relaxed">{plan.tagline}</p>
+
+                <ul className="mb-8 flex flex-1 flex-col gap-2.5">
+                  {plan.highlights.map((feat) => (
+                    <li key={feat.label} className="flex items-start gap-2.5">
+                      {feat.included ? (
+                        <Check size={16} className="text-primary mt-0.5 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <X size={16} className="text-text-disabled mt-0.5 shrink-0" aria-hidden="true" />
                       )}
-                    >
-                      {feat.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                      <span
+                        className={cn(
+                          'text-body-sm',
+                          feat.included ? 'text-text-secondary' : 'text-text-disabled line-through',
+                        )}
+                      >
+                        {feat.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
-              {/* CTA */}
-              <Button
-                type="button"
-                variant={plan.popular ? 'default' : 'outline'}
-                disabled={
-                  subscribe.isPending || userData.isPending || user?.subscription?.plan === 'PRO'
-                }
-                loading={subscribe.isPending}
-                onClick={() => {
-                  if (plan.price === 0 || !session || !session.user) {
-                    void router.push(AUTH_ROUTES.SIGNUP);
-                    return;
+                <Button
+                  type="button"
+                  variant={plan.popular ? 'default' : 'outline'}
+                  disabled={
+                    isUpgradeLoading ||
+                    userData.isPending ||
+                    (plan.popular && isPro)
                   }
-                  subscribe.mutate();
-                }}
-              >
-                {plan.ctaLabel}
-              </Button>
+                  loading={plan.popular ? isUpgradeLoading : false}
+                  onClick={() => {
+                    if (plan.price === 0) {
+                      void router.push(AUTH_ROUTES.SIGNUP);
+                      return;
+                    }
+                    void handleUpgradeClick();
+                  }}
+                >
+                  {plan.popular && isPro ? 'Current plan' : plan.ctaLabel}
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    </section>
+          ))}
+        </div>
+      </section>
+
+      <RegionGateModal open={regionGateOpen} onClose={() => setRegionGateOpen(false)} />
+    </>
   );
 }
