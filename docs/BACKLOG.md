@@ -2,8 +2,9 @@
 
 Items are grouped by type. Each entry follows the format:
 
-```
+```markdown
 ### [ID] Title
+
 - **Type**: Feature | Bug | Improvement | Security | Tech Debt
 - **Priority**: Critical | High | Medium | Low
 - **Status**: Pending | In Progress | Blocked | Done
@@ -14,6 +15,48 @@ Items are grouped by type. Each entry follows the format:
 ---
 
 ## 🗂️ Backlog
+
+### [BL-016] Annual financial summary — year in review (Pro)
+
+- **Type**: Feature
+- **Priority**: Medium
+- **Status**: Pending
+- **Context**: Once a year (January), Pro users should receive a generated PDF summary of their full financial year — total income, total spend, top categories, goal completions, savings rate, and a short AI-generated narrative. This is both a retention feature (makes users feel the product delivered value over 12 months) and a natural upgrade driver (free users see a teaser and cannot download).
+- **Notes**:
+  - Trigger: scheduler cron on January 1st or on-demand from the settings page.
+  - Content: aggregate from analytics snapshots (already stored) — no new DB queries needed beyond what analytics already produces.
+  - Narrative: short LLM-generated summary using the year's data. Route through InsightService (existing graph infrastructure).
+  - Output: PDF via existing PDF report feature (Pro-gated).
+  - Free users: show a locked preview card on the dashboard in January with "Your 2025 year in review is ready — upgrade to download."
+  - Related files: `apps/scheduler_service/`, `apps/ai_service/src/insights/`, `apps/api_gateway/src/advisor/`, `apps/web/src/app/(dashboard)/`.
+
+### [BL-015] Financial health score — weekly Pro-only metric
+
+- **Type**: Feature
+- **Priority**: Medium
+- **Status**: Pending
+- **Context**: A single weekly score (0–100) that reflects the user's financial health: budget adherence, goal pacing, savings rate, and debt/split settlement speed. The score moves up when the user is on track and down when they overspend or miss goal contributions. It is Pro-only, shown on the dashboard and in the weekly insight. Free users see a blurred score with "Upgrade to unlock your Financial Health Score."
+- **Notes**:
+  - Score components (suggested weights): budget adherence 35%, savings rate 25%, goal pacing 25%, outstanding splits 15%.
+  - Computed by the scheduler weekly (not real-time) and stored as a new DB field or analytics snapshot type.
+  - Historical score trend (last 12 weeks) should be visualisable — provides a clear "am I improving?" signal that is highly sticky.
+  - Push notification when score drops significantly (≥10 points week-over-week) — creates re-engagement.
+  - Related files: `apps/scheduler_service/src/processors/analytics_aggregation.processor.ts`, `packages/database/prisma/schema.prisma`, `apps/web/src/app/(dashboard)/`.
+
+### [BL-014] Multi-account bank sync gating — Free: 1 account, Pro: unlimited
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Bank account connectivity via Mono is the most compelling feature in the product — it is what makes FinTrack feel like more than a spreadsheet. Currently it is fully unrestricted on the free plan. Gating multi-account sync behind Pro is the single structural change most likely to drive upgrades, because users with a salary account, a savings account, and a business account cannot get full value without connecting all three.
+- **Notes**:
+  - Free plan: 1 Mono-connected account. Additional connections blocked at the API level with a `ProGateModal` in the UI.
+  - Pro plan: unlimited connected accounts.
+  - Backend: `account.service.ts` (api_gateway) must check `usageService.getGatedUsage()` before allowing a new Mono Connect flow. The `Subscription` model already has the plan.
+  - Add `MONO_ACCOUNTS_LIMIT` to `PLAN_LIMITS` in `plan.constants.ts`: `FREE: 1, PRO: Infinity`.
+  - The Mono Connect widget is triggered from `apps/web/src/hooks/use_mono.ts` — intercept there and gate.
+  - Existing connected accounts on free users (if > 1 from before this change) should be grandfathered: show a banner "You have 2 accounts connected. Free plan now supports 1. Upgrade to keep both syncing."
+  - Related files: `packages/types/src/constants/plan.constants.ts`, `apps/api_gateway/src/account/account.service.ts`, `apps/web/src/hooks/use_mono.ts`, `apps/web/src/app/(dashboard)/finances/accounts/`.
 
 ### [BL-013] Recurring billing reminders — frequency-aware advance notice
 
@@ -73,19 +116,6 @@ Items are grouped by type. Each entry follows the format:
   - Currency restriction should live at the Mono webhook/sync layer so non-NGN accounts are rejected early with a clear user-facing error rather than silently ingested with wrong amounts.
   - Unblock currency selector in Settings > Profile once multi-currency support is ready (see disabled state added in this sprint).
   - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, `apps/web/src/app/(dashboard)/settings/profile/_components/profile_layout.tsx`.
-
-### [BL-09] Stripe integration — go live (NGN only)
-
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Stripe payments (subscription upgrades to PRO plan) are wired but using test keys. Going live requires switching to live Stripe keys, restricting the checkout to NGN pricing only, and confirming the full checkout → webhook → subscription activation flow works on production.
-- **Notes**:
-  - NGN is the only currency to support at launch — ensure Stripe products/prices are created in NGN and the checkout session is locked to `currency: 'ngn'`.
-  - Swap `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to production values on Railway for `api_gateway` and `scheduler_service`.
-  - Confirm `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` is set to the live publishable key on the `web` service.
-  - End-to-end smoke test: initiate upgrade → complete Stripe checkout → verify `subscription.plan` flips to `PRO` in DB → verify PRO features are unlocked in UI.
-  - Related files: `apps/api_gateway/src/payment/`, `apps/scheduler_service/src/`, `apps/web/src/app/(dashboard)/settings/billing/`.
 
 ### [BL-08] Field-level encryption for Mono bank account data
 
@@ -200,6 +230,35 @@ Items are grouped by type. Each entry follows the format:
   - Add `MAIL_ENV` (or rely on `NODE_ENV`) and separate env vars `MAIL_TOKEN_SANDBOX` / `MAIL_TOKEN_PROD` (or a single `MAIL_TOKEN` set per environment) to `apps/notification_service/.env.example`.
   - The `MAIL_FROM` address must match the verified sending domain configured in the Mailtrap account.
   - Related files: `apps/notification_service/src/notification.module.ts`, `apps/notification_service/.env.example`.
+
+---
+
+## 🚨 Urgent
+
+### [URG-001] Migrate payment collection from Stripe to Paystack
+
+- **Type**: Tech Debt / Feature
+- **Priority**: Critical
+- **Status**: Pending
+- **Context**: Stripe does not natively support Nigerian Naira (NGN) billing and has poor card acceptance rates for Nigerian-issued cards, making it a bad fit for Fintrack's primary user base. Paystack is purpose-built for the Nigerian and African market, supports NGN natively, and has significantly higher acceptance rates for local cards and bank transfers. All subscription billing must be migrated from Stripe to Paystack.
+- **Notes**:
+  - **Remove**: `payment_service` Stripe SDK, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_MONTHLY_PRICE_ID` env vars.
+  - **Add**: Paystack SDK (`paystack-node` or official Paystack client), `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, `PAYSTACK_WEBHOOK_SECRET`, `PAYSTACK_PRO_MONTHLY_PLAN_CODE` env vars.
+  - **Subscription flow changes**:
+    - Replace Stripe Checkout with Paystack's hosted payment page (`/transaction/initialize`).
+    - Replace Stripe subscription objects with Paystack Plans + Subscriptions API.
+    - Replace Stripe webhook events (`customer.subscription.updated`, `invoice.payment_succeeded`, etc.) with Paystack equivalents (`subscription.create`, `charge.success`, `subscription.disable`, `invoice.create`).
+  - **Webhook verification**: replace Stripe signature verification with Paystack HMAC-SHA512 header check (`x-paystack-signature`).
+  - **Frontend**: replace `loadStripe` / Stripe Elements with Paystack Inline JS or a redirect to Paystack's hosted page. Remove `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` from the web app.
+  - **DB**: `Subscription` model stores `stripePriceId`, `stripeCustomerId`, `stripeSubscriptionId`, `stripeCurrentPeriodEnd`, `stripeCancelAtPeriodEnd` — rename or add Paystack equivalents (`paystackCustomerCode`, `paystackSubscriptionCode`, `paystackPlanCode`, `paystackNextPaymentDate`, `paystackStatus`). Run a migration.
+  - **Related files**:
+    - `apps/payment_service/src/payment.service.ts`
+    - `apps/payment_service/src/payment.module.ts`
+    - `apps/api_gateway/src/payment/payment.service.ts`
+    - `apps/api_gateway/src/payment/payment.controller.ts`
+    - `apps/notification_service/src/processors/payment_notification.pro.ts`
+    - `packages/database/prisma/schema.prisma` (Subscription model)
+    - Root `.env.example` (Stripe vars block)
 
 ---
 
