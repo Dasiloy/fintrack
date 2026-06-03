@@ -9,6 +9,7 @@ import {
   FCM_NOTIFICATION_QUEUE,
   INSIGHTS_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
+  TRANSACTION_SEMANTIC_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
 import { TransactionController } from './transaction.controller';
@@ -26,6 +27,7 @@ import { UtilsService } from '../utils.service';
       { name: TOKEN_NOTIFICATION_QUEUE },
       { name: BUDGET_CHECK_QUEUE },
       { name: INSIGHTS_QUEUE },
+      { name: TRANSACTION_SEMANTIC_QUEUE },
     ),
   ],
   controllers: [TransactionController],
