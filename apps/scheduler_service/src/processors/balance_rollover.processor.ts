@@ -69,6 +69,13 @@ export class BalanceRolloverProcessor extends WorkerHost {
       },
     });
 
+    if (!staleRows.length) {
+      this.logger.log(
+        `[${job.id}] No stale balance rows found — nothing to roll over`,
+      );
+      return;
+    }
+
     this.logger.log(
       `[${job.id}] Rolling over ${staleRows.length} stale balance(s) to ${currentMonthYear}`,
     );
