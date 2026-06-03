@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 
-import { CLASSIFICATION_CORRECTION_QUEUE } from '@fintrack/types/constants/queus.constants';
+import {
+  CLASSIFICATION_CORRECTION_QUEUE,
+  TRANSACTION_SEMANTIC_QUEUE,
+} from '@fintrack/types/constants/queus.constants';
 
 import { ClassificationService } from './classification.service';
 import { ClassificationController } from './classification.controller';
 import { ClassificationCorrectionProcessor } from './classification.processor';
+import { TransactionSemanticProcessor } from './transaction_semantic.processor';
 
 /**
  * Feature module for AI-powered transaction classification and the correction
@@ -36,9 +40,16 @@ import { ClassificationCorrectionProcessor } from './classification.processor';
  */
 @Module({
   imports: [
-    BullModule.registerQueue({ name: CLASSIFICATION_CORRECTION_QUEUE }),
+    BullModule.registerQueue(
+      { name: CLASSIFICATION_CORRECTION_QUEUE },
+      { name: TRANSACTION_SEMANTIC_QUEUE },
+    ),
   ],
   controllers: [ClassificationController],
-  providers: [ClassificationService, ClassificationCorrectionProcessor],
+  providers: [
+    ClassificationService,
+    ClassificationCorrectionProcessor,
+    TransactionSemanticProcessor,
+  ],
 })
 export class ClassificationModule {}

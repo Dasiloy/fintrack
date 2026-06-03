@@ -19,6 +19,7 @@ import {
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
+  TRANSACTION_SEMANTIC_QUEUE,
   USAGE_TRACKING_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
@@ -72,6 +73,7 @@ import { InsightsDailyProcessor } from './processors/insights_daily.processor';
       { name: ANALYTICS_AGGREGATION_QUEUE },
       { name: INSIGHTS_QUEUE },
       { name: BUDGET_CHECK_QUEUE },
+      { name: TRANSACTION_SEMANTIC_QUEUE },
     ),
   ],
   providers: [
