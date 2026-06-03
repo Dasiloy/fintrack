@@ -95,38 +95,6 @@ export class AppController {
   }
 
   // ================================================================
-  //. Resolve Balances
-  // ================================================================
-  @Get('resolve-balances')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Resolve Balances',
-    description:
-      'Hard-recomputes every user balance from source transactions and upserts the previous and current monthly snapshots',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    schema: {
-      example: {
-        success: true,
-        statusCode: HttpStatus.OK,
-        data: { processed: 42, failed: 0 },
-        message: 'Balances resolved successfully',
-      },
-    },
-  })
-  @ApiResponse({ status: HttpStatus.SERVICE_UNAVAILABLE })
-  async resolveBalances(): Promise<StandardResponse<any>> {
-    const data = await this.appService.resolveBalances();
-    return {
-      success: true,
-      data,
-      statusCode: HttpStatus.OK,
-      message: 'Balances resolved successfully',
-    };
-  }
-
-  // ================================================================
   //. Embeddings
   // ================================================================
   @Get('embeddings')
