@@ -22,12 +22,7 @@ import {
   TRANSACTION_SEMANTIC_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { TransactionSematicJob } from '@fintrack/types/interfaces/finance';
-import {
-  Category,
-  Transaction,
-  TransactionType,
-  User,
-} from '@fintrack/database/types';
+import { Category, Transaction, User } from '@fintrack/database/types';
 
 /**
  * Service responsible for handling the health check of the API Gateway
