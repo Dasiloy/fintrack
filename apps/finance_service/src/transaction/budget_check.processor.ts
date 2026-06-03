@@ -10,15 +10,12 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { PrismaService } from '@fintrack/database/service';
 import { TransactionType } from '@fintrack/database/types';
 import {
-  BUDGET_ALERT_EMAIL_JOB,
   BUDGET_CHECK_JOB,
   BUDGET_CHECK_QUEUE,
   INSIGHTS_JOB,
   INSIGHTS_QUEUE,
-  TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { BudgetCheckJobPayload } from '@fintrack/types/interfaces/finance';
-import { BudgetAlertEmailPayload } from '@fintrack/types/interfaces/mail.interface';
 import { InsightsJobPayload } from '@fintrack/types/interfaces/insights';
 
 import { UtilsService } from '../utils.service';
