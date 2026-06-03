@@ -5,8 +5,6 @@ import type { ISendMailOptions } from '@nestjs-modules/mailer';
 
 import { Injectable, Logger } from '@nestjs/common';
 
-import { PrismaService } from '@fintrack/database/service';
-import { formatCurrency } from '@fintrack/utils/format';
 import {
   EmailVerificationPayload,
   WelcomeEmailPayload,
@@ -22,7 +20,6 @@ import {
   SubscriptionEndedEmailPayload,
   NewUsageTrackersCreatedEmailPayload,
   AccountDeletionEmailPayload,
-  BudgetAlertEmailPayload,
   RecurringTransactionsEmailPayload,
   InsightNotificationEmailPayload,
 } from '@fintrack/types/interfaces/mail.interface';
@@ -34,10 +31,7 @@ import {
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(
-    private readonly mailerService: MailerService,
-    private readonly prismaService: PrismaService,
-  ) {}
+  constructor(private readonly mailerService: MailerService) {}
 
   private sendEmail(options: ISendMailOptions): Promise<unknown> {
     return this.mailerService.sendMail({
