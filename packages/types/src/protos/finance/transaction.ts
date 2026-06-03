@@ -159,6 +159,7 @@ export interface BankTransactionItem {
     | undefined;
   /** JSON-stringified audit blob */
   sourceData?: string | undefined;
+  categoryName: string;
 }
 
 export interface BatchCreateTransactionsReq {

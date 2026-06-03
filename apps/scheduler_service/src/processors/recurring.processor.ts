@@ -15,7 +15,10 @@ import {
   RECURRING_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
   RECURRING_TRANSACTIONS_EMAIL_JOB,
+  TRANSACTION_SEMANTIC_QUEUE,
+  TRANSACTION_SEMANTIC_JOB,
 } from '@fintrack/types/constants/queus.constants';
+import { TransactionSematicJob } from '@fintrack/types/interfaces/finance';
 import {
   BUDGET_TREND_CACHE_PREFIX,
   REDIS_CLIENT,
@@ -29,6 +32,8 @@ import {
 import { computeNextRunAt } from '@fintrack/utils/recurring';
 import { genRecurringSourceId } from '@fintrack/utils/format';
 
+type RecurringWithCategory = RecurringItem & { category: Category };
+
 @Processor(RECURRING_QUEUE)
 export class RecurringProcessor extends WorkerHost {
   private readonly logger = new Logger(RecurringProcessor.name);
@@ -40,6 +45,8 @@ export class RecurringProcessor extends WorkerHost {
     private readonly emailQueue: Queue,
     @InjectQueue(BUDGET_CHECK_QUEUE)
     private readonly budgetCheckQueue: Queue,
+    @InjectQueue(TRANSACTION_SEMANTIC_QUEUE)
+    private readonly transactionSemanticQueue: Queue,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
     super();
@@ -112,14 +119,14 @@ export class RecurringProcessor extends WorkerHost {
   private async createRecurringTransactions(): Promise<void> {
     const now = new Date();
 
-    const recurrings = await this.prisma.recurringItem.findMany({
+    const recurrings = (await this.prisma.recurringItem.findMany({
       where: {
         isActive: true,
         nextRunAt: { lte: now },
         OR: [{ endDate: null }, { endDate: { gte: now } }],
       },
       include: { category: true },
-    });
+    })) as RecurringWithCategory[];
 
     this.logger.log(
       `${recurrings.length} recurring item(s) due at ${now.toISOString()}`,
@@ -130,7 +137,7 @@ export class RecurringProcessor extends WorkerHost {
     }
 
     // userId → items created this run, for the notification summary
-    const createdByUser = new Map<string, RecurringItem[]>();
+    const createdByUser = new Map<string, RecurringWithCategory[]>();
 
     for (const item of recurrings) {
       try {
@@ -193,6 +200,18 @@ export class RecurringProcessor extends WorkerHost {
             count: emailItems.length,
             items: emailItems,
           });
+
+          await this.transactionSemanticQueue.add(TRANSACTION_SEMANTIC_JOB, {
+            userId,
+            transactions: items.map((tx) => ({
+              id: tx.id,
+              amount: tx.amount,
+              type: tx.type,
+              date: tx.lastRunAt!,
+              description: tx.description!,
+              categoryName: tx.category.name,
+            })),
+          } satisfies TransactionSematicJob);
         }
       } catch (error: unknown) {
         const err = error instanceof Error ? error : new Error(String(error));
@@ -254,8 +273,8 @@ export class RecurringProcessor extends WorkerHost {
    * @param {Map<string, RecurringItem[]>} createdByUser - Accumulates results
    */
   private async processItem(
-    item: RecurringItem & { category: Category },
-    createdByUser: Map<string, RecurringItem[]>,
+    item: RecurringWithCategory,
+    createdByUser: Map<string, RecurringWithCategory[]>,
   ): Promise<void> {
     const sourceId = genRecurringSourceId(item.id, item.nextRunAt);
 
