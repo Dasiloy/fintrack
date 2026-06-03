@@ -17,11 +17,14 @@ import {
   FCM_NOTIFICATION_QUEUE,
   CLASSIFICATION_CORRECTION_JOB,
   CLASSIFICATION_CORRECTION_QUEUE,
+  TRANSACTION_SEMANTIC_QUEUE,
+  TRANSACTION_SEMANTIC_JOB,
 } from '@fintrack/types/constants/queus.constants';
 import {
   BudgetCheckJobPayload,
   ClassificationCorrectionJobPayload,
   FcmNotificationPayload,
+  TransactionSematicJob,
 } from '@fintrack/types/interfaces/finance';
 import {
   BatchCreateTransactionsReq,
@@ -90,6 +93,8 @@ export class TransactionService {
     private readonly classificationCorrectionQueue: Queue,
     @InjectQueue(BUDGET_CHECK_QUEUE)
     private readonly budgetCheckQueue: Queue,
+    @InjectQueue(TRANSACTION_SEMANTIC_QUEUE)
+    private readonly transactionSemanticQueue: Queue,
     private readonly utils: UtilsService,
     private readonly balanceService: BalanceService,
   ) {}
@@ -155,6 +160,24 @@ export class TransactionService {
       );
 
       this.callevents(userId, createdTransaction, 'Transaction Created');
+
+      // run semantic column setting
+      void this.transactionSemanticQueue.add(TRANSACTION_SEMANTIC_JOB, {
+        userId,
+        transactions: [
+          {
+            id: createdTransaction.id,
+            type: createdTransaction.type,
+            amount: createdTransaction.amount,
+            categoryName: createdTransaction.category.name,
+            date: createdTransaction.date,
+            description: createdTransaction.description!,
+            narration: createdTransaction.narration!,
+          },
+        ],
+      } satisfies TransactionSematicJob);
+
+      // run budget check on expense transaction
       if (createdTransaction.type === TransactionType.EXPENSE) {
         void this.budgetCheckQueue.add(
           BUDGET_CHECK_JOB,
@@ -257,7 +280,7 @@ export class TransactionService {
           await this.balanceService.ensureCurrentMonth(ptx, userId);
         }
 
-        const createResult = await ptx.transaction.createMany({
+        const createResult = await ptx.transaction.createManyAndReturn({
           data,
           skipDuplicates: true,
         });
@@ -278,28 +301,46 @@ export class TransactionService {
         return createResult;
       });
 
-      // Fire budget check only for categories belonging to newly inserted records.
-      const expenseCategoryIds = [
-        ...new Set(
-          newItems
-            .filter((t) => t.type === ProtoTransactionType.EXPENSE)
-            .map((t) => t.categoryId),
-        ),
-      ];
-      if (result.count > 0 && expenseCategoryIds.length > 0) {
-        // fetch tranwaction
-        void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+      if (result.length > 0) {
+        const transactionCatMap = new Map(
+          transactions.map((d) => [d.sourceId, d.categoryName]),
+        );
+        void this.transactionSemanticQueue.add(TRANSACTION_SEMANTIC_JOB, {
           userId,
-          transactions: expenseCategoryIds.map((catId) => ({
-            categoryId: catId,
-            referenceDate: new Date().toISOString(),
+          transactions: result.map((tx) => ({
+            id: tx.id,
+            amount: tx.amount,
+            categoryName: transactionCatMap.get(tx.sourceId)!,
+            date: tx.date,
+            type: tx.type,
+            description: tx.description!,
+            narration: tx.narration!,
           })),
-        } satisfies BudgetCheckJobPayload);
+        } satisfies TransactionSematicJob);
+
+        // Fire budget check only for categories belonging to newly inserted records.
+        const expenseCategoryIds = [
+          ...new Set(
+            newItems
+              .filter((t) => t.type === ProtoTransactionType.EXPENSE)
+              .map((t) => t.categoryId),
+          ),
+        ];
+
+        if (expenseCategoryIds.length > 0) {
+          void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
+            userId,
+            transactions: expenseCategoryIds.map((catId) => ({
+              categoryId: catId,
+              referenceDate: new Date().toISOString(),
+            })),
+          } satisfies BudgetCheckJobPayload);
+        }
       }
 
       return {
-        created: result.count,
-        skipped: transactions.length - result.count,
+        created: result.length,
+        skipped: transactions.length - result.length,
       };
     } catch (error) {
       if (error instanceof RpcException) throw error;
@@ -578,7 +619,6 @@ export class TransactionService {
         );
       }
 
-      this.callevents(userId, updatedTransaction, 'Transaction Updated');
       if (updatedTransaction.type === TransactionType.EXPENSE) {
         void this.budgetCheckQueue.add(BUDGET_CHECK_JOB, {
           userId,
@@ -590,6 +630,30 @@ export class TransactionService {
           ],
         } satisfies BudgetCheckJobPayload);
       }
+
+      const semanticChnaged =
+        financiallyChanged ||
+        request.categorySlug !== undefined ||
+        request.description !== undefined;
+
+      if (semanticChnaged) {
+        void this.transactionSemanticQueue.add(TRANSACTION_SEMANTIC_JOB, {
+          userId,
+          transactions: [
+            {
+              id: updatedTransaction.id,
+              amount: updatedTransaction.amount,
+              categoryName: updatedTransaction.category.name,
+              date: updatedTransaction.date,
+              type: updatedTransaction.type,
+              description: updatedTransaction.description!,
+              narration: updatedTransaction.narration!,
+            },
+          ],
+        } satisfies TransactionSematicJob);
+      }
+
+      this.callevents(userId, updatedTransaction, 'Transaction Updated');
       return this.formatTransaction(updatedTransaction);
     } catch (error) {
       if (error instanceof RpcException) throw error;

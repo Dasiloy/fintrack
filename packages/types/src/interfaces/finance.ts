@@ -52,3 +52,16 @@ export interface OcrToTransactionJob {
    */
   isPdf: boolean;
 }
+
+export interface TransactionSematicJob {
+  userId: string;
+  transactions: {
+    id: string;
+    date: Date;
+    amount: number;
+    narration?: string;
+    description?: string;
+    categoryName: string;
+    type: 'EXPENSE' | 'INCOME';
+  }[];
+}
