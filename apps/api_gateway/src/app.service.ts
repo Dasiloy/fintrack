@@ -22,12 +22,7 @@ import {
   TRANSACTION_SEMANTIC_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { TransactionSematicJob } from '@fintrack/types/interfaces/finance';
-import {
-  Category,
-  Transaction,
-  TransactionType,
-  User,
-} from '@fintrack/database/types';
+import { Category, Transaction, User } from '@fintrack/database/types';
 
 /**
  * Service responsible for handling the health check of the API Gateway
@@ -172,128 +167,6 @@ export class AppService {
       this.logger.error(`Semantic Transaction : ${error.message}`);
       if (error instanceof HttpException) throw error;
       throw new ServiceUnavailableException('Could not begin semantic queu ');
-    }
-  }
-
-  // ================================================================
-  //. Resolve Balances
-  // ================================================================
-
-  async resolveBalances(): Promise<{ processed: number; failed: number }> {
-    try {
-      const now = new Date();
-      const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-      const userBalances = await this.prismaService.userBalance.findMany({
-        select: { userId: true },
-      });
-
-      let processed = 0;
-      let failed = 0;
-
-      for (const { userId } of userBalances) {
-        try {
-          await this.prismaService.$transaction(async (tx) => {
-            type MonthRow = {
-              monthYear: string;
-              type: string;
-              total: string;
-            };
-
-            // One query: all-time totals + per-month breakdown (no future months)
-            const [allTime, monthlyRows] = await Promise.all([
-              tx.transaction.groupBy({
-                by: ['type'],
-                where: { userId },
-                _sum: { amount: true },
-              }),
-              tx.$queryRaw<MonthRow[]>`
-                SELECT
-                  TO_CHAR(date, 'YYYY-MM') AS "monthYear",
-                  type,
-                  SUM(amount)::text         AS total
-                FROM "Transaction"
-                WHERE "userId" = ${userId}
-                  AND TO_CHAR(date, 'YYYY-MM') <= ${thisMonth}
-                GROUP BY TO_CHAR(date, 'YYYY-MM'), type
-                ORDER BY "monthYear"
-              `,
-            ]);
-
-            const pick = (rows: typeof allTime, type: string) =>
-              rows.find((r) => r.type === type)?._sum?.amount ?? 0;
-
-            const totalIncome = pick(allTime, TransactionType.INCOME);
-            const totalExpense = pick(allTime, TransactionType.EXPENSE);
-            const netBalance = Number(totalIncome) - Number(totalExpense);
-
-            // Build per-month map from raw aggregates
-            const monthMap = new Map<
-              string,
-              { income: number; expense: number }
-            >();
-            for (const row of monthlyRows) {
-              const entry = monthMap.get(row.monthYear) ?? {
-                income: 0,
-                expense: 0,
-              };
-              if (row.type === TransactionType.INCOME)
-                entry.income += Number(row.total);
-              else entry.expense += Number(row.total);
-              monthMap.set(row.monthYear, entry);
-            }
-
-            const curr = monthMap.get(thisMonth) ?? { income: 0, expense: 0 };
-
-            await tx.userBalance.upsert({
-              where: { userId },
-              update: {
-                totalIncome,
-                totalExpense,
-                netBalance,
-                monthlyIncome: curr.income,
-                monthlyExpense: curr.expense,
-                monthYear: thisMonth,
-              },
-              create: {
-                userId,
-                totalIncome,
-                totalExpense,
-                netBalance,
-                monthlyIncome: curr.income,
-                monthlyExpense: curr.expense,
-                monthYear: thisMonth,
-              },
-            });
-
-            // Upsert a snapshot for every month from first tx to now
-            for (const [monthYear, { income, expense }] of monthMap.entries()) {
-              await tx.monthlyBalanceSnapshot.upsert({
-                where: { userId_monthYear: { userId, monthYear } },
-                update: { income, expense, net: income - expense },
-                create: {
-                  userId,
-                  monthYear,
-                  income,
-                  expense,
-                  net: income - expense,
-                },
-              });
-            }
-          });
-
-          processed++;
-        } catch (err) {
-          this.logger.error(`resolveBalances userId=${userId}: ${err.message}`);
-          failed++;
-        }
-      }
-
-      return { processed, failed };
-    } catch (error) {
-      this.logger.error(`resolveBalances: ${error.message}`);
-      if (error instanceof HttpException) throw error;
-      throw new ServiceUnavailableException('Could not resolve balances');
     }
   }
 }
