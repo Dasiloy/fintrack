@@ -135,6 +135,7 @@ message BankTransactionItem {
   optional string   narration            = 11;
   optional string   bank_transaction_id  = 12;
   optional string   source_data          = 13; // JSON-stringified audit blob
+  string            category_name          = 14;
 }
 
 message BatchCreateTransactionsReq {

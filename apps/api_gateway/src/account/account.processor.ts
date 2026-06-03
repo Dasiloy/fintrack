@@ -101,6 +101,7 @@ export class MonoAccountSyncProcessor extends WorkerHost {
         this.prisma.merchant.findMany(),
       ]);
       const catTokenSets = this.buildCategoryTokenSetsMap(categories);
+      const catIdNameMap = new Map(categories.map((cat) => [cat.id, cat.name]));
       const merchantTokenSets = this.buildMerchantTokenSetsMap(merchants);
       const fallbackCategoryId =
         categories.find((c) => /misc|general|other/i.test(c.name + c.slug))
@@ -126,7 +127,6 @@ export class MonoAccountSyncProcessor extends WorkerHost {
       const unressolved: MonoTransaction[] = [];
 
       for (const transaction of transactions) {
-        console.log(transaction);
         const carTokens = this.tokenize(transaction.category);
         const narTokens = this.tokenize(transaction.narration);
         const merchantHintTokens = this.lookupMerchantHintTokens(
@@ -205,6 +205,7 @@ export class MonoAccountSyncProcessor extends WorkerHost {
             description: tx.narration,
             narration: tx.narration,
             categoryId: tx.category as string,
+            categoryName: catIdNameMap.get(tx.category as string)!,
             source: TransactionSource.BANK,
             sourceId: genBankSourceId(tx.id, tx.date),
             bankTransactionId: tx.id,
