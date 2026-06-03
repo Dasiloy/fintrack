@@ -17,6 +17,7 @@ import {
   getServiceUrl,
   getServiceConfig,
 } from '@fintrack/common/config/services';
+import { TRANSACTION_SEMANTIC_QUEUE } from '@fintrack/types/constants/queus.constants';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
 import { DatabaseModule } from '@fintrack/database/nest';
 
@@ -172,6 +173,8 @@ import { AdvisorModule } from './advisor/advisor.module';
         },
       ],
     }),
+    // ── TEMPORARY: backfill queue — remove after semantic backfill is complete ──
+    BullModule.registerQueue({ name: TRANSACTION_SEMANTIC_QUEUE }),
     // Queue Registry
     BullModule.forRootAsync({
       imports: [ConfigModule],
