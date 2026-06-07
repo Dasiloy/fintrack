@@ -58,7 +58,7 @@ export const PRICING_PLANS: PricingPlan[] = [
     highlights: [
       { label: '5 budgets & 3 financial goals', included: true },
       { label: '3 custom categories', included: true },
-      { label: 'AI insights (20 queries/mo)', included: true },
+      { label: 'AI insights (5 queries/mo)', included: true },
       { label: 'AI chat (10 messages/mo)', included: true },
       { label: '10 receipt uploads / mo', included: true },
       { label: '6-month analytics window', included: true },
@@ -130,7 +130,7 @@ export const COMPARISON_ROWS: ComparisonRow[] = [
   {
     label: 'AI insights queries',
     icon: Brain,
-    free: '20 / month',
+    free: '5 / month',
     pro: 'Unlimited',
     category: 'AI',
   },

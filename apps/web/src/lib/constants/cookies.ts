@@ -12,7 +12,7 @@ export const COOKIE_BALANCE_VALUE_DISABLED = 'disabled';
 export type CookiKeys = typeof COOKIE_CONSENT | typeof COOKIE_BALANCE;
 
 /**
- * @description Get the expiry date for a cookie key
+ * @description Get the expiry date in days  for a cookie key
  */
 export function getCookieExpiry(key: CookiKeys) {
   switch (key) {
