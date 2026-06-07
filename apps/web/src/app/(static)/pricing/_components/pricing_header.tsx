@@ -18,7 +18,7 @@ export function PricingHeader() {
 
       <p className="text-body-lg text-text-secondary leading-relaxed">
         Start for free with powerful budgeting tools. Upgrade to Pro when you're ready to unlock
-        unlimited AI, analytics, and exports — at just $5/month.
+        unlimited AI, analytics, and exports — at just ₦4,500/month.
       </p>
     </section>
   );
