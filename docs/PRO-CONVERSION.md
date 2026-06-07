@@ -39,7 +39,7 @@ trialUsed     Boolean     @default(false)  // prevents a second trial if user re
 
 ### Trial Expiry Design — Making the Downgrade Felt
 
-The trial expiry must be *felt*, not just *noticed*.
+The trial expiry must be _felt_, not just _noticed_.
 
 #### 1. Expiry email sequence (not a single email)
 
@@ -152,33 +152,11 @@ AI Insights · 3 of 5 used this month   [Upgrade to Pro →]
 - `apps/web/src/app/(ai)/advisor/_components/insights_panel.tsx` — render the banner above the insights list
 - `apps/web/src/app/(dashboard)/dashboard_layout.tsx` or top-level dashboard — render for AI chat usage
 
-The plan usage data is already fetched in `plan_usage_provider.tsx`. No new API calls needed.
-
----
-
-## 3. Analytics History Teaser for Free Users
-
-**Why:** Free users are limited to 6 months of analytics. Most new users will not notice this for months — but when they do, it is one of the cleanest, most natural upgrade moments in the product.
-
-**What to build:** On the analytics page, when the selected date range extends beyond the 6-month free window, render a locked overlay on the out-of-range section rather than silently hiding it.
-
-```text
-[Unlocked data]  ←── visible, interactive
-[Locked section] ←── blurred/grayed, with a lock icon and "Upgrade to Pro to see data from Dec 2025 and earlier"
-```
-
-The analytics query already enforces the limit server-side. This change is purely presentational — detect that the user is on Free, calculate the cutoff date, and render the overlay on the appropriate section of the chart/table.
-
-**Files to modify:**
-
-- `apps/web/src/app/(dashboard)/analytics/` — add cutoff date calculation and overlay component
-- No backend changes needed
-
----
+## The plan usage data is already fetched in `plan_usage_provider.tsx`. No new API calls needed.
 
 ## 5. Post-Limit Upgrade Flow Improvement
 
-**Why:** When a free user hits a hard limit (e.g. tries to add a 6th budget), the `ProGateModal` currently shows immediately and routes to `/pricing`. This is good. What is missing is a soft warning *before* they hit the wall.
+**Why:** When a free user hits a hard limit (e.g. tries to add a 6th budget), the `ProGateModal` currently shows immediately and routes to `/pricing`. This is good. What is missing is a soft warning _before_ they hit the wall.
 
 **What to build:** When a user is at 4 of 5 budgets (or 2 of 3 goals), show an inline callout on the relevant list page:
 
