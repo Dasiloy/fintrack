@@ -93,7 +93,7 @@ export function ComparisonTable() {
       {/* Disclaimer */}
       <p className="text-caption text-text-disabled mt-6 text-center">
         All plans include end-to-end encryption, automatic backups, and access to all core
-        FinTrack features. Prices shown in USD.
+        FinTrack features. Prices shown in NGN.
       </p>
     </section>
   );
