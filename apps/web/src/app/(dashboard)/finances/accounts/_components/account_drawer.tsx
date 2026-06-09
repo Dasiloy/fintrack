@@ -82,7 +82,7 @@ export function AccountDrawer({
         <DrawerHeader title="Account Details" onClose={() => onOpenChange(false)} />
 
         <ScrollArea className="min-h-0 flex-1">
-          <div className="flex flex-col gap-5 px-6 py-5">
+          <div className="flex flex-col gap-5 overflow-x-hidden px-6 py-5">
             {/* ── Hero ── */}
             <div className="flex flex-col items-center gap-2 pb-1 text-center">
               <div
