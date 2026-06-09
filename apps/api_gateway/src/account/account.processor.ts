@@ -201,7 +201,7 @@ export class MonoAccountSyncProcessor extends WorkerHost {
         await this.transactionService.batchCreateMonoTransactions(userId, {
           transactions: ressolved.map((tx) => ({
             date: tx.date,
-            amount: String(tx.amount),
+            amount: String(tx.amount / 100), //* Mono returns amount in kobo
             description: tx.narration,
             narration: tx.narration,
             categoryId: tx.category as string,
