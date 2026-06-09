@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { Button, Skeleton, toast } from '@ui/components';
 import { api_client } from '@/lib/trpc_app/api_client';
@@ -8,21 +9,45 @@ import { useMonoConnect } from '@/hooks/use_mono';
 import { useBanks } from '@/hooks/use_banks';
 import { PageHeader } from '@/app/_components/page-header';
 import { AccountCard } from './account_card';
+import { AccountDrawer } from './account_drawer';
 import { AccountsEmpty } from './accounts_empty';
 import { AccountsSkeleton } from './accounts_skeleton';
+import type { MonoBankAccount } from '@fintrack/database/types';
+import { Usage } from '@fintrack/types/constants/plan.constants';
+import { useProGate } from '@/hooks/use_pro_gate';
+import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 
 export function AccountsView() {
+  const searchParams = useSearchParams();
   const [relinkingId, setRelinkingId] = React.useState<string | null>(null);
   const [syncingId, setSyncingId] = React.useState<string | null>(null);
+  const [selectedAccount, setSelectedAccount] = React.useState<MonoBankAccount | null>(null);
 
   const utils = api_client.useUtils();
   const { data, isLoading } = api_client.account.getLinkedAccounts.useQuery();
   const { getBank, isLoading: isLoadingBanks } = useBanks();
   const accounts = data?.data ?? [];
 
+  // Auto-open drawer when navigating from a bank_link notification
+  React.useEffect(() => {
+    const accountId = searchParams.get('accountId');
+    if (!accountId || accounts.length === 0) return;
+    const found = accounts.find((a) => a.id === accountId);
+    if (found) setSelectedAccount(found);
+  }, [searchParams, accounts]);
+
+  const createGate = useProGate(Usage.MAX_MONO_ACCOUNTS);
+  const plan = usePlan();
+  const canMutateAccount = (bank: MonoBankAccount) => {
+    if (bank.isDefault) return true;
+    if (!plan) return false;
+    return plan.resourceCounts.monoBankAccounts <= plan.limits.MAX_MONO_ACCOUNTS;
+  };
+
   const linkMutation = api_client.account.linkMonoAccount.useMutation({
     onSuccess: () => {
-      toast.success('Account linked successfully');
+      toast.warning('Account is being linked');
       utils.account.getLinkedAccounts.invalidate();
     },
     onError: (err) => toast.error('Failed to link account', { description: err.message }),
@@ -54,10 +79,11 @@ export function AccountsView() {
   });
 
   const { linkAccount, reauthenticate } = useMonoConnect({
-    onError: () => toast.error('Something went wrong with Mono Connect'),
+    onError: () => toast.error('Something went wrong with Connecting your bank account'),
   });
 
-  const handleLink = () => linkAccount((code) => linkMutation.mutate({ code }));
+  const handleLink = () =>
+    linkAccount((code) => linkMutation.mutate({ code, feature: Usage.MAX_MONO_ACCOUNTS }));
 
   const handleRelink = (accountId: string) => {
     setRelinkingId(accountId);
@@ -108,19 +134,47 @@ export function AccountsView() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 2xl:max-w-4xl">
             {accounts.map((account) => (
-              <AccountCard
+              <button
                 key={account.id}
-                account={account}
-                bankLogo={getBank(account.bankId)?.logo}
-                onRelink={handleRelink}
-                isRelinking={relinkingId === account.accountId && relinkMutation.isPending}
-                onSync={handleSync}
-                isSyncing={syncingId === account.id && syncMutation.isPending}
-              />
+                type="button"
+                className="cursor-pointer text-left"
+                onClick={() => setSelectedAccount(account)}
+              >
+                <AccountCard
+                  account={account}
+                  bankLogo={getBank(account.bankId)?.logo}
+                  onRelink={handleRelink}
+                  isRelinking={relinkingId === account.accountId && relinkMutation.isPending}
+                  onSync={handleSync}
+                  isSyncing={syncingId === account.id && syncMutation.isPending}
+                  isEditable={canMutateAccount(account)}
+                />
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {/* ── Dialogs / drawers ── */}
+      <ProGateModal
+        feature={Usage.MAX_MONO_ACCOUNTS}
+        open={createGate.open}
+        onClose={createGate.onClose}
+      />
+
+      <AccountDrawer
+        account={selectedAccount}
+        bankLogo={selectedAccount ? getBank(selectedAccount.bankId)?.logo : undefined}
+        onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}
+        onSync={handleSync}
+        isSyncing={!!syncingId && syncingId === selectedAccount?.id && syncMutation.isPending}
+        onRelink={handleRelink}
+        isRelinking={
+          !!relinkingId &&
+          relinkingId === selectedAccount?.accountId &&
+          relinkMutation.isPending
+        }
+      />
     </div>
   );
 }

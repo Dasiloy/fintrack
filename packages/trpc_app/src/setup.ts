@@ -240,6 +240,14 @@ export const protectedProcedureWithPlanLimits = protectedProcedure
             });
             break;
 
+          case Usage.MAX_MONO_ACCOUNTS:
+            count = await ctx.db.monoBankAccount.count({
+              where: {
+                userId: ctx.session.user.id,
+              },
+            });
+            break;
+
           default:
             count = Infinity;
             break;

@@ -8,6 +8,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
+import { EncryptionService } from '@fintrack/common/services/encryption.service';
 import { DatabaseModule } from '@fintrack/database/nest';
 import {
   getProtoIncludeDirs,
@@ -116,6 +117,7 @@ import { AuthService } from './auth.service';
   controllers: [AuthController],
   providers: [
     AuthService,
+    EncryptionService,
     {
       provide: APP_INTERCEPTOR,
       useClass: GrpcLoggingInterceptor,
