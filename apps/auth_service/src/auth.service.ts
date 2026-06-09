@@ -21,6 +21,7 @@ import {
   User,
   VerificationToken,
 } from '@fintrack/database/types';
+import { EncryptionService } from '@fintrack/common/services/encryption.service';
 import { TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { PrismaService } from '@fintrack/database/nest';
 import {
@@ -112,6 +113,7 @@ export class AuthService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
+    private readonly encryptionService: EncryptionService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @Inject(PAYMENT_PACKAGE_NAME) private paymentClient: ClientGrpc,
     @InjectQueue(TOKEN_NOTIFICATION_QUEUE) private readonly tokenQueue: Queue,
@@ -1518,7 +1520,7 @@ export class AuthService implements OnModuleInit {
 
       await this.prismaService.user.update({
         where: { id: user.id },
-        data: { twoFactorSecret: this.encrypt(secret) },
+        data: { twoFactorSecret: this.encryptionService.encrypt(secret) },
       });
 
       return { otpauthUri, secret };
@@ -1575,7 +1577,7 @@ export class AuthService implements OnModuleInit {
       }
 
       // decrypt the secret here
-      const secret = this.decrypt(user.twoFactorSecret);
+      const secret = this.encryptionService.decrypt(user.twoFactorSecret);
 
       const verify = await this.otp.verify({
         secret,
@@ -2909,7 +2911,7 @@ export class AuthService implements OnModuleInit {
       });
     }
 
-    const secret = this.decrypt(user.twoFactorSecret);
+    const secret = this.encryptionService.decrypt(user.twoFactorSecret);
     const result = await this.otp.verify({ secret, token, epochTolerance: 30 });
 
     if (!result.valid) {
@@ -2936,57 +2938,5 @@ export class AuthService implements OnModuleInit {
       where: { id: user.id },
       data: { twoFactorLastUsedAt: new Date() },
     });
-  }
-
-  /**
-   * @description Encrypt text using AES
-   *
-   * @private
-   * @param {string} text Plain text string to encrypt => Symmetrically using AES
-   * @returns {string} encrypted text and the iv text: encrypted:iv
-   */
-  private encrypt(text: string): string {
-    // secrets
-    const secretStr = this.configService.getOrThrow('AES_KEY');
-    const secretBuffer = Buffer.from(secretStr, 'hex');
-
-    // random init vector
-    const iv = crypto.randomBytes(16);
-
-    const cipher = crypto.createCipheriv('aes-256-cbc', secretBuffer, iv);
-    const encrypted = Buffer.concat([
-      cipher.update(text, 'utf-8'),
-      cipher.final(),
-    ]);
-
-    return `${encrypted.toString('hex')}:${iv.toString('hex')}`;
-  }
-
-  /**
-   * @description Dencrypt encrypted text using AES
-   *
-   * @private
-   * @param {string} text encrypted text containing text:iv
-   * @returns {string} plains text
-   */
-  private decrypt(text: string): string {
-    // secrets
-    const secretStr = this.configService.getOrThrow('AES_KEY');
-    const secretBuffer = Buffer.from(secretStr, 'hex');
-
-    // random init vector
-    const [encrypt, iv] = text.split(':');
-
-    const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      secretBuffer,
-      Buffer.from(iv, 'hex'),
-    );
-    const decrypted = Buffer.concat([
-      decipher.update(Buffer.from(encrypt, 'hex')),
-      decipher.final(),
-    ]);
-
-    return decrypted.toString('utf-8');
   }
 }

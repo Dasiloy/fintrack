@@ -9,11 +9,6 @@ import { Button } from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import type { MonoBankAccount } from '@fintrack/database/types';
 import { bankColor, maskNumber, STATUS_CONFIG } from '@/app/(dashboard)/finances/accounts/helper';
-import { useFormatCurrency } from '@/hooks/use_format_currency';
-
-// ---------------------------------------------------------------------------
-// AccountCard
-// ---------------------------------------------------------------------------
 
 interface AccountCardProps {
   account: MonoBankAccount;
@@ -22,6 +17,7 @@ interface AccountCardProps {
   isRelinking: boolean;
   onSync: (id: string) => void;
   isSyncing: boolean;
+  isEditable?: boolean;
 }
 
 export function AccountCard({
@@ -31,8 +27,8 @@ export function AccountCard({
   isRelinking,
   onSync,
   isSyncing,
+  isEditable,
 }: AccountCardProps) {
-  const formatCurrency = useFormatCurrency();
   const color = bankColor(account.bankName);
   const status = STATUS_CONFIG[account.status];
   const needsRelink = account.status === 'UNAVAILABLE';
@@ -109,7 +105,8 @@ export function AccountCard({
               size="sm"
               variant="outline"
               loading={isSyncing}
-              onClick={() => onSync(account.id)}
+              disabled={!isEditable}
+              onClick={(e) => { e.stopPropagation(); onSync(account.id); }}
               className="gap-1.5"
             >
               <RotateCcw className="size-3.5" />
@@ -121,7 +118,8 @@ export function AccountCard({
               size="sm"
               variant="destructive"
               loading={isRelinking}
-              onClick={() => onRelink(account.accountId)}
+              disabled={!isEditable}
+              onClick={(e) => { e.stopPropagation(); onRelink(account.accountId); }}
               className="gap-1.5"
             >
               <RefreshCw className="size-3.5" />

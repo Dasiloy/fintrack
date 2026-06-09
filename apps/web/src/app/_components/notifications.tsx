@@ -21,13 +21,15 @@ function resolveNotificationNav(data: NotifData) {
   if (!data?.type) return null;
   switch (data.type) {
     case 'transaction':
-      return { href: '/finances/transactions', txId: data.transactionId ?? null, section: null };
+      return { href: '/finances/transactions', txId: data.transactionId ?? null, accountId: null, section: null };
     case 'bank_sync':
-      return { href: '/finances/transactions', txId: null, section: null };
+      return { href: '/finances/transactions', txId: null, accountId: null, section: null };
+    case 'bank_link':
+      return { href: '/finances/accounts', txId: null, accountId: data.accountId ?? null, section: null };
     case 'insight':
-      return { href: '/advisor', txId: null, section: 'summary' };
+      return { href: '/advisor', txId: null, accountId: null, section: 'summary' };
     case 'budget_breach':
-      return { href: '/advisor', txId: null, section: 'anomalies' };
+      return { href: '/advisor', txId: null, accountId: null, section: 'anomalies' };
     default:
       return null;
   }
@@ -110,6 +112,7 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
     }
     const params = new URLSearchParams();
     if (nav.txId) params.set('txId', nav.txId);
+    if (nav.accountId) params.set('accountId', nav.accountId);
     if (nav.section) {
       params.set('tab', 'insights');
       params.set('section', nav.section);
@@ -215,6 +218,11 @@ function NotificationCard({ notification }: { notification: NotificationItem }) 
         )}
         {data?.type === 'bank_sync' && (
           <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">→ View transactions</p>
+        )}
+        {data?.type === 'bank_link' && (
+          <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">
+            {data.accountId ? '→ View linked account' : '→ Go to accounts'}
+          </p>
         )}
         {(data?.type === 'insight' || data?.type === 'budget_breach') && (
           <p className="text-primary mt-0.5 pl-7.5 text-[10px] font-medium">→ View in AI Advisor</p>

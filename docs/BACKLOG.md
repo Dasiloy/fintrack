@@ -16,11 +16,11 @@ Items are ordered by priority. Each entry follows the format:
 
 ## 🗂️ Backlog
 
-### [BL-001] Mono integration — go live (NGN only)
+### ✅ [BL-001] Mono integration — go live (NGN only)
 
 - **Type**: Feature
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Mono bank-linking is currently behind a dev/staging gate. Going live requires verifying the Mono production credentials are wired in, restricting supported currencies to NGN only, and confirming the full link → sync → transaction ingestion flow works end-to-end on production.
 - **Notes**:
   - NGN is the only currency to support at launch — block or hide the link flow for any account that returns a non-NGN currency from Mono.
@@ -29,11 +29,11 @@ Items are ordered by priority. Each entry follows the format:
   - Currency restriction should live at the Mono webhook/sync layer so non-NGN accounts are rejected early with a clear user-facing error rather than silently ingested with wrong amounts.
   - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, `apps/web/src/app/(dashboard)/settings/profile/_components/profile_layout.tsx`.
 
-### [BL-002] Field-level encryption for Mono bank account data
+### ✅ [BL-002] Field-level encryption for Mono bank account data
 
 - **Type**: Security
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: All sensitive Mono-linked bank account fields (account number, BVN, NUBAN, balance, institution details, etc.) are currently stored in plain text in the database. These must be encrypted at rest to reduce exposure in the event of a database breach.
 - **Notes**:
   - Use AES-256-GCM (symmetric, authenticated) with a secret key stored in an env var (`ENCRYPTION_KEY`). Never store the key in the DB or repo.
@@ -43,11 +43,11 @@ Items are ordered by priority. Each entry follows the format:
   - A one-time migration script is needed to encrypt existing plain-text rows; run it with a dry-run flag first.
   - Related files: `apps/finance_service/src/mono/`, `apps/api_gateway/src/mono/`, DB schema for `LinkedAccount` / `MonoAccount` model.
 
-### [BL-003] Multi-account bank sync gating — Free: 1 account, Pro: unlimited
+### ✅ [BL-003] Multi-account bank sync gating — Free: 1 account, Pro: unlimited
 
 - **Type**: Feature
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Bank account connectivity via Mono is the most compelling feature in the product — it is what makes FinTrack feel like more than a spreadsheet. Currently it is fully unrestricted on the free plan. Gating multi-account sync behind Pro is the single structural change most likely to drive upgrades, because users with a salary account, a savings account, and a business account cannot get full value without connecting all three.
 - **Notes**:
   - Free plan: 1 Mono-connected account. Additional connections blocked at the API level with a `ProGateModal` in the UI.
