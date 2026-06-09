@@ -556,7 +556,8 @@ export type SplitStatus = (typeof SplitStatus)[keyof typeof SplitStatus]
 export const MonoBankAccountStatus: {
   AVAILABLE: 'AVAILABLE',
   PARTIAL: 'PARTIAL',
-  UNAVAILABLE: 'UNAVAILABLE'
+  UNAVAILABLE: 'UNAVAILABLE',
+  PROCESSING: 'PROCESSING'
 };
 
 export type MonoBankAccountStatus = (typeof MonoBankAccountStatus)[keyof typeof MonoBankAccountStatus]
