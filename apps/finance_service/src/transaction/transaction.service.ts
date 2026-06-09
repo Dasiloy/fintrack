@@ -377,7 +377,7 @@ export class TransactionService {
         ...(query.endDate && { date: { lte: new Date(query.endDate) } }),
         ...(query.sourceId && { sourceId: query.sourceId }),
         ...(query.bankAccountId && {
-          monoBankAccount: { is: { accountNumber: query.bankAccountId } },
+          monoBankAccountId: query.bankAccountId,
         }),
         ...(query.bankTransactionId && {
           bankTransactionId: { contains: query.bankTransactionId },
