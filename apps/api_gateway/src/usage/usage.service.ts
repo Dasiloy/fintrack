@@ -64,15 +64,6 @@ export class UsageService {
   }
 
   /**
-   * @description Removes the cached gated usage entry for a user.
-   * Called fire-and-forget after any mutation that changes resource counts; errors are logged but not re-thrown.
-   *
-   * @async
-   * @public
-   * @param {string} userId The user whose cache entry should be removed
-   * @returns {Promise<void>}
-   */
-  /**
    * Increments the usage counter for a monthly-tracked feature and invalidates
    * the gated usage cache so the next read reflects the updated count.
    * Called fire-and-forget after a successful gated operation completes.
@@ -90,6 +81,15 @@ export class UsageService {
     void this.invalidateGatedUsageCache(userId);
   }
 
+  /**
+   * @description Removes the cached gated usage entry for a user.
+   * Called fire-and-forget after any mutation that changes resource counts; errors are logged but not re-thrown.
+   *
+   * @async
+   * @public
+   * @param {string} userId The user whose cache entry should be removed
+   * @returns {Promise<void>}
+   */
   async invalidateGatedUsageCache(userId: string): Promise<void> {
     const cacheKey = `${GATED_USAGE_CACHE_PREFIX}:${userId}`;
     await this.redis
@@ -141,6 +141,7 @@ export class UsageService {
             recurringItems: true,
             goals: true,
             splits: true,
+            monoBankAccounts: true,
           },
         },
       },
@@ -171,6 +172,7 @@ export class UsageService {
         recurringItems: userCount._count.recurringItems,
         goals: userCount._count.goals,
         splits: userCount._count.splits,
+        monoBankAccounts: userCount._count.monoBankAccounts,
       },
     };
   }

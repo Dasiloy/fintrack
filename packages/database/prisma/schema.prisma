@@ -755,7 +755,7 @@ model Transaction {
   aiClassified Boolean @default(false)
 
   monoBankAccountId String? // bank account this transaction belongs to
-  monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id])
+  monoBankAccount   MonoBankAccount? @relation(fields: [monoBankAccountId], references: [id], onDelete: SetNull)
 
   @@unique([userId, source, sourceId])
   @@unique([userId, bankTransactionId, monoBankAccountId])
@@ -946,10 +946,11 @@ model MonoBankAccount {
   accountNumber   String
   accountName     String
   accountType     String
-  accountBalance  Float
+  accountBalance  String
   accountCurrency Currency
   status          MonoBankAccountStatus
   lastSyncedAt    DateTime?
+  isDefault       Boolean           @default(false)
 
   // ownership
   userId String

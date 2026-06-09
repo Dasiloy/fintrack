@@ -3,6 +3,7 @@ import { Queue } from 'bullmq';
 
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   Inject,
   Injectable,
@@ -11,12 +12,18 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 
-import { MonoBankAccount, User } from '@fintrack/database/types';
+import {
+  MONO_QUEUE,
+  SYNC_ACCOUNT_JOB,
+} from '@fintrack/types/constants/queus.constants';
+import { Currency, MonoBankAccount, User } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
 import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
 import { MONO_PENDING_TTL_SECONDS } from '@fintrack/types/constants/mono.contants';
+import { EncryptionService } from '@fintrack/common/services/encryption.service';
 import {
   MonoAccountConnectedPayload,
   MonoAccountData,
@@ -26,11 +33,8 @@ import {
 } from '@fintrack/types/interfaces/mono';
 
 import { LinkMonoAccountDto, ReLinkMonoAccountDto } from './dto/account.dto';
-import {
-  MONO_QUEUE,
-  SYNC_ACCOUNT_JOB,
-} from '@fintrack/types/constants/queus.constants';
-import { InjectQueue } from '@nestjs/bullmq';
+import { FcmService } from '../fcm/fcm.service';
+import { UsageService } from '../usage/usage.service';
 
 /**
  * Service responsible for Mono bank account linking, webhook handling,
@@ -45,6 +49,9 @@ export class AccountService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly encryption: EncryptionService,
+    private readonly fcmService: FcmService,
+    private readonly usageService: UsageService,
     @InjectQueue(MONO_QUEUE) private readonly monoQueue: Queue,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
@@ -62,7 +69,7 @@ export class AccountService {
    * @returns Array of linked accounts with display-safe fields
    */
   async getLinkedAccounts(user: User): Promise<Partial<MonoBankAccount>[]> {
-    return await this.prisma.monoBankAccount.findMany({
+    const linkedAccounts = await this.prisma.monoBankAccount.findMany({
       where: { userId: user.id },
       select: {
         id: true,
@@ -80,6 +87,19 @@ export class AccountService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    const decryptedFields = this.encryption.getMonoAccountEncryptionFields(
+      linkedAccounts as MonoBankAccount[],
+    );
+
+    const decryptedAccountsMap = new Map(
+      decryptedFields.map(({ id, ...rest }) => [id, rest]),
+    );
+
+    return linkedAccounts.map((la) => ({
+      ...la,
+      ...decryptedAccountsMap.get(la.id),
+    }));
   }
 
   // ---------------------------------------------------------------------------
@@ -109,6 +129,19 @@ export class AccountService {
       if (mapped.account.status === 'UNAVAILABLE') {
         throw new BadRequestException(
           'Please relink your account, or contact your account provider',
+        );
+      }
+
+      //* Block Manual Sync For Free Users with more than one bank account
+      //* Only applies for non-default account
+      const usage = await this.usageService.getGatedUsage(user.id);
+      if (
+        usage.resourceCounts.monoBankAccounts >
+          (usage.limits.MAX_MONO_ACCOUNTS as number) &&
+        !account.isDefault
+      ) {
+        throw new ForbiddenException(
+          `Please upgrade to Pro to keep using this bank account`,
         );
       }
 
@@ -194,6 +227,15 @@ export class AccountService {
         return null; // idempotent
       }
 
+      //* Final Gate here if Trpc Fails
+      const usage = await this.usageService.getGatedUsage(user.id);
+      if (
+        usage.resourceCounts.monoBankAccounts >=
+        (usage.limits.MAX_MONO_ACCOUNTS as number)
+      ) {
+        throw new ForbiddenException('Feature limit reached');
+      }
+
       const bufferedAccountJson = await this.redis
         .getdel(`mono:pending_account:${accountId}`)
         .catch((err) => this.logger.debug('err', err));
@@ -248,6 +290,18 @@ export class AccountService {
 
       if (!account) {
         throw new NotFoundException('Bank account not found');
+      }
+
+      //* Gate Applies here for Pro Users that downgraded to free
+      const usage = await this.usageService.getGatedUsage(user.id);
+      if (
+        usage.resourceCounts.monoBankAccounts >
+          (usage.limits.MAX_MONO_ACCOUNTS as number) &&
+        !account.isDefault
+      ) {
+        throw new ForbiddenException(
+          'Upgrade to Pro to use auxiliary accounts',
+        );
       }
 
       const realtime = await this.getAccountDataInRealtime(account.accountId);
@@ -334,10 +388,28 @@ export class AccountService {
 
     const existing = await this.prisma.monoBankAccount.findUnique({
       where: { accountId: account._id },
+      include: {
+        user: {
+          select: { id: true },
+        },
+      },
     });
 
     if (existing) {
       if (account.status === 'UNAVAILABLE') return;
+
+      //* Block Automatic Sync For Free Users with more than one bank account
+      //* Only applies for non-default account
+      const usage = await this.usageService.getGatedUsage(existing.user.id);
+      if (
+        usage.resourceCounts.monoBankAccounts >
+          (usage.limits.MAX_MONO_ACCOUNTS as number) &&
+        !existing.isDefault
+      ) {
+        this.logger.warn(
+          `Account sync stopped for free user ${existing.user.id} `,
+        );
+      }
 
       await this.monoQueue.add(
         SYNC_ACCOUNT_JOB,
@@ -499,26 +571,73 @@ export class AccountService {
     account: MonoAccountData,
     userId: string,
   ): Promise<void> {
-    await this.prisma.monoBankAccount
+    ///* Only NGN Banks are supported
+    if (account.currency !== Currency.NGN) {
+      await this.fcmService.sendToUser({
+        userId,
+        title: 'Bank link fail',
+        body: `Bank account currency:${account.currency} is currently not supported.`,
+        data: { type: 'bank_link' },
+      });
+      throw new InternalServerErrorException(
+        `Account currency:${account.currency} not supported`,
+      );
+    }
+
+    const [encryptedFirlds] = this.encryption.setMonoAccountEncryptionFields([
+      {
+        accountBalance: String(account.balance),
+        accountName: account.name,
+        accountNumber: account.accountNumber,
+        accountType: account.type,
+      },
+    ]);
+
+    // does the user have account before thats active ?
+    const accountCounts = await this.prisma.monoBankAccount.count({
+      where: {
+        userId,
+      },
+    });
+
+    const isDefault = accountCounts === 0;
+
+    const bankAccount = await this.prisma.monoBankAccount
       .create({
         data: {
           accountId: account._id,
-          accountName: account.name,
-          accountNumber: account.accountNumber,
           accountCurrency: account.currency as any,
-          accountBalance: account.balance,
-          accountType: account.type,
+          accountName: encryptedFirlds.accountName,
+          accountNumber: encryptedFirlds.accountNumber,
+          accountBalance: encryptedFirlds.accountBalance,
+          accountType: encryptedFirlds.accountType as any,
           bankName: account.institution.name,
           bankId: account.institution.bankCode,
           status: account.status,
           userId,
           lastSyncedAt: new Date(),
+          isDefault,
         },
       })
-      .catch((err) => {
+      .catch(async (err) => {
         this.logger.debug('err', err);
+        await this.fcmService.sendToUser({
+          userId,
+          title: 'Bank link fail',
+          body: `Bank account could not be linked.`,
+          data: { type: 'bank_link' },
+        });
         throw new InternalServerErrorException('Account could not be created');
       });
+
+    await this.usageService.invalidateGatedUsageCache(userId);
+
+    await this.fcmService.sendToUser({
+      userId,
+      title: 'Bank linked Successfully',
+      body: `Your bank account ${account.name} has been successfully linked`,
+      data: { type: 'bank_link', accountId: bankAccount.id },
+    });
 
     this.logger.log(
       `MonoBankAccount created: ${account._id} for user ${userId}`,
@@ -535,14 +654,23 @@ export class AccountService {
     account: MonoAccountData,
     id: string,
   ): Promise<void> {
+    const [encryptedFirlds] = this.encryption.setMonoAccountEncryptionFields([
+      {
+        accountBalance: String(account.balance),
+        accountName: account.name,
+        accountNumber: account.accountNumber,
+        accountType: account.type,
+      },
+    ]);
+
     await this.prisma.monoBankAccount
       .update({
         where: { id },
         data: {
-          accountName: account.name,
-          accountNumber: account.accountNumber,
-          accountBalance: account.balance,
-          accountType: account.type,
+          accountName: encryptedFirlds.accountName,
+          accountNumber: encryptedFirlds.accountNumber,
+          accountBalance: encryptedFirlds.accountBalance,
+          accountType: encryptedFirlds.accountType as any,
           accountCurrency: account.currency as any,
           bankName: account.institution.name,
           bankId: account.institution.bankCode,

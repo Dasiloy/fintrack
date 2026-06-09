@@ -79,6 +79,10 @@ export function useCanUseFeature(feature: Usage) {
         // Per-split contextual limit — enforced server-side by the tRPC middleware.
         // Return true here so the UI doesn't pre-block; the server counts directly from DB.
         return true;
+
+      case Usage.MAX_MONO_ACCOUNTS:
+        currentUsage = context.resourceCounts.monoBankAccounts;
+        break;
       default:
         currentUsage = Infinity;
     }
