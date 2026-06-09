@@ -805,12 +805,13 @@ export class TransactionService {
       transactionSource: transaction.source,
     };
 
+    const splitEvenet = event.split(' ');
     // activity logs
     const activityData: ActivityLogs = {
       userId,
       id: transaction.id,
       createdAt: transaction.createdAt,
-      event: event.split(' ').join('_').toLowerCase(),
+      event: splitEvenet.join('_').toLowerCase(),
       entityId: transaction.id,
       entityType: 'transaction',
       data,
@@ -821,7 +822,7 @@ export class TransactionService {
     const fcmData: FcmNotificationPayload = {
       userId,
       title: event,
-      body: 'Your transaction has been created',
+      body: `Your transaction has been ${(splitEvenet[1] ?? '').toLowerCase()}`,
       data,
     };
     this.fcmNotificationQueue.add(FCM_NOTIFICATION_JOB, fcmData);

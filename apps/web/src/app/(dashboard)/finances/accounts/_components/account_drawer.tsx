@@ -67,8 +67,9 @@ export function AccountDrawer({
   );
 
   const color = account ? bankColor(account.bankName) : '#6366f1';
-  const status = account ? STATUS_CONFIG[account.status] : null;
+  const status = account ? (STATUS_CONFIG[account.status] ?? STATUS_CONFIG.AVAILABLE!) : null;
   const needsRelink = account?.status === 'UNAVAILABLE';
+  const isProcessing = account?.status === 'PROCESSING';
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -196,7 +197,11 @@ export function AccountDrawer({
         </ScrollArea>
 
         <DrawerFooter>
-          {needsRelink ? (
+          {isProcessing ? (
+            <p className="text-primary flex-1 text-center text-[12px] font-medium">
+              Account is being set up — check back shortly.
+            </p>
+          ) : needsRelink ? (
             <Button
               variant="destructive"
               size="sm"

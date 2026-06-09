@@ -30,8 +30,9 @@ export function AccountCard({
   isEditable,
 }: AccountCardProps) {
   const color = bankColor(account.bankName);
-  const status = STATUS_CONFIG[account.status];
+  const status = STATUS_CONFIG[account.status] ?? STATUS_CONFIG.AVAILABLE!;
   const needsRelink = account.status === 'UNAVAILABLE';
+  const isProcessing = account.status === 'PROCESSING';
 
   return (
     <div className="glass-card rounded-card border-border-subtle flex flex-col gap-0 overflow-hidden border">
@@ -75,9 +76,11 @@ export function AccountCard({
             'border',
             needsRelink
               ? 'border-error/20 bg-error/8'
-              : account.status === 'PARTIAL'
-                ? 'border-warning/20 bg-warning/8'
-                : 'border-success/20 bg-success/8',
+              : isProcessing
+                ? 'border-primary/20 bg-primary/8'
+                : account.status === 'PARTIAL'
+                  ? 'border-warning/20 bg-warning/8'
+                  : 'border-success/20 bg-success/8',
             status.text,
           )}
         >
@@ -100,7 +103,10 @@ export function AccountCard({
         </div>
 
         <div className="flex shrink-0 gap-2">
-          {!needsRelink && (
+          {isProcessing && (
+            <p className="text-primary text-[11px] font-medium">Setting up…</p>
+          )}
+          {!needsRelink && !isProcessing && (
             <Button
               size="sm"
               variant="outline"
@@ -113,7 +119,7 @@ export function AccountCard({
               Sync
             </Button>
           )}
-          {needsRelink && (
+          {needsRelink && !isProcessing && (
             <Button
               size="sm"
               variant="destructive"
