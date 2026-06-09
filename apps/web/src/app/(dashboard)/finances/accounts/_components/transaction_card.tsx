@@ -12,15 +12,15 @@ export function TransactionMiniCard({ transaction }: { transaction: Transaction 
 
   return (
     <div className="bg-bg-surface shadow-card overflow-hidden rounded-lg px-3 py-2.5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 items-center justify-between gap-3">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <p className="text-text-primary truncate text-[12px] font-medium">
             {transaction.merchant ?? transaction.description ?? 'Transaction'}
           </p>
-          <div className="mt-0.5 flex items-center gap-1.5">
+          <div className="mt-0.5 flex min-w-0 items-center gap-1.5 overflow-hidden">
             {transaction.category && (
               <span
-                className="rounded-full border px-1.5 py-px text-[10px] font-medium"
+                className="inline-block max-w-[100px] truncate rounded-full border px-1.5 py-px text-[10px] font-medium"
                 style={
                   color
                     ? {
@@ -34,7 +34,7 @@ export function TransactionMiniCard({ transaction }: { transaction: Transaction 
                 {transaction.category.name}
               </span>
             )}
-            <span className="text-text-disabled text-[10px]">
+            <span className="text-text-disabled shrink-0 text-[10px]">
               {format(transaction.date, 'MMM D, YYYY')}
             </span>
           </div>
