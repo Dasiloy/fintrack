@@ -586,7 +586,7 @@ export class AccountService {
 
     const [encryptedFirlds] = this.encryption.setMonoAccountEncryptionFields([
       {
-        accountBalance: String(account.balance),
+        accountBalance: String(account.balance / 100),
         accountName: account.name,
         accountNumber: account.accountNumber,
         accountType: account.type,
@@ -656,7 +656,7 @@ export class AccountService {
   ): Promise<void> {
     const [encryptedFirlds] = this.encryption.setMonoAccountEncryptionFields([
       {
-        accountBalance: String(account.balance),
+        accountBalance: String(account.balance / 100),
         accountName: account.name,
         accountNumber: account.accountNumber,
         accountType: account.type,
