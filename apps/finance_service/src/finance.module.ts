@@ -24,6 +24,7 @@ import { SplitModule } from './split/split.module';
       envFilePath: `.env`,
       expandVariables: true,
       validationSchema: Joi.object({
+        AES_KEY: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),

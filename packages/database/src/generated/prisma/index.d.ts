@@ -36496,18 +36496,8 @@ export namespace Prisma {
 
   export type AggregateMonoBankAccount = {
     _count: MonoBankAccountCountAggregateOutputType | null
-    _avg: MonoBankAccountAvgAggregateOutputType | null
-    _sum: MonoBankAccountSumAggregateOutputType | null
     _min: MonoBankAccountMinAggregateOutputType | null
     _max: MonoBankAccountMaxAggregateOutputType | null
-  }
-
-  export type MonoBankAccountAvgAggregateOutputType = {
-    accountBalance: number | null
-  }
-
-  export type MonoBankAccountSumAggregateOutputType = {
-    accountBalance: number | null
   }
 
   export type MonoBankAccountMinAggregateOutputType = {
@@ -36518,10 +36508,11 @@ export namespace Prisma {
     accountNumber: string | null
     accountName: string | null
     accountType: string | null
-    accountBalance: number | null
+    accountBalance: string | null
     accountCurrency: $Enums.Currency | null
     status: $Enums.MonoBankAccountStatus | null
     lastSyncedAt: Date | null
+    isDefault: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -36535,10 +36526,11 @@ export namespace Prisma {
     accountNumber: string | null
     accountName: string | null
     accountType: string | null
-    accountBalance: number | null
+    accountBalance: string | null
     accountCurrency: $Enums.Currency | null
     status: $Enums.MonoBankAccountStatus | null
     lastSyncedAt: Date | null
+    isDefault: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -36556,20 +36548,13 @@ export namespace Prisma {
     accountCurrency: number
     status: number
     lastSyncedAt: number
+    isDefault: number
     userId: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
-
-  export type MonoBankAccountAvgAggregateInputType = {
-    accountBalance?: true
-  }
-
-  export type MonoBankAccountSumAggregateInputType = {
-    accountBalance?: true
-  }
 
   export type MonoBankAccountMinAggregateInputType = {
     id?: true
@@ -36583,6 +36568,7 @@ export namespace Prisma {
     accountCurrency?: true
     status?: true
     lastSyncedAt?: true
+    isDefault?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -36600,6 +36586,7 @@ export namespace Prisma {
     accountCurrency?: true
     status?: true
     lastSyncedAt?: true
+    isDefault?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -36617,6 +36604,7 @@ export namespace Prisma {
     accountCurrency?: true
     status?: true
     lastSyncedAt?: true
+    isDefault?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -36661,18 +36649,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: MonoBankAccountAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: MonoBankAccountSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: MonoBankAccountMinAggregateInputType
@@ -36703,8 +36679,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: MonoBankAccountCountAggregateInputType | true
-    _avg?: MonoBankAccountAvgAggregateInputType
-    _sum?: MonoBankAccountSumAggregateInputType
     _min?: MonoBankAccountMinAggregateInputType
     _max?: MonoBankAccountMaxAggregateInputType
   }
@@ -36717,16 +36691,15 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt: Date | null
+    isDefault: boolean
     userId: string
     createdAt: Date
     updatedAt: Date
     _count: MonoBankAccountCountAggregateOutputType | null
-    _avg: MonoBankAccountAvgAggregateOutputType | null
-    _sum: MonoBankAccountSumAggregateOutputType | null
     _min: MonoBankAccountMinAggregateOutputType | null
     _max: MonoBankAccountMaxAggregateOutputType | null
   }
@@ -36757,6 +36730,7 @@ export namespace Prisma {
     accountCurrency?: boolean
     status?: boolean
     lastSyncedAt?: boolean
+    isDefault?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -36777,6 +36751,7 @@ export namespace Prisma {
     accountCurrency?: boolean
     status?: boolean
     lastSyncedAt?: boolean
+    isDefault?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -36795,6 +36770,7 @@ export namespace Prisma {
     accountCurrency?: boolean
     status?: boolean
     lastSyncedAt?: boolean
+    isDefault?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -36813,12 +36789,13 @@ export namespace Prisma {
     accountCurrency?: boolean
     status?: boolean
     lastSyncedAt?: boolean
+    isDefault?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type MonoBankAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "accountId" | "bankId" | "bankName" | "accountNumber" | "accountName" | "accountType" | "accountBalance" | "accountCurrency" | "status" | "lastSyncedAt" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["monoBankAccount"]>
+  export type MonoBankAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "accountId" | "bankId" | "bankName" | "accountNumber" | "accountName" | "accountType" | "accountBalance" | "accountCurrency" | "status" | "lastSyncedAt" | "isDefault" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["monoBankAccount"]>
   export type MonoBankAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     transactions?: boolean | MonoBankAccount$transactionsArgs<ExtArgs>
@@ -36845,10 +36822,11 @@ export namespace Prisma {
       accountNumber: string
       accountName: string
       accountType: string
-      accountBalance: number
+      accountBalance: string
       accountCurrency: $Enums.Currency
       status: $Enums.MonoBankAccountStatus
       lastSyncedAt: Date | null
+      isDefault: boolean
       userId: string
       createdAt: Date
       updatedAt: Date
@@ -37284,10 +37262,11 @@ export namespace Prisma {
     readonly accountNumber: FieldRef<"MonoBankAccount", 'String'>
     readonly accountName: FieldRef<"MonoBankAccount", 'String'>
     readonly accountType: FieldRef<"MonoBankAccount", 'String'>
-    readonly accountBalance: FieldRef<"MonoBankAccount", 'Float'>
+    readonly accountBalance: FieldRef<"MonoBankAccount", 'String'>
     readonly accountCurrency: FieldRef<"MonoBankAccount", 'Currency'>
     readonly status: FieldRef<"MonoBankAccount", 'MonoBankAccountStatus'>
     readonly lastSyncedAt: FieldRef<"MonoBankAccount", 'DateTime'>
+    readonly isDefault: FieldRef<"MonoBankAccount", 'Boolean'>
     readonly userId: FieldRef<"MonoBankAccount", 'String'>
     readonly createdAt: FieldRef<"MonoBankAccount", 'DateTime'>
     readonly updatedAt: FieldRef<"MonoBankAccount", 'DateTime'>
@@ -43712,6 +43691,7 @@ export namespace Prisma {
     accountCurrency: 'accountCurrency',
     status: 'status',
     lastSyncedAt: 'lastSyncedAt',
+    isDefault: 'isDefault',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -46619,10 +46599,11 @@ export namespace Prisma {
     accountNumber?: StringFilter<"MonoBankAccount"> | string
     accountName?: StringFilter<"MonoBankAccount"> | string
     accountType?: StringFilter<"MonoBankAccount"> | string
-    accountBalance?: FloatFilter<"MonoBankAccount"> | number
+    accountBalance?: StringFilter<"MonoBankAccount"> | string
     accountCurrency?: EnumCurrencyFilter<"MonoBankAccount"> | $Enums.Currency
     status?: EnumMonoBankAccountStatusFilter<"MonoBankAccount"> | $Enums.MonoBankAccountStatus
     lastSyncedAt?: DateTimeNullableFilter<"MonoBankAccount"> | Date | string | null
+    isDefault?: BoolFilter<"MonoBankAccount"> | boolean
     userId?: StringFilter<"MonoBankAccount"> | string
     createdAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
     updatedAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
@@ -46642,6 +46623,7 @@ export namespace Prisma {
     accountCurrency?: SortOrder
     status?: SortOrder
     lastSyncedAt?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46660,10 +46642,11 @@ export namespace Prisma {
     accountNumber?: StringFilter<"MonoBankAccount"> | string
     accountName?: StringFilter<"MonoBankAccount"> | string
     accountType?: StringFilter<"MonoBankAccount"> | string
-    accountBalance?: FloatFilter<"MonoBankAccount"> | number
+    accountBalance?: StringFilter<"MonoBankAccount"> | string
     accountCurrency?: EnumCurrencyFilter<"MonoBankAccount"> | $Enums.Currency
     status?: EnumMonoBankAccountStatusFilter<"MonoBankAccount"> | $Enums.MonoBankAccountStatus
     lastSyncedAt?: DateTimeNullableFilter<"MonoBankAccount"> | Date | string | null
+    isDefault?: BoolFilter<"MonoBankAccount"> | boolean
     userId?: StringFilter<"MonoBankAccount"> | string
     createdAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
     updatedAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
@@ -46683,14 +46666,13 @@ export namespace Prisma {
     accountCurrency?: SortOrder
     status?: SortOrder
     lastSyncedAt?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: MonoBankAccountCountOrderByAggregateInput
-    _avg?: MonoBankAccountAvgOrderByAggregateInput
     _max?: MonoBankAccountMaxOrderByAggregateInput
     _min?: MonoBankAccountMinOrderByAggregateInput
-    _sum?: MonoBankAccountSumOrderByAggregateInput
   }
 
   export type MonoBankAccountScalarWhereWithAggregatesInput = {
@@ -46704,10 +46686,11 @@ export namespace Prisma {
     accountNumber?: StringWithAggregatesFilter<"MonoBankAccount"> | string
     accountName?: StringWithAggregatesFilter<"MonoBankAccount"> | string
     accountType?: StringWithAggregatesFilter<"MonoBankAccount"> | string
-    accountBalance?: FloatWithAggregatesFilter<"MonoBankAccount"> | number
+    accountBalance?: StringWithAggregatesFilter<"MonoBankAccount"> | string
     accountCurrency?: EnumCurrencyWithAggregatesFilter<"MonoBankAccount"> | $Enums.Currency
     status?: EnumMonoBankAccountStatusWithAggregatesFilter<"MonoBankAccount"> | $Enums.MonoBankAccountStatus
     lastSyncedAt?: DateTimeNullableWithAggregatesFilter<"MonoBankAccount"> | Date | string | null
+    isDefault?: BoolWithAggregatesFilter<"MonoBankAccount"> | boolean
     userId?: StringWithAggregatesFilter<"MonoBankAccount"> | string
     createdAt?: DateTimeWithAggregatesFilter<"MonoBankAccount"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MonoBankAccount"> | Date | string
@@ -49687,10 +49670,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMonoBankAccountsInput
@@ -49705,10 +49689,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49723,10 +49708,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMonoBankAccountsNestedInput
@@ -49741,10 +49727,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49759,10 +49746,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49776,10 +49764,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49792,10 +49781,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52517,13 +52507,10 @@ export namespace Prisma {
     accountCurrency?: SortOrder
     status?: SortOrder
     lastSyncedAt?: SortOrder
+    isDefault?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type MonoBankAccountAvgOrderByAggregateInput = {
-    accountBalance?: SortOrder
   }
 
   export type MonoBankAccountMaxOrderByAggregateInput = {
@@ -52538,6 +52525,7 @@ export namespace Prisma {
     accountCurrency?: SortOrder
     status?: SortOrder
     lastSyncedAt?: SortOrder
+    isDefault?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -52555,13 +52543,10 @@ export namespace Prisma {
     accountCurrency?: SortOrder
     status?: SortOrder
     lastSyncedAt?: SortOrder
+    isDefault?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type MonoBankAccountSumOrderByAggregateInput = {
-    accountBalance?: SortOrder
   }
 
   export type EnumMonoBankAccountStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -56279,10 +56264,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     transactions?: TransactionCreateNestedManyWithoutMonoBankAccountInput
@@ -56296,10 +56282,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     transactions?: TransactionUncheckedCreateNestedManyWithoutMonoBankAccountInput
@@ -57085,10 +57072,11 @@ export namespace Prisma {
     accountNumber?: StringFilter<"MonoBankAccount"> | string
     accountName?: StringFilter<"MonoBankAccount"> | string
     accountType?: StringFilter<"MonoBankAccount"> | string
-    accountBalance?: FloatFilter<"MonoBankAccount"> | number
+    accountBalance?: StringFilter<"MonoBankAccount"> | string
     accountCurrency?: EnumCurrencyFilter<"MonoBankAccount"> | $Enums.Currency
     status?: EnumMonoBankAccountStatusFilter<"MonoBankAccount"> | $Enums.MonoBankAccountStatus
     lastSyncedAt?: DateTimeNullableFilter<"MonoBankAccount"> | Date | string | null
+    isDefault?: BoolFilter<"MonoBankAccount"> | boolean
     userId?: StringFilter<"MonoBankAccount"> | string
     createdAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
     updatedAt?: DateTimeFilter<"MonoBankAccount"> | Date | string
@@ -60691,10 +60679,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutMonoBankAccountsInput
@@ -60708,10 +60697,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61039,10 +61029,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMonoBankAccountsNestedInput
@@ -61056,10 +61047,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -64181,10 +64173,11 @@ export namespace Prisma {
     accountNumber: string
     accountName: string
     accountType: string
-    accountBalance: number
+    accountBalance: string
     accountCurrency: $Enums.Currency
     status: $Enums.MonoBankAccountStatus
     lastSyncedAt?: Date | string | null
+    isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -64811,10 +64804,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactions?: TransactionUpdateManyWithoutMonoBankAccountNestedInput
@@ -64828,10 +64822,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transactions?: TransactionUncheckedUpdateManyWithoutMonoBankAccountNestedInput
@@ -64845,10 +64840,11 @@ export namespace Prisma {
     accountNumber?: StringFieldUpdateOperationsInput | string
     accountName?: StringFieldUpdateOperationsInput | string
     accountType?: StringFieldUpdateOperationsInput | string
-    accountBalance?: FloatFieldUpdateOperationsInput | number
+    accountBalance?: StringFieldUpdateOperationsInput | string
     accountCurrency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
     status?: EnumMonoBankAccountStatusFieldUpdateOperationsInput | $Enums.MonoBankAccountStatus
     lastSyncedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
