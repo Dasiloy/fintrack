@@ -9,8 +9,12 @@ export function maskNumber(n: string): string {
   return n.length > 4 ? `•••• ${n.slice(-4)}` : n;
 }
 
-export const STATUS_CONFIG = {
+export const STATUS_CONFIG: Record<
+  string,
+  { label: string; dot: string; text: string }
+> = {
   AVAILABLE: { label: 'Active', dot: 'bg-success', text: 'text-success' },
   PARTIAL: { label: 'Partial', dot: 'bg-warning', text: 'text-warning' },
   UNAVAILABLE: { label: 'Disconnected', dot: 'bg-error', text: 'text-error' },
-} as const;
+  PROCESSING: { label: 'Processing', dot: 'bg-primary animate-pulse', text: 'text-primary' },
+};
