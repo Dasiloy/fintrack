@@ -1,9 +1,10 @@
 import { z } from 'zod';
 
-import { createTRPCRouter, protectedProcedure } from '../setup';
+import { createTRPCRouter, protectedProcedure, protectedProcedureWithPlanLimits } from '../setup';
 import type { MonoBankAccount } from '@fintrack/database/types';
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
 import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import { Usage } from '@fintrack/types/constants/plan.constants';
 
 export const accountRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
@@ -43,9 +44,10 @@ export const accountRouter = createTRPCRouter({
    * @throws UNAUTHORIZED if the session is invalid
    * @throws INTERNAL_SERVER_ERROR on unexpected gateway failure
    */
-  linkMonoAccount: protectedProcedure
+  linkMonoAccount: protectedProcedureWithPlanLimits
     .input(
       z.object({
+        feature: z.literal(Usage.MAX_MONO_ACCOUNTS),
         code: z.string().min(1, 'Mono code is required'),
       }),
     )
