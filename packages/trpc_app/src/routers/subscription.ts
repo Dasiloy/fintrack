@@ -67,6 +67,7 @@ export const subscriptionRouter = createTRPCRouter({
           recurringItems: z.number(),
           goals: z.number(),
           splits: z.number(),
+          monoBankAccounts: z.number(),
         }),
       }),
     )

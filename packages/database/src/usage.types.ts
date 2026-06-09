@@ -14,5 +14,6 @@ export interface GatedUsageResponse {
     recurringItems: number;
     goals: number;
     splits: number;
+    monoBankAccounts: number;
   };
 }

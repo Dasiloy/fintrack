@@ -486,6 +486,7 @@ exports.Prisma.MonoBankAccountScalarFieldEnum = {
   accountCurrency: 'accountCurrency',
   status: 'status',
   lastSyncedAt: 'lastSyncedAt',
+  isDefault: 'isDefault',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

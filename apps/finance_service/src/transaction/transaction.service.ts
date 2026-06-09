@@ -58,6 +58,7 @@ import {
 
 import { UtilsService } from '../utils.service';
 import { BalanceService } from '@fintrack/common/services/balance.service';
+import { EncryptionService } from '@fintrack/common/services/encryption.service';
 
 export type TransactionWithOptionalJoins = Transaction & {
   category?: Category | null;
@@ -97,6 +98,7 @@ export class TransactionService {
     private readonly transactionSemanticQueue: Queue,
     private readonly utils: UtilsService,
     private readonly balanceService: BalanceService,
+    private readonly encryptionService: EncryptionService,
   ) {}
 
   /**
@@ -980,8 +982,12 @@ export class TransactionService {
         ? {
             bankId: transaction.monoBankAccount.bankId,
             bankName: transaction.monoBankAccount.bankName,
-            accountNumber: transaction.monoBankAccount.accountNumber,
-            accountName: transaction.monoBankAccount.accountName,
+            accountNumber: this.encryptionService.decrypt(
+              transaction.monoBankAccount.accountNumber,
+            ),
+            accountName: this.encryptionService.decrypt(
+              transaction.monoBankAccount.accountName,
+            ),
           }
         : undefined,
       split: transaction.split
