@@ -61,6 +61,7 @@ import { AdvisorModule } from './advisor/advisor.module';
       expandVariables: true,
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
+        AES_KEY: Joi.string().required(),
         AUTH_GOOGLE_ID: Joi.string().required(),
         AUTH_GOOGLE_SECRET: Joi.string().required(),
         API_GATEWAY_PORT: Joi.string().required(),

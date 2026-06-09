@@ -204,12 +204,12 @@ export class AccountController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Account linked successfully',
+    description: 'Account linking is being processed',
     schema: {
       example: {
         success: true,
         statusCode: HttpStatus.OK,
-        message: 'Account linked',
+        message: 'Account is being linked',
         data: null,
       },
     },
@@ -247,7 +247,7 @@ export class AccountController {
     return {
       data: null,
       success: true,
-      message: 'Account linked',
+      message: 'Account is being linked',
       statusCode: HttpStatus.OK,
     };
   }
