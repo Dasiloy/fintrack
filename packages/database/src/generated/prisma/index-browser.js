@@ -894,7 +894,8 @@ exports.SplitStatus = exports.$Enums.SplitStatus = {
 exports.MonoBankAccountStatus = exports.$Enums.MonoBankAccountStatus = {
   AVAILABLE: 'AVAILABLE',
   PARTIAL: 'PARTIAL',
-  UNAVAILABLE: 'UNAVAILABLE'
+  UNAVAILABLE: 'UNAVAILABLE',
+  PROCESSING: 'PROCESSING'
 };
 
 exports.SnapshotType = exports.$Enums.SnapshotType = {

@@ -936,6 +936,7 @@ enum MonoBankAccountStatus {
   AVAILABLE
   PARTIAL
   UNAVAILABLE
+  PROCESSING
 }
 
 model MonoBankAccount {
