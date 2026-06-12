@@ -10,6 +10,7 @@ import {
   type UserPreferences,
 } from '@/app/providers/user_preferences_provider';
 import { api_caller } from '@/lib/trpc_app/api_server';
+import { TrialRedirect } from '@/app/_components/trial_redirect';
 
 const PREF_DEFAULTS: UserPreferences = {
   currency: 'NGN',
@@ -60,6 +61,7 @@ export default async function DashboardGroupLayout({ children }: { children: Rea
     <SocketProvider>
       <UserPreferencesProvider initialPrefs={userPrefs}>
         <DashboardLayout session={session} isPro={isPro} sidebarDefaultOpen={sidebarDefaultOpen} showTwoFaPrompt={showTwoFaPrompt}>
+          <TrialRedirect isNewUser={session.isNewUser ?? false} trialUsed={session.trialUsed ?? false} />
           {children}
         </DashboardLayout>
       </UserPreferencesProvider>

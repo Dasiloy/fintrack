@@ -146,7 +146,7 @@ export function DashboardHero({
         <div className="flex min-w-0 gap-3 xl:flex-col xl:items-end xl:gap-2">
           {/* Income chip */}
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-emerald-500/15 bg-emerald-500/8 px-3 py-2.5 xl:flex-none">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-400">
+            <div className="hidden size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-400 md:flex">
               <ArrowUpRight className="size-3.5" />
             </div>
             <div className="min-w-0">
@@ -169,7 +169,7 @@ export function DashboardHero({
 
           {/* Expense chip */}
           <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-red-500/15 bg-red-500/8 px-3 py-2.5 xl:flex-none">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-red-500/15 text-red-400">
+            <div className="md:flex size-6 hidden shrink-0 items-center justify-center rounded-md bg-red-500/15 text-red-400">
               <ArrowDownRight className="size-3.5" />
             </div>
             <div className="min-w-0">

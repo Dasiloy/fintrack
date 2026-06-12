@@ -251,11 +251,11 @@ model User {
   lastLoginAt     DateTime?
 
   // 2FA fields
-  twoFactorAttempts    Int       @default(0)
-  twoFactorEnabled     Boolean   @default(false)
-  twoFactorSecret      String?   // base32 TOTP secret, null until setup initiated => Encrypted
-  twoFactorLastUsedAt  DateTime?
-  hasSeenTwoFaPrompt   Boolean   @default(false)
+  twoFactorAttempts   Int       @default(0)
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret     String? // base32 TOTP secret, null until setup initiated => Encrypted
+  twoFactorLastUsedAt DateTime?
+  hasSeenTwoFaPrompt  Boolean   @default(false)
 
   // onboarding
   hasCompletedOnboarding Boolean @default(false)
@@ -295,9 +295,8 @@ model User {
   scheduledDeletionAt DateTime?
 
   // time stamps
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AccountType {
@@ -407,33 +406,56 @@ enum SubscriptionPlan {
 
 enum SubscriptionStatus {
   ACTIVE
-  CANCELED
-  PAST_DUE
-  TRIALING
-  INCOMPLETE
+  NON_RENEWING
+  ATTENTION
+  COMPLETED
+  CANCELLED
 }
 
 model Subscription {
-  id                       String             @id @default(cuid())
-  userId                   String             @unique
-  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeCustomerId         String?            @unique
-  stripeSubscriptionId     String?            @unique
-  stripePriceId            String?
-  stripeCurrentPeriodStart DateTime?
-  stripeCurrentPeriodEnd   DateTime?
-  stripeCancelAtPeriodEnd  Boolean            @default(false)
-  status                   SubscriptionStatus @default(ACTIVE)
-  plan                     SubscriptionPlan   @default(FREE)
+  id                         String             @id @default(cuid())
+  userId                     String             @unique
+  user                       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paystackCustomerCode       String?            @unique
+  paystackSubscriptionCode   String?            @unique
+  paystackAuthorizationCode  String? // AUTH_xxxx — card token, NOT the card (encrypted at rest via EncryptionService)
+  paystackEmailToken         String? // required by Paystack for /subscription disable|enable (encrypted at rest via EncryptionService)
+  paystackPlanCode           String?
+  paystackCurrentPeriodStart DateTime?
+  paystackCurrentPeriodEnd   DateTime?
+  paystackCancelAtPeriodEnd  Boolean            @default(false)
+  status                     SubscriptionStatus @default(ACTIVE)
+  plan                       SubscriptionPlan   @default(FREE)
 
   // timstamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model StripeWebhookEvent {
+model SusbcriptionFreeTrials {
+  id String @id @default(cuid())
+
+  // Abuse guard: sha256(lowercase(trim(email))). Stable across account deletion +
+  // re-registration, and not reversible PII — so a deleted user cannot re-trial.
+  emailHash String @unique
+
+  // Soft references for support/debugging only — NOT the eligibility key, and
+  // intentionally not an onDelete-cascade relation. Nullable so account deletion
+  // can detach the row while keeping the guard.
+  userId         String?
+  subscriptionId String?
+
+  trialStartsAt DateTime
+  trialEndsAt   DateTime?
+
+  // timstamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PaystackWebhookEvent {
   id          String   @id @default(cuid())
-  eventId     String   @unique // Stripe event.id
+  eventId     String   @unique // Paystack event.id
   eventType   String
   processedAt DateTime @default(now())
 }
@@ -554,6 +576,9 @@ model NotificationSetting {
 
   // community updates
   communityAlert Boolean @default(false)
+
+  // Allow Users to gate daily insights
+  dailyInsightsEnabled Boolean @default(true)
 
   // relations
   userId String @unique
@@ -951,7 +976,7 @@ model MonoBankAccount {
   accountCurrency Currency
   status          MonoBankAccountStatus
   lastSyncedAt    DateTime?
-  isDefault       Boolean           @default(false)
+  isDefault       Boolean               @default(false)
 
   // ownership
   userId String
@@ -1046,7 +1071,7 @@ model AnalyticsSnapshot {
   id         String       @id @default(cuid())
   userId     String
   user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  period     String       // "YYYY-MM"
+  period     String // "YYYY-MM"
   type       SnapshotType
   data       Json
   computedAt DateTime     @default(now())

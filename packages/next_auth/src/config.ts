@@ -24,6 +24,10 @@ declare module 'next-auth' {
   interface Session {
     accessToken: string;
     expires_at: number;
+    /** True only for a brand-new account on social sign-in where the email has never used the trial */
+    isNewUser?: boolean;
+    /** Mirrors the trial guard — true if this email has already claimed the free trial */
+    trialUsed?: boolean;
     user: {
       id: string;
       email: string;
@@ -39,6 +43,8 @@ declare module 'next-auth' {
     image?: string | null;
     access_token: string;
     refresh_token: string;
+    is_new_user?: boolean;
+    trial_used?: boolean;
   }
 }
 
@@ -118,6 +124,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           user.access_token = loginRes.accessToken;
           user.refresh_token = loginRes.refreshToken;
           user.name = `${loginRes.user.firstName} ${loginRes.user.lastName}`;
+          user.is_new_user = loginRes.isNewUser ?? false;
+          user.trial_used = loginRes.trialUsed ?? false;
 
           return true;
         } catch (error) {
@@ -143,6 +151,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
           access_token: user.access_token,
           refresh_token: user.refresh_token,
           expires_at: decodeJwt(user.access_token as string).exp! * 1000,
+          is_new_user: user.is_new_user ?? false,
+          trial_used: user.trial_used ?? false,
         };
       }
       // All subsequent calls — pass through unchanged; refresh is handled in middleware
@@ -157,6 +167,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
         session.user.image = token.image as string;
         session.accessToken = token.access_token as string;
         session.expires_at = token.expires_at as number;
+        session.isNewUser = (token.is_new_user as boolean | undefined) ?? false;
+        session.trialUsed = (token.trial_used as boolean | undefined) ?? false;
       }
       return session;
     },

@@ -68,6 +68,7 @@ message VerifyEmailRes {
     User user= 1;
     string access_token= 2;
     string refresh_token= 3;
+    bool trial_used = 4; // true if this email has already claimed the free trial (survives account deletion) — FE uses it to skip the trial opt-in page
 }
 
 message ResendVerifyEmailTokenReq {
@@ -94,6 +95,8 @@ message LoginRes {
     string refresh_token= 3;
     optional bool requires_two_factor = 4;
     optional string two_factor_token  = 5;
+    optional bool is_new_user = 6; // true only on the very first sign-in (account created by this login) AND the trial has never been used for this email
+    optional bool trial_used = 7; // true if this email has already claimed the free trial (survives account deletion)
 }
 
 message ForgotPasswordReq {
