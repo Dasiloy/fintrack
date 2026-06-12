@@ -34,8 +34,8 @@ export const USER_SELECT = {
     select: {
       plan: true,
       status: true,
-      stripeCurrentPeriodStart: true,
-      stripeCurrentPeriodEnd: true,
+      paystackCurrentPeriodStart: true,
+      paystackCurrentPeriodEnd: true,
     },
   },
 } as const satisfies Prisma.UserSelect;

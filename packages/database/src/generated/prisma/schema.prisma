@@ -406,33 +406,56 @@ enum SubscriptionPlan {
 
 enum SubscriptionStatus {
   ACTIVE
-  CANCELED
-  PAST_DUE
-  TRIALING
-  INCOMPLETE
+  NON_RENEWING
+  ATTENTION
+  COMPLETED
+  CANCELLED
 }
 
 model Subscription {
-  id                       String             @id @default(cuid())
-  userId                   String             @unique
-  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeCustomerId         String?            @unique
-  stripeSubscriptionId     String?            @unique
-  stripePriceId            String?
-  stripeCurrentPeriodStart DateTime?
-  stripeCurrentPeriodEnd   DateTime?
-  stripeCancelAtPeriodEnd  Boolean            @default(false)
-  status                   SubscriptionStatus @default(ACTIVE)
-  plan                     SubscriptionPlan   @default(FREE)
+  id                         String             @id @default(cuid())
+  userId                     String             @unique
+  user                       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paystackCustomerCode       String?            @unique
+  paystackSubscriptionCode   String?            @unique
+  paystackAuthorizationCode  String? // AUTH_xxxx — card token, NOT the card (encrypted at rest via EncryptionService)
+  paystackEmailToken         String? // required by Paystack for /subscription disable|enable (encrypted at rest via EncryptionService)
+  paystackPlanCode           String?
+  paystackCurrentPeriodStart DateTime?
+  paystackCurrentPeriodEnd   DateTime?
+  paystackCancelAtPeriodEnd  Boolean            @default(false)
+  status                     SubscriptionStatus @default(ACTIVE)
+  plan                       SubscriptionPlan   @default(FREE)
 
   // timstamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model StripeWebhookEvent {
+model SusbcriptionFreeTrials {
+  id String @id @default(cuid())
+
+  // Abuse guard: sha256(lowercase(trim(email))). Stable across account deletion +
+  // re-registration, and not reversible PII — so a deleted user cannot re-trial.
+  emailHash String @unique
+
+  // Soft references for support/debugging only — NOT the eligibility key, and
+  // intentionally not an onDelete-cascade relation. Nullable so account deletion
+  // can detach the row while keeping the guard.
+  userId         String?
+  subscriptionId String?
+
+  trialStartsAt DateTime
+  trialEndsAt   DateTime?
+
+  // timstamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PaystackWebhookEvent {
   id          String   @id @default(cuid())
-  eventId     String   @unique // Stripe event.id
+  eventId     String   @unique // Paystack event.id
   eventType   String
   processedAt DateTime @default(now())
 }
@@ -553,6 +576,9 @@ model NotificationSetting {
 
   // community updates
   communityAlert Boolean @default(false)
+
+  // Allow Users to gate daily insights
+  dailyInsightsEnabled Boolean @default(true)
 
   // relations
   userId String @unique

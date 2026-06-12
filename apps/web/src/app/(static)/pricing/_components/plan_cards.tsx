@@ -28,17 +28,27 @@ export function PlanCards({ session }: PlanCardsProps) {
   const { checkRegion, isPending: isCheckingRegion } = useRegionCheck();
   const [regionGateOpen, setRegionGateOpen] = useState(false);
 
-  const subscribe = api_client.subscription.createSubscription.useMutation({
-    onSuccess: (data) => {
+  // Trial eligibility — only meaningful for signed-in users; treat unknown as used
+  // so we never offer a trial we can't honour
+  const gatedUsage = api_client.subscription.getGatedUsage.useQuery(undefined, {
+    enabled: !!session?.user,
+  });
+  const trialUsed = gatedUsage.data?.trialUsed ?? true;
+
+  const onCheckoutReady = {
+    onSuccess: (data: { success: boolean; data?: { checkoutSessionUrl?: string } | null }) => {
       if (data.success) {
         router.push(data.data!.checkoutSessionUrl!);
       }
     },
-    onError: (error) => {
+    onError: (error: { message: string }) => {
       console.error(error);
       toast.error('Error', { description: error.message });
     },
-  });
+  };
+
+  const subscribe = api_client.subscription.createSubscription.useMutation(onCheckoutReady);
+  const startTrial = api_client.subscription.startTrial.useMutation(onCheckoutReady);
 
   const handleUpgradeClick = async () => {
     // Already subscribed — should not reach here, but guard anyway
@@ -55,10 +65,15 @@ export function PlanCards({ session }: PlanCardsProps) {
       return;
     }
 
-    subscribe.mutate();
+    // First-time subscribers get the 2-month free trial; returning users go straight to checkout
+    if (trialUsed) {
+      subscribe.mutate();
+    } else {
+      startTrial.mutate();
+    }
   };
 
-  const isUpgradeLoading = subscribe.isPending || isCheckingRegion;
+  const isUpgradeLoading = subscribe.isPending || startTrial.isPending || isCheckingRegion;
 
   return (
     <>
@@ -141,6 +156,7 @@ export function PlanCards({ session }: PlanCardsProps) {
                   disabled={
                     isUpgradeLoading ||
                     userData.isPending ||
+                    (plan.popular && !!session?.user && gatedUsage.isPending) ||
                     (plan.popular && isPro)
                   }
                   loading={plan.popular ? isUpgradeLoading : false}
@@ -152,7 +168,11 @@ export function PlanCards({ session }: PlanCardsProps) {
                     void handleUpgradeClick();
                   }}
                 >
-                  {plan.popular && isPro ? 'Current plan' : plan.ctaLabel}
+                  {plan.popular && isPro
+                    ? 'Current plan'
+                    : plan.popular && !!session?.user && !trialUsed
+                      ? 'Start 2-month free trial'
+                      : plan.ctaLabel}
                 </Button>
               </div>
             </div>

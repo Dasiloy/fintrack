@@ -5,7 +5,9 @@ package payment;
 service PaymentService {
    rpc CreateCheckoutSession(OriginUrlReq) returns (CreateCheckoutSessionResponse) {}
    rpc CreatePortalSession(OriginUrlReq) returns (CreatePortalSessionResponse) {}
+   rpc CreateTrialSession(OriginUrlReq) returns (CreateCheckoutSessionResponse) {}
    rpc CancelSubscription(Empty) returns (Empty) {}
+   rpc ResumeSubscription(Empty) returns (Empty) {}
 }
 
 
@@ -18,8 +20,6 @@ message OriginUrlReq {
 message CreateCheckoutSessionResponse {
     string checkout_session_url= 1;
 }
-
-
 message CreatePortalSessionResponse {
     string portal_session_url= 1;
 }
