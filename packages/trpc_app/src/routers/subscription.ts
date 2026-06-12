@@ -55,7 +55,8 @@ export const subscriptionRouter = createTRPCRouter({
         plan: z.nativeEnum(SubscriptionPlan),
         status: z.nativeEnum(SubscriptionStatus),
         cancelAtPeriodEnd: z.boolean(),
-        stripeCurrentPeriodEnd: z.date().nullable(),
+        currentPeriodEnd: z.date().nullable(),
+        trialUsed: z.boolean(),
         usage: z.record(
           z.nativeEnum(Usage),
           z.object({ count: z.number(), periodStart: z.date(), periodEnd: z.date() }),
@@ -83,8 +84,8 @@ export const subscriptionRouter = createTRPCRouter({
       const raw = body.data!;
       return {
         ...raw,
-        stripeCurrentPeriodEnd: raw.stripeCurrentPeriodEnd
-          ? new Date(raw.stripeCurrentPeriodEnd)
+        currentPeriodEnd: raw.currentPeriodEnd
+          ? new Date(raw.currentPeriodEnd)
           : null,
         usage: Object.fromEntries(
           (
@@ -115,6 +116,25 @@ export const subscriptionRouter = createTRPCRouter({
    */
   createSubscription: protectedProcedure.mutation(async ({ ctx }) => {
     const response = await fetch(`${GATEWAY_URL}/api/payment/subscribe`, {
+      method: 'POST',
+      headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+    });
+
+    if (!response.ok) await throwGatewayError(response);
+
+    const data: StandardResponse<CreateCheckoutSessionResponse> = await response.json();
+    return data;
+  }),
+
+  /**
+   *  Starts the 2-month free Pro trial — returns a Paystack hosted URL for the
+   *  ₦50 card-verification charge (refunded automatically after capture)
+   *
+   * @returns {StandardResponse<CreateCheckoutSessionResponse>}
+   * @throws Errors from the server (409 if the trial was already used for this email)
+   */
+  startTrial: protectedProcedure.mutation(async ({ ctx }) => {
+    const response = await fetch(`${GATEWAY_URL}/api/payment/trial`, {
       method: 'POST',
       headers: gatewayHeaders(ctx.headers, ContentType.JSON),
     });

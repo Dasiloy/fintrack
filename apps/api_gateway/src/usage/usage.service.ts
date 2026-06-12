@@ -4,6 +4,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/service';
 import { UsageFeature } from '@fintrack/database/types';
+import { PaystackService } from '@fintrack/common/services/paystack.service';
 import {
   GATED_USAGE_CACHE_PREFIX,
   GATED_USAGE_TTL,
@@ -118,6 +119,7 @@ export class UsageService {
     const userCount = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
+        email: true,
         usageTrackers: {
           select: {
             feature: true,
@@ -130,8 +132,8 @@ export class UsageService {
           select: {
             plan: true,
             status: true,
-            stripeCancelAtPeriodEnd: true,
-            stripeCurrentPeriodEnd: true,
+            paystackCancelAtPeriodEnd: true,
+            paystackCurrentPeriodEnd: true,
           },
         },
         _count: {
@@ -145,6 +147,11 @@ export class UsageService {
           },
         },
       },
+    });
+
+    const trialGuard = await this.prisma.susbcriptionFreeTrials.findUnique({
+      where: { emailHash: PaystackService.EmailHash(userCount.email) },
+      select: { id: true },
     });
 
     const usageMap: GatedUsageResponse['usage'] = {};
@@ -161,9 +168,10 @@ export class UsageService {
     return {
       plan,
       status: userCount.subscription!.status,
-      cancelAtPeriodEnd: userCount.subscription!.stripeCancelAtPeriodEnd,
-      stripeCurrentPeriodEnd:
-        userCount.subscription!.stripeCurrentPeriodEnd?.toISOString() ?? null,
+      cancelAtPeriodEnd: userCount.subscription!.paystackCancelAtPeriodEnd,
+      currentPeriodEnd:
+        userCount.subscription!.paystackCurrentPeriodEnd?.toISOString() ?? null,
+      trialUsed: !!trialGuard,
       usage: usageMap,
       limits: PLAN_LIMITS[plan] as Record<Usage, number | boolean | null>,
       resourceCounts: {
