@@ -143,8 +143,8 @@ export function History() {
                 <CheckCircle2 className="text-success size-4" />
                 <Text variant={'body-sm'} color="success">
                   Active until{' '}
-                  {user?.subscription?.stripeCurrentPeriodEnd
-                    ? dayjs(user.subscription.stripeCurrentPeriodEnd).format('dddd, MMMM DD YYYY')
+                  {user?.subscription?.paystackCurrentPeriodEnd
+                    ? dayjs(user.subscription.paystackCurrentPeriodEnd).format('dddd, MMMM DD YYYY')
                     : '...'}
                 </Text>
               </div>

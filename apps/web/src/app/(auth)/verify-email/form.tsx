@@ -19,7 +19,7 @@ import { useState } from 'react';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { useCountdown, CountdownDisplay, StyledLink } from '@/app/_components';
-import { AUTH_ROUTES, DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { AUTH_ROUTES, DASHBOARD_ROUTES, ONBOARDING_ROUTES } from '@fintrack/types/constants/routes.constants';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { VerifyEmailRes } from '@fintrack/types/protos/auth/auth';
 import { signIn } from 'next-auth/react';
@@ -39,12 +39,15 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
       const data: StandardResponse<VerifyEmailRes> = response.data;
 
       toast.success(ServerFormatter.formatSuccess(response), {
-        description: 'Redirecting to dashboard...',
+        description: 'Setting up your account...',
       });
+
+      // Route to trial opt-in only for first-time emails; re-registrations go straight to dashboard
+      const redirectTo = data.data?.trialUsed ? DASHBOARD_ROUTES.DASHBOARD : ONBOARDING_ROUTES.TRIAL;
 
       await signIn('credentials', {
         redirect: true,
-        redirectTo: DASHBOARD_ROUTES.DASHBOARD,
+        redirectTo,
         accessToken: data.data?.accessToken,
         refreshToken: data.data?.refreshToken,
       });

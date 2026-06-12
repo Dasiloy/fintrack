@@ -2,18 +2,21 @@
 # FinTrack — CI / CD Pipeline
 #
 # Triggers & job matrix:
-#   • push any branch except main  → quality (type-check) + test
-#   • push main (merge)            → migrate (prisma migrate deploy → prod DB)
-#                                    then Railway auto-deploys via Git integration
+#   • push any branch except main/staging  → quality (type-check) + test
+#   • push staging                         → migrate-staging (prisma migrate deploy → staging DB)
+#                                            then Railway auto-deploys staging services
+#   • push main (merge)                    → migrate (prisma migrate deploy → prod DB)
+#                                            then Railway auto-deploys production services
 #
 # Database strategy:
-#   Dev  DB → DATABASE_URL in .env (local) / placeholder in quality+test jobs
-#   Prod DB → PROD_DATABASE_URL + PROD_DATABASE_CA_CERTIFICATE GitHub secrets
+#   Dev DB      → DATABASE_URL in .env (local) / placeholder in quality+test jobs
+#   Staging DB  → STAGING_DATABASE_URL secret in GitHub repo settings
+#   Prod DB     → PROD_DATABASE_URL secret in GitHub repo settings
 #
 # Migration ordering:
-#   The migrate job runs on main push in parallel with Railway's auto-deploy.
-#   All migrations MUST be backwards-compatible (additive only — no column
-#   drops or type changes that break running code). This ensures the race
+#   Migrate jobs run in parallel with Railway's auto-deploy on their respective
+#   branches. All migrations MUST be backwards-compatible (additive only — no
+#   column drops or type changes that break running code). This ensures the race
 #   between migration and deploy is always safe. For destructive migrations,
 #   use a two-release strategy: deprecate in release N, drop in release N+1.
 # =============================================================================
@@ -33,7 +36,7 @@ jobs:
   quality:
     name: Type Check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
 
     steps:
       - uses: actions/checkout@v4
@@ -68,7 +71,7 @@ jobs:
     name: Test — ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: quality
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
 
     strategy:
       fail-fast: false
@@ -99,21 +102,58 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: 'true'
           DATABASE_URL: 'postgresql://user:pass@localhost/db'
-          DATABASE_CA_CERTIFICATE: 'your-database-ca-certificate-in-base64'
 
       - name: Run tests
         run: pnpm --filter ${{ matrix.service }} test
         env:
           NODE_ENV: test
 
-  # ── Job 3: Production Database Migration ──────────────────────────────────────
+  # ── Job 3: Staging Database Migration ────────────────────────────────────────
+  # Runs ONLY on push to staging. Applies any pending Prisma migrations to the
+  # staging database using `prisma migrate deploy`.
+  #
+  # Secrets required in GitHub repo settings:
+  #   STAGING_DATABASE_URL          — staging Postgres connection string
+
+  migrate-staging:
+    name: Migrate — Staging DB
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build database package
+        run: pnpm turbo build --filter=@fintrack/database
+        env:
+          SKIP_ENV_VALIDATION: 'true'
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Apply migrations to staging
+        run: pnpm --filter @fintrack/database db:deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+  # ── Job 4: Production Database Migration ──────────────────────────────────────
   # Runs ONLY on merge to main. Applies any pending Prisma migrations to the
   # production database using `prisma migrate deploy` (never creates new
   # migrations — that's what `migrate dev` is for locally).
   #
   # Secrets required in GitHub repo settings:
   #   PROD_DATABASE_URL             — production Postgres connection string
-  #   PROD_DATABASE_CA_CERTIFICATE  — base64-encoded CA cert (same format as dev)
+
   migrate:
     name: Migrate — Production DB
     runs-on: ubuntu-latest

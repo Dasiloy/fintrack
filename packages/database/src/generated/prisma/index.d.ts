@@ -54,10 +54,15 @@ export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTok
  */
 export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
 /**
- * Model StripeWebhookEvent
+ * Model SusbcriptionFreeTrials
  * 
  */
-export type StripeWebhookEvent = $Result.DefaultSelection<Prisma.$StripeWebhookEventPayload>
+export type SusbcriptionFreeTrials = $Result.DefaultSelection<Prisma.$SusbcriptionFreeTrialsPayload>
+/**
+ * Model PaystackWebhookEvent
+ * 
+ */
+export type PaystackWebhookEvent = $Result.DefaultSelection<Prisma.$PaystackWebhookEventPayload>
 /**
  * Model UsageTracker
  * 
@@ -447,10 +452,10 @@ export type SubscriptionPlan = (typeof SubscriptionPlan)[keyof typeof Subscripti
 
 export const SubscriptionStatus: {
   ACTIVE: 'ACTIVE',
-  CANCELED: 'CANCELED',
-  PAST_DUE: 'PAST_DUE',
-  TRIALING: 'TRIALING',
-  INCOMPLETE: 'INCOMPLETE'
+  NON_RENEWING: 'NON_RENEWING',
+  ATTENTION: 'ATTENTION',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
 };
 
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
@@ -885,14 +890,24 @@ export class PrismaClient<
   get subscription(): Prisma.SubscriptionDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.stripeWebhookEvent`: Exposes CRUD operations for the **StripeWebhookEvent** model.
+   * `prisma.susbcriptionFreeTrials`: Exposes CRUD operations for the **SusbcriptionFreeTrials** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more StripeWebhookEvents
-    * const stripeWebhookEvents = await prisma.stripeWebhookEvent.findMany()
+    * // Fetch zero or more SusbcriptionFreeTrials
+    * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findMany()
     * ```
     */
-  get stripeWebhookEvent(): Prisma.StripeWebhookEventDelegate<ExtArgs, ClientOptions>;
+  get susbcriptionFreeTrials(): Prisma.SusbcriptionFreeTrialsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paystackWebhookEvent`: Exposes CRUD operations for the **PaystackWebhookEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaystackWebhookEvents
+    * const paystackWebhookEvents = await prisma.paystackWebhookEvent.findMany()
+    * ```
+    */
+  get paystackWebhookEvent(): Prisma.PaystackWebhookEventDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.usageTracker`: Exposes CRUD operations for the **UsageTracker** model.
@@ -1575,7 +1590,8 @@ export namespace Prisma {
     LoginActivity: 'LoginActivity',
     VerificationToken: 'VerificationToken',
     Subscription: 'Subscription',
-    StripeWebhookEvent: 'StripeWebhookEvent',
+    SusbcriptionFreeTrials: 'SusbcriptionFreeTrials',
+    PaystackWebhookEvent: 'PaystackWebhookEvent',
     UsageTracker: 'UsageTracker',
     UserBalance: 'UserBalance',
     MonthlyBalanceSnapshot: 'MonthlyBalanceSnapshot',
@@ -1615,7 +1631,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "stripeWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "susbcriptionFreeTrials" | "paystackWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2211,77 +2227,151 @@ export namespace Prisma {
           }
         }
       }
-      StripeWebhookEvent: {
-        payload: Prisma.$StripeWebhookEventPayload<ExtArgs>
-        fields: Prisma.StripeWebhookEventFieldRefs
+      SusbcriptionFreeTrials: {
+        payload: Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>
+        fields: Prisma.SusbcriptionFreeTrialsFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.StripeWebhookEventFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload> | null
+            args: Prisma.SusbcriptionFreeTrialsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.StripeWebhookEventFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           findFirst: {
-            args: Prisma.StripeWebhookEventFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload> | null
+            args: Prisma.SusbcriptionFreeTrialsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.StripeWebhookEventFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           findMany: {
-            args: Prisma.StripeWebhookEventFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>[]
+            args: Prisma.SusbcriptionFreeTrialsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>[]
           }
           create: {
-            args: Prisma.StripeWebhookEventCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           createMany: {
-            args: Prisma.StripeWebhookEventCreateManyArgs<ExtArgs>
+            args: Prisma.SusbcriptionFreeTrialsCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.StripeWebhookEventCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>[]
+            args: Prisma.SusbcriptionFreeTrialsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>[]
           }
           delete: {
-            args: Prisma.StripeWebhookEventDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           update: {
-            args: Prisma.StripeWebhookEventUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           deleteMany: {
-            args: Prisma.StripeWebhookEventDeleteManyArgs<ExtArgs>
+            args: Prisma.SusbcriptionFreeTrialsDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.StripeWebhookEventUpdateManyArgs<ExtArgs>
+            args: Prisma.SusbcriptionFreeTrialsUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.StripeWebhookEventUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>[]
+            args: Prisma.SusbcriptionFreeTrialsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>[]
           }
           upsert: {
-            args: Prisma.StripeWebhookEventUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$StripeWebhookEventPayload>
+            args: Prisma.SusbcriptionFreeTrialsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SusbcriptionFreeTrialsPayload>
           }
           aggregate: {
-            args: Prisma.StripeWebhookEventAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateStripeWebhookEvent>
+            args: Prisma.SusbcriptionFreeTrialsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSusbcriptionFreeTrials>
           }
           groupBy: {
-            args: Prisma.StripeWebhookEventGroupByArgs<ExtArgs>
-            result: $Utils.Optional<StripeWebhookEventGroupByOutputType>[]
+            args: Prisma.SusbcriptionFreeTrialsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SusbcriptionFreeTrialsGroupByOutputType>[]
           }
           count: {
-            args: Prisma.StripeWebhookEventCountArgs<ExtArgs>
-            result: $Utils.Optional<StripeWebhookEventCountAggregateOutputType> | number
+            args: Prisma.SusbcriptionFreeTrialsCountArgs<ExtArgs>
+            result: $Utils.Optional<SusbcriptionFreeTrialsCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaystackWebhookEvent: {
+        payload: Prisma.$PaystackWebhookEventPayload<ExtArgs>
+        fields: Prisma.PaystackWebhookEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaystackWebhookEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaystackWebhookEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          findFirst: {
+            args: Prisma.PaystackWebhookEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaystackWebhookEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          findMany: {
+            args: Prisma.PaystackWebhookEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>[]
+          }
+          create: {
+            args: Prisma.PaystackWebhookEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          createMany: {
+            args: Prisma.PaystackWebhookEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaystackWebhookEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>[]
+          }
+          delete: {
+            args: Prisma.PaystackWebhookEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          update: {
+            args: Prisma.PaystackWebhookEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaystackWebhookEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaystackWebhookEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaystackWebhookEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaystackWebhookEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaystackWebhookEventPayload>
+          }
+          aggregate: {
+            args: Prisma.PaystackWebhookEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaystackWebhookEvent>
+          }
+          groupBy: {
+            args: Prisma.PaystackWebhookEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaystackWebhookEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaystackWebhookEventCountArgs<ExtArgs>
+            result: $Utils.Optional<PaystackWebhookEventCountAggregateOutputType> | number
           }
         }
       }
@@ -4177,7 +4267,8 @@ export namespace Prisma {
     loginActivity?: LoginActivityOmit
     verificationToken?: VerificationTokenOmit
     subscription?: SubscriptionOmit
-    stripeWebhookEvent?: StripeWebhookEventOmit
+    susbcriptionFreeTrials?: SusbcriptionFreeTrialsOmit
+    paystackWebhookEvent?: PaystackWebhookEventOmit
     usageTracker?: UsageTrackerOmit
     userBalance?: UserBalanceOmit
     monthlyBalanceSnapshot?: MonthlyBalanceSnapshotOmit
@@ -13115,12 +13206,14 @@ export namespace Prisma {
   export type SubscriptionMinAggregateOutputType = {
     id: string | null
     userId: string | null
-    stripeCustomerId: string | null
-    stripeSubscriptionId: string | null
-    stripePriceId: string | null
-    stripeCurrentPeriodStart: Date | null
-    stripeCurrentPeriodEnd: Date | null
-    stripeCancelAtPeriodEnd: boolean | null
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackAuthorizationCode: string | null
+    paystackEmailToken: string | null
+    paystackPlanCode: string | null
+    paystackCurrentPeriodStart: Date | null
+    paystackCurrentPeriodEnd: Date | null
+    paystackCancelAtPeriodEnd: boolean | null
     status: $Enums.SubscriptionStatus | null
     plan: $Enums.SubscriptionPlan | null
     createdAt: Date | null
@@ -13130,12 +13223,14 @@ export namespace Prisma {
   export type SubscriptionMaxAggregateOutputType = {
     id: string | null
     userId: string | null
-    stripeCustomerId: string | null
-    stripeSubscriptionId: string | null
-    stripePriceId: string | null
-    stripeCurrentPeriodStart: Date | null
-    stripeCurrentPeriodEnd: Date | null
-    stripeCancelAtPeriodEnd: boolean | null
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackAuthorizationCode: string | null
+    paystackEmailToken: string | null
+    paystackPlanCode: string | null
+    paystackCurrentPeriodStart: Date | null
+    paystackCurrentPeriodEnd: Date | null
+    paystackCancelAtPeriodEnd: boolean | null
     status: $Enums.SubscriptionStatus | null
     plan: $Enums.SubscriptionPlan | null
     createdAt: Date | null
@@ -13145,12 +13240,14 @@ export namespace Prisma {
   export type SubscriptionCountAggregateOutputType = {
     id: number
     userId: number
-    stripeCustomerId: number
-    stripeSubscriptionId: number
-    stripePriceId: number
-    stripeCurrentPeriodStart: number
-    stripeCurrentPeriodEnd: number
-    stripeCancelAtPeriodEnd: number
+    paystackCustomerCode: number
+    paystackSubscriptionCode: number
+    paystackAuthorizationCode: number
+    paystackEmailToken: number
+    paystackPlanCode: number
+    paystackCurrentPeriodStart: number
+    paystackCurrentPeriodEnd: number
+    paystackCancelAtPeriodEnd: number
     status: number
     plan: number
     createdAt: number
@@ -13162,12 +13259,14 @@ export namespace Prisma {
   export type SubscriptionMinAggregateInputType = {
     id?: true
     userId?: true
-    stripeCustomerId?: true
-    stripeSubscriptionId?: true
-    stripePriceId?: true
-    stripeCurrentPeriodStart?: true
-    stripeCurrentPeriodEnd?: true
-    stripeCancelAtPeriodEnd?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackAuthorizationCode?: true
+    paystackEmailToken?: true
+    paystackPlanCode?: true
+    paystackCurrentPeriodStart?: true
+    paystackCurrentPeriodEnd?: true
+    paystackCancelAtPeriodEnd?: true
     status?: true
     plan?: true
     createdAt?: true
@@ -13177,12 +13276,14 @@ export namespace Prisma {
   export type SubscriptionMaxAggregateInputType = {
     id?: true
     userId?: true
-    stripeCustomerId?: true
-    stripeSubscriptionId?: true
-    stripePriceId?: true
-    stripeCurrentPeriodStart?: true
-    stripeCurrentPeriodEnd?: true
-    stripeCancelAtPeriodEnd?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackAuthorizationCode?: true
+    paystackEmailToken?: true
+    paystackPlanCode?: true
+    paystackCurrentPeriodStart?: true
+    paystackCurrentPeriodEnd?: true
+    paystackCancelAtPeriodEnd?: true
     status?: true
     plan?: true
     createdAt?: true
@@ -13192,12 +13293,14 @@ export namespace Prisma {
   export type SubscriptionCountAggregateInputType = {
     id?: true
     userId?: true
-    stripeCustomerId?: true
-    stripeSubscriptionId?: true
-    stripePriceId?: true
-    stripeCurrentPeriodStart?: true
-    stripeCurrentPeriodEnd?: true
-    stripeCancelAtPeriodEnd?: true
+    paystackCustomerCode?: true
+    paystackSubscriptionCode?: true
+    paystackAuthorizationCode?: true
+    paystackEmailToken?: true
+    paystackPlanCode?: true
+    paystackCurrentPeriodStart?: true
+    paystackCurrentPeriodEnd?: true
+    paystackCancelAtPeriodEnd?: true
     status?: true
     plan?: true
     createdAt?: true
@@ -13280,12 +13383,14 @@ export namespace Prisma {
   export type SubscriptionGroupByOutputType = {
     id: string
     userId: string
-    stripeCustomerId: string | null
-    stripeSubscriptionId: string | null
-    stripePriceId: string | null
-    stripeCurrentPeriodStart: Date | null
-    stripeCurrentPeriodEnd: Date | null
-    stripeCancelAtPeriodEnd: boolean
+    paystackCustomerCode: string | null
+    paystackSubscriptionCode: string | null
+    paystackAuthorizationCode: string | null
+    paystackEmailToken: string | null
+    paystackPlanCode: string | null
+    paystackCurrentPeriodStart: Date | null
+    paystackCurrentPeriodEnd: Date | null
+    paystackCancelAtPeriodEnd: boolean
     status: $Enums.SubscriptionStatus
     plan: $Enums.SubscriptionPlan
     createdAt: Date
@@ -13312,12 +13417,14 @@ export namespace Prisma {
   export type SubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    stripeCustomerId?: boolean
-    stripeSubscriptionId?: boolean
-    stripePriceId?: boolean
-    stripeCurrentPeriodStart?: boolean
-    stripeCurrentPeriodEnd?: boolean
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackAuthorizationCode?: boolean
+    paystackEmailToken?: boolean
+    paystackPlanCode?: boolean
+    paystackCurrentPeriodStart?: boolean
+    paystackCurrentPeriodEnd?: boolean
+    paystackCancelAtPeriodEnd?: boolean
     status?: boolean
     plan?: boolean
     createdAt?: boolean
@@ -13328,12 +13435,14 @@ export namespace Prisma {
   export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    stripeCustomerId?: boolean
-    stripeSubscriptionId?: boolean
-    stripePriceId?: boolean
-    stripeCurrentPeriodStart?: boolean
-    stripeCurrentPeriodEnd?: boolean
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackAuthorizationCode?: boolean
+    paystackEmailToken?: boolean
+    paystackPlanCode?: boolean
+    paystackCurrentPeriodStart?: boolean
+    paystackCurrentPeriodEnd?: boolean
+    paystackCancelAtPeriodEnd?: boolean
     status?: boolean
     plan?: boolean
     createdAt?: boolean
@@ -13344,12 +13453,14 @@ export namespace Prisma {
   export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    stripeCustomerId?: boolean
-    stripeSubscriptionId?: boolean
-    stripePriceId?: boolean
-    stripeCurrentPeriodStart?: boolean
-    stripeCurrentPeriodEnd?: boolean
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackAuthorizationCode?: boolean
+    paystackEmailToken?: boolean
+    paystackPlanCode?: boolean
+    paystackCurrentPeriodStart?: boolean
+    paystackCurrentPeriodEnd?: boolean
+    paystackCancelAtPeriodEnd?: boolean
     status?: boolean
     plan?: boolean
     createdAt?: boolean
@@ -13360,19 +13471,21 @@ export namespace Prisma {
   export type SubscriptionSelectScalar = {
     id?: boolean
     userId?: boolean
-    stripeCustomerId?: boolean
-    stripeSubscriptionId?: boolean
-    stripePriceId?: boolean
-    stripeCurrentPeriodStart?: boolean
-    stripeCurrentPeriodEnd?: boolean
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: boolean
+    paystackSubscriptionCode?: boolean
+    paystackAuthorizationCode?: boolean
+    paystackEmailToken?: boolean
+    paystackPlanCode?: boolean
+    paystackCurrentPeriodStart?: boolean
+    paystackCurrentPeriodEnd?: boolean
+    paystackCancelAtPeriodEnd?: boolean
     status?: boolean
     plan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "stripeCurrentPeriodStart" | "stripeCurrentPeriodEnd" | "stripeCancelAtPeriodEnd" | "status" | "plan" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "paystackCustomerCode" | "paystackSubscriptionCode" | "paystackAuthorizationCode" | "paystackEmailToken" | "paystackPlanCode" | "paystackCurrentPeriodStart" | "paystackCurrentPeriodEnd" | "paystackCancelAtPeriodEnd" | "status" | "plan" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -13391,12 +13504,14 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      stripeCustomerId: string | null
-      stripeSubscriptionId: string | null
-      stripePriceId: string | null
-      stripeCurrentPeriodStart: Date | null
-      stripeCurrentPeriodEnd: Date | null
-      stripeCancelAtPeriodEnd: boolean
+      paystackCustomerCode: string | null
+      paystackSubscriptionCode: string | null
+      paystackAuthorizationCode: string | null
+      paystackEmailToken: string | null
+      paystackPlanCode: string | null
+      paystackCurrentPeriodStart: Date | null
+      paystackCurrentPeriodEnd: Date | null
+      paystackCancelAtPeriodEnd: boolean
       status: $Enums.SubscriptionStatus
       plan: $Enums.SubscriptionPlan
       createdAt: Date
@@ -13827,12 +13942,14 @@ export namespace Prisma {
   interface SubscriptionFieldRefs {
     readonly id: FieldRef<"Subscription", 'String'>
     readonly userId: FieldRef<"Subscription", 'String'>
-    readonly stripeCustomerId: FieldRef<"Subscription", 'String'>
-    readonly stripeSubscriptionId: FieldRef<"Subscription", 'String'>
-    readonly stripePriceId: FieldRef<"Subscription", 'String'>
-    readonly stripeCurrentPeriodStart: FieldRef<"Subscription", 'DateTime'>
-    readonly stripeCurrentPeriodEnd: FieldRef<"Subscription", 'DateTime'>
-    readonly stripeCancelAtPeriodEnd: FieldRef<"Subscription", 'Boolean'>
+    readonly paystackCustomerCode: FieldRef<"Subscription", 'String'>
+    readonly paystackSubscriptionCode: FieldRef<"Subscription", 'String'>
+    readonly paystackAuthorizationCode: FieldRef<"Subscription", 'String'>
+    readonly paystackEmailToken: FieldRef<"Subscription", 'String'>
+    readonly paystackPlanCode: FieldRef<"Subscription", 'String'>
+    readonly paystackCurrentPeriodStart: FieldRef<"Subscription", 'DateTime'>
+    readonly paystackCurrentPeriodEnd: FieldRef<"Subscription", 'DateTime'>
+    readonly paystackCancelAtPeriodEnd: FieldRef<"Subscription", 'Boolean'>
     readonly status: FieldRef<"Subscription", 'SubscriptionStatus'>
     readonly plan: FieldRef<"Subscription", 'SubscriptionPlan'>
     readonly createdAt: FieldRef<"Subscription", 'DateTime'>
@@ -14252,324 +14369,372 @@ export namespace Prisma {
 
 
   /**
-   * Model StripeWebhookEvent
+   * Model SusbcriptionFreeTrials
    */
 
-  export type AggregateStripeWebhookEvent = {
-    _count: StripeWebhookEventCountAggregateOutputType | null
-    _min: StripeWebhookEventMinAggregateOutputType | null
-    _max: StripeWebhookEventMaxAggregateOutputType | null
+  export type AggregateSusbcriptionFreeTrials = {
+    _count: SusbcriptionFreeTrialsCountAggregateOutputType | null
+    _min: SusbcriptionFreeTrialsMinAggregateOutputType | null
+    _max: SusbcriptionFreeTrialsMaxAggregateOutputType | null
   }
 
-  export type StripeWebhookEventMinAggregateOutputType = {
+  export type SusbcriptionFreeTrialsMinAggregateOutputType = {
     id: string | null
-    eventId: string | null
-    eventType: string | null
-    processedAt: Date | null
+    emailHash: string | null
+    userId: string | null
+    subscriptionId: string | null
+    trialStartsAt: Date | null
+    trialEndsAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type StripeWebhookEventMaxAggregateOutputType = {
+  export type SusbcriptionFreeTrialsMaxAggregateOutputType = {
     id: string | null
-    eventId: string | null
-    eventType: string | null
-    processedAt: Date | null
+    emailHash: string | null
+    userId: string | null
+    subscriptionId: string | null
+    trialStartsAt: Date | null
+    trialEndsAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type StripeWebhookEventCountAggregateOutputType = {
+  export type SusbcriptionFreeTrialsCountAggregateOutputType = {
     id: number
-    eventId: number
-    eventType: number
-    processedAt: number
+    emailHash: number
+    userId: number
+    subscriptionId: number
+    trialStartsAt: number
+    trialEndsAt: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
-  export type StripeWebhookEventMinAggregateInputType = {
+  export type SusbcriptionFreeTrialsMinAggregateInputType = {
     id?: true
-    eventId?: true
-    eventType?: true
-    processedAt?: true
+    emailHash?: true
+    userId?: true
+    subscriptionId?: true
+    trialStartsAt?: true
+    trialEndsAt?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
-  export type StripeWebhookEventMaxAggregateInputType = {
+  export type SusbcriptionFreeTrialsMaxAggregateInputType = {
     id?: true
-    eventId?: true
-    eventType?: true
-    processedAt?: true
+    emailHash?: true
+    userId?: true
+    subscriptionId?: true
+    trialStartsAt?: true
+    trialEndsAt?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
-  export type StripeWebhookEventCountAggregateInputType = {
+  export type SusbcriptionFreeTrialsCountAggregateInputType = {
     id?: true
-    eventId?: true
-    eventType?: true
-    processedAt?: true
+    emailHash?: true
+    userId?: true
+    subscriptionId?: true
+    trialStartsAt?: true
+    trialEndsAt?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
-  export type StripeWebhookEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which StripeWebhookEvent to aggregate.
+     * Filter which SusbcriptionFreeTrials to aggregate.
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of StripeWebhookEvents to fetch.
+     * Determine the order of SusbcriptionFreeTrials to fetch.
      */
-    orderBy?: StripeWebhookEventOrderByWithRelationInput | StripeWebhookEventOrderByWithRelationInput[]
+    orderBy?: SusbcriptionFreeTrialsOrderByWithRelationInput | SusbcriptionFreeTrialsOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: StripeWebhookEventWhereUniqueInput
+    cursor?: SusbcriptionFreeTrialsWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` StripeWebhookEvents from the position of the cursor.
+     * Take `±n` SusbcriptionFreeTrials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` StripeWebhookEvents.
+     * Skip the first `n` SusbcriptionFreeTrials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned StripeWebhookEvents
+     * Count returned SusbcriptionFreeTrials
     **/
-    _count?: true | StripeWebhookEventCountAggregateInputType
+    _count?: true | SusbcriptionFreeTrialsCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: StripeWebhookEventMinAggregateInputType
+    _min?: SusbcriptionFreeTrialsMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: StripeWebhookEventMaxAggregateInputType
+    _max?: SusbcriptionFreeTrialsMaxAggregateInputType
   }
 
-  export type GetStripeWebhookEventAggregateType<T extends StripeWebhookEventAggregateArgs> = {
-        [P in keyof T & keyof AggregateStripeWebhookEvent]: P extends '_count' | 'count'
+  export type GetSusbcriptionFreeTrialsAggregateType<T extends SusbcriptionFreeTrialsAggregateArgs> = {
+        [P in keyof T & keyof AggregateSusbcriptionFreeTrials]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateStripeWebhookEvent[P]>
-      : GetScalarType<T[P], AggregateStripeWebhookEvent[P]>
+        : GetScalarType<T[P], AggregateSusbcriptionFreeTrials[P]>
+      : GetScalarType<T[P], AggregateSusbcriptionFreeTrials[P]>
   }
 
 
 
 
-  export type StripeWebhookEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: StripeWebhookEventWhereInput
-    orderBy?: StripeWebhookEventOrderByWithAggregationInput | StripeWebhookEventOrderByWithAggregationInput[]
-    by: StripeWebhookEventScalarFieldEnum[] | StripeWebhookEventScalarFieldEnum
-    having?: StripeWebhookEventScalarWhereWithAggregatesInput
+  export type SusbcriptionFreeTrialsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SusbcriptionFreeTrialsWhereInput
+    orderBy?: SusbcriptionFreeTrialsOrderByWithAggregationInput | SusbcriptionFreeTrialsOrderByWithAggregationInput[]
+    by: SusbcriptionFreeTrialsScalarFieldEnum[] | SusbcriptionFreeTrialsScalarFieldEnum
+    having?: SusbcriptionFreeTrialsScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: StripeWebhookEventCountAggregateInputType | true
-    _min?: StripeWebhookEventMinAggregateInputType
-    _max?: StripeWebhookEventMaxAggregateInputType
+    _count?: SusbcriptionFreeTrialsCountAggregateInputType | true
+    _min?: SusbcriptionFreeTrialsMinAggregateInputType
+    _max?: SusbcriptionFreeTrialsMaxAggregateInputType
   }
 
-  export type StripeWebhookEventGroupByOutputType = {
+  export type SusbcriptionFreeTrialsGroupByOutputType = {
     id: string
-    eventId: string
-    eventType: string
-    processedAt: Date
-    _count: StripeWebhookEventCountAggregateOutputType | null
-    _min: StripeWebhookEventMinAggregateOutputType | null
-    _max: StripeWebhookEventMaxAggregateOutputType | null
+    emailHash: string
+    userId: string | null
+    subscriptionId: string | null
+    trialStartsAt: Date
+    trialEndsAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SusbcriptionFreeTrialsCountAggregateOutputType | null
+    _min: SusbcriptionFreeTrialsMinAggregateOutputType | null
+    _max: SusbcriptionFreeTrialsMaxAggregateOutputType | null
   }
 
-  type GetStripeWebhookEventGroupByPayload<T extends StripeWebhookEventGroupByArgs> = Prisma.PrismaPromise<
+  type GetSusbcriptionFreeTrialsGroupByPayload<T extends SusbcriptionFreeTrialsGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<StripeWebhookEventGroupByOutputType, T['by']> &
+      PickEnumerable<SusbcriptionFreeTrialsGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof StripeWebhookEventGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof SusbcriptionFreeTrialsGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], StripeWebhookEventGroupByOutputType[P]>
-            : GetScalarType<T[P], StripeWebhookEventGroupByOutputType[P]>
+              : GetScalarType<T[P], SusbcriptionFreeTrialsGroupByOutputType[P]>
+            : GetScalarType<T[P], SusbcriptionFreeTrialsGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type StripeWebhookEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type SusbcriptionFreeTrialsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    eventId?: boolean
-    eventType?: boolean
-    processedAt?: boolean
-  }, ExtArgs["result"]["stripeWebhookEvent"]>
+    emailHash?: boolean
+    userId?: boolean
+    subscriptionId?: boolean
+    trialStartsAt?: boolean
+    trialEndsAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["susbcriptionFreeTrials"]>
 
-  export type StripeWebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type SusbcriptionFreeTrialsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    eventId?: boolean
-    eventType?: boolean
-    processedAt?: boolean
-  }, ExtArgs["result"]["stripeWebhookEvent"]>
+    emailHash?: boolean
+    userId?: boolean
+    subscriptionId?: boolean
+    trialStartsAt?: boolean
+    trialEndsAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["susbcriptionFreeTrials"]>
 
-  export type StripeWebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type SusbcriptionFreeTrialsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    eventId?: boolean
-    eventType?: boolean
-    processedAt?: boolean
-  }, ExtArgs["result"]["stripeWebhookEvent"]>
+    emailHash?: boolean
+    userId?: boolean
+    subscriptionId?: boolean
+    trialStartsAt?: boolean
+    trialEndsAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["susbcriptionFreeTrials"]>
 
-  export type StripeWebhookEventSelectScalar = {
+  export type SusbcriptionFreeTrialsSelectScalar = {
     id?: boolean
-    eventId?: boolean
-    eventType?: boolean
-    processedAt?: boolean
+    emailHash?: boolean
+    userId?: boolean
+    subscriptionId?: boolean
+    trialStartsAt?: boolean
+    trialEndsAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type StripeWebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventId" | "eventType" | "processedAt", ExtArgs["result"]["stripeWebhookEvent"]>
+  export type SusbcriptionFreeTrialsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "emailHash" | "userId" | "subscriptionId" | "trialStartsAt" | "trialEndsAt" | "createdAt" | "updatedAt", ExtArgs["result"]["susbcriptionFreeTrials"]>
 
-  export type $StripeWebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "StripeWebhookEvent"
+  export type $SusbcriptionFreeTrialsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SusbcriptionFreeTrials"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      eventId: string
-      eventType: string
-      processedAt: Date
-    }, ExtArgs["result"]["stripeWebhookEvent"]>
+      emailHash: string
+      userId: string | null
+      subscriptionId: string | null
+      trialStartsAt: Date
+      trialEndsAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["susbcriptionFreeTrials"]>
     composites: {}
   }
 
-  type StripeWebhookEventGetPayload<S extends boolean | null | undefined | StripeWebhookEventDefaultArgs> = $Result.GetResult<Prisma.$StripeWebhookEventPayload, S>
+  type SusbcriptionFreeTrialsGetPayload<S extends boolean | null | undefined | SusbcriptionFreeTrialsDefaultArgs> = $Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload, S>
 
-  type StripeWebhookEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<StripeWebhookEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: StripeWebhookEventCountAggregateInputType | true
+  type SusbcriptionFreeTrialsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SusbcriptionFreeTrialsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SusbcriptionFreeTrialsCountAggregateInputType | true
     }
 
-  export interface StripeWebhookEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StripeWebhookEvent'], meta: { name: 'StripeWebhookEvent' } }
+  export interface SusbcriptionFreeTrialsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SusbcriptionFreeTrials'], meta: { name: 'SusbcriptionFreeTrials' } }
     /**
-     * Find zero or one StripeWebhookEvent that matches the filter.
-     * @param {StripeWebhookEventFindUniqueArgs} args - Arguments to find a StripeWebhookEvent
+     * Find zero or one SusbcriptionFreeTrials that matches the filter.
+     * @param {SusbcriptionFreeTrialsFindUniqueArgs} args - Arguments to find a SusbcriptionFreeTrials
      * @example
-     * // Get one StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.findUnique({
+     * // Get one SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends StripeWebhookEventFindUniqueArgs>(args: SelectSubset<T, StripeWebhookEventFindUniqueArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends SusbcriptionFreeTrialsFindUniqueArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsFindUniqueArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one StripeWebhookEvent that matches the filter or throw an error with `error.code='P2025'`
+     * Find one SusbcriptionFreeTrials that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {StripeWebhookEventFindUniqueOrThrowArgs} args - Arguments to find a StripeWebhookEvent
+     * @param {SusbcriptionFreeTrialsFindUniqueOrThrowArgs} args - Arguments to find a SusbcriptionFreeTrials
      * @example
-     * // Get one StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.findUniqueOrThrow({
+     * // Get one SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends StripeWebhookEventFindUniqueOrThrowArgs>(args: SelectSubset<T, StripeWebhookEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends SusbcriptionFreeTrialsFindUniqueOrThrowArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first StripeWebhookEvent that matches the filter.
+     * Find the first SusbcriptionFreeTrials that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventFindFirstArgs} args - Arguments to find a StripeWebhookEvent
+     * @param {SusbcriptionFreeTrialsFindFirstArgs} args - Arguments to find a SusbcriptionFreeTrials
      * @example
-     * // Get one StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.findFirst({
+     * // Get one SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends StripeWebhookEventFindFirstArgs>(args?: SelectSubset<T, StripeWebhookEventFindFirstArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends SusbcriptionFreeTrialsFindFirstArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsFindFirstArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first StripeWebhookEvent that matches the filter or
+     * Find the first SusbcriptionFreeTrials that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventFindFirstOrThrowArgs} args - Arguments to find a StripeWebhookEvent
+     * @param {SusbcriptionFreeTrialsFindFirstOrThrowArgs} args - Arguments to find a SusbcriptionFreeTrials
      * @example
-     * // Get one StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.findFirstOrThrow({
+     * // Get one SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends StripeWebhookEventFindFirstOrThrowArgs>(args?: SelectSubset<T, StripeWebhookEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends SusbcriptionFreeTrialsFindFirstOrThrowArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsFindFirstOrThrowArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more StripeWebhookEvents that matches the filter.
+     * Find zero or more SusbcriptionFreeTrials that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {SusbcriptionFreeTrialsFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all StripeWebhookEvents
-     * const stripeWebhookEvents = await prisma.stripeWebhookEvent.findMany()
+     * // Get all SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findMany()
      * 
-     * // Get first 10 StripeWebhookEvents
-     * const stripeWebhookEvents = await prisma.stripeWebhookEvent.findMany({ take: 10 })
+     * // Get first 10 SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const stripeWebhookEventWithIdOnly = await prisma.stripeWebhookEvent.findMany({ select: { id: true } })
+     * const susbcriptionFreeTrialsWithIdOnly = await prisma.susbcriptionFreeTrials.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends StripeWebhookEventFindManyArgs>(args?: SelectSubset<T, StripeWebhookEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends SusbcriptionFreeTrialsFindManyArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a StripeWebhookEvent.
-     * @param {StripeWebhookEventCreateArgs} args - Arguments to create a StripeWebhookEvent.
+     * Create a SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsCreateArgs} args - Arguments to create a SusbcriptionFreeTrials.
      * @example
-     * // Create one StripeWebhookEvent
-     * const StripeWebhookEvent = await prisma.stripeWebhookEvent.create({
+     * // Create one SusbcriptionFreeTrials
+     * const SusbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.create({
      *   data: {
-     *     // ... data to create a StripeWebhookEvent
+     *     // ... data to create a SusbcriptionFreeTrials
      *   }
      * })
      * 
      */
-    create<T extends StripeWebhookEventCreateArgs>(args: SelectSubset<T, StripeWebhookEventCreateArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends SusbcriptionFreeTrialsCreateArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsCreateArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many StripeWebhookEvents.
-     * @param {StripeWebhookEventCreateManyArgs} args - Arguments to create many StripeWebhookEvents.
+     * Create many SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsCreateManyArgs} args - Arguments to create many SusbcriptionFreeTrials.
      * @example
-     * // Create many StripeWebhookEvents
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.createMany({
+     * // Create many SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends StripeWebhookEventCreateManyArgs>(args?: SelectSubset<T, StripeWebhookEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends SusbcriptionFreeTrialsCreateManyArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many StripeWebhookEvents and returns the data saved in the database.
-     * @param {StripeWebhookEventCreateManyAndReturnArgs} args - Arguments to create many StripeWebhookEvents.
+     * Create many SusbcriptionFreeTrials and returns the data saved in the database.
+     * @param {SusbcriptionFreeTrialsCreateManyAndReturnArgs} args - Arguments to create many SusbcriptionFreeTrials.
      * @example
-     * // Create many StripeWebhookEvents
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.createManyAndReturn({
+     * // Create many SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many StripeWebhookEvents and only return the `id`
-     * const stripeWebhookEventWithIdOnly = await prisma.stripeWebhookEvent.createManyAndReturn({
+     * // Create many SusbcriptionFreeTrials and only return the `id`
+     * const susbcriptionFreeTrialsWithIdOnly = await prisma.susbcriptionFreeTrials.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -14579,28 +14744,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends StripeWebhookEventCreateManyAndReturnArgs>(args?: SelectSubset<T, StripeWebhookEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends SusbcriptionFreeTrialsCreateManyAndReturnArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a StripeWebhookEvent.
-     * @param {StripeWebhookEventDeleteArgs} args - Arguments to delete one StripeWebhookEvent.
+     * Delete a SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsDeleteArgs} args - Arguments to delete one SusbcriptionFreeTrials.
      * @example
-     * // Delete one StripeWebhookEvent
-     * const StripeWebhookEvent = await prisma.stripeWebhookEvent.delete({
+     * // Delete one SusbcriptionFreeTrials
+     * const SusbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.delete({
      *   where: {
-     *     // ... filter to delete one StripeWebhookEvent
+     *     // ... filter to delete one SusbcriptionFreeTrials
      *   }
      * })
      * 
      */
-    delete<T extends StripeWebhookEventDeleteArgs>(args: SelectSubset<T, StripeWebhookEventDeleteArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends SusbcriptionFreeTrialsDeleteArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsDeleteArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one StripeWebhookEvent.
-     * @param {StripeWebhookEventUpdateArgs} args - Arguments to update one StripeWebhookEvent.
+     * Update one SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsUpdateArgs} args - Arguments to update one SusbcriptionFreeTrials.
      * @example
-     * // Update one StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.update({
+     * // Update one SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14610,30 +14775,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends StripeWebhookEventUpdateArgs>(args: SelectSubset<T, StripeWebhookEventUpdateArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends SusbcriptionFreeTrialsUpdateArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsUpdateArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more StripeWebhookEvents.
-     * @param {StripeWebhookEventDeleteManyArgs} args - Arguments to filter StripeWebhookEvents to delete.
+     * Delete zero or more SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsDeleteManyArgs} args - Arguments to filter SusbcriptionFreeTrials to delete.
      * @example
-     * // Delete a few StripeWebhookEvents
-     * const { count } = await prisma.stripeWebhookEvent.deleteMany({
+     * // Delete a few SusbcriptionFreeTrials
+     * const { count } = await prisma.susbcriptionFreeTrials.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends StripeWebhookEventDeleteManyArgs>(args?: SelectSubset<T, StripeWebhookEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends SusbcriptionFreeTrialsDeleteManyArgs>(args?: SelectSubset<T, SusbcriptionFreeTrialsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more StripeWebhookEvents.
+     * Update zero or more SusbcriptionFreeTrials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {SusbcriptionFreeTrialsUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many StripeWebhookEvents
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.updateMany({
+     * // Update many SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14643,14 +14808,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends StripeWebhookEventUpdateManyArgs>(args: SelectSubset<T, StripeWebhookEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends SusbcriptionFreeTrialsUpdateManyArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more StripeWebhookEvents and returns the data updated in the database.
-     * @param {StripeWebhookEventUpdateManyAndReturnArgs} args - Arguments to update many StripeWebhookEvents.
+     * Update zero or more SusbcriptionFreeTrials and returns the data updated in the database.
+     * @param {SusbcriptionFreeTrialsUpdateManyAndReturnArgs} args - Arguments to update many SusbcriptionFreeTrials.
      * @example
-     * // Update many StripeWebhookEvents
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.updateManyAndReturn({
+     * // Update many SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14659,8 +14824,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more StripeWebhookEvents and only return the `id`
-     * const stripeWebhookEventWithIdOnly = await prisma.stripeWebhookEvent.updateManyAndReturn({
+     * // Update zero or more SusbcriptionFreeTrials and only return the `id`
+     * const susbcriptionFreeTrialsWithIdOnly = await prisma.susbcriptionFreeTrials.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -14673,56 +14838,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends StripeWebhookEventUpdateManyAndReturnArgs>(args: SelectSubset<T, StripeWebhookEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends SusbcriptionFreeTrialsUpdateManyAndReturnArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one StripeWebhookEvent.
-     * @param {StripeWebhookEventUpsertArgs} args - Arguments to update or create a StripeWebhookEvent.
+     * Create or update one SusbcriptionFreeTrials.
+     * @param {SusbcriptionFreeTrialsUpsertArgs} args - Arguments to update or create a SusbcriptionFreeTrials.
      * @example
-     * // Update or create a StripeWebhookEvent
-     * const stripeWebhookEvent = await prisma.stripeWebhookEvent.upsert({
+     * // Update or create a SusbcriptionFreeTrials
+     * const susbcriptionFreeTrials = await prisma.susbcriptionFreeTrials.upsert({
      *   create: {
-     *     // ... data to create a StripeWebhookEvent
+     *     // ... data to create a SusbcriptionFreeTrials
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the StripeWebhookEvent we want to update
+     *     // ... the filter for the SusbcriptionFreeTrials we want to update
      *   }
      * })
      */
-    upsert<T extends StripeWebhookEventUpsertArgs>(args: SelectSubset<T, StripeWebhookEventUpsertArgs<ExtArgs>>): Prisma__StripeWebhookEventClient<$Result.GetResult<Prisma.$StripeWebhookEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends SusbcriptionFreeTrialsUpsertArgs>(args: SelectSubset<T, SusbcriptionFreeTrialsUpsertArgs<ExtArgs>>): Prisma__SusbcriptionFreeTrialsClient<$Result.GetResult<Prisma.$SusbcriptionFreeTrialsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of StripeWebhookEvents.
+     * Count the number of SusbcriptionFreeTrials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventCountArgs} args - Arguments to filter StripeWebhookEvents to count.
+     * @param {SusbcriptionFreeTrialsCountArgs} args - Arguments to filter SusbcriptionFreeTrials to count.
      * @example
-     * // Count the number of StripeWebhookEvents
-     * const count = await prisma.stripeWebhookEvent.count({
+     * // Count the number of SusbcriptionFreeTrials
+     * const count = await prisma.susbcriptionFreeTrials.count({
      *   where: {
-     *     // ... the filter for the StripeWebhookEvents we want to count
+     *     // ... the filter for the SusbcriptionFreeTrials we want to count
      *   }
      * })
     **/
-    count<T extends StripeWebhookEventCountArgs>(
-      args?: Subset<T, StripeWebhookEventCountArgs>,
+    count<T extends SusbcriptionFreeTrialsCountArgs>(
+      args?: Subset<T, SusbcriptionFreeTrialsCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], StripeWebhookEventCountAggregateOutputType>
+          : GetScalarType<T['select'], SusbcriptionFreeTrialsCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a StripeWebhookEvent.
+     * Allows you to perform aggregations operations on a SusbcriptionFreeTrials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {SusbcriptionFreeTrialsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -14742,13 +14907,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends StripeWebhookEventAggregateArgs>(args: Subset<T, StripeWebhookEventAggregateArgs>): Prisma.PrismaPromise<GetStripeWebhookEventAggregateType<T>>
+    aggregate<T extends SusbcriptionFreeTrialsAggregateArgs>(args: Subset<T, SusbcriptionFreeTrialsAggregateArgs>): Prisma.PrismaPromise<GetSusbcriptionFreeTrialsAggregateType<T>>
 
     /**
-     * Group by StripeWebhookEvent.
+     * Group by SusbcriptionFreeTrials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {StripeWebhookEventGroupByArgs} args - Group by arguments.
+     * @param {SusbcriptionFreeTrialsGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -14763,14 +14928,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends StripeWebhookEventGroupByArgs,
+      T extends SusbcriptionFreeTrialsGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: StripeWebhookEventGroupByArgs['orderBy'] }
-        : { orderBy?: StripeWebhookEventGroupByArgs['orderBy'] },
+        ? { orderBy: SusbcriptionFreeTrialsGroupByArgs['orderBy'] }
+        : { orderBy?: SusbcriptionFreeTrialsGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14819,20 +14984,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, StripeWebhookEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStripeWebhookEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, SusbcriptionFreeTrialsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSusbcriptionFreeTrialsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the StripeWebhookEvent model
+   * Fields of the SusbcriptionFreeTrials model
    */
-  readonly fields: StripeWebhookEventFieldRefs;
+  readonly fields: SusbcriptionFreeTrialsFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for StripeWebhookEvent.
+   * The delegate class that acts as a "Promise-like" for SusbcriptionFreeTrials.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__StripeWebhookEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__SusbcriptionFreeTrialsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -14860,376 +15025,1362 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the StripeWebhookEvent model
+   * Fields of the SusbcriptionFreeTrials model
    */
-  interface StripeWebhookEventFieldRefs {
-    readonly id: FieldRef<"StripeWebhookEvent", 'String'>
-    readonly eventId: FieldRef<"StripeWebhookEvent", 'String'>
-    readonly eventType: FieldRef<"StripeWebhookEvent", 'String'>
-    readonly processedAt: FieldRef<"StripeWebhookEvent", 'DateTime'>
+  interface SusbcriptionFreeTrialsFieldRefs {
+    readonly id: FieldRef<"SusbcriptionFreeTrials", 'String'>
+    readonly emailHash: FieldRef<"SusbcriptionFreeTrials", 'String'>
+    readonly userId: FieldRef<"SusbcriptionFreeTrials", 'String'>
+    readonly subscriptionId: FieldRef<"SusbcriptionFreeTrials", 'String'>
+    readonly trialStartsAt: FieldRef<"SusbcriptionFreeTrials", 'DateTime'>
+    readonly trialEndsAt: FieldRef<"SusbcriptionFreeTrials", 'DateTime'>
+    readonly createdAt: FieldRef<"SusbcriptionFreeTrials", 'DateTime'>
+    readonly updatedAt: FieldRef<"SusbcriptionFreeTrials", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * StripeWebhookEvent findUnique
+   * SusbcriptionFreeTrials findUnique
    */
-  export type StripeWebhookEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter, which StripeWebhookEvent to fetch.
+     * Filter, which SusbcriptionFreeTrials to fetch.
      */
-    where: StripeWebhookEventWhereUniqueInput
+    where: SusbcriptionFreeTrialsWhereUniqueInput
   }
 
   /**
-   * StripeWebhookEvent findUniqueOrThrow
+   * SusbcriptionFreeTrials findUniqueOrThrow
    */
-  export type StripeWebhookEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter, which StripeWebhookEvent to fetch.
+     * Filter, which SusbcriptionFreeTrials to fetch.
      */
-    where: StripeWebhookEventWhereUniqueInput
+    where: SusbcriptionFreeTrialsWhereUniqueInput
   }
 
   /**
-   * StripeWebhookEvent findFirst
+   * SusbcriptionFreeTrials findFirst
    */
-  export type StripeWebhookEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter, which StripeWebhookEvent to fetch.
+     * Filter, which SusbcriptionFreeTrials to fetch.
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of StripeWebhookEvents to fetch.
+     * Determine the order of SusbcriptionFreeTrials to fetch.
      */
-    orderBy?: StripeWebhookEventOrderByWithRelationInput | StripeWebhookEventOrderByWithRelationInput[]
+    orderBy?: SusbcriptionFreeTrialsOrderByWithRelationInput | SusbcriptionFreeTrialsOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for StripeWebhookEvents.
+     * Sets the position for searching for SusbcriptionFreeTrials.
      */
-    cursor?: StripeWebhookEventWhereUniqueInput
+    cursor?: SusbcriptionFreeTrialsWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` StripeWebhookEvents from the position of the cursor.
+     * Take `±n` SusbcriptionFreeTrials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` StripeWebhookEvents.
+     * Skip the first `n` SusbcriptionFreeTrials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of StripeWebhookEvents.
+     * Filter by unique combinations of SusbcriptionFreeTrials.
      */
-    distinct?: StripeWebhookEventScalarFieldEnum | StripeWebhookEventScalarFieldEnum[]
+    distinct?: SusbcriptionFreeTrialsScalarFieldEnum | SusbcriptionFreeTrialsScalarFieldEnum[]
   }
 
   /**
-   * StripeWebhookEvent findFirstOrThrow
+   * SusbcriptionFreeTrials findFirstOrThrow
    */
-  export type StripeWebhookEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter, which StripeWebhookEvent to fetch.
+     * Filter, which SusbcriptionFreeTrials to fetch.
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of StripeWebhookEvents to fetch.
+     * Determine the order of SusbcriptionFreeTrials to fetch.
      */
-    orderBy?: StripeWebhookEventOrderByWithRelationInput | StripeWebhookEventOrderByWithRelationInput[]
+    orderBy?: SusbcriptionFreeTrialsOrderByWithRelationInput | SusbcriptionFreeTrialsOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for StripeWebhookEvents.
+     * Sets the position for searching for SusbcriptionFreeTrials.
      */
-    cursor?: StripeWebhookEventWhereUniqueInput
+    cursor?: SusbcriptionFreeTrialsWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` StripeWebhookEvents from the position of the cursor.
+     * Take `±n` SusbcriptionFreeTrials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` StripeWebhookEvents.
+     * Skip the first `n` SusbcriptionFreeTrials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of StripeWebhookEvents.
+     * Filter by unique combinations of SusbcriptionFreeTrials.
      */
-    distinct?: StripeWebhookEventScalarFieldEnum | StripeWebhookEventScalarFieldEnum[]
+    distinct?: SusbcriptionFreeTrialsScalarFieldEnum | SusbcriptionFreeTrialsScalarFieldEnum[]
   }
 
   /**
-   * StripeWebhookEvent findMany
+   * SusbcriptionFreeTrials findMany
    */
-  export type StripeWebhookEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter, which StripeWebhookEvents to fetch.
+     * Filter, which SusbcriptionFreeTrials to fetch.
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of StripeWebhookEvents to fetch.
+     * Determine the order of SusbcriptionFreeTrials to fetch.
      */
-    orderBy?: StripeWebhookEventOrderByWithRelationInput | StripeWebhookEventOrderByWithRelationInput[]
+    orderBy?: SusbcriptionFreeTrialsOrderByWithRelationInput | SusbcriptionFreeTrialsOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing StripeWebhookEvents.
+     * Sets the position for listing SusbcriptionFreeTrials.
      */
-    cursor?: StripeWebhookEventWhereUniqueInput
+    cursor?: SusbcriptionFreeTrialsWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` StripeWebhookEvents from the position of the cursor.
+     * Take `±n` SusbcriptionFreeTrials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` StripeWebhookEvents.
+     * Skip the first `n` SusbcriptionFreeTrials.
      */
     skip?: number
-    distinct?: StripeWebhookEventScalarFieldEnum | StripeWebhookEventScalarFieldEnum[]
+    distinct?: SusbcriptionFreeTrialsScalarFieldEnum | SusbcriptionFreeTrialsScalarFieldEnum[]
   }
 
   /**
-   * StripeWebhookEvent create
+   * SusbcriptionFreeTrials create
    */
-  export type StripeWebhookEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * The data needed to create a StripeWebhookEvent.
+     * The data needed to create a SusbcriptionFreeTrials.
      */
-    data: XOR<StripeWebhookEventCreateInput, StripeWebhookEventUncheckedCreateInput>
+    data: XOR<SusbcriptionFreeTrialsCreateInput, SusbcriptionFreeTrialsUncheckedCreateInput>
   }
 
   /**
-   * StripeWebhookEvent createMany
+   * SusbcriptionFreeTrials createMany
    */
-  export type StripeWebhookEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many StripeWebhookEvents.
+     * The data used to create many SusbcriptionFreeTrials.
      */
-    data: StripeWebhookEventCreateManyInput | StripeWebhookEventCreateManyInput[]
+    data: SusbcriptionFreeTrialsCreateManyInput | SusbcriptionFreeTrialsCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * StripeWebhookEvent createManyAndReturn
+   * SusbcriptionFreeTrials createManyAndReturn
    */
-  export type StripeWebhookEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelectCreateManyAndReturn<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * The data used to create many StripeWebhookEvents.
+     * The data used to create many SusbcriptionFreeTrials.
      */
-    data: StripeWebhookEventCreateManyInput | StripeWebhookEventCreateManyInput[]
+    data: SusbcriptionFreeTrialsCreateManyInput | SusbcriptionFreeTrialsCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * StripeWebhookEvent update
+   * SusbcriptionFreeTrials update
    */
-  export type StripeWebhookEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * The data needed to update a StripeWebhookEvent.
+     * The data needed to update a SusbcriptionFreeTrials.
      */
-    data: XOR<StripeWebhookEventUpdateInput, StripeWebhookEventUncheckedUpdateInput>
+    data: XOR<SusbcriptionFreeTrialsUpdateInput, SusbcriptionFreeTrialsUncheckedUpdateInput>
     /**
-     * Choose, which StripeWebhookEvent to update.
+     * Choose, which SusbcriptionFreeTrials to update.
      */
-    where: StripeWebhookEventWhereUniqueInput
+    where: SusbcriptionFreeTrialsWhereUniqueInput
   }
 
   /**
-   * StripeWebhookEvent updateMany
+   * SusbcriptionFreeTrials updateMany
    */
-  export type StripeWebhookEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update StripeWebhookEvents.
+     * The data used to update SusbcriptionFreeTrials.
      */
-    data: XOR<StripeWebhookEventUpdateManyMutationInput, StripeWebhookEventUncheckedUpdateManyInput>
+    data: XOR<SusbcriptionFreeTrialsUpdateManyMutationInput, SusbcriptionFreeTrialsUncheckedUpdateManyInput>
     /**
-     * Filter which StripeWebhookEvents to update
+     * Filter which SusbcriptionFreeTrials to update
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
-     * Limit how many StripeWebhookEvents to update.
+     * Limit how many SusbcriptionFreeTrials to update.
      */
     limit?: number
   }
 
   /**
-   * StripeWebhookEvent updateManyAndReturn
+   * SusbcriptionFreeTrials updateManyAndReturn
    */
-  export type StripeWebhookEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * The data used to update StripeWebhookEvents.
+     * The data used to update SusbcriptionFreeTrials.
      */
-    data: XOR<StripeWebhookEventUpdateManyMutationInput, StripeWebhookEventUncheckedUpdateManyInput>
+    data: XOR<SusbcriptionFreeTrialsUpdateManyMutationInput, SusbcriptionFreeTrialsUncheckedUpdateManyInput>
     /**
-     * Filter which StripeWebhookEvents to update
+     * Filter which SusbcriptionFreeTrials to update
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
-     * Limit how many StripeWebhookEvents to update.
+     * Limit how many SusbcriptionFreeTrials to update.
      */
     limit?: number
   }
 
   /**
-   * StripeWebhookEvent upsert
+   * SusbcriptionFreeTrials upsert
    */
-  export type StripeWebhookEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * The filter to search for the StripeWebhookEvent to update in case it exists.
+     * The filter to search for the SusbcriptionFreeTrials to update in case it exists.
      */
-    where: StripeWebhookEventWhereUniqueInput
+    where: SusbcriptionFreeTrialsWhereUniqueInput
     /**
-     * In case the StripeWebhookEvent found by the `where` argument doesn't exist, create a new StripeWebhookEvent with this data.
+     * In case the SusbcriptionFreeTrials found by the `where` argument doesn't exist, create a new SusbcriptionFreeTrials with this data.
      */
-    create: XOR<StripeWebhookEventCreateInput, StripeWebhookEventUncheckedCreateInput>
+    create: XOR<SusbcriptionFreeTrialsCreateInput, SusbcriptionFreeTrialsUncheckedCreateInput>
     /**
-     * In case the StripeWebhookEvent was found with the provided `where` argument, update it with this data.
+     * In case the SusbcriptionFreeTrials was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<StripeWebhookEventUpdateInput, StripeWebhookEventUncheckedUpdateInput>
+    update: XOR<SusbcriptionFreeTrialsUpdateInput, SusbcriptionFreeTrialsUncheckedUpdateInput>
   }
 
   /**
-   * StripeWebhookEvent delete
+   * SusbcriptionFreeTrials delete
    */
-  export type StripeWebhookEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
     /**
-     * Filter which StripeWebhookEvent to delete.
+     * Filter which SusbcriptionFreeTrials to delete.
      */
-    where: StripeWebhookEventWhereUniqueInput
+    where: SusbcriptionFreeTrialsWhereUniqueInput
   }
 
   /**
-   * StripeWebhookEvent deleteMany
+   * SusbcriptionFreeTrials deleteMany
    */
-  export type StripeWebhookEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which StripeWebhookEvents to delete
+     * Filter which SusbcriptionFreeTrials to delete
      */
-    where?: StripeWebhookEventWhereInput
+    where?: SusbcriptionFreeTrialsWhereInput
     /**
-     * Limit how many StripeWebhookEvents to delete.
+     * Limit how many SusbcriptionFreeTrials to delete.
      */
     limit?: number
   }
 
   /**
-   * StripeWebhookEvent without action
+   * SusbcriptionFreeTrials without action
    */
-  export type StripeWebhookEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type SusbcriptionFreeTrialsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the StripeWebhookEvent
+     * Select specific fields to fetch from the SusbcriptionFreeTrials
      */
-    select?: StripeWebhookEventSelect<ExtArgs> | null
+    select?: SusbcriptionFreeTrialsSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the StripeWebhookEvent
+     * Omit specific fields from the SusbcriptionFreeTrials
      */
-    omit?: StripeWebhookEventOmit<ExtArgs> | null
+    omit?: SusbcriptionFreeTrialsOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaystackWebhookEvent
+   */
+
+  export type AggregatePaystackWebhookEvent = {
+    _count: PaystackWebhookEventCountAggregateOutputType | null
+    _min: PaystackWebhookEventMinAggregateOutputType | null
+    _max: PaystackWebhookEventMaxAggregateOutputType | null
+  }
+
+  export type PaystackWebhookEventMinAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    eventType: string | null
+    processedAt: Date | null
+  }
+
+  export type PaystackWebhookEventMaxAggregateOutputType = {
+    id: string | null
+    eventId: string | null
+    eventType: string | null
+    processedAt: Date | null
+  }
+
+  export type PaystackWebhookEventCountAggregateOutputType = {
+    id: number
+    eventId: number
+    eventType: number
+    processedAt: number
+    _all: number
+  }
+
+
+  export type PaystackWebhookEventMinAggregateInputType = {
+    id?: true
+    eventId?: true
+    eventType?: true
+    processedAt?: true
+  }
+
+  export type PaystackWebhookEventMaxAggregateInputType = {
+    id?: true
+    eventId?: true
+    eventType?: true
+    processedAt?: true
+  }
+
+  export type PaystackWebhookEventCountAggregateInputType = {
+    id?: true
+    eventId?: true
+    eventType?: true
+    processedAt?: true
+    _all?: true
+  }
+
+  export type PaystackWebhookEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaystackWebhookEvent to aggregate.
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaystackWebhookEvents to fetch.
+     */
+    orderBy?: PaystackWebhookEventOrderByWithRelationInput | PaystackWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaystackWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaystackWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaystackWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaystackWebhookEvents
+    **/
+    _count?: true | PaystackWebhookEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaystackWebhookEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaystackWebhookEventMaxAggregateInputType
+  }
+
+  export type GetPaystackWebhookEventAggregateType<T extends PaystackWebhookEventAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaystackWebhookEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaystackWebhookEvent[P]>
+      : GetScalarType<T[P], AggregatePaystackWebhookEvent[P]>
+  }
+
+
+
+
+  export type PaystackWebhookEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaystackWebhookEventWhereInput
+    orderBy?: PaystackWebhookEventOrderByWithAggregationInput | PaystackWebhookEventOrderByWithAggregationInput[]
+    by: PaystackWebhookEventScalarFieldEnum[] | PaystackWebhookEventScalarFieldEnum
+    having?: PaystackWebhookEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaystackWebhookEventCountAggregateInputType | true
+    _min?: PaystackWebhookEventMinAggregateInputType
+    _max?: PaystackWebhookEventMaxAggregateInputType
+  }
+
+  export type PaystackWebhookEventGroupByOutputType = {
+    id: string
+    eventId: string
+    eventType: string
+    processedAt: Date
+    _count: PaystackWebhookEventCountAggregateOutputType | null
+    _min: PaystackWebhookEventMinAggregateOutputType | null
+    _max: PaystackWebhookEventMaxAggregateOutputType | null
+  }
+
+  type GetPaystackWebhookEventGroupByPayload<T extends PaystackWebhookEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaystackWebhookEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaystackWebhookEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaystackWebhookEventGroupByOutputType[P]>
+            : GetScalarType<T[P], PaystackWebhookEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaystackWebhookEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    eventType?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["paystackWebhookEvent"]>
+
+  export type PaystackWebhookEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    eventType?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["paystackWebhookEvent"]>
+
+  export type PaystackWebhookEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventId?: boolean
+    eventType?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["paystackWebhookEvent"]>
+
+  export type PaystackWebhookEventSelectScalar = {
+    id?: boolean
+    eventId?: boolean
+    eventType?: boolean
+    processedAt?: boolean
+  }
+
+  export type PaystackWebhookEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventId" | "eventType" | "processedAt", ExtArgs["result"]["paystackWebhookEvent"]>
+
+  export type $PaystackWebhookEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaystackWebhookEvent"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      eventId: string
+      eventType: string
+      processedAt: Date
+    }, ExtArgs["result"]["paystackWebhookEvent"]>
+    composites: {}
+  }
+
+  type PaystackWebhookEventGetPayload<S extends boolean | null | undefined | PaystackWebhookEventDefaultArgs> = $Result.GetResult<Prisma.$PaystackWebhookEventPayload, S>
+
+  type PaystackWebhookEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaystackWebhookEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaystackWebhookEventCountAggregateInputType | true
+    }
+
+  export interface PaystackWebhookEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaystackWebhookEvent'], meta: { name: 'PaystackWebhookEvent' } }
+    /**
+     * Find zero or one PaystackWebhookEvent that matches the filter.
+     * @param {PaystackWebhookEventFindUniqueArgs} args - Arguments to find a PaystackWebhookEvent
+     * @example
+     * // Get one PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaystackWebhookEventFindUniqueArgs>(args: SelectSubset<T, PaystackWebhookEventFindUniqueArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaystackWebhookEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaystackWebhookEventFindUniqueOrThrowArgs} args - Arguments to find a PaystackWebhookEvent
+     * @example
+     * // Get one PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaystackWebhookEventFindUniqueOrThrowArgs>(args: SelectSubset<T, PaystackWebhookEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaystackWebhookEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventFindFirstArgs} args - Arguments to find a PaystackWebhookEvent
+     * @example
+     * // Get one PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaystackWebhookEventFindFirstArgs>(args?: SelectSubset<T, PaystackWebhookEventFindFirstArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaystackWebhookEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventFindFirstOrThrowArgs} args - Arguments to find a PaystackWebhookEvent
+     * @example
+     * // Get one PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaystackWebhookEventFindFirstOrThrowArgs>(args?: SelectSubset<T, PaystackWebhookEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaystackWebhookEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaystackWebhookEvents
+     * const paystackWebhookEvents = await prisma.paystackWebhookEvent.findMany()
+     * 
+     * // Get first 10 PaystackWebhookEvents
+     * const paystackWebhookEvents = await prisma.paystackWebhookEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paystackWebhookEventWithIdOnly = await prisma.paystackWebhookEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaystackWebhookEventFindManyArgs>(args?: SelectSubset<T, PaystackWebhookEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaystackWebhookEvent.
+     * @param {PaystackWebhookEventCreateArgs} args - Arguments to create a PaystackWebhookEvent.
+     * @example
+     * // Create one PaystackWebhookEvent
+     * const PaystackWebhookEvent = await prisma.paystackWebhookEvent.create({
+     *   data: {
+     *     // ... data to create a PaystackWebhookEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaystackWebhookEventCreateArgs>(args: SelectSubset<T, PaystackWebhookEventCreateArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaystackWebhookEvents.
+     * @param {PaystackWebhookEventCreateManyArgs} args - Arguments to create many PaystackWebhookEvents.
+     * @example
+     * // Create many PaystackWebhookEvents
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaystackWebhookEventCreateManyArgs>(args?: SelectSubset<T, PaystackWebhookEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaystackWebhookEvents and returns the data saved in the database.
+     * @param {PaystackWebhookEventCreateManyAndReturnArgs} args - Arguments to create many PaystackWebhookEvents.
+     * @example
+     * // Create many PaystackWebhookEvents
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaystackWebhookEvents and only return the `id`
+     * const paystackWebhookEventWithIdOnly = await prisma.paystackWebhookEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaystackWebhookEventCreateManyAndReturnArgs>(args?: SelectSubset<T, PaystackWebhookEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaystackWebhookEvent.
+     * @param {PaystackWebhookEventDeleteArgs} args - Arguments to delete one PaystackWebhookEvent.
+     * @example
+     * // Delete one PaystackWebhookEvent
+     * const PaystackWebhookEvent = await prisma.paystackWebhookEvent.delete({
+     *   where: {
+     *     // ... filter to delete one PaystackWebhookEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaystackWebhookEventDeleteArgs>(args: SelectSubset<T, PaystackWebhookEventDeleteArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaystackWebhookEvent.
+     * @param {PaystackWebhookEventUpdateArgs} args - Arguments to update one PaystackWebhookEvent.
+     * @example
+     * // Update one PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaystackWebhookEventUpdateArgs>(args: SelectSubset<T, PaystackWebhookEventUpdateArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaystackWebhookEvents.
+     * @param {PaystackWebhookEventDeleteManyArgs} args - Arguments to filter PaystackWebhookEvents to delete.
+     * @example
+     * // Delete a few PaystackWebhookEvents
+     * const { count } = await prisma.paystackWebhookEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaystackWebhookEventDeleteManyArgs>(args?: SelectSubset<T, PaystackWebhookEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaystackWebhookEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaystackWebhookEvents
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaystackWebhookEventUpdateManyArgs>(args: SelectSubset<T, PaystackWebhookEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaystackWebhookEvents and returns the data updated in the database.
+     * @param {PaystackWebhookEventUpdateManyAndReturnArgs} args - Arguments to update many PaystackWebhookEvents.
+     * @example
+     * // Update many PaystackWebhookEvents
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaystackWebhookEvents and only return the `id`
+     * const paystackWebhookEventWithIdOnly = await prisma.paystackWebhookEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaystackWebhookEventUpdateManyAndReturnArgs>(args: SelectSubset<T, PaystackWebhookEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaystackWebhookEvent.
+     * @param {PaystackWebhookEventUpsertArgs} args - Arguments to update or create a PaystackWebhookEvent.
+     * @example
+     * // Update or create a PaystackWebhookEvent
+     * const paystackWebhookEvent = await prisma.paystackWebhookEvent.upsert({
+     *   create: {
+     *     // ... data to create a PaystackWebhookEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaystackWebhookEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaystackWebhookEventUpsertArgs>(args: SelectSubset<T, PaystackWebhookEventUpsertArgs<ExtArgs>>): Prisma__PaystackWebhookEventClient<$Result.GetResult<Prisma.$PaystackWebhookEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaystackWebhookEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventCountArgs} args - Arguments to filter PaystackWebhookEvents to count.
+     * @example
+     * // Count the number of PaystackWebhookEvents
+     * const count = await prisma.paystackWebhookEvent.count({
+     *   where: {
+     *     // ... the filter for the PaystackWebhookEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaystackWebhookEventCountArgs>(
+      args?: Subset<T, PaystackWebhookEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaystackWebhookEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaystackWebhookEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaystackWebhookEventAggregateArgs>(args: Subset<T, PaystackWebhookEventAggregateArgs>): Prisma.PrismaPromise<GetPaystackWebhookEventAggregateType<T>>
+
+    /**
+     * Group by PaystackWebhookEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaystackWebhookEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaystackWebhookEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaystackWebhookEventGroupByArgs['orderBy'] }
+        : { orderBy?: PaystackWebhookEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaystackWebhookEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaystackWebhookEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaystackWebhookEvent model
+   */
+  readonly fields: PaystackWebhookEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaystackWebhookEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaystackWebhookEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaystackWebhookEvent model
+   */
+  interface PaystackWebhookEventFieldRefs {
+    readonly id: FieldRef<"PaystackWebhookEvent", 'String'>
+    readonly eventId: FieldRef<"PaystackWebhookEvent", 'String'>
+    readonly eventType: FieldRef<"PaystackWebhookEvent", 'String'>
+    readonly processedAt: FieldRef<"PaystackWebhookEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaystackWebhookEvent findUnique
+   */
+  export type PaystackWebhookEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaystackWebhookEvent to fetch.
+     */
+    where: PaystackWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaystackWebhookEvent findUniqueOrThrow
+   */
+  export type PaystackWebhookEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaystackWebhookEvent to fetch.
+     */
+    where: PaystackWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaystackWebhookEvent findFirst
+   */
+  export type PaystackWebhookEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaystackWebhookEvent to fetch.
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaystackWebhookEvents to fetch.
+     */
+    orderBy?: PaystackWebhookEventOrderByWithRelationInput | PaystackWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaystackWebhookEvents.
+     */
+    cursor?: PaystackWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaystackWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaystackWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaystackWebhookEvents.
+     */
+    distinct?: PaystackWebhookEventScalarFieldEnum | PaystackWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaystackWebhookEvent findFirstOrThrow
+   */
+  export type PaystackWebhookEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaystackWebhookEvent to fetch.
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaystackWebhookEvents to fetch.
+     */
+    orderBy?: PaystackWebhookEventOrderByWithRelationInput | PaystackWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaystackWebhookEvents.
+     */
+    cursor?: PaystackWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaystackWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaystackWebhookEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaystackWebhookEvents.
+     */
+    distinct?: PaystackWebhookEventScalarFieldEnum | PaystackWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaystackWebhookEvent findMany
+   */
+  export type PaystackWebhookEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter, which PaystackWebhookEvents to fetch.
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaystackWebhookEvents to fetch.
+     */
+    orderBy?: PaystackWebhookEventOrderByWithRelationInput | PaystackWebhookEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaystackWebhookEvents.
+     */
+    cursor?: PaystackWebhookEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaystackWebhookEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaystackWebhookEvents.
+     */
+    skip?: number
+    distinct?: PaystackWebhookEventScalarFieldEnum | PaystackWebhookEventScalarFieldEnum[]
+  }
+
+  /**
+   * PaystackWebhookEvent create
+   */
+  export type PaystackWebhookEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PaystackWebhookEvent.
+     */
+    data: XOR<PaystackWebhookEventCreateInput, PaystackWebhookEventUncheckedCreateInput>
+  }
+
+  /**
+   * PaystackWebhookEvent createMany
+   */
+  export type PaystackWebhookEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaystackWebhookEvents.
+     */
+    data: PaystackWebhookEventCreateManyInput | PaystackWebhookEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaystackWebhookEvent createManyAndReturn
+   */
+  export type PaystackWebhookEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaystackWebhookEvents.
+     */
+    data: PaystackWebhookEventCreateManyInput | PaystackWebhookEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaystackWebhookEvent update
+   */
+  export type PaystackWebhookEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PaystackWebhookEvent.
+     */
+    data: XOR<PaystackWebhookEventUpdateInput, PaystackWebhookEventUncheckedUpdateInput>
+    /**
+     * Choose, which PaystackWebhookEvent to update.
+     */
+    where: PaystackWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaystackWebhookEvent updateMany
+   */
+  export type PaystackWebhookEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaystackWebhookEvents.
+     */
+    data: XOR<PaystackWebhookEventUpdateManyMutationInput, PaystackWebhookEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PaystackWebhookEvents to update
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * Limit how many PaystackWebhookEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaystackWebhookEvent updateManyAndReturn
+   */
+  export type PaystackWebhookEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * The data used to update PaystackWebhookEvents.
+     */
+    data: XOR<PaystackWebhookEventUpdateManyMutationInput, PaystackWebhookEventUncheckedUpdateManyInput>
+    /**
+     * Filter which PaystackWebhookEvents to update
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * Limit how many PaystackWebhookEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaystackWebhookEvent upsert
+   */
+  export type PaystackWebhookEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PaystackWebhookEvent to update in case it exists.
+     */
+    where: PaystackWebhookEventWhereUniqueInput
+    /**
+     * In case the PaystackWebhookEvent found by the `where` argument doesn't exist, create a new PaystackWebhookEvent with this data.
+     */
+    create: XOR<PaystackWebhookEventCreateInput, PaystackWebhookEventUncheckedCreateInput>
+    /**
+     * In case the PaystackWebhookEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaystackWebhookEventUpdateInput, PaystackWebhookEventUncheckedUpdateInput>
+  }
+
+  /**
+   * PaystackWebhookEvent delete
+   */
+  export type PaystackWebhookEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
+    /**
+     * Filter which PaystackWebhookEvent to delete.
+     */
+    where: PaystackWebhookEventWhereUniqueInput
+  }
+
+  /**
+   * PaystackWebhookEvent deleteMany
+   */
+  export type PaystackWebhookEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaystackWebhookEvents to delete
+     */
+    where?: PaystackWebhookEventWhereInput
+    /**
+     * Limit how many PaystackWebhookEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaystackWebhookEvent without action
+   */
+  export type PaystackWebhookEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaystackWebhookEvent
+     */
+    select?: PaystackWebhookEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaystackWebhookEvent
+     */
+    omit?: PaystackWebhookEventOmit<ExtArgs> | null
   }
 
 
@@ -20840,6 +21991,7 @@ export namespace Prisma {
     splitsAlertApp: boolean | null
     newsLetterAlert: boolean | null
     communityAlert: boolean | null
+    dailyInsightsEnabled: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -20861,6 +22013,7 @@ export namespace Prisma {
     splitsAlertApp: boolean | null
     newsLetterAlert: boolean | null
     communityAlert: boolean | null
+    dailyInsightsEnabled: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -20882,6 +22035,7 @@ export namespace Prisma {
     splitsAlertApp: number
     newsLetterAlert: number
     communityAlert: number
+    dailyInsightsEnabled: number
     userId: number
     createdAt: number
     updatedAt: number
@@ -20905,6 +22059,7 @@ export namespace Prisma {
     splitsAlertApp?: true
     newsLetterAlert?: true
     communityAlert?: true
+    dailyInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -20926,6 +22081,7 @@ export namespace Prisma {
     splitsAlertApp?: true
     newsLetterAlert?: true
     communityAlert?: true
+    dailyInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -20947,6 +22103,7 @@ export namespace Prisma {
     splitsAlertApp?: true
     newsLetterAlert?: true
     communityAlert?: true
+    dailyInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -21041,6 +22198,7 @@ export namespace Prisma {
     splitsAlertApp: boolean
     newsLetterAlert: boolean
     communityAlert: boolean
+    dailyInsightsEnabled: boolean
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -21079,6 +22237,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -21101,6 +22260,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -21123,6 +22283,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -21145,12 +22306,13 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "goalsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
+  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "goalsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "dailyInsightsEnabled" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
   export type NotificationSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -21182,6 +22344,7 @@ export namespace Prisma {
       splitsAlertApp: boolean
       newsLetterAlert: boolean
       communityAlert: boolean
+      dailyInsightsEnabled: boolean
       userId: string
       createdAt: Date
       updatedAt: Date
@@ -21624,6 +22787,7 @@ export namespace Prisma {
     readonly splitsAlertApp: FieldRef<"NotificationSetting", 'Boolean'>
     readonly newsLetterAlert: FieldRef<"NotificationSetting", 'Boolean'>
     readonly communityAlert: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly dailyInsightsEnabled: FieldRef<"NotificationSetting", 'Boolean'>
     readonly userId: FieldRef<"NotificationSetting", 'String'>
     readonly createdAt: FieldRef<"NotificationSetting", 'DateTime'>
     readonly updatedAt: FieldRef<"NotificationSetting", 'DateTime'>
@@ -43359,12 +44523,14 @@ export namespace Prisma {
   export const SubscriptionScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
-    stripeCustomerId: 'stripeCustomerId',
-    stripeSubscriptionId: 'stripeSubscriptionId',
-    stripePriceId: 'stripePriceId',
-    stripeCurrentPeriodStart: 'stripeCurrentPeriodStart',
-    stripeCurrentPeriodEnd: 'stripeCurrentPeriodEnd',
-    stripeCancelAtPeriodEnd: 'stripeCancelAtPeriodEnd',
+    paystackCustomerCode: 'paystackCustomerCode',
+    paystackSubscriptionCode: 'paystackSubscriptionCode',
+    paystackAuthorizationCode: 'paystackAuthorizationCode',
+    paystackEmailToken: 'paystackEmailToken',
+    paystackPlanCode: 'paystackPlanCode',
+    paystackCurrentPeriodStart: 'paystackCurrentPeriodStart',
+    paystackCurrentPeriodEnd: 'paystackCurrentPeriodEnd',
+    paystackCancelAtPeriodEnd: 'paystackCancelAtPeriodEnd',
     status: 'status',
     plan: 'plan',
     createdAt: 'createdAt',
@@ -43374,14 +44540,28 @@ export namespace Prisma {
   export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
 
 
-  export const StripeWebhookEventScalarFieldEnum: {
+  export const SusbcriptionFreeTrialsScalarFieldEnum: {
+    id: 'id',
+    emailHash: 'emailHash',
+    userId: 'userId',
+    subscriptionId: 'subscriptionId',
+    trialStartsAt: 'trialStartsAt',
+    trialEndsAt: 'trialEndsAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SusbcriptionFreeTrialsScalarFieldEnum = (typeof SusbcriptionFreeTrialsScalarFieldEnum)[keyof typeof SusbcriptionFreeTrialsScalarFieldEnum]
+
+
+  export const PaystackWebhookEventScalarFieldEnum: {
     id: 'id',
     eventId: 'eventId',
     eventType: 'eventType',
     processedAt: 'processedAt'
   };
 
-  export type StripeWebhookEventScalarFieldEnum = (typeof StripeWebhookEventScalarFieldEnum)[keyof typeof StripeWebhookEventScalarFieldEnum]
+  export type PaystackWebhookEventScalarFieldEnum = (typeof PaystackWebhookEventScalarFieldEnum)[keyof typeof PaystackWebhookEventScalarFieldEnum]
 
 
   export const UsageTrackerScalarFieldEnum: {
@@ -43468,6 +44648,7 @@ export namespace Prisma {
     splitsAlertApp: 'splitsAlertApp',
     newsLetterAlert: 'newsLetterAlert',
     communityAlert: 'communityAlert',
+    dailyInsightsEnabled: 'dailyInsightsEnabled',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -44884,12 +46065,14 @@ export namespace Prisma {
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
     id?: StringFilter<"Subscription"> | string
     userId?: StringFilter<"Subscription"> | string
-    stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
-    stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
-    stripePriceId?: StringNullableFilter<"Subscription"> | string | null
-    stripeCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    stripeCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
+    paystackCustomerCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackSubscriptionCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackAuthorizationCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackEmailToken?: StringNullableFilter<"Subscription"> | string | null
+    paystackPlanCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    paystackCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
@@ -44900,12 +46083,14 @@ export namespace Prisma {
   export type SubscriptionOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
-    stripeCustomerId?: SortOrderInput | SortOrder
-    stripeSubscriptionId?: SortOrderInput | SortOrder
-    stripePriceId?: SortOrderInput | SortOrder
-    stripeCurrentPeriodStart?: SortOrderInput | SortOrder
-    stripeCurrentPeriodEnd?: SortOrderInput | SortOrder
-    stripeCancelAtPeriodEnd?: SortOrder
+    paystackCustomerCode?: SortOrderInput | SortOrder
+    paystackSubscriptionCode?: SortOrderInput | SortOrder
+    paystackAuthorizationCode?: SortOrderInput | SortOrder
+    paystackEmailToken?: SortOrderInput | SortOrder
+    paystackPlanCode?: SortOrderInput | SortOrder
+    paystackCurrentPeriodStart?: SortOrderInput | SortOrder
+    paystackCurrentPeriodEnd?: SortOrderInput | SortOrder
+    paystackCancelAtPeriodEnd?: SortOrder
     status?: SortOrder
     plan?: SortOrder
     createdAt?: SortOrder
@@ -44916,31 +46101,35 @@ export namespace Prisma {
   export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     userId?: string
-    stripeCustomerId?: string
-    stripeSubscriptionId?: string
+    paystackCustomerCode?: string
+    paystackSubscriptionCode?: string
     AND?: SubscriptionWhereInput | SubscriptionWhereInput[]
     OR?: SubscriptionWhereInput[]
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
-    stripePriceId?: StringNullableFilter<"Subscription"> | string | null
-    stripeCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    stripeCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
+    paystackAuthorizationCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackEmailToken?: StringNullableFilter<"Subscription"> | string | null
+    paystackPlanCode?: StringNullableFilter<"Subscription"> | string | null
+    paystackCurrentPeriodStart?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    paystackCurrentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "userId" | "stripeCustomerId" | "stripeSubscriptionId">
+  }, "id" | "userId" | "paystackCustomerCode" | "paystackSubscriptionCode">
 
   export type SubscriptionOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
-    stripeCustomerId?: SortOrderInput | SortOrder
-    stripeSubscriptionId?: SortOrderInput | SortOrder
-    stripePriceId?: SortOrderInput | SortOrder
-    stripeCurrentPeriodStart?: SortOrderInput | SortOrder
-    stripeCurrentPeriodEnd?: SortOrderInput | SortOrder
-    stripeCancelAtPeriodEnd?: SortOrder
+    paystackCustomerCode?: SortOrderInput | SortOrder
+    paystackSubscriptionCode?: SortOrderInput | SortOrder
+    paystackAuthorizationCode?: SortOrderInput | SortOrder
+    paystackEmailToken?: SortOrderInput | SortOrder
+    paystackPlanCode?: SortOrderInput | SortOrder
+    paystackCurrentPeriodStart?: SortOrderInput | SortOrder
+    paystackCurrentPeriodEnd?: SortOrderInput | SortOrder
+    paystackCancelAtPeriodEnd?: SortOrder
     status?: SortOrder
     plan?: SortOrder
     createdAt?: SortOrder
@@ -44956,63 +46145,132 @@ export namespace Prisma {
     NOT?: SubscriptionScalarWhereWithAggregatesInput | SubscriptionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Subscription"> | string
     userId?: StringWithAggregatesFilter<"Subscription"> | string
-    stripeCustomerId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    stripeSubscriptionId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    stripePriceId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
-    stripeCurrentPeriodStart?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
-    stripeCurrentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolWithAggregatesFilter<"Subscription"> | boolean
+    paystackCustomerCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    paystackSubscriptionCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    paystackAuthorizationCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    paystackEmailToken?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    paystackPlanCode?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    paystackCurrentPeriodStart?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+    paystackCurrentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolWithAggregatesFilter<"Subscription"> | boolean
     status?: EnumSubscriptionStatusWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionPlan
     createdAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
   }
 
-  export type StripeWebhookEventWhereInput = {
-    AND?: StripeWebhookEventWhereInput | StripeWebhookEventWhereInput[]
-    OR?: StripeWebhookEventWhereInput[]
-    NOT?: StripeWebhookEventWhereInput | StripeWebhookEventWhereInput[]
-    id?: StringFilter<"StripeWebhookEvent"> | string
-    eventId?: StringFilter<"StripeWebhookEvent"> | string
-    eventType?: StringFilter<"StripeWebhookEvent"> | string
-    processedAt?: DateTimeFilter<"StripeWebhookEvent"> | Date | string
+  export type SusbcriptionFreeTrialsWhereInput = {
+    AND?: SusbcriptionFreeTrialsWhereInput | SusbcriptionFreeTrialsWhereInput[]
+    OR?: SusbcriptionFreeTrialsWhereInput[]
+    NOT?: SusbcriptionFreeTrialsWhereInput | SusbcriptionFreeTrialsWhereInput[]
+    id?: StringFilter<"SusbcriptionFreeTrials"> | string
+    emailHash?: StringFilter<"SusbcriptionFreeTrials"> | string
+    userId?: StringNullableFilter<"SusbcriptionFreeTrials"> | string | null
+    subscriptionId?: StringNullableFilter<"SusbcriptionFreeTrials"> | string | null
+    trialStartsAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
+    trialEndsAt?: DateTimeNullableFilter<"SusbcriptionFreeTrials"> | Date | string | null
+    createdAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
+    updatedAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
   }
 
-  export type StripeWebhookEventOrderByWithRelationInput = {
+  export type SusbcriptionFreeTrialsOrderByWithRelationInput = {
+    id?: SortOrder
+    emailHash?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    subscriptionId?: SortOrderInput | SortOrder
+    trialStartsAt?: SortOrder
+    trialEndsAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SusbcriptionFreeTrialsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    emailHash?: string
+    AND?: SusbcriptionFreeTrialsWhereInput | SusbcriptionFreeTrialsWhereInput[]
+    OR?: SusbcriptionFreeTrialsWhereInput[]
+    NOT?: SusbcriptionFreeTrialsWhereInput | SusbcriptionFreeTrialsWhereInput[]
+    userId?: StringNullableFilter<"SusbcriptionFreeTrials"> | string | null
+    subscriptionId?: StringNullableFilter<"SusbcriptionFreeTrials"> | string | null
+    trialStartsAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
+    trialEndsAt?: DateTimeNullableFilter<"SusbcriptionFreeTrials"> | Date | string | null
+    createdAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
+    updatedAt?: DateTimeFilter<"SusbcriptionFreeTrials"> | Date | string
+  }, "id" | "emailHash">
+
+  export type SusbcriptionFreeTrialsOrderByWithAggregationInput = {
+    id?: SortOrder
+    emailHash?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    subscriptionId?: SortOrderInput | SortOrder
+    trialStartsAt?: SortOrder
+    trialEndsAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SusbcriptionFreeTrialsCountOrderByAggregateInput
+    _max?: SusbcriptionFreeTrialsMaxOrderByAggregateInput
+    _min?: SusbcriptionFreeTrialsMinOrderByAggregateInput
+  }
+
+  export type SusbcriptionFreeTrialsScalarWhereWithAggregatesInput = {
+    AND?: SusbcriptionFreeTrialsScalarWhereWithAggregatesInput | SusbcriptionFreeTrialsScalarWhereWithAggregatesInput[]
+    OR?: SusbcriptionFreeTrialsScalarWhereWithAggregatesInput[]
+    NOT?: SusbcriptionFreeTrialsScalarWhereWithAggregatesInput | SusbcriptionFreeTrialsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SusbcriptionFreeTrials"> | string
+    emailHash?: StringWithAggregatesFilter<"SusbcriptionFreeTrials"> | string
+    userId?: StringNullableWithAggregatesFilter<"SusbcriptionFreeTrials"> | string | null
+    subscriptionId?: StringNullableWithAggregatesFilter<"SusbcriptionFreeTrials"> | string | null
+    trialStartsAt?: DateTimeWithAggregatesFilter<"SusbcriptionFreeTrials"> | Date | string
+    trialEndsAt?: DateTimeNullableWithAggregatesFilter<"SusbcriptionFreeTrials"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SusbcriptionFreeTrials"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SusbcriptionFreeTrials"> | Date | string
+  }
+
+  export type PaystackWebhookEventWhereInput = {
+    AND?: PaystackWebhookEventWhereInput | PaystackWebhookEventWhereInput[]
+    OR?: PaystackWebhookEventWhereInput[]
+    NOT?: PaystackWebhookEventWhereInput | PaystackWebhookEventWhereInput[]
+    id?: StringFilter<"PaystackWebhookEvent"> | string
+    eventId?: StringFilter<"PaystackWebhookEvent"> | string
+    eventType?: StringFilter<"PaystackWebhookEvent"> | string
+    processedAt?: DateTimeFilter<"PaystackWebhookEvent"> | Date | string
+  }
+
+  export type PaystackWebhookEventOrderByWithRelationInput = {
     id?: SortOrder
     eventId?: SortOrder
     eventType?: SortOrder
     processedAt?: SortOrder
   }
 
-  export type StripeWebhookEventWhereUniqueInput = Prisma.AtLeast<{
+  export type PaystackWebhookEventWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     eventId?: string
-    AND?: StripeWebhookEventWhereInput | StripeWebhookEventWhereInput[]
-    OR?: StripeWebhookEventWhereInput[]
-    NOT?: StripeWebhookEventWhereInput | StripeWebhookEventWhereInput[]
-    eventType?: StringFilter<"StripeWebhookEvent"> | string
-    processedAt?: DateTimeFilter<"StripeWebhookEvent"> | Date | string
+    AND?: PaystackWebhookEventWhereInput | PaystackWebhookEventWhereInput[]
+    OR?: PaystackWebhookEventWhereInput[]
+    NOT?: PaystackWebhookEventWhereInput | PaystackWebhookEventWhereInput[]
+    eventType?: StringFilter<"PaystackWebhookEvent"> | string
+    processedAt?: DateTimeFilter<"PaystackWebhookEvent"> | Date | string
   }, "id" | "eventId">
 
-  export type StripeWebhookEventOrderByWithAggregationInput = {
+  export type PaystackWebhookEventOrderByWithAggregationInput = {
     id?: SortOrder
     eventId?: SortOrder
     eventType?: SortOrder
     processedAt?: SortOrder
-    _count?: StripeWebhookEventCountOrderByAggregateInput
-    _max?: StripeWebhookEventMaxOrderByAggregateInput
-    _min?: StripeWebhookEventMinOrderByAggregateInput
+    _count?: PaystackWebhookEventCountOrderByAggregateInput
+    _max?: PaystackWebhookEventMaxOrderByAggregateInput
+    _min?: PaystackWebhookEventMinOrderByAggregateInput
   }
 
-  export type StripeWebhookEventScalarWhereWithAggregatesInput = {
-    AND?: StripeWebhookEventScalarWhereWithAggregatesInput | StripeWebhookEventScalarWhereWithAggregatesInput[]
-    OR?: StripeWebhookEventScalarWhereWithAggregatesInput[]
-    NOT?: StripeWebhookEventScalarWhereWithAggregatesInput | StripeWebhookEventScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"StripeWebhookEvent"> | string
-    eventId?: StringWithAggregatesFilter<"StripeWebhookEvent"> | string
-    eventType?: StringWithAggregatesFilter<"StripeWebhookEvent"> | string
-    processedAt?: DateTimeWithAggregatesFilter<"StripeWebhookEvent"> | Date | string
+  export type PaystackWebhookEventScalarWhereWithAggregatesInput = {
+    AND?: PaystackWebhookEventScalarWhereWithAggregatesInput | PaystackWebhookEventScalarWhereWithAggregatesInput[]
+    OR?: PaystackWebhookEventScalarWhereWithAggregatesInput[]
+    NOT?: PaystackWebhookEventScalarWhereWithAggregatesInput | PaystackWebhookEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaystackWebhookEvent"> | string
+    eventId?: StringWithAggregatesFilter<"PaystackWebhookEvent"> | string
+    eventType?: StringWithAggregatesFilter<"PaystackWebhookEvent"> | string
+    processedAt?: DateTimeWithAggregatesFilter<"PaystackWebhookEvent"> | Date | string
   }
 
   export type UsageTrackerWhereInput = {
@@ -45382,6 +46640,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolFilter<"NotificationSetting"> | boolean
+    dailyInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
     userId?: StringFilter<"NotificationSetting"> | string
     createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
@@ -45404,6 +46663,7 @@ export namespace Prisma {
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
+    dailyInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -45430,6 +46690,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolFilter<"NotificationSetting"> | boolean
+    dailyInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
     createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -45451,6 +46712,7 @@ export namespace Prisma {
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
+    dailyInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -45478,6 +46740,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     newsLetterAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    dailyInsightsEnabled?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     userId?: StringWithAggregatesFilter<"NotificationSetting"> | string
     createdAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
@@ -47796,12 +49059,14 @@ export namespace Prisma {
 
   export type SubscriptionCreateInput = {
     id?: string
-    stripeCustomerId?: string | null
-    stripeSubscriptionId?: string | null
-    stripePriceId?: string | null
-    stripeCurrentPeriodStart?: Date | string | null
-    stripeCurrentPeriodEnd?: Date | string | null
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackAuthorizationCode?: string | null
+    paystackEmailToken?: string | null
+    paystackPlanCode?: string | null
+    paystackCurrentPeriodStart?: Date | string | null
+    paystackCurrentPeriodEnd?: Date | string | null
+    paystackCancelAtPeriodEnd?: boolean
     status?: $Enums.SubscriptionStatus
     plan?: $Enums.SubscriptionPlan
     createdAt?: Date | string
@@ -47812,12 +49077,14 @@ export namespace Prisma {
   export type SubscriptionUncheckedCreateInput = {
     id?: string
     userId: string
-    stripeCustomerId?: string | null
-    stripeSubscriptionId?: string | null
-    stripePriceId?: string | null
-    stripeCurrentPeriodStart?: Date | string | null
-    stripeCurrentPeriodEnd?: Date | string | null
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackAuthorizationCode?: string | null
+    paystackEmailToken?: string | null
+    paystackPlanCode?: string | null
+    paystackCurrentPeriodStart?: Date | string | null
+    paystackCurrentPeriodEnd?: Date | string | null
+    paystackCancelAtPeriodEnd?: boolean
     status?: $Enums.SubscriptionStatus
     plan?: $Enums.SubscriptionPlan
     createdAt?: Date | string
@@ -47826,12 +49093,14 @@ export namespace Prisma {
 
   export type SubscriptionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47842,12 +49111,14 @@ export namespace Prisma {
   export type SubscriptionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47857,12 +49128,14 @@ export namespace Prisma {
   export type SubscriptionCreateManyInput = {
     id?: string
     userId: string
-    stripeCustomerId?: string | null
-    stripeSubscriptionId?: string | null
-    stripePriceId?: string | null
-    stripeCurrentPeriodStart?: Date | string | null
-    stripeCurrentPeriodEnd?: Date | string | null
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackAuthorizationCode?: string | null
+    paystackEmailToken?: string | null
+    paystackPlanCode?: string | null
+    paystackCurrentPeriodStart?: Date | string | null
+    paystackCurrentPeriodEnd?: Date | string | null
+    paystackCancelAtPeriodEnd?: boolean
     status?: $Enums.SubscriptionStatus
     plan?: $Enums.SubscriptionPlan
     createdAt?: Date | string
@@ -47871,12 +49144,14 @@ export namespace Prisma {
 
   export type SubscriptionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47886,61 +49161,140 @@ export namespace Prisma {
   export type SubscriptionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type StripeWebhookEventCreateInput = {
+  export type SusbcriptionFreeTrialsCreateInput = {
+    id?: string
+    emailHash: string
+    userId?: string | null
+    subscriptionId?: string | null
+    trialStartsAt: Date | string
+    trialEndsAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SusbcriptionFreeTrialsUncheckedCreateInput = {
+    id?: string
+    emailHash: string
+    userId?: string | null
+    subscriptionId?: string | null
+    trialStartsAt: Date | string
+    trialEndsAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SusbcriptionFreeTrialsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    emailHash?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialStartsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SusbcriptionFreeTrialsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    emailHash?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialStartsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SusbcriptionFreeTrialsCreateManyInput = {
+    id?: string
+    emailHash: string
+    userId?: string | null
+    subscriptionId?: string | null
+    trialStartsAt: Date | string
+    trialEndsAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SusbcriptionFreeTrialsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    emailHash?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialStartsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SusbcriptionFreeTrialsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    emailHash?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    subscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    trialStartsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trialEndsAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaystackWebhookEventCreateInput = {
     id?: string
     eventId: string
     eventType: string
     processedAt?: Date | string
   }
 
-  export type StripeWebhookEventUncheckedCreateInput = {
+  export type PaystackWebhookEventUncheckedCreateInput = {
     id?: string
     eventId: string
     eventType: string
     processedAt?: Date | string
   }
 
-  export type StripeWebhookEventUpdateInput = {
+  export type PaystackWebhookEventUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     eventType?: StringFieldUpdateOperationsInput | string
     processedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type StripeWebhookEventUncheckedUpdateInput = {
+  export type PaystackWebhookEventUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     eventType?: StringFieldUpdateOperationsInput | string
     processedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type StripeWebhookEventCreateManyInput = {
+  export type PaystackWebhookEventCreateManyInput = {
     id?: string
     eventId: string
     eventType: string
     processedAt?: Date | string
   }
 
-  export type StripeWebhookEventUpdateManyMutationInput = {
+  export type PaystackWebhookEventUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     eventType?: StringFieldUpdateOperationsInput | string
     processedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type StripeWebhookEventUncheckedUpdateManyInput = {
+  export type PaystackWebhookEventUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     eventId?: StringFieldUpdateOperationsInput | string
     eventType?: StringFieldUpdateOperationsInput | string
@@ -48329,6 +49683,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSettingInput
@@ -48350,6 +49705,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -48371,6 +49727,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSettingNestedInput
@@ -48392,6 +49749,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -48413,6 +49771,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -48434,6 +49793,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -48454,6 +49814,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -51072,12 +52433,14 @@ export namespace Prisma {
   export type SubscriptionCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    stripeCustomerId?: SortOrder
-    stripeSubscriptionId?: SortOrder
-    stripePriceId?: SortOrder
-    stripeCurrentPeriodStart?: SortOrder
-    stripeCurrentPeriodEnd?: SortOrder
-    stripeCancelAtPeriodEnd?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackPlanCode?: SortOrder
+    paystackCurrentPeriodStart?: SortOrder
+    paystackCurrentPeriodEnd?: SortOrder
+    paystackCancelAtPeriodEnd?: SortOrder
     status?: SortOrder
     plan?: SortOrder
     createdAt?: SortOrder
@@ -51087,12 +52450,14 @@ export namespace Prisma {
   export type SubscriptionMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    stripeCustomerId?: SortOrder
-    stripeSubscriptionId?: SortOrder
-    stripePriceId?: SortOrder
-    stripeCurrentPeriodStart?: SortOrder
-    stripeCurrentPeriodEnd?: SortOrder
-    stripeCancelAtPeriodEnd?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackPlanCode?: SortOrder
+    paystackCurrentPeriodStart?: SortOrder
+    paystackCurrentPeriodEnd?: SortOrder
+    paystackCancelAtPeriodEnd?: SortOrder
     status?: SortOrder
     plan?: SortOrder
     createdAt?: SortOrder
@@ -51102,12 +52467,14 @@ export namespace Prisma {
   export type SubscriptionMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    stripeCustomerId?: SortOrder
-    stripeSubscriptionId?: SortOrder
-    stripePriceId?: SortOrder
-    stripeCurrentPeriodStart?: SortOrder
-    stripeCurrentPeriodEnd?: SortOrder
-    stripeCancelAtPeriodEnd?: SortOrder
+    paystackCustomerCode?: SortOrder
+    paystackSubscriptionCode?: SortOrder
+    paystackAuthorizationCode?: SortOrder
+    paystackEmailToken?: SortOrder
+    paystackPlanCode?: SortOrder
+    paystackCurrentPeriodStart?: SortOrder
+    paystackCurrentPeriodEnd?: SortOrder
+    paystackCancelAtPeriodEnd?: SortOrder
     status?: SortOrder
     plan?: SortOrder
     createdAt?: SortOrder
@@ -51134,21 +52501,54 @@ export namespace Prisma {
     _max?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
   }
 
-  export type StripeWebhookEventCountOrderByAggregateInput = {
+  export type SusbcriptionFreeTrialsCountOrderByAggregateInput = {
+    id?: SortOrder
+    emailHash?: SortOrder
+    userId?: SortOrder
+    subscriptionId?: SortOrder
+    trialStartsAt?: SortOrder
+    trialEndsAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SusbcriptionFreeTrialsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    emailHash?: SortOrder
+    userId?: SortOrder
+    subscriptionId?: SortOrder
+    trialStartsAt?: SortOrder
+    trialEndsAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SusbcriptionFreeTrialsMinOrderByAggregateInput = {
+    id?: SortOrder
+    emailHash?: SortOrder
+    userId?: SortOrder
+    subscriptionId?: SortOrder
+    trialStartsAt?: SortOrder
+    trialEndsAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaystackWebhookEventCountOrderByAggregateInput = {
     id?: SortOrder
     eventId?: SortOrder
     eventType?: SortOrder
     processedAt?: SortOrder
   }
 
-  export type StripeWebhookEventMaxOrderByAggregateInput = {
+  export type PaystackWebhookEventMaxOrderByAggregateInput = {
     id?: SortOrder
     eventId?: SortOrder
     eventType?: SortOrder
     processedAt?: SortOrder
   }
 
-  export type StripeWebhookEventMinOrderByAggregateInput = {
+  export type PaystackWebhookEventMinOrderByAggregateInput = {
     id?: SortOrder
     eventId?: SortOrder
     eventType?: SortOrder
@@ -51468,6 +52868,7 @@ export namespace Prisma {
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
+    dailyInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -51489,6 +52890,7 @@ export namespace Prisma {
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
+    dailyInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -51510,6 +52912,7 @@ export namespace Prisma {
     splitsAlertApp?: SortOrder
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
+    dailyInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -55731,12 +57134,14 @@ export namespace Prisma {
 
   export type SubscriptionCreateWithoutUserInput = {
     id?: string
-    stripeCustomerId?: string | null
-    stripeSubscriptionId?: string | null
-    stripePriceId?: string | null
-    stripeCurrentPeriodStart?: Date | string | null
-    stripeCurrentPeriodEnd?: Date | string | null
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackAuthorizationCode?: string | null
+    paystackEmailToken?: string | null
+    paystackPlanCode?: string | null
+    paystackCurrentPeriodStart?: Date | string | null
+    paystackCurrentPeriodEnd?: Date | string | null
+    paystackCancelAtPeriodEnd?: boolean
     status?: $Enums.SubscriptionStatus
     plan?: $Enums.SubscriptionPlan
     createdAt?: Date | string
@@ -55745,12 +57150,14 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedCreateWithoutUserInput = {
     id?: string
-    stripeCustomerId?: string | null
-    stripeSubscriptionId?: string | null
-    stripePriceId?: string | null
-    stripeCurrentPeriodStart?: Date | string | null
-    stripeCurrentPeriodEnd?: Date | string | null
-    stripeCancelAtPeriodEnd?: boolean
+    paystackCustomerCode?: string | null
+    paystackSubscriptionCode?: string | null
+    paystackAuthorizationCode?: string | null
+    paystackEmailToken?: string | null
+    paystackPlanCode?: string | null
+    paystackCurrentPeriodStart?: Date | string | null
+    paystackCurrentPeriodEnd?: Date | string | null
+    paystackCancelAtPeriodEnd?: boolean
     status?: $Enums.SubscriptionStatus
     plan?: $Enums.SubscriptionPlan
     createdAt?: Date | string
@@ -55864,6 +57271,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -55884,6 +57292,7 @@ export namespace Prisma {
     splitsAlertApp?: boolean
     newsLetterAlert?: boolean
     communityAlert?: boolean
+    dailyInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56575,12 +57984,14 @@ export namespace Prisma {
 
   export type SubscriptionUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56589,12 +58000,14 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripePriceId?: NullableStringFieldUpdateOperationsInput | string | null
-    stripeCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    stripeCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    paystackCustomerCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackSubscriptionCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackEmailToken?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackPlanCode?: NullableStringFieldUpdateOperationsInput | string | null
+    paystackCurrentPeriodStart?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCurrentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    paystackCancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -56716,6 +58129,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56736,6 +58150,7 @@ export namespace Prisma {
     splitsAlertApp?: BoolFieldUpdateOperationsInput | boolean
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
+    dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

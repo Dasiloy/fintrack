@@ -1,10 +1,10 @@
 {
   "__comment": "Payment Module API Documentation",
-  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints. all routes are prefixed with /api/.",
+  "meta_note": "All dates are in UTC ISO 8601 format. User authentication is required for all endpoints except the webhook. all routes are prefixed with /api/.",
   "payment_subscribeUser": {
     "route": "POST /api/payment/subscribe",
     "method": "POST",
-    "description": "Create a Stripe Checkout session URL for upgrading the authenticated user to the PRO plan.",
+    "description": "Create a Paystack Checkout session URL for upgrading the authenticated user to the PRO plan. The transaction is initialized with the PRO plan code, so Paystack auto-creates the recurring subscription on charge.success; the subscription.create webhook then stores codes/tokens and resets usage trackers.",
     "authentication": "Bearer token required",
     "input": {},
     "output": {
@@ -25,7 +25,7 @@
   "payment_createPortalSession": {
     "route": "POST /api/payment/portal",
     "method": "POST",
-    "description": "Create a Stripe billing portal URL for the authenticated user to manage billing and subscription settings.",
+    "description": "Create a Paystack billing portal URL for the authenticated user to manage billing and subscription settings.",
     "authentication": "Bearer token required",
     "input": {
       "returnUrl": "string (optional, fallback to request origin)"
@@ -45,18 +45,77 @@
       "500": "Internal server error"
     }
   },
+  "payment_startTrial": {
+    "route": "POST /api/payment/trial",
+    "method": "POST",
+    "description": "Start the 2-month free Pro trial. Initializes a ₦50 card-verification charge via Paystack and returns the hosted payment URL. The user must complete the card capture on Paystack's page. On charge.success the gateway webhook schedules a future-dated subscription (first charge at trial end), upgrades the user to PRO, records the email-hash abuse-guard row in SusbcriptionFreeTrials, and refunds the ₦50. Each email address can only claim one trial — the guard survives account deletion.",
+    "authentication": "Bearer token required",
+    "input": {},
+    "output": {
+      "statusCode": 200,
+      "message": "Trial session created",
+      "success": true,
+      "data": {
+        "checkoutSessionUrl": "string — Paystack hosted payment URL; redirect the user here"
+      }
+    },
+    "responses": {
+      "200": "Trial session URL returned successfully",
+      "401": "Unauthorized",
+      "409": "Trial already used for this email address",
+      "500": "Internal server error"
+    }
+  },
+  "payment_cancelSubscription": {
+    "route": "POST /api/payment/cancel",
+    "method": "POST",
+    "description": "Disable auto-renewal on the authenticated user's active Paystack subscription. The user retains Pro access until paystackCurrentPeriodEnd — the subscription.not_renew webhook marks the record NON_RENEWING immediately, and the subscription.disable webhook (fired at period end) handles the actual downgrade to FREE.",
+    "authentication": "Bearer token required",
+    "input": {},
+    "output": {
+      "statusCode": 200,
+      "message": "Subscription cancelled",
+      "success": true,
+      "data": null
+    },
+    "responses": {
+      "200": "Cancellation scheduled — Pro access continues until period end",
+      "400": "Subscription or tokens not found",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
+  "payment_resumeSubscription": {
+    "route": "POST /api/payment/resume",
+    "method": "POST",
+    "description": "Re-enable auto-renewal on a previously cancelled subscription. Only effective while the subscription is still within its current billing period (before paystackCurrentPeriodEnd). Paystack does not fire a webhook on re-enable, so the gateway sets the subscription status back to ACTIVE and queues the reactivation email itself; next billing confirmation comes via invoice.create.",
+    "authentication": "Bearer token required",
+    "input": {},
+    "output": {
+      "statusCode": 200,
+      "message": "Subscription resumed",
+      "success": true,
+      "data": null
+    },
+    "responses": {
+      "200": "Auto-renewal re-enabled",
+      "400": "Subscription or tokens not found",
+      "401": "Unauthorized",
+      "500": "Internal server error"
+    }
+  },
   "payment_webhook": {
     "route": "POST /api/payment/webhook",
     "method": "POST",
-    "description": "Receive Stripe webhook events and process subscription/invoice lifecycle updates.",
-    "authentication": "Stripe signature header required",
+    "description": "Receive Paystack webhook events and process subscription/invoice lifecycle updates. Events are deduplicated via a derived event id stored in PaystackWebhookEvent (replays are acknowledged but not reprocessed). Handled events: charge.success (trial card-verification + PRO upgrade), subscription.create (stores subscription code, encrypted email token / authorization code, billing period; resets usage trackers), invoice.create (upcoming-charge push notification ~3 days before renewal), invoice.update (successful renewal — advances billing period, resets usage trackers, sends receipt email), invoice.payment_failed (disables the Paystack subscription and downgrades to FREE), subscription.not_renew (marks NON_RENEWING on user cancel), subscription.disable (downgrades to FREE at period end). Rate limited to 20 requests per minute.",
+    "authentication": "Paystack HMAC-SHA512 signature header required",
     "input": {
-      "rawBody": "Buffer (required, Stripe event payload)",
-      "stripe-signature": "string (required)"
+      "rawBody": "Buffer (required, Paystack event payload)",
+      "x-paystack-signature": "string (required)"
     },
     "output": {
       "statusCode": 200,
-      "message": "Webhook to handle stripe events",
+      "message": "Webhook to handle paystack events",
       "success": true,
       "data": null
     },

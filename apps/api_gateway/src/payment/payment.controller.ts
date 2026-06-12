@@ -22,7 +22,7 @@ import {
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 
 import { PaymentService } from './payment.service';
-import { StripeSig } from '../decorators/stripe_decorator';
+import { PaystackSig } from '../decorators/paystack_decorator';
 
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
@@ -64,7 +64,7 @@ export class PaymentController {
         message: 'User subscribed to a paid plan',
         data: {
           checkoutSessionUrl:
-            'https://checkout.stripe.com/c/checkout/session/cs_test_a1234567890',
+            'https://checkout.paystack.com/example_checkout_url',
         },
       },
     },
@@ -137,8 +137,7 @@ export class PaymentController {
         statusCode: HttpStatus.OK,
         message: 'Portal session created',
         data: {
-          portalSessionUrl:
-            'https://portal.stripe.com/p/session/cs_test_a1234567890',
+          portalSessionUrl: 'https://paystack.com/manage/subscriptions/example',
         },
       },
     },
@@ -196,34 +195,243 @@ export class PaymentController {
     };
   }
   // ================================================================
-  //. Webhook to handle stripe events
+  //. Start the 2-month free Pro trial
   // ================================================================
-  @Post('webhook')
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Post('trial')
+  @UseGuards(ApiGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Webhook to handle stripe events' })
+  @ApiOperation({ summary: 'Start the 2-month free Pro trial' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Webhook to handle stripe events',
+    description:
+      'Paystack payment URL returned — redirect user to capture card',
     schema: {
       example: {
         success: true,
         statusCode: HttpStatus.OK,
-        message: 'Webhook to handle stripe events',
+        message: 'Trial session created',
+        data: { checkoutSessionUrl: 'https://checkout.paystack.com/...' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Trial already used for this email address',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.CONFLICT,
+        message: 'Trial already used',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized!',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error!',
+        data: null,
+      },
+    },
+  })
+  async startTrial(
+    @CurrentUser() user: User,
+    @OriginUrl() originUrl: string,
+  ): Promise<StandardResponse<CreateCheckoutSessionResponse>> {
+    const trialSession = await this.paymentService.createTrialSession({
+      userId: user.id,
+      originUrl,
+    });
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Trial session created',
+      data: trialSession,
+    };
+  }
+
+  // ================================================================
+  //. Cancel subscription (disable auto-renewal)
+  // ================================================================
+  @Post('cancel')
+  @UseGuards(ApiGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Cancel (disable auto-renewal on) the active subscription',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'Subscription cancellation scheduled — access continues until period end',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Subscription cancelled',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'No active subscription found',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Subscription not found',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized!',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error!',
+        data: null,
+      },
+    },
+  })
+  async cancelSubscription(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.paymentService.cancelSubscription({ userId: user.id });
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Subscription cancelled',
+      data: null,
+    };
+  }
+
+  // ================================================================
+  //. Resume subscription (re-enable auto-renewal)
+  // ================================================================
+  @Post('resume')
+  @UseGuards(ApiGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resume a previously cancelled subscription' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Auto-renewal re-enabled on the subscription',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Subscription resumed',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'No subscription found to resume',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Subscription not found',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized!',
+        data: null,
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error!',
+        data: null,
+      },
+    },
+  })
+  async resumeSubscription(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.paymentService.resumeSubscription({ userId: user.id });
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Subscription resumed',
+      data: null,
+    };
+  }
+
+  // ================================================================
+  //. Webhook to handle paystack events
+  // ================================================================
+  @Post('webhook')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Webhook to handle paystack events' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Webhook to handle paystack events',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Webhook to handle paystack events',
         data: null,
       },
     },
   })
   async handleWebhook(
     @RawBody() body: Buffer,
-    @StripeSig() signature: string,
+    @PaystackSig() signature: string,
   ): Promise<StandardResponse<null>> {
     await this.paymentService.handleWebhook(body, signature);
 
     return {
       success: true,
       statusCode: HttpStatus.OK,
-      message: 'Webhook to handle stripe events',
+      message: 'Webhook to handle paystack events',
       data: null,
     };
   }
