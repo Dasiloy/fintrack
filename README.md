@@ -45,7 +45,7 @@ graph TD
     end
 
     subgraph Storage
-        FS --> DB[(Aiven PostgreSQL<br/>Prisma ORM)]
+        FS --> DB[(PostgreSQL<br/>Prisma ORM)]
         AS --> DB
         PS --> DB
         GW --> RD[(Upstash Redis<br/>Cache · Rate-limit)]
@@ -53,7 +53,7 @@ graph TD
 
     subgraph External
         GW -->|webhook| MONO[Mono Bank API]
-        GW -->|webhook| STRIPE[Stripe]
+        GW -->|webhook| PAYSTACK[PayStack]
         NS -->|email| MAIL[Mailtrap / SMTP]
         NS -->|push| FCM[Firebase FCM]
         AIS -->|LLM| AI[OpenAI · Anthropic<br/>Google Gemini]
@@ -68,11 +68,11 @@ graph TD
 | **Web**            | Next.js 15, React Server Components, Tailwind CSS, tRPC, TanStack Query |
 | **API Gateway**    | NestJS (REST + Swagger), BullMQ, Passport JWT                           |
 | **Microservices**  | NestJS, gRPC (protoc-gen-ts_proto)                                      |
-| **Database**       | Aiven PostgreSQL, Prisma ORM                                            |
+| **Database**       | PostgreSQL, Prisma ORM                                                  |
 | **Cache / Queues** | Upstash Redis, BullMQ                                                   |
 | **AI**             | OpenAI, Anthropic Claude, Google Gemini                                 |
 | **Bank Sync**      | Mono Connect (Nigerian banks)                                           |
-| **Payments**       | Stripe Checkout + Billing Portal                                        |
+| **Payments**       | Paystack Checkout + Billing Portal                                      |
 | **Push**           | Firebase Cloud Messaging (FCM)                                          |
 | **Email**          | Mailtrap (dev) / SMTP provider (prod), Handlebars templates             |
 | **Auth**           | NextAuth v5, Google OAuth, TOTP 2FA, OTP email verification             |
@@ -90,7 +90,7 @@ graph TD
 - 🎯 **Savings Goals** — Target amount + date goals with contribution tracking, goal-status auto-evaluation, and linked transactions.
 - 🔄 **Recurring Items** — Scheduler-driven (BullMQ, hourly) recurring income/expense creation with deterministic idempotency keys, email summaries, and end-date deactivation.
 - 🤝 **Bill Splitting** — Create splits, add participants, record settlement payments, and track per-participant balances.
-- 💳 **Subscriptions** — Stripe Checkout for PRO plan upgrades, Stripe Billing Portal for self-service management, and gated usage limits enforced at the API layer.
+- 💳 **Subscriptions** — Paystack Checkout for PRO plan upgrades, self-service billing management, and gated usage limits enforced at the API layer.
 - 🔔 **Notifications** — FCM push notifications + transactional emails (verification, password reset, recurring summaries, budget alerts).
 
 ---
@@ -105,7 +105,7 @@ fintrack/
 │   ├── finance_service/      # gRPC — transactions, budgets, goals, splits, recurring, categories
 │   ├── ai_service/           # gRPC — transaction classification, AI insights, chat
 │   ├── scheduler_service/    # gRPC + BullMQ — recurring transaction processor
-│   ├── payment_service/      # gRPC — Stripe checkout & webhook handling
+│   ├── payment_service/      # gRPC — Paystack checkout & webhook handling
 │   ├── notification_service/ # gRPC — email (Handlebars) + FCM push
 │   └── web/                  # Next.js 15 web application
 ├── packages/
@@ -122,42 +122,125 @@ fintrack/
 
 ---
 
+## 🛠️ Service Overviews
+
+### API Gateway (`apps/api_gateway` · port 4001)
+
+The single HTTP entry point for all clients. Not a pass-through proxy — it owns Prisma directly for modules that do not need a dedicated microservice and is responsible for all real-time Socket.io connections.
+
+- **14 feature modules** behind a unified NestJS server — REST + tRPC; Swagger UI at `/api/docs`
+- Every request passes: `ThrottlerGuard` (10 req/60s) → `DeviceMiddleware` → `JwtAuthGuard` (validates token via gRPC to `auth_service`) → `ValidationPipe`
+- Handles Mono bank-link and Paystack payment webhooks over HTTP
+- Real-time analytics and activity feeds via Socket.io
+
+### Auth Service (`apps/auth_service` · gRPC port 4002)
+
+Sole owner of identity — no other service performs authentication logic. All services delegate via gRPC.
+
+- Registration (bcrypt hash, Prisma transaction: User + Subscription + UsageTrackers) → OTP email verification → login → JWT access + refresh token pair
+- Google OAuth via NextAuth v5; TOTP 2FA with per-device session management (max 2 active sessions)
+- All auth-lifecycle emails (verification, password reset, welcome) go through BullMQ — never direct SMTP
+
+### Finance Service (`apps/finance_service` · gRPC port 4003)
+
+Source of truth for all financial data. Five gRPC modules, all protected by `RpcAuthGuard` (validates `userId` from gRPC metadata).
+
+- **Transactions** — CRUD + `BatchCreateTransactions` for Mono bank sync (single `createMany`; idempotency via `(userId, source, sourceId)` unique constraint)
+- **Budgets** — per-category with carry-over, alert thresholds, period tracking
+- **Goals** — target-amount + date savings goals with contribution history
+- **Recurring** — income/expense templates that the scheduler materialises hourly
+- **Splits** — multi-participant expense splitting with per-participant settlement tracking
+
+### Scheduler Service (`apps/scheduler_service` · gRPC port 4005)
+
+No HTTP or gRPC endpoints — runs entirely on its own clock; never called by other services.
+
+| Cron | Job | What it does |
+| ------------- | ------------------------------ | ----------------------------------------------------------------- |
+| `0 3 * * *` | Account Cleanup | Hard-deletes users past `scheduledDeletionAt`; cascades all rows |
+| `0 * * * *` | Recurring Transactions | Creates all recurring items that are due in the current hour |
+| `0 1 1 * *` | Usage Reset | Resets monthly AI usage counters on the first of each month |
+
+### Notification Service (`apps/notification_service` · gRPC port 4009)
+
+No HTTP or gRPC endpoints — entirely queue-driven via BullMQ. Callers publish and return immediately; BullMQ handles retries on SMTP failures.
+
+- `TOKEN_NOTIFICATION_QUEUE` → auth-lifecycle emails: verification, welcome, password flows, recurring summaries
+- `PAYMENT_QUEUE` → subscription billing emails
+- Handlebars templates; Mailtrap sandbox in dev, sending API in prod (switched by `NODE_ENV`)
+
+### Payment Service (`apps/payment_service` · gRPC port 4008)
+
+Single boundary between the system and Paystack. No other service touches the Paystack API directly.
+
+- Checkout session creation, billing portal, webhook verification, and subscription state sync
+- Subscription status drives all feature gating across services via `UsageService`
+
+### AI Service (`apps/ai_service` · gRPC port 4004)
+
+Two-pass transaction categorisation pipeline (token scoring → LLM batch fallback), AI insights generation, and chat. See [AI-SERVICE.md](docs/AI-SERVICE.md) for the full deep-dive.
+
+---
+
+## 🗄️ Database Migration Strategy
+
+Three environments: local dev, staging, and production. Migrations are applied automatically by GitHub Actions — never run manually against staging or production.
+
+**Creating a migration locally** (after editing `packages/database/prisma/schema.prisma`):
+
+```bash
+pnpm --filter @fintrack/database exec prisma migrate dev --name describe_your_change
+pnpm --filter @fintrack/database exec prisma generate
+```
+
+**Automated deployment:**
+
+| Branch push | Secret used | What happens |
+| ----------- | ----------------------- | --------------------------------------- |
+| `staging` | `STAGING_DATABASE_URL` | `prisma migrate deploy` → staging DB |
+| `main` | `PROD_DATABASE_URL` | `prisma migrate deploy` → production DB |
+
+**Golden rule — additive migrations only.** Migrations run in parallel with Railway's code deploy. Old code must stay functional against the new schema during the deploy window. Safe in one release: add nullable column, add column with `DEFAULT`, add new table/index/enum value. Requires two releases: drop column, rename column, change column type, add `NOT NULL` without a default.
+
+---
+
+## 🎨 Design System
+
+Dark mode glassmorphism aesthetic. Primary typeface is **Manrope** (Google Fonts). Tailwind utility classes throughout — no inline style tokens in components.
+
+### Color Tokens
+
+| Token | Hex | Use |
+| -------------- | --------- | ------------------------------ |
+| Primary | `#7C7AFF` | Buttons, accents |
+| Success | `#00D9A5` | Positive values, income |
+| Error | `#FF6B6B` | Expenses, over-budget alerts |
+| Warning | `#FFB020` | Budget warnings, pending state |
+| Background | `#0F0F14` | Page background |
+| Elevated | `#18181D` | Raised surfaces |
+| Surface | `#1C1C23` | Cards, panels |
+| Text Primary | `#FFFFFF` | Headings |
+| Text Secondary | `#B4B4C0` | Body text |
+| Text Tertiary | `#8B8B98` | Captions, labels |
+| Text Disabled | `#5A5A68` | Disabled / placeholder |
+
+### Type Scale
+
+| Level | Size | Weight |
+| ------- | ----- | ----------- |
+| H1 | 32px | 700 (Bold) |
+| H2 | 24px | 700 (Bold) |
+| H3 | 20px | 600 |
+| Body | 14px | 400 |
+| Caption | 12px | 400 |
+| Overline | 11px | 600 (upper) |
+
+---
+
 ## 📜 Documentation
 
-### Architecture & Services
-
-- [System Architecture](docs/ARCHITECTURE.md)
-- [API Gateway](docs/API-GATEWAY.md)
-- [Auth Service](docs/AUTH-SERVICE.md)
-- [Finance Service](docs/FINANCE-SERVICE.md)
-- [AI Service](docs/AI-SERVICE.md)
-- [Payment Service](docs/PAYMENT-SERVICE.md)
-- [Scheduler Service](docs/SCHEDULER-SERVICE.md)
-- [Notification Service](docs/NOTIFICATION-SERVICE.md)
-
-### Features & Flows
-
-- [Features & DSA Mapping](docs/FEATURES.md)
-
-### Security & Integrations
-
-- [OAuth Setup](docs/OAUTH.md)
-- [2FA / TOTP](docs/2FA-TOTP.md)
-- [Stripe & Subscriptions](docs/STRIPE.md)
-
-### Frontend
-
-- [Design System & UI/UX](docs/DESIGN-SYSTEM.md)
-
-### Deployment & Operations
-
-- [Render Deployment](docs/RENDER.md)
-- [Database Migrations Guide](docs/DATABASE-MIGRATIONS.md)
-
-### Reference
-
-- [Case Study & Business Value](docs/CASE-STUDY.md)
-- [API Contract Template](docs/API-CONTRACT-TEMPLATE.json)
+- [AI Service Deep-Dive](docs/AI-SERVICE.md)
+- [Paystack Payments & Free Trial](docs/PAYSTACK-PAYMENTS.md)
 - [Backlog & Bug Tracker](docs/BACKLOG.md)
 
 ---
@@ -184,15 +267,13 @@ git --version
 
 Create a free account for each service below and collect the credentials — you will paste them into your `.env` files in step 4.
 
-#### Aiven PostgreSQL (primary database)
+#### PostgreSQL (primary database)
 
-All services share one Postgres database via Prisma. The Aiven free tier allows **16 concurrent connections** — the pool allocation is pre-configured per service in each `.env.example`.
+All services share one Postgres database via Prisma. Use any hosted Postgres provider (Railway, Neon, Supabase, etc.).
 
-1. Sign up at <https://console.aiven.io> (free tier, no credit card for trial).
-2. Create a new **PostgreSQL** service (choose the region closest to you).
-3. Go to **Connection Info** and copy the **Service URI** (pooled).
-4. Format: `postgresql://user:password@host:port/dbname?sslmode=require`
-5. Also copy the **CA Certificate** (Base64) → `DATABASE_CA_CERTIFICATE`.
+1. Create a PostgreSQL database on your provider of choice.
+2. Copy the connection string from your provider's dashboard.
+3. Format: `postgresql://user:password@host:port/dbname`
 
 #### Upstash Redis (cache, rate limiting, BullMQ queues)
 
@@ -223,12 +304,12 @@ Profile pictures and receipt attachments are stored in Cloudinary.
 1. Sign up at <https://cloudinary.com> (free tier).
 2. Dashboard → **Cloud name** → `CLOUDINARY_ID`.
 
-#### Stripe (subscriptions)
+#### Paystack (subscriptions)
 
-1. Sign up at <https://dashboard.stripe.com>.
-2. **Developers → API keys** → copy the secret key → `STRIPE_SECRET_KEY`.
-3. Create a **Product** with a monthly price → copy the Price ID → `STRIPE_PRO_MONTHLY_PRICE_ID`.
-4. **Developers → Webhooks** → add a local endpoint via `stripe listen` → copy the signing secret → `STRIPE_WEBHOOK_SECRET`.
+1. Sign up at <https://dashboard.paystack.com>.
+2. **Settings → API Keys & Webhooks** → copy the secret key → `PAYSTACK_SECRET_KEY`, public key → `PAYSTACK_PUBLISHABLE_KEY`.
+3. **Products → Plans** → create a monthly Pro plan → copy the Plan Code → `PAYSTACK_PRO_MONTHLY_PRICE_ID`.
+4. **Settings → API Keys & Webhooks** → add your gateway webhook URL and copy the signing secret → `PAYSTACK_WEBHOOK_SECRET`.
 
 #### Mono Connect (Nigerian bank sync)
 
@@ -445,9 +526,9 @@ npx kill-port 4001   # or whichever port is blocked
 
 Upstash requires TLS. `REDIS_URL` must start with `rediss://` (two `s`). A plain `redis://` URL will fail.
 
-#### Aiven DB connection pool exhausted
+#### DB connection pool exhausted
 
-The free tier allows 16 total connections. The default pool allocation across all services sums to ~13, leaving headroom for migrations and ad-hoc queries. If you add services, adjust `DB_POOL_MAX` in each service's `.env` to stay within the limit.
+Check the connection limit for your Postgres provider. The default pool allocation across all services sums to ~13 (`DB_POOL_MAX` across each service's `.env`). If you add services or hit connection errors, lower `DB_POOL_MAX` on low-traffic services to stay within your provider's limit.
 
 ---
 

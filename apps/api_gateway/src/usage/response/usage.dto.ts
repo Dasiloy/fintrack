@@ -5,7 +5,9 @@ export interface GatedUsageResponse {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   cancelAtPeriodEnd: boolean;
-  stripeCurrentPeriodEnd: string | null;
+  currentPeriodEnd: string | null;
+  /** True if this email has already claimed the free trial — the guard survives account deletion */
+  trialUsed: boolean;
   usage: Partial<
     Record<Usage, { count: number; periodStart: string; periodEnd: string }>
   >;

@@ -58,7 +58,6 @@ export interface InvoicePaidEmailPayload {
   periodEnd: string;
   paymentDate: string;
   email: string;
-  hostedInvoiceUrl: string;
 }
 
 export interface PaymentFailedEmailPayload {

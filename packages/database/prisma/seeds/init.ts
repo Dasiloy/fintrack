@@ -258,34 +258,6 @@ function genSourceId(prefix: 'TXN' | 'REC', date: Date): string {
 async function main() {
   await prisma.$connect();
 
-  // ── Require SEED_USER_EMAIL ───────────────────────────────────────────────
-  //
-  // This is mandatory. The seed does not auto-discover users — it targets the
-  // exact account you specify so there's no risk of polluting the wrong user.
-  //
-  const seedEmail = process.env['SEED_USER_EMAIL'];
-
-  if (!seedEmail) {
-    console.error('\n❌  SEED_USER_EMAIL is not set.');
-    console.error('    Add it to your .env file and re-run:\n');
-    console.error('    SEED_USER_EMAIL=your@email.com\n');
-    process.exit(1);
-  }
-
-  // ── Locate the target account ─────────────────────────────────────────────
-  console.log(`\n👤 Looking up user: ${seedEmail}`);
-
-  const user = await prisma.user.findUnique({ where: { email: seedEmail } });
-
-  if (!user) {
-    console.error(`\n❌  No account found for "${seedEmail}".`);
-    console.error('    Sign up at http://localhost:3000/signup first, then re-run the seed.\n');
-    process.exit(1);
-  }
-
-  console.log(`   ✓ Found: ${user.firstName} ${user.lastName}`);
-  const userId = user.id;
-
   // ── Prompt for sections upfront ───────────────────────────────────────────
   const selected = await selectSections();
   const run = (id: SectionId) => selected.has(id);
@@ -344,6 +316,34 @@ async function main() {
   } else {
     console.log('   ⏭  skipped');
   }
+
+  // ── Require SEED_USER_EMAIL ───────────────────────────────────────────────
+  //
+  // This is mandatory. All Data below need a user The seed does not auto-discover users — it targets the
+  // exact account you specify so there's no risk of polluting the wrong user.
+  //
+  const seedEmail = process.env['SEED_USER_EMAIL'];
+
+  if (!seedEmail) {
+    console.error('\n❌  SEED_USER_EMAIL is not set.');
+    console.error('    Add it to your .env file and re-run:\n');
+    console.error('    SEED_USER_EMAIL=your@email.com\n');
+    process.exit(1);
+  }
+
+  // ── Locate the target account ─────────────────────────────────────────────
+  console.log(`\n👤 Looking up user: ${seedEmail}`);
+
+  const user = await prisma.user.findUnique({ where: { email: seedEmail } });
+
+  if (!user) {
+    console.error(`\n❌  No account found for "${seedEmail}".`);
+    console.error('    Sign up at http://localhost:3000/signup first, then re-run the seed.\n');
+    process.exit(1);
+  }
+
+  console.log(`   ✓ Found: ${user.firstName} ${user.lastName}`);
+  const userId = user.id;
 
   // ── 3. Budgets ────────────────────────────────────────────────────────────
   //

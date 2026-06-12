@@ -110,13 +110,6 @@ export function AccountDrawer({
                 </p>
                 <p className="text-text-tertiary mt-0.5 text-[12px]">{account?.bankName}</p>
               </div>
-
-              <div className="bg-bg-surface shadow-card mt-1 rounded-xl px-5 py-2 text-center">
-                <p className="text-text-primary text-[20px] font-bold tabular-nums">
-                  {formatCurrency(Number(account?.accountBalance ?? 0))}
-                </p>
-                <p className="text-text-disabled text-[10px]">{account?.accountCurrency} balance</p>
-              </div>
             </div>
 
             <Separator className="bg-border-light" />

@@ -24,6 +24,7 @@ import { PrismaService } from '@fintrack/database/service';
 import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
 import { MONO_PENDING_TTL_SECONDS } from '@fintrack/types/constants/mono.contants';
 import { EncryptionService } from '@fintrack/common/services/encryption.service';
+import { FetcherService } from '@fintrack/common/services/fetcher.service';
 import {
   MonoAccountConnectedPayload,
   MonoAccountData,
@@ -50,6 +51,7 @@ export class AccountService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly encryption: EncryptionService,
+    private readonly fetcher: FetcherService,
     private readonly fcmService: FcmService,
     private readonly usageService: UsageService,
     @InjectQueue(MONO_QUEUE) private readonly monoQueue: Queue,
@@ -451,32 +453,26 @@ export class AccountService {
   private async exchangeMonoCode(code: string): Promise<string> {
     const secretKey = this.config.getOrThrow<string>('MONO_SECRET_KEY');
 
-    const response = await fetch('https://api.withmono.com/v2/accounts/auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'mono-sec-key': secretKey,
-      },
-      body: JSON.stringify({ code }),
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      this.logger.error(
-        `Mono code exchange failed (${response.status}): ${text}`,
+    try {
+      const { data: result } = await this.fetcher.post<{
+        data: { id: string };
+      }>(
+        'https://api.withmono.com/v2/accounts/auth',
+        { code },
+        { headers: { 'mono-sec-key': secretKey } },
       );
+
+      if (!result.data?.id) {
+        throw new InternalServerErrorException(
+          'Mono code exchange returned no account ID',
+        );
+      }
+
+      return result.data.id;
+    } catch (error) {
+      if (error instanceof InternalServerErrorException) throw error;
       throw new InternalServerErrorException('Failed to exchange Mono code');
     }
-
-    const result = (await response.json()) as { data: { id: string } };
-
-    if (!result.data?.id) {
-      throw new InternalServerErrorException(
-        'Mono code exchange returned no account ID',
-      );
-    }
-
-    return result.data.id;
   }
 
   /**
@@ -491,35 +487,26 @@ export class AccountService {
   ): Promise<GetMonoAccountRealtimeDataRes> {
     const secretKey = this.config.getOrThrow<string>('MONO_SECRET_KEY');
 
-    const response = await fetch(`https://api.withmono.com/v2/accounts/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'mono-sec-key': secretKey,
-      },
-    });
+    try {
+      const { data: result } = await this.fetcher.get<{
+        data: GetMonoAccountRealtimeDataRes;
+      }>(`https://api.withmono.com/v2/accounts/${id}`, {
+        headers: { 'mono-sec-key': secretKey },
+      });
 
-    if (!response.ok) {
-      const text = await response.text();
-      this.logger.error(
-        `Mono account fetch failed (${response.status}): ${text}`,
-      );
+      if (!result.data) {
+        throw new InternalServerErrorException(
+          'Account details could not be retrieved',
+        );
+      }
+
+      return result.data;
+    } catch (error) {
+      if (error instanceof InternalServerErrorException) throw error;
       throw new InternalServerErrorException(
         'Failed to fetch Mono account details',
       );
     }
-
-    const result = (await response.json()) as {
-      data: GetMonoAccountRealtimeDataRes;
-    };
-
-    if (!result.data) {
-      throw new InternalServerErrorException(
-        'Account details could not be retrieved',
-      );
-    }
-
-    return result.data;
   }
 
   /**
