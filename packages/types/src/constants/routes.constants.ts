@@ -19,6 +19,11 @@ export const STATIC_ROUTES = {
   COMMUNITY: '/community',
 };
 
+/** Post-signup onboarding paths — shown once right after account creation */
+export const ONBOARDING_ROUTES = {
+  TRIAL: '/welcome/trial',
+} as const;
+
 /** Dashboard app navigation paths — use these for all sidebar and in-app links */
 export const DASHBOARD_ROUTES = {
   DASHBOARD: '/dashboard',
