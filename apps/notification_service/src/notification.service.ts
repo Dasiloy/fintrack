@@ -93,7 +93,7 @@ export class NotificationService {
       this.logger.log(`Welcome email sent to ${data.email}`);
     } catch (error) {
       this.logger.error(
-        `Failed to create stripe customer for user ${data.id}`,
+        `Failed to send welcome email to ${data.email}`,
         error.stack,
       );
       throw error;
@@ -221,7 +221,7 @@ export class NotificationService {
       await this.sendEmail({
         to: data.email,
         subject: 'Subscription Activated - Fintrack',
-        template: './stripe_checkout',
+        template: './subscription_created',
         context: {
           firstName: data.firstName,
           planName: data.planName,
@@ -258,7 +258,6 @@ export class NotificationService {
           periodStart: data.periodStart,
           periodEnd: data.periodEnd,
           paymentDate: data.paymentDate,
-          hostedInvoiceUrl: data.hostedInvoiceUrl,
         },
       });
     } catch (error) {

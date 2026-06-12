@@ -86,7 +86,9 @@ export class PaymentNotification extends WorkerHost {
           job.data,
         );
       case NEW_USAGE_TRACKERS_CREATED_JOB:
-        return this.notificationService.sendAccountDeletionEmail(job.data);
+        return this.notificationService.sendNewUsageTrackersCreatedEmail(
+          job.data,
+        );
       case SUBSCRIPTION_DELETED_JOB:
         return this.notificationService.sendSubscriptionEndedEmail(job.data);
       default:

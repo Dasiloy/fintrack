@@ -213,19 +213,32 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
 exports.Prisma.SubscriptionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  stripeCustomerId: 'stripeCustomerId',
-  stripeSubscriptionId: 'stripeSubscriptionId',
-  stripePriceId: 'stripePriceId',
-  stripeCurrentPeriodStart: 'stripeCurrentPeriodStart',
-  stripeCurrentPeriodEnd: 'stripeCurrentPeriodEnd',
-  stripeCancelAtPeriodEnd: 'stripeCancelAtPeriodEnd',
+  paystackCustomerCode: 'paystackCustomerCode',
+  paystackSubscriptionCode: 'paystackSubscriptionCode',
+  paystackAuthorizationCode: 'paystackAuthorizationCode',
+  paystackEmailToken: 'paystackEmailToken',
+  paystackPlanCode: 'paystackPlanCode',
+  paystackCurrentPeriodStart: 'paystackCurrentPeriodStart',
+  paystackCurrentPeriodEnd: 'paystackCurrentPeriodEnd',
+  paystackCancelAtPeriodEnd: 'paystackCancelAtPeriodEnd',
   status: 'status',
   plan: 'plan',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.StripeWebhookEventScalarFieldEnum = {
+exports.Prisma.SusbcriptionFreeTrialsScalarFieldEnum = {
+  id: 'id',
+  emailHash: 'emailHash',
+  userId: 'userId',
+  subscriptionId: 'subscriptionId',
+  trialStartsAt: 'trialStartsAt',
+  trialEndsAt: 'trialEndsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaystackWebhookEventScalarFieldEnum = {
   id: 'id',
   eventId: 'eventId',
   eventType: 'eventType',
@@ -301,6 +314,7 @@ exports.Prisma.NotificationSettingScalarFieldEnum = {
   splitsAlertApp: 'splitsAlertApp',
   newsLetterAlert: 'newsLetterAlert',
   communityAlert: 'communityAlert',
+  dailyInsightsEnabled: 'dailyInsightsEnabled',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -813,10 +827,10 @@ exports.VerificationIdentifier = exports.$Enums.VerificationIdentifier = {
 
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
   ACTIVE: 'ACTIVE',
-  CANCELED: 'CANCELED',
-  PAST_DUE: 'PAST_DUE',
-  TRIALING: 'TRIALING',
-  INCOMPLETE: 'INCOMPLETE'
+  NON_RENEWING: 'NON_RENEWING',
+  ATTENTION: 'ATTENTION',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
 };
 
 exports.SubscriptionPlan = exports.$Enums.SubscriptionPlan = {
@@ -925,7 +939,8 @@ exports.Prisma.ModelName = {
   LoginActivity: 'LoginActivity',
   VerificationToken: 'VerificationToken',
   Subscription: 'Subscription',
-  StripeWebhookEvent: 'StripeWebhookEvent',
+  SusbcriptionFreeTrials: 'SusbcriptionFreeTrials',
+  PaystackWebhookEvent: 'PaystackWebhookEvent',
   UsageTracker: 'UsageTracker',
   UserBalance: 'UserBalance',
   MonthlyBalanceSnapshot: 'MonthlyBalanceSnapshot',

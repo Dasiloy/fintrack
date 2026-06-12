@@ -50,6 +50,8 @@ export interface VerifyEmailRes {
   user: User | undefined;
   accessToken: string;
   refreshToken: string;
+  /** true if this email has already claimed the free trial (survives account deletion) — FE uses it to skip the trial opt-in page */
+  trialUsed: boolean;
 }
 
 export interface ResendVerifyEmailTokenReq {
@@ -75,7 +77,15 @@ export interface LoginRes {
   accessToken: string;
   refreshToken: string;
   requiresTwoFactor?: boolean | undefined;
-  twoFactorToken?: string | undefined;
+  twoFactorToken?:
+    | string
+    | undefined;
+  /** true only on the very first sign-in (account created by this login) AND the trial has never been used for this email */
+  isNewUser?:
+    | boolean
+    | undefined;
+  /** true if this email has already claimed the free trial (survives account deletion) */
+  trialUsed?: boolean | undefined;
 }
 
 export interface ForgotPasswordReq {
