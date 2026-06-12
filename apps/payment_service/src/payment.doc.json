@@ -7,13 +7,13 @@
     "rpc_errors": {
       "INVALID_ARGUMENT": "Missing subscription/customer context or invalid business preconditions",
       "UNAUTHENTICATED": "Missing or invalid metadata identity",
-      "INTERNAL": "Unexpected server error while calling Stripe or database operations"
+      "INTERNAL": "Unexpected server error while calling Paystack or database operations"
     }
   },
   "createCheckoutSession": {
     "rpc": "CreateCheckoutSession",
     "proto_method": "rpc CreateCheckoutSession (OriginUrlReq) returns (CreateCheckoutSessionResponse)",
-    "description": "Create a Stripe Checkout session for an authenticated user who does not already have an active Stripe subscription.",
+    "description": "Create a Paystack Checkout session for an authenticated user who does not already have an active Paystack subscription.",
     "authentication": "x-user-id metadata required",
     "input": {
       "originUrl": "string (required) — frontend origin used to build success/cancel URLs"
@@ -22,17 +22,17 @@
       "checkoutSessionUrl": "string"
     },
     "throws": {
-      "INVALID_ARGUMENT": "Subscription record missing or user already has a Stripe subscription",
+      "INVALID_ARGUMENT": "Subscription record missing or user already has a Paystack subscription",
       "INTERNAL": "Failed to create checkout session"
     }
   },
   "createPortalSession": {
     "rpc": "CreatePortalSession",
     "proto_method": "rpc CreatePortalSession (OriginUrlReq) returns (CreatePortalSessionResponse)",
-    "description": "Create a Stripe Billing Portal session for users who already have an associated Stripe customer.",
+    "description": "Create a Paystack Billing Portal session for users who already have an associated Paystack customer.",
     "authentication": "x-user-id metadata required",
     "input": {
-      "originUrl": "string (required) — return URL after completing actions in Stripe portal"
+      "originUrl": "string (required) — return URL after completing actions in Paysatck portal"
     },
     "output": {
       "portalSessionUrl": "string"
@@ -42,16 +42,54 @@
       "INTERNAL": "Failed to create portal session"
     }
   },
+  "createTrialSession": {
+    "rpc": "CreateTrialSession",
+    "proto_method": "rpc CreateTrialSession (OriginUrlReq) returns (CreateCheckoutSessionResponse)",
+    "description": "Start the 2-month free Pro trial. Initializes a ₦50 card-verification charge via Paystack. On charge.success the gateway webhook handler creates the future-dated subscription, encrypts and stores the authorization + email tokens, creates the SusbcriptionFreeTrials abuse-guard record, and refunds the ₦50. The trial period is 60 days (TRIAL_DURATION_DAYS). A given email address can only ever claim one trial — the guard survives account deletion.",
+    "authentication": "x-user-id metadata required",
+    "input": {
+      "originUrl": "string (required) — used to build the Paystack callback URL (redirects to originUrl/dashboard)"
+    },
+    "output": {
+      "checkoutSessionUrl": "string — Paystack hosted payment URL; redirect the user here to capture their card"
+    },
+    "throws": {
+      "INVALID_ARGUMENT": "Subscription record or user details missing",
+      "ALREADY_EXISTS": "Trial already used for this email address (emailHash found in SusbcriptionFreeTrials)",
+      "INTERNAL": "Failed to create trial session"
+    },
+    "side_effects": [
+      "On charge.success (purpose: trial_card_verification): Subscription.plan set to PRO, future-dated paystackSubscriptionCode created, paystackEmailToken + paystackAuthorizationCode encrypted and stored, SusbcriptionFreeTrials row created, ₦50 refunded"
+    ]
+  },
   "cancelSubscription": {
     "rpc": "CancelSubscription",
     "proto_method": "rpc CancelSubscription (Empty) returns (Empty)",
-    "description": "Cancel the authenticated user's Stripe subscription using the persisted stripeSubscriptionId.",
+    "description": "Disable auto-renewal on the authenticated user's active Paystack subscription. The user retains Pro access until paystackCurrentPeriodEnd — the scheduler sweep handles the actual downgrade at period end. The paystackEmailToken is decrypted from storage before the Paystack disable call.",
     "authentication": "x-user-id metadata required",
     "input": "Empty",
     "output": "Empty",
     "throws": {
-      "INVALID_ARGUMENT": "Subscription or stripeSubscriptionId not found",
+      "INVALID_ARGUMENT": "Subscription, paystackSubscriptionCode, or paystackEmailToken not found",
       "INTERNAL": "Failed to cancel subscription"
-    }
+    },
+    "side_effects": [
+      "Paystack fires subscription.disable or subscription.not_renew webhook — gateway handler sets Subscription.status to NON_RENEWING and paystackCancelAtPeriodEnd to true"
+    ]
+  },
+  "resumeSubscription": {
+    "rpc": "ResumeSubscription",
+    "proto_method": "rpc ResumeSubscription (Empty) returns (Empty)",
+    "description": "Re-enable auto-renewal on a previously disabled subscription. Only valid while the subscription is still within its current period (i.e. before paystackCurrentPeriodEnd). The paystackEmailToken is decrypted from storage before the Paystack enable call.",
+    "authentication": "x-user-id metadata required",
+    "input": "Empty",
+    "output": "Empty",
+    "throws": {
+      "INVALID_ARGUMENT": "Subscription, paystackSubscriptionCode, or paystackEmailToken not found",
+      "INTERNAL": "Failed to resume subscription"
+    },
+    "side_effects": [
+      "Paystack resumes the subscription — no webhook fired for re-enable; status change confirmed by next invoice.create event"
+    ]
   }
 }
