@@ -2,7 +2,7 @@
 
 echo "VERCEL_GIT_COMMIT_REF: $VERCEL_GIT_COMMIT_REF"
 
-if [[ "$VERCEL_GIT_COMMIT_REF" == "release" || "$VERCEL_GIT_COMMIT_REF" == "staging" || "$VERCEL_GIT_COMMIT_REF" == "main" ]] ; then
+if [[ "$VERCEL_GIT_COMMIT_REF" == "staging" || "$VERCEL_GIT_COMMIT_REF" == "main" ]] ; then
   # On a deploy branch — check if any web-relevant files changed
   CHANGED=$(git diff --name-only HEAD^ HEAD)
   echo "Changed files:"

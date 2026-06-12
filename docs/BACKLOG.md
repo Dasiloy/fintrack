@@ -56,110 +56,74 @@ Items are ordered by priority. Each entry follows the format:
   - Add `MONO_ACCOUNTS_LIMIT` to `PLAN_LIMITS` in `plan.constants.ts`: `FREE: 1, PRO: Infinity`.
   - The Mono Connect widget is triggered from `apps/web/src/hooks/use_mono.ts` — intercept there and gate.
   - Existing connected accounts on free users (if > 1 from before this change) should be grandfathered: show a banner "You have 2 accounts connected. Free plan now supports 1. Upgrade to keep both syncing."
-  - Must ship before or alongside **BL-007** (free trial) — the trial's account-freeze behaviour on expiry depends on this gate being in place.
+  - Must ship before or alongside **BL-004** (Paystack + free trial) — the trial's account-freeze behaviour on expiry depends on this gate being in place.
   - Related files: `packages/types/src/constants/plan.constants.ts`, `apps/api_gateway/src/account/account.service.ts`, `apps/web/src/hooks/use_mono.ts`, `apps/web/src/app/(dashboard)/finances/accounts/`.
 
-### [BL-004] Migrate payment collection from Stripe to Paystack
+### [BL-004] Payment migration to Paystack + 2-month free Pro trial
 
 - **Type**: Tech Debt / Feature
 - **Priority**: Critical
-- **Status**: Pending
-- **Context**: Stripe does not natively support Nigerian Naira (NGN) billing and has poor card acceptance rates for Nigerian-issued cards, making it a bad fit for Fintrack's primary user base. Paystack is purpose-built for the Nigerian and African market, supports NGN natively, and has significantly higher acceptance rates for local cards and bank transfers. All subscription billing must be migrated from Stripe to Paystack.
+- **Status**: Ongoing
+- **Context**: Two tightly-coupled workstreams. (1) Stripe does not natively support Nigerian Naira (NGN) billing and has poor card acceptance for Nigerian-issued cards — all subscription billing must move to Paystack, which is purpose-built for the Nigerian market. (2) Every new user gets a 2-month free Pro trial to experience the full product before paying — the single biggest conversion lever. The trial is implemented _on top of_ Paystack's future-dated subscription flow, which is why both are now one item: the trial cannot ship without the Paystack migration, and the migration's subscription model is shaped by the trial requirement. **Full code-level implementation lives in [`docs/PAYSTACK-PAYMENTS.md`](./PAYSTACK-PAYMENTS.md)** — this entry is the summary.
 - **Notes**:
+
+  **Part A — Stripe → Paystack migration**
+
   - **Remove**: `payment_service` Stripe SDK, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_MONTHLY_PRICE_ID` env vars.
-  - **Add**: Paystack SDK (`paystack-node` or official Paystack client), `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, `PAYSTACK_WEBHOOK_SECRET`, `PAYSTACK_PRO_MONTHLY_PLAN_CODE` env vars.
-  - **Subscription flow**:
-    - Replace Stripe Checkout with Paystack's hosted payment page (`/transaction/initialize`).
-    - Replace Stripe subscription objects with Paystack Plans + Subscriptions API.
-    - Replace Stripe webhook events (`customer.subscription.updated`, `invoice.payment_succeeded`, etc.) with Paystack equivalents (`subscription.create`, `charge.success`, `subscription.disable`, `invoice.create`).
-  - **Webhook verification**: replace Stripe signature verification with Paystack HMAC-SHA512 header check (`x-paystack-signature`).
-  - **Frontend**: replace `loadStripe` / Stripe Elements with Paystack Inline JS or redirect to Paystack's hosted page. Remove `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` from the web app.
-  - **DB migration**: `Subscription` model stores `stripePriceId`, `stripeCustomerId`, `stripeSubscriptionId`, `stripeCurrentPeriodEnd`, `stripeCancelAtPeriodEnd` — rename or add Paystack equivalents (`paystackCustomerCode`, `paystackSubscriptionCode`, `paystackPlanCode`, `paystackNextPaymentDate`, `paystackStatus`).
-  - **Related files**:
-    - `apps/payment_service/src/payment.service.ts`
-    - `apps/payment_service/src/payment.module.ts`
-    - `apps/api_gateway/src/payment/payment.service.ts`
-    - `apps/api_gateway/src/payment/payment.controller.ts`
-    - `apps/notification_service/src/processors/payment_notification.pro.ts`
-    - `packages/database/prisma/schema.prisma` (Subscription model)
-    - Root `.env.example` (Stripe vars block)
+  - **Add**: Paystack SDK / fetch wrapper, `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLISHABLE_KEY`, `PAYSTACK_PRO_MONTHLY_PRICE_ID` env vars (matches `.env.example` and `turbo.json`).
+  - **Source of truth**: a `PaystackService` in `packages/common` (shared module) wraps all Paystack REST calls; both `payment_service` and `api_gateway` consume it rather than each re-implementing HTTP/signature logic.
+  - **Subscription flow**: replace Stripe Checkout with Paystack hosted page (`/transaction/initialize`); replace Stripe subscription objects with Paystack Plans + Subscriptions; map webhook events (`charge.success`, `subscription.create`, `subscription.disable`, `invoice.create`, `invoice.payment_failed`).
+  - **Webhook verification**: Paystack HMAC-SHA512 over the raw body, compared against the `x-paystack-signature` header.
+  - **Frontend**: replace `loadStripe` / Stripe Elements with Paystack Inline JS or hosted-page redirect; drop `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
+  - **DB migration**: `Subscription` model — replace `stripe*` columns with Paystack equivalents (`paystackCustomerCode`, `paystackSubscriptionCode`, `paystackPlanCode`, `paystackNextPaymentDate`, `paystackStatus`, `paystackAuthorizationCode`).
 
-### [BL-005] In-app soft limit warning banner
+  **Part B — 2-month free Pro trial (Paystack future-dated subscription)**
 
-- **Type**: Improvement
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Users who do not know they are close to their limit cannot be nudged to upgrade. Showing "3 of 5 AI insights used this month" at 60%+ creates a countdown effect that is more motivating than a hard wall.
-- **Notes**:
-  - Show when usage ≥ 60% of the monthly limit:
+  - **Trial-eligibility table is NOT related to `User`** — it is a standalone table keyed by normalized/hashed email that survives account deletion. When a user deletes their account (data removed/archived) and later re-registers with the same email, the prior trial record still blocks a second trial. This is the abuse guard; `trialUsed` must never live only on the user-scoped `Subscription` row.
+  - **Activation = enterprise/future-dated subscription pattern**: tokenize the card with a small verification charge (e.g. ₦50, refunded or applied), then create a Paystack subscription with `start_date` set 2 months out. The user is granted Pro **immediately**; Paystack auto-charges the full plan at `start_date` unless the user cancels first. (No "downgrade nudge" model — this is opt-out auto-conversion.)
+  - **Usage gating**: an active trial is treated identically to `plan = 'PRO'` across every feature gate in `apps/api_gateway/src/usage/usage.service.ts`.
+  - **Pre-billing notices** (required for card-on-file auto-conversion): email at day ~45 and day ~58 — "Your card will be charged ₦X on [date]; cancel anytime." Templates in `apps/notification_service/templates/`.
+  - **Cancellation before `start_date`**: disable the Paystack subscription, user reverts to FREE at trial end. Bank accounts 2+ freeze (greyed cards, "Sync paused — Upgrade to resume", data preserved). Requires **BL-003** (multi-account gating), already shipped.
+  - **Trigger = post-registration onboarding** (decided): registration creates a FREE subscription with no card; the trial is activated from an onboarding step ("Start your 2-month free Pro trial"), which the user can skip. Industry standard for consumer fintech — users get in first, card is collected at the moment of intent.
+  - **No card data stored**: the card is tokenized by Paystack (we keep only the `authorization_code` token — no card metadata). PCI scope stays SAQ-A.
+  - **Self-service billing**: no in-app card-edit or cancel forms — a single "Manage subscription" button opens Paystack's hosted manage link (`/subscription/:code/manage/link`); cancellations flow back as `subscription.disable` / `subscription.not_renew` webhooks.
+  - **Related files**: `packages/common/` (PaystackService), `apps/payment_service/src/`, `apps/api_gateway/src/payment/`, `apps/api_gateway/src/usage/usage.service.ts`, `apps/auth_service/src/` (registration), `apps/scheduler_service/src/` (trial-end sweep), `apps/notification_service/`, `packages/database/prisma/schema.prisma`, root `.env.example`.
 
-    ```text
-    AI Insights · 3 of 5 used this month   [Upgrade to Pro →]
-    ```
-
-  - Below 60%: hidden. 60–99%: amber warning chip. 100%: red — "You've reached your limit. Upgrade to continue."
-  - Files to create/modify:
-    - `apps/web/src/app/_components/usage_warning_banner.tsx` — new component
-    - `apps/web/src/app/(ai)/advisor/_components/insights_panel.tsx` — render banner above insights list
-    - `apps/web/src/app/(dashboard)/dashboard_layout.tsx` — render for AI chat usage
-  - Plan usage data is already fetched in `plan_usage_provider.tsx`. No new API calls needed.
-
-### [BL-006] Post-limit upgrade flow improvement
+### [BL-005] Upgrade nudge banners — quota progress and slot-approach warnings
 
 - **Type**: Improvement
 - **Priority**: High
 - **Status**: Pending
-- **Context**: When a free user hits a hard limit (e.g. tries to add a 6th budget), the `ProGateModal` shows immediately and routes to `/pricing`. What is missing is a soft warning _before_ they hit the wall — priming the upgrade decision before the frustration of a hard stop.
+- **Context**: Free users have no visibility into how close they are to any of their limits until they hit a hard wall (`ProGateModal`). Two banner patterns are needed across all usage-gated and count-capped features: (1) a monthly quota progress bar that counts down toward zero for rolling monthly limits, and (2) an inline slot-approach warning shown on list pages when the user is within one slot of a count cap. Both patterns use the same upgrade CTA and share data already available in `plan_usage_provider.tsx` — no new API calls required.
 - **Notes**:
-  - When a user is at 4 of 5 budgets (or 2 of 3 goals), show an inline callout on the relevant list page:
+  - **Pattern A — Monthly quota progress** (shown when usage ≥ 60% of monthly limit):
+    - 60–99 %: amber chip — `"X of Y used this month · Upgrade to Pro →"`
+    - 100 %: red chip — `"You've reached your limit. Upgrade to continue."`
 
-    ```text
-    You have 1 budget slot remaining on the free plan.
-    Upgrade to Pro for unlimited budgets. →
-    ```
+    | Feature | Free limit | Render location |
+    | ---------------------- | ---------- | ------------------------------------------------------------------ |
+    | AI Insights | 5 / month | `(ai)/advisor/_components/insights_panel.tsx` |
+    | AI Chat Messages | 10 / month | `(dashboard)/layout` or chat panel |
+    | Receipt Uploads | 10 / month | Upload modal / transaction form |
 
-  - Files to modify:
-    - `apps/web/src/app/(dashboard)/finances/budgets/` — read current count vs limit, show callout when within 1 of limit
-    - `apps/web/src/app/(dashboard)/planning/goals/` — same pattern
-  - Limit and current count are already available via `plan_usage_provider.tsx` and `useCanUseFeature`.
+  - **Pattern B — Slot approach warning** (shown when current count ≥ limit − 1):
+    - `"You have 1 budget slot remaining on the free plan. Upgrade to Pro for unlimited budgets. →"`
+    - For features with a limit of 1 (bank accounts), show once the account is linked: `"You've used your 1 free bank account. Upgrade to link more."`
 
-### [BL-007] 2-month free Pro trial for every new user
+    | Feature | Free limit | Render location |
+    | ---------------------- | ---------- | ------------------------------------------------------------------ |
+    | Budgets | 5 | `(dashboard)/finances/budgets/` |
+    | Recurring Items | 5 | `(dashboard)/finances/recurring/` |
+    | Goals | 3 | `(dashboard)/planning/goals/` |
+    | Active Splits | 3 | `(dashboard)/finances/splits/` |
+    | Custom Categories | 3 | `(dashboard)/settings/categories/` |
+    | Bank Accounts | 1 | `(dashboard)/finances/accounts/` |
 
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: The single biggest reason users don't upgrade is that they have never experienced what Pro feels like. A 2-month trial removes the risk entirely — once they have lived with Pro for 8 weeks and built habits around it, going back to the free plan feels like a downgrade. That friction is what converts. PiggyVest, Cowrywise, and every successful Nigerian fintech acquired early users through generous free periods before monetising.
-- **Notes**:
-  - **Schema additions** (`packages/database/prisma/schema.prisma`, Subscription model):
+  - **Shared component:** `apps/web/src/app/_components/usage_banner.tsx` — accepts `{ used, limit, label, upgradeHref, variant: 'quota' | 'slot' }`. Pattern A drives the colour threshold logic; Pattern B drives the slot-remaining copy. One component, two display modes.
+  - All usage counts and limits are already available via `plan_usage_provider.tsx` and `useCanUseFeature` — no new tRPC calls needed.
+  - Boolean Pro-only gates (`PDF_REPORTS`, `CSV_EXPORT`, `ANALYTICS_ALL_TIME`) are hard-gated via `ProGateModal` and do not need progressive banners — there is no partial-usage concept for binary features.
 
-    ```typescript
-    trialEndsAt   DateTime?
-    isOnTrial     Boolean   @default(false)
-    trialUsed     Boolean   @default(false)  // prevents re-trial on re-registration
-    ```
-
-  - **Auth service** (`apps/auth_service/src/`): on registration, set `trialEndsAt = now + 60d`, `isOnTrial = true`.
-  - **Usage service** (`apps/api_gateway/src/usage/usage.service.ts`): treat `isOnTrial = true` identically to `plan = 'PRO'` when checking all feature gates.
-  - **Scheduler** (`apps/scheduler_service/src/`): daily cron — find `isOnTrial = true` where `trialEndsAt < now`, set `isOnTrial = false`.
-  - **Trial countdown banner** (`apps/web/src/app/_components/`): visible from day 45 onward — "Your Pro trial ends in N days — keep unlimited access for ₦4,500/month."
-  - **Expiry email sequence** (templates in `apps/notification_service/templates/`):
-    - Day 45 (`trial_warning.hbs`): "Your Pro trial ends in 15 days — here is what you will keep and what will change."
-    - Day 58 (`trial_warning.hbs`, parameterised by days remaining): "2 days left — bank sync for additional accounts will pause unless you upgrade."
-    - Day 61 (`trial_expired.hbs`): "Your trial has ended. AI insights are now limited to 5/month. Bank sync for accounts beyond your first has paused."
-  - **Expiry modal** (`apps/web/src/app/_components/trial_expired_modal.tsx`): shown once on first login after trial ends. Non-dismissible for 5 seconds before "Continue on free" becomes clickable. Gate with `trialExpiredAcknowledged` flag on the subscription.
-
-    ```text
-    Your Pro trial has ended.
-    AI insights: limited to 5/month
-    AI advisor: limited to 10 messages/month
-    Bank sync: [N] additional accounts paused
-    [Upgrade to Pro — ₦4,500/month]     [Continue on free plan (available in 5s)]
-    ```
-
-  - **Account freeze on expiry**: accounts 2+ stop syncing but remain visible as greyed-out cards with "Sync paused — Upgrade to resume". Do not delete connections or historical data — visibility without access is more motivating than removal. Requires **BL-003** (multi-account gating) to be shipped first.
-  - **Daily insights toggle prerequisite**: add `dailyInsightsEnabled` boolean to `NotificationSetting` (model already in DB). On trial expiry, prompt free users: "Daily insights are on — 5 days of auto-generation exhausts your monthly quota. Turn off to save them for manual use." Toggle lives in `apps/web/src/app/(dashboard)/settings/account/_components/notification_prefrences.tsx`. Defaults to **on** during the Pro trial.
-
-### [BL-008] Marketing page — legal and security trust section
+### [BL-006] Marketing page — legal and security trust section
 
 - **Type**: Improvement
 - **Priority**: High
@@ -167,11 +131,11 @@ Items are ordered by priority. Each entry follows the format:
 - **Context**: The marketing/landing page currently has no meaningful legal or security trust signals. Before any public launch, users need visible proof that FinTrack takes security and data privacy seriously. This covers both the copy/UI and ensuring real legal documents exist.
 - **Notes**:
   - Add a "Security & Trust" section to the landing page: highlight encryption at rest (**BL-002**), read-only Mono access, no credential storage, and 2FA support.
-  - Ensure real Privacy Policy and Terms of Service documents are linked from the footer. Replace any placeholder links. Minimum viable legal docs should be tailored to NDPR and CBN requirements (see **BL-009** research).
+  - Ensure real Privacy Policy and Terms of Service documents are linked from the footer. Replace any placeholder links. Minimum viable legal docs should be tailored to NDPR and CBN requirements (see **BL-007** research).
   - Add trust badges: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
   - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing).
 
-### [BL-009] Research legal and compliance requirements for finance apps
+### [BL-007] Research legal and compliance requirements for finance apps
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -180,10 +144,10 @@ Items are ordered by priority. Each entry follows the format:
 - **Notes**:
   - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
   - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) implementation priority for each gap.
-  - This research feeds directly into **BL-008** (legal trust page), **BL-010** (bank data handling copy), and **BL-002** (encryption).
+  - This research feeds directly into **BL-006** (legal trust page), **BL-008** (bank data handling copy), and **BL-002** (encryption).
   - Assign to: legal review + engineering lead before any production launch.
 
-### [BL-010] Marketing page — bank account data handling explainer
+### [BL-008] Marketing page — bank account data handling explainer
 
 - **Type**: Feature
 - **Priority**: Medium
@@ -196,7 +160,7 @@ Items are ordered by priority. Each entry follows the format:
   - Include a visual data-flow diagram: User → Mono widget → Mono API → FinTrack backend → encrypted DB.
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
-### [BL-011] Static content audit — realistic MVP copy and authorship
+### [BL-009] Static content audit — realistic MVP copy and authorship
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -211,7 +175,7 @@ Items are ordered by priority. Each entry follows the format:
   - **App name and branding**: Confirm every instance of the product name, logo alt text, and meta tags (title, description, og:image) are accurate.
   - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. Run `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` to surface most issues.
 
-### [BL-012] Recurring billing reminders — frequency-aware advance notice
+### [BL-010] Recurring billing reminders — frequency-aware advance notice
 
 - **Type**: Feature
 - **Priority**: High
@@ -226,7 +190,7 @@ Items are ordered by priority. Each entry follows the format:
   - Only send for `ACTIVE` items where `reminderEnabled = true`.
   - Related files: `apps/scheduler_service/src/`, `packages/database/prisma/schema.prisma` (`RecurringItem` model), notification service, `apps/web/src/app/(dashboard)/finances/bills/`.
 
-### [BL-013] Category deletion — reassign or transfer related entities
+### [BL-011] Category deletion — reassign or transfer related entities
 
 - **Type**: Feature
 - **Priority**: High
@@ -240,7 +204,7 @@ Items are ordered by priority. Each entry follows the format:
   - The "Uncategorized" fallback system category should be seeded and guaranteed to exist (`isSystem: true`) so it is always a valid transfer target.
   - Related files: `apps/api_gateway/src/category/`, `apps/finance_service/src/category/`, `packages/database/prisma/schema.prisma` (Category model — check `onDelete` behaviour on relations), `apps/web/src/app/(dashboard)/finances/budgets/_components/unbudgeted_card.tsx`.
 
-### [BL-014] Import and export transactions from CSV / PDF
+### [BL-012] Import and export transactions from CSV / PDF
 
 - **Type**: Feature
 - **Priority**: High
@@ -252,7 +216,7 @@ Items are ordered by priority. Each entry follows the format:
   - PDF should match FinTrack's visual identity — not a raw data dump.
   - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
 
-### [BL-015] Financial health score — weekly Pro-only metric
+### [BL-013] Financial health score — weekly Pro-only metric
 
 - **Type**: Feature
 - **Priority**: Medium
@@ -269,7 +233,7 @@ Items are ordered by priority. Each entry follows the format:
 
 ## ✅ Done
 
-### ✅ [BL-016] Tighten Free Plan AI limits
+### ✅ [BL-014] Tighten Free Plan AI limits
 
 - **Type**: Improvement
 - **Priority**: High
@@ -281,7 +245,7 @@ Items are ordered by priority. Each entry follows the format:
     - `AI_CHAT_MESSAGES_PER_MONTH`: 20 → 10
   - Also updated `apps/web/src/app/(static)/pricing/_data.ts` — `highlights` array and `COMPARISON_ROWS`.
 
-### ✅ [BL-017] Post-registration 2FA setup prompt
+### ✅ [BL-015] Post-registration 2FA setup prompt
 
 - **Type**: Security
 - **Priority**: High
@@ -293,7 +257,7 @@ Items are ordered by priority. Each entry follows the format:
   - Mount in the dashboard root layout, gated with `!user.twoFaEnabled && !user.hasSeenTwoFaPrompt`.
   - Related files: `apps/web/src/app/(dashboard)/layout.tsx`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`, `apps/auth_service/src/`.
 
-### ✅ [BL-018] Tooltip-based onboarding flow for new web users
+### ✅ [BL-016] Tooltip-based onboarding flow for new web users
 
 - **Type**: Feature
 - **Priority**: High
@@ -305,7 +269,7 @@ Items are ordered by priority. Each entry follows the format:
   - Completion tracked via `hasCompletedOnboarding` in user settings — tour never re-triggers once set.
   - Related files: `apps/web/src/app/(dashboard)/_components/onboarding_tour.tsx`, `apps/web/src/app/(dashboard)/_components/dashboard_client.tsx`, `packages/trpc_app/src/routers/user.ts`.
 
-### ✅ [BL-019] Mailtrap — sandbox in dev, sending API in production
+### ✅ [BL-017] Mailtrap — sandbox in dev, sending API in production
 
 - **Type**: Improvement
 - **Priority**: High
@@ -320,7 +284,24 @@ Items are ordered by priority. Each entry follows the format:
 
 ## 🐛 Bugs
 
-No open bugs.
+### [BG-002] Mono webhook transactions not syncing for Kuda Bank in production
+
+- **Type**: Bug
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Transactions from Kuda Bank are not being ingested via the Mono webhook after 24+ hours in production. The issue is confirmed on Kuda only — no other banks have been tested against the webhook path. It is unclear whether this is Kuda-specific (e.g. a different payload shape or institution code) or a broader webhook processing failure that other banks may also be experiencing silently.
+- **Notes**:
+  - Confirmed failing: Kuda Bank (production), 24+ hrs with no new transactions synced via webhook.
+  - Untested banks: all other Mono-supported institutions (GTBank, Access, Zenith, First Bank, UBA, etc.) — must be validated before assuming they work.
+  - Investigation starting points: Mono webhook delivery logs (Mono dashboard), `apps/finance_service/src/mono/` webhook handler, `apps/api_gateway/src/mono/` — check for institution-specific handling or payload differences for Kuda.
+  - Check whether Kuda payloads use a different `institution.bankCode` or `type` field that the handler doesn't account for.
+  - Add structured logging at the webhook ingestion boundary so failed or unrecognised payloads surface clearly.
+  - **Test cases needed before closing**:
+    - [ ] Kuda Bank: trigger a transaction and confirm it appears within expected SLA
+    - [ ] GTBank, Access Bank, Zenith Bank, First Bank, UBA — at least one transaction each via webhook
+    - [ ] Confirm sync also works via manual sync (not just webhook) as a fallback signal
+    - [ ] Verify webhook signature validation is not silently rejecting Kuda payloads
+    - [ ] Test with both debit and credit transaction types per bank
 
 ---
 

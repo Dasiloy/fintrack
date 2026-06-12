@@ -176,6 +176,30 @@
       "sourceType": "github",
       "computedHash": "fc324672e7400112ea96ba50388d23ab1fddd83c9e79456c7ff53b4d7d8ea806"
     },
+    "paystack-customers": {
+      "source": "rexedge/paystack",
+      "sourceType": "github",
+      "skillPath": "skills/paystack-customers/SKILL.md",
+      "computedHash": "9a9b41618d0d575f91a22fbbde6ff5b74402e1e6fdcf1c4d5d88aef5d6b15513"
+    },
+    "paystack-setup": {
+      "source": "rexedge/paystack",
+      "sourceType": "github",
+      "skillPath": "skills/paystack-setup/SKILL.md",
+      "computedHash": "50a67166063a2c8cbdaf5533d260e09716d31d1974e1356e39b55f8de0897eac"
+    },
+    "paystack-subscriptions": {
+      "source": "rexedge/paystack",
+      "sourceType": "github",
+      "skillPath": "skills/paystack-subscriptions/SKILL.md",
+      "computedHash": "1a5eb6f6aeb61f1e6e3e4e400bd09159ac8cd9875c1135595c0679258c2ff965"
+    },
+    "paystack-transactions": {
+      "source": "rexedge/paystack",
+      "sourceType": "github",
+      "skillPath": "skills/paystack-transactions/SKILL.md",
+      "computedHash": "b2f3087891122b6f2b1b1bf9604e8506c9a00d3f63c801fb62e958e5cd8c914b"
+    },
     "performance": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "github",
