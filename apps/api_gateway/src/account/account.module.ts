@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 
 import { EncryptionService } from '@fintrack/common/services/encryption.service';
+import { FetcherService } from '@fintrack/common/services/fetcher.service';
 
 import { AccountController } from './account.controller';
 import { AccountService } from './account.service';
@@ -21,6 +22,11 @@ import { UsageModule } from '../usage/usage.module';
     FcmModule,
   ],
   controllers: [AccountController],
-  providers: [AccountService, MonoAccountSyncProcessor, EncryptionService],
+  providers: [
+    AccountService,
+    MonoAccountSyncProcessor,
+    EncryptionService,
+    FetcherService,
+  ],
 })
 export class AccountModule {}

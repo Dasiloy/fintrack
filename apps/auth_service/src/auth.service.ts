@@ -22,6 +22,7 @@ import {
   VerificationToken,
 } from '@fintrack/database/types';
 import { EncryptionService } from '@fintrack/common/services/encryption.service';
+import { emailTrialHash } from '@fintrack/common/utils/trial_hash';
 import { TokenPayload } from '@fintrack/types/interfaces/token_payload';
 import { PrismaService } from '@fintrack/database/nest';
 import {
@@ -419,6 +420,14 @@ export class AuthService implements OnModuleInit {
         JSON.stringify(omit(result.user, 'password')),
       );
 
+      // Check trial guard outside the transaction — read-only, non-fatal
+      const trialGuard = await this.prismaService.susbcriptionFreeTrials
+        .findUnique({
+          where: { emailHash: emailTrialHash(result.user.email) },
+          select: { id: true },
+        })
+        .catch(() => null);
+
       return {
         user: {
           id: result.user.id,
@@ -429,6 +438,7 @@ export class AuthService implements OnModuleInit {
         },
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
+        trialUsed: !!trialGuard,
       };
     } catch (error) {
       this.logger.error('VerifyEmail error in AuthService:', error);
@@ -1448,6 +1458,15 @@ export class AuthService implements OnModuleInit {
         result.session,
       );
 
+      // Check trial guard — new account but previously used trial = re-registration abuse
+      const trialGuard = await this.prismaService.susbcriptionFreeTrials
+        .findUnique({
+          where: { emailHash: emailTrialHash(result.user.email) },
+          select: { id: true },
+        })
+        .catch(() => null);
+      const trialUsed = !!trialGuard;
+
       return {
         user: {
           id: result.user.id,
@@ -1458,6 +1477,9 @@ export class AuthService implements OnModuleInit {
         },
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
+        // isNewUser is only true when the account is brand-new AND the trial has never been used
+        isNewUser: result.isNewUser && !trialUsed,
+        trialUsed,
       };
     } catch (error) {
       this.logger.error('LoginWithGoogle error in AuthService', error);
@@ -2275,7 +2297,7 @@ export class AuthService implements OnModuleInit {
    * Ownership is verified via password (skipped for social-only accounts that
    * have no password). When 2FA is enabled `otpCode` is required.
    *
-   * Queues a Stripe subscription cancellation job (stub — wired end-to-end,
+   * Queues a Paystack subscription cancellation job (stub — wired end-to-end,
    * actual SDK call deferred) and an account-deletion confirmation email.
    *
    * @async
@@ -2373,14 +2395,14 @@ export class AuthService implements OnModuleInit {
         });
       }
 
-      // ── Fetch active Stripe subscription for async cancellation ───────────
+      // ── Fetch active subscription for async cancellation ───────────
       const subscription = await this.prismaService.subscription.findUnique({
         where: { userId },
         select: {
-          stripeSubscriptionId: true,
+          paystackSubscriptionCode: true,
           status: true,
           plan: true,
-          stripeCurrentPeriodEnd: true,
+          paystackCurrentPeriodEnd: true,
         },
       });
 
@@ -2397,9 +2419,9 @@ export class AuthService implements OnModuleInit {
         }),
       ]);
 
-      // ── Call stripe api to cancel subscription ────────────────
+      // ── Call paystack api to cancel subscription ────────────────
       if (
-        subscription?.stripeSubscriptionId &&
+        subscription?.paystackSubscriptionCode &&
         subscription.status === 'ACTIVE'
       ) {
         // call payment service to cancel subscription
@@ -2413,7 +2435,7 @@ export class AuthService implements OnModuleInit {
         this.paymentQueue.add(SUBSCRIPTION_DEACTIVATED_JOB, {
           firstName: user.firstName,
           planName: subscription.plan,
-          accessEndsAt: dayjs(subscription.stripeCurrentPeriodEnd).format(
+          accessEndsAt: dayjs(subscription.paystackCurrentPeriodEnd).format(
             'YYYY-MM-DD',
           ),
           email: user.email,
