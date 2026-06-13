@@ -9,7 +9,7 @@ import { BillMenu } from './bill_menu';
 import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 export function BillCard({
-  item, onView, onEdit, onToggle, onDelete, isDeleting }: BillCardProps) {
+  item, onView, onEdit, onToggle, onToggleReminder, onDelete, isDeleting }: BillCardProps) {
   const formatCurrency = useFormatCurrency();
   const accentColor = item.category?.color ?? '#6366f1';
   const initial = (item.merchant ?? item.name ?? '?')[0]?.toUpperCase() ?? '?';
@@ -80,6 +80,7 @@ export function BillCard({
             onView={onView}
             onEdit={onEdit}
             onToggle={onToggle}
+            onToggleReminder={onToggleReminder}
             onDelete={onDelete}
             isDeleting={isDeleting}
           />

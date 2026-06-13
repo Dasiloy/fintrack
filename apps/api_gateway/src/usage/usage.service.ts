@@ -58,7 +58,7 @@ export class UsageService {
     await this.redis
       .setex(cacheKey, GATED_USAGE_TTL, JSON.stringify(data))
       .catch((err) =>
-        this.logger.warn(`Failed to cache gated usage: ${err.message}`),
+        this.logger.warn(`Failed to cache gated usage: ${err.message}.`),
       );
 
     return data;
