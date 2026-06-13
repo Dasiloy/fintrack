@@ -59,16 +59,15 @@ Items are ordered by priority. Each entry follows the format:
   - Must ship before or alongside **BL-004** (Paystack + free trial) — the trial's account-freeze behaviour on expiry depends on this gate being in place.
   - Related files: `packages/types/src/constants/plan.constants.ts`, `apps/api_gateway/src/account/account.service.ts`, `apps/web/src/hooks/use_mono.ts`, `apps/web/src/app/(dashboard)/finances/accounts/`.
 
-### [BL-004] Payment migration to Paystack + 2-month free Pro trial
+### [BL-004] ✅ Payment migration to Paystack + 2-month free Pro trial
 
 - **Type**: Tech Debt / Feature
 - **Priority**: Critical
-- **Status**: Ongoing
+- **Status**: Done
 - **Context**: Two tightly-coupled workstreams. (1) Stripe does not natively support Nigerian Naira (NGN) billing and has poor card acceptance for Nigerian-issued cards — all subscription billing must move to Paystack, which is purpose-built for the Nigerian market. (2) Every new user gets a 2-month free Pro trial to experience the full product before paying — the single biggest conversion lever. The trial is implemented _on top of_ Paystack's future-dated subscription flow, which is why both are now one item: the trial cannot ship without the Paystack migration, and the migration's subscription model is shaped by the trial requirement. **Full code-level implementation lives in [`docs/PAYSTACK-PAYMENTS.md`](./PAYSTACK-PAYMENTS.md)** — this entry is the summary.
 - **Notes**:
 
   **Part A — Stripe → Paystack migration**
-
   - **Remove**: `payment_service` Stripe SDK, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_MONTHLY_PRICE_ID` env vars.
   - **Add**: Paystack SDK / fetch wrapper, `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLISHABLE_KEY`, `PAYSTACK_PRO_MONTHLY_PRICE_ID` env vars (matches `.env.example` and `turbo.json`).
   - **Source of truth**: a `PaystackService` in `packages/common` (shared module) wraps all Paystack REST calls; both `payment_service` and `api_gateway` consume it rather than each re-implementing HTTP/signature logic.
@@ -78,7 +77,6 @@ Items are ordered by priority. Each entry follows the format:
   - **DB migration**: `Subscription` model — replace `stripe*` columns with Paystack equivalents (`paystackCustomerCode`, `paystackSubscriptionCode`, `paystackPlanCode`, `paystackNextPaymentDate`, `paystackStatus`, `paystackAuthorizationCode`).
 
   **Part B — 2-month free Pro trial (Paystack future-dated subscription)**
-
   - **Trial-eligibility table is NOT related to `User`** — it is a standalone table keyed by normalized/hashed email that survives account deletion. When a user deletes their account (data removed/archived) and later re-registers with the same email, the prior trial record still blocks a second trial. This is the abuse guard; `trialUsed` must never live only on the user-scoped `Subscription` row.
   - **Activation = enterprise/future-dated subscription pattern**: tokenize the card with a small verification charge (e.g. ₦50, refunded or applied), then create a Paystack subscription with `start_date` set 2 months out. The user is granted Pro **immediately**; Paystack auto-charges the full plan at `start_date` unless the user cancels first. (No "downgrade nudge" model — this is opt-out auto-conversion.)
   - **Usage gating**: an active trial is treated identically to `plan = 'PRO'` across every feature gate in `apps/api_gateway/src/usage/usage.service.ts`.
@@ -89,53 +87,114 @@ Items are ordered by priority. Each entry follows the format:
   - **Self-service billing**: no in-app card-edit or cancel forms — a single "Manage subscription" button opens Paystack's hosted manage link (`/subscription/:code/manage/link`); cancellations flow back as `subscription.disable` / `subscription.not_renew` webhooks.
   - **Related files**: `packages/common/` (PaystackService), `apps/payment_service/src/`, `apps/api_gateway/src/payment/`, `apps/api_gateway/src/usage/usage.service.ts`, `apps/auth_service/src/` (registration), `apps/scheduler_service/src/` (trial-end sweep), `apps/notification_service/`, `packages/database/prisma/schema.prisma`, root `.env.example`.
 
-### [BL-005] Upgrade nudge banners — quota progress and slot-approach warnings
+### [BL-005] ✅ Upgrade nudge banners — quota progress and slot-approach warnings
 
 - **Type**: Improvement
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Free users have no visibility into how close they are to any of their limits until they hit a hard wall (`ProGateModal`). Two banner patterns are needed across all usage-gated and count-capped features: (1) a monthly quota progress bar that counts down toward zero for rolling monthly limits, and (2) an inline slot-approach warning shown on list pages when the user is within one slot of a count cap. Both patterns use the same upgrade CTA and share data already available in `plan_usage_provider.tsx` — no new API calls required.
 - **Notes**:
   - **Pattern A — Monthly quota progress** (shown when usage ≥ 60% of monthly limit):
     - 60–99 %: amber chip — `"X of Y used this month · Upgrade to Pro →"`
     - 100 %: red chip — `"You've reached your limit. Upgrade to continue."`
 
-    | Feature | Free limit | Render location |
-    | ---------------------- | ---------- | ------------------------------------------------------------------ |
-    | AI Insights | 5 / month | `(ai)/advisor/_components/insights_panel.tsx` |
-    | AI Chat Messages | 10 / month | `(dashboard)/layout` or chat panel |
-    | Receipt Uploads | 10 / month | Upload modal / transaction form |
+    | Feature          | Free limit | Render location                               |
+    | ---------------- | ---------- | --------------------------------------------- |
+    | AI Insights      | 5 / month  | `(ai)/advisor/_components/insights_panel.tsx` |
+    | AI Chat Messages | 10 / month | chat panel                                    |
+    | Receipt Uploads  | 10 / month | Receipt upload page                           |
 
   - **Pattern B — Slot approach warning** (shown when current count ≥ limit − 1):
     - `"You have 1 budget slot remaining on the free plan. Upgrade to Pro for unlimited budgets. →"`
     - For features with a limit of 1 (bank accounts), show once the account is linked: `"You've used your 1 free bank account. Upgrade to link more."`
 
-    | Feature | Free limit | Render location |
-    | ---------------------- | ---------- | ------------------------------------------------------------------ |
-    | Budgets | 5 | `(dashboard)/finances/budgets/` |
-    | Recurring Items | 5 | `(dashboard)/finances/recurring/` |
-    | Goals | 3 | `(dashboard)/planning/goals/` |
-    | Active Splits | 3 | `(dashboard)/finances/splits/` |
-    | Custom Categories | 3 | `(dashboard)/settings/categories/` |
-    | Bank Accounts | 1 | `(dashboard)/finances/accounts/` |
+    | Feature           | Free limit | Render location                    |
+    | ----------------- | ---------- | ---------------------------------- |
+    | Budgets           | 5          | `(dashboard)/finances/budgets/`    |
+    | Recurring Items   | 5          | `(dashboard)/finances/recurring/`  |
+    | Goals             | 3          | `(dashboard)/planning/goals/`      |
+    | Active Splits     | 3          | `(dashboard)/finances/splits/`     |
+    | Custom Categories | 3          | `(dashboard)/settings/categories/` |
+    | Bank Accounts     | 1          | `(dashboard)/finances/accounts/`   |
 
   - **Shared component:** `apps/web/src/app/_components/usage_banner.tsx` — accepts `{ used, limit, label, upgradeHref, variant: 'quota' | 'slot' }`. Pattern A drives the colour threshold logic; Pattern B drives the slot-remaining copy. One component, two display modes.
   - All usage counts and limits are already available via `plan_usage_provider.tsx` and `useCanUseFeature` — no new tRPC calls needed.
   - Boolean Pro-only gates (`PDF_REPORTS`, `CSV_EXPORT`, `ANALYTICS_ALL_TIME`) are hard-gated via `ProGateModal` and do not need progressive banners — there is no partial-usage concept for binary features.
 
-### [BL-006] Marketing page — legal and security trust section
+### ✅ [BL-006] Recurring billing reminders — frequency-aware advance notice
 
-- **Type**: Improvement
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Done
+- **Context**: Users have no advance warning when a recurring bill is about to charge. A single reminder notification should fire once before each upcoming occurrence, with the lead time scaled to the billing frequency — a daily charge doesn't need a week's notice, but a yearly subscription should warn well in advance.
+- **Notes**:
+  - Send exactly **one** reminder per billing cycle. Once sent for a given occurrence, do not re-send until the next cycle.
+  - Lead time by frequency: `DAILY` → 1 hour, `WEEKLY` → 1 day, `BIWEEKLY` → 2 days, `MONTHLY` → 3 days, `QUARTERLY` → 7 days, `YEARLY` → 14 days.
+  - Keep note that recuiuring items apre picked by a cron job which runs hopurly, so reminder cron must not clash with it. We need to come up with a way to ensure reminders always run before the actual billing
+  - Track per-cycle send state: a `lastReminderSentAt` column on `RecurringItem`.
+  - Add opt-in `reminderEnabled` boolean to `RecurringItem` (default `true`) so users can silence individual items without deleting them.
+  - we need to add a new endpoint emnd to end top the fe for quicly toggling billing item remin der to be enabled or not.
+  - on create remionder we should optioally accept this filed too, so users can turn it off if they want
+  - Notification channel: in-app + push (if enabled). No email — per-bill email reminders are noisy.
+  - Only send for `ACTIVE` items where `reminderEnabled = true`.
+  - Related files: `apps/scheduler_service/src/`, `packages/database/prisma/schema.prisma` (`RecurringItem` model), notification service, `apps/web/src/app/(dashboard)/finances/bills/`.
+
+### [BL-007] ✅ AI insights controls — user toggles, gated runs, usage accounting
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Done
+- **Context**: Users have no control over the AI insight jobs that run on their account, and not every completed insight is counted against the monthly AI quota. Two `NotificationSetting` flags already exist in the DB (`dailyInsightsEnabled`, `budgetInsightsEnabled`, both default `true`) but are not surfaced in the UI or honoured by the background jobs. This item wires them end-to-end and fixes insight usage accounting so the free-plan limit is enforced consistently across every generation path.
+- **Notes**:
+  - **Settings UI**: add two switches to the account settings page (notification-preferences section) — "Daily AI insights" → `dailyInsightsEnabled`, "Budget breach insights" → `budgetInsightsEnabled`. DB fields already exist on `NotificationSetting`; expose them through the existing settings tRPC + gateway notification-settings update path.
+  - **Gate the daily insights job**: the scheduler fires `DAILY_INSIGHTS_JOB` (`@Cron` 8am) → `insights_daily.processor.ts`. Only generate for users with `dailyInsightsEnabled = true` — filter at the user-selection query so opted-out users are never enqueued/run.
+  - **Gate budget breach insights**: budget-breach insights (`apps/ai_service/src/insights/budget_breach.service.ts`, via `BUDGET_CHECK_QUEUE` / `BUDGET_BREACH_INSIGHTS_JOB`) must early-return for users with `budgetInsightsEnabled = false` — do not run the breach analysis or spend AI tokens.
+  - **Usage accounting**: increment the `AI_INSIGHTS_QUERIES` usage tracker on insight **completion** (the `onComplete`/success path of the insight graph, not on enqueue) for all paths — daily, recurring, and manual/triggered. Today not every completed insight increments the counter, so the monthly free-plan limit is under-counted.
+  - Decide explicitly and apply consistently whether background daily/breach runs count toward the same tracker as manual triggers (which already gate via `triggerInsights` → `limitReached`).
+  - Related files: `apps/web/src/app/(dashboard)/settings/account/_components/`, settings tRPC router + `apps/api_gateway` notification-settings update, `apps/scheduler_service/src/scheduler.service.ts` + `processors/insights_daily.processor.ts`, `apps/ai_service/src/insights/` (`insights.service.ts`, `budget_breach.service.ts`), usage-tracker service, `packages/database/prisma/schema.prisma` (`NotificationSetting.dailyInsightsEnabled` / `budgetInsightsEnabled`).
+
+  ### [BL-008] Category deletion — reassign or transfer related entities
+
+- **Type**: Feature
 - **Priority**: High
 - **Status**: Pending
-- **Context**: The marketing/landing page currently has no meaningful legal or security trust signals. Before any public launch, users need visible proof that FinTrack takes security and data privacy seriously. This covers both the copy/UI and ensuring real legal documents exist.
+- **Context**: When a user deletes a user-owned category, transactions currently auto-move to Miscellaneous while budgets and recurring items are lost. Instead, the user should be prompted to choose where those entities move before the category is removed.
 - **Notes**:
-  - Add a "Security & Trust" section to the landing page: highlight encryption at rest (**BL-002**), read-only Mono access, no credential storage, and 2FA support.
-  - Ensure real Privacy Policy and Terms of Service documents are linked from the footer. Replace any placeholder links. Minimum viable legal docs should be tailored to NDPR and CBN requirements (see **BL-007** research).
-  - Add trust badges: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
-  - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing).
+  - On delete, if the category has linked entities, show a reassignment dialog: "X transactions, Y budgets, and Z recurring items are using this category. Reassign them to:" with a category picker defaulting to a sensible system category (e.g. "Miscellanous").
+  - If the category has zero linked entities, skip the dialog and delete immediately.
+  - Backend: the delete endpoint should accept an optional `transferToCategoryId` parameter. If provided, run a single DB transaction updating all `transactions.categoryId`, `budgets.categoryId`, and `recurringItems.categoryId` to the target before removing the source.
+  - Since we run one category per budget, then the budget movement should be purely additive and not creating a new one.
+  - By default picker should pick miscellenous category by default
+  - Remmeber user can only delete user created category, system category cannot be deleted
+  - If `transferToCategoryId` is omitted and linked entities exist, return `409 CONFLICT` with counts so the client can prompt the user.
+  - Related files: `apps/api_gateway/src/category/`, `apps/finance_service/src/category/`, `packages/database/prisma/schema.prisma` (Category model — check `onDelete` behaviour on relations), `apps/web/src/app/(dashboard)/finances/budgets/_components/unbudgeted_card.tsx`.
 
-### [BL-007] Research legal and compliance requirements for finance apps
+### [BL-009] Financial health score — weekly Pro-only metric
+
+- **Type**: Feature
+- **Priority**: Medium
+- **Status**: Pending
+- **Context**: A single weekly score (0–100) that reflects the user's financial health: budget adherence, goal pacing, savings rate, and debt/split settlement speed. Pro-only, shown on the dashboard and in the weekly insight. Free users see a blurred score with "Upgrade to unlock your Financial Health Score."
+- **Notes**:
+  - Score components (suggested weights): budget adherence 35%, savings rate 25%, goal pacing 25%, outstanding splits 15%.
+  - Computed by the scheduler weekly (not real-time) and stored as a new DB field or analytics snapshot type.
+  - Historical score trend (last 12 weeks) should be visualisable — provides a clear "am I improving?" signal that is highly sticky.
+  - Push notification when score drops ≥10 points week-over-week — creates re-engagement.
+  - Related files: `apps/scheduler_service/src/processors/analytics_aggregation.processor.ts`, `packages/database/prisma/schema.prisma`, `apps/web/src/app/(dashboard)/`.
+
+### [BL-010] Import and export transactions from CSV / PDF
+
+- **Type**: Feature
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users need to be able to import transactions from CSV files and export their account data as high-quality CSV and PDF statements. Default export scope is the past 7 days; full account statement available on demand. Entry point is the dashboard screen.
+- **Notes**:
+  - Exports should be beautiful, high-resolution PDFs and well-structured CSVs.
+  - Multi-sheet CSV and Excel export should be supported.
+  - PDF should match FinTrack's visual identity — not a raw data dump.
+  - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
+
+### [BL-011] Research legal and compliance requirements for finance apps
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -144,10 +203,22 @@ Items are ordered by priority. Each entry follows the format:
 - **Notes**:
   - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
   - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) implementation priority for each gap.
-  - This research feeds directly into **BL-006** (legal trust page), **BL-008** (bank data handling copy), and **BL-002** (encryption).
+  - This research feeds directly into **BL-012** (legal trust page), **BL-013** (bank data handling copy), and **BL-002** (encryption).
   - Assign to: legal review + engineering lead before any production launch.
 
-### [BL-008] Marketing page — bank account data handling explainer
+### [BL-012] Marketing page — legal and security trust section
+
+- **Type**: Improvement
+- **Priority**: High
+- **Status**: Pending
+- **Context**: The marketing/landing page currently has no meaningful legal or security trust signals. Before any public launch, users need visible proof that FinTrack takes security and data privacy seriously. This covers both the copy/UI and ensuring real legal documents exist.
+- **Notes**:
+  - Add a "Security & Trust" section to the landing page: highlight encryption at rest (**BL-002**), read-only Mono access, no credential storage, and 2FA support.
+  - Ensure real Privacy Policy and Terms of Service documents are linked from the footer. Replace any placeholder links. Minimum viable legal docs should be tailored to NDPR and CBN requirements (see **BL-011** research).
+  - Add trust badges: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
+  - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing).
+
+### [BL-013] Marketing page — bank account data handling explainer
 
 - **Type**: Feature
 - **Priority**: Medium
@@ -160,7 +231,7 @@ Items are ordered by priority. Each entry follows the format:
   - Include a visual data-flow diagram: User → Mono widget → Mono API → FinTrack backend → encrypted DB.
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
-### [BL-009] Static content audit — realistic MVP copy and authorship
+### [BL-014] Static content audit — realistic MVP copy and authorship
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -175,65 +246,11 @@ Items are ordered by priority. Each entry follows the format:
   - **App name and branding**: Confirm every instance of the product name, logo alt text, and meta tags (title, description, og:image) are accurate.
   - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. Run `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` to surface most issues.
 
-### [BL-010] Recurring billing reminders — frequency-aware advance notice
-
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Users have no advance warning when a recurring bill is about to charge. A single reminder notification should fire once before each upcoming occurrence, with the lead time scaled to the billing frequency — a daily charge doesn't need a week's notice, but a yearly subscription should warn well in advance.
-- **Notes**:
-  - Send exactly **one** reminder per billing cycle. Once sent for a given occurrence, do not re-send until the next cycle.
-  - Lead time by frequency: `DAILY` → 1 hour, `WEEKLY` → 1 day, `BIWEEKLY` → 2 days, `MONTHLY` → 3 days, `QUARTERLY` → 7 days, `YEARLY` → 14 days.
-  - Track per-cycle send state: a `lastReminderSentAt` column on `RecurringItem` or a Redis key keyed by `recurringItemId:cycleDate`.
-  - Add opt-in `reminderEnabled` boolean to `RecurringItem` (default `true`) so users can silence individual items without deleting them.
-  - Notification channel: in-app + push (if enabled). No email — per-bill email reminders are noisy.
-  - Only send for `ACTIVE` items where `reminderEnabled = true`.
-  - Related files: `apps/scheduler_service/src/`, `packages/database/prisma/schema.prisma` (`RecurringItem` model), notification service, `apps/web/src/app/(dashboard)/finances/bills/`.
-
-### [BL-011] Category deletion — reassign or transfer related entities
-
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: When a user deletes a user-owned category, transactions currently auto-move to Miscellaneous while budgets and recurring items are lost. Instead, the user should be prompted to choose where those entities move before the category is removed.
-- **Notes**:
-  - On delete, if the category has linked entities, show a reassignment dialog: "X transactions, Y budgets, and Z recurring items are using this category. Reassign them to:" with a category picker defaulting to a sensible system category (e.g. "Uncategorized").
-  - If the category has zero linked entities, skip the dialog and delete immediately.
-  - Backend: the delete endpoint should accept an optional `transferToCategoryId` parameter. If provided, run a single DB transaction updating all `transactions.categoryId`, `budgets.categoryId`, and `recurringItems.categoryId` to the target before removing the source.
-  - If `transferToCategoryId` is omitted and linked entities exist, return `409 CONFLICT` with counts so the client can prompt the user.
-  - The "Uncategorized" fallback system category should be seeded and guaranteed to exist (`isSystem: true`) so it is always a valid transfer target.
-  - Related files: `apps/api_gateway/src/category/`, `apps/finance_service/src/category/`, `packages/database/prisma/schema.prisma` (Category model — check `onDelete` behaviour on relations), `apps/web/src/app/(dashboard)/finances/budgets/_components/unbudgeted_card.tsx`.
-
-### [BL-012] Import and export transactions from CSV / PDF
-
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Users need to be able to import transactions from CSV files and export their account data as high-quality CSV and PDF statements. Default export scope is the past 7 days; full account statement available on demand. Entry point is the dashboard screen.
-- **Notes**:
-  - Exports should be beautiful, high-resolution PDFs and well-structured CSVs.
-  - Multi-sheet CSV and Excel export should be supported.
-  - PDF should match FinTrack's visual identity — not a raw data dump.
-  - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
-
-### [BL-013] Financial health score — weekly Pro-only metric
-
-- **Type**: Feature
-- **Priority**: Medium
-- **Status**: Pending
-- **Context**: A single weekly score (0–100) that reflects the user's financial health: budget adherence, goal pacing, savings rate, and debt/split settlement speed. Pro-only, shown on the dashboard and in the weekly insight. Free users see a blurred score with "Upgrade to unlock your Financial Health Score."
-- **Notes**:
-  - Score components (suggested weights): budget adherence 35%, savings rate 25%, goal pacing 25%, outstanding splits 15%.
-  - Computed by the scheduler weekly (not real-time) and stored as a new DB field or analytics snapshot type.
-  - Historical score trend (last 12 weeks) should be visualisable — provides a clear "am I improving?" signal that is highly sticky.
-  - Push notification when score drops ≥10 points week-over-week — creates re-engagement.
-  - Related files: `apps/scheduler_service/src/processors/analytics_aggregation.processor.ts`, `packages/database/prisma/schema.prisma`, `apps/web/src/app/(dashboard)/`.
-
 ---
 
 ## ✅ Done
 
-### ✅ [BL-014] Tighten Free Plan AI limits
+### ✅ [BL-015] Tighten Free Plan AI limits
 
 - **Type**: Improvement
 - **Priority**: High
@@ -245,7 +262,7 @@ Items are ordered by priority. Each entry follows the format:
     - `AI_CHAT_MESSAGES_PER_MONTH`: 20 → 10
   - Also updated `apps/web/src/app/(static)/pricing/_data.ts` — `highlights` array and `COMPARISON_ROWS`.
 
-### ✅ [BL-015] Post-registration 2FA setup prompt
+### ✅ [BL-016] Post-registration 2FA setup prompt
 
 - **Type**: Security
 - **Priority**: High
@@ -257,7 +274,7 @@ Items are ordered by priority. Each entry follows the format:
   - Mount in the dashboard root layout, gated with `!user.twoFaEnabled && !user.hasSeenTwoFaPrompt`.
   - Related files: `apps/web/src/app/(dashboard)/layout.tsx`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`, `apps/auth_service/src/`.
 
-### ✅ [BL-016] Tooltip-based onboarding flow for new web users
+### ✅ [BL-017] Tooltip-based onboarding flow for new web users
 
 - **Type**: Feature
 - **Priority**: High
@@ -269,7 +286,7 @@ Items are ordered by priority. Each entry follows the format:
   - Completion tracked via `hasCompletedOnboarding` in user settings — tour never re-triggers once set.
   - Related files: `apps/web/src/app/(dashboard)/_components/onboarding_tour.tsx`, `apps/web/src/app/(dashboard)/_components/dashboard_client.tsx`, `packages/trpc_app/src/routers/user.ts`.
 
-### ✅ [BL-017] Mailtrap — sandbox in dev, sending API in production
+### ✅ [BL-018] Mailtrap — sandbox in dev, sending API in production
 
 - **Type**: Improvement
 - **Priority**: High
@@ -283,6 +300,19 @@ Items are ordered by priority. Each entry follows the format:
 ---
 
 ## 🐛 Bugs
+
+### [BG-003] Google sign-in fails in staging — "access denied" error
+
+- **Type**: Bug
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Google OAuth sign-in is failing in the staging environment with an "access denied" error. Users attempting to authenticate via Google are blocked at the OAuth callback stage and cannot log in. Local and production environments are unaffected.
+- **Notes**:
+  - Likely cause: the staging redirect URI (`https://staging.fintrack.live/auth/callback` or equivalent) is not registered as an authorised redirect URI in the Google Cloud Console OAuth 2.0 client credentials.
+  - Check the Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs — confirm the staging callback URL is listed under "Authorised redirect URIs".
+  - Also verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` env vars are correctly set for the staging environment on Railway — mismatched credentials between environments will produce the same error.
+  - Confirm the OAuth consent screen is not restricted to internal/test users only, which would block staging logins from accounts outside the allowed test list.
+  - Related files: `apps/auth_service/src/`, Google Cloud Console OAuth client config, Railway staging env vars.
 
 ### [BG-002] Mono webhook transactions not syncing for Kuda Bank in production
 

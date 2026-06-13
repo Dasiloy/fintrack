@@ -20,6 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
   toast,
 } from '@ui/components';
 import { AnchoredPopover } from '@ui/components/shared';
@@ -47,6 +48,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
   const [endDate, setEndDate] = React.useState<Date | undefined>(undefined);
   const [merchant, setMerchant] = React.useState('');
   const [description, setDescription] = React.useState('');
+  const [reminderEnabled, setReminderEnabled] = React.useState(true);
 
   // Reset on open
   React.useEffect(() => {
@@ -60,6 +62,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
       setEndDate(undefined);
       setMerchant('');
       setDescription('');
+      setReminderEnabled(true);
     }
   }, [open]);
 
@@ -93,6 +96,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
       endDate: endDate ? format(endDate, 'YYYY-MM-DD') : undefined,
       merchant: merchant || undefined,
       description: description || undefined,
+      reminderEnabled,
     });
   };
 
@@ -260,6 +264,17 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
               onChange={(e) => setDescription(e.target.value)}
             />
           </Field>
+
+          {/* Reminder toggle */}
+          <div className="border-border-light flex items-center justify-between gap-3 rounded-lg border px-3.5 py-3">
+            <div className="flex flex-col gap-0.5">
+              <Label className="text-[13px]">Bill reminder</Label>
+              <span className="text-text-tertiary text-[11px] leading-snug">
+                Get an advance notice before each charge.
+              </span>
+            </div>
+            <Switch checked={reminderEnabled} onCheckedChange={setReminderEnabled} />
+          </div>
 
           <DialogFooter showCloseButton>
             <Button type="submit" loading={createMutation.isPending} disabled={!canSubmit}>

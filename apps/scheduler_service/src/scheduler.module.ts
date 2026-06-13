@@ -15,6 +15,7 @@ import {
   ANALYTICS_AGGREGATION_QUEUE,
   BALANCE_ROLLOVER_QUEUE,
   BUDGET_CHECK_QUEUE,
+  FCM_NOTIFICATION_QUEUE,
   INSIGHTS_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
@@ -74,6 +75,7 @@ import { InsightsDailyProcessor } from './processors/insights_daily.processor';
       { name: INSIGHTS_QUEUE },
       { name: BUDGET_CHECK_QUEUE },
       { name: TRANSACTION_SEMANTIC_QUEUE },
+      { name: FCM_NOTIFICATION_QUEUE },
     ),
   ],
   providers: [

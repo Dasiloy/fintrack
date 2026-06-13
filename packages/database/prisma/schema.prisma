@@ -580,6 +580,9 @@ model NotificationSetting {
   // Allow Users to gate daily insights
   dailyInsightsEnabled Boolean @default(true)
 
+  // Budget Insigt enabled
+  budgetInsightsEnabled Boolean @default(true)
+
   // relations
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -814,9 +817,11 @@ model RecurringItem {
   merchant    String?
 
   // trackers
-  lastRunAt DateTime? // null if never run
-  nextRunAt DateTime
-  isActive  Boolean   @default(true)
+  lastRunAt          DateTime? // null if never run
+  nextRunAt          DateTime
+  lastReminderSentAt DateTime?
+  reminderEnabled    Boolean   @default(true)
+  isActive           Boolean   @default(true)
 
   // classification
   categoryId String
