@@ -17,6 +17,7 @@ import {
   Separator,
   Sheet,
   SheetContent,
+  Switch,
   toast,
 } from '@ui/components';
 import { AnchoredPopover } from '@ui/components/shared';
@@ -68,6 +69,7 @@ export function BillDrawer({
     endDate: '',
     merchant: '',
     description: '',
+    reminderEnabled: true,
   });
 
   const { data, isLoading } = api_client.recurring.getById.useQuery(
@@ -134,6 +136,7 @@ export function BillDrawer({
       endDate: edit.endDate || undefined,
       merchant: edit.merchant || undefined,
       description: edit.description || undefined,
+      reminderEnabled: edit.reminderEnabled,
     });
   };
 
@@ -344,6 +347,15 @@ export function BillDrawer({
                         placeholder="Optional"
                       />
                     </EditRow>
+
+                    <EditRow label="Reminder">
+                      <div className="flex w-full items-center justify-end">
+                        <Switch
+                          checked={edit.reminderEnabled}
+                          onCheckedChange={(v) => setField('reminderEnabled', v)}
+                        />
+                      </div>
+                    </EditRow>
                   </div>
                 </div>
               </div>
@@ -431,6 +443,11 @@ export function BillDrawer({
                 <Row label="Status">
                   <Badge variant={item.isActive ? 'success' : 'secondary'} dot>
                     {item.isActive ? 'Active' : 'Paused'}
+                  </Badge>
+                </Row>
+                <Row label="Reminder">
+                  <Badge variant={item.reminderEnabled ? 'success' : 'secondary'} dot>
+                    {item.reminderEnabled ? 'On' : 'Off'}
                   </Badge>
                 </Row>
                 {item.merchant && <Row label="Merchant">{item.merchant}</Row>}

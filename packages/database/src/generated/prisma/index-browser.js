@@ -315,6 +315,7 @@ exports.Prisma.NotificationSettingScalarFieldEnum = {
   newsLetterAlert: 'newsLetterAlert',
   communityAlert: 'communityAlert',
   dailyInsightsEnabled: 'dailyInsightsEnabled',
+  budgetInsightsEnabled: 'budgetInsightsEnabled',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -425,6 +426,8 @@ exports.Prisma.RecurringItemScalarFieldEnum = {
   merchant: 'merchant',
   lastRunAt: 'lastRunAt',
   nextRunAt: 'nextRunAt',
+  lastReminderSentAt: 'lastReminderSentAt',
+  reminderEnabled: 'reminderEnabled',
   isActive: 'isActive',
   categoryId: 'categoryId',
   userId: 'userId',

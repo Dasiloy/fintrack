@@ -12,7 +12,9 @@ import { cn } from '@ui/lib/utils';
 import { api_client } from '@/lib/trpc_app/api_client';
 
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 
 import { InsightsSummaryCard } from './insights_summary_card';
 import { InsightsAnomalyList } from './insights_anomaly_list';
@@ -36,6 +38,7 @@ interface InsightsPanelProps {
 
 export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPanelProps) {
   const utils = api_client.useUtils();
+  const plan = usePlan();
   const [limitGateOpen, setLimitGateOpen] = React.useState(false);
 
   const { data, isLoading } = api_client.advisor.getInsights.useQuery(
@@ -55,7 +58,8 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
         if (queued) {
           toast.success('Generating insights', {
-            description: 'Your AI financial insight is being prepared — it will appear here in a moment.',
+            description:
+              'Your AI financial insight is being prepared — it will appear here in a moment.',
           });
           // Re-fetch after a short delay to pick up the new insight once the graph completes
           setTimeout(() => void utils.advisor.getInsights.invalidate(), 3000);
@@ -66,9 +70,8 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
         const secs = cooldownSeconds ?? 0;
         const mins = Math.floor(secs / 60);
         const rem = secs % 60;
-        const timeLabel = mins > 0
-          ? `${mins} min${mins !== 1 ? 's' : ''}${rem > 0 ? ` ${rem}s` : ''}`
-          : `${secs}s`;
+        const timeLabel =
+          mins > 0 ? `${mins} min${mins !== 1 ? 's' : ''}${rem > 0 ? ` ${rem}s` : ''}` : `${secs}s`;
 
         toast.info('Too soon to refresh', {
           description: `Insights refresh every 10 minutes. Try again in ${timeLabel}.`,
@@ -97,10 +100,9 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
   return (
     <div className="flex h-full flex-col">
-
       {/* ── Sub-header ─────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-border-subtle bg-bg-elevated px-4 py-2.5">
-        <div className="flex items-center gap-1.5 text-[11px] text-text-tertiary">
+      <div className="border-border-subtle bg-bg-elevated flex items-center justify-between border-b px-4 py-2.5">
+        <div className="text-text-tertiary flex items-center gap-1.5 text-[11px]">
           <Clock className="size-3 shrink-0" aria-hidden />
           {isLoading ? (
             <Skeleton className="h-3 w-24" />
@@ -123,10 +125,18 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
         </Button>
       </div>
 
+      {/* ── Quota nudge ──────────────────────────────────────────────────────── */}
+      <UsageBanner
+        used={plan?.usage?.[Usage.AI_INSIGHTS_QUERIES_PER_MONTH]?.count ?? 0}
+        limit={(plan?.limits?.[Usage.AI_INSIGHTS_QUERIES_PER_MONTH] ?? 5) as number}
+        variant="quota"
+        label="insights"
+        className="mx-4 mt-2"
+      />
+
       {/* ── Content ──────────────────────────────────────────────────────────── */}
       <ScrollArea className="flex-1 overflow-hidden">
         <div className="flex flex-col gap-3 p-4">
-
           {isLoading && (
             <>
               <Skeleton className="h-12 w-full rounded-xl" />
@@ -137,12 +147,12 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
           {!isLoading && !insight && (
             <div className="flex flex-col items-center gap-3 py-16 text-center">
-              <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
-                <BrainCircuit className="size-6 text-primary" aria-hidden />
+              <div className="bg-primary/10 flex size-12 items-center justify-center rounded-full">
+                <BrainCircuit className="text-primary size-6" aria-hidden />
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-[13px] font-semibold text-text-primary">No insights yet</p>
-                <p className="text-[12px] text-text-tertiary">
+                <p className="text-text-primary text-[13px] font-semibold">No insights yet</p>
+                <p className="text-text-tertiary text-[12px]">
                   Tap Refresh to generate your first AI financial insight.
                 </p>
               </div>
@@ -204,7 +214,6 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
               </div>
             </>
           )}
-
         </div>
       </ScrollArea>
 

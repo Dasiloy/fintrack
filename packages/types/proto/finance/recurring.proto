@@ -22,6 +22,7 @@ message Recurinrg {
   string   created_at= 15;
   string   updated_at= 16;
   repeated Transaction transactions=17;
+  bool reminder_enabled = 18;
 }
 
 message CreateRecurringReq {
@@ -34,6 +35,7 @@ message CreateRecurringReq {
     optional string end_date =7;
     optional  string description = 8;
     optional  string merchant = 9;
+    optional bool reminder_enabled = 10;
 }
 
 
@@ -45,6 +47,7 @@ message UpdateRecurringReq {
   optional  string description = 5;
   optional  string merchant = 6;
   string id= 7;
+  optional bool reminder_enabled = 8;
 }
 
 message GetRecurringsReq {
