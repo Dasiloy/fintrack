@@ -98,6 +98,15 @@ export class CreateRecurringDto {
   @IsString()
   @IsOptional()
   merchant?: string;
+
+  @ApiPropertyOptional({
+    type: 'boolean',
+    description: 'Enable Billing Reminder',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  reminderEnabled?: boolean;
 }
 
 export class UpdateRecurringDto {
@@ -154,6 +163,15 @@ export class UpdateRecurringDto {
   @IsString()
   @IsOptional()
   merchant?: string;
+
+  @ApiPropertyOptional({
+    type: 'boolean',
+    description: 'Enable Billing Reminder',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  reminderEnabled?: boolean;
 }
 
 export class GetRecurringsQueryDto {

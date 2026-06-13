@@ -39,7 +39,14 @@ export class InsightsDailyProcessor extends WorkerHost {
 
     // Active users: had a transaction in the last 30 days and no DAILY insight today
     const usersWithActivity = await this.prisma.transaction.findMany({
-      where: { date: { gte: thirtyDaysAgo } },
+      where: {
+        date: { gte: thirtyDaysAgo },
+        user: {
+          setting: {
+            dailyInsightsEnabled: true,
+          },
+        },
+      },
       select: { userId: true },
       distinct: ['userId'],
     });

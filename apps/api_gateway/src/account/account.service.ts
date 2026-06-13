@@ -36,6 +36,7 @@ import {
 import { LinkMonoAccountDto, ReLinkMonoAccountDto } from './dto/account.dto';
 import { FcmService } from '../fcm/fcm.service';
 import { UsageService } from '../usage/usage.service';
+import { BankEncryptionFields } from '@fintrack/types/interfaces/banks';
 
 /**
  * Service responsible for Mono bank account linking, webhook handling,
@@ -86,6 +87,7 @@ export class AccountService {
         lastSyncedAt: true,
         createdAt: true,
         bankId: true,
+        isDefault: true,
       },
       orderBy: { createdAt: 'desc' },
     });

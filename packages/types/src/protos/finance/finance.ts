@@ -138,6 +138,8 @@ export interface FinanceServiceClient {
 
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
 
+  toggleRecurringReminder(request: RecurringReq, metadata?: Metadata): Observable<Recurinrg>;
+
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Observable<Empty>;
 
   getRecurringsAggregate(request: Empty, metadata?: Metadata): Observable<RecurringAggregateRes>;
@@ -282,6 +284,11 @@ export interface FinanceServiceController {
 
   toggleRecurring(request: RecurringReq, metadata?: Metadata): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
 
+  toggleRecurringReminder(
+    request: RecurringReq,
+    metadata?: Metadata,
+  ): Promise<Recurinrg> | Observable<Recurinrg> | Recurinrg;
+
   deleteRecurring(request: RecurringReq, metadata?: Metadata): Promise<Empty> | Observable<Empty> | Empty;
 
   getRecurringsAggregate(
@@ -387,6 +394,7 @@ export function FinanceServiceControllerMethods() {
       "getRecurring",
       "updateRecurring",
       "toggleRecurring",
+      "toggleRecurringReminder",
       "deleteRecurring",
       "getRecurringsAggregate",
       "createSplit",

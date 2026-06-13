@@ -93,7 +93,7 @@ export function Prefrences({ cookies }: PrefrencesProps) {
 
   return (
     <ProfileSection
-      title="Preferences"
+      title="App Prefrences"
       onSave={onSave}
       saving={loading}
       description="Manage your account preferences"
@@ -111,6 +111,18 @@ export function Prefrences({ cookies }: PrefrencesProps) {
           Icon={<CookieIcon />}
           checked={consent}
           onCheckedChange={(checked) => onchangeSave(COOKIE_CONSENT, checked)}
+        />
+        <SettingSwitch
+          disabled={loading}
+          title={balance ? 'Balance Hidden' : 'Balance Visible'}
+          description={
+            balance
+              ? 'Balance is hidden to use the website'
+              : 'Balance is visible to use the website'
+          }
+          Icon={balance ? <EyeOffIcon /> : <EyeIcon />}
+          checked={balance}
+          onCheckedChange={(checked) => onchangeSave(COOKIE_BALANCE, checked)}
         />
         <div className="bg-bg-surface flex flex-col gap-4 rounded-xl p-4 md:flex-row md:items-center">
           <div className="bg-primary/20 text-primary flex size-12 shrink-0 items-center justify-center rounded-lg">
@@ -147,18 +159,6 @@ export function Prefrences({ cookies }: PrefrencesProps) {
             </div>
           </div>
         </div>
-        <SettingSwitch
-          disabled={loading}
-          title={balance ? 'Balance Hidden' : 'Balance Visible'}
-          description={
-            balance
-              ? 'Balance is hidden to use the website'
-              : 'Balance is visible to use the website'
-          }
-          Icon={balance ? <EyeOffIcon /> : <EyeIcon />}
-          checked={balance}
-          onCheckedChange={(checked) => onchangeSave(COOKIE_BALANCE, checked)}
-        />
       </div>
     </ProfileSection>
   );
