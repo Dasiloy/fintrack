@@ -10,7 +10,9 @@ import { env } from '@/env';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { format } from '@fintrack/utils/date';
 import { PageHeader } from '@/app/_components/page-header';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 
 import { ACCEPTED_MIME, MAX_BYTES, type OcrPayload, type Phase } from './scan.types';
 import { LeftPanel } from './left_panel';
@@ -18,6 +20,7 @@ import { RightPanel } from './right_panel';
 
 export function ScanView() {
   const router = useRouter();
+  const plan = usePlan();
 
   // ── File state ────────────────────────────────────────────────────────────
   const galleryRef = React.useRef<HTMLInputElement>(null);
@@ -281,6 +284,14 @@ export function ScanView() {
             { label: 'Transactions', href: '/finances/transactions' },
             { label: 'Scan Receipt' },
           ]}
+        />
+
+        <UsageBanner
+          used={plan?.usage?.[Usage.RECEIPT_UPLOADS_PER_MONTH]?.count ?? 0}
+          limit={(plan?.limits?.[Usage.RECEIPT_UPLOADS_PER_MONTH] ?? 10) as number}
+          variant="quota"
+          label="receipt scans"
+          className="mx-6 mt-4"
         />
 
         <div className="flex flex-1 flex-col px-6 pt-6 pb-6 md:min-h-0 md:overflow-hidden">

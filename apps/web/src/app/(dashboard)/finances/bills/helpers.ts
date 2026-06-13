@@ -169,5 +169,6 @@ export function toEditState(item: Recurinrg): BillEditState {
     endDate: item.endDate ? item.endDate.slice(0, 10) : '',
     merchant: item.merchant ?? '',
     description: item.description ?? '',
+    reminderEnabled: item.reminderEnabled,
   };
 }

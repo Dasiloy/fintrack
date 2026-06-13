@@ -16,6 +16,8 @@ import {
 import { cn } from '@ui/lib/utils/cn';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { UsageBanner } from '@/app/_components/usage_banner';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 
 const PRESET_COLORS = [
   '#7c7aff',
@@ -40,6 +42,7 @@ interface CategoryDialogProps {
 }
 
 export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDialogProps) {
+  const plan = usePlan();
   const isEditing = !!editCategory;
 
   const [name, setName] = React.useState('');
@@ -111,6 +114,14 @@ export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDia
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {!isEditing && (
+            <UsageBanner
+              used={plan?.resourceCounts.categories ?? 0}
+              limit={(plan?.limits?.[Usage.MAX_CUSTOM_CATEGORIES] ?? 3) as number}
+              variant="slot"
+              label="custom categories"
+            />
+          )}
           <Field>
             <Label>Name</Label>
             <Input
