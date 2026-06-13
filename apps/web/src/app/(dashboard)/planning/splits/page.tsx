@@ -7,7 +7,9 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { useProGate } from '@/hooks/use_pro_gate';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 import { SplitCard } from './_components/split_card';
 import { SplitCardSkeleton } from './_components/split_card_skeleton';
 import { SplitEmptyState } from './_components/split_empty_state';
@@ -16,6 +18,7 @@ import { SplitDrawer } from './_components/split_drawer';
 import { SplitAggregatePanel } from './_components/split_aggregate_panel';
 
 export default function SplitsPage() {
+  const plan = usePlan();
   const [createOpen, setCreateOpen] = React.useState(false);
   const createGate = useProGate(Usage.MAX_ACTIVE_SPLITS);
   const [drawerSplitId, setDrawerSplitId] = React.useState<string | null>(null);
@@ -65,7 +68,14 @@ export default function SplitsPage() {
           <SplitAggregatePanel aggregate={aggregate} isLoading={aggregateLoading} />
 
           {/* Cards grid */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="flex flex-col gap-4">
+            <UsageBanner
+              used={plan?.resourceCounts.splits ?? 0}
+              limit={(plan?.limits?.[Usage.MAX_ACTIVE_SPLITS] ?? 3) as number}
+              variant="slot"
+              label="active splits"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {splitsLoading ? (
               <SplitCardSkeleton count={3} />
             ) : splits.length === 0 ? (
@@ -80,6 +90,7 @@ export default function SplitsPage() {
                 />
               ))
             )}
+            </div>
           </div>
         </div>
       </div>

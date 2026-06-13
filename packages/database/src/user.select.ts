@@ -28,6 +28,8 @@ export const USER_SELECT = {
       goalsAlertApp: true,
       splitsAlertMail: true,
       splitsAlertApp: true,
+      dailyInsightsEnabled: true,
+      budgetInsightsEnabled: true,
     },
   },
   subscription: {

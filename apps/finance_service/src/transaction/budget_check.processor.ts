@@ -24,6 +24,7 @@ import {
   INSIGHTS_COOLDOWN_TTL,
   REDIS_CLIENT,
 } from '@fintrack/types/constants/redis.costants';
+import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
 
 /**
  * BullMQ processor that consumes `BUDGET_CHECK_QUEUE` jobs enqueued after
@@ -88,6 +89,64 @@ export class BudgetCheckProcessor extends WorkerHost {
   private async handleBudgetCheck(data: BudgetCheckJobPayload): Promise<void> {
     try {
       const { userId, transactions } = data;
+
+      // gate check
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          setting: {
+            select: { budgetInsightsEnabled: true },
+          },
+          usageTrackers: {
+            select: {
+              count: true,
+              feature: true,
+            },
+          },
+          subscription: {
+            select: {
+              plan: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        this.logger.warn(`User with ${userId} not found`);
+        return;
+      }
+
+      if (!user.subscription) {
+        this.logger.warn(`User with ${userId} has no subscription`);
+        return;
+      }
+
+      if (!user?.setting?.budgetInsightsEnabled) {
+        this.logger.warn(`User ${userId} opted out of budget check`);
+        return;
+      }
+
+      const limit = PLAN_LIMITS[user.subscription?.plan][
+        Usage.AI_INSIGHTS_QUERIES_PER_MONTH
+      ] as number;
+
+      const aiQueriesTracker = user.usageTrackers.find(
+        (ut) => ut.feature === 'AI_INSIGHTS_QUERIES',
+      );
+
+      if (!aiQueriesTracker) {
+        this.logger.warn(
+          `User ${userId} has no record of ai insights queries tracking`,
+        );
+        return;
+      }
+
+      if (aiQueriesTracker.count >= limit) {
+        this.logger.warn(`User ${userId} has exhausted budget check insighst`);
+        return;
+      }
 
       const categoryRefDateMap = new Map(
         transactions.map((tx) => [tx.categoryId, tx.referenceDate]),

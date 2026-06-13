@@ -16,6 +16,7 @@ import type { MonoBankAccount } from '@fintrack/database/types';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { useProGate } from '@/hooks/use_pro_gate';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { usePlan } from '@/app/providers/plan_usage_provider';
 
 export function AccountsView() {
@@ -125,6 +126,15 @@ export function AccountsView() {
         )}
       </div>
 
+      {/* ── Slot nudge ── */}
+      <UsageBanner
+        used={plan?.resourceCounts.monoBankAccounts ?? 0}
+        limit={(plan?.limits?.[Usage.MAX_MONO_ACCOUNTS] ?? 1) as number}
+        variant="slot"
+        label="bank account"
+        className="mx-6 mb-2"
+      />
+
       {/* ── Content ── */}
       <div className="px-6 pb-6">
         {isLoading ? (
@@ -134,9 +144,9 @@ export function AccountsView() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 2xl:max-w-4xl">
             {accounts.map((account) => (
-              <button
+              <div
+                role="button"
                 key={account.id}
-                type="button"
                 className="cursor-pointer text-left"
                 onClick={() => setSelectedAccount(account)}
               >
@@ -149,7 +159,7 @@ export function AccountsView() {
                   isSyncing={syncingId === account.id && syncMutation.isPending}
                   isEditable={canMutateAccount(account)}
                 />
-              </button>
+              </div>
             ))}
           </div>
         )}
@@ -165,14 +175,14 @@ export function AccountsView() {
       <AccountDrawer
         account={selectedAccount}
         bankLogo={selectedAccount ? getBank(selectedAccount.bankId)?.logo : undefined}
-        onOpenChange={(open) => { if (!open) setSelectedAccount(null); }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedAccount(null);
+        }}
         onSync={handleSync}
         isSyncing={!!syncingId && syncingId === selectedAccount?.id && syncMutation.isPending}
         onRelink={handleRelink}
         isRelinking={
-          !!relinkingId &&
-          relinkingId === selectedAccount?.accountId &&
-          relinkMutation.isPending
+          !!relinkingId && relinkingId === selectedAccount?.accountId && relinkMutation.isPending
         }
       />
     </div>
