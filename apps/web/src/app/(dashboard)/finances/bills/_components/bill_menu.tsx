@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 import {
+  Bell,
+  BellOff,
   Edit2,
   Eye,
   MoreHorizontal,
@@ -29,7 +31,15 @@ import {
 import { cn } from '@ui/lib/utils/cn';
 import type { BillCardProps } from '../types';
 
-export function BillMenu({ item, onView, onEdit, onToggle, onDelete, isDeleting }: BillCardProps) {
+export function BillMenu({
+  item,
+  onView,
+  onEdit,
+  onToggle,
+  onToggleReminder,
+  onDelete,
+  isDeleting,
+}: BillCardProps) {
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   return (
@@ -89,6 +99,21 @@ export function BillMenu({ item, onView, onEdit, onToggle, onDelete, isDeleting 
               <PlayCircle className="size-3.5 shrink-0" />
             )}
             {item.isActive ? 'Pause' : 'Resume'}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="cursor-pointer gap-2.5 rounded-lg px-2.5 py-2 text-[12px]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleReminder(item);
+            }}
+          >
+            {item.reminderEnabled ? (
+              <BellOff className="size-3.5 shrink-0" />
+            ) : (
+              <Bell className="size-3.5 shrink-0" />
+            )}
+            {item.reminderEnabled ? 'Disable reminder' : 'Enable reminder'}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

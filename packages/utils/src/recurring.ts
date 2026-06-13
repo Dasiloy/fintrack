@@ -66,3 +66,36 @@ export function computeFirstRunAt(
   }
   return next;
 }
+
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+
+/**
+ * Advance-notice lead time per frequency, in milliseconds.
+ *
+ * A high-frequency charge doesn't need a week's warning, but an annual
+ * subscription should warn well ahead. `CUSTOM` mirrors `DAILY` since the
+ * custom cadence is treated as daily by {@link computeNextRunAt}.
+ */
+export const REMINDER_LEAD_MS: Record<string, number> = {
+  DAILY: 1 * HOUR_MS,
+  WEEKLY: 1 * DAY_MS,
+  BIWEEKLY: 2 * DAY_MS,
+  MONTHLY: 3 * DAY_MS,
+  QUARTERLY: 7 * DAY_MS,
+  YEARLY: 14 * DAY_MS,
+  CUSTOM: 1 * HOUR_MS,
+};
+
+/**
+ * Computes the instant at which a reminder should first fire for an upcoming
+ * occurrence — `nextRunAt` minus the frequency-scaled lead time.
+ *
+ * @param frequency RecurringItemFrequency value
+ * @param nextRunAt The upcoming run/charge date
+ * @returns The earliest Date a reminder for this occurrence should be sent
+ */
+export function computeReminderAt(frequency: string, nextRunAt: Date): Date {
+  const lead = REMINDER_LEAD_MS[frequency] ?? DAY_MS;
+  return new Date(nextRunAt.getTime() - lead);
+}

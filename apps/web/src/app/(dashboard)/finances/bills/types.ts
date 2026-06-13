@@ -20,6 +20,7 @@ export interface BillItemCallbacks {
   onView: (item: Recurinrg) => void;
   onEdit: (item: Recurinrg) => void;
   onToggle: (item: Recurinrg) => void;
+  onToggleReminder: (item: Recurinrg) => void;
   onDelete: (item: Recurinrg) => void;
   isDeleting?: boolean;
 }
@@ -74,4 +75,5 @@ export interface BillEditState {
   endDate: string;
   merchant: string;
   description: string;
+  reminderEnabled: boolean;
 }

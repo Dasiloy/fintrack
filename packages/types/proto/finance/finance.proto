@@ -39,6 +39,7 @@ service FinanceService {
   rpc GetRecurring(RecurringReq)       returns (Recurinrg) {}
   rpc UpdateRecurring(UpdateRecurringReq)     returns (Recurinrg) {}
   rpc ToggleRecurring(RecurringReq)            returns (Recurinrg) {}
+  rpc ToggleRecurringReminder(RecurringReq)    returns (Recurinrg) {}
   rpc DeleteRecurring(RecurringReq)            returns (Empty) {}
   rpc GetRecurringsAggregate(Empty)            returns (RecurringAggregateRes) {}
 

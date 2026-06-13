@@ -9,7 +9,7 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        'rounded-chart size-4 shrink-0',
+        'rounded-chart size-4 shrink-0 cursor-pointer',
         // Surface
         'border-border-light border bg-transparent',
         // Checked state — filled with primary brand color
