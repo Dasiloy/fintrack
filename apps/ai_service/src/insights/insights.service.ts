@@ -130,7 +130,10 @@ export class InsightService implements OnModuleInit {
     payload: InsightsJobPayload,
   ): Promise<typeof InsightState.State | null> {
     // Silently drop the job if the user has exhausted their monthly insight quota.
-    const allowed = await this.isInsightAllowed(payload.userId!);
+    const allowed = await this.isInsightAllowed(
+      payload.userId!,
+      payload.trigger,
+    );
     if (!allowed) {
       this.logger.log(
         `[InsightService] Skipping insights — userId=${payload.userId} has reached monthly limit`,
@@ -183,6 +186,21 @@ export class InsightService implements OnModuleInit {
       return result;
     } catch (error) {
       this.logger.error(JSON.stringify(error));
+      if (payload.trigger === 'manual') {
+        await this.fcmQueue
+          .add(FCM_NOTIFICATION_JOB, {
+            userId: payload.userId!,
+            title: 'Manual Isnight Failed',
+            body: 'There was an error generating your manual insght, Please try again later!',
+            data: {
+              type: 'insight',
+            },
+          } satisfies FcmNotificationPayload)
+          .then(() => undefined)
+          .catch((err) =>
+            this.logger.error(`FCM enqueue failed: ${err.message}`),
+          );
+      }
       throw new RpcException({
         code: status.INTERNAL,
         message: 'An error occured',
@@ -192,17 +210,32 @@ export class InsightService implements OnModuleInit {
 
   // ── Plan limit helpers ────────────────────────────────────────────────────
 
-  private async isInsightAllowed(userId: string): Promise<boolean> {
+  async isInsightAllowed(
+    userId: string,
+    trigger: InsightsJobPayload['trigger'],
+  ): Promise<boolean> {
     const sub = await this.prisma.subscription.findFirst({
       where: { userId },
-      select: { plan: true },
+      select: {
+        plan: true,
+        user: {
+          select: {
+            fcmDevices: {
+              select: { id: true },
+            },
+            setting: {
+              select: {
+                dailyInsightsEnabled: true,
+                budgetInsightsEnabled: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // No sub - early return
     if (!sub) return false;
-
-    // PRO plan — always allowed.
-    if (sub.plan === 'PRO') return true;
 
     const limit = PLAN_LIMITS['FREE'][
       Usage.AI_INSIGHTS_QUERIES_PER_MONTH
@@ -213,10 +246,42 @@ export class InsightService implements OnModuleInit {
       select: { count: true },
     });
 
-    return !tracker || tracker.count < limit;
+    if (!tracker) return false;
+
+    const hasPriv = tracker.count < limit;
+
+    if (trigger === 'manual') {
+      // send fcm notification if has priv is false
+      if (!hasPriv && sub.user.fcmDevices.length > 0) {
+        await this.fcmQueue
+          .add(FCM_NOTIFICATION_JOB, {
+            userId,
+            title: 'Manual Isnight Limit Reached',
+            body: 'You have exhausted your ai insghts queries this month. Upgrade to Pro to get unlimited insighst',
+            data: {
+              type: 'insight',
+              status: 'Limit Exceeded',
+            },
+          } satisfies FcmNotificationPayload)
+          .then(() => undefined)
+          .catch((err) =>
+            this.logger.error(`FCM enqueue failed: ${err.message}`),
+          );
+      }
+      return hasPriv;
+    }
+
+    if (trigger === 'budget_breach') {
+      return hasPriv && !!sub.user.setting?.budgetInsightsEnabled;
+    }
+
+    if (trigger === 'daily') {
+      return hasPriv && !!sub.user.setting?.dailyInsightsEnabled;
+    }
+    return hasPriv;
   }
 
-  private async incrementInsightUsage(userId: string): Promise<void> {
+  async incrementInsightUsage(userId: string): Promise<void> {
     await this.prisma.usageTracker.updateMany({
       where: { userId, feature: UsageFeature.AI_INSIGHTS_QUERIES },
       data: { count: { increment: 1 } },

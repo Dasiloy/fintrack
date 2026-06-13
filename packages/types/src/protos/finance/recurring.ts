@@ -27,6 +27,7 @@ export interface Recurinrg {
   createdAt: string;
   updatedAt: string;
   transactions: Transaction[];
+  reminderEnabled: boolean;
 }
 
 export interface CreateRecurringReq {
@@ -39,6 +40,7 @@ export interface CreateRecurringReq {
   endDate?: string | undefined;
   description?: string | undefined;
   merchant?: string | undefined;
+  reminderEnabled?: boolean | undefined;
 }
 
 export interface UpdateRecurringReq {
@@ -49,6 +51,7 @@ export interface UpdateRecurringReq {
   description?: string | undefined;
   merchant?: string | undefined;
   id: string;
+  reminderEnabled?: boolean | undefined;
 }
 
 export interface GetRecurringsReq {

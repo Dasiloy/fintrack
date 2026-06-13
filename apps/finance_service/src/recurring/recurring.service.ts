@@ -135,6 +135,7 @@ export class RecurringService {
           merchant: data.merchant,
           nextRunAt,
           isActive: true,
+          reminderEnabled: data.reminderEnabled ?? true,
           categoryId: category.id!,
         },
         include: { category: true },
@@ -285,6 +286,9 @@ export class RecurringService {
             description: data.description,
           }),
           ...(data.merchant !== undefined && { merchant: data.merchant }),
+          ...(data.reminderEnabled !== undefined && {
+            reminderEnabled: data.reminderEnabled,
+          }),
           ...(frequencyChanged && {
             nextRunAt: computeNextRunAt(data.frequency as string, utcToday()),
           }),
@@ -356,6 +360,52 @@ export class RecurringService {
       return this.formatRecurring(recurring);
     } catch (error) {
       this.logger.error('toggleRecurring error:', error);
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'An error occurred',
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * Toggles the `reminderEnabled` flag on a recurring item — a lightweight
+   * opt-in/out for advance billing reminders that doesn't touch the schedule.
+   *
+   * @async
+   * @param {string} userId
+   * @param {RecurringReq} data
+   * @returns {Promise<ProtoRecurring>}
+   * @throws {RpcException} NOT_FOUND if item does not exist or belongs to another user
+   * @throws {RpcException} INTERNAL on unexpected errors
+   */
+  async toggleReminder(
+    userId: string,
+    data: RecurringReq,
+  ): Promise<ProtoRecurring> {
+    try {
+      const existing = await this.prismaService.recurringItem.findFirst({
+        where: { id: data.id, userId },
+        select: { id: true, reminderEnabled: true },
+      });
+
+      if (!existing) {
+        throw new RpcException({
+          code: status.NOT_FOUND,
+          message: 'Recurring item not found',
+        });
+      }
+
+      const recurring = await this.prismaService.recurringItem.update({
+        where: { id: data.id },
+        data: { reminderEnabled: !existing.reminderEnabled },
+        include: { category: true },
+      });
+
+      return this.formatRecurring(recurring);
+    } catch (error) {
+      this.logger.error('toggleReminder error:', error);
       if (error instanceof RpcException) throw error;
       throw new RpcException({
         code: status.INTERNAL,
@@ -547,6 +597,7 @@ export class RecurringService {
       lastRunAt: recurring.lastRunAt?.toISOString(),
       nextRunAt: recurring.nextRunAt.toISOString(),
       isActive: recurring.isActive,
+      reminderEnabled: recurring.reminderEnabled,
       category: this.utils.formatCategory(recurring.category),
       createdAt: recurring.createdAt.toISOString(),
       updatedAt: recurring.updatedAt.toISOString(),

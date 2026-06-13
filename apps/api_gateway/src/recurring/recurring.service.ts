@@ -106,6 +106,7 @@ export class RecurringService implements OnModuleInit {
           endDate: data.endDate,
           description: data.description,
           merchant: data.merchant,
+          reminderEnabled: data.reminderEnabled,
         },
         metadata,
       ),
@@ -238,6 +239,25 @@ export class RecurringService implements OnModuleInit {
     void this.invalidateAggregateCache(user.id);
     void this.invalidateExportCache(user.id);
     return result;
+  }
+
+  /**
+   * @description Toggle the `reminderEnabled` flag on a recurring item via gRPC.
+   * Reminder state doesn't affect aggregates or exports, so no cache invalidation
+   * is required.
+   *
+   * @async
+   * @public
+   * @param {User} user Authenticated user from ApiGuard
+   * @param {string} id Recurring item ID
+   * @returns {Promise<ProtoRecurring>} The item with updated `reminderEnabled`
+   */
+  async toggleReminder(user: User, id: string): Promise<ProtoRecurring> {
+    const metadata = new Metadata();
+    metadata.add('x-user-id', user.id);
+    return lastValueFrom(
+      this.financeService.toggleRecurringReminder({ id }, metadata),
+    );
   }
 
   /**
