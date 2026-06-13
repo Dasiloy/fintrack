@@ -133,6 +133,8 @@ export const userRouter = createTRPCRouter({
         goalsAlertApp: z.boolean(),
         splitsAlertMail: z.boolean(),
         splitsAlertApp: z.boolean(),
+        dailyInsightsEnabled: z.boolean(),
+        budgetInsightsEnabled: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

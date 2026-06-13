@@ -21992,6 +21992,7 @@ export namespace Prisma {
     newsLetterAlert: boolean | null
     communityAlert: boolean | null
     dailyInsightsEnabled: boolean | null
+    budgetInsightsEnabled: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -22014,6 +22015,7 @@ export namespace Prisma {
     newsLetterAlert: boolean | null
     communityAlert: boolean | null
     dailyInsightsEnabled: boolean | null
+    budgetInsightsEnabled: boolean | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -22036,6 +22038,7 @@ export namespace Prisma {
     newsLetterAlert: number
     communityAlert: number
     dailyInsightsEnabled: number
+    budgetInsightsEnabled: number
     userId: number
     createdAt: number
     updatedAt: number
@@ -22060,6 +22063,7 @@ export namespace Prisma {
     newsLetterAlert?: true
     communityAlert?: true
     dailyInsightsEnabled?: true
+    budgetInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -22082,6 +22086,7 @@ export namespace Prisma {
     newsLetterAlert?: true
     communityAlert?: true
     dailyInsightsEnabled?: true
+    budgetInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -22104,6 +22109,7 @@ export namespace Prisma {
     newsLetterAlert?: true
     communityAlert?: true
     dailyInsightsEnabled?: true
+    budgetInsightsEnabled?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -22199,6 +22205,7 @@ export namespace Prisma {
     newsLetterAlert: boolean
     communityAlert: boolean
     dailyInsightsEnabled: boolean
+    budgetInsightsEnabled: boolean
     userId: string
     createdAt: Date
     updatedAt: Date
@@ -22238,6 +22245,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -22261,6 +22269,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -22284,6 +22293,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -22307,12 +22317,13 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "goalsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "dailyInsightsEnabled" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
+  export type NotificationSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "budgetAlertMail" | "budgetAlertApp" | "billReminderMail" | "billReminderApp" | "weeklyReportMail" | "weeklyReportApp" | "aiInsightsMail" | "aiInsightsApp" | "goalsAlertMail" | "goalsAlertApp" | "splitsAlertMail" | "splitsAlertApp" | "newsLetterAlert" | "communityAlert" | "dailyInsightsEnabled" | "budgetInsightsEnabled" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationSetting"]>
   export type NotificationSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -22345,6 +22356,7 @@ export namespace Prisma {
       newsLetterAlert: boolean
       communityAlert: boolean
       dailyInsightsEnabled: boolean
+      budgetInsightsEnabled: boolean
       userId: string
       createdAt: Date
       updatedAt: Date
@@ -22788,6 +22800,7 @@ export namespace Prisma {
     readonly newsLetterAlert: FieldRef<"NotificationSetting", 'Boolean'>
     readonly communityAlert: FieldRef<"NotificationSetting", 'Boolean'>
     readonly dailyInsightsEnabled: FieldRef<"NotificationSetting", 'Boolean'>
+    readonly budgetInsightsEnabled: FieldRef<"NotificationSetting", 'Boolean'>
     readonly userId: FieldRef<"NotificationSetting", 'String'>
     readonly createdAt: FieldRef<"NotificationSetting", 'DateTime'>
     readonly updatedAt: FieldRef<"NotificationSetting", 'DateTime'>
@@ -30527,6 +30540,8 @@ export namespace Prisma {
     merchant: string | null
     lastRunAt: Date | null
     nextRunAt: Date | null
+    lastReminderSentAt: Date | null
+    reminderEnabled: boolean | null
     isActive: boolean | null
     categoryId: string | null
     userId: string | null
@@ -30547,6 +30562,8 @@ export namespace Prisma {
     merchant: string | null
     lastRunAt: Date | null
     nextRunAt: Date | null
+    lastReminderSentAt: Date | null
+    reminderEnabled: boolean | null
     isActive: boolean | null
     categoryId: string | null
     userId: string | null
@@ -30567,6 +30584,8 @@ export namespace Prisma {
     merchant: number
     lastRunAt: number
     nextRunAt: number
+    lastReminderSentAt: number
+    reminderEnabled: number
     isActive: number
     categoryId: number
     userId: number
@@ -30597,6 +30616,8 @@ export namespace Prisma {
     merchant?: true
     lastRunAt?: true
     nextRunAt?: true
+    lastReminderSentAt?: true
+    reminderEnabled?: true
     isActive?: true
     categoryId?: true
     userId?: true
@@ -30617,6 +30638,8 @@ export namespace Prisma {
     merchant?: true
     lastRunAt?: true
     nextRunAt?: true
+    lastReminderSentAt?: true
+    reminderEnabled?: true
     isActive?: true
     categoryId?: true
     userId?: true
@@ -30637,6 +30660,8 @@ export namespace Prisma {
     merchant?: true
     lastRunAt?: true
     nextRunAt?: true
+    lastReminderSentAt?: true
+    reminderEnabled?: true
     isActive?: true
     categoryId?: true
     userId?: true
@@ -30744,6 +30769,8 @@ export namespace Prisma {
     merchant: string | null
     lastRunAt: Date | null
     nextRunAt: Date
+    lastReminderSentAt: Date | null
+    reminderEnabled: boolean
     isActive: boolean
     categoryId: string
     userId: string
@@ -30783,6 +30810,8 @@ export namespace Prisma {
     merchant?: boolean
     lastRunAt?: boolean
     nextRunAt?: boolean
+    lastReminderSentAt?: boolean
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId?: boolean
     userId?: boolean
@@ -30807,6 +30836,8 @@ export namespace Prisma {
     merchant?: boolean
     lastRunAt?: boolean
     nextRunAt?: boolean
+    lastReminderSentAt?: boolean
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId?: boolean
     userId?: boolean
@@ -30829,6 +30860,8 @@ export namespace Prisma {
     merchant?: boolean
     lastRunAt?: boolean
     nextRunAt?: boolean
+    lastReminderSentAt?: boolean
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId?: boolean
     userId?: boolean
@@ -30851,6 +30884,8 @@ export namespace Prisma {
     merchant?: boolean
     lastRunAt?: boolean
     nextRunAt?: boolean
+    lastReminderSentAt?: boolean
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId?: boolean
     userId?: boolean
@@ -30858,7 +30893,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RecurringItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "type" | "frequency" | "startDate" | "endDate" | "description" | "notes" | "merchant" | "lastRunAt" | "nextRunAt" | "isActive" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringItem"]>
+  export type RecurringItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "amount" | "type" | "frequency" | "startDate" | "endDate" | "description" | "notes" | "merchant" | "lastRunAt" | "nextRunAt" | "lastReminderSentAt" | "reminderEnabled" | "isActive" | "categoryId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["recurringItem"]>
   export type RecurringItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -30894,6 +30929,8 @@ export namespace Prisma {
       merchant: string | null
       lastRunAt: Date | null
       nextRunAt: Date
+      lastReminderSentAt: Date | null
+      reminderEnabled: boolean
       isActive: boolean
       categoryId: string
       userId: string
@@ -31337,6 +31374,8 @@ export namespace Prisma {
     readonly merchant: FieldRef<"RecurringItem", 'String'>
     readonly lastRunAt: FieldRef<"RecurringItem", 'DateTime'>
     readonly nextRunAt: FieldRef<"RecurringItem", 'DateTime'>
+    readonly lastReminderSentAt: FieldRef<"RecurringItem", 'DateTime'>
+    readonly reminderEnabled: FieldRef<"RecurringItem", 'Boolean'>
     readonly isActive: FieldRef<"RecurringItem", 'Boolean'>
     readonly categoryId: FieldRef<"RecurringItem", 'String'>
     readonly userId: FieldRef<"RecurringItem", 'String'>
@@ -44649,6 +44688,7 @@ export namespace Prisma {
     newsLetterAlert: 'newsLetterAlert',
     communityAlert: 'communityAlert',
     dailyInsightsEnabled: 'dailyInsightsEnabled',
+    budgetInsightsEnabled: 'budgetInsightsEnabled',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -44780,6 +44820,8 @@ export namespace Prisma {
     merchant: 'merchant',
     lastRunAt: 'lastRunAt',
     nextRunAt: 'nextRunAt',
+    lastReminderSentAt: 'lastReminderSentAt',
+    reminderEnabled: 'reminderEnabled',
     isActive: 'isActive',
     categoryId: 'categoryId',
     userId: 'userId',
@@ -46641,6 +46683,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolFilter<"NotificationSetting"> | boolean
     dailyInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
+    budgetInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
     userId?: StringFilter<"NotificationSetting"> | string
     createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
@@ -46664,6 +46707,7 @@ export namespace Prisma {
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
     dailyInsightsEnabled?: SortOrder
+    budgetInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46691,6 +46735,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolFilter<"NotificationSetting"> | boolean
     dailyInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
+    budgetInsightsEnabled?: BoolFilter<"NotificationSetting"> | boolean
     createdAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeFilter<"NotificationSetting"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -46713,6 +46758,7 @@ export namespace Prisma {
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
     dailyInsightsEnabled?: SortOrder
+    budgetInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -46741,6 +46787,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     communityAlert?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     dailyInsightsEnabled?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
+    budgetInsightsEnabled?: BoolWithAggregatesFilter<"NotificationSetting"> | boolean
     userId?: StringWithAggregatesFilter<"NotificationSetting"> | string
     createdAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"NotificationSetting"> | Date | string
@@ -47355,6 +47402,8 @@ export namespace Prisma {
     merchant?: StringNullableFilter<"RecurringItem"> | string | null
     lastRunAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
     nextRunAt?: DateTimeFilter<"RecurringItem"> | Date | string
+    lastReminderSentAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
+    reminderEnabled?: BoolFilter<"RecurringItem"> | boolean
     isActive?: BoolFilter<"RecurringItem"> | boolean
     categoryId?: StringFilter<"RecurringItem"> | string
     userId?: StringFilter<"RecurringItem"> | string
@@ -47378,6 +47427,8 @@ export namespace Prisma {
     merchant?: SortOrderInput | SortOrder
     lastRunAt?: SortOrderInput | SortOrder
     nextRunAt?: SortOrder
+    lastReminderSentAt?: SortOrderInput | SortOrder
+    reminderEnabled?: SortOrder
     isActive?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
@@ -47404,6 +47455,8 @@ export namespace Prisma {
     merchant?: StringNullableFilter<"RecurringItem"> | string | null
     lastRunAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
     nextRunAt?: DateTimeFilter<"RecurringItem"> | Date | string
+    lastReminderSentAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
+    reminderEnabled?: BoolFilter<"RecurringItem"> | boolean
     isActive?: BoolFilter<"RecurringItem"> | boolean
     categoryId?: StringFilter<"RecurringItem"> | string
     userId?: StringFilter<"RecurringItem"> | string
@@ -47427,6 +47480,8 @@ export namespace Prisma {
     merchant?: SortOrderInput | SortOrder
     lastRunAt?: SortOrderInput | SortOrder
     nextRunAt?: SortOrder
+    lastReminderSentAt?: SortOrderInput | SortOrder
+    reminderEnabled?: SortOrder
     isActive?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
@@ -47455,6 +47510,8 @@ export namespace Prisma {
     merchant?: StringNullableWithAggregatesFilter<"RecurringItem"> | string | null
     lastRunAt?: DateTimeNullableWithAggregatesFilter<"RecurringItem"> | Date | string | null
     nextRunAt?: DateTimeWithAggregatesFilter<"RecurringItem"> | Date | string
+    lastReminderSentAt?: DateTimeNullableWithAggregatesFilter<"RecurringItem"> | Date | string | null
+    reminderEnabled?: BoolWithAggregatesFilter<"RecurringItem"> | boolean
     isActive?: BoolWithAggregatesFilter<"RecurringItem"> | boolean
     categoryId?: StringWithAggregatesFilter<"RecurringItem"> | string
     userId?: StringWithAggregatesFilter<"RecurringItem"> | string
@@ -49684,6 +49741,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutSettingInput
@@ -49706,6 +49764,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49728,6 +49787,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSettingNestedInput
@@ -49750,6 +49810,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49772,6 +49833,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     userId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -49794,6 +49856,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -49815,6 +49878,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50496,6 +50560,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50517,6 +50583,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId: string
     userId: string
@@ -50538,6 +50606,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50559,6 +50629,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -50580,6 +50652,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId: string
     userId: string
@@ -50600,6 +50674,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50618,6 +50694,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -52869,6 +52947,7 @@ export namespace Prisma {
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
     dailyInsightsEnabled?: SortOrder
+    budgetInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -52891,6 +52970,7 @@ export namespace Prisma {
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
     dailyInsightsEnabled?: SortOrder
+    budgetInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -52913,6 +52993,7 @@ export namespace Prisma {
     newsLetterAlert?: SortOrder
     communityAlert?: SortOrder
     dailyInsightsEnabled?: SortOrder
+    budgetInsightsEnabled?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -53523,6 +53604,8 @@ export namespace Prisma {
     merchant?: SortOrder
     lastRunAt?: SortOrder
     nextRunAt?: SortOrder
+    lastReminderSentAt?: SortOrder
+    reminderEnabled?: SortOrder
     isActive?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
@@ -53547,6 +53630,8 @@ export namespace Prisma {
     merchant?: SortOrder
     lastRunAt?: SortOrder
     nextRunAt?: SortOrder
+    lastReminderSentAt?: SortOrder
+    reminderEnabled?: SortOrder
     isActive?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
@@ -53567,6 +53652,8 @@ export namespace Prisma {
     merchant?: SortOrder
     lastRunAt?: SortOrder
     nextRunAt?: SortOrder
+    lastReminderSentAt?: SortOrder
+    reminderEnabled?: SortOrder
     isActive?: SortOrder
     categoryId?: SortOrder
     userId?: SortOrder
@@ -57272,6 +57359,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57293,6 +57381,7 @@ export namespace Prisma {
     newsLetterAlert?: boolean
     communityAlert?: boolean
     dailyInsightsEnabled?: boolean
+    budgetInsightsEnabled?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57463,6 +57552,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -57483,6 +57574,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId: string
     createdAt?: Date | string
@@ -58130,6 +58223,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -58151,6 +58245,7 @@ export namespace Prisma {
     newsLetterAlert?: BoolFieldUpdateOperationsInput | boolean
     communityAlert?: BoolFieldUpdateOperationsInput | boolean
     dailyInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
+    budgetInsightsEnabled?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -58299,6 +58394,8 @@ export namespace Prisma {
     merchant?: StringNullableFilter<"RecurringItem"> | string | null
     lastRunAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
     nextRunAt?: DateTimeFilter<"RecurringItem"> | Date | string
+    lastReminderSentAt?: DateTimeNullableFilter<"RecurringItem"> | Date | string | null
+    reminderEnabled?: BoolFilter<"RecurringItem"> | boolean
     isActive?: BoolFilter<"RecurringItem"> | boolean
     categoryId?: StringFilter<"RecurringItem"> | string
     userId?: StringFilter<"RecurringItem"> | string
@@ -60991,6 +61088,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61011,6 +61110,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     userId: string
     createdAt?: Date | string
@@ -61971,6 +62072,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61991,6 +62094,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId: string
     userId: string
@@ -62302,6 +62407,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62322,6 +62429,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     categoryId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -65520,6 +65629,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     categoryId: string
     createdAt?: Date | string
@@ -65995,6 +66106,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66015,6 +66128,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66035,6 +66150,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     categoryId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66491,6 +66608,8 @@ export namespace Prisma {
     merchant?: string | null
     lastRunAt?: Date | string | null
     nextRunAt: Date | string
+    lastReminderSentAt?: Date | string | null
+    reminderEnabled?: boolean
     isActive?: boolean
     userId: string
     createdAt?: Date | string
@@ -66635,6 +66754,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66655,6 +66776,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -66675,6 +66798,8 @@ export namespace Prisma {
     merchant?: NullableStringFieldUpdateOperationsInput | string | null
     lastRunAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nextRunAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastReminderSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reminderEnabled?: BoolFieldUpdateOperationsInput | boolean
     isActive?: BoolFieldUpdateOperationsInput | boolean
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

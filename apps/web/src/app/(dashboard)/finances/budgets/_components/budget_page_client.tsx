@@ -7,6 +7,8 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 import { useProGate } from '@/hooks/use_pro_gate';
 import { BudgetCategoryCard } from './budget_card';
 import { BudgetCardSkeleton } from './budget_card_skeleton';
@@ -21,6 +23,7 @@ import type { UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
 import { BudgetSpendingTrend } from '@/app/(dashboard)/finances/budgets/_components/budget_spending_trend';
 
 export function BudgetPageClient() {
+  const plan = usePlan();
   const createGate = useProGate(Usage.MAX_BUDGETS);
   const [selectedMonth, setSelectedMonth] = React.useState(
     () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -38,7 +41,7 @@ export function BudgetPageClient() {
 
   const utils = api_client.useUtils();
 
-  const { data, isLoading, refetch } = api_client.budget.getAll.useQuery({
+  const { data, isLoading } = api_client.budget.getAll.useQuery({
     month: selectedMonth.getMonth(),
     year: selectedMonth.getFullYear(),
   });
@@ -136,6 +139,12 @@ export function BudgetPageClient() {
                     Archived
                   </button>
                 </div>
+                <UsageBanner
+                  used={plan?.resourceCounts.budgets ?? 0}
+                  limit={(plan?.limits?.[Usage.MAX_BUDGETS] ?? 5) as number}
+                  variant="slot"
+                  label="budgets"
+                />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                   {isLoading ? (
                     <BudgetCardSkeleton count={4} />

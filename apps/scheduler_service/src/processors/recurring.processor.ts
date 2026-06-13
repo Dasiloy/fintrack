@@ -12,7 +12,10 @@ import {
   BUDGET_CHECK_JOB,
   BUDGET_CHECK_QUEUE,
   CREATE_RECURRING_TRANSACTION,
+  FCM_NOTIFICATION_JOB,
+  FCM_NOTIFICATION_QUEUE,
   RECURRING_QUEUE,
+  RECURRING_REMINDER_JOB,
   TOKEN_NOTIFICATION_QUEUE,
   RECURRING_TRANSACTIONS_EMAIL_JOB,
   TRANSACTION_SEMANTIC_QUEUE,
@@ -29,8 +32,9 @@ import {
   RecurringItem,
   TransactionType,
 } from '@fintrack/database/types';
-import { computeNextRunAt } from '@fintrack/utils/recurring';
-import { genRecurringSourceId } from '@fintrack/utils/format';
+import { computeNextRunAt, computeReminderAt } from '@fintrack/utils/recurring';
+import { genRecurringSourceId, formatCurrency } from '@fintrack/utils/format';
+import { FcmNotificationPayload } from '@fintrack/types/interfaces/finance';
 
 type RecurringWithCategory = RecurringItem & { category: Category };
 
@@ -47,6 +51,8 @@ export class RecurringProcessor extends WorkerHost {
     private readonly budgetCheckQueue: Queue,
     @InjectQueue(TRANSACTION_SEMANTIC_QUEUE)
     private readonly transactionSemanticQueue: Queue,
+    @InjectQueue(FCM_NOTIFICATION_QUEUE)
+    private readonly fcmNotificationQueue: Queue,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {
     super();
@@ -96,6 +102,9 @@ export class RecurringProcessor extends WorkerHost {
     switch (job.name) {
       case CREATE_RECURRING_TRANSACTION:
         await this.createRecurringTransactions();
+        break;
+      case RECURRING_REMINDER_JOB:
+        await this.sendReminders();
         break;
       default:
         this.logger.error(`Unknown job name: ${job.name}`);
@@ -221,6 +230,131 @@ export class RecurringProcessor extends WorkerHost {
         );
       }
     }
+  }
+
+  /**
+   * Frequency-aware advance-notice reminders for upcoming recurring charges.
+   *
+   * Runs every hour (offset from the charge job). For each active, reminder-
+   * enabled item whose lead window has opened but whose charge hasn't happened
+   * yet, dispatches a single in-app + push notification via the FCM queue
+   * (`FcmService.sendToUser` persists the in-app Notification row *and* sends
+   * the push — no email, by design).
+   *
+   * ## Exactly-once-per-cycle
+   * The reminder window is `[reminderAt, nextRunAt)` where
+   * `reminderAt = nextRunAt - lead(frequency)`. We fire when:
+   * - `now >= reminderAt`  → the lead time has arrived or passed (tolerates a
+   *   delayed/missed tick — no exact-time match required), and
+   * - `now < nextRunAt`    → the charge hasn't run yet (enforced in the query),
+   *   so we never send a stale "upcoming" reminder after the fact, and
+   * - `lastReminderSentAt` is unset or predates this cycle's `reminderAt`
+   *   → not already reminded for this occurrence.
+   *
+   * After a reminder fires, `lastReminderSentAt` is stamped to `now`; the next
+   * occurrence advances `nextRunAt` (and thus `reminderAt`) forward, so a fresh
+   * reminder naturally fires next cycle while repeat ticks this cycle are
+   * suppressed.
+   */
+  private async sendReminders(): Promise<void> {
+    const now = new Date();
+
+    // Only items that could plausibly be in a reminder window: active,
+    // opted-in, not yet charged, and not past their end date.
+    const items = await this.prisma.recurringItem.findMany({
+      where: {
+        isActive: true,
+        reminderEnabled: true,
+        nextRunAt: { gt: now },
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
+      },
+    });
+
+    const due = items.filter((item) => {
+      const reminderAt = computeReminderAt(item.frequency, item.nextRunAt);
+      if (now < reminderAt) return false; // lead window not open yet
+      // already reminded for this occurrence?
+      return (
+        item.lastReminderSentAt === null || item.lastReminderSentAt < reminderAt
+      );
+    });
+
+    this.logger.log(
+      `${due.length}/${items.length} recurring item(s) due a reminder at ${now.toISOString()}`,
+    );
+
+    if (due.length === 0) return;
+
+    const sentIds: string[] = [];
+
+    for (const item of due) {
+      try {
+        const fcmData: FcmNotificationPayload = {
+          userId: item.userId,
+          title: `Reminder: ${item.name}`,
+          body: this.buildReminderBody(item, now),
+          data: {
+            type: 'recurring_reminder',
+            recurringId: item.id,
+            recurringName: item.name,
+            amount: String(item.amount),
+            frequency: item.frequency,
+            nextRunAt: item.nextRunAt.toISOString(),
+          },
+        };
+        await this.fcmNotificationQueue.add(FCM_NOTIFICATION_JOB, fcmData);
+        sentIds.push(item.id);
+      } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        this.logger.error(
+          `[AUDIT] Failed to enqueue reminder for item ${item.id} (${item.name}): ${err.message}`,
+          err.stack,
+        );
+      }
+    }
+
+    // Stamp lastReminderSentAt only for items we actually enqueued, so a failed
+    // enqueue is retried on the next tick rather than silently swallowed.
+    if (sentIds.length > 0) {
+      await this.prisma.recurringItem.updateMany({
+        where: { id: { in: sentIds } },
+        data: { lastReminderSentAt: now },
+      });
+    }
+  }
+
+  /**
+   * Builds the frequency-aware body copy for a reminder notification.
+   * The "due" phrasing scales with how far out the charge is so a daily bill
+   * reads naturally ("in about an hour") alongside a yearly one ("on Jun 13").
+   *
+   * @private
+   */
+  private buildReminderBody(item: RecurringItem, now: Date): string {
+    const HOUR_MS = 60 * 60 * 1000;
+    const DAY_MS = 24 * HOUR_MS;
+    const ms = item.nextRunAt.getTime() - now.getTime();
+
+    let due: string;
+    if (ms <= 2 * HOUR_MS) {
+      due = 'in about an hour';
+    } else {
+      const days = Math.round(ms / DAY_MS);
+      if (days <= 0) due = 'today';
+      else if (days === 1) due = 'tomorrow';
+      else if (days <= 14) due = `in ${days} days`;
+      else
+        due = `on ${item.nextRunAt.toLocaleDateString('en-NG', {
+          day: 'numeric',
+          month: 'short',
+          timeZone: 'UTC',
+        })}`;
+    }
+
+    const money = formatCurrency(item.amount);
+    const verb =
+      item.type === TransactionType.EXPENSE ? 'is due' : 'is expected';
+    return `${money} ${verb} ${due}.`;
   }
 
   /**

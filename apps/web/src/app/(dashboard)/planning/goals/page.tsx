@@ -7,7 +7,9 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { useProGate } from '@/hooks/use_pro_gate';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 import { GoalCard } from './_components/goal_card';
 import { GoalCardSkeleton } from './_components/goal_card_skeleton';
 import { GoalEmptyState } from './_components/goal_empty_state';
@@ -17,6 +19,7 @@ import { GoalHealthPanel } from './_components/goal_health_panel';
 import { GoalProjectionChart } from './_components/goal_projection_chart';
 
 export default function GoalsPage() {
+  const plan = usePlan();
   const [createOpen, setCreateOpen] = React.useState(false);
   const createGate = useProGate(Usage.MAX_GOALS);
   const [drawerGoalId, setDrawerGoalId] = React.useState<string | null>(null);
@@ -80,6 +83,12 @@ export default function GoalsPage() {
         </div>
 
         {/* Goal cards grid */}
+        <UsageBanner
+          used={plan?.resourceCounts.goals ?? 0}
+          limit={(plan?.limits?.[Usage.MAX_GOALS] ?? 3) as number}
+          variant="slot"
+          label="goals"
+        />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {goalsLoading ? (
             <GoalCardSkeleton count={4} />

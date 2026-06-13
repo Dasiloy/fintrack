@@ -113,6 +113,7 @@ export const recurringRouter = createTRPCRouter({
         endDate: z.string().optional(),
         description: z.string().min(1).max(255).optional(),
         merchant: z.string().min(1).max(255).optional(),
+        reminderEnabled: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -150,6 +151,7 @@ export const recurringRouter = createTRPCRouter({
         endDate: z.string().optional(),
         description: z.string().min(1).max(255).optional(),
         merchant: z.string().min(1).max(255).optional(),
+        reminderEnabled: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -181,6 +183,31 @@ export const recurringRouter = createTRPCRouter({
         method: 'PATCH',
         headers: gatewayHeaders(ctx.headers),
       });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<Recurinrg> = await response.json();
+      return data;
+    }),
+
+  /**
+   * Toggles advance billing reminders (reminderEnabled) for a recurring item.
+   * A lightweight opt-in/out that doesn't touch the schedule.
+   *
+   * @param id - Recurring item ID to toggle
+   * @throws UNAUTHORIZED if the session is invalid
+   * @throws NOT_FOUND if the recurring item does not exist
+   */
+  toggleReminder: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(
+        `${GATEWAY_URL}/api/recurring/${input.id}/reminder-toggle`,
+        {
+          method: 'PATCH',
+          headers: gatewayHeaders(ctx.headers),
+        },
+      );
 
       if (!response.ok) await throwGatewayError(response);
 

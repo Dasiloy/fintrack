@@ -61,4 +61,12 @@ export class UpdateSettingsDto {
   @ApiPropertyOptional() @IsOptional() @IsBoolean() goalsAlertApp?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() splitsAlertMail?: boolean;
   @ApiPropertyOptional() @IsOptional() @IsBoolean() splitsAlertApp?: boolean;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  dailyInsightsEnabled?: boolean;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  budgetInsightsEnabled?: boolean;
 }

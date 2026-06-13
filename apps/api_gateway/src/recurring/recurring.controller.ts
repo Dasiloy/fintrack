@@ -402,6 +402,54 @@ export class RecurringController {
   }
 
   // ================================================================
+  //. Toggle reminder opt-in
+  // ================================================================
+  @Patch(':id/reminder-toggle')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Toggle advance billing reminders for a recurring item',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'Recurring item ID',
+    example: 'cmnoh1rlt0001i0rqneqmzb77',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Reminder preference toggled successfully',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Reminder preference updated',
+        data: { ...RECURRING_EXAMPLE, reminderEnabled: false },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Recurring item not found',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+  })
+  async toggleReminder(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<StandardResponse<ProtoRecurring>> {
+    const res = await this.recurringService.toggleReminder(user, id);
+    return {
+      data: res,
+      message: 'Reminder preference updated',
+      success: true,
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
   //. Delete a recurring item
   // ================================================================
   @Delete(':id')
