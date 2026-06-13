@@ -2,6 +2,7 @@
 
 import type { CookiKeys } from '@/lib/constants/cookies';
 import { Prefrences } from '@/app/(dashboard)/settings/account/_components/prefrences';
+import { InsightPrefrences } from '@/app/(dashboard)/settings/account/_components/insight_prefrences';
 import { NotificationPrefrences } from '@/app/(dashboard)/settings/account/_components/notification_prefrences';
 import { OnboardingSection } from '@/app/(dashboard)/settings/account/_components/onboarding_section';
 
@@ -13,8 +14,9 @@ export function AccountLayout({ cookies }: AccountLayoutProps) {
   return (
     <div className="grid w-full max-w-6xl grid-cols-1 gap-6 px-6 py-8 lg:px-8">
       <Prefrences cookies={cookies} />
-      <OnboardingSection />
+      <InsightPrefrences />
       <NotificationPrefrences />
+      <OnboardingSection />
     </div>
   );
 }

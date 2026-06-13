@@ -16,6 +16,7 @@ import {
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
   RECURRING_QUEUE,
+  RECURRING_REMINDER_JOB,
   USAGE_TRACKING_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 
@@ -51,6 +52,18 @@ export class SchedulerService {
     console.warn('This ran in 5 minuites');
     void this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
+      {},
+      {
+        removeOnComplete: true,
+        removeOnFail: { count: 10 },
+      },
+    );
+  }
+
+  @Cron('30 * * * *') // Runs at 30th min of every hour
+  sendRecurringReminders() {
+    void this.reccuringQueue.add(
+      RECURRING_REMINDER_JOB,
       {},
       {
         removeOnComplete: true,

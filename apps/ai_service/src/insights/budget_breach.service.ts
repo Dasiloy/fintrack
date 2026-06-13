@@ -23,6 +23,7 @@ import { extractText } from '../registory/llm.utils';
 import { isTransientLLMError } from '../registory/retry.utils';
 import { BUDGET_BREACH_SYSTEM } from './insights.prompts';
 import { SUMMARY_MODEL } from './insights.constants';
+import { InsightService } from './insights.service';
 
 const SEVERITY_RANK: Record<string, number> = {
   info: 0,
@@ -38,6 +39,7 @@ export class BudgetBreachService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly modelRessolver: ModelRessolver,
+    private readonly insightService: InsightService,
     @InjectQueue(FCM_NOTIFICATION_QUEUE) private readonly fcmQueue: Queue,
   ) {}
 
@@ -48,6 +50,18 @@ export class BudgetBreachService implements OnModuleInit {
   async run(payload: InsightsJobPayload): Promise<void> {
     const { userId, metadata: entries } = payload;
     if (!userId || !entries?.length) return;
+
+    // Silently drop the job if the user has exhausted their monthly insight quota.
+    const allowed = await this.insightService.isInsightAllowed(
+      payload.userId!,
+      'budget_breach',
+    );
+    if (!allowed) {
+      this.logger.log(
+        `[InsightService] Skipping insights — userId=${payload.userId} has reached monthly limit`,
+      );
+      return;
+    }
 
     // ── Step 1: load latest insight + budget names in parallel ───────────────
     const [existingInsight, budgets] = await Promise.all([
@@ -146,6 +160,8 @@ export class BudgetBreachService implements OnModuleInit {
         `[BudgetBreachService] Created insight ${insightId} for userId=${userId}`,
       );
     }
+
+    await this.insightService.incrementInsightUsage(payload.userId!);
 
     // ── Step 6: dispatch FCM ─────────────────────────────────────────────────
     const pct = Math.round(topEntry.currentPct * 100);

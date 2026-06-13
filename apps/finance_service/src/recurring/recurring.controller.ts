@@ -146,6 +146,26 @@ export class RecurringController {
   }
 
   /**
+   * @description Toggle the `reminderEnabled` flag on a recurring item — a
+   * quick opt-in/out for advance billing reminders without editing the item.
+   *
+   * @async
+   * @public
+   * @param {RecurringReq} request Contains the recurring item ID
+   * @param {User} user Authenticated user injected by RpcAuthGuard
+   * @returns {Promise<ProtoRecurring>} The item with updated `reminderEnabled`
+   * @throws {RpcException} NOT_FOUND if the item does not exist or belongs to another user
+   * @throws {RpcException} INTERNAL on unexpected errors
+   */
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'toggleRecurringReminder')
+  toggleRecurringReminder(
+    @Payload() request: RecurringReq,
+    @RpcUser() user: User,
+  ): Promise<ProtoRecurring> {
+    return this.recurringService.toggleReminder(user.id, request);
+  }
+
+  /**
    * @description Permanently delete a recurring item.
    * Transactions already created by the scheduler are NOT deleted.
    *

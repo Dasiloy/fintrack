@@ -8,7 +8,9 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { PageHeader } from '@/app/_components/page-header';
 import { ProGateModal } from '@/app/_components/pro_gate_modal';
+import { UsageBanner } from '@/app/_components/usage_banner';
 import { useProGate } from '@/hooks/use_pro_gate';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 import type { Recurinrg } from '@fintrack/types/protos/finance/recurring';
 
 import type { BillFilters } from './types';
@@ -23,6 +25,7 @@ import { useFormatCurrency } from '@/hooks/use_format_currency';
 
 export default function BillsPage() {
   const formatCurrency = useFormatCurrency();
+  const plan = usePlan();
   // ── State ─────────────────────────────────────────────────────────────────
   const createGate = useProGate(Usage.MAX_RECURRING_ITEMS);
   const [filters, setFilters] = React.useState<BillFilters>(EMPTY_FILTERS);
@@ -83,6 +86,14 @@ export default function BillsPage() {
     onError: () => toast.error('Failed to delete. Please try again.'),
   });
 
+  const toggleReminderMutation = api_client.recurring.toggleReminder.useMutation({
+    onSuccess: (data) => {
+      invalidateAll();
+      toast.success(data.data?.reminderEnabled ? 'Reminder enabled' : 'Reminder disabled');
+    },
+    onError: () => toast.error('Failed to update reminder. Please try again.'),
+  });
+
   // ── Card callbacks ────────────────────────────────────────────────────────
   const handleView = React.useCallback((item: Recurinrg) => {
     setDrawerEditMode(false);
@@ -104,6 +115,11 @@ export default function BillsPage() {
   const handleDelete = React.useCallback(
     (item: Recurinrg) => deleteMutation.mutate({ id: item.id }),
     [deleteMutation],
+  );
+
+  const handleToggleReminder = React.useCallback(
+    (item: Recurinrg) => toggleReminderMutation.mutate({ id: item.id }),
+    [toggleReminderMutation],
   );
 
   const hasActiveFilters =
@@ -167,6 +183,13 @@ export default function BillsPage() {
 
       {/* ── Bill cards grid ── */}
       <div className="px-6 pb-6">
+        <UsageBanner
+          used={plan?.resourceCounts.recurringItems ?? 0}
+          limit={(plan?.limits?.[Usage.MAX_RECURRING_ITEMS] ?? 5) as number}
+          variant="slot"
+          label="recurring bills"
+          className="mb-4"
+        />
         {isLoading ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -206,6 +229,7 @@ export default function BillsPage() {
                 onView={handleView}
                 onEdit={handleEdit}
                 onToggle={handleToggle}
+                onToggleReminder={handleToggleReminder}
                 onDelete={handleDelete}
                 isDeleting={deleteMutation.isPending && deleteMutation.variables?.id === item.id}
               />

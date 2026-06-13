@@ -26,6 +26,9 @@ import type {
 } from '../_lib/advisor.types';
 import { STREAM_INTERVAL_MS } from '../_lib/advisor.constants';
 import { TypingIndicator } from '@/app/_components';
+import { UsageBanner } from '@/app/_components/usage_banner';
+import { Usage } from '@fintrack/types/constants/plan.constants';
+import { usePlan } from '@/app/providers/plan_usage_provider';
 
 interface ChatPanelProps {
   activeConversationId: string | null;
@@ -33,6 +36,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ activeConversationId, onFirstMessageSent }: ChatPanelProps) {
+  const plan = usePlan();
   const [chatState, setChatState] = React.useState<ChatState>({
     messages: [],
     inputText: '',
@@ -176,7 +180,18 @@ export function ChatPanel({ activeConversationId, onFirstMessageSent }: ChatPane
           <div className="w-full max-w-xl">
             <ChatEmptyState
               onPromptSelect={(p) => setChatState((prev) => ({ ...prev, inputText: p }))}
-              inputSlot={<ChatInput {...inputProps} />}
+              inputSlot={
+                <>
+                  <UsageBanner
+                    used={plan?.usage?.[Usage.AI_CHAT_MESSAGES_PER_MONTH]?.count ?? 0}
+                    limit={(plan?.limits?.[Usage.AI_CHAT_MESSAGES_PER_MONTH] ?? 10) as number}
+                    variant="quota"
+                    label="chat messages"
+                    className="mb-2"
+                  />
+                  <ChatInput {...inputProps} />
+                </>
+              }
             />
           </div>
         </div>
@@ -203,6 +218,13 @@ export function ChatPanel({ activeConversationId, onFirstMessageSent }: ChatPane
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
+      <UsageBanner
+        used={plan?.usage?.[Usage.AI_CHAT_MESSAGES_PER_MONTH]?.count ?? 0}
+        limit={(plan?.limits?.[Usage.AI_CHAT_MESSAGES_PER_MONTH] ?? 10) as number}
+        variant="quota"
+        label="chat messages"
+        className="mx-4 mb-2"
+      />
       <ChatInput {...inputProps} />
     </div>
   );
