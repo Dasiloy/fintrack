@@ -82,8 +82,8 @@ export function BudgetPageClient() {
     if (!open) setPrefilledCategoryId(undefined);
   };
 
-  const onDeletCategory = async (c: UnbudgetedCategory) => {
-    await deleteCategoryMutation.mutateAsync({ slug: c.slug });
+  const onDeletCategory = async (c: UnbudgetedCategory, switchCatSlug?: string) => {
+    await deleteCategoryMutation.mutateAsync({ slug: c.slug, switchCatSlug });
   };
 
   const onEditCategory = (c: UnbudgetedCategory) =>
