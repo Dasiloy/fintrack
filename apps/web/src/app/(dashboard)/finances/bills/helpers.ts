@@ -1,5 +1,6 @@
 import type { Recurinrg } from '@fintrack/types/protos/finance/recurring';
 import { format, parseLocalDate } from '@fintrack/utils/date';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 import type { BillEditState, BillFilters, StatusTab } from './types';
 
 export const EMPTY_FILTERS: BillFilters = {
@@ -159,12 +160,14 @@ export const FREQUENCIES = [
 // ---------------------------------------------------------------------------
 
 export function toEditState(item: Recurinrg): BillEditState {
+  const slug = item.category?.slug ?? '';
   return {
     name: item.name,
     amount: String(item.amount),
-    type: item.type as BillEditState['type'],
+    // Forced-income categories always represent income, regardless of stored type.
+    type: isForcedIncomeCategory(slug) ? 'INCOME' : (item.type as BillEditState['type']),
     frequency: item.frequency,
-    categorySlug: item.category?.slug ?? '',
+    categorySlug: slug,
     startDate: item.startDate.slice(0, 10),
     endDate: item.endDate ? item.endDate.slice(0, 10) : '',
     merchant: item.merchant ?? '',

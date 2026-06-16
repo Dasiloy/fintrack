@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, Length, Matches } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 
 /**
  * CreateCategoryDto.
@@ -79,4 +85,17 @@ export class UpdateCategoryDto {
     message: 'color must be a 6-digit hex code with leading # (e.g. #F97316)',
   })
   color?: string;
+}
+
+export class DeleteCategoryDto {
+  @ApiPropertyOptional({
+    type: 'string',
+    required: false,
+    description: 'Slug of the category',
+    example: 'cat-misc',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  switchCatSlug?: string;
 }

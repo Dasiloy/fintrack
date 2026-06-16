@@ -153,11 +153,11 @@ Items are ordered by priority. Each entry follows the format:
   - Decide explicitly and apply consistently whether background daily/breach runs count toward the same tracker as manual triggers (which already gate via `triggerInsights` → `limitReached`).
   - Related files: `apps/web/src/app/(dashboard)/settings/account/_components/`, settings tRPC router + `apps/api_gateway` notification-settings update, `apps/scheduler_service/src/scheduler.service.ts` + `processors/insights_daily.processor.ts`, `apps/ai_service/src/insights/` (`insights.service.ts`, `budget_breach.service.ts`), usage-tracker service, `packages/database/prisma/schema.prisma` (`NotificationSetting.dailyInsightsEnabled` / `budgetInsightsEnabled`).
 
-  ### [BL-008] Category deletion — reassign or transfer related entities
+  ### [BL-008] ✅ Category deletion — reassign or transfer related entities
 
 - **Type**: Feature
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: When a user deletes a user-owned category, transactions currently auto-move to Miscellaneous while budgets and recurring items are lost. Instead, the user should be prompted to choose where those entities move before the category is removed.
 - **Notes**:
   - On delete, if the category has linked entities, show a reassignment dialog: "X transactions, Y budgets, and Z recurring items are using this category. Reassign them to:" with a category picker defaulting to a sensible system category (e.g. "Miscellanous").

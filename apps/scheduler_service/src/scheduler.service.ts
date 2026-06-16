@@ -49,7 +49,6 @@ export class SchedulerService {
 
   @Cron('0 * * * *') // Runs every hour
   createRecurringTransactions() {
-    console.warn('This ran in 5 minuites');
     void this.reccuringQueue.add(
       CREATE_RECURRING_TRANSACTION,
       {},
