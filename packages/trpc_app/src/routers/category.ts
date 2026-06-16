@@ -5,6 +5,7 @@ import { createTRPCRouter, protectedProcedure, protectedProcedureWithPlanLimits 
 import { type StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { Category } from '@fintrack/database/types';
 import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
+import type { CountCatregoryLinkedItems } from '@fintrack/types/interfaces/category';
 
 export const categoryRouter = createTRPCRouter({
   // ---------------------------------------------------------------------------
@@ -27,6 +28,29 @@ export const categoryRouter = createTRPCRouter({
     const data: StandardResponse<Category[]> = await response.json();
     return data;
   }),
+
+  /**
+   * Returns all categories available to the user — both system defaults and
+   * user-created ones.
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   */
+  getLinkedItemsCount: protectedProcedure
+    .input(
+      z.object({
+        slug: z.string().min(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/category/${input.slug}/linked/items/count`, {
+        headers: gatewayHeaders(ctx.headers),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<CountCatregoryLinkedItems> = await response.json();
+      return data;
+    }),
 
   // ---------------------------------------------------------------------------
   // Mutations
@@ -110,11 +134,12 @@ export const categoryRouter = createTRPCRouter({
    * @throws FORBIDDEN if attempting to delete a system category
    */
   delete: protectedProcedure
-    .input(z.object({ slug: z.string().min(1) }))
+    .input(z.object({ slug: z.string().min(1), switchCatSlug: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       const response = await fetch(`${GATEWAY_URL}/api/category/${input.slug}`, {
         method: 'DELETE',
-        headers: gatewayHeaders(ctx.headers),
+        body: JSON.stringify({ switchCatSlug: input.switchCatSlug }),
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
       });
 
       if (!response.ok) await throwGatewayError(response);
