@@ -55,6 +55,10 @@ function DialogContent({
         className={cn(
           'bg-bg-elevated border-border-light rounded-card shadow-card border',
           'fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2',
+          // Cap height to the (dynamic) viewport and scroll overflow so long
+          // forms are never cut off — critical on mobile. overscroll-contain
+          // keeps the scroll inside the dialog.
+          'max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain',
           'gap-space-4 p-space-6 sm:max-w-lg',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0',

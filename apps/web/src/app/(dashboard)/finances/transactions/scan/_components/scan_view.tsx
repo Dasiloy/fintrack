@@ -12,6 +12,7 @@ import { format } from '@fintrack/utils/date';
 import { PageHeader } from '@/app/_components/page-header';
 import { UsageBanner } from '@/app/_components/usage_banner';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 import { usePlan } from '@/app/providers/plan_usage_provider';
 
 import { ACCEPTED_MIME, MAX_BYTES, type OcrPayload, type Phase } from './scan.types';
@@ -35,6 +36,13 @@ export function ScanView() {
   const [categorySlug, setCategorySlug] = React.useState('');
   const [merchant, setMerchant] = React.useState('');
   const [description, setDescription] = React.useState('');
+
+  // Picking a category (re)defaults the type: forced-income (Income, Savings &
+  // Investments) → INCOME (locked in the panel), anything else → EXPENSE.
+  const handleCategoryChange = (slug: string) => {
+    setCategorySlug(slug);
+    setType(isForcedIncomeCategory(slug) ? 'INCOME' : 'EXPENSE');
+  };
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [dateOpen, setDateOpen] = React.useState(false);
 
@@ -127,8 +135,6 @@ export function ScanView() {
       es.onmessage = (event: MessageEvent<string>) => {
         const payload = JSON.parse(event.data) as OcrPayload;
 
-        console.log('Payload', payload);
-
         if (payload.status === 'COMPLETED') {
           terminalReceivedRef.current = true;
           es.close();
@@ -138,7 +144,11 @@ export function ScanView() {
           if (payload.date) setDate(new Date(payload.date));
           if (payload.merchant) setMerchant(payload.merchant);
           if (payload.description) setDescription(payload.description);
-          if (payload.categorySlug) setCategorySlug(payload.categorySlug);
+          if (payload.categorySlug) {
+            setCategorySlug(payload.categorySlug);
+            // Forced-income categories (Income, Savings & Investments) lock type to INCOME.
+            if (isForcedIncomeCategory(payload.categorySlug)) setType('INCOME');
+          }
           setPhase('done');
         } else if (payload.status === 'FAILED') {
           terminalReceivedRef.current = true;
@@ -336,7 +346,7 @@ export function ScanView() {
                   type={type}
                   setType={setType}
                   categorySlug={categorySlug}
-                  setCategorySlug={setCategorySlug}
+                  setCategorySlug={handleCategoryChange}
                   merchant={merchant}
                   setMerchant={setMerchant}
                   description={description}

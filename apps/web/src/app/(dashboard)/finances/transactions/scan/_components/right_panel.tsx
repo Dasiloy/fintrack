@@ -19,6 +19,7 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { onlyNumbers } from '@fintrack/utils/format';
 import { format } from '@fintrack/utils/date';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 
 import { ReceiptScanPreview } from './receipt_scan_preview';
 import type { Phase } from './scan.types';
@@ -146,7 +147,11 @@ export function RightPanel({
           </Field>
           <Field>
             <Label>Type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as 'INCOME' | 'EXPENSE')}>
+            <Select
+              value={type}
+              onValueChange={(v) => setType(v as 'INCOME' | 'EXPENSE')}
+              disabled={isForcedIncomeCategory(categorySlug)}
+            >
               <SelectTrigger size="default" className="w-full">
                 <SelectValue />
               </SelectTrigger>
