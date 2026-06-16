@@ -38,6 +38,7 @@ import {
 import { FREQUENCIES, frequencyLabel, frequencyShort, toEditState } from '../helpers';
 import type { BillEditState } from '../types';
 import { useFormatCurrency } from '@/hooks/use_format_currency';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 
 interface BillDrawerProps {
   billId: string | null;
@@ -143,6 +144,17 @@ export function BillDrawer({
   const setField = <K extends keyof BillEditState>(key: K, val: BillEditState[K]) =>
     setEdit((s) => ({ ...s, [key]: val }));
 
+  // Forced-income categories (Income, Savings & Investments) lock the type to
+  // INCOME. Picking a category (re)defaults the type synchronously.
+  const typeLocked = isForcedIncomeCategory(edit.categorySlug);
+
+  const onCategoryChange = (slug: string) =>
+    setEdit((s) => ({
+      ...s,
+      categorySlug: slug,
+      type: isForcedIncomeCategory(slug) ? 'INCOME' : 'EXPENSE',
+    }));
+
   const accentColor = item?.category?.color ?? '#6366f1';
 
   return (
@@ -172,20 +184,23 @@ export function BillDrawer({
           ) : editMode ? (
             /* ── Edit mode ── */
             <div className="flex flex-col gap-5 px-6 py-6">
-              {/* Type toggle */}
+              {/* Type toggle — locked to Income for forced-income categories */}
               <div className="flex gap-2">
                 {(['EXPENSE', 'INCOME'] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
+                    disabled={typeLocked}
                     onClick={() => setField('type', t)}
                     className={cn(
-                      'flex-1 cursor-pointer rounded-lg border py-2 text-[12px] font-medium transition-all',
+                      'flex-1 rounded-lg border py-2 text-[12px] font-medium transition-all',
+                      typeLocked ? 'cursor-not-allowed' : 'cursor-pointer',
                       edit.type === t
                         ? t === 'INCOME'
                           ? 'bg-success/10 border-success/25 text-success'
                           : 'bg-error/10 border-error/25 text-error'
                         : 'border-border-light text-text-secondary hover:border-border-light',
+                      typeLocked && edit.type !== t && 'opacity-40',
                     )}
                   >
                     {t === 'INCOME' ? 'Income' : 'Expense'}
@@ -244,7 +259,7 @@ export function BillDrawer({
                     <EditRow label="Category">
                       <Select
                         value={edit.categorySlug}
-                        onValueChange={(v) => setField('categorySlug', v)}
+                        onValueChange={onCategoryChange}
                       >
                         <SelectTrigger size="sm" className="w-full">
                           <SelectValue placeholder="Select category" />

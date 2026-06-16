@@ -1,17 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,14 +11,19 @@ import {
 import { cn } from '@ui/lib/utils';
 import type { UnbudgetedCategory } from '@fintrack/types/protos/finance/budget';
 import { useFormatCurrency } from '@/hooks/use_format_currency';
+import { DeleteCategoryDialog } from './delete_category_dialog';
 
 interface UnbudgetedCardProps {
   category: UnbudgetedCategory;
   onSetBudget: (categorySlug: string) => void;
   /** Only called for user-owned categories */
   editCategory: (category: UnbudgetedCategory) => void;
-  /** Only called for user-owned categories — must return a Promise so the dialog can show a loading state */
-  deleteCategory: (category: UnbudgetedCategory) => Promise<void>;
+  /**
+   * Only called for user-owned categories — must return a Promise so the dialog
+   * can show a loading state. `switchCatSlug` is passed when linked items must be
+   * reassigned to another category before deletion.
+   */
+  deleteCategory: (category: UnbudgetedCategory, switchCatSlug?: string) => Promise<void>;
 }
 
 export function UnbudgetedCard({
@@ -39,7 +35,6 @@ export function UnbudgetedCard({
   const formatCurrency = useFormatCurrency();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const color = category.color || '#8b8b98';
 
@@ -139,40 +134,14 @@ export function UnbudgetedCard({
         <p className="text-text-disabled mt-3 text-[11px] font-medium">No budget set</p>
       </div>
 
-      {/* ── Delete confirmation — only mounted for user-owned categories ── */}
+      {/* ── Delete flow — only mounted for user-owned categories ── */}
       {category.isUserOwned && (
-        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogMedia className="bg-warning/10">
-                <TriangleAlert className="text-warning size-6" />
-              </AlertDialogMedia>
-              <AlertDialogTitle>Delete &quot;{category.name}&quot;?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This category will be permanently deleted. Transactions already assigned to it keep
-                their data, but the category itself cannot be recovered.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-              <Button
-                variant="destructive"
-                loading={isDeleting}
-                onClick={async () => {
-                  setIsDeleting(true);
-                  try {
-                    await deleteCategory(category);
-                    setConfirmOpen(false);
-                  } finally {
-                    setIsDeleting(false);
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteCategoryDialog
+          category={confirmOpen ? category : null}
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onDelete={deleteCategory}
+        />
       )}
     </>
   );

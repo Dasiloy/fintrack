@@ -71,19 +71,7 @@ export class BudgetService implements OnModuleInit {
 
   // ================================================================
   //. Helpers
-  // ================================================================
-
-  /**
-   * @description Formats a year/month pair into a zero-padded cache key segment (e.g. `2024-03`).
-   *
-   * @private
-   * @param {number} year Full four-digit year
-   * @param {number} month Month number (1–12)
-   * @returns {string} Zero-padded month key
-   */
-  private monthKey(year: number, month: number): string {
-    return `${year}-${String(month).padStart(2, '0')}`;
-  }
+  // ===============================================================
 
   /**
    * @description Deletes all cached budget-list and spending-trend entries for a user.
@@ -106,6 +94,38 @@ export class BudgetService implements OnModuleInit {
           this.logger.warn(`Budget cache invalidation failed: ${err.message}`),
         );
     }
+  }
+
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @public
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
+  async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100,
+      );
+      cursor = next;
+      keys.push(...(batch as string[]));
+    } while (cursor !== '0');
+    if (keys.length > 0)
+      await this.redis
+        .del(...keys)
+        .catch((err) =>
+          this.logger.warn(`Budget cache invalidation failed: ${err.message}`),
+        );
   }
 
   // ================================================================
@@ -341,32 +361,5 @@ export class BudgetService implements OnModuleInit {
     void this.invalidateBudgetListAndTrend(user.id);
     void this.invalidateExportCache(user.id);
     return result;
-  }
-
-  /**
-   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
-   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
-   *
-   * @async
-   * @private
-   * @param {string} userId Authenticated user ID
-   * @returns {Promise<void>}
-   */
-  private async invalidateExportCache(userId: string): Promise<void> {
-    const pattern = `export:${userId}:*`;
-    let cursor = '0';
-    const keys: string[] = [];
-    do {
-      const [next, batch] = await this.redis.scan(
-        cursor,
-        'MATCH',
-        pattern,
-        'COUNT',
-        100,
-      );
-      cursor = next;
-      keys.push(...(batch as string[]));
-    } while (cursor !== '0');
-    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

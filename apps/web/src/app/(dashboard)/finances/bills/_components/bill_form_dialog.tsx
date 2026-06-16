@@ -27,6 +27,7 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import type { Category } from '@fintrack/database/types';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { MerchantSelector } from '@/app/_components';
 import { FREQUENCIES } from '../helpers';
@@ -49,6 +50,15 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
   const [merchant, setMerchant] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [reminderEnabled, setReminderEnabled] = React.useState(true);
+
+  // Forced-income categories (Income, Savings & Investments) lock the type to
+  // INCOME. Picking a category (re)defaults the type synchronously.
+  const typeLocked = isForcedIncomeCategory(categorySlug);
+
+  const onCategoryChange = (slug: string) => {
+    setCategorySlug(slug);
+    setType(isForcedIncomeCategory(slug) ? 'INCOME' : 'EXPENSE');
+  };
 
   // Reset on open
   React.useEffect(() => {
@@ -108,20 +118,23 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Type toggle */}
+          {/* Type toggle — locked to Income for forced-income categories */}
           <div className="flex gap-2">
             {(['EXPENSE', 'INCOME'] as const).map((t) => (
               <button
                 key={t}
                 type="button"
+                disabled={typeLocked}
                 onClick={() => setType(t)}
                 className={cn(
-                  'flex-1 cursor-pointer rounded-lg border py-2 text-[12px] font-medium transition-all',
+                  'flex-1 rounded-lg border py-2 text-[12px] font-medium transition-all',
+                  typeLocked ? 'cursor-not-allowed' : 'cursor-pointer',
                   type === t
                     ? t === 'INCOME'
                       ? 'bg-success/10 border-success/25 text-success'
                       : 'bg-error/10 border-error/25 text-error'
                     : 'border-border-light text-text-secondary hover:border-border-light',
+                  typeLocked && type !== t && 'opacity-40',
                 )}
               >
                 {t === 'INCOME' ? 'Income' : 'Expense'}
@@ -172,7 +185,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
             </Field>
             <Field>
               <Label>Category</Label>
-              <Select value={categorySlug} onValueChange={setCategorySlug}>
+              <Select value={categorySlug} onValueChange={onCategoryChange}>
                 <SelectTrigger size="default" className="w-full">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
@@ -187,63 +200,60 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
             </Field>
           </div>
 
-          {/* Start date + End date */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field>
-              <Label>Start date</Label>
-              <AnchoredPopover
-                modal={false}
-                contentClassName="w-auto p-0"
-                trigger={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="size-4" />
-                    {format(startDate, 'MMM D, YYYY')}
-                  </Button>
-                }
-              >
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={(d) => d && setStartDate(d)}
-                  defaultMonth={startDate}
-                />
-              </AnchoredPopover>
-            </Field>
-            <Field>
-              <Label>
-                End date <span className="text-text-disabled font-normal">(optional)</span>
-              </Label>
-              <AnchoredPopover
-                modal={false}
-                contentClassName="w-auto p-0"
-                trigger={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !endDate && 'text-text-tertiary',
-                    )}
-                  >
-                    <CalendarIcon className="size-4" />
-                    {endDate ? format(endDate, 'MMM D, YYYY') : 'No end date'}
-                  </Button>
-                }
-              >
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  defaultMonth={endDate ?? startDate}
-                  disabled={(d) => d < startDate}
-                />
-              </AnchoredPopover>
-            </Field>
-          </div>
+          <Field>
+            <Label>Start date</Label>
+            <AnchoredPopover
+              modal={false}
+              contentClassName="w-auto p-0"
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="size-4" />
+                  {format(startDate, 'MMM D, YYYY')}
+                </Button>
+              }
+            >
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={(d) => d && setStartDate(d)}
+                defaultMonth={startDate}
+              />
+            </AnchoredPopover>
+          </Field>
+          <Field>
+            <Label>
+              End date <span className="text-text-disabled font-normal">(optional)</span>
+            </Label>
+            <AnchoredPopover
+              modal={false}
+              contentClassName="w-auto p-0"
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn(
+                    'w-full justify-start text-left font-normal',
+                    !endDate && 'text-text-tertiary',
+                  )}
+                >
+                  <CalendarIcon className="size-4" />
+                  {endDate ? format(endDate, 'MMM D, YYYY') : 'No end date'}
+                </Button>
+              }
+            >
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                defaultMonth={endDate ?? startDate}
+                disabled={(d) => d < startDate}
+              />
+            </AnchoredPopover>
+          </Field>
 
           {/* Merchant */}
           <Field>
