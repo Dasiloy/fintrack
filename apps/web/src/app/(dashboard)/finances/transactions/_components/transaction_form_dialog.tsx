@@ -26,17 +26,14 @@ import { AnchoredPopover } from '@ui/components/shared';
 import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { Category } from '@fintrack/database/types';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 import { genTransactionSourceId, onlyNumbers } from '@fintrack/utils/format';
 import { MerchantSelector } from '@/app/_components';
-
-import type { Transaction } from '@fintrack/types/protos/finance/transaction';
 
 interface TransactionFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   categories: Category[];
-  /** When provided, the dialog is in edit mode */
-  transaction?: Transaction;
   onSuccess?: () => void;
 }
 
@@ -44,33 +41,37 @@ export function TransactionFormDialog({
   open,
   onOpenChange,
   categories,
-  transaction,
   onSuccess,
 }: TransactionFormDialogProps) {
-  const isEdit = !!transaction;
+  const [amount, setAmount] = React.useState('');
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [categorySlug, setCategorySlug] = React.useState('');
+  const [type, setType] = React.useState<'' | 'INCOME' | 'EXPENSE'>('');
+  const [merchant, setMerchant] = React.useState('');
+  const [description, setDescription] = React.useState('');
 
-  const [amount, setAmount] = React.useState(
-    transaction ? String(parseFloat(transaction.amount)) : '',
-  );
-  const [date, setDate] = React.useState<Date | undefined>(
-    transaction ? new Date(transaction.date) : new Date(),
-  );
-  const [type, setType] = React.useState(transaction?.type ?? 'EXPENSE');
-  const [categorySlug, setCategorySlug] = React.useState(transaction?.category?.slug ?? '');
-  const [merchant, setMerchant] = React.useState(transaction?.merchant ?? '');
-  const [description, setDescription] = React.useState(transaction?.description ?? '');
+  // Forced-income categories (Income, Savings & Investments) lock the type to
+  // INCOME. Every other category defaults to EXPENSE but stays user-editable.
+  const typeLocked = isForcedIncomeCategory(categorySlug);
 
-  // Reset state when transaction changes
+  // Picking a category (re)defaults the type synchronously: forced-income →
+  // INCOME (locked), anything else → EXPENSE (still switchable by the user).
+  const onCategoryChange = (slug: string) => {
+    setCategorySlug(slug);
+    setType(isForcedIncomeCategory(slug) ? 'INCOME' : 'EXPENSE');
+  };
+
+  // Reset state each time the dialog opens
   React.useEffect(() => {
     if (open) {
-      setAmount(transaction ? String(parseFloat(transaction.amount)) : '');
-      setDate(transaction ? new Date(transaction.date) : new Date());
-      setType(transaction?.type ?? 'EXPENSE');
-      setCategorySlug(transaction?.category?.slug ?? '');
-      setMerchant(transaction?.merchant ?? '');
-      setDescription(transaction?.description ?? '');
+      setAmount('');
+      setDate(new Date());
+      setCategorySlug('');
+      setType('');
+      setMerchant('');
+      setDescription('');
     }
-  }, [open, transaction]);
+  }, [open]);
 
   const utils = api_client.useUtils();
 
@@ -85,90 +86,49 @@ export function TransactionFormDialog({
     onError: (err) => toast.error('Error', { description: err.message }),
   });
 
-  const updateMutation = api_client.transaction.update.useMutation({
-    onSuccess: () => {
-      toast.success('Transaction updated');
-      void utils.transaction.getAll.invalidate();
-      void utils.transaction.getById.invalidate({ id: transaction!.id });
-      void utils.transaction.getSummary.invalidate();
-      onSuccess?.();
-      onOpenChange(false);
-    },
-    onError: (err) => toast.error('Error', { description: err.message }),
-  });
-
-  const isPending = createMutation.isPending || updateMutation.isPending;
-
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (!date || !categorySlug || !amount) {
+    if (!date || !categorySlug || !amount || !type) {
       toast('Incomplete data! Please check your input.');
       return;
     }
 
-    if (isEdit) {
-      updateMutation.mutate({
-        id: transaction.id,
-        amount: parseFloat(amount),
-        date: format(date, 'YYYY-MM-DD'),
-        type: type as 'INCOME' | 'EXPENSE',
-        categorySlug,
-        merchant: merchant || undefined,
-        description: description || undefined,
-      });
-    } else {
-      createMutation.mutate({
-        amount: parseFloat(amount),
-        date: format(date, 'YYYY-MM-DD'),
-        type: type as 'INCOME' | 'EXPENSE',
-        source: 'MANUAL',
-        sourceId: genTransactionSourceId(new Date()),
-        categorySlug,
-        merchant: merchant || undefined,
-        description: description || undefined,
-      });
-    }
+    createMutation.mutate({
+      amount: parseFloat(amount),
+      date: format(date, 'YYYY-MM-DD'),
+      type,
+      source: 'MANUAL',
+      sourceId: genTransactionSourceId(new Date()),
+      categorySlug,
+      merchant: merchant || undefined,
+      description: description || undefined,
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Transaction' : 'Add Transaction'}</DialogTitle>
+          <DialogTitle>Add Transaction</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Amount + Type row */}
-          <div className="grid grid-cols-2 gap-3">
-            <Field>
-              <Label>Amount</Label>
-              <Input
-                type="text"
-                inputMode="decimal"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(onlyNumbers(e.target.value))}
-                required
-              />
-            </Field>
-            <Field>
-              <Label>Type</Label>
-              <Select value={type} onValueChange={setType}>
-                <SelectTrigger size="default" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INCOME">Income</SelectItem>
-                  <SelectItem value="EXPENSE">Expense</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
+          <Field>
+            <Label>Amount</Label>
+            <Input
+              type="text"
+              inputMode="decimal"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(onlyNumbers(e.target.value))}
+              required
+            />
+          </Field>
 
           {/* Category */}
           <Field>
             <Label>Category</Label>
-            <Select value={categorySlug} onValueChange={setCategorySlug}>
+            <Select value={categorySlug} onValueChange={onCategoryChange}>
               <SelectTrigger size="sm" className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -178,6 +138,23 @@ export function TransactionFormDialog({
                     {cat.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </Field>
+
+          <Field>
+            <Label>Type</Label>
+            <Select
+              value={type}
+              onValueChange={(v) => setType(v as 'INCOME' | 'EXPENSE')}
+              disabled={typeLocked || !categorySlug}
+            >
+              <SelectTrigger size="sm" className="w-full">
+                <SelectValue placeholder="Select a category first" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="INCOME">Income</SelectItem>
+                <SelectItem value="EXPENSE">Expense</SelectItem>
               </SelectContent>
             </Select>
           </Field>
@@ -223,8 +200,12 @@ export function TransactionFormDialog({
           </Field>
 
           <DialogFooter showCloseButton>
-            <Button type="submit" loading={isPending} disabled={!amount || !categorySlug || !date}>
-              {isEdit ? 'Save Changes' : 'Add Transaction'}
+            <Button
+              type="submit"
+              loading={createMutation.isPending}
+              disabled={!amount || !categorySlug || !date}
+            >
+              Add Transaction
             </Button>
           </DialogFooter>
         </form>

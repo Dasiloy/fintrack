@@ -18,12 +18,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import { Category, User } from '@fintrack/database/types';
+import { CountCatregoryLinkedItems } from '@fintrack/types/interfaces/category';
+
 import { CategoryService } from './category.service';
 import { ApiGuard } from '../guards/api.guard';
-import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import { CurrentUser } from '../decorators/current_user.decorator';
-import { Category, User } from '@fintrack/database/types';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  CreateCategoryDto,
+  DeleteCategoryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
 
 /**
  * Controller responsible for managing category related operations
@@ -361,11 +367,95 @@ export class CategoryController {
   async deleteCategory(
     @CurrentUser() user: User,
     @Param('slug') slug: string,
+    @Body() payload: DeleteCategoryDto,
   ): Promise<StandardResponse<null>> {
-    await this.categoryService.deleteCategory(slug, user);
+    await this.categoryService.deleteCategory(slug, user, payload);
     return {
       success: true,
       data: null,
+      statusCode: HttpStatus.OK,
+      message: 'Category deleted successfully',
+    };
+  }
+
+  // ================================================================
+  //.Get Category Linked Items
+  // ================================================================
+  @Get(':slug/linked/items/count')
+  @ApiOperation({
+    summary: 'Get Linked items to a category',
+    description:
+      'Fetches the budget, recurring items, and the transactions counts linked to a category',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Slug of the category to delete',
+    required: true,
+    type: String,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Category linked items count fetched successfully ',
+    schema: {
+      example: {
+        success: true,
+        statusCode: HttpStatus.OK,
+        data: {
+          budgets: 0,
+          recurringItems: 0,
+          transactions: 0,
+        },
+        message: 'Category linked items count fetched successfully',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.UNAUTHORIZED,
+        data: null,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Category not found',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.NOT_FOUND,
+        data: null,
+        message: 'Category not found',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error',
+    schema: {
+      example: {
+        success: false,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        message: 'Internal server error',
+      },
+    },
+  })
+  async getCategoryLinkedItemsCoun(
+    @CurrentUser() user: User,
+    @Param('slug') slug: string,
+  ): Promise<StandardResponse<CountCatregoryLinkedItems>> {
+    const count = await this.categoryService.getCategoryLinkedItemsCount(
+      slug,
+      user,
+    );
+    return {
+      success: true,
+      data: count,
       statusCode: HttpStatus.OK,
       message: 'Category deleted successfully',
     };
