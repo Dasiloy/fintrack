@@ -25,6 +25,7 @@ import { cn } from '@ui/lib/utils/cn';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { Category } from '@fintrack/database/types';
 import type { Transaction } from '@fintrack/types/protos/finance/transaction';
+import { isForcedIncomeCategory } from '@fintrack/types/constants/category.constants';
 import {
   DrawerFooter,
   DrawerHeader,
@@ -54,11 +55,13 @@ interface EditState {
 }
 
 function toEditState(tx: Transaction): EditState {
+  const slug = tx.category?.slug ?? '';
   return {
     amount: String(parseFloat(tx.amount)),
     date: tx.date.slice(0, 10),
-    type: tx.type as EditState['type'],
-    categorySlug: tx.category?.slug ?? '',
+    // Forced-income categories always represent income, regardless of stored type.
+    type: isForcedIncomeCategory(slug) ? 'INCOME' : (tx.type as EditState['type']),
+    categorySlug: slug,
     merchant: tx.merchant ?? '',
     description: tx.description ?? '',
     notes: tx.notes ?? '',
@@ -154,6 +157,17 @@ export function TransactionDrawer({
   const setField = <K extends keyof EditState>(key: K, val: EditState[K]) =>
     setEdit((s) => ({ ...s, [key]: val }));
 
+  // Forced-income categories (Income, Savings & Investments) lock the type to
+  // INCOME. Picking a category (re)defaults the type synchronously.
+  const typeLocked = isForcedIncomeCategory(edit.categorySlug);
+
+  const onCategoryChange = (slug: string) =>
+    setEdit((s) => ({
+      ...s,
+      categorySlug: slug,
+      type: isForcedIncomeCategory(slug) ? 'INCOME' : 'EXPENSE',
+    }));
+
   const isExpense = (tx: Transaction) => tx.type === 'EXPENSE';
   const categoryColor = transaction?.category?.color ?? '#6366f1';
   const selectedCategoryColor =
@@ -186,20 +200,23 @@ export function TransactionDrawer({
           ) : editMode ? (
             /* ── Edit mode ── */
             <div className="flex flex-col gap-5 px-6 py-6">
-              {/* Type toggle */}
+              {/* Type toggle — locked to Income for forced-income categories */}
               <div className="flex gap-2">
                 {(['INCOME', 'EXPENSE'] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
+                    disabled={typeLocked}
                     onClick={() => setField('type', t)}
                     className={cn(
-                      'flex-1 cursor-pointer rounded-lg border py-2 text-[12px] font-medium transition-all',
+                      'flex-1 rounded-lg border py-2 text-[12px] font-medium transition-all',
+                      typeLocked ? 'cursor-not-allowed' : 'cursor-pointer',
                       edit.type === t
                         ? t === 'INCOME'
                           ? 'bg-success/10 border-success/25 text-success'
                           : 'bg-error/10 border-error/25 text-error'
                         : 'border-border-light text-text-secondary hover:border-border-light',
+                      typeLocked && edit.type !== t && 'opacity-40',
                     )}
                   >
                     {t === 'INCOME' ? 'Income' : 'Expense'}
@@ -228,10 +245,7 @@ export function TransactionDrawer({
                 <div className="border-border-light divide-border-light divide-y overflow-hidden rounded-lg border">
                   <div className="divide-border-light divide-y px-3">
                     <EditRow label="Category">
-                      <Select
-                        value={edit.categorySlug}
-                        onValueChange={(v) => setField('categorySlug', v)}
-                      >
+                      <Select value={edit.categorySlug} onValueChange={onCategoryChange}>
                         <SelectTrigger size="sm" className="w-full">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
