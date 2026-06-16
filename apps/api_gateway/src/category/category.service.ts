@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 
 import {
   BadRequestException,
+  ConflictException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -11,8 +12,14 @@ import {
 
 import { PrismaService } from '@fintrack/database/service';
 import { Category, Prisma, User } from '@fintrack/database/types';
+import { CountCatregoryLinkedItems } from '@fintrack/types/interfaces/category';
 import { UsageService } from '../usage/usage.service';
-import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import {
+  CreateCategoryDto,
+  DeleteCategoryDto,
+  UpdateCategoryDto,
+} from './dto/category.dto';
+import { BudgetService } from '../budget/budget.service';
 
 /**
  * @description Manages user-defined and system transaction categories including CRUD operations and slug generation.
@@ -20,7 +27,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
  * ## Responsibilities
  * - Fetching system and user-owned categories
  * - Creating custom categories with unique crypto-derived slugs
- * - Updating and deleting user-owned categories, reassigning orphaned transactions to the fallback `cat-misc` category
+ * - Updating and deleting user-owned categories; on delete, optionally reassigning linked transactions, recurring items, and budgets to a caller-chosen category (`switchCatSlug`) before removal, or returning `409` when items are linked and no target is given
  * - Invalidating the gated usage cache after category count changes
  *
  * ## Side effects
@@ -34,6 +41,7 @@ export class CategoryService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly usageService: UsageService,
+    private readonly budgetService: BudgetService,
   ) {}
 
   /**
@@ -182,6 +190,82 @@ export class CategoryService {
   }
 
   /**
+   * @description Get count of linked items to a category
+   * System categories cannot be deleted
+   *
+   * @param {string} slug - The slug of the category
+   * @param {User} user - The user who owns the category
+   *
+   * @async
+   * @public
+   * @returns {Promise<StandardResponse<Partial<CountCatregoryLinkedItems>>>}
+   */
+  async getCategoryLinkedItemsCount(
+    slug: string,
+    user: User,
+  ): Promise<CountCatregoryLinkedItems> {
+    try {
+      const categorty = await this.prismaService.category.findFirst({
+        where: {
+          slug,
+        },
+        select: {
+          id: true,
+          name: true,
+          userId: true,
+          isSystem: true,
+        },
+      });
+
+      if (!categorty) {
+        throw new NotFoundException('Category not found');
+      }
+
+      if (categorty.isSystem) {
+        throw new BadRequestException(
+          `${categorty.name} is a system category and cannot be deleted`,
+        );
+      }
+
+      if (categorty.userId !== user.id) {
+        throw new NotFoundException('Category not found');
+      }
+
+      const counts = await this.prismaService.category.findFirst({
+        where: {
+          userId: user.id,
+          isSystem: false,
+          slug,
+        },
+        select: {
+          _count: {
+            select: {
+              budgets: true,
+              recurringItems: true,
+              transactions: true,
+            },
+          },
+        },
+      });
+
+      return {
+        budgets: counts?._count.budgets ?? 0,
+        recurringItems: counts?._count.recurringItems ?? 0,
+        transactions: counts?._count.transactions ?? 0,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Could not get category linked items count: ${error.message}`,
+      );
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        'An error ocuured, Please try again later',
+        error,
+      );
+    }
+  }
+
+  /**
    * @description Delete a category
    *
    * @param {string} slug - The slug of the category to delete
@@ -191,60 +275,145 @@ export class CategoryService {
    * @public
    * @returns {Promise<StandardResponse<Partial<Category>>>}
    */
-  async deleteCategory(slug: string, user: User): Promise<void> {
+  async deleteCategory(
+    slug: string,
+    user: User,
+    payload: DeleteCategoryDto,
+  ): Promise<void> {
     try {
-      const categories = await this.prismaService.category.findMany({
-        where: {
-          OR: [
-            {
-              slug,
-            },
-            {
-              slug: 'cat-misc',
-              isSystem: true,
-            },
-          ],
-        },
-        select: {
-          id: true,
-          slug: true,
-          userId: true,
-          isSystem: true,
-        },
-      });
-      if (categories.length < 2)
-        throw new NotFoundException('Category not found');
+      const { switchCatSlug: switchToSlug } = payload ?? {};
 
-      const misCategory = categories.find(
-        (category) => category.slug === 'cat-misc',
-      );
-      if (!misCategory) throw new NotFoundException('Category not found');
-
-      const deleteCategory = categories.find(
-        (category) => category.slug === slug && category.userId === user.id,
-      );
-      if (!deleteCategory) throw new NotFoundException('Category not found');
-
-      if (deleteCategory.isSystem) {
-        throw new BadRequestException('System Categories cannot be deleted');
+      if (switchToSlug && switchToSlug === slug) {
+        throw new BadRequestException(
+          'You cannot move items to the category being deleted',
+        );
       }
 
-      await this.prismaService.$transaction([
-        this.prismaService.transaction.updateMany({
-          where: {
-            categoryId: deleteCategory.id,
+      // Fetch the base category and (optionally) the reassignment target in one
+      // query. The base must be a user-owned, non-system category; the target
+      // may be ANY category the user can use — including system categories like
+      // Miscellaneous (`cat-misc`), which is the default reassignment target.
+      const filters = [slug, switchToSlug].filter(Boolean) as string[];
+      const categories = await this.prismaService.category.findMany({
+        where: {
+          slug: { in: filters },
+          OR: [{ isSystem: true }, { userId: user.id }],
+        },
+        select: { id: true, slug: true, userId: true, isSystem: true },
+      });
+      const bySlug = new Map(categories.map((c) => [c.slug, c]));
+
+      const baseCategory = bySlug.get(slug);
+      if (!baseCategory || baseCategory.userId !== user.id) {
+        throw new NotFoundException('Category to be deleted not found');
+      }
+      if (baseCategory.isSystem) {
+        throw new BadRequestException('System categories cannot be deleted');
+      }
+
+      const switchToCategory = switchToSlug
+        ? bySlug.get(switchToSlug)
+        : undefined;
+      if (switchToSlug && !switchToCategory) {
+        throw new NotFoundException('Category to move items to not found');
+      }
+
+      if (!switchToCategory) {
+        // No reassignment target. Only allowed when nothing is linked; otherwise
+        // the client must pick where to move items (BL-007: 409 with counts).
+        // Transaction.category is `onDelete: Restrict`, so a blind delete would
+        // also fail at the DB anyway.
+        const linked = await this.prismaService.category.findUnique({
+          where: { id: baseCategory.id },
+          select: {
+            _count: {
+              select: {
+                budgets: true,
+                recurringItems: true,
+                transactions: true,
+              },
+            },
           },
-          data: {
-            categoryId: misCategory.id,
-          },
-        }),
-        this.prismaService.category.delete({
-          where: {
-            id: deleteCategory.id,
-          },
-        }),
-      ]);
-      await this.usageService.invalidateGatedUsageCache(user.id);
+        });
+        const counts: CountCatregoryLinkedItems = {
+          budgets: linked?._count.budgets ?? 0,
+          recurringItems: linked?._count.recurringItems ?? 0,
+          transactions: linked?._count.transactions ?? 0,
+        };
+        if (counts.budgets + counts.recurringItems + counts.transactions > 0) {
+          throw new ConflictException({
+            message:
+              'This category is still in use. Choose a category to move its items to.',
+            counts,
+          });
+        }
+
+        await this.prismaService.category.delete({
+          where: { id: baseCategory.id },
+        });
+      } else {
+        await this.prismaService.$transaction(async (tx) => {
+          // Move transactions first — the FK is Restrict, so they must be
+          // reassigned before the category can be deleted.
+          await tx.transaction.updateMany({
+            where: { userId: user.id, categoryId: baseCategory.id },
+            data: { categoryId: switchToCategory.id },
+          });
+
+          // Move recurring items.
+          await tx.recurringItem.updateMany({
+            where: { userId: user.id, categoryId: baseCategory.id },
+            data: { categoryId: switchToCategory.id },
+          });
+
+          // Merge budgets. Budgets are unique per [userId, categoryId, period],
+          // so a base budget can only be moved when the target has none for that
+          // period. When the target already has one we fold the base amount into
+          // it (additive — never create a duplicate) and drop the base budget.
+          const baseBudgets = await tx.budget.findMany({
+            where: { userId: user.id, categoryId: baseCategory.id },
+          });
+
+          for (const baseBudget of baseBudgets) {
+            const targetBudget = await tx.budget.findFirst({
+              where: {
+                userId: user.id,
+                categoryId: switchToCategory.id,
+                period: baseBudget.period,
+              },
+            });
+
+            if (!targetBudget) {
+              await tx.budget.update({
+                where: { id: baseBudget.id },
+                data: { categoryId: switchToCategory.id },
+              });
+              continue;
+            }
+
+            const mergedAmount = targetBudget.amount + baseBudget.amount;
+            await tx.budget.update({
+              where: { id: targetBudget.id },
+              data: { amount: mergedAmount },
+            });
+            // Keep the open history window (endDate = null) in sync with the
+            // new limit so spending trends stay consistent.
+            await tx.budgetHistory.updateMany({
+              where: { budgetId: targetBudget.id, endDate: null },
+              data: { limit: mergedAmount },
+            });
+            // Remove the base budget; its history cascades.
+            await tx.budget.delete({ where: { id: baseBudget.id } });
+          }
+
+          // Finally remove the now-empty category.
+          await tx.category.delete({ where: { id: baseCategory.id } });
+        });
+      }
+
+      void this.usageService.invalidateGatedUsageCache(user.id);
+      void this.budgetService.invalidateBudgetListAndTrend(user.id);
+      void this.budgetService.invalidateExportCache(user.id);
     } catch (error) {
       this.logger.error(`Category delete failed: ${error.message}`);
       if (error instanceof HttpException) throw error;
