@@ -14,3 +14,4 @@ export * from './banks';
 export * from './merchant';
 export * from './export';
 export * from './advisor';
+export * from './finance';
