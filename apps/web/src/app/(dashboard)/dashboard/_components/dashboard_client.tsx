@@ -5,6 +5,7 @@ import { useOnborda } from 'onborda';
 import { PageHeader } from '@/app/_components/page-header';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { DashboardHero } from './dashboard_hero';
+import { FinancialHealthCard } from './financial_health_score';
 import { StatCards } from './stat_cards';
 import { MonthlyCashflowChart } from './monthly_cashflow_chart';
 import { WeeklySpendingChart } from './weekly_spending_chart';
@@ -75,13 +76,16 @@ export function DashboardClient({ balanceHidden }: DashboardClientProps) {
       <PageHeader breadcrumbs={[{ label: 'Dashboard' }]} />
 
       <main className="flex flex-1 flex-col gap-4 p-6">
-        {/* Hero — net balance + income/expense chips */}
-        <div id="onborda-hero">
-          <DashboardHero
-            data={summary}
-            isLoading={isLoading}
-            initialBalanceHidden={balanceHidden}
-          />
+        {/* Hero — net balance + income/expense chips · Financial health score */}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-stretch">
+          <div id="onborda-hero" className="min-w-0">
+            <DashboardHero
+              data={summary}
+              isLoading={isLoading}
+              initialBalanceHidden={balanceHidden}
+            />
+          </div>
+          <FinancialHealthCard />
         </div>
 
         {/* Stat row — 4 metric cards */}

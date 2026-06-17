@@ -44,6 +44,7 @@ yarn-error.log*
 
 ## Test Accounts
 login.txt
+compliance.txt
 fintrack-backup-codes.txt
 
 # AI tooling (Claude, Codex, etc.)

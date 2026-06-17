@@ -290,6 +290,7 @@ model User {
   monthlyBalanceSnapshots   MonthlyBalanceSnapshot[]
   analyticsSnapshots        AnalyticsSnapshot[]
   aiInsights                AiInsight[]
+  financeScoreBoard         FinanceScoreBoard[]
 
   // account deletion
   scheduledDeletionAt DateTime?
@@ -1106,4 +1107,25 @@ model AiInsight {
   updatedAt            DateTime        @updatedAt
 
   @@index([userId, generatedAt(sort: Desc)])
+}
+
+model FinanceScoreBoard {
+  id String @id @default(cuid())
+
+  // resets every monday => technically giving the score from monday of last week to sunday of this week
+  startDate DateTime // together this will formn the date range // 2026-10-09 - 2026-10-16
+  endDate   DateTime
+
+  // metrics
+  score       Decimal @db.Decimal(4, 1) // 0.0 => 100.0
+  budgetScore Decimal @db.Decimal(4, 1) // 0.0 => 35.0
+  savingScore Decimal @db.Decimal(4, 1) // 0.0 => 25.0
+  goalScore   Decimal @db.Decimal(4, 1) // 0.0 => 25.0
+  splitScore  Decimal @db.Decimal(4, 1) // 0.0 => 15.0
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
