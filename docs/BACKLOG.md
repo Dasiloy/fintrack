@@ -169,17 +169,21 @@ Items are ordered by priority. Each entry follows the format:
   - If `transferToCategoryId` is omitted and linked entities exist, return `409 CONFLICT` with counts so the client can prompt the user.
   - Related files: `apps/api_gateway/src/category/`, `apps/finance_service/src/category/`, `packages/database/prisma/schema.prisma` (Category model — check `onDelete` behaviour on relations), `apps/web/src/app/(dashboard)/finances/budgets/_components/unbudgeted_card.tsx`.
 
-### [BL-009] Financial health score — weekly Pro-only metric
+### [BL-009] ✅ Financial health score — weekly Pro-only metric
 
 - **Type**: Feature
 - **Priority**: Medium
-- **Status**: Pending
-- **Context**: A single weekly score (0–100) that reflects the user's financial health: budget adherence, goal pacing, savings rate, and debt/split settlement speed. Pro-only, shown on the dashboard and in the weekly insight. Free users see a blurred score with "Upgrade to unlock your Financial Health Score."
+- **Status**: Done
+- **Context**: A single weekly score (0–100) that reflects the user's financial health: budget adherence, goal pacing, savings rate, and debt/split settlement speed. Pro-only, shown on the dashboard. Free users see a blurred score with "Upgrade to unlock your Financial Health Score."
 - **Notes**:
   - Score components (suggested weights): budget adherence 35%, savings rate 25%, goal pacing 25%, outstanding splits 15%.
-  - Computed by the scheduler weekly (not real-time) and stored as a new DB field or analytics snapshot type.
+  - A realtime finnacial score will give users higre trust in our product. The flow is to calculate on the fly for user.At the start of the new weekly scycle archive a finaceboard row for user for audit trails.
+  - udget pacing. Users will never have too much budgets so it is easy to get the adherence rate and not too much compute
+  - savings rate can be computed from user balance
+  - goal pacing from user goals
+    ssplit score from splist so not too much of compute is needed
+  - on sunday od verey week, have a scheduler that archives the final score at 11pm utc, so that that way user can have an audit trial to look back to
   - Historical score trend (last 12 weeks) should be visualisable — provides a clear "am I improving?" signal that is highly sticky.
-  - Push notification when score drops ≥10 points week-over-week — creates re-engagement.
   - Related files: `apps/scheduler_service/src/processors/analytics_aggregation.processor.ts`, `packages/database/prisma/schema.prisma`, `apps/web/src/app/(dashboard)/`.
 
 ### [BL-010] Import and export transactions from CSV / PDF
@@ -198,10 +202,11 @@ Items are ordered by priority. Each entry follows the format:
 
 - **Type**: Tech Debt
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Ongoing
+- **Output**. The output of this research is in compliance txt fiule and has been done. Do not take every word for it. Instead look at the output of that research and basically trim out what we have and whet we need to fix
 - **Context**: As a fintech handling real bank account data (via Mono), FinTrack must comply with applicable Nigerian and international data regulations before public launch. A structured research doc should inform the legal copy, privacy policy, and technical controls.
 - **Notes**:
-  - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **PCI-DSS** (if card data is ever in scope), **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
+  - Key frameworks to cover: **NDPR** (Nigeria Data Protection Regulation), **CBN Consumer Protection Framework**, **ISO 27001** (optional but worth referencing), and Mono's own developer data terms.
   - Output should be a compliance checklist mapped to: (a) what FinTrack already does, (b) what is missing, and (c) implementation priority for each gap.
   - This research feeds directly into **BL-012** (legal trust page), **BL-013** (bank data handling copy), and **BL-002** (encryption).
   - Assign to: legal review + engineering lead before any production launch.
@@ -238,13 +243,18 @@ Items are ordered by priority. Each entry follows the format:
 - **Status**: Pending
 - **Context**: Various pages and components contain placeholder copy, fake client logos, fake sponsor names, dummy team members, and demo data that should never appear in a real MVP. Everything visible to a logged-in or logged-out user must reflect the actual product and its sole author before any public release.
 - **Notes**:
+- crucial, there must be no mention of beta or versioning oin the web app content
   - **Landing / marketing pages**: Remove fake client logos, sponsor badges, or partner sections. Replace with honest feature-focused copy or remove those sections entirely.
   - **Team / about sections**: Update to show only the actual author — Damilare Oyewole. Remove placeholder team members or avatars. Link to his LinkedIn and GitHub accounts.
   - **Testimonials / social proof**: Remove fake testimonials. Either remove the section or replace with factual product statements until real feedback is available.
   - **Dashboard demo data**: Ensure the dashboard shows a proper empty state for new users — no seeded transactions, budgets, goals, or analytics.
   - **Footer / legal**: Confirm copyright year and author name are correct. Update placeholder privacy policy or terms links to real documents, or remove them.
+  - in footer remove all social links untill we have those for the application itself
+  - in team, link to damilare public linkedin profile and not github
+  - no li ks to github
   - **App name and branding**: Confirm every instance of the product name, logo alt text, and meta tags (title, description, og:image) are accurate.
   - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. Run `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` to surface most issues.
+  - Make sure to do a final audit of navbar, footer and every single ststic pages one after the other, before marking this as complete
 
 ---
 

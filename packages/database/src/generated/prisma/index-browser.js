@@ -569,6 +569,20 @@ exports.Prisma.AiInsightScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.FinanceScoreBoardScalarFieldEnum = {
+  id: 'id',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  score: 'score',
+  budgetScore: 'budgetScore',
+  savingScore: 'savingScore',
+  goalScore: 'goalScore',
+  splitScore: 'splitScore',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -967,7 +981,8 @@ exports.Prisma.ModelName = {
   Notification: 'Notification',
   ClassificationCorrection: 'ClassificationCorrection',
   AnalyticsSnapshot: 'AnalyticsSnapshot',
-  AiInsight: 'AiInsight'
+  AiInsight: 'AiInsight',
+  FinanceScoreBoard: 'FinanceScoreBoard'
 };
 
 /**
