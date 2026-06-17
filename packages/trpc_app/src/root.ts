@@ -15,6 +15,7 @@ import {
   merchantRouter,
   exportRouter,
   advisorRouter,
+  financeRouter,
 } from './routers';
 import { createTRPCRouter, createCallerFactory } from './setup';
 
@@ -39,6 +40,7 @@ export const appRouter = createTRPCRouter({
   merchant: merchantRouter,
   export: exportRouter,
   advisor: advisorRouter,
+  finance: financeRouter,
 });
 
 // Export type definition of API

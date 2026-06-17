@@ -183,6 +183,11 @@ export type AnalyticsSnapshot = $Result.DefaultSelection<Prisma.$AnalyticsSnapsh
  * 
  */
 export type AiInsight = $Result.DefaultSelection<Prisma.$AiInsightPayload>
+/**
+ * Model FinanceScoreBoard
+ * 
+ */
+export type FinanceScoreBoard = $Result.DefaultSelection<Prisma.$FinanceScoreBoardPayload>
 
 /**
  * Enums
@@ -1148,6 +1153,16 @@ export class PrismaClient<
     * ```
     */
   get aiInsight(): Prisma.AiInsightDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.financeScoreBoard`: Exposes CRUD operations for the **FinanceScoreBoard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FinanceScoreBoards
+    * const financeScoreBoards = await prisma.financeScoreBoard.findMany()
+    * ```
+    */
+  get financeScoreBoard(): Prisma.FinanceScoreBoardDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1378,7 +1393,7 @@ export namespace Prisma {
   ? False
   : T extends Uint8Array
   ? False
-  : T extends bigint
+  : T extends BigInt
   ? False
   : T extends object
   ? True
@@ -1615,7 +1630,8 @@ export namespace Prisma {
     Notification: 'Notification',
     ClassificationCorrection: 'ClassificationCorrection',
     AnalyticsSnapshot: 'AnalyticsSnapshot',
-    AiInsight: 'AiInsight'
+    AiInsight: 'AiInsight',
+    FinanceScoreBoard: 'FinanceScoreBoard'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1631,7 +1647,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "susbcriptionFreeTrials" | "paystackWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "susbcriptionFreeTrials" | "paystackWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight" | "financeScoreBoard"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4151,6 +4167,80 @@ export namespace Prisma {
           }
         }
       }
+      FinanceScoreBoard: {
+        payload: Prisma.$FinanceScoreBoardPayload<ExtArgs>
+        fields: Prisma.FinanceScoreBoardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FinanceScoreBoardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FinanceScoreBoardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          findFirst: {
+            args: Prisma.FinanceScoreBoardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FinanceScoreBoardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          findMany: {
+            args: Prisma.FinanceScoreBoardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>[]
+          }
+          create: {
+            args: Prisma.FinanceScoreBoardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          createMany: {
+            args: Prisma.FinanceScoreBoardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FinanceScoreBoardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>[]
+          }
+          delete: {
+            args: Prisma.FinanceScoreBoardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          update: {
+            args: Prisma.FinanceScoreBoardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          deleteMany: {
+            args: Prisma.FinanceScoreBoardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FinanceScoreBoardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FinanceScoreBoardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>[]
+          }
+          upsert: {
+            args: Prisma.FinanceScoreBoardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FinanceScoreBoardPayload>
+          }
+          aggregate: {
+            args: Prisma.FinanceScoreBoardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFinanceScoreBoard>
+          }
+          groupBy: {
+            args: Prisma.FinanceScoreBoardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FinanceScoreBoardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FinanceScoreBoardCountArgs<ExtArgs>
+            result: $Utils.Optional<FinanceScoreBoardCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4293,6 +4383,7 @@ export namespace Prisma {
     classificationCorrection?: ClassificationCorrectionOmit
     analyticsSnapshot?: AnalyticsSnapshotOmit
     aiInsight?: AiInsightOmit
+    financeScoreBoard?: FinanceScoreBoardOmit
   }
 
   /* Types for Logging */
@@ -4393,6 +4484,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots: number
     analyticsSnapshots: number
     aiInsights: number
+    financeScoreBoard: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4416,6 +4508,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: boolean | UserCountOutputTypeCountMonthlyBalanceSnapshotsArgs
     analyticsSnapshots?: boolean | UserCountOutputTypeCountAnalyticsSnapshotsArgs
     aiInsights?: boolean | UserCountOutputTypeCountAiInsightsArgs
+    financeScoreBoard?: boolean | UserCountOutputTypeCountFinanceScoreBoardArgs
   }
 
   // Custom InputTypes
@@ -4567,6 +4660,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAiInsightsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AiInsightWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFinanceScoreBoardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinanceScoreBoardWhereInput
   }
 
 
@@ -7208,6 +7308,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: boolean | User$monthlyBalanceSnapshotsArgs<ExtArgs>
     analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
     aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
+    financeScoreBoard?: boolean | User$financeScoreBoardArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7314,6 +7415,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: boolean | User$monthlyBalanceSnapshotsArgs<ExtArgs>
     analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
     aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
+    financeScoreBoard?: boolean | User$financeScoreBoardArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7345,6 +7447,7 @@ export namespace Prisma {
       monthlyBalanceSnapshots: Prisma.$MonthlyBalanceSnapshotPayload<ExtArgs>[]
       analyticsSnapshots: Prisma.$AnalyticsSnapshotPayload<ExtArgs>[]
       aiInsights: Prisma.$AiInsightPayload<ExtArgs>[]
+      financeScoreBoard: Prisma.$FinanceScoreBoardPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7787,6 +7890,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots<T extends User$monthlyBalanceSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, User$monthlyBalanceSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonthlyBalanceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     analyticsSnapshots<T extends User$analyticsSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, User$analyticsSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     aiInsights<T extends User$aiInsightsArgs<ExtArgs> = {}>(args?: Subset<T, User$aiInsightsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    financeScoreBoard<T extends User$financeScoreBoardArgs<ExtArgs> = {}>(args?: Subset<T, User$financeScoreBoardArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8761,6 +8865,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AiInsightScalarFieldEnum | AiInsightScalarFieldEnum[]
+  }
+
+  /**
+   * User.financeScoreBoard
+   */
+  export type User$financeScoreBoardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    where?: FinanceScoreBoardWhereInput
+    orderBy?: FinanceScoreBoardOrderByWithRelationInput | FinanceScoreBoardOrderByWithRelationInput[]
+    cursor?: FinanceScoreBoardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FinanceScoreBoardScalarFieldEnum | FinanceScoreBoardScalarFieldEnum[]
   }
 
   /**
@@ -44435,6 +44563,1192 @@ export namespace Prisma {
 
 
   /**
+   * Model FinanceScoreBoard
+   */
+
+  export type AggregateFinanceScoreBoard = {
+    _count: FinanceScoreBoardCountAggregateOutputType | null
+    _avg: FinanceScoreBoardAvgAggregateOutputType | null
+    _sum: FinanceScoreBoardSumAggregateOutputType | null
+    _min: FinanceScoreBoardMinAggregateOutputType | null
+    _max: FinanceScoreBoardMaxAggregateOutputType | null
+  }
+
+  export type FinanceScoreBoardAvgAggregateOutputType = {
+    score: Decimal | null
+    budgetScore: Decimal | null
+    savingScore: Decimal | null
+    goalScore: Decimal | null
+    splitScore: Decimal | null
+  }
+
+  export type FinanceScoreBoardSumAggregateOutputType = {
+    score: Decimal | null
+    budgetScore: Decimal | null
+    savingScore: Decimal | null
+    goalScore: Decimal | null
+    splitScore: Decimal | null
+  }
+
+  export type FinanceScoreBoardMinAggregateOutputType = {
+    id: string | null
+    startDate: Date | null
+    endDate: Date | null
+    score: Decimal | null
+    budgetScore: Decimal | null
+    savingScore: Decimal | null
+    goalScore: Decimal | null
+    splitScore: Decimal | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FinanceScoreBoardMaxAggregateOutputType = {
+    id: string | null
+    startDate: Date | null
+    endDate: Date | null
+    score: Decimal | null
+    budgetScore: Decimal | null
+    savingScore: Decimal | null
+    goalScore: Decimal | null
+    splitScore: Decimal | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type FinanceScoreBoardCountAggregateOutputType = {
+    id: number
+    startDate: number
+    endDate: number
+    score: number
+    budgetScore: number
+    savingScore: number
+    goalScore: number
+    splitScore: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type FinanceScoreBoardAvgAggregateInputType = {
+    score?: true
+    budgetScore?: true
+    savingScore?: true
+    goalScore?: true
+    splitScore?: true
+  }
+
+  export type FinanceScoreBoardSumAggregateInputType = {
+    score?: true
+    budgetScore?: true
+    savingScore?: true
+    goalScore?: true
+    splitScore?: true
+  }
+
+  export type FinanceScoreBoardMinAggregateInputType = {
+    id?: true
+    startDate?: true
+    endDate?: true
+    score?: true
+    budgetScore?: true
+    savingScore?: true
+    goalScore?: true
+    splitScore?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FinanceScoreBoardMaxAggregateInputType = {
+    id?: true
+    startDate?: true
+    endDate?: true
+    score?: true
+    budgetScore?: true
+    savingScore?: true
+    goalScore?: true
+    splitScore?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type FinanceScoreBoardCountAggregateInputType = {
+    id?: true
+    startDate?: true
+    endDate?: true
+    score?: true
+    budgetScore?: true
+    savingScore?: true
+    goalScore?: true
+    splitScore?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type FinanceScoreBoardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinanceScoreBoard to aggregate.
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinanceScoreBoards to fetch.
+     */
+    orderBy?: FinanceScoreBoardOrderByWithRelationInput | FinanceScoreBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FinanceScoreBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinanceScoreBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinanceScoreBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FinanceScoreBoards
+    **/
+    _count?: true | FinanceScoreBoardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FinanceScoreBoardAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FinanceScoreBoardSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FinanceScoreBoardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FinanceScoreBoardMaxAggregateInputType
+  }
+
+  export type GetFinanceScoreBoardAggregateType<T extends FinanceScoreBoardAggregateArgs> = {
+        [P in keyof T & keyof AggregateFinanceScoreBoard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFinanceScoreBoard[P]>
+      : GetScalarType<T[P], AggregateFinanceScoreBoard[P]>
+  }
+
+
+
+
+  export type FinanceScoreBoardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FinanceScoreBoardWhereInput
+    orderBy?: FinanceScoreBoardOrderByWithAggregationInput | FinanceScoreBoardOrderByWithAggregationInput[]
+    by: FinanceScoreBoardScalarFieldEnum[] | FinanceScoreBoardScalarFieldEnum
+    having?: FinanceScoreBoardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FinanceScoreBoardCountAggregateInputType | true
+    _avg?: FinanceScoreBoardAvgAggregateInputType
+    _sum?: FinanceScoreBoardSumAggregateInputType
+    _min?: FinanceScoreBoardMinAggregateInputType
+    _max?: FinanceScoreBoardMaxAggregateInputType
+  }
+
+  export type FinanceScoreBoardGroupByOutputType = {
+    id: string
+    startDate: Date
+    endDate: Date
+    score: Decimal
+    budgetScore: Decimal
+    savingScore: Decimal
+    goalScore: Decimal
+    splitScore: Decimal
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: FinanceScoreBoardCountAggregateOutputType | null
+    _avg: FinanceScoreBoardAvgAggregateOutputType | null
+    _sum: FinanceScoreBoardSumAggregateOutputType | null
+    _min: FinanceScoreBoardMinAggregateOutputType | null
+    _max: FinanceScoreBoardMaxAggregateOutputType | null
+  }
+
+  type GetFinanceScoreBoardGroupByPayload<T extends FinanceScoreBoardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FinanceScoreBoardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FinanceScoreBoardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FinanceScoreBoardGroupByOutputType[P]>
+            : GetScalarType<T[P], FinanceScoreBoardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FinanceScoreBoardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    score?: boolean
+    budgetScore?: boolean
+    savingScore?: boolean
+    goalScore?: boolean
+    splitScore?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financeScoreBoard"]>
+
+  export type FinanceScoreBoardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    score?: boolean
+    budgetScore?: boolean
+    savingScore?: boolean
+    goalScore?: boolean
+    splitScore?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financeScoreBoard"]>
+
+  export type FinanceScoreBoardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    score?: boolean
+    budgetScore?: boolean
+    savingScore?: boolean
+    goalScore?: boolean
+    splitScore?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["financeScoreBoard"]>
+
+  export type FinanceScoreBoardSelectScalar = {
+    id?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    score?: boolean
+    budgetScore?: boolean
+    savingScore?: boolean
+    goalScore?: boolean
+    splitScore?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type FinanceScoreBoardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "startDate" | "endDate" | "score" | "budgetScore" | "savingScore" | "goalScore" | "splitScore" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeScoreBoard"]>
+  export type FinanceScoreBoardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FinanceScoreBoardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type FinanceScoreBoardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $FinanceScoreBoardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FinanceScoreBoard"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      startDate: Date
+      endDate: Date
+      score: Prisma.Decimal
+      budgetScore: Prisma.Decimal
+      savingScore: Prisma.Decimal
+      goalScore: Prisma.Decimal
+      splitScore: Prisma.Decimal
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["financeScoreBoard"]>
+    composites: {}
+  }
+
+  type FinanceScoreBoardGetPayload<S extends boolean | null | undefined | FinanceScoreBoardDefaultArgs> = $Result.GetResult<Prisma.$FinanceScoreBoardPayload, S>
+
+  type FinanceScoreBoardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FinanceScoreBoardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FinanceScoreBoardCountAggregateInputType | true
+    }
+
+  export interface FinanceScoreBoardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FinanceScoreBoard'], meta: { name: 'FinanceScoreBoard' } }
+    /**
+     * Find zero or one FinanceScoreBoard that matches the filter.
+     * @param {FinanceScoreBoardFindUniqueArgs} args - Arguments to find a FinanceScoreBoard
+     * @example
+     * // Get one FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FinanceScoreBoardFindUniqueArgs>(args: SelectSubset<T, FinanceScoreBoardFindUniqueArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FinanceScoreBoard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FinanceScoreBoardFindUniqueOrThrowArgs} args - Arguments to find a FinanceScoreBoard
+     * @example
+     * // Get one FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FinanceScoreBoardFindUniqueOrThrowArgs>(args: SelectSubset<T, FinanceScoreBoardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinanceScoreBoard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardFindFirstArgs} args - Arguments to find a FinanceScoreBoard
+     * @example
+     * // Get one FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FinanceScoreBoardFindFirstArgs>(args?: SelectSubset<T, FinanceScoreBoardFindFirstArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FinanceScoreBoard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardFindFirstOrThrowArgs} args - Arguments to find a FinanceScoreBoard
+     * @example
+     * // Get one FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FinanceScoreBoardFindFirstOrThrowArgs>(args?: SelectSubset<T, FinanceScoreBoardFindFirstOrThrowArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FinanceScoreBoards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FinanceScoreBoards
+     * const financeScoreBoards = await prisma.financeScoreBoard.findMany()
+     * 
+     * // Get first 10 FinanceScoreBoards
+     * const financeScoreBoards = await prisma.financeScoreBoard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const financeScoreBoardWithIdOnly = await prisma.financeScoreBoard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FinanceScoreBoardFindManyArgs>(args?: SelectSubset<T, FinanceScoreBoardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FinanceScoreBoard.
+     * @param {FinanceScoreBoardCreateArgs} args - Arguments to create a FinanceScoreBoard.
+     * @example
+     * // Create one FinanceScoreBoard
+     * const FinanceScoreBoard = await prisma.financeScoreBoard.create({
+     *   data: {
+     *     // ... data to create a FinanceScoreBoard
+     *   }
+     * })
+     * 
+     */
+    create<T extends FinanceScoreBoardCreateArgs>(args: SelectSubset<T, FinanceScoreBoardCreateArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FinanceScoreBoards.
+     * @param {FinanceScoreBoardCreateManyArgs} args - Arguments to create many FinanceScoreBoards.
+     * @example
+     * // Create many FinanceScoreBoards
+     * const financeScoreBoard = await prisma.financeScoreBoard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FinanceScoreBoardCreateManyArgs>(args?: SelectSubset<T, FinanceScoreBoardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FinanceScoreBoards and returns the data saved in the database.
+     * @param {FinanceScoreBoardCreateManyAndReturnArgs} args - Arguments to create many FinanceScoreBoards.
+     * @example
+     * // Create many FinanceScoreBoards
+     * const financeScoreBoard = await prisma.financeScoreBoard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FinanceScoreBoards and only return the `id`
+     * const financeScoreBoardWithIdOnly = await prisma.financeScoreBoard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FinanceScoreBoardCreateManyAndReturnArgs>(args?: SelectSubset<T, FinanceScoreBoardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FinanceScoreBoard.
+     * @param {FinanceScoreBoardDeleteArgs} args - Arguments to delete one FinanceScoreBoard.
+     * @example
+     * // Delete one FinanceScoreBoard
+     * const FinanceScoreBoard = await prisma.financeScoreBoard.delete({
+     *   where: {
+     *     // ... filter to delete one FinanceScoreBoard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FinanceScoreBoardDeleteArgs>(args: SelectSubset<T, FinanceScoreBoardDeleteArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FinanceScoreBoard.
+     * @param {FinanceScoreBoardUpdateArgs} args - Arguments to update one FinanceScoreBoard.
+     * @example
+     * // Update one FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FinanceScoreBoardUpdateArgs>(args: SelectSubset<T, FinanceScoreBoardUpdateArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FinanceScoreBoards.
+     * @param {FinanceScoreBoardDeleteManyArgs} args - Arguments to filter FinanceScoreBoards to delete.
+     * @example
+     * // Delete a few FinanceScoreBoards
+     * const { count } = await prisma.financeScoreBoard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FinanceScoreBoardDeleteManyArgs>(args?: SelectSubset<T, FinanceScoreBoardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinanceScoreBoards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FinanceScoreBoards
+     * const financeScoreBoard = await prisma.financeScoreBoard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FinanceScoreBoardUpdateManyArgs>(args: SelectSubset<T, FinanceScoreBoardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FinanceScoreBoards and returns the data updated in the database.
+     * @param {FinanceScoreBoardUpdateManyAndReturnArgs} args - Arguments to update many FinanceScoreBoards.
+     * @example
+     * // Update many FinanceScoreBoards
+     * const financeScoreBoard = await prisma.financeScoreBoard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FinanceScoreBoards and only return the `id`
+     * const financeScoreBoardWithIdOnly = await prisma.financeScoreBoard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FinanceScoreBoardUpdateManyAndReturnArgs>(args: SelectSubset<T, FinanceScoreBoardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FinanceScoreBoard.
+     * @param {FinanceScoreBoardUpsertArgs} args - Arguments to update or create a FinanceScoreBoard.
+     * @example
+     * // Update or create a FinanceScoreBoard
+     * const financeScoreBoard = await prisma.financeScoreBoard.upsert({
+     *   create: {
+     *     // ... data to create a FinanceScoreBoard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FinanceScoreBoard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FinanceScoreBoardUpsertArgs>(args: SelectSubset<T, FinanceScoreBoardUpsertArgs<ExtArgs>>): Prisma__FinanceScoreBoardClient<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FinanceScoreBoards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardCountArgs} args - Arguments to filter FinanceScoreBoards to count.
+     * @example
+     * // Count the number of FinanceScoreBoards
+     * const count = await prisma.financeScoreBoard.count({
+     *   where: {
+     *     // ... the filter for the FinanceScoreBoards we want to count
+     *   }
+     * })
+    **/
+    count<T extends FinanceScoreBoardCountArgs>(
+      args?: Subset<T, FinanceScoreBoardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FinanceScoreBoardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FinanceScoreBoard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FinanceScoreBoardAggregateArgs>(args: Subset<T, FinanceScoreBoardAggregateArgs>): Prisma.PrismaPromise<GetFinanceScoreBoardAggregateType<T>>
+
+    /**
+     * Group by FinanceScoreBoard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FinanceScoreBoardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FinanceScoreBoardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FinanceScoreBoardGroupByArgs['orderBy'] }
+        : { orderBy?: FinanceScoreBoardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FinanceScoreBoardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFinanceScoreBoardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FinanceScoreBoard model
+   */
+  readonly fields: FinanceScoreBoardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FinanceScoreBoard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FinanceScoreBoardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FinanceScoreBoard model
+   */
+  interface FinanceScoreBoardFieldRefs {
+    readonly id: FieldRef<"FinanceScoreBoard", 'String'>
+    readonly startDate: FieldRef<"FinanceScoreBoard", 'DateTime'>
+    readonly endDate: FieldRef<"FinanceScoreBoard", 'DateTime'>
+    readonly score: FieldRef<"FinanceScoreBoard", 'Decimal'>
+    readonly budgetScore: FieldRef<"FinanceScoreBoard", 'Decimal'>
+    readonly savingScore: FieldRef<"FinanceScoreBoard", 'Decimal'>
+    readonly goalScore: FieldRef<"FinanceScoreBoard", 'Decimal'>
+    readonly splitScore: FieldRef<"FinanceScoreBoard", 'Decimal'>
+    readonly userId: FieldRef<"FinanceScoreBoard", 'String'>
+    readonly createdAt: FieldRef<"FinanceScoreBoard", 'DateTime'>
+    readonly updatedAt: FieldRef<"FinanceScoreBoard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FinanceScoreBoard findUnique
+   */
+  export type FinanceScoreBoardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which FinanceScoreBoard to fetch.
+     */
+    where: FinanceScoreBoardWhereUniqueInput
+  }
+
+  /**
+   * FinanceScoreBoard findUniqueOrThrow
+   */
+  export type FinanceScoreBoardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which FinanceScoreBoard to fetch.
+     */
+    where: FinanceScoreBoardWhereUniqueInput
+  }
+
+  /**
+   * FinanceScoreBoard findFirst
+   */
+  export type FinanceScoreBoardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which FinanceScoreBoard to fetch.
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinanceScoreBoards to fetch.
+     */
+    orderBy?: FinanceScoreBoardOrderByWithRelationInput | FinanceScoreBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinanceScoreBoards.
+     */
+    cursor?: FinanceScoreBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinanceScoreBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinanceScoreBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinanceScoreBoards.
+     */
+    distinct?: FinanceScoreBoardScalarFieldEnum | FinanceScoreBoardScalarFieldEnum[]
+  }
+
+  /**
+   * FinanceScoreBoard findFirstOrThrow
+   */
+  export type FinanceScoreBoardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which FinanceScoreBoard to fetch.
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinanceScoreBoards to fetch.
+     */
+    orderBy?: FinanceScoreBoardOrderByWithRelationInput | FinanceScoreBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FinanceScoreBoards.
+     */
+    cursor?: FinanceScoreBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinanceScoreBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinanceScoreBoards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FinanceScoreBoards.
+     */
+    distinct?: FinanceScoreBoardScalarFieldEnum | FinanceScoreBoardScalarFieldEnum[]
+  }
+
+  /**
+   * FinanceScoreBoard findMany
+   */
+  export type FinanceScoreBoardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter, which FinanceScoreBoards to fetch.
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FinanceScoreBoards to fetch.
+     */
+    orderBy?: FinanceScoreBoardOrderByWithRelationInput | FinanceScoreBoardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FinanceScoreBoards.
+     */
+    cursor?: FinanceScoreBoardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FinanceScoreBoards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FinanceScoreBoards.
+     */
+    skip?: number
+    distinct?: FinanceScoreBoardScalarFieldEnum | FinanceScoreBoardScalarFieldEnum[]
+  }
+
+  /**
+   * FinanceScoreBoard create
+   */
+  export type FinanceScoreBoardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FinanceScoreBoard.
+     */
+    data: XOR<FinanceScoreBoardCreateInput, FinanceScoreBoardUncheckedCreateInput>
+  }
+
+  /**
+   * FinanceScoreBoard createMany
+   */
+  export type FinanceScoreBoardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FinanceScoreBoards.
+     */
+    data: FinanceScoreBoardCreateManyInput | FinanceScoreBoardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * FinanceScoreBoard createManyAndReturn
+   */
+  export type FinanceScoreBoardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * The data used to create many FinanceScoreBoards.
+     */
+    data: FinanceScoreBoardCreateManyInput | FinanceScoreBoardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FinanceScoreBoard update
+   */
+  export type FinanceScoreBoardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FinanceScoreBoard.
+     */
+    data: XOR<FinanceScoreBoardUpdateInput, FinanceScoreBoardUncheckedUpdateInput>
+    /**
+     * Choose, which FinanceScoreBoard to update.
+     */
+    where: FinanceScoreBoardWhereUniqueInput
+  }
+
+  /**
+   * FinanceScoreBoard updateMany
+   */
+  export type FinanceScoreBoardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FinanceScoreBoards.
+     */
+    data: XOR<FinanceScoreBoardUpdateManyMutationInput, FinanceScoreBoardUncheckedUpdateManyInput>
+    /**
+     * Filter which FinanceScoreBoards to update
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * Limit how many FinanceScoreBoards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinanceScoreBoard updateManyAndReturn
+   */
+  export type FinanceScoreBoardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * The data used to update FinanceScoreBoards.
+     */
+    data: XOR<FinanceScoreBoardUpdateManyMutationInput, FinanceScoreBoardUncheckedUpdateManyInput>
+    /**
+     * Filter which FinanceScoreBoards to update
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * Limit how many FinanceScoreBoards to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FinanceScoreBoard upsert
+   */
+  export type FinanceScoreBoardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FinanceScoreBoard to update in case it exists.
+     */
+    where: FinanceScoreBoardWhereUniqueInput
+    /**
+     * In case the FinanceScoreBoard found by the `where` argument doesn't exist, create a new FinanceScoreBoard with this data.
+     */
+    create: XOR<FinanceScoreBoardCreateInput, FinanceScoreBoardUncheckedCreateInput>
+    /**
+     * In case the FinanceScoreBoard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FinanceScoreBoardUpdateInput, FinanceScoreBoardUncheckedUpdateInput>
+  }
+
+  /**
+   * FinanceScoreBoard delete
+   */
+  export type FinanceScoreBoardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+    /**
+     * Filter which FinanceScoreBoard to delete.
+     */
+    where: FinanceScoreBoardWhereUniqueInput
+  }
+
+  /**
+   * FinanceScoreBoard deleteMany
+   */
+  export type FinanceScoreBoardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FinanceScoreBoards to delete
+     */
+    where?: FinanceScoreBoardWhereInput
+    /**
+     * Limit how many FinanceScoreBoards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FinanceScoreBoard without action
+   */
+  export type FinanceScoreBoardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FinanceScoreBoard
+     */
+    select?: FinanceScoreBoardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FinanceScoreBoard
+     */
+    omit?: FinanceScoreBoardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FinanceScoreBoardInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -44997,6 +46311,23 @@ export namespace Prisma {
   };
 
   export type AiInsightScalarFieldEnum = (typeof AiInsightScalarFieldEnum)[keyof typeof AiInsightScalarFieldEnum]
+
+
+  export const FinanceScoreBoardScalarFieldEnum: {
+    id: 'id',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    score: 'score',
+    budgetScore: 'budgetScore',
+    savingScore: 'savingScore',
+    goalScore: 'goalScore',
+    splitScore: 'splitScore',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type FinanceScoreBoardScalarFieldEnum = (typeof FinanceScoreBoardScalarFieldEnum)[keyof typeof FinanceScoreBoardScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -45636,6 +46967,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotListRelationFilter
     analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
     aiInsights?: AiInsightListRelationFilter
+    financeScoreBoard?: FinanceScoreBoardListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -45685,6 +47017,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotOrderByRelationAggregateInput
     analyticsSnapshots?: AnalyticsSnapshotOrderByRelationAggregateInput
     aiInsights?: AiInsightOrderByRelationAggregateInput
+    financeScoreBoard?: FinanceScoreBoardOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -45737,6 +47070,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotListRelationFilter
     analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
     aiInsights?: AiInsightListRelationFilter
+    financeScoreBoard?: FinanceScoreBoardListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -48395,6 +49729,93 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"AiInsight"> | Date | string
   }
 
+  export type FinanceScoreBoardWhereInput = {
+    AND?: FinanceScoreBoardWhereInput | FinanceScoreBoardWhereInput[]
+    OR?: FinanceScoreBoardWhereInput[]
+    NOT?: FinanceScoreBoardWhereInput | FinanceScoreBoardWhereInput[]
+    id?: StringFilter<"FinanceScoreBoard"> | string
+    startDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    endDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    score?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    userId?: StringFilter<"FinanceScoreBoard"> | string
+    createdAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    updatedAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type FinanceScoreBoardOrderByWithRelationInput = {
+    id?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type FinanceScoreBoardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FinanceScoreBoardWhereInput | FinanceScoreBoardWhereInput[]
+    OR?: FinanceScoreBoardWhereInput[]
+    NOT?: FinanceScoreBoardWhereInput | FinanceScoreBoardWhereInput[]
+    startDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    endDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    score?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    userId?: StringFilter<"FinanceScoreBoard"> | string
+    createdAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    updatedAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type FinanceScoreBoardOrderByWithAggregationInput = {
+    id?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: FinanceScoreBoardCountOrderByAggregateInput
+    _avg?: FinanceScoreBoardAvgOrderByAggregateInput
+    _max?: FinanceScoreBoardMaxOrderByAggregateInput
+    _min?: FinanceScoreBoardMinOrderByAggregateInput
+    _sum?: FinanceScoreBoardSumOrderByAggregateInput
+  }
+
+  export type FinanceScoreBoardScalarWhereWithAggregatesInput = {
+    AND?: FinanceScoreBoardScalarWhereWithAggregatesInput | FinanceScoreBoardScalarWhereWithAggregatesInput[]
+    OR?: FinanceScoreBoardScalarWhereWithAggregatesInput[]
+    NOT?: FinanceScoreBoardScalarWhereWithAggregatesInput | FinanceScoreBoardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FinanceScoreBoard"> | string
+    startDate?: DateTimeWithAggregatesFilter<"FinanceScoreBoard"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"FinanceScoreBoard"> | Date | string
+    score?: DecimalWithAggregatesFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalWithAggregatesFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalWithAggregatesFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalWithAggregatesFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalWithAggregatesFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    userId?: StringWithAggregatesFilter<"FinanceScoreBoard"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"FinanceScoreBoard"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"FinanceScoreBoard"> | Date | string
+  }
+
   export type CurrenciesCreateInput = {
     id?: string
     currency: $Enums.Currency
@@ -48554,6 +49975,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -48603,6 +50025,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -48652,6 +50075,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -48701,6 +50125,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -51646,6 +53071,103 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FinanceScoreBoardCreateInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutFinanceScoreBoardInput
+  }
+
+  export type FinanceScoreBoardUncheckedCreateInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinanceScoreBoardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutFinanceScoreBoardNestedInput
+  }
+
+  export type FinanceScoreBoardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinanceScoreBoardCreateManyInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinanceScoreBoardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinanceScoreBoardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -51970,6 +53492,12 @@ export namespace Prisma {
     none?: AiInsightWhereInput
   }
 
+  export type FinanceScoreBoardListRelationFilter = {
+    every?: FinanceScoreBoardWhereInput
+    some?: FinanceScoreBoardWhereInput
+    none?: FinanceScoreBoardWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -52052,6 +53580,10 @@ export namespace Prisma {
   }
 
   export type AiInsightOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FinanceScoreBoardOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -54283,6 +55815,64 @@ export namespace Prisma {
     _max?: NestedEnumInsightSeverityFilter<$PrismaModel>
   }
 
+  export type FinanceScoreBoardCountOrderByAggregateInput = {
+    id?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FinanceScoreBoardAvgOrderByAggregateInput = {
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+  }
+
+  export type FinanceScoreBoardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FinanceScoreBoardMinOrderByAggregateInput = {
+    id?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type FinanceScoreBoardSumOrderByAggregateInput = {
+    score?: SortOrder
+    budgetScore?: SortOrder
+    savingScore?: SortOrder
+    goalScore?: SortOrder
+    splitScore?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -54457,6 +56047,13 @@ export namespace Prisma {
     connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
   }
 
+  export type FinanceScoreBoardCreateNestedManyWithoutUserInput = {
+    create?: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput> | FinanceScoreBoardCreateWithoutUserInput[] | FinanceScoreBoardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FinanceScoreBoardCreateOrConnectWithoutUserInput | FinanceScoreBoardCreateOrConnectWithoutUserInput[]
+    createMany?: FinanceScoreBoardCreateManyUserInputEnvelope
+    connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -54613,6 +56210,13 @@ export namespace Prisma {
     connectOrCreate?: AiInsightCreateOrConnectWithoutUserInput | AiInsightCreateOrConnectWithoutUserInput[]
     createMany?: AiInsightCreateManyUserInputEnvelope
     connect?: AiInsightWhereUniqueInput | AiInsightWhereUniqueInput[]
+  }
+
+  export type FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput> | FinanceScoreBoardCreateWithoutUserInput[] | FinanceScoreBoardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FinanceScoreBoardCreateOrConnectWithoutUserInput | FinanceScoreBoardCreateOrConnectWithoutUserInput[]
+    createMany?: FinanceScoreBoardCreateManyUserInputEnvelope
+    connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -54949,6 +56553,20 @@ export namespace Prisma {
     deleteMany?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
   }
 
+  export type FinanceScoreBoardUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput> | FinanceScoreBoardCreateWithoutUserInput[] | FinanceScoreBoardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FinanceScoreBoardCreateOrConnectWithoutUserInput | FinanceScoreBoardCreateOrConnectWithoutUserInput[]
+    upsert?: FinanceScoreBoardUpsertWithWhereUniqueWithoutUserInput | FinanceScoreBoardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FinanceScoreBoardCreateManyUserInputEnvelope
+    set?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    disconnect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    delete?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    update?: FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput | FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FinanceScoreBoardUpdateManyWithWhereWithoutUserInput | FinanceScoreBoardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -55257,6 +56875,20 @@ export namespace Prisma {
     update?: AiInsightUpdateWithWhereUniqueWithoutUserInput | AiInsightUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AiInsightUpdateManyWithWhereWithoutUserInput | AiInsightUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AiInsightScalarWhereInput | AiInsightScalarWhereInput[]
+  }
+
+  export type FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput> | FinanceScoreBoardCreateWithoutUserInput[] | FinanceScoreBoardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FinanceScoreBoardCreateOrConnectWithoutUserInput | FinanceScoreBoardCreateOrConnectWithoutUserInput[]
+    upsert?: FinanceScoreBoardUpsertWithWhereUniqueWithoutUserInput | FinanceScoreBoardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FinanceScoreBoardCreateManyUserInputEnvelope
+    set?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    disconnect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    delete?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+    update?: FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput | FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FinanceScoreBoardUpdateManyWithWhereWithoutUserInput | FinanceScoreBoardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -56435,6 +58067,20 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutAiInsightsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAiInsightsInput, UserUpdateWithoutAiInsightsInput>, UserUncheckedUpdateWithoutAiInsightsInput>
+  }
+
+  export type UserCreateNestedOneWithoutFinanceScoreBoardInput = {
+    create?: XOR<UserCreateWithoutFinanceScoreBoardInput, UserUncheckedCreateWithoutFinanceScoreBoardInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFinanceScoreBoardInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutFinanceScoreBoardNestedInput = {
+    create?: XOR<UserCreateWithoutFinanceScoreBoardInput, UserUncheckedCreateWithoutFinanceScoreBoardInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFinanceScoreBoardInput
+    upsert?: UserUpsertWithoutFinanceScoreBoardInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFinanceScoreBoardInput, UserUpdateWithoutFinanceScoreBoardInput>, UserUncheckedUpdateWithoutFinanceScoreBoardInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -58000,6 +59646,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FinanceScoreBoardCreateWithoutUserInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinanceScoreBoardUncheckedCreateWithoutUserInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinanceScoreBoardCreateOrConnectWithoutUserInput = {
+    where: FinanceScoreBoardWhereUniqueInput
+    create: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput>
+  }
+
+  export type FinanceScoreBoardCreateManyUserInputEnvelope = {
+    data: FinanceScoreBoardCreateManyUserInput | FinanceScoreBoardCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -58788,6 +60470,39 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"AiInsight"> | Date | string
   }
 
+  export type FinanceScoreBoardUpsertWithWhereUniqueWithoutUserInput = {
+    where: FinanceScoreBoardWhereUniqueInput
+    update: XOR<FinanceScoreBoardUpdateWithoutUserInput, FinanceScoreBoardUncheckedUpdateWithoutUserInput>
+    create: XOR<FinanceScoreBoardCreateWithoutUserInput, FinanceScoreBoardUncheckedCreateWithoutUserInput>
+  }
+
+  export type FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput = {
+    where: FinanceScoreBoardWhereUniqueInput
+    data: XOR<FinanceScoreBoardUpdateWithoutUserInput, FinanceScoreBoardUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FinanceScoreBoardUpdateManyWithWhereWithoutUserInput = {
+    where: FinanceScoreBoardScalarWhereInput
+    data: XOR<FinanceScoreBoardUpdateManyMutationInput, FinanceScoreBoardUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FinanceScoreBoardScalarWhereInput = {
+    AND?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
+    OR?: FinanceScoreBoardScalarWhereInput[]
+    NOT?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
+    id?: StringFilter<"FinanceScoreBoard"> | string
+    startDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    endDate?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    score?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFilter<"FinanceScoreBoard"> | Decimal | DecimalJsLike | number | string
+    userId?: StringFilter<"FinanceScoreBoard"> | string
+    createdAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+    updatedAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -58834,6 +60549,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -58882,6 +60598,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -58946,6 +60663,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -58994,6 +60712,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -59042,6 +60761,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -59090,6 +60810,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -59154,6 +60875,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -59202,6 +60924,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -59250,6 +60973,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -59298,6 +61022,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -59362,6 +61087,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -59410,6 +61136,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -59458,6 +61185,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -59506,6 +61234,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -59570,6 +61299,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -59618,6 +61348,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -59666,6 +61397,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -59714,6 +61446,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -59778,6 +61511,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -59826,6 +61560,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserBalanceInput = {
@@ -59874,6 +61609,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserBalanceInput = {
@@ -59922,6 +61658,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserBalanceInput = {
@@ -59986,6 +61723,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserBalanceInput = {
@@ -60034,6 +61772,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -60082,6 +61821,7 @@ export namespace Prisma {
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -60130,6 +61870,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyBalanceSnapshotsInput = {
@@ -60194,6 +61935,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyBalanceSnapshotsInput = {
@@ -60242,6 +61984,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -60290,6 +62033,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -60338,6 +62082,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -60402,6 +62147,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -60450,6 +62196,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutActivityLogsInput = {
@@ -60498,6 +62245,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -60546,6 +62294,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -60610,6 +62359,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -60658,6 +62408,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingInput = {
@@ -60706,6 +62457,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingInput = {
@@ -60754,6 +62506,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingInput = {
@@ -60818,6 +62571,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingInput = {
@@ -60866,6 +62620,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCategoriesInput = {
@@ -60914,6 +62669,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -60962,6 +62718,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -61186,6 +62943,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -61234,6 +62992,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -61367,6 +63126,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -61415,6 +63175,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -61550,6 +63311,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -61598,6 +63360,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetHistoryUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -61759,6 +63522,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOcrDraftsInput = {
@@ -61807,6 +63571,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOcrDraftsInput = {
@@ -61871,6 +63636,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOcrDraftsInput = {
@@ -61919,6 +63685,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutTransactionsInput = {
@@ -62004,6 +63771,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -62052,6 +63820,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -62333,6 +64102,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -62381,6 +64151,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type RecurringItemUpsertWithoutTransactionsInput = {
@@ -62665,6 +64436,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRecurringItemsInput = {
@@ -62713,6 +64485,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRecurringItemsInput = {
@@ -62882,6 +64655,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRecurringItemsInput = {
@@ -62930,6 +64704,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutRecurringItemInput = {
@@ -62994,6 +64769,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -63042,6 +64818,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -63138,6 +64915,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -63186,6 +64964,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type GoalContributionUpsertWithWhereUniqueWithoutGoalInput = {
@@ -63453,6 +65232,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSplitsInput = {
@@ -63501,6 +65281,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSplitsInput = {
@@ -63680,6 +65461,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSplitsInput = {
@@ -63728,6 +65510,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithoutSplitInput = {
@@ -64232,6 +66015,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonoBankAccountsInput = {
@@ -64280,6 +66064,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonoBankAccountsInput = {
@@ -64406,6 +66191,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonoBankAccountsInput = {
@@ -64454,6 +66240,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutMonoBankAccountInput = {
@@ -64518,6 +66305,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFcmDevicesInput = {
@@ -64566,6 +66354,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFcmDevicesInput = {
@@ -64630,6 +66419,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFcmDevicesInput = {
@@ -64678,6 +66468,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -64726,6 +66517,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -64774,6 +66566,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -64838,6 +66631,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -64886,6 +66680,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutClassificationCorrectionsInput = {
@@ -64934,6 +66729,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClassificationCorrectionsInput = {
@@ -64982,6 +66778,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClassificationCorrectionsInput = {
@@ -65046,6 +66843,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClassificationCorrectionsInput = {
@@ -65094,6 +66892,7 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAnalyticsSnapshotsInput = {
@@ -65142,6 +66941,7 @@ export namespace Prisma {
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAnalyticsSnapshotsInput = {
@@ -65190,6 +66990,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAnalyticsSnapshotsInput = {
@@ -65254,6 +67055,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalyticsSnapshotsInput = {
@@ -65302,6 +67104,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAiInsightsInput = {
@@ -65350,6 +67153,7 @@ export namespace Prisma {
     userBalance?: UserBalanceCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAiInsightsInput = {
@@ -65398,6 +67202,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAiInsightsInput = {
@@ -65462,6 +67267,7 @@ export namespace Prisma {
     userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAiInsightsInput = {
@@ -65510,6 +67316,219 @@ export namespace Prisma {
     userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutFinanceScoreBoardInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFinanceScoreBoardInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFinanceScoreBoardInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFinanceScoreBoardInput, UserUncheckedCreateWithoutFinanceScoreBoardInput>
+  }
+
+  export type UserUpsertWithoutFinanceScoreBoardInput = {
+    update: XOR<UserUpdateWithoutFinanceScoreBoardInput, UserUncheckedUpdateWithoutFinanceScoreBoardInput>
+    create: XOR<UserCreateWithoutFinanceScoreBoardInput, UserUncheckedCreateWithoutFinanceScoreBoardInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFinanceScoreBoardInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFinanceScoreBoardInput, UserUncheckedUpdateWithoutFinanceScoreBoardInput>
+  }
+
+  export type UserUpdateWithoutFinanceScoreBoardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFinanceScoreBoardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -65763,6 +67782,19 @@ export namespace Prisma {
     conversationThreadId?: string | null
     readAt?: Date | string | null
     notifiedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type FinanceScoreBoardCreateManyUserInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    score: Decimal | DecimalJsLike | number | string
+    budgetScore: Decimal | DecimalJsLike | number | string
+    savingScore: Decimal | DecimalJsLike | number | string
+    goalScore: Decimal | DecimalJsLike | number | string
+    splitScore: Decimal | DecimalJsLike | number | string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -66552,6 +68584,45 @@ export namespace Prisma {
     conversationThreadId?: NullableStringFieldUpdateOperationsInput | string | null
     readAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinanceScoreBoardUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinanceScoreBoardUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FinanceScoreBoardUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    budgetScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    savingScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    goalScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    splitScore?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
