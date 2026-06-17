@@ -82,9 +82,31 @@ export const protobufPackage = "finance";
 
 /** finance/finance.proto */
 
+export interface FinanceBoard {
+  id: string;
+  startDate: string;
+  endDate: string;
+  /** metrics */
+  score: number;
+  budgetScore: number;
+  savingScore: number;
+  goalScore: number;
+  splitScore: number;
+}
+
+export interface FinanceBoardHistory {
+  history: FinanceBoard[];
+}
+
 export const FINANCE_PACKAGE_NAME = "finance";
 
 export interface FinanceServiceClient {
+  /** Finnace Board */
+
+  getFinanceBoard(request: Empty, metadata?: Metadata): Observable<FinanceBoard>;
+
+  getFinanceBoardHistory(request: Empty, metadata?: Metadata): Observable<FinanceBoardHistory>;
+
   /** Transactions */
 
   createTransaction(request: CreateTransactionReq, metadata?: Metadata): Observable<Transaction>;
@@ -192,6 +214,15 @@ export interface FinanceServiceClient {
 }
 
 export interface FinanceServiceController {
+  /** Finnace Board */
+
+  getFinanceBoard(request: Empty, metadata?: Metadata): Promise<FinanceBoard> | Observable<FinanceBoard> | FinanceBoard;
+
+  getFinanceBoardHistory(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<FinanceBoardHistory> | Observable<FinanceBoardHistory> | FinanceBoardHistory;
+
   /** Transactions */
 
   createTransaction(
@@ -373,6 +404,8 @@ export interface FinanceServiceController {
 export function FinanceServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
+      "getFinanceBoard",
+      "getFinanceBoardHistory",
       "createTransaction",
       "batchCreateTransactions",
       "getTransactions",
