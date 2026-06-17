@@ -1,0 +1,58 @@
+{
+  "__comment": "Finance (Financial Health Score board) gRPC Documentation — apps/finance_service/src/finnace.controller.ts",
+  "meta_note": "All methods are exposed on the FinanceService gRPC server. Auth is enforced at the module level via RpcAuthGuard; the authenticated user is injected via @RpcUser(). Proto definitions live in packages/types/proto/finance/finance.proto.",
+  "conventions": {
+    "transport": "gRPC — FinanceService (packages/types/proto/finance/finance.proto)",
+    "auth": "JWT injected via @RpcUser() decorator; guard applied at module level (RpcAuthGuard).",
+    "rpc_errors": {
+      "UNAUTHENTICATED": "Missing or invalid JWT in gRPC metadata",
+      "INTERNAL": "Unexpected server error"
+    },
+    "score_model": {
+      "description": "Single 0–100 weekly Financial Health Score, the sum of four weighted components. Component caps mirror the Decimal(4,1) columns on the FinanceScoreBoard model and the weights in packages/types/src/constants/finance.constant.ts.",
+      "components": {
+        "budgetScore": "Budget adherence — fraction of active budgets within their effective limit this month (max 35)",
+        "savingScore": "Savings rate — (monthlyIncome - monthlyExpense) / monthlyIncome, clamped to [0,1] (max 25)",
+        "goalScore": "Goal pacing — fraction of ACTIVE goals on pace vs. their target timeline (max 25)",
+        "splitScore": "Split settlement — fraction of splits fully SETTLED (max 15)"
+      },
+      "empty_category_rule": "When a category has nothing to assess (no budgets, no income, no active goals, no splits) it scores full marks — absence of a problem is treated as healthy.",
+      "shared_formula": "Pure scoring math lives in @fintrack/utils/finance_score and is shared with the scheduler's weekly snapshot job so the live board and persisted history never drift."
+    }
+  },
+
+  "getFinanceBoard": {
+    "rpc": "getFinanceBoard",
+    "proto_method": "rpc GetFinanceBoard(Empty) returns (FinanceBoard)",
+    "description": "Computes the live current-week Financial Health board for the authenticated user — each weighted component plus the composite score — in one read transaction. Savings and budget adherence are assessed over the current calendar month; goal pacing and split settlement reflect current state. The reported window is the current ISO week (Mon→Sun).",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": "Empty",
+    "output": {
+      "id": "string — 'current' for the live (non-persisted) board",
+      "start_date": "string — ISO date (Monday of the current ISO week)",
+      "end_date": "string — ISO date (Sunday of the current ISO week)",
+      "score": "float — composite 0.0–100.0",
+      "budget_score": "float — 0.0–35.0",
+      "saving_score": "float — 0.0–25.0",
+      "goal_score": "float — 0.0–25.0",
+      "split_score": "float — 0.0–15.0"
+    },
+    "errors": {
+      "INTERNAL": "Unexpected error while computing the board"
+    }
+  },
+
+  "getFinanceBoardHistory": {
+    "rpc": "getFinanceBoardHistory",
+    "proto_method": "rpc GetFinanceBoardHistory(Empty) returns (FinanceBoardHistory)",
+    "description": "Returns the user's persisted weekly score history — the most recent 12 weeks, in chronological (oldest→newest) order for charting. Snapshots are written every Monday by the scheduler's FinanceScoreProcessor (FINANCE_SCORE_SNAPSHOT_JOB).",
+    "authentication": "RpcAuthGuard — JWT in gRPC metadata",
+    "input": "Empty",
+    "output": {
+      "history": "FinanceBoard[] — up to 12 weekly snapshots, oldest-first; each carries its own persisted id and Mon→Sun window"
+    },
+    "errors": {
+      "INTERNAL": "Unexpected error while fetching history"
+    }
+  }
+}

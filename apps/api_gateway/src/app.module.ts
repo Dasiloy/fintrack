@@ -43,6 +43,7 @@ import { UsageModule } from './usage/usage.module';
 import { UserModule } from './user/user.module';
 import { ExportModule } from './export/export.module';
 import { AdvisorModule } from './advisor/advisor.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -209,6 +210,7 @@ import { AdvisorModule } from './advisor/advisor.module';
     UserModule,
     ExportModule,
     AdvisorModule,
+    FinanceModule,
   ],
   controllers: [AppController],
   providers: [

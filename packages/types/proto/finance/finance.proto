@@ -8,7 +8,28 @@ import "finance/recurring.proto";
 import "finance/split.proto";
 import "finance/goal.proto";
 
+message FinanceBoard {
+  string id = 1;
+ string start_date = 2;
+  string end_date = 3;
+  // metrics
+  double score = 4;
+  double budget_score = 5;
+ double saving_score =6 ;
+  double goal_score  = 7;
+  double split_score  = 8;
+}
+
+message FinanceBoardHistory {
+  repeated FinanceBoard history = 1;
+}
+
 service FinanceService {
+  // Finnace Board
+  rpc GetFinanceBoard(Empty) returns (FinanceBoard) {}
+  rpc GetFinanceBoardHistory(Empty) returns (FinanceBoardHistory) {}
+
+
   // Transactions
     rpc CreateTransaction(CreateTransactionReq) returns (Transaction) {}
     rpc BatchCreateTransactions(BatchCreateTransactionsReq) returns (BatchCreateTransactionsRes) {}
