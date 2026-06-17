@@ -8,6 +8,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
 import { DatabaseModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
+import { BalanceService } from '@fintrack/common/services/balance.service';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 
 import { TransactionModule } from './transaction/transaction.module';
@@ -15,6 +16,8 @@ import { BudgetModule } from './budget/budget.module';
 import { RecurringModule } from './recurring/recurring.module';
 import { GoalModule } from './goal/goal.module';
 import { SplitModule } from './split/split.module';
+import { FinnaceService } from './finnace.service';
+import { FinanceController } from './finnace.controller';
 
 @Module({
   imports: [
@@ -62,6 +65,9 @@ import { SplitModule } from './split/split.module';
       provide: APP_INTERCEPTOR,
       useClass: GrpcLoggingInterceptor,
     },
+    BalanceService,
+    FinnaceService,
   ],
+  controllers: [FinanceController],
 })
 export class FinanceModule {}
