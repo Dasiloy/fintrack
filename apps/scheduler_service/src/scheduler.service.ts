@@ -12,6 +12,8 @@ import {
   BALANCE_ROLLOVER_QUEUE,
   CREATE_RECURRING_TRANSACTION,
   DAILY_INSIGHTS_JOB,
+  FINANCE_SCORE_QUEUE,
+  FINANCE_SCORE_SNAPSHOT_JOB,
   INSIGHTS_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
@@ -36,6 +38,8 @@ export class SchedulerService {
     private readonly analyticsAggregationQueue: Queue,
     @InjectQueue(INSIGHTS_QUEUE)
     private readonly insightsQueue: Queue,
+    @InjectQueue(FINANCE_SCORE_QUEUE)
+    private readonly financeScoreQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
@@ -111,6 +115,15 @@ export class SchedulerService {
   triggerDailyInsights() {
     void this.insightsQueue.add(
       DAILY_INSIGHTS_JOB,
+      {},
+      { removeOnComplete: true, removeOnFail: { count: 5 } },
+    );
+  }
+
+  @Cron('0 3 * * 1') // 3:00 AM every Monday — snapshot last week's health score
+  snapshotFinanceScores() {
+    void this.financeScoreQueue.add(
+      FINANCE_SCORE_SNAPSHOT_JOB,
       {},
       { removeOnComplete: true, removeOnFail: { count: 5 } },
     );
