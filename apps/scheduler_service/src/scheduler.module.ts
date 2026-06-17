@@ -16,6 +16,7 @@ import {
   BALANCE_ROLLOVER_QUEUE,
   BUDGET_CHECK_QUEUE,
   FCM_NOTIFICATION_QUEUE,
+  FINANCE_SCORE_QUEUE,
   INSIGHTS_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
@@ -34,6 +35,7 @@ import { RecurringProcessor } from './processors/recurring.processor';
 import { BalanceRolloverProcessor } from './processors/balance_rollover.processor';
 import { AnalyticsAggregationProcessor } from './processors/analytics_aggregation.processor';
 import { InsightsDailyProcessor } from './processors/insights_daily.processor';
+import { FinanceScoreProcessor } from './processors/finance_score.processor';
 
 @Module({
   imports: [
@@ -76,6 +78,7 @@ import { InsightsDailyProcessor } from './processors/insights_daily.processor';
       { name: BUDGET_CHECK_QUEUE },
       { name: TRANSACTION_SEMANTIC_QUEUE },
       { name: FCM_NOTIFICATION_QUEUE },
+      { name: FINANCE_SCORE_QUEUE },
     ),
   ],
   providers: [
@@ -87,6 +90,7 @@ import { InsightsDailyProcessor } from './processors/insights_daily.processor';
     BalanceRolloverProcessor,
     AnalyticsAggregationProcessor,
     InsightsDailyProcessor,
+    FinanceScoreProcessor,
     {
       provide: APP_GUARD,
       useClass: RpcAuthGuard,
