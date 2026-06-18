@@ -173,6 +173,43 @@ export class AccountService {
   }
 
   // ---------------------------------------------------------------------------
+  // Disconnect Account
+  // ---------------------------------------------------------------------------
+
+  async disconnectAccount(user: User, id: string): Promise<void> {
+    const account = await this.prisma.monoBankAccount.findFirst({
+      where: { id, userId: user.id },
+    });
+
+    if (!account) {
+      throw new NotFoundException('Bank account not found');
+    }
+
+    // unlink mono account
+    await this.unlinkMonoAccount(account.accountId);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.monoBankAccount.delete({ where: { id } });
+
+      if (account.isDefault) {
+        const next = await tx.monoBankAccount.findFirst({
+          where: { userId: user.id },
+          orderBy: { createdAt: 'asc' },
+        });
+        if (next) {
+          await tx.monoBankAccount.update({
+            where: { id: next.id },
+            data: { isDefault: true },
+          });
+        }
+      }
+    });
+
+    await this.usageService.invalidateGatedUsageCache(user.id);
+    this.logger.log(`MonoBankAccount disconnected: ${id} for user ${user.id}`);
+  }
+
+  // ---------------------------------------------------------------------------
   // Webhook
   // ---------------------------------------------------------------------------
 
@@ -506,8 +543,48 @@ export class AccountService {
     } catch (error) {
       if (error instanceof InternalServerErrorException) throw error;
       throw new InternalServerErrorException(
-        'Failed to fetch Mono account details',
+        'Failed to fetch Bank account details',
       );
+    }
+  }
+
+  /**
+   * Unlink bank account from mono portal
+   *
+   * @param id - Mono accountId
+   * @returns {Promise<void>}
+   * @throws InternalServerErrorException if the unlink fails
+   */
+  async unlinkMonoAccount(id: string): Promise<void> {
+    const secretKey = this.config.getOrThrow<string>('MONO_SECRET_KEY');
+
+    try {
+      const { data } = await this.fetcher.post<{
+        status: 'successful' | 'failed';
+        message: string;
+        timestamp?: string;
+        data?: null; // for 404 response
+      }>(
+        `https://api.withmono.com/v2/accounts/${id}/unlink`,
+        {},
+        {
+          headers: { 'mono-sec-key': secretKey },
+        },
+      );
+
+      if (data.status === 'failed') {
+        throw new InternalServerErrorException('Failed to unlink bank account');
+      }
+
+      if (data.data === null) {
+        this.logger.error(
+          `Bank account fopr found when trying to unlink ${id}`,
+        );
+        throw new InternalServerErrorException('Failed to unlink bank account');
+      }
+    } catch (error) {
+      if (error instanceof InternalServerErrorException) throw error;
+      throw new InternalServerErrorException('Failed to unlink bank account');
     }
   }
 

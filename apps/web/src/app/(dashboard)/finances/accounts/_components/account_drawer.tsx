@@ -3,14 +3,27 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { format } from '@fintrack/utils/date';
-import { ChevronDown, RefreshCw, RotateCcw } from 'lucide-react';
-import { Button, ScrollArea, Separator, Sheet, SheetContent } from '@ui/components';
+import { ChevronDown, RefreshCw, RotateCcw, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  ScrollArea,
+  Separator,
+  Sheet,
+  SheetContent,
+} from '@ui/components';
 import { cn } from '@ui/lib/utils/cn';
 import type { MonoBankAccount } from '@fintrack/database/types';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { DrawerFooter, DrawerHeader, Row, Section } from '@/app/_components';
 import { bankColor, maskNumber, STATUS_CONFIG } from '@/app/(dashboard)/finances/accounts/helper';
-import { useFormatCurrency } from '@/hooks/use_format_currency';
 import { TransactionMiniSkeleton } from '@/app/(dashboard)/finances/accounts/_components/transaction_card_skeleton';
 import { TransactionMiniCard } from '@/app/(dashboard)/finances/accounts/_components/transaction_card';
 
@@ -22,6 +35,8 @@ export interface AccountDrawerProps {
   isSyncing: boolean;
   onRelink: (accountId: string) => void;
   isRelinking: boolean;
+  onDisconnect: (id: string) => void;
+  isDisconnecting: boolean;
 }
 
 export function AccountDrawer({
@@ -32,8 +47,9 @@ export function AccountDrawer({
   isSyncing,
   onRelink,
   isRelinking,
+  onDisconnect,
+  isDisconnecting,
 }: AccountDrawerProps) {
-  const formatCurrency = useFormatCurrency();
   const open = !!account;
 
   const [txExpanded, setTxExpanded] = React.useState(false);
@@ -217,6 +233,34 @@ export function AccountDrawer({
               Sync Account
             </Button>
           )}
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-red-400 hover:text-red-400">
+                <Trash2 className="size-3.5" />
+                Disconnect
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Disconnect account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This removes the connection. Historical transactions are kept for 90 days then
+                  deleted.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDisconnecting}>Cancel</AlertDialogCancel>
+                <Button
+                  variant="destructive"
+                  loading={isDisconnecting}
+                  onClick={() => onDisconnect(account!.id)}
+                >
+                  Disconnect
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </DrawerFooter>
       </SheetContent>
     </Sheet>
