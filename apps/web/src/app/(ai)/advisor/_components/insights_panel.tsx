@@ -51,6 +51,8 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
       onSuccess: (res) => {
         const { queued, cooldownSeconds, limitReached } = res.data ?? {};
 
+        void utils.subscription.getGatedUsage.invalidate();
+
         if (limitReached) {
           setLimitGateOpen(true);
           return;

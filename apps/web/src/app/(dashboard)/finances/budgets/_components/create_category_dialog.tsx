@@ -69,6 +69,7 @@ export function CategoryDialog({ open, onOpenChange, editCategory }: CategoryDia
       toast.success('Category created');
       void utils.category.getAll.invalidate();
       void utils.budget.getAll.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to create category', { description: err.message }),

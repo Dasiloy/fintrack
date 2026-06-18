@@ -84,7 +84,6 @@ export class ActivityLogsRealtimeService
 
     try {
       const user = await this.authService.validateToken(token);
-      this.logger.log('user', user);
 
       if (user === 'TOKEN_EXPIRED' || user === null) {
         client.disconnect();

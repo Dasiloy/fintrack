@@ -52,6 +52,7 @@ export function BudgetPageClient() {
   const deleteBudgetMutation = api_client.budget.delete.useMutation({
     onSuccess: () => {
       void utils.budget.getAll.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       toast.success('Budget deactivated');
     },
     onError: (error) => {
@@ -63,6 +64,7 @@ export function BudgetPageClient() {
     onSuccess: () => {
       void utils.budget.getAll.invalidate();
       void utils.category.getAll.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       toast.success('Category deleted');
     },
     onError: (error) => {

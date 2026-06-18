@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -321,6 +322,27 @@ export class AccountController {
       data: null,
       success: true,
       message: 'Account re-linked',
+      statusCode: HttpStatus.OK,
+    };
+  }
+
+  // ================================================================
+  //. Disconnect (remove) a linked bank account
+  // ================================================================
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Disconnect and remove a linked bank account' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Account disconnected' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  async disconnectAccount(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<null>> {
+    await this.accountService.disconnectAccount(user, id);
+    return {
+      data: null,
+      success: true,
+      message: 'Account disconnected',
       statusCode: HttpStatus.OK,
     };
   }

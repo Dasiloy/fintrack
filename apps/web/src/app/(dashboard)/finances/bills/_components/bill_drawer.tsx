@@ -118,6 +118,7 @@ export function BillDrawer({
       toast.success('Bill deleted');
       void utils.recurring.getAll.invalidate();
       void utils.recurring.getSummary.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
       onDeleted?.();
     },
@@ -257,10 +258,7 @@ export function BillDrawer({
                     </EditRow>
 
                     <EditRow label="Category">
-                      <Select
-                        value={edit.categorySlug}
-                        onValueChange={onCategoryChange}
-                      >
+                      <Select value={edit.categorySlug} onValueChange={onCategoryChange}>
                         <SelectTrigger size="sm" className="w-full">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -341,7 +339,9 @@ export function BillDrawer({
                                 ? parseLocalDate(edit.startDate)
                                 : undefined
                           }
-                          disabled={(d) => (edit.startDate ? d < parseLocalDate(edit.startDate) : false)}
+                          disabled={(d) =>
+                            edit.startDate ? d < parseLocalDate(edit.startDate) : false
+                          }
                         />
                       </AnchoredPopover>
                     </EditRow>
@@ -437,14 +437,22 @@ export function BillDrawer({
               {/* Schedule */}
               <Section label="Schedule">
                 <Row label="Next run">
-                  {item.nextRunAt ? format(parseLocalDate(item.nextRunAt.slice(0, 10)), 'MMM D, YYYY') : '—'}
+                  {item.nextRunAt
+                    ? format(parseLocalDate(item.nextRunAt.slice(0, 10)), 'MMM D, YYYY')
+                    : '—'}
                 </Row>
                 {item.lastRunAt && (
-                  <Row label="Last run">{format(parseLocalDate(item.lastRunAt.slice(0, 10)), 'MMM D, YYYY')}</Row>
+                  <Row label="Last run">
+                    {format(parseLocalDate(item.lastRunAt.slice(0, 10)), 'MMM D, YYYY')}
+                  </Row>
                 )}
-                <Row label="Start date">{format(parseLocalDate(item.startDate.slice(0, 10)), 'MMM D, YYYY')}</Row>
+                <Row label="Start date">
+                  {format(parseLocalDate(item.startDate.slice(0, 10)), 'MMM D, YYYY')}
+                </Row>
                 {item.endDate && (
-                  <Row label="End date">{format(parseLocalDate(item.endDate.slice(0, 10)), 'MMM D, YYYY')}</Row>
+                  <Row label="End date">
+                    {format(parseLocalDate(item.endDate.slice(0, 10)), 'MMM D, YYYY')}
+                  </Row>
                 )}
               </Section>
 
@@ -475,7 +483,10 @@ export function BillDrawer({
               {(item.transactions ?? []).length > 0 && (
                 <Section label="Recent Transactions">
                   {(item.transactions ?? []).slice(0, 5).map((tx) => (
-                    <Row key={tx.id} label={format(parseLocalDate(tx.date.slice(0,10)), 'MMM D, YYYY')}>
+                    <Row
+                      key={tx.id}
+                      label={format(parseLocalDate(tx.date.slice(0, 10)), 'MMM D, YYYY')}
+                    >
                       <span className={tx.type === 'EXPENSE' ? 'text-error' : 'text-success'}>
                         {tx.type === 'INCOME' ? '+' : ''}
                         {formatCurrency(parseFloat(tx.amount))}
