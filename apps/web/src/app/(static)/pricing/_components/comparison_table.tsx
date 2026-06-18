@@ -29,7 +29,6 @@ export function ComparisonTable() {
       </h2>
 
       <div className="rounded-card bg-bg-elevated border-border-light overflow-hidden border">
-
         {/* ── Desktop header (hidden on mobile) ── */}
         <div className="border-border-light bg-bg-deep/40 hidden border-b sm:grid sm:grid-cols-[1fr_160px_160px] sm:px-6 sm:py-4">
           <span className="text-body-sm text-text-tertiary font-semibold">Feature</span>
@@ -61,14 +60,14 @@ export function ComparisonTable() {
 
                 {/* Free | Pro side by side */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-bg-deep/30 px-3 py-2">
-                    <p className="text-caption text-text-disabled mb-1 font-semibold uppercase tracking-wide">
+                  <div className="bg-bg-deep/30 rounded-lg px-3 py-2">
+                    <p className="text-caption text-text-disabled mb-1 font-semibold tracking-wide uppercase">
                       Free
                     </p>
                     <MobileCellValue value={row.free} />
                   </div>
-                  <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
-                    <p className="text-caption text-primary mb-1 font-semibold uppercase tracking-wide">
+                  <div className="border-primary/20 bg-primary/5 rounded-lg border px-3 py-2">
+                    <p className="text-caption text-primary mb-1 font-semibold tracking-wide uppercase">
                       Pro
                     </p>
                     <MobileCellValue value={row.pro} isPro />
@@ -92,8 +91,8 @@ export function ComparisonTable() {
 
       {/* Disclaimer */}
       <p className="text-caption text-text-disabled mt-6 text-center">
-        All plans include end-to-end encryption, automatic backups, and access to all core
-        FinTrack features. Prices shown in NGN.
+        All plans include end-to-end encryption, and access to all core FinTrack features. Prices
+        shown in NGN.
       </p>
     </section>
   );
@@ -104,13 +103,19 @@ export function ComparisonTable() {
 function MobileCellValue({ value, isPro = false }: { value: string | boolean; isPro?: boolean }) {
   if (typeof value === 'boolean') {
     return value ? (
-      <Check size={15} className={isPro ? 'text-primary' : 'text-text-secondary'} aria-label="Included" />
+      <Check
+        size={15}
+        className={isPro ? 'text-primary' : 'text-text-secondary'}
+        aria-label="Included"
+      />
     ) : (
       <X size={15} className="text-text-disabled" aria-label="Not included" />
     );
   }
   return (
-    <span className={cn('text-body-sm font-medium', isPro ? 'text-primary' : 'text-text-secondary')}>
+    <span
+      className={cn('text-body-sm font-medium', isPro ? 'text-primary' : 'text-text-secondary')}
+    >
       {value}
     </span>
   );
@@ -121,7 +126,11 @@ function DesktopCellValue({ value, isPro = false }: { value: string | boolean; i
     return (
       <div className="flex justify-center">
         {value ? (
-          <Check size={16} className={isPro ? 'text-primary' : 'text-text-secondary'} aria-label="Included" />
+          <Check
+            size={16}
+            className={isPro ? 'text-primary' : 'text-text-secondary'}
+            aria-label="Included"
+          />
         ) : (
           <X size={16} className="text-text-disabled" aria-label="Not included" />
         )}
@@ -130,7 +139,9 @@ function DesktopCellValue({ value, isPro = false }: { value: string | boolean; i
   }
   return (
     <div className="text-center">
-      <span className={cn('text-body-sm font-medium', isPro ? 'text-primary' : 'text-text-secondary')}>
+      <span
+        className={cn('text-body-sm font-medium', isPro ? 'text-primary' : 'text-text-secondary')}
+      >
         {value}
       </span>
     </div>

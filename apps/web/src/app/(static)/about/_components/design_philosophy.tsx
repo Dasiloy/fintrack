@@ -18,7 +18,7 @@ export function DesignPhilosophy() {
           Design Philosophy
         </h2>
         <p className="text-body text-text-secondary leading-relaxed">
-          Every decision we make is guided by three principles that shape how FinTrack looks, feels,
+          Every product decision is guided by three principles that shape how FinTrack looks, feels,
           and works.
         </p>
       </div>
