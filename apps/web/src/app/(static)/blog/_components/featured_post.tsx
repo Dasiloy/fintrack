@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Clock } from 'lucide-react';
 
@@ -65,8 +66,14 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
             <div className="flex items-center justify-between">
               {/* Author */}
               <div className="flex items-center gap-2.5">
-                <div className="from-primary/40 to-primary/10 text-text-primary font-manrope flex size-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-xs font-bold ring-2 ring-primary/20">
-                  {post.initials}
+                <div className="ring-primary/20 size-9 shrink-0 overflow-hidden rounded-full ring-2">
+                  <Image
+                    src="/untitled-84.JPG"
+                    alt={post.author}
+                    width={36}
+                    height={36}
+                    className="size-full object-cover object-top"
+                  />
                 </div>
                 <div>
                   <p className="text-body-sm text-text-primary font-semibold leading-tight">{post.author}</p>

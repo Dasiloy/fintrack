@@ -140,7 +140,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   Still need help?
                 </p>
                 <p className="text-caption text-text-secondary mb-4 leading-relaxed">
-                  Our support team typically responds within one business day.
+                  Our support team typically responds within 5 business days.
                 </p>
                 <Link
                   href={STATIC_ROUTES.CONTACT}
