@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { Twitter, Github } from 'lucide-react';
 
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { Logo } from '@/app/_components';
@@ -68,29 +66,11 @@ export function LandingFooter() {
         {/* Bottom bar */}
         <div className="border-border-light flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
           <p className="text-caption text-text-disabled">
-            &copy; {new Date().getFullYear()} FinTrack Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} FinTrack. All rights reserved.
           </p>
-
-          <div className="flex gap-4">
-            <Link
-              href="https://x.com/oyewole1998"
-              aria-label="Twitter"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-tertiary hover:text-text-primary duration-smooth transition-colors"
-            >
-              <Twitter size={18} aria-hidden="true" />
-            </Link>
-            <Link
-              href="https://github.com/dasiloy"
-              aria-label="GitHub"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-tertiary hover:text-text-primary duration-smooth transition-colors"
-            >
-              <Github size={18} aria-hidden="true" />
-            </Link>
-          </div>
+          <p className="text-caption text-text-disabled">
+            Built by Damilare Oyewole
+          </p>
         </div>
       </div>
     </footer>

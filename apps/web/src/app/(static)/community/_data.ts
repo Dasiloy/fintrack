@@ -1,7 +1,7 @@
 /**
  * Community Hub page — local data.
  *
- * All static content (categories, discussions, tags, stats) lives here.
+ * All static content (categories, discussions, tags, AMA) lives here.
  * When this page is backed by a real API, swap the constants for server
  * fetching functions and keep the components unchanged.
  */
@@ -47,11 +47,12 @@ export interface Discussion {
   likes: number;
 }
 
-export interface CommunityStat {
-  value: string;
-  label: string;
-  accent: boolean;
-  fullWidth: boolean;
+export interface AMAEvent {
+  initials: string;
+  title: string;
+  statusLabel: string;
+  host: string;
+  description: string;
 }
 
 // ─── Topic categories ─────────────────────────────────────────────────────────
@@ -60,7 +61,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     icon: PiggyBank,
     title: 'Budgeting Tips',
-    description: 'Master your monthly expenses with advice from pros.',
+    description: 'Share what works for managing your naira month to month.',
     slug: 'budgeting-tips',
     gradientClass: 'from-primary/25 via-primary/10 to-transparent',
     iconClass: 'text-primary',
@@ -68,7 +69,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     icon: TrendingUp,
     title: 'Investment Strategies',
-    description: 'Long-term growth tactics and market analysis.',
+    description: 'From NSE stocks to mutual funds and dollar assets.',
     slug: 'investment-strategies',
     gradientClass: 'from-emerald-500/25 via-emerald-500/10 to-transparent',
     iconClass: 'text-emerald-400',
@@ -76,7 +77,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     icon: Trophy,
     title: 'Success Stories',
-    description: 'Real people sharing their journey to financial freedom.',
+    description: 'Milestones worth sharing, big and small.',
     slug: 'success-stories',
     gradientClass: 'from-amber-500/25 via-amber-500/10 to-transparent',
     iconClass: 'text-amber-400',
@@ -84,7 +85,7 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
   {
     icon: Lightbulb,
     title: 'Feature Requests',
-    description: 'Help shape the future of the FinTrack platform.',
+    description: 'Tell us what would make FinTrack more useful for you.',
     slug: 'feature-requests',
     gradientClass: 'from-violet-500/25 via-violet-500/10 to-transparent',
     iconClass: 'text-violet-400',
@@ -95,167 +96,159 @@ export const TOPIC_CATEGORIES: TopicCategory[] = [
 
 export const DISCUSSIONS: Discussion[] = [
   {
-    slug: 'how-to-start-investing-50-month',
-    topicSlug: 'investment-strategies',
-    initials: 'SJ',
-    authorName: 'Sarah J.',
+    slug: 'budgeting-irregular-income-lagos',
+    topicSlug: 'budgeting-tips',
+    initials: 'TA',
+    authorName: 'Tunde A.',
     timeAgo: '2h ago',
     isOnline: true,
-    tag: 'Investment',
+    tag: 'Budgeting',
     tagClass: 'bg-primary/10 text-primary',
-    title: 'How to start investing with only $50 a month?',
+    title: 'How do you budget when your income changes every month?',
     excerpt:
-      "I'm a student and want to start building my portfolio early. What are the best low-cost index funds or apps for small recurring investments?",
-    body: "I'm 22, just started my first job, and want to put aside $50 every month towards investing. I've heard about index funds and ETFs but the number of options is overwhelming. Should I go with a robo-advisor like Betterment, or open a brokerage account and buy VOO/VTI directly? Any tips from people who started small? I'm in the US if that's relevant.",
-    comments: 24,
-    likes: 156,
+      'Self-employed, income ranges from ₦120k to ₦400k depending on the month. Standard templates assume a fixed salary and just do not work for me.',
+    body: 'Running a small design studio in Lagos. Some months I invoice ₦400k, other months closer to ₦120k. I can never predict what is coming in. Standard budget templates assume a fixed salary and just do not work. What I have tried: budgeting from a base income equal to my worst month in the past six and treating anything above that as savings. Works okay but feels restrictive when good months hit. Anyone with irregular income found a better system? Would love to hear how you use FinTrack for this.',
+    comments: 14,
+    likes: 87,
   },
   {
-    slug: 'finally-debt-free-3-years-budgeting',
-    topicSlug: 'success-stories',
-    initials: 'MT',
-    authorName: 'Mike T.',
+    slug: 'stanbic-arm-cowrywise-mutual-funds',
+    topicSlug: 'investment-strategies',
+    initials: 'NE',
+    authorName: 'Ngozi E.',
     timeAgo: '5h ago',
     isOnline: false,
-    tag: 'Success Story',
+    tag: 'Investment',
     tagClass: 'bg-emerald-500/10 text-emerald-400',
-    title: 'Finally debt-free after 3 years of strict budgeting!',
+    title: 'Stanbic IBTC vs ARM vs Cowrywise — which has worked better for you?',
     excerpt:
-      'Just made my last student loan payment today. Here is the exact spreadsheet template I used to track every penny.',
-    body: "Three years ago I had $28,000 in student loans and no idea how to pay them off. I downloaded FinTrack, built a zero-based budget, and committed to the debt avalanche method. I sacrificed a lot of luxuries — eating out, streaming services, weekend trips — but today I made my final payment. AMA about the journey! I'll share my exact template in the replies.",
-    comments: 89,
-    likes: 432,
+      'About ₦500k sitting in a savings account earning very little. Ready to move into a mutual fund but confused between traditional providers and the newer fintechs.',
+    body: 'I have about ₦500k sitting in a savings account earning almost nothing. Ready to put it to work in a money market or balanced fund. Been comparing Stanbic IBTC Money Market, ARM Discovery, and Cowrywise. The older providers have longer track records but Cowrywise is so much easier to use on a phone. Has anyone run money in more than one of these and can share actual returns over the last 12 months? Not asking for financial advice, just real experiences.',
+    comments: 21,
+    likes: 142,
   },
   {
-    slug: 'thoughts-current-market-volatility',
-    topicSlug: 'investment-strategies',
-    initials: 'ER',
-    authorName: 'Elena R.',
+    slug: 'built-emergency-fund-6-months',
+    topicSlug: 'success-stories',
+    initials: 'FO',
+    authorName: 'Femi O.',
     timeAgo: '1d ago',
     isOnline: false,
-    tag: 'Crypto',
+    tag: 'Success Story',
     tagClass: 'bg-amber-500/10 text-amber-400',
-    title: 'Thoughts on the current market volatility?',
+    title: 'Finally built a 3-month emergency fund. Took 6 months of strict tracking.',
     excerpt:
-      "Is anyone seeing this as a buying opportunity, or are we heading for a correction? Let's discuss technical indicators.",
-    body: "The past two weeks have been rough for crypto. BTC dropped 18%, ETH followed. I've been dollar-cost averaging since 2021 and historically these dips have been great entry points. But this time the macro environment feels different — higher-for-longer rates, regulatory pressure, etc. What's your strategy? Are you buying the dip, holding, or exiting?",
-    comments: 45,
-    likes: 89,
+      'Two years ago I had almost zero savings and no idea where my salary was going. Sharing exactly what changed.',
+    body: 'January 2026 I had ₦8,000 in my account and genuinely no idea where last month\'s ₦250k salary went. Started tracking every transaction in FinTrack. What surprised me most was food delivery and "small small" subscriptions adding up to almost ₦40k a month. Cut the obvious leaks, kept one meal out per week for sanity, set a standing order for savings the day salary hits. Six months later, ₦450k locked in Piggyvest Safelock. Small win but it completely changed how I think about money.',
+    comments: 38,
+    likes: 267,
   },
   {
-    slug: 'best-budgeting-apps-2026',
+    slug: '50-30-20-rule-nigerian-salary',
     topicSlug: 'budgeting-tips',
-    initials: 'TK',
-    authorName: 'Tom K.',
+    initials: 'AI',
+    authorName: 'Amaka I.',
     timeAgo: '2d ago',
     isOnline: false,
     tag: 'Budgeting',
     tagClass: 'bg-primary/10 text-primary',
-    title: 'Best budgeting apps for 2026 — honest comparison',
+    title: 'Is the 50/30/20 rule realistic on a ₦200k monthly salary in Lagos?',
     excerpt:
-      'I tested 7 budgeting apps over 3 months. Here is my honest breakdown with pros, cons, and which one I ended up keeping.',
-    body: "After getting overwhelmed by subscriptions I tested Mint (RIP), YNAB, Copilot, Monarch Money, and of course FinTrack. Each has its strengths. YNAB is unbeatable for zero-based budgeting if you're willing to pay. FinTrack wins on UI and simplicity. Copilot is great for Mac/iOS users. I'll post a full table comparison in the comments — let me know if you want me to include any specific features.",
-    comments: 38,
-    likes: 211,
+      'Rent alone takes over 40% of my take-home. The math does not add up and I want to know if anyone has made this work here.',
+    body: 'The 50/30/20 rule says 50% needs, 30% wants, 20% savings. My rent in Surulere is ₦85k a month. That is already 42.5% of ₦200k before food, transport, or data. I genuinely cannot make the numbers work as written. What I am trying instead: treating savings as a fixed deduction first, then managing whatever is left around needs and wants. Has anyone made 50/30/20 work at this income level in Lagos or Abuja? Or do you use a completely different framework?',
+    comments: 33,
+    likes: 198,
   },
   {
-    slug: 'saved-10k-6-months-5030-20-rule',
-    topicSlug: 'success-stories',
-    initials: 'LM',
-    authorName: 'Lena M.',
+    slug: 'dollar-investing-bamboo-trove-nigeria',
+    topicSlug: 'investment-strategies',
+    initials: 'CN',
+    authorName: 'Chidi N.',
     timeAgo: '3d ago',
     isOnline: true,
-    tag: 'Success Story',
+    tag: 'Investment',
     tagClass: 'bg-emerald-500/10 text-emerald-400',
-    title: 'How I saved $10k in 6 months using the 50/30/20 rule',
+    title: 'Dollar investing via Bamboo or Trove — is it worth it given the naira situation?',
     excerpt:
-      'No side hustle, no salary increase. Just ruthless tracking and the 50/30/20 framework applied consistently.',
-    body: "I earn $58k/year as a teacher. A lot of people said saving $10k in 6 months was impossible on my salary. It wasn't. I used the 50/30/20 rule: 50% needs, 30% wants, 20% savings. The key was tracking every single transaction in FinTrack so I could see where my 'wants' were creeping up. Cancelled 4 subscriptions I forgot about. Meal prepped 5 days a week. The discipline compounds fast.",
-    comments: 61,
-    likes: 318,
+      'Thinking about moving part of my savings into dollar assets as a hedge. Anyone with 12 months of experience on either platform willing to share?',
+    body: 'The naira has lost a lot of value over the past few years. I have been looking at Bamboo and Trove as ways to hold dollar assets and get exposure to global markets. The appeal is obvious but I have questions: how does the FX rate work when converting in and out, what is the regulatory picture for each platform, and how do you think about the split between naira savings for local expenses and dollar holdings for long-term growth? Anyone doing this who can speak to real experience rather than theory?',
+    comments: 29,
+    likes: 176,
   },
   {
-    slug: 'budget-templates-library-feature-request',
+    slug: 'bill-reminders-local-recurring-expenses',
     topicSlug: 'feature-requests',
-    initials: 'JR',
-    authorName: 'James R.',
+    initials: 'TB',
+    authorName: 'Taiwo B.',
     timeAgo: '4d ago',
     isOnline: false,
     tag: 'Feature Request',
     tagClass: 'bg-violet-500/10 text-violet-400',
-    title: 'Feature request: shared budget template library',
+    title: 'Feature request: reminders for DSTV, PHCN prepaid, and other recurring local bills',
     excerpt:
-      'Would love to see a community-curated library of budget templates. Browse, fork, and customise templates shared by other users.',
-    body: "Every time I talk to a friend about budgeting, they ask me to share my template. What if FinTrack had a built-in library where users could publish their budget structures (anonymised amounts, just categories and percentages)? Something like GitHub but for budgets. You'd browse templates by life stage (student, family, FIRE, freelancer), fork one, and customise. This would be a massive differentiator.",
-    comments: 17,
-    likes: 94,
+      'These expenses happen on a predictable cycle but always seem to sneak up on me. A nudge before they are due would make a real difference.',
+    body: 'Most budgeting apps I have used are built for western subscription models. DSTV, PHCN prepaid tokens, estate levies, generator fuel, children\'s school fees — these are the recurring expenses that actually define Nigerian household budgets. FinTrack tracks them well after the fact but I would love proactive reminders before they are due. Even a simple "you usually spend on this around now" alert would help. Anyone else think this would be useful, or have a workaround that works for you right now?',
+    comments: 12,
+    likes: 61,
   },
   {
-    slug: 'etf-vs-individual-stocks-long-term',
-    topicSlug: 'investment-strategies',
-    initials: 'AW',
-    authorName: 'Alex W.',
+    slug: 'first-savings-goal-hit',
+    topicSlug: 'success-stories',
+    initials: 'KA',
+    authorName: 'Kemi A.',
     timeAgo: '5d ago',
     isOnline: false,
-    tag: 'Investment',
-    tagClass: 'bg-primary/10 text-primary',
-    title: 'ETF vs individual stocks for long-term investing?',
+    tag: 'Success Story',
+    tagClass: 'bg-amber-500/10 text-amber-400',
+    title: 'Hit my first savings goal using FinTrack. Sharing what actually worked.',
     excerpt:
-      'The passive vs active debate never ends. Here is my data-driven take after 8 years of running both strategies side by side.',
-    body: "I've run a split portfolio for 8 years — 70% ETFs (VTI, VXUS, BND) and 30% individual stocks. The result? My ETF sleeve outperformed my stock picks in 6 of 8 years. I spent hundreds of hours researching individual companies for minimal extra return. Unless you have an edge (industry insider knowledge, proprietary data), ETFs almost certainly win for the retail investor. Happy to share exact numbers and methodology.",
-    comments: 53,
-    likes: 274,
+      'Set a ₦300k savings goal in January. Hit it by April. The thing that helped most was not what I expected.',
+    body: 'Set a ₦300k savings target at the start of this year. Previous years I would set goals and abandon them by February. This time I tracked every transaction from day one. The most useful thing was not the budgeting features. It was seeing the trend graph move up week by week. Made it feel real. I transferred ₦25k every Friday right after looking at the week\'s spending summary. Small, consistent, visible. Hit the goal in 15 weeks. For anyone just starting out: the tracking matters more than the plan.',
+    comments: 27,
+    likes: 193,
   },
 ];
 
 // ─── Trending tags ────────────────────────────────────────────────────────────
 
 export const TRENDING_TAGS = [
-  '#Retirement',
-  '#SideHustle',
-  '#RealEstate',
-  '#ETFs',
-  '#FrugalLiving',
-  '#TaxSeason',
+  '#PensionFund',
+  '#NSE',
+  '#SideIncome',
+  '#NairaInvesting',
+  '#MutualFunds',
+  '#SaveFirst',
 ] as const;
-
-// ─── Community stats ──────────────────────────────────────────────────────────
-
-export const COMMUNITY_STATS: CommunityStat[] = [
-  { value: '52k', label: 'Members', accent: false, fullWidth: false },
-  { value: '1.2k', label: 'Online', accent: true, fullWidth: false },
-  { value: '145', label: 'New Posts Today', accent: false, fullWidth: true },
-];
 
 // ─── AMA event ────────────────────────────────────────────────────────────────
 
-export const AMA_EVENT = {
-  initials: 'EC',
-  title: 'Weekly AMA',
-  statusLabel: 'Live in 2 hours',
-  host: 'Dr. Emily Chen',
-  description: 'Join our expert financial advisor for a live Q&A on tax optimisation strategies.',
-} as const;
+export const AMA_EVENT: AMAEvent = {
+  initials: 'DO',
+  title: 'Founder Office Hours',
+  statusLabel: 'Coming Soon',
+  host: 'Damilare Oyewole',
+  description: 'Ask the founder anything about FinTrack, the roadmap, or building a personal finance tool for Nigeria.',
+};
 
 // ─── Mock comments (used on discussion detail pages) ─────────────────────────
 
 export const MOCK_COMMENTS: Comment[] = [
   {
-    initials: 'DL',
-    authorName: 'Dan L.',
+    initials: 'AB',
+    authorName: 'Adaeze B.',
     timeAgo: '1h ago',
-    body: "Great question! I started with $50/month in a Fidelity account buying FZROX (zero expense ratio). Two years later I bumped it to $200 and haven't looked back. Start simple, stay consistent.",
+    body: 'This is exactly the kind of conversation I needed to see. I have been dealing with the same thing and felt like I was the only one. Tracking consistently in FinTrack for the past two months has been the biggest shift for me — just seeing the numbers removes all the guesswork.',
   },
   {
-    initials: 'NP',
-    authorName: 'Nina P.',
+    initials: 'SO',
+    authorName: 'Seun O.',
     timeAgo: '45m ago',
-    body: 'Robo-advisors are great for beginners — lower cognitive load. Once you understand the basics after 12–18 months, consider migrating to a self-directed brokerage. Betterment → Fidelity was my journey.',
+    body: 'Good point. I think a lot of advice out there is written for a different financial context. What works in the UK or US does not always translate to Nigeria, especially with how things like FX rates, fuel costs, and informal income work here. Would love to see more Nigeria-specific discussions on this.',
   },
   {
-    initials: 'CW',
-    authorName: 'Chris W.',
-    timeAgo: '30m ago',
-    body: 'The best investment is the one you actually make consistently. Whether it\'s $50 into VOO or a robo-advisor, just start. Time in market beats timing the market every single time.',
+    initials: 'KE',
+    authorName: 'Kayode E.',
+    timeAgo: '20m ago',
+    body: 'Agreed with everything here. The discipline is harder than the math. Once I stopped trying to have a perfect budget and just focused on tracking honestly, things actually started to improve. Small wins compound.',
   },
 ];
