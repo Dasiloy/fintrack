@@ -202,11 +202,13 @@ function ParticipantRow({ participant, split, isSettled }: ParticipantRowProps) 
             <p className="text-text-tertiary text-[11px]">{participant.email}</p>
           )}
         </div>
-        <div className="min-w-0 max-w-[45%] text-right">
+        <div className="max-w-[45%] min-w-0 text-right">
           <p className="text-text-primary truncate text-[12px] font-semibold tabular-nums">
             {formatCurrency(participant.amount)}
           </p>
-          <p className="text-text-tertiary truncate text-[11px] tabular-nums">paid {formatCurrency(paid)}</p>
+          <p className="text-text-tertiary truncate text-[11px] tabular-nums">
+            paid {formatCurrency(paid)}
+          </p>
         </div>
       </div>
 
@@ -559,8 +561,7 @@ interface SplitDrawerProps {
   initialEditMode?: boolean;
 }
 
-export function SplitDrawer({
-  splitId, onOpenChange, initialEditMode = false }: SplitDrawerProps) {
+export function SplitDrawer({ splitId, onOpenChange, initialEditMode = false }: SplitDrawerProps) {
   const formatCurrency = useFormatCurrency();
   const open = !!splitId;
   const [editMode, setEditMode] = React.useState(false);
@@ -632,6 +633,7 @@ export function SplitDrawer({
       toast.success('Split deleted');
       void utils.split.getAll.invalidate();
       void utils.split.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to delete split', { description: err.message }),
@@ -660,8 +662,7 @@ export function SplitDrawer({
   const splitNothingDirty = !splitNameDirty && !splitAmountDirty && !splitTxDirty;
 
   // When a transaction is linked in edit mode, amount should be readonly
-  const editAmountFromTx =
-    editLinkedTx !== null && editLinkedTx !== 'UNLINK' ? editLinkedTx : null;
+  const editAmountFromTx = editLinkedTx !== null && editLinkedTx !== 'UNLINK' ? editLinkedTx : null;
 
   const handleSave = () => {
     if (!split || editAmountInvalid || splitNothingDirty) return;
@@ -734,7 +735,9 @@ export function SplitDrawer({
                               className={cn(inputCls, 'cursor-not-allowed opacity-70')}
                               value={formatCurrency(parseFloat(editAmountFromTx.amount))}
                             />
-                            <p className="text-text-disabled mt-0.5 text-[10px]">Amount from linked transaction</p>
+                            <p className="text-text-disabled mt-0.5 text-[10px]">
+                              Amount from linked transaction
+                            </p>
                           </div>
                         ) : (
                           <>
@@ -746,7 +749,8 @@ export function SplitDrawer({
                             />
                             {editAmountInvalid && (
                               <p className="text-error mt-0.5 text-[10px]">
-                                Min {formatCurrency(minEditAmount)} (covers settlements &amp; shares)
+                                Min {formatCurrency(minEditAmount)} (covers settlements &amp;
+                                shares)
                               </p>
                             )}
                           </>
@@ -757,9 +761,7 @@ export function SplitDrawer({
                           type="EXPENSE"
                           value={editLinkedTx === 'UNLINK' ? null : editLinkedTx}
                           onChange={(tx) =>
-                            setEditLinkedTx(
-                              tx === null && split.transaction ? 'UNLINK' : tx,
-                            )
+                            setEditLinkedTx(tx === null && split.transaction ? 'UNLINK' : tx)
                           }
                         />
                       </EditRow>

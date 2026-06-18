@@ -108,7 +108,7 @@ function PaceDetails({ goal, remaining }: { goal: Goal; remaining: number }) {
   const valueCls = 'text-text-primary text-[11px] font-semibold tabular-nums';
 
   return (
-    <div className="border-border-light w-full divide-y divide-border-light rounded-lg border px-3">
+    <div className="border-border-light divide-border-light w-full divide-y rounded-lg border px-3">
       <div className={rowCls}>
         <span className={labelCls}>
           <Clock className="size-3" />
@@ -252,6 +252,7 @@ export function GoalDrawer({
       toast.success('Goal deleted');
       void utils.goal.getAll.invalidate();
       void utils.goal.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to delete goal', { description: err.message }),
