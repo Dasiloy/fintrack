@@ -72,7 +72,7 @@ export const SECTIONS: PrivacySection[] = [
       'To send transactional communications such as account alerts, billing receipts, and security notifications.',
       `To send product updates and feature announcements. You may unsubscribe at any time by clicking the unsubscribe link in any such email, or by emailing ${SUPPORT_EMAIL}.`,
       'To detect, investigate, and prevent fraudulent transactions and abuse.',
-      'To comply with applicable legal and regulatory obligations, including the Nigeria Data Protection Act 2023 (NDPA) and directives from the Nigerian Data Protection Commission (NDPC).',
+      'To comply with applicable legal and regulatory obligations, including the Nigeria Data Protection Act 2023 (NDPA) and directives from the Nigeria Data Protection Commission (NDPC).',
       'To aggregate and anonymise usage data for internal analytics and product improvement (this data cannot identify you).',
     ],
     footer:
@@ -105,7 +105,7 @@ export const SECTIONS: PrivacySection[] = [
       'Banking credentials are never stored or processed by FinTrack — they are handled exclusively by our third-party aggregation provider, and our access to connected accounts is read-only.',
       'Access to user data within FinTrack is restricted on a need-to-know basis and subject to strict access controls.',
       'We undergo periodic security reviews and vulnerability assessments.',
-      'In the event of a personal data breach, we have documented incident-response procedures. Where a breach is likely to affect your rights and freedoms, we will notify the Nigerian Data Protection Commission (NDPC) within 72 hours of discovery and inform affected users without undue delay.',
+      'In the event of a personal data breach, we have documented incident-response procedures. Where a breach is likely to affect your rights and freedoms, we will notify the Nigeria Data Protection Commission (NDPC) within 72 hours of discovery and inform affected users without undue delay.',
     ],
     footer: `Despite our best efforts, no method of transmission or storage is 100% secure. If you believe your account has been compromised, please contact us immediately at ${SUPPORT_EMAIL}.`,
   },
@@ -199,7 +199,7 @@ export const SECTIONS: PrivacySection[] = [
   {
     id: 'contact',
     title: '13. Contact Us',
-    content: ['For privacy-related questions, requests, or concerns, please contact our Privacy team:'],
+    content: ['For privacy-related questions, requests, or concerns, please write to us directly:'],
     contactBlock: {
       email: SUPPORT_EMAIL,
       note: 'We aim to acknowledge all privacy enquiries within 5 business days and resolve them within 30 days, in accordance with the Nigeria Data Protection Act 2023.',

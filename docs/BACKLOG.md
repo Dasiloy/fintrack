@@ -197,6 +197,7 @@ Items are ordered by priority. Each entry follows the format:
   - Multi-sheet CSV and Excel export should be supported.
   - PDF should match FinTrack's visual identity — not a raw data dump.
   - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
+    -predictive warning when adding transaction as the case maybe, must be smart and fast but ,ost importantly, non blocking
   - add pre create transaction gate wrning to prevent duplicate transaction comming from different from different source
 
 ### [BL-011] ✅ Research legal and compliance requirements for finance apps
@@ -238,11 +239,11 @@ Items are ordered by priority. Each entry follows the format:
   - wire end to end from be to fe, flow for disconnecting and remobving linked bank account
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
-### [BL-014] Static content audit — realistic MVP copy and authorship
+### ✅ [BL-014] Static content audit — realistic MVP copy and authorship
 
 - **Type**: Tech Debt
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Various pages and components contain placeholder copy, fake client logos, fake sponsor names, dummy team members, and demo data that should never appear in a real MVP. Everything visible to a logged-in or logged-out user must reflect the actual product and its sole author before any public release.
 - **Notes**:
 - crucial, there must be no mention of beta or versioning oin the web app content, nno hyphens or dahses. Content must look humn written, no generic AI slop.No generic words, no oversharing.No over explanantion unless needed. avoid making it look like generic content. It must look like a professional content writer wrote this
@@ -263,7 +264,7 @@ Items are ordered by priority. Each entry follows the format:
 
 ---
 
-## ✅ Done
+## ✅ Completed Backlog
 
 ### ✅ [BL-015] Tighten Free Plan AI limits
 
@@ -368,4 +369,4 @@ Items are ordered by priority. Each entry follows the format:
 
 - Add new items at the top of the Backlog section with the next sequential `BL-xxx` ID.
 - Prefix bug IDs with `BG-`.
-- Move completed items to `## ✅ Done` or `## ✅ Resolved Bugs` rather than deleting them.
+- Move completed items to `## ✅Completed Backlog` or `## ✅ Resolved Bugs` rather than deleting them.

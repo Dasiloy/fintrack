@@ -42,9 +42,7 @@ export function CommunityHero({ query, onQueryChange }: CommunityHeroProps) {
 
           {/* Subtitle */}
           <p className="text-body-lg text-text-secondary max-w-xl font-light leading-relaxed">
-            Connect, share, and grow your wealth with{' '}
-            <span className="text-text-primary font-semibold">50,000+ members</span>. Join the
-            discussion today.
+            A space for FinTrack users to share what is working, ask real questions, and think through money together.
           </p>
 
           {/* Controlled search */}
