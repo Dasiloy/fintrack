@@ -14,6 +14,7 @@ export const STATIC_ROUTES = {
   CONTACT: '/contact',
   PRIVACY: '/privacy',
   TERMS: '/terms',
+  SECURITY: '/security',
   PRICING: '/pricing',
   SUPPORT: '/support',
   COMMUNITY: '/community',
