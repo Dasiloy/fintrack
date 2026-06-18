@@ -59,7 +59,7 @@ export const SECTIONS: TermsSection[] = [
     ],
     items: [
       'Paid (Pro) subscriptions are currently only available to users in Nigeria. Billing is processed in Nigerian Naira (₦) via Paystack.',
-      'Subscriptions are billed in advance on a monthly or annual basis and automatically renew at the end of each billing period unless cancelled before the renewal date.',
+      'Subscriptions are billed in advance on a monthly basis and automatically renew at the end of each billing period unless cancelled before the renewal date.',
       'You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period; no partial refunds are issued for unused time.',
       'We reserve the right to change subscription pricing with at least 30 days notice. Continued use after the notice period constitutes acceptance of the new pricing.',
       'If payment fails, we may suspend access to paid features until payment is resolved.',
@@ -122,6 +122,8 @@ export const SECTIONS: TermsSection[] = [
     title: '9. Privacy',
     content: [
       'Your use of the Service is governed by our Privacy Policy, which is incorporated into these Terms by reference. By using the Service, you agree to the collection and use of information as described in the Privacy Policy.',
+      'Under the Nigeria Data Protection Act 2023 (NDPA), you have rights over your personal data. These include the right to access data we hold about you, the right to correct inaccurate data, the right to request erasure, the right to data portability, the right to object to or restrict certain processing, and rights in relation to automated decision-making. Full details on how to exercise each of these rights are set out in our Privacy Policy.',
+      'If you believe we have not handled your personal data in accordance with applicable law, you have the right to lodge a complaint with the Nigeria Data Protection Commission (NDPC) at ndpc.gov.ng.',
     ],
   },
   {
@@ -160,14 +162,14 @@ export const SECTIONS: TermsSection[] = [
     id: 'governing-law',
     title: '14. Governing Law',
     content: [
-      'These Terms are governed by and construed in accordance with the laws of the Federal Republic of Nigeria, including the Nigeria Data Protection Act 2023 (NDPA) and applicable regulations issued by the Federal Competition and Consumer Protection Commission (FCCPC). Any disputes arising under these Terms shall first be subject to good-faith negotiation, and thereafter to binding arbitration or the jurisdiction of a competent Nigerian court.',
+      'These Terms are governed by and construed in accordance with the laws of the Federal Republic of Nigeria. Data protection matters are subject to the Nigeria Data Protection Act 2023 (NDPA) and oversight by the Nigeria Data Protection Commission (NDPC). Consumer protection matters are subject to oversight by the Federal Competition and Consumer Protection Commission (FCCPC). Any disputes arising under these Terms shall first be subject to good-faith negotiation, and thereafter to binding arbitration or the jurisdiction of a competent Nigerian court.',
     ],
   },
   {
     id: 'contact',
     title: '15. Contact Us',
     content: [
-      `If you have questions about these Terms, please contact our legal team at ${SUPPORT_EMAIL}. We aim to respond to all enquiries within 5 business days.`,
+      `If you have questions about these Terms, please write to us at ${SUPPORT_EMAIL}. We aim to respond within 5 business days.`,
     ],
   },
 ];
