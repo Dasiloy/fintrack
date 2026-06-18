@@ -120,4 +120,18 @@ export const accountRouter = createTRPCRouter({
       const data: StandardResponse<null> = await response.json();
       return data;
     }),
+
+  disconnectAccount: protectedProcedure
+    .input(z.object({ id: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/account/${input.id}`, {
+        method: 'DELETE',
+        headers: gatewayHeaders(ctx.headers),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<null> = await response.json();
+      return data;
+    }),
 });

@@ -79,7 +79,7 @@ function ArchivedBudgetItem({
 
 function ArchivedListSkeleton() {
   return (
-    <div className="flex flex-col divide-y divide-border-light px-5 py-4">
+    <div className="divide-border-light flex flex-col divide-y px-5 py-4">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3 py-3.5">
           <div className="min-w-0 flex-1 space-y-2">
@@ -94,8 +94,7 @@ function ArchivedListSkeleton() {
   );
 }
 
-export function ArchivedBudgetsSheet({
-  open, onOpenChange }: ArchivedBudgetsSheetProps) {
+export function ArchivedBudgetsSheet({ open, onOpenChange }: ArchivedBudgetsSheetProps) {
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
 
   const utils = api_client.useUtils();
@@ -118,6 +117,7 @@ export function ArchivedBudgetsSheet({
     onSuccess: () => {
       toast.success('Budget permanently deleted');
       void utils.budget.getArchived.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       setConfirmDeleteId(null);
     },
     onError: (err) => toast.error('Failed to delete', { description: err.message }),
@@ -156,8 +156,7 @@ export function ArchivedBudgetsSheet({
                       onRestore={() => restoreMutation.mutate({ id: budget.id })}
                       onDelete={() => setConfirmDeleteId(budget.id)}
                       isRestoring={
-                        restoreMutation.isPending &&
-                        restoreMutation.variables?.id === budget.id
+                        restoreMutation.isPending && restoreMutation.variables?.id === budget.id
                       }
                     />
                     {i < archived.length - 1 && <Separator className="bg-border-light" />}
@@ -194,8 +193,7 @@ export function ArchivedBudgetsSheet({
               variant="destructive"
               loading={deleteMutation.isPending}
               onClick={() =>
-                confirmDeleteId &&
-                deleteMutation.mutate({ id: confirmDeleteId, hardDelete: true })
+                confirmDeleteId && deleteMutation.mutate({ id: confirmDeleteId, hardDelete: true })
               }
             >
               Delete Permanently

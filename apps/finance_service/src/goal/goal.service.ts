@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 import { status } from '@grpc/grpc-js';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { RpcException } from '@nestjs/microservices';
 
@@ -76,6 +76,8 @@ type GoalWithOptionalJoins = Goal & {
  */
 @Injectable()
 export class GoalService {
+  private readonly logger = new Logger(GoalService.name);
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly transactionService: TransactionService,
@@ -1131,9 +1133,7 @@ export class GoalService {
   /**
    * Counts consecutive complete calendar months (backwards from the most
    * recently completed month) in which the user made >= 1 contribution.
-   *
-   * Starts at i=1 (last full month), skipping the current month which may not
-   * have ended yet. Upper bound is monthBuckets.size so we never probe further
+   * Starts at i=1 (last full month), skipping the current month only when it does not have contribution Upper bound is monthBuckets.size so we never probe further
    * back than the data window — no hardcoded cap.
    *
    * @private
@@ -1146,6 +1146,11 @@ export class GoalService {
         'YYYY-MM',
       );
       if (!monthBuckets.has(m)) break;
+      streakMonths++;
+    }
+
+    // if current month has a contribution add to streak
+    if (monthBuckets.has(format(new Date(now), 'YYYY-MM'))) {
       streakMonths++;
     }
     return streakMonths;

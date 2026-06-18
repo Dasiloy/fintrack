@@ -7,8 +7,8 @@
 
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL!;
 
-export const LAST_UPDATED = 'June 2, 2026';
-export const LAST_UPDATED_ISO = '2026-06-02';
+export const LAST_UPDATED = 'June 18, 2026';
+export const LAST_UPDATED_ISO = '2026-06-18';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,6 +35,7 @@ export const SECTIONS: TermsSection[] = [
     title: '2. Description of Service',
     content: [
       'FinTrack is a personal finance management platform that enables users to track income and expenses, set and manage budgets, establish financial goals, view spending analytics, and receive AI-powered insights based on their financial behaviour.',
+      'FinTrack is read-only and non-custodial. It cannot hold, move, transfer, or withdraw your money, and it does not initiate transactions. When you link a financial account through open banking, FinTrack receives read-only access to your account information only, and you may revoke that access at any time.',
       'The Service is designed primarily for users managing finances in Nigerian Naira (₦). All monetary features, budgets, and financial tracking within the platform operate in NGN.',
       'The Service is provided for personal, non-commercial use only. FinTrack does not provide financial, investment, tax, or legal advice. Information displayed on the platform is for informational purposes only and should not be relied upon as professional financial guidance.',
     ],
@@ -97,13 +98,14 @@ export const SECTIONS: TermsSection[] = [
     id: 'financial-data',
     title: '7. Financial Data & Third-Party Connections',
     content: [
-      'The Service may allow you to connect your bank accounts and financial institutions via third-party data aggregation providers. By connecting an account, you authorise FinTrack to retrieve and display financial information on your behalf. Bank connectivity is currently available for Nigerian financial institutions only.',
+      'The Service may allow you to connect your bank accounts and financial institutions via a licensed third-party open-banking provider. By connecting an account, you give explicit, non-preselected consent for FinTrack to retrieve and display your financial information on your behalf. Bank connectivity is currently available for Nigerian financial institutions only.',
     ],
     items: [
-      'FinTrack does not store your banking credentials. Credentials are handled exclusively by the third-party aggregation provider.',
+      'Access is strictly read-only. FinTrack can view account balances, transactions, and institution details, but can never move money, initiate payments, or take any action on your accounts.',
+      'FinTrack does not store your banking credentials. Credentials are handled exclusively by the third-party open-banking provider.',
       'Third-party data providers have their own terms of service and privacy policies, which you agree to when connecting an account.',
       'We are not responsible for errors, inaccuracies, or delays in data supplied by third-party providers.',
-      'You may disconnect any linked account at any time through your account settings.',
+      'You may disconnect any linked account at any time through your account settings; revoking access stops all further data retrieval.',
     ],
   },
   {
