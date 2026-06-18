@@ -333,7 +333,10 @@ export class AccountController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Disconnect and remove a linked bank account' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Account disconnected' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
   async disconnectAccount(
     @Param('id') id: string,
     @CurrentUser() user: User,

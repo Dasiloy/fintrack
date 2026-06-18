@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Clock, Check } from 'lucide-react';
@@ -66,8 +67,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Meta row */}
           <div className="border-border-light mb-8 flex flex-wrap items-center gap-4 border-b pb-8">
             <div className="flex items-center gap-2.5">
-              <div className="from-primary/40 to-primary/10 text-text-primary font-manrope flex size-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br text-xs font-bold ring-2 ring-primary/20">
-                {post.initials}
+              <div className="ring-primary/20 size-10 shrink-0 overflow-hidden rounded-full ring-2">
+                <Image
+                  src="/untitled-84.JPG"
+                  alt={post.author}
+                  width={40}
+                  height={40}
+                  className="size-full object-cover object-top"
+                  priority
+                />
               </div>
               <div>
                 <p className="text-body-sm text-text-primary font-semibold leading-tight">{post.author}</p>
