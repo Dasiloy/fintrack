@@ -1,8 +1,8 @@
 import { Users, Rocket, Heart } from 'lucide-react';
 
 const STATS = [
-  { icon: Users, label: '3-person team' },
-  { icon: Rocket, label: 'Founded 2021' },
+  { icon: Users, label: 'Solo-built' },
+  { icon: Rocket, label: 'Nigerian-made' },
   { icon: Heart, label: 'Built with care' },
 ] as const;
 
@@ -27,8 +27,8 @@ export function AboutHero() {
 
       {/* Subtitle */}
       <p className="text-body-lg text-text-secondary mx-auto mb-10 max-w-2xl leading-relaxed font-light">
-        FinTrack was born from a simple belief — understanding your money should feel effortless,
-        not overwhelming. We're a small team obsessed with clarity.
+        FinTrack started with one conviction: managing your money should feel simple, not like a
+        second job. One person, one product, built from scratch to get every detail right.
       </p>
 
       {/* Quick-stat chips */}

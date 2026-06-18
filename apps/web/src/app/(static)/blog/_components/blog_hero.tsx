@@ -28,7 +28,7 @@ export function BlogHero({ query, onQueryChange, activeCategory, onCategoryChang
           </span>
         </h1>
         <p className="text-body-lg text-text-secondary max-w-xl leading-relaxed">
-          Budgeting tips, investing guides, product updates, and real success stories — all in one place.
+          Practical budgeting tips, investing guides, and financial thinking for Nigerians.
         </p>
       </div>
 

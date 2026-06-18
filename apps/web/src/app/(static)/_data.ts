@@ -1,24 +1,21 @@
 /**
  * Homepage — local data.
  *
- * Centralises the content for every landing-page section so that
- * marketing copy can be updated in one place without touching component
- * layout/styling code.
- *
- * Scope: this file is intentionally local to the (static) homepage.
- * Move any entry to packages/types/constants only if another app
- * or package needs the same content.
+ * All landing-page content lives here so copy can be updated without
+ * touching any component layout or styling code.
  */
-import { Zap, Globe, TrendingUp } from 'lucide-react';
 import {
   BarChart3,
   PieChart,
   GitFork,
   Target,
-  PiggyBank,
+  Repeat2,
   FileText,
   Sparkles,
-  Lock,
+  Brain,
+  Building2,
+  Activity,
+  CalendarDays,
   ShieldCheck,
   EyeOff,
   KeyRound,
@@ -30,24 +27,26 @@ import type { LucideIcon } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface Metric {
-  icon: LucideIcon;
-  stat: string;
-  label: string;
-  description: string;
-}
-
 export interface Feature {
   icon: LucideIcon;
   title: string;
   description: string;
 }
 
+export interface BentoFeature {
+  label: string;
+  labelColor: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  iconClass: string;
+  wide?: boolean;
+}
+
 export interface TrustPillar {
   icon: LucideIcon;
   title: string;
   description: string;
-  /** Hex color for the icon — passed via style prop to avoid purge issues. */
   color: string;
 }
 
@@ -56,29 +55,58 @@ export interface TrustBadge {
   label: string;
 }
 
-// ─── Metrics ──────────────────────────────────────────────────────────────────
+// ─── Bento features ───────────────────────────────────────────────────────────
 
-export const METRICS: Metric[] = [
+export const BENTO_FEATURES: BentoFeature[] = [
   {
-    icon: Zap,
-    stat: '99.9%',
-    label: 'Uptime Reliability',
+    label: 'INTELLIGENCE',
+    labelColor: 'text-violet-400',
+    title: 'Financial Health Score',
     description:
-      'Access your financial data anytime, anywhere. Our infrastructure ensures your money is always within reach.',
+      'A 0-100 score that reflects how your income, spending, savings rate, and goal progress are tracking together. Updated every time you add data.',
+    icon: Activity,
+    iconClass: 'text-violet-400',
+    wide: true,
   },
   {
-    icon: Globe,
-    stat: '$2B+',
-    label: 'Assets Tracked',
+    label: 'BANKING',
+    labelColor: 'text-sky-400',
+    title: 'Mono Bank Sync',
     description:
-      'Trusted by thousands to monitor investments, savings, and daily expenses across the globe securely.',
+      'Connect any Nigerian bank in seconds. Read-only access to balances and transaction history via Mono.',
+    icon: Building2,
+    iconClass: 'text-sky-400',
+    wide: false,
   },
   {
-    icon: TrendingUp,
-    stat: '$400',
-    label: 'Monthly Savings',
+    label: 'AI',
+    labelColor: 'text-primary',
+    title: 'AI Insights',
     description:
-      'On average, our users save an extra $400 per month by identifying subscriptions and optimizing budgets.',
+      'Plain-English summaries of where your money went, what changed, and what to keep an eye on this month.',
+    icon: Sparkles,
+    iconClass: 'text-primary',
+    wide: false,
+  },
+  {
+    label: 'SCHEDULE',
+    labelColor: 'text-amber-400',
+    title: 'Smart Recurring',
+    description:
+      'Log DSTV, rent, MTN data, and other regular bills once. Transactions are created automatically on each due date.',
+    icon: Repeat2,
+    iconClass: 'text-amber-400',
+    wide: false,
+  },
+  {
+    label: 'ANALYTICS',
+    labelColor: 'text-emerald-400',
+    title: 'Spending Heatmap',
+    description:
+      'A calendar view of your highest-spend days so you can see at a glance when money moves most.',
+    icon: CalendarDays,
+    iconClass: 'text-emerald-400',
+    wide: false,
   },
 ];
 
@@ -87,61 +115,52 @@ export const METRICS: Metric[] = [
 export const FEATURES: Feature[] = [
   {
     icon: BarChart3,
-    title: 'Smart Track',
-    description: 'Automatically categorize transactions from all your accounts in real-time.',
+    title: 'Transaction Tracking',
+    description: 'Add transactions manually or scan a receipt. Every naira is categorized and logged.',
   },
   {
     icon: PieChart,
-    title: 'Flexible Budget',
-    description: 'Create budgets that adapt to your spending habits and monthly needs.',
+    title: 'Smart Budgets',
+    description: 'Set monthly spending limits per category and see live progress as you spend.',
   },
   {
     icon: GitFork,
-    title: 'Bill Splitting',
-    description: 'Easily split bills and expenses with friends directly within the app.',
+    title: 'Expense Splits',
+    description: 'Split shared bills with friends or housemates and track who has paid.',
   },
   {
     icon: Target,
-    title: 'Goal Setting',
-    description: 'Set financial milestones and track your progress visually over time.',
+    title: 'Financial Goals',
+    description: 'Set a savings target with a deadline. Track contributions and stay on pace.',
   },
   {
-    icon: PiggyBank,
-    title: 'Auto Savings',
-    description: 'Round up purchases and save the spare change automatically.',
+    icon: Repeat2,
+    title: 'Recurring Bills',
+    description: 'Log bills once and let FinTrack create transactions automatically on each due date.',
   },
   {
     icon: FileText,
-    title: 'Custom Reports',
-    description: 'Generate detailed PDF reports for tax season or personal analysis.',
+    title: 'PDF and CSV Export',
+    description: 'Export transaction history and monthly reports in PDF or CSV format. Pro feature.',
   },
   {
     icon: Sparkles,
     title: 'AI Insights',
-    description: 'Receive personalized financial advice based on your spending patterns.',
+    description: 'Get a plain-English summary of your spending trends and financial health each month.',
   },
   {
-    icon: Lock,
-    title: 'Bank Security',
-    description: 'Your data is protected with 256-bit encryption and biometric security.',
+    icon: Brain,
+    title: 'AI Chat',
+    description: 'Ask questions about your money in natural language and get instant answers from your data.',
   },
 ];
 
-// ─── Social proof ─────────────────────────────────────────────────────────────
-
-export const LOGOS = [
-  { name: 'Acme', shapeClass: 'rounded-full' },
-  { name: 'Nexus', shapeClass: 'rotate-45' },
-  { name: 'Stark', shapeClass: 'rounded-sm border-2 border-current' },
-  { name: 'Bolt', shapeClass: 'rounded-tr-xl rounded-bl-xl' },
-] as const;
-
-// ─── Feature highlight ────────────────────────────────────────────────────────
+// ─── Feature highlight checklist ──────────────────────────────────────────────
 
 export const FEATURE_CHECKLIST = [
-  'Bank-level security encryption',
-  'Custom alerts and notifications',
-  'Exportable reports for tax season',
+  'Read-only bank access via Mono — your credentials never touch FinTrack',
+  'Automatic spending categorization across all linked accounts',
+  'Financial Health Score updated in real time as your data changes',
 ] as const;
 
 // ─── Security & Trust ─────────────────────────────────────────────────────────
