@@ -13,7 +13,7 @@ export function CommunityCta() {
         {/* Ambient glow */}
         <div
           aria-hidden="true"
-          className="bg-primary/15 pointer-events-none absolute top-1/2 left-1/2 -z-0 h-3/4 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]"
+          className="bg-primary/15 pointer-events-none absolute top-1/2 left-1/2 z-0 h-3/4 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]"
         />
 
         <div className="relative z-10 mx-auto max-w-2xl">
@@ -21,8 +21,7 @@ export function CommunityCta() {
             Join the Conversation
           </h2>
           <p className="text-body-lg text-text-secondary mb-8 leading-relaxed">
-            Create your free account to start posting, replying, and connecting with thousands of
-            other finance enthusiasts.
+            Create your free account to start posting, replying, and connecting with other FinTrack users.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

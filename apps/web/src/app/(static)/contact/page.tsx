@@ -7,7 +7,7 @@ import { ContactContent } from './_components';
 
 export const metadata = {
   title: 'Contact Us — FinTrack',
-  description: "Get in touch with the FinTrack team. We're here to help.",
+  description: 'Get in touch with FinTrack. We are here to help.',
 };
 
 export default function ContactPage() {

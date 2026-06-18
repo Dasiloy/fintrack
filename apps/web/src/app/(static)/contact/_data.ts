@@ -15,7 +15,7 @@ export const CONTACT_CHANNELS: ContactChannel[] = [
   {
     icon: Mail,
     title: 'Email Us',
-    description: "Send us a message and we'll get back to you within one business day.",
+    description: 'Send us a message. We aim to respond within 5 business days.',
     href: `mailto:${CONTACT_EMAIL}`,
     label: CONTACT_EMAIL,
   },
