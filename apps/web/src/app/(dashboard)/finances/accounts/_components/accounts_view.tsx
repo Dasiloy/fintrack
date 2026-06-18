@@ -50,6 +50,7 @@ export function AccountsView() {
     onSuccess: () => {
       toast.warning('Account is being linked');
       utils.account.getLinkedAccounts.invalidate();
+      utils.subscription.getGatedUsage.invalidate();
     },
     onError: (err) => toast.error('Failed to link account', { description: err.message }),
   });
@@ -78,6 +79,18 @@ export function AccountsView() {
       setSyncingId(null);
     },
   });
+
+  const disconnectMutation = api_client.account.disconnectAccount.useMutation({
+    onSuccess: () => {
+      setSelectedAccount(null);
+      toast.success('Account disconnected');
+      utils.account.getLinkedAccounts.invalidate();
+      utils.subscription.getGatedUsage.invalidate();
+    },
+    onError: (err) => toast.error('Failed to disconnect', { description: err.message }),
+  });
+
+  const handleDisconnect = (id: string) => disconnectMutation.mutate({ id });
 
   const { linkAccount, reauthenticate } = useMonoConnect({
     onError: () => toast.error('Something went wrong with Connecting your bank account'),
@@ -184,6 +197,8 @@ export function AccountsView() {
         isRelinking={
           !!relinkingId && relinkingId === selectedAccount?.accountId && relinkMutation.isPending
         }
+        onDisconnect={handleDisconnect}
+        isDisconnecting={disconnectMutation.isPending}
       />
     </div>
   );

@@ -197,12 +197,13 @@ Items are ordered by priority. Each entry follows the format:
   - Multi-sheet CSV and Excel export should be supported.
   - PDF should match FinTrack's visual identity — not a raw data dump.
   - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
+  - add pre create transaction gate wrning to prevent duplicate transaction comming from different from different source
 
-### [BL-011] Research legal and compliance requirements for finance apps
+### [BL-011] ✅ Research legal and compliance requirements for finance apps
 
 - **Type**: Tech Debt
 - **Priority**: High
-- **Status**: Ongoing
+- **Status**: Done
 - **Output**. The output of this research is in compliance txt fiule and has been done. Do not take every word for it. Instead look at the output of that research and basically trim out what we have and whet we need to fix
 - **Context**: As a fintech handling real bank account data (via Mono), FinTrack must comply with applicable Nigerian and international data regulations before public launch. A structured research doc should inform the legal copy, privacy policy, and technical controls.
 - **Notes**:
@@ -211,11 +212,11 @@ Items are ordered by priority. Each entry follows the format:
   - This research feeds directly into **BL-012** (legal trust page), **BL-013** (bank data handling copy), and **BL-002** (encryption).
   - Assign to: legal review + engineering lead before any production launch.
 
-### [BL-012] Marketing page — legal and security trust section
+### ✅ [BL-012] Marketing page — legal and security trust section
 
 - **Type**: Improvement
 - **Priority**: High
-- **Status**: Pending
+- **Status**: Done
 - **Context**: The marketing/landing page currently has no meaningful legal or security trust signals. Before any public launch, users need visible proof that FinTrack takes security and data privacy seriously. This covers both the copy/UI and ensuring real legal documents exist.
 - **Notes**:
   - Add a "Security & Trust" section to the landing page: highlight encryption at rest (**BL-002**), read-only Mono access, no credential storage, and 2FA support.
@@ -223,17 +224,18 @@ Items are ordered by priority. Each entry follows the format:
   - Add trust badges: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
   - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing).
 
-### [BL-013] Marketing page — bank account data handling explainer
+### ✅ [BL-013] Marketing page — bank account data handling explainer
 
 - **Type**: Feature
 - **Priority**: Medium
-- **Status**: Pending
+- **Status**: Done
 - **Context**: Users need to understand exactly how their linked bank account data (via Mono) is accessed, stored, and protected before they trust the app with their financial credentials. A dedicated page or section should explain this clearly and honestly.
 - **Notes**:
   - Suggested page: `/security` or `/how-we-protect-your-data` — linked from the footer and from the Mono link flow.
   - Content to cover: what data is read from Mono (read-only, no transaction initiation), retention period, third-party sharing policy, encryption (**BL-002**), and how users revoke access.
   - Tone: plain English, no legal jargon. Model after Plaid's "How Plaid Works" page or Mono's own transparency docs.
   - Include a visual data-flow diagram: User → Mono widget → Mono API → FinTrack backend → encrypted DB.
+  - wire end to end from be to fe, flow for disconnecting and remobving linked bank account
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
 ### [BL-014] Static content audit — realistic MVP copy and authorship
@@ -243,10 +245,13 @@ Items are ordered by priority. Each entry follows the format:
 - **Status**: Pending
 - **Context**: Various pages and components contain placeholder copy, fake client logos, fake sponsor names, dummy team members, and demo data that should never appear in a real MVP. Everything visible to a logged-in or logged-out user must reflect the actual product and its sole author before any public release.
 - **Notes**:
-- crucial, there must be no mention of beta or versioning oin the web app content
+- crucial, there must be no mention of beta or versioning oin the web app content, nno hyphens or dahses. Content must look humn written, no generic AI slop.No generic words, no oversharing.No over explanantion unless needed. avoid making it look like generic content. It must look like a professional content writer wrote this
+- Landing page will be the last audited as we will redesign this using a few snapshots i will provide
   - **Landing / marketing pages**: Remove fake client logos, sponsor badges, or partner sections. Replace with honest feature-focused copy or remove those sections entirely.
   - **Team / about sections**: Update to show only the actual author — Damilare Oyewole. Remove placeholder team members or avatars. Link to his LinkedIn and GitHub accounts.
   - **Testimonials / social proof**: Remove fake testimonials. Either remove the section or replace with factual product statements until real feedback is available.
+  - Audit every otehr ststiuc page not mentiooned here,
+  - do not audit all at once or in apaprale, we will audit oine page at a time and only move to the next page when you provide a go ahed\
   - **Dashboard demo data**: Ensure the dashboard shows a proper empty state for new users — no seeded transactions, budgets, goals, or analytics.
   - **Footer / legal**: Confirm copyright year and author name are correct. Update placeholder privacy policy or terms links to real documents, or remove them.
   - in footer remove all social links untill we have those for the application itself

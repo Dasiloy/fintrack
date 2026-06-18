@@ -56,13 +56,15 @@ export function GoalFormDialog({ open, onOpenChange }: GoalFormDialogProps) {
       toast.success('Goal created');
       void utils.goal.getAll.invalidate();
       void utils.goal.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to create goal', { description: err.message }),
   });
 
   const parsedAmount = parseFloat(amount) || 0;
-  const canSubmit = name.trim().length > 0 && parsedAmount > 0 && !!targetDate && !mutation.isPending;
+  const canSubmit =
+    name.trim().length > 0 && parsedAmount > 0 && !!targetDate && !mutation.isPending;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,8 +164,7 @@ export function GoalFormDialog({ open, onOpenChange }: GoalFormDialogProps) {
           {/* Description */}
           <Field>
             <Label>
-              Description{' '}
-              <span className="text-text-disabled font-normal">(optional)</span>
+              Description <span className="text-text-disabled font-normal">(optional)</span>
             </Label>
             <Input
               placeholder="e.g. 6-month safety net"
