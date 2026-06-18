@@ -83,6 +83,7 @@ export function BillFormDialog({ open, onOpenChange, categories, onSuccess }: Bi
       toast.success('Bill created');
       void utils.recurring.getAll.invalidate();
       void utils.recurring.getSummary.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onSuccess?.();
       onOpenChange(false);
     },

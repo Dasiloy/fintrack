@@ -68,6 +68,7 @@ export default function BillsPage() {
   const invalidateAll = React.useCallback(() => {
     void utils.recurring.getAll.invalidate();
     void utils.recurring.getSummary.invalidate();
+    void utils.subscription.getGatedUsage.invalidate();
   }, [utils]);
 
   const toggleMutation = api_client.recurring.toggle.useMutation({

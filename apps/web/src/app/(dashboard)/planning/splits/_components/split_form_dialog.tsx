@@ -47,6 +47,7 @@ export function SplitFormDialog({ open, onOpenChange }: SplitFormDialogProps) {
       toast.success('Split created');
       void utils.split.getAll.invalidate();
       void utils.split.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to create split', { description: err.message }),
@@ -98,7 +99,9 @@ export function SplitFormDialog({ open, onOpenChange }: SplitFormDialogProps) {
                   className={cn(inputCls, 'cursor-not-allowed opacity-70')}
                   value={formatCurrency(parseFloat(linkedTx.amount))}
                 />
-                <p className="text-text-disabled mt-0.5 text-[10px]">Amount from linked transaction</p>
+                <p className="text-text-disabled mt-0.5 text-[10px]">
+                  Amount from linked transaction
+                </p>
               </div>
             ) : (
               <Input

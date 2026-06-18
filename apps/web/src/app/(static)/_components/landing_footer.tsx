@@ -17,6 +17,7 @@ const FOOTER_COLS = [
       { label: 'Blog', href: STATIC_ROUTES.BLOG },
       { label: 'Terms of Service', href: STATIC_ROUTES.TERMS },
       { label: 'Privacy Policy', href: STATIC_ROUTES.PRIVACY },
+      { label: 'Security', href: STATIC_ROUTES.SECURITY },
     ],
   },
   {
