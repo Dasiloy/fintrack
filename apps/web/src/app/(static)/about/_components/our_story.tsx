@@ -14,7 +14,7 @@ export function OurStory() {
           The Story
         </h2>
         <p className="text-body text-text-secondary leading-relaxed">
-          From a weekend side project to a product used by thousands — here's how we got here.
+          One frustration with tools that ignored Nigerian financial context. Here is how FinTrack got built.
         </p>
       </div>
 

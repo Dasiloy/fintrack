@@ -6,7 +6,7 @@ import { MessageSquare, ThumbsUp, Flame, Clock, Inbox } from 'lucide-react';
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 import type { Discussion } from '../_data';
-import { TRENDING_TAGS, COMMUNITY_STATS, AMA_EVENT } from '../_data';
+import { TRENDING_TAGS, AMA_EVENT } from '../_data';
 
 interface CommunityFeedProps {
   discussions: Discussion[];
@@ -144,26 +144,6 @@ export function CommunityFeed({ discussions, hasMore, onLoadMore, isFiltered }: 
                   >
                     {tag}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Community Stats */}
-            <div className="rounded-card bg-bg-elevated border-border-light border p-5">
-              <h3 className="font-manrope text-text-primary mb-4 text-lg font-bold">
-                Community Stats
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {COMMUNITY_STATS.map(({ value, label, accent, fullWidth }) => (
-                  <div
-                    key={label}
-                    className={`bg-bg-deep rounded-card flex flex-col items-center justify-center p-3 text-center ${fullWidth ? 'col-span-2' : ''}`}
-                  >
-                    <p className={`font-manrope text-2xl font-bold ${accent ? 'text-primary' : 'text-text-primary'}`}>
-                      {value}
-                    </p>
-                    <p className="text-caption text-text-tertiary">{label}</p>
-                  </div>
                 ))}
               </div>
             </div>

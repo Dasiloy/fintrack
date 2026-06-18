@@ -38,11 +38,10 @@ export function NewsletterCta() {
           {/* Copy */}
           <div className="max-w-lg text-center md:text-left">
             <h2 className="font-manrope text-text-primary mb-3 text-2xl font-bold md:text-3xl">
-              Join our financial community
+              Get notified
             </h2>
             <p className="text-body text-text-secondary leading-relaxed">
-              Get the latest insights on budgeting, investing, and market trends delivered
-              directly to your inbox every week.
+              Leave your email and we will reach out when we publish something new.
             </p>
           </div>
 
@@ -51,9 +50,9 @@ export function NewsletterCta() {
             {submitted ? (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
                 <CheckCircle size={28} className="text-primary" aria-hidden="true" />
-                <p className="text-body text-text-primary font-semibold">You're in!</p>
+                <p className="text-body text-text-primary font-semibold">Done.</p>
                 <p className="text-body-sm text-text-secondary">
-                  We'll send your first issue this week.
+                  We will be in touch when something new is published.
                 </p>
               </div>
             ) : (

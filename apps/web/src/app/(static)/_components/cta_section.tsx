@@ -33,13 +33,12 @@ export function CTASection() {
   return (
     <section className="mx-auto max-w-[800px] px-4 pb-32 text-center md:px-6">
       <h2 className="font-manrope text-text-primary mb-6 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-        Ready to take control?
+        Ready to see your money clearly?
       </h2>
 
       <p className="text-body-lg text-text-secondary mb-10 leading-relaxed">
-        Join thousands of users optimising their financial health today.{' '}
-        <span className="text-text-primary font-medium">No credit card required</span> for the
-        trial.
+        Free to start. No credit card needed.{' '}
+        <span className="text-text-primary font-medium">Your data stays yours.</span>
       </p>
 
       <form
