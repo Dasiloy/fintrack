@@ -115,6 +115,7 @@ export function BudgetDrawer({
     onSuccess: () => {
       toast.success(`Budget ${isHardDelete ? 'deleted' : 'archived'}`);
       void utils.budget.getAll.invalidate();
+      if (isHardDelete) utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
       if (isHardDelete) setIsHardDelete(false);
       onDeleted?.();
@@ -246,7 +247,10 @@ export function BudgetDrawer({
                         value={alertAtFrequencyInput}
                         onChange={(e) => setAlertAtFrequencyInput(onlyNumbers(e.target.value))}
                         onBlur={() => {
-                          const clamped = Math.min(30, Math.max(1, parseInt(alertAtFrequencyInput || '1', 10)));
+                          const clamped = Math.min(
+                            30,
+                            Math.max(1, parseInt(alertAtFrequencyInput || '1', 10)),
+                          );
                           setAlertAtFrequency(clamped);
                           setAlertAtFrequencyInput(String(clamped));
                         }}
@@ -395,7 +399,8 @@ export function BudgetDrawer({
                                 <div className={cn('min-w-0', !isLast && 'pb-5')}>
                                   <p className="text-text-tertiary mb-1 text-[11px] font-medium tracking-wide uppercase">
                                     {format(entry.startDate, 'MMM YYYY')}
-                                    {!isCurrent && entry.endDate &&
+                                    {!isCurrent &&
+                                      entry.endDate &&
                                       ` → ${format(entry.endDate, 'MMM YYYY')}`}
                                   </p>
                                   <p className="text-text-primary text-[15px] font-bold tabular-nums">
@@ -471,7 +476,7 @@ export function BudgetDrawer({
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-warning/10">
-              <TriangleAlert className="size-6 text-warning" />
+              <TriangleAlert className="text-warning size-6" />
             </AlertDialogMedia>
             <AlertDialogTitle>Deactivate &quot;{budget?.name}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>

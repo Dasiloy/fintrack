@@ -34,8 +34,7 @@ interface SplitCardProps {
   onEdit: (id: string) => void;
 }
 
-export function SplitCard({
-  split, onOpen, onEdit }: SplitCardProps) {
+export function SplitCard({ split, onOpen, onEdit }: SplitCardProps) {
   const formatCurrency = useFormatCurrency();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -47,6 +46,7 @@ export function SplitCard({
       toast.success('Split deleted');
       void utils.split.getAll.invalidate();
       void utils.split.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
     },
     onError: (err) => toast.error('Failed to delete split', { description: err.message }),
   });
@@ -106,7 +106,8 @@ export function SplitCard({
           <div className="flex items-center gap-1.5">
             <Users className="text-text-disabled size-3" />
             <span className="text-text-tertiary text-[11px]">
-              {(split.participants ?? []).length} participant{(split.participants ?? []).length !== 1 ? 's' : ''}
+              {(split.participants ?? []).length} participant
+              {(split.participants ?? []).length !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -148,7 +149,7 @@ export function SplitCard({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px] text-error focus:text-error focus:bg-error/10"
+                className="text-error focus:text-error focus:bg-error/10 cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
                 onClick={() => {
                   setMenuOpen(false);
                   setDeleteOpen(true);
@@ -171,8 +172,8 @@ export function SplitCard({
             </AlertDialogMedia>
             <AlertDialogTitle>Delete &quot;{split.name}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This split and all its participants and settlement records will be permanently deleted.
-              This action cannot be undone.
+              This split and all its participants and settlement records will be permanently
+              deleted. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

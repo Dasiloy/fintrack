@@ -91,6 +91,47 @@ export class GoalService implements OnModuleInit {
   }
 
   /**
+   * Invalidates both user-scoped goal cache keys (fire-and-forget).
+   * Called after every mutation that can affect the goal list or aggregate.
+   *
+   * @private
+   */
+  private invalidateGoalAggregateCache(userId: string): void {
+    void this.redis
+      .del(`${GOAL_AGGREGATE_CACHE_PREFIX}:${userId}`)
+      .catch(() => {
+        // non-blocking — a Redis failure must never break the mutation response
+      });
+  }
+
+  /**
+   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
+   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
+   *
+   * @async
+   * @private
+   * @param {string} userId Authenticated user ID
+   * @returns {Promise<void>}
+   */
+  private async invalidateExportCache(userId: string): Promise<void> {
+    const pattern = `export:${userId}:*`;
+    let cursor = '0';
+    const keys: string[] = [];
+    do {
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        pattern,
+        'COUNT',
+        100,
+      );
+      cursor = next;
+      keys.push(...(batch as string[]));
+    } while (cursor !== '0');
+    if (keys.length > 0) await this.redis.del(...keys);
+  }
+
+  /**
    * Retrieves all goals for the authenticated user with optional filters.
    *
    * Cache-aside: the unfiltered list is served from `goal_list:{userId}` for
@@ -166,8 +207,8 @@ export class GoalService implements OnModuleInit {
   async getGoalsAggregate(user: User): Promise<GoalsAggregate> {
     const cacheKey = `${GOAL_AGGREGATE_CACHE_PREFIX}:${user.id}`;
 
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached) as GoalsAggregate;
+    // const cached = await this.redis.get(cacheKey);
+    // if (cached) return JSON.parse(cached) as GoalsAggregate;
 
     const metadata = new Metadata();
     metadata.add('x-user-id', user.id);
@@ -207,8 +248,9 @@ export class GoalService implements OnModuleInit {
       ),
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -231,8 +273,9 @@ export class GoalService implements OnModuleInit {
     const result = await lastValueFrom(
       this.financeService.updateGoal({ ...data, id }, metadata),
     );
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -259,8 +302,9 @@ export class GoalService implements OnModuleInit {
         metadata,
       ),
     );
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -279,8 +323,9 @@ export class GoalService implements OnModuleInit {
       this.financeService.deleteGoal({ id }, metadata),
     );
     void this.usageService.invalidateGatedUsageCache(user.id);
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -312,8 +357,9 @@ export class GoalService implements OnModuleInit {
         metadata,
       ),
     );
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -348,8 +394,9 @@ export class GoalService implements OnModuleInit {
         metadata,
       ),
     );
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
   }
 
@@ -375,35 +422,9 @@ export class GoalService implements OnModuleInit {
         metadata,
       ),
     );
-    this.invalidateGoalCache(user.id);
+    void this.invalidateGoalCache(user.id);
     void this.invalidateExportCache(user.id);
+    void this.invalidateGoalAggregateCache(user.id);
     return result;
-  }
-
-  /**
-   * @description SCAN-delete all cached analytics exports for a user (`export:{userId}:*`).
-   * Fire-and-forget after mutations; mirrors {@link ExportCacheService.invalidateUser}.
-   *
-   * @async
-   * @private
-   * @param {string} userId Authenticated user ID
-   * @returns {Promise<void>}
-   */
-  private async invalidateExportCache(userId: string): Promise<void> {
-    const pattern = `export:${userId}:*`;
-    let cursor = '0';
-    const keys: string[] = [];
-    do {
-      const [next, batch] = await this.redis.scan(
-        cursor,
-        'MATCH',
-        pattern,
-        'COUNT',
-        100,
-      );
-      cursor = next;
-      keys.push(...(batch as string[]));
-    } while (cursor !== '0');
-    if (keys.length > 0) await this.redis.del(...keys);
   }
 }

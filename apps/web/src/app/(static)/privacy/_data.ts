@@ -8,8 +8,8 @@
 
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_FINTRACK_SUPPORT_EMAIL!;
 
-export const LAST_UPDATED = 'June 2, 2026';
-export const LAST_UPDATED_ISO = '2026-06-02';
+export const LAST_UPDATED = 'June 18, 2026';
+export const LAST_UPDATED_ISO = '2026-06-18';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -68,12 +68,15 @@ export const SECTIONS: PrivacySection[] = [
     items: [
       'To create and manage your account and authenticate your identity.',
       'To provide, personalise, and improve the Service, including AI-powered insights derived from your financial data.',
+      'To generate automated financial health scores and insights from your financial behaviour. This constitutes automated processing under NDPA 2023; see "Automated decision-making" in Section 6 for your associated rights.',
       'To send transactional communications such as account alerts, billing receipts, and security notifications.',
-      'To send product updates and feature announcements (you may opt out at any time).',
+      `To send product updates and feature announcements. You may unsubscribe at any time by clicking the unsubscribe link in any such email, or by emailing ${SUPPORT_EMAIL}.`,
       'To detect, investigate, and prevent fraudulent transactions and abuse.',
       'To comply with applicable legal and regulatory obligations, including the Nigeria Data Protection Act 2023 (NDPA) and directives from the Nigerian Data Protection Commission (NDPC).',
       'To aggregate and anonymise usage data for internal analytics and product improvement (this data cannot identify you).',
     ],
+    footer:
+      'Our lawful bases for processing under NDPA 2023 are: (a) contractual necessity — to provide and operate the Service; (b) your consent — for analytics cookies, marketing communications, and open banking account connections; (c) legitimate interests — to improve the Service and prevent fraud; and (d) legal obligation — where processing is required by Nigerian law.',
   },
   {
     id: 'information-sharing',
@@ -97,11 +100,12 @@ export const SECTIONS: PrivacySection[] = [
       'We take the security of your personal and financial data seriously and implement industry-standard safeguards:',
     ],
     items: [
-      'All data transmitted between your device and our servers is encrypted using TLS 1.3.',
-      'Data at rest is encrypted using AES-256.',
-      'Banking credentials are never stored or processed by FinTrack — they are handled exclusively by our third-party aggregation provider.',
+      'All data transmitted between your device and our servers is encrypted in transit using TLS (HTTPS).',
+      'Sensitive financial data — including linked bank account numbers, balances, institution details, and access tokens — is encrypted at rest using AES-256-GCM. Encryption keys are held in a secured environment, never in the database itself.',
+      'Banking credentials are never stored or processed by FinTrack — they are handled exclusively by our third-party aggregation provider, and our access to connected accounts is read-only.',
       'Access to user data within FinTrack is restricted on a need-to-know basis and subject to strict access controls.',
       'We undergo periodic security reviews and vulnerability assessments.',
+      'In the event of a personal data breach, we have documented incident-response procedures. Where a breach is likely to affect your rights and freedoms, we will notify the Nigerian Data Protection Commission (NDPC) within 72 hours of discovery and inform affected users without undue delay.',
     ],
     footer: `Despite our best efforts, no method of transmission or storage is 100% secure. If you believe your account has been compromised, please contact us immediately at ${SUPPORT_EMAIL}.`,
   },
@@ -127,9 +131,11 @@ export const SECTIONS: PrivacySection[] = [
       'Deletion: request that we delete your personal data, subject to legal retention obligations.',
       'Portability: receive your data in a structured, machine-readable format.',
       'Objection: object to certain types of processing, including direct marketing.',
+      'Automated decision-making: request human review of, or object to, any decision produced by automated means — including AI-generated financial insights and health scores — that significantly affects you.',
+      'Marketing opt-out: withdraw consent for product update emails at any time by clicking the unsubscribe link in any such email, or by contacting us below.',
       'Withdrawal of consent: where processing is based on consent, you may withdraw it at any time without affecting the lawfulness of prior processing.',
     ],
-    footer: `To exercise any of these rights, please email ${SUPPORT_EMAIL}. We will respond within 30 days as required under the NDPA.`,
+    footer: `To exercise any of these rights, please email ${SUPPORT_EMAIL}. We will acknowledge your request within 5 business days and resolve it within 30 days, as required under the NDPA.`,
   },
   {
     id: 'cookies',
@@ -137,11 +143,12 @@ export const SECTIONS: PrivacySection[] = [
     content: ['We use the following types of cookies:'],
     items: [
       'Essential cookies: required for the Service to function (e.g., session management, CSRF protection). These cannot be disabled.',
-      'Analytics cookies: help us understand how users interact with the Service so we can improve it. You may opt out in your account settings.',
-      'Preference cookies: remember your settings (e.g., theme, language) across sessions.',
+      'Analytics cookies: help us understand how users interact with the Service so we can improve it.',
+      'Functionality cookies: remember your in-app settings and UI preferences across sessions (e.g., selected theme).',
+      'Preference cookies: store your explicit choices such as notification settings.',
     ],
     footer:
-      'You can control cookies through your browser settings. Disabling essential cookies may prevent parts of the Service from functioning correctly.',
+      'Non-essential cookies (analytics, functionality, preference) are not activated until you give consent through our cookie preferences controls. You may withdraw or update your consent at any time via your account settings or browser controls. Disabling essential cookies may prevent parts of the Service from functioning correctly. We do not use targeting or advertising cookies.',
   },
   {
     id: 'third-party',

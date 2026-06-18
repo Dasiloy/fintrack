@@ -70,6 +70,7 @@ export function BudgetFormDialog({
     onSuccess: () => {
       toast.success('Budget created');
       void utils.budget.getAll.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
       onOpenChange(false);
     },
     onError: (err) => toast.error('Failed to create budget', { description: err.message }),
