@@ -3,6 +3,8 @@ import { Metadata } from '@grpc/grpc-js';
 
 import { Controller, Logger, UseGuards } from '@nestjs/common';
 
+import { SkipLog } from '@fintrack/common/decorators/skip_log.decorator';
+
 import {
   LoginReq,
   LoginRes,
@@ -57,6 +59,7 @@ import { TokenMeta } from './decorators/token.decorator';
  * @class AuthController
  */
 @Controller()
+@SkipLog()
 @AuthServiceControllerMethods()
 export class AuthController implements AuthServiceController {
   logger = new Logger(AuthController.name);

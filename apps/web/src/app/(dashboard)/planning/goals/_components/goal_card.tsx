@@ -47,8 +47,7 @@ interface GoalCardProps {
   onEdit: (id: string) => void;
 }
 
-export function GoalCard({
-  goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
+export function GoalCard({ goal, onOpen, onAddFunds, onEdit }: GoalCardProps) {
   const formatCurrency = useFormatCurrency();
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -60,6 +59,7 @@ export function GoalCard({
       toast.success('Goal deleted');
       void utils.goal.getAll.invalidate();
       void utils.goal.getAggregate.invalidate();
+      void utils.subscription.getGatedUsage.invalidate();
     },
     onError: (err) => toast.error('Failed to delete goal', { description: err.message }),
   });
@@ -77,7 +77,6 @@ export function GoalCard({
   const target = goal.targetAmount;
   const pct = target > 0 ? Math.min(Math.round((contributed / target) * 100), 100) : 0;
   const isActive = goal.status === 'ACTIVE';
-  const isOnHold = goal.status === 'ON_HOLD';
   const isCompleted = goal.status === 'COMPLETED';
 
   // Only use actual contribution months — no zero padding, so bars are tight and meaningful
@@ -213,7 +212,7 @@ export function GoalCard({
         {/* ── Progress ── */}
         <div className="px-4 pb-3">
           <div className="mb-2 flex items-baseline justify-between gap-1">
-            <div className="min-w-0 flex items-baseline gap-1.5 overflow-hidden">
+            <div className="flex min-w-0 items-baseline gap-1.5 overflow-hidden">
               <span className="text-text-primary min-w-0 truncate text-[17px] leading-none font-bold tabular-nums">
                 {formatCurrency(contributed)}
               </span>
@@ -236,7 +235,7 @@ export function GoalCard({
               {pct}%
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-border-light">
+          <div className="bg-border-light h-2 w-full overflow-hidden rounded-full">
             <div
               className={cn(
                 'h-full rounded-full transition-all',

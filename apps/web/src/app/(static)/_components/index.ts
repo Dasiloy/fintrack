@@ -4,6 +4,7 @@ export { MetricsSection } from './metrics_section';
 export { SocialProofSection } from './social_proof_section';
 export { FeatureHighlightSection } from './feature_highlight_section';
 export { FeaturesGrid } from './features_grid';
+export { SecurityTrustSection } from './security_trust_section';
 export { CTASection } from './cta_section';
 export { LandingFooter } from './landing_footer';
 export { StaticPageShell } from './static_page_shell';

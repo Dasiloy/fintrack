@@ -7,6 +7,7 @@ import {
   SocialProofSection,
   FeatureHighlightSection,
   FeaturesGrid,
+  SecurityTrustSection,
   CTASection,
   StaticPageShell,
 } from './_components';
@@ -20,6 +21,7 @@ export default async function Home() {
         <SocialProofSection />
         <FeatureHighlightSection />
         <FeaturesGrid />
+        <SecurityTrustSection />
         <CTASection />
       </StaticPageShell>
     </HydrateClient>
