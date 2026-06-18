@@ -1,21 +1,31 @@
-import { LOGOS } from '../_data';
+import { ShieldCheck, EyeOff, BadgeCheck, Fingerprint, Building2 } from 'lucide-react';
+
+const TRUST_SIGNALS = [
+  { icon: Building2, label: 'Mono-powered bank sync' },
+  { icon: EyeOff, label: 'Read-only bank access' },
+  { icon: ShieldCheck, label: 'AES-256-GCM encrypted' },
+  { icon: BadgeCheck, label: 'NDPA 2023 compliant' },
+  { icon: Fingerprint, label: '2FA supported' },
+] as const;
 
 /**
- * "Trusted by industry leaders" social proof bar.
- * Greyscale by default; reveals colour on section hover.
+ * Trust signal bar — replaces fake logo row with honest product guarantees.
  */
 export function SocialProofSection() {
   return (
-    <section className="max-w-[1200px] mx-auto px-4 md:px-6 mb-32 pb-16 border-b border-border-light">
-      <p className="text-center text-overline text-text-disabled mb-8">
-        Trusted by industry leaders
+    <section className="mx-auto mb-32 max-w-[1200px] border-b border-border-light px-4 pb-16 md:px-6">
+      <p className="text-overline text-text-disabled mb-8 text-center">
+        Built with security and compliance in mind
       </p>
 
-      <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-40 grayscale hover:opacity-80 hover:grayscale-0 transition-all duration-smooth">
-        {LOGOS.map(({ name, shapeClass }) => (
-          <div key={name} className="flex items-center gap-2.5 h-8">
-            <div className={`size-5 bg-text-primary ${shapeClass}`} />
-            <span className="font-manrope font-bold text-xl text-text-primary">{name}</span>
+      <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+        {TRUST_SIGNALS.map(({ icon: Icon, label }) => (
+          <div
+            key={label}
+            className="bg-bg-elevated border-border-light text-body-sm text-text-secondary inline-flex items-center gap-2 rounded-full border px-4 py-2 font-medium"
+          >
+            <Icon size={14} className="text-primary shrink-0" aria-hidden="true" />
+            {label}
           </div>
         ))}
       </div>

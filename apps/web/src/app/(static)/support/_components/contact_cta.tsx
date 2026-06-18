@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, MessageSquare } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 import { STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
 
@@ -18,11 +18,10 @@ export function ContactCta() {
         </p>
 
         <h2 className="font-manrope text-text-primary mb-3 text-2xl font-bold md:text-3xl">
-          We&apos;re here for you
+          Get in touch
         </h2>
         <p className="text-body text-text-secondary mx-auto mb-10 max-w-md leading-relaxed">
-          Couldn&apos;t find what you&apos;re looking for? Reach out and our team will get back to
-          you within one business day.
+          Could not find what you are looking for? Send a message and we will get back to you within 5 business days.
         </p>
 
         <div className="relative flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -33,16 +32,6 @@ export function ContactCta() {
             <Mail size={16} aria-hidden="true" />
             Email support
           </Link>
-
-          <a
-            href="https://discord.gg/fintrack"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-button border-border-light text-text-secondary hover:text-text-primary hover:border-primary/40 inline-flex items-center gap-2.5 border px-7 py-3 font-semibold transition-colors duration-smooth"
-          >
-            <MessageSquare size={16} aria-hidden="true" />
-            Community Discord
-          </a>
         </div>
       </div>
     </section>

@@ -106,8 +106,8 @@ const FAQ = [
     a: 'Syncing stops immediately. Your existing transaction history is retained for 90 days to preserve your financial records, then permanently deleted.',
   },
   {
-    q: 'Who within FinTrack can see my bank data?',
-    a: 'Access to user financial data is restricted on a strict need-to-know basis and is subject to access controls and logging.',
+    q: 'Can anyone access my bank data?',
+    a: 'Direct access to your financial data is restricted at the infrastructure level. All data access is controlled and logged.',
   },
 ] as const;
 
@@ -124,7 +124,7 @@ export function SecurityContent() {
           How FinTrack Protects Your Bank Data
         </h1>
         <p className="text-body-lg text-text-secondary mb-6 max-w-[640px] leading-relaxed">
-          Before you connect a bank account, here's exactly what FinTrack can and cannot access —
+          Before you connect a bank account, here is exactly what FinTrack can and cannot access,
           and how your data is kept secure.
         </p>
 

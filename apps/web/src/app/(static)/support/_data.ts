@@ -2,7 +2,6 @@ import {
   BookOpen,
   CreditCard,
   ShieldCheck,
-  BarChart3,
   Brain,
   Wrench,
   Users,
@@ -126,7 +125,7 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
           },
           {
             title: 'Complete your profile',
-            body: 'Set your preferred currency and timezone. You can change these later in Settings.',
+            body: 'Set your timezone and notification preferences. You can update these later in Settings.',
           },
         ],
       },
@@ -222,23 +221,20 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
     body: [
       {
         type: 'lead',
-        text: "The FinTrack dashboard is designed to give you a full picture of your financial health at a glance. Here's what each section shows.",
+        text: 'The FinTrack dashboard gives you a real-time view of your financial health for the current month. Here is what each section shows.',
       },
       {
         type: 'list',
         items: [
-          'Net Worth widget — your total assets minus liabilities, updated in real time.',
-          'Spending this month — total spend vs last month, color-coded by budget status.',
-          'Budget bars — progress bars for each active budget category.',
-          'Goals — progress toward your savings and financial goals.',
-          'Recent transactions — your last 5 transactions with category labels.',
-          'AI Insights — one-click access to your latest AI-generated financial summary.',
+          'Net balance — your total income minus total expenses for the current month, with a percentage change vs last month.',
+          'Financial Health Score — a calculated score reflecting how well your income, spending, savings, and goals are aligned.',
+          'Stat cards — four key metrics side by side: This Month\'s Income, This Month\'s Expense, Net Cashflow, and Savings Rate.',
+          'Monthly cashflow chart — a month-by-month bar chart of income vs expenses across the year.',
+          'Weekly spending chart — your spending broken down by week within the current month.',
+          'Spending heatmap — a calendar view showing which days of the month had the highest spend.',
+          'Spending breakdown — your top spending categories for the current month as a visual breakdown.',
+          'Recent Activity — a log of your latest actions across all features: transactions added, goals updated, budgets changed, and more.',
         ],
-      },
-      {
-        type: 'note',
-        variant: 'tip',
-        text: 'You can reorder and hide widgets from Settings → Dashboard Layout (Pro feature).',
       },
     ],
   },
@@ -248,12 +244,12 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
     slug: 'upgrade-to-pro',
     categorySlug: 'billing',
     title: 'How to upgrade to Pro',
-    excerpt: "Unlock unlimited features for $5/month. Here's how to upgrade in seconds.",
+    excerpt: 'Unlock unlimited features with a Pro subscription. Here is how to upgrade in seconds.',
     popular: true,
     body: [
       {
         type: 'lead',
-        text: "FinTrack Pro gives you unlimited budgets, goals, AI features, and PDF/CSV exports for $5/month. Here's how to upgrade.",
+        text: "FinTrack Pro gives you unlimited budgets, goals, AI features, and PDF/CSV exports. Visit our pricing page for the current monthly rate. Here's how to upgrade.",
       },
       {
         type: 'steps',
@@ -336,13 +332,13 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
           '3 custom categories',
           '3 financial goals',
           '3 active expense splits (up to 3 people each)',
-          '20 AI Insights queries per month',
+          '5 AI Insights queries per month',
           '10 AI Chat messages per month',
           '10 receipt uploads per month',
           '6 months of analytics history',
         ],
       },
-      { type: 'h2', text: 'Pro plan ($5/month)' },
+      { type: 'h2', text: 'Pro plan' },
       {
         type: 'list',
         items: [
@@ -361,26 +357,31 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
     slug: 'payment-failed',
     categorySlug: 'billing',
     title: 'My payment failed — what do I do?',
-    excerpt: 'Common reasons payments fail and how to fix them quickly.',
+    excerpt: 'If a payment fails, your account reverts to the Free plan immediately.',
     body: [
       {
         type: 'lead',
-        text: 'If your subscription payment fails, your Pro access remains active for a short grace period while you resolve the issue.',
+        text: 'If your renewal payment fails for any reason, your account reverts to the Free plan immediately. There is no grace period.',
+      },
+      {
+        type: 'note',
+        variant: 'warning',
+        text: 'Pro features are disabled as soon as a payment fails. Your data is never deleted — you just lose access to Pro-only functionality until you resubscribe.',
       },
       { type: 'h2', text: 'Common reasons & fixes' },
       {
         type: 'list',
         items: [
-          'Expired card — update your card details in Settings → Account → Billing.',
-          'Insufficient funds — ensure your card has enough available balance on your renewal date.',
-          'Card declined by bank — contact your bank or try a different card.',
-          '3DS authentication required — check your email for a verification link from your bank.',
+          'Expired card — update your card details and resubscribe from Settings → Account.',
+          'Insufficient funds — ensure your card has enough balance, then resubscribe.',
+          'Card declined by bank — try a different card or contact your bank, then resubscribe.',
+          '3DS authentication required — your bank may require additional verification. Check your email or banking app for a prompt, then resubscribe.',
         ],
       },
       {
         type: 'note',
-        variant: 'warning',
-        text: "After 3 failed retries over 7 days, your subscription is cancelled automatically. You'll receive an email notification before this happens.",
+        variant: 'info',
+        text: 'To restore Pro access, go to Settings → Account and subscribe again. Your previous data, budgets, and goals are all intact.',
       },
     ],
   },
@@ -503,7 +504,7 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
       {
         type: 'note',
         variant: 'info',
-        text: 'For the full details, read our Privacy Policy at fintrack.app/privacy.',
+        text: 'For the full details, read our Privacy Policy — linked in the footer of every page.',
       },
     ],
   },
@@ -554,7 +555,7 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
           { title: 'Go to Planning → Splits', body: 'Open the Splits section from the sidebar.' },
           {
             title: 'Create a new split',
-            body: 'Click "+ New Split" and give it a name (e.g., "Barcelona trip").',
+            body: 'Click "+ New Split" and give it a name (e.g., "Abuja trip" or "Lekki dinner").',
           },
           {
             title: 'Add participants',
@@ -604,7 +605,7 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
       {
         type: 'note',
         variant: 'tip',
-        text: "Recurring items don't automatically create transactions — they serve as reminders and projections. Mark them as paid when the actual charge clears.",
+        text: 'Recurring items automatically create a transaction on each scheduled date. Pause a recurring item at any time to stop new transactions from being generated.',
       },
     ],
   },
@@ -635,7 +636,7 @@ export const SUPPORT_ARTICLES: SupportArticle[] = [
       {
         type: 'note',
         variant: 'info',
-        text: 'Free accounts get 20 AI Insight queries per month. Pro gets unlimited. Queries reset on the 1st of each month.',
+        text: 'Free accounts get 5 AI Insight queries per month. Pro gets unlimited. Queries reset on the 1st of each month.',
       },
     ],
   },

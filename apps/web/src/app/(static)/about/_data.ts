@@ -28,8 +28,9 @@ export interface TeamMember {
   name: string;
   role: string;
   bio: string;
-  /** Two-letter initials shown in the avatar placeholder */
   initials: string;
+  linkedIn: string;
+  image?: string;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -57,45 +58,35 @@ export const PHILOSOPHY_CARDS: PhilosophyCard[] = [
 
 export const TIMELINE_ENTRIES: TimelineEntry[] = [
   {
-    year: '2021',
-    title: 'Inception',
+    year: '2025',
+    title: 'The Idea',
     description:
-      'The idea was born from frustration with complex spreadsheets and cluttered banking apps.',
+      'Frustrated with generic budgeting apps that ignored Nigerian financial context, I started sketching what a more honest tool could look like.',
     icon: Lightbulb,
   },
   {
-    year: '2022',
-    title: 'First Prototype',
+    year: 'Early 2026',
+    title: 'Building',
     description:
-      'We built the first version focusing solely on tracking daily expenses with zero friction.',
+      'Core features shipped one by one: bank linking via Mono, AI-powered insights, budget tracking, and a dashboard built from scratch.',
     icon: Code2,
   },
   {
-    year: '2023',
-    title: 'Launch Day',
+    year: '2026',
+    title: 'Launching',
     description:
-      'FinTrack went live to the public, welcoming thousands of users who wanted financial peace.',
+      'FinTrack opens to users. The mission stays the same: make financial clarity feel effortless for Nigerians.',
     icon: Rocket,
   },
 ];
 
 export const TEAM_MEMBERS: TeamMember[] = [
   {
-    name: 'Alex Morgan',
-    role: 'Co-Founder & CEO',
-    bio: 'Finance geek with a passion for simplifying complex systems.',
-    initials: 'AM',
-  },
-  {
-    name: 'Sarah Chen',
-    role: 'Lead Designer',
-    bio: 'Minimalist artist ensuring every pixel has a purpose.',
-    initials: 'SC',
-  },
-  {
-    name: 'David Kim',
-    role: 'CTO',
-    bio: 'Building the secure and fast infrastructure behind FinTrack.',
-    initials: 'DK',
+    name: 'Damilare Oyewole',
+    role: 'Founder and Engineer',
+    bio: 'Building FinTrack from the ground up — product, engineering, and design. One person, one focus: making financial clarity feel effortless.',
+    initials: 'DO',
+    linkedIn: 'https://www.linkedin.com/in/damilare-oyewole-5134791ab',
+    image: '/untitled-84.JPG',
   },
 ];
