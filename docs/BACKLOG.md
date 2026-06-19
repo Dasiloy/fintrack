@@ -16,6 +16,10 @@ Items are ordered by priority. Each entry follows the format:
 
 ## 🗂️ Backlog
 
+---
+
+## ✅ Completed Backlog
+
 ### ✅ [BL-001] Mono integration — go live (NGN only)
 
 - **Type**: Feature
@@ -186,21 +190,7 @@ Items are ordered by priority. Each entry follows the format:
   - Historical score trend (last 12 weeks) should be visualisable — provides a clear "am I improving?" signal that is highly sticky.
   - Related files: `apps/scheduler_service/src/processors/analytics_aggregation.processor.ts`, `packages/database/prisma/schema.prisma`, `apps/web/src/app/(dashboard)/`.
 
-### [BL-010] Import and export transactions from CSV / PDF
-
-- **Type**: Feature
-- **Priority**: High
-- **Status**: Pending
-- **Context**: Users need to be able to import transactions from CSV files and export their account data as high-quality CSV and PDF statements. Default export scope is the past 7 days; full account statement available on demand. Entry point is the dashboard screen.
-- **Notes**:
-  - Exports should be beautiful, high-resolution PDFs and well-structured CSVs.
-  - Multi-sheet CSV and Excel export should be supported.
-  - PDF should match FinTrack's visual identity — not a raw data dump.
-  - CSV import must handle common Nigerian bank statement formats (GT Bank, Access, Zenith column layouts).
-    -predictive warning when adding transaction as the case maybe, must be smart and fast but ,ost importantly, non blocking
-  - add pre create transaction gate wrning to prevent duplicate transaction comming from different from different source
-
-### [BL-011] ✅ Research legal and compliance requirements for finance apps
+### [BL-010] ✅ Research legal and compliance requirements for finance apps
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -213,7 +203,7 @@ Items are ordered by priority. Each entry follows the format:
   - This research feeds directly into **BL-012** (legal trust page), **BL-013** (bank data handling copy), and **BL-002** (encryption).
   - Assign to: legal review + engineering lead before any production launch.
 
-### ✅ [BL-012] Marketing page — legal and security trust section
+### ✅ [BL-011] Marketing page — legal and security trust section
 
 - **Type**: Improvement
 - **Priority**: High
@@ -225,7 +215,7 @@ Items are ordered by priority. Each entry follows the format:
   - Add trust badges: NDPR compliance notice, "Secured with 256-bit encryption", "Read-only bank access via Mono".
   - Related files: `apps/web/src/app/(marketing)/`, footer component, `/legal/privacy` and `/legal/terms` routes (create if missing).
 
-### ✅ [BL-013] Marketing page — bank account data handling explainer
+### ✅ [BL-012] Marketing page — bank account data handling explainer
 
 - **Type**: Feature
 - **Priority**: Medium
@@ -239,7 +229,7 @@ Items are ordered by priority. Each entry follows the format:
   - wire end to end from be to fe, flow for disconnecting and remobving linked bank account
   - Related files: `apps/web/src/app/(marketing)/`, footer links, Mono link flow modal.
 
-### ✅ [BL-014] Static content audit — realistic MVP copy and authorship
+### ✅ [BL-013] Static content audit — realistic MVP copy and authorship
 
 - **Type**: Tech Debt
 - **Priority**: High
@@ -262,11 +252,7 @@ Items are ordered by priority. Each entry follows the format:
   - Audit scope: `apps/web/src/app/(marketing|landing|home|about|legal)/`, root layout metadata, any `_components` with hardcoded copy. Run `grep -r "Lorem\|placeholder\|example\.com\|Fake\|Demo User\|Sponsor"` to surface most issues.
   - Make sure to do a final audit of navbar, footer and every single ststic pages one after the other, before marking this as complete
 
----
-
-## ✅ Completed Backlog
-
-### ✅ [BL-015] Tighten Free Plan AI limits
+### ✅ [BL-014] Tighten Free Plan AI limits
 
 - **Type**: Improvement
 - **Priority**: High
@@ -278,7 +264,7 @@ Items are ordered by priority. Each entry follows the format:
     - `AI_CHAT_MESSAGES_PER_MONTH`: 20 → 10
   - Also updated `apps/web/src/app/(static)/pricing/_data.ts` — `highlights` array and `COMPARISON_ROWS`.
 
-### ✅ [BL-016] Post-registration 2FA setup prompt
+### ✅ [BL-015] Post-registration 2FA setup prompt
 
 - **Type**: Security
 - **Priority**: High
@@ -290,7 +276,7 @@ Items are ordered by priority. Each entry follows the format:
   - Mount in the dashboard root layout, gated with `!user.twoFaEnabled && !user.hasSeenTwoFaPrompt`.
   - Related files: `apps/web/src/app/(dashboard)/layout.tsx`, `packages/trpc_app/src/routers/user.ts`, `packages/types/proto/auth/user.proto`, `apps/auth_service/src/`.
 
-### ✅ [BL-017] Tooltip-based onboarding flow for new web users
+### ✅ [BL-016] Tooltip-based onboarding flow for new web users
 
 - **Type**: Feature
 - **Priority**: High
@@ -302,7 +288,7 @@ Items are ordered by priority. Each entry follows the format:
   - Completion tracked via `hasCompletedOnboarding` in user settings — tour never re-triggers once set.
   - Related files: `apps/web/src/app/(dashboard)/_components/onboarding_tour.tsx`, `apps/web/src/app/(dashboard)/_components/dashboard_client.tsx`, `packages/trpc_app/src/routers/user.ts`.
 
-### ✅ [BL-018] Mailtrap — sandbox in dev, sending API in production
+### ✅ [BL-017] Mailtrap — sandbox in dev, sending API in production
 
 - **Type**: Improvement
 - **Priority**: High
