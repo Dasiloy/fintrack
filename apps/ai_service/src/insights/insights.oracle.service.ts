@@ -8,21 +8,28 @@ import {
   ORACLE_MACRO_CACHE_KEY,
   ORACLE_MACRO_CACHE_TTL,
 } from '@fintrack/types/constants/redis.costants';
+import { FetcherService } from '@fintrack/common/services/fetcher.service';
 
-import { MacroContext } from './insights.types';
+import { AlphaVantageFxResponse, MacroContext } from './insights.types';
 
 /**
- * InsightsOracleService — fetches and caches live Nigerian macro-economic context.
+ * InsightsOracleService — serves Nigerian macro-economic context.
  *
  * Data provided:
  *   - NGN/USD exchange rate  — Alpha Vantage CURRENCY_EXCHANGE_RATE (free, 25/day)
  *   - Food CPI YoY           — NBS data (hardcoded until scraper phase)
  *   - CBN policy rate        — CBN data (hardcoded until scraper phase)
  *
- * Redis cache key: `oracle:macro_context`, TTL: 6 hours.
- * On any fetch failure the last-cached value is returned, or well-known fallback
- * values if the cache is also cold. This prevents a third-party API outage from
- * blocking insight generation.
+ * ## Read vs refresh
+ * The live third-party fetch is **decoupled from the request path**. A scheduled
+ * `ORACLE_REFRESH_JOB` (hourly) calls `refreshMacroContext()`, which fetches fresh
+ * data and writes it to Redis (`oracle:macro_context`, TTL 25h).
+ *
+ * `getMacroContext()` is **read-through**: it reads the cache and, on a miss or
+ * Redis failure, performs a one-off live fetch that also repopulates the cache,
+ * so it self-heals rather than serving stale static values. Because the cron keeps
+ * the cache warm, this live path only triggers on a cold start (fresh deploy or
+ * cache eviction) — there is no per-chat fetching in steady state.
  */
 @Injectable()
 export class InsightsOracleService {
@@ -30,30 +37,48 @@ export class InsightsOracleService {
 
   constructor(
     private readonly config: ConfigService,
+    private readonly fetcher: FetcherService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
   ) {}
 
+  /**
+   * Read-through macro context for the request path. Returns the cron-populated
+   * cached value when present. On a cache miss or Redis failure it performs a
+   * one-off live fetch (which also repopulates the cache) rather than serving
+   * stale static values — so a cold cache self-heals. In steady state the cron
+   * keeps the cache warm, so this rarely fetches live.
+   */
   async getMacroContext(): Promise<MacroContext> {
     try {
       const cached = await this.redis.get(ORACLE_MACRO_CACHE_KEY);
       if (cached) return JSON.parse(cached) as MacroContext;
     } catch (err) {
-      this.logger.warn(
-        'Redis cache read failed, fetching fresh macro context',
-        err,
-      );
+      this.logger.warn('Redis macro context read failed', err);
     }
 
+    // Cache cold (cron has not run yet, or Redis read failed) — fetch live and
+    // repopulate the cache. refreshMacroContext never throws: fetchFresh applies
+    // per-field fallbacks if the external API is unavailable.
+    this.logger.warn('Macro context cache miss — fetching live to self-heal');
+    return this.refreshMacroContext();
+  }
+
+  /**
+   * Fetches fresh macro context from external sources and writes it to Redis.
+   * Invoked only by the scheduled `ORACLE_REFRESH_JOB` — never on the request path.
+   */
+  async refreshMacroContext(): Promise<MacroContext> {
     const ctx = await this.fetchFresh();
 
-    // Non-blocking write — a cache miss on next call is acceptable
-    this.redis
-      .setex(
+    try {
+      await this.redis.setex(
         ORACLE_MACRO_CACHE_KEY,
         ORACLE_MACRO_CACHE_TTL,
         JSON.stringify(ctx),
-      )
-      .catch((err) => this.logger.warn('Failed to cache macro context', err));
+      );
+    } catch (err) {
+      this.logger.warn('Failed to cache refreshed macro context', err);
+    }
 
     return ctx;
   }
@@ -64,47 +89,46 @@ export class InsightsOracleService {
    * insight generation is never blocked by a third-party API outage.
    */
   private async fetchFresh(): Promise<MacroContext> {
-    const fallback = this.fallbackContext();
-
-    let ngnUsdRate = fallback.ngnUsdRate;
-
-    try {
-      const apiKey = this.config.get<string>('ALPHA_VANTAGE_API_KEY');
-      if (apiKey) {
-        const res = await fetch(
-          `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=NGN&apikey=${apiKey}`,
-          { signal: AbortSignal.timeout(8_000) },
-        );
-        const json = (await res.json()) as any;
-        const rate = parseFloat(
-          json?.['Realtime Currency Exchange Rate']?.['5. Exchange Rate'] ?? '',
-        );
-        if (!isNaN(rate)) ngnUsdRate = rate;
-      }
-    } catch (err) {
-      this.logger.warn(
-        `Alpha Vantage fetch failed, using fallback NGN rate ${ngnUsdRate}`,
-        err,
-      );
-    }
-
     return {
-      ngnUsdRate,
+      ngnUsdRate: await this.fetchNgnUsdRate(),
       // TODO Phase N: scrape NBS for live food CPI YoY
-      foodCpiYoY: fallback.foodCpiYoY,
+      foodCpiYoY: null,
       // TODO Phase N: scrape CBN MPC page for live policy rate
-      cbnPolicyRate: fallback.cbnPolicyRate,
+      cbnPolicyRate: null,
       fetchedAt: new Date().toISOString(),
     };
   }
 
-  /** Well-known Nigerian economic values as of 2026-Q2 */
-  private fallbackContext(): MacroContext {
-    return {
-      ngnUsdRate: 1580,
-      foodCpiYoY: 18.2,
-      cbnPolicyRate: 26.75,
-      fetchedAt: new Date().toISOString(),
-    };
+  /**
+   * Fetches the live USD/NGN rate via the shared FetcherService.
+   * Returns null when the API key is absent, the request fails, or the response
+   * is unparseable — never throws and never substitutes a hardcoded value.
+   */
+  private async fetchNgnUsdRate(): Promise<number | null> {
+    const apiKey = this.config.get<string>('ALPHA_VANTAGE_API_KEY');
+    if (!apiKey) return null;
+
+    try {
+      const { data } = await this.fetcher.get<AlphaVantageFxResponse>(
+        'https://www.alphavantage.co/query',
+        {
+          params: {
+            function: 'CURRENCY_EXCHANGE_RATE',
+            from_currency: 'USD',
+            to_currency: 'NGN',
+            apikey: apiKey,
+          },
+          timeoutMs: 8_000,
+        },
+      );
+
+      const rate = parseFloat(
+        data?.['Realtime Currency Exchange Rate']?.['5. Exchange Rate'] ?? '',
+      );
+      return isNaN(rate) ? null : rate;
+    } catch (err) {
+      this.logger.warn('Alpha Vantage NGN rate fetch failed', err);
+      return null;
+    }
   }
 }

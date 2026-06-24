@@ -179,6 +179,21 @@ export type ClassificationCorrection = $Result.DefaultSelection<Prisma.$Classifi
  */
 export type AnalyticsSnapshot = $Result.DefaultSelection<Prisma.$AnalyticsSnapshotPayload>
 /**
+ * Model AdvisorSetting
+ * 
+ */
+export type AdvisorSetting = $Result.DefaultSelection<Prisma.$AdvisorSettingPayload>
+/**
+ * Model AdvisorConversation
+ * 
+ */
+export type AdvisorConversation = $Result.DefaultSelection<Prisma.$AdvisorConversationPayload>
+/**
+ * Model AdvisorChatMessage
+ * 
+ */
+export type AdvisorChatMessage = $Result.DefaultSelection<Prisma.$AdvisorChatMessagePayload>
+/**
  * Model AiInsight
  * 
  */
@@ -599,6 +614,26 @@ export const InsightSeverity: {
 
 export type InsightSeverity = (typeof InsightSeverity)[keyof typeof InsightSeverity]
 
+
+export const AdvisorScope: {
+  TRANSACTIONS: 'TRANSACTIONS',
+  BUDGETS: 'BUDGETS',
+  GOALS: 'GOALS',
+  RECURRING: 'RECURRING',
+  SPLITS: 'SPLITS',
+  ANALYTICS: 'ANALYTICS'
+};
+
+export type AdvisorScope = (typeof AdvisorScope)[keyof typeof AdvisorScope]
+
+
+export const AdvisorChatRole: {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT'
+};
+
+export type AdvisorChatRole = (typeof AdvisorChatRole)[keyof typeof AdvisorChatRole]
+
 }
 
 export type Currency = $Enums.Currency
@@ -696,6 +731,14 @@ export const InsightTrigger: typeof $Enums.InsightTrigger
 export type InsightSeverity = $Enums.InsightSeverity
 
 export const InsightSeverity: typeof $Enums.InsightSeverity
+
+export type AdvisorScope = $Enums.AdvisorScope
+
+export const AdvisorScope: typeof $Enums.AdvisorScope
+
+export type AdvisorChatRole = $Enums.AdvisorChatRole
+
+export const AdvisorChatRole: typeof $Enums.AdvisorChatRole
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1143,6 +1186,36 @@ export class PrismaClient<
     * ```
     */
   get analyticsSnapshot(): Prisma.AnalyticsSnapshotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.advisorSetting`: Exposes CRUD operations for the **AdvisorSetting** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdvisorSettings
+    * const advisorSettings = await prisma.advisorSetting.findMany()
+    * ```
+    */
+  get advisorSetting(): Prisma.AdvisorSettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.advisorConversation`: Exposes CRUD operations for the **AdvisorConversation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdvisorConversations
+    * const advisorConversations = await prisma.advisorConversation.findMany()
+    * ```
+    */
+  get advisorConversation(): Prisma.AdvisorConversationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.advisorChatMessage`: Exposes CRUD operations for the **AdvisorChatMessage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdvisorChatMessages
+    * const advisorChatMessages = await prisma.advisorChatMessage.findMany()
+    * ```
+    */
+  get advisorChatMessage(): Prisma.AdvisorChatMessageDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.aiInsight`: Exposes CRUD operations for the **AiInsight** model.
@@ -1630,6 +1703,9 @@ export namespace Prisma {
     Notification: 'Notification',
     ClassificationCorrection: 'ClassificationCorrection',
     AnalyticsSnapshot: 'AnalyticsSnapshot',
+    AdvisorSetting: 'AdvisorSetting',
+    AdvisorConversation: 'AdvisorConversation',
+    AdvisorChatMessage: 'AdvisorChatMessage',
     AiInsight: 'AiInsight',
     FinanceScoreBoard: 'FinanceScoreBoard'
   };
@@ -1647,7 +1723,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "susbcriptionFreeTrials" | "paystackWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "aiInsight" | "financeScoreBoard"
+      modelProps: "currencies" | "locale" | "user" | "account" | "session" | "loginActivity" | "verificationToken" | "subscription" | "susbcriptionFreeTrials" | "paystackWebhookEvent" | "usageTracker" | "userBalance" | "monthlyBalanceSnapshot" | "backupCodes" | "activityLogs" | "notificationSetting" | "category" | "merchant" | "budget" | "budgetHistory" | "oCRDraft" | "transaction" | "recurringItem" | "goal" | "goalContribution" | "split" | "splitParticipant" | "splitSettlement" | "monoBankAccount" | "fcmDevice" | "notification" | "classificationCorrection" | "analyticsSnapshot" | "advisorSetting" | "advisorConversation" | "advisorChatMessage" | "aiInsight" | "financeScoreBoard"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4093,6 +4169,228 @@ export namespace Prisma {
           }
         }
       }
+      AdvisorSetting: {
+        payload: Prisma.$AdvisorSettingPayload<ExtArgs>
+        fields: Prisma.AdvisorSettingFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdvisorSettingFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdvisorSettingFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          findFirst: {
+            args: Prisma.AdvisorSettingFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdvisorSettingFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          findMany: {
+            args: Prisma.AdvisorSettingFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>[]
+          }
+          create: {
+            args: Prisma.AdvisorSettingCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          createMany: {
+            args: Prisma.AdvisorSettingCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdvisorSettingCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>[]
+          }
+          delete: {
+            args: Prisma.AdvisorSettingDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          update: {
+            args: Prisma.AdvisorSettingUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdvisorSettingDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdvisorSettingUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdvisorSettingUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdvisorSettingUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorSettingPayload>
+          }
+          aggregate: {
+            args: Prisma.AdvisorSettingAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdvisorSetting>
+          }
+          groupBy: {
+            args: Prisma.AdvisorSettingGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorSettingGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdvisorSettingCountArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorSettingCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdvisorConversation: {
+        payload: Prisma.$AdvisorConversationPayload<ExtArgs>
+        fields: Prisma.AdvisorConversationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdvisorConversationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdvisorConversationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          findFirst: {
+            args: Prisma.AdvisorConversationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdvisorConversationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          findMany: {
+            args: Prisma.AdvisorConversationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>[]
+          }
+          create: {
+            args: Prisma.AdvisorConversationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          createMany: {
+            args: Prisma.AdvisorConversationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdvisorConversationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>[]
+          }
+          delete: {
+            args: Prisma.AdvisorConversationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          update: {
+            args: Prisma.AdvisorConversationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdvisorConversationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdvisorConversationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdvisorConversationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>[]
+          }
+          upsert: {
+            args: Prisma.AdvisorConversationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorConversationPayload>
+          }
+          aggregate: {
+            args: Prisma.AdvisorConversationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdvisorConversation>
+          }
+          groupBy: {
+            args: Prisma.AdvisorConversationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorConversationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdvisorConversationCountArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorConversationCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdvisorChatMessage: {
+        payload: Prisma.$AdvisorChatMessagePayload<ExtArgs>
+        fields: Prisma.AdvisorChatMessageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdvisorChatMessageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdvisorChatMessageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          findFirst: {
+            args: Prisma.AdvisorChatMessageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdvisorChatMessageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          findMany: {
+            args: Prisma.AdvisorChatMessageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>[]
+          }
+          create: {
+            args: Prisma.AdvisorChatMessageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          createMany: {
+            args: Prisma.AdvisorChatMessageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdvisorChatMessageCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>[]
+          }
+          delete: {
+            args: Prisma.AdvisorChatMessageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          update: {
+            args: Prisma.AdvisorChatMessageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          deleteMany: {
+            args: Prisma.AdvisorChatMessageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdvisorChatMessageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AdvisorChatMessageUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>[]
+          }
+          upsert: {
+            args: Prisma.AdvisorChatMessageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdvisorChatMessagePayload>
+          }
+          aggregate: {
+            args: Prisma.AdvisorChatMessageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdvisorChatMessage>
+          }
+          groupBy: {
+            args: Prisma.AdvisorChatMessageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorChatMessageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdvisorChatMessageCountArgs<ExtArgs>
+            result: $Utils.Optional<AdvisorChatMessageCountAggregateOutputType> | number
+          }
+        }
+      }
       AiInsight: {
         payload: Prisma.$AiInsightPayload<ExtArgs>
         fields: Prisma.AiInsightFieldRefs
@@ -4382,6 +4680,9 @@ export namespace Prisma {
     notification?: NotificationOmit
     classificationCorrection?: ClassificationCorrectionOmit
     analyticsSnapshot?: AnalyticsSnapshotOmit
+    advisorSetting?: AdvisorSettingOmit
+    advisorConversation?: AdvisorConversationOmit
+    advisorChatMessage?: AdvisorChatMessageOmit
     aiInsight?: AiInsightOmit
     financeScoreBoard?: FinanceScoreBoardOmit
   }
@@ -4485,6 +4786,7 @@ export namespace Prisma {
     analyticsSnapshots: number
     aiInsights: number
     financeScoreBoard: number
+    advisorConversations: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4509,6 +4811,7 @@ export namespace Prisma {
     analyticsSnapshots?: boolean | UserCountOutputTypeCountAnalyticsSnapshotsArgs
     aiInsights?: boolean | UserCountOutputTypeCountAiInsightsArgs
     financeScoreBoard?: boolean | UserCountOutputTypeCountFinanceScoreBoardArgs
+    advisorConversations?: boolean | UserCountOutputTypeCountAdvisorConversationsArgs
   }
 
   // Custom InputTypes
@@ -4667,6 +4970,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountFinanceScoreBoardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FinanceScoreBoardWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAdvisorConversationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdvisorConversationWhereInput
   }
 
 
@@ -4942,6 +5252,37 @@ export namespace Prisma {
    */
   export type MonoBankAccountCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TransactionWhereInput
+  }
+
+
+  /**
+   * Count Type AdvisorConversationCountOutputType
+   */
+
+  export type AdvisorConversationCountOutputType = {
+    messages: number
+  }
+
+  export type AdvisorConversationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    messages?: boolean | AdvisorConversationCountOutputTypeCountMessagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AdvisorConversationCountOutputType without action
+   */
+  export type AdvisorConversationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversationCountOutputType
+     */
+    select?: AdvisorConversationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorConversationCountOutputType without action
+   */
+  export type AdvisorConversationCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdvisorChatMessageWhereInput
   }
 
 
@@ -7309,6 +7650,8 @@ export namespace Prisma {
     analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
     aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
     financeScoreBoard?: boolean | User$financeScoreBoardArgs<ExtArgs>
+    advisorSetting?: boolean | User$advisorSettingArgs<ExtArgs>
+    advisorConversations?: boolean | User$advisorConversationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7416,6 +7759,8 @@ export namespace Prisma {
     analyticsSnapshots?: boolean | User$analyticsSnapshotsArgs<ExtArgs>
     aiInsights?: boolean | User$aiInsightsArgs<ExtArgs>
     financeScoreBoard?: boolean | User$financeScoreBoardArgs<ExtArgs>
+    advisorSetting?: boolean | User$advisorSettingArgs<ExtArgs>
+    advisorConversations?: boolean | User$advisorConversationsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -7448,6 +7793,8 @@ export namespace Prisma {
       analyticsSnapshots: Prisma.$AnalyticsSnapshotPayload<ExtArgs>[]
       aiInsights: Prisma.$AiInsightPayload<ExtArgs>[]
       financeScoreBoard: Prisma.$FinanceScoreBoardPayload<ExtArgs>[]
+      advisorSetting: Prisma.$AdvisorSettingPayload<ExtArgs> | null
+      advisorConversations: Prisma.$AdvisorConversationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7891,6 +8238,8 @@ export namespace Prisma {
     analyticsSnapshots<T extends User$analyticsSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, User$analyticsSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     aiInsights<T extends User$aiInsightsArgs<ExtArgs> = {}>(args?: Subset<T, User$aiInsightsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AiInsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     financeScoreBoard<T extends User$financeScoreBoardArgs<ExtArgs> = {}>(args?: Subset<T, User$financeScoreBoardArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FinanceScoreBoardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    advisorSetting<T extends User$advisorSettingArgs<ExtArgs> = {}>(args?: Subset<T, User$advisorSettingArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    advisorConversations<T extends User$advisorConversationsArgs<ExtArgs> = {}>(args?: Subset<T, User$advisorConversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8889,6 +9238,49 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FinanceScoreBoardScalarFieldEnum | FinanceScoreBoardScalarFieldEnum[]
+  }
+
+  /**
+   * User.advisorSetting
+   */
+  export type User$advisorSettingArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    where?: AdvisorSettingWhereInput
+  }
+
+  /**
+   * User.advisorConversations
+   */
+  export type User$advisorConversationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    where?: AdvisorConversationWhereInput
+    orderBy?: AdvisorConversationOrderByWithRelationInput | AdvisorConversationOrderByWithRelationInput[]
+    cursor?: AdvisorConversationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdvisorConversationScalarFieldEnum | AdvisorConversationScalarFieldEnum[]
   }
 
   /**
@@ -43369,6 +43761,3219 @@ export namespace Prisma {
 
 
   /**
+   * Model AdvisorSetting
+   */
+
+  export type AggregateAdvisorSetting = {
+    _count: AdvisorSettingCountAggregateOutputType | null
+    _min: AdvisorSettingMinAggregateOutputType | null
+    _max: AdvisorSettingMaxAggregateOutputType | null
+  }
+
+  export type AdvisorSettingMinAggregateOutputType = {
+    id: string | null
+    enabled: boolean | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdvisorSettingMaxAggregateOutputType = {
+    id: string | null
+    enabled: boolean | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdvisorSettingCountAggregateOutputType = {
+    id: number
+    enabled: number
+    grantedScopes: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AdvisorSettingMinAggregateInputType = {
+    id?: true
+    enabled?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdvisorSettingMaxAggregateInputType = {
+    id?: true
+    enabled?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdvisorSettingCountAggregateInputType = {
+    id?: true
+    enabled?: true
+    grantedScopes?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AdvisorSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorSetting to aggregate.
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorSettings to fetch.
+     */
+    orderBy?: AdvisorSettingOrderByWithRelationInput | AdvisorSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdvisorSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdvisorSettings
+    **/
+    _count?: true | AdvisorSettingCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdvisorSettingMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdvisorSettingMaxAggregateInputType
+  }
+
+  export type GetAdvisorSettingAggregateType<T extends AdvisorSettingAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdvisorSetting]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdvisorSetting[P]>
+      : GetScalarType<T[P], AggregateAdvisorSetting[P]>
+  }
+
+
+
+
+  export type AdvisorSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdvisorSettingWhereInput
+    orderBy?: AdvisorSettingOrderByWithAggregationInput | AdvisorSettingOrderByWithAggregationInput[]
+    by: AdvisorSettingScalarFieldEnum[] | AdvisorSettingScalarFieldEnum
+    having?: AdvisorSettingScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdvisorSettingCountAggregateInputType | true
+    _min?: AdvisorSettingMinAggregateInputType
+    _max?: AdvisorSettingMaxAggregateInputType
+  }
+
+  export type AdvisorSettingGroupByOutputType = {
+    id: string
+    enabled: boolean
+    grantedScopes: $Enums.AdvisorScope[]
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: AdvisorSettingCountAggregateOutputType | null
+    _min: AdvisorSettingMinAggregateOutputType | null
+    _max: AdvisorSettingMaxAggregateOutputType | null
+  }
+
+  type GetAdvisorSettingGroupByPayload<T extends AdvisorSettingGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdvisorSettingGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdvisorSettingGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdvisorSettingGroupByOutputType[P]>
+            : GetScalarType<T[P], AdvisorSettingGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdvisorSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    grantedScopes?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorSetting"]>
+
+  export type AdvisorSettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    grantedScopes?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorSetting"]>
+
+  export type AdvisorSettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    grantedScopes?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorSetting"]>
+
+  export type AdvisorSettingSelectScalar = {
+    id?: boolean
+    enabled?: boolean
+    grantedScopes?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AdvisorSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "enabled" | "grantedScopes" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["advisorSetting"]>
+  export type AdvisorSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AdvisorSettingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AdvisorSettingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AdvisorSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdvisorSetting"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      enabled: boolean
+      grantedScopes: $Enums.AdvisorScope[]
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["advisorSetting"]>
+    composites: {}
+  }
+
+  type AdvisorSettingGetPayload<S extends boolean | null | undefined | AdvisorSettingDefaultArgs> = $Result.GetResult<Prisma.$AdvisorSettingPayload, S>
+
+  type AdvisorSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdvisorSettingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdvisorSettingCountAggregateInputType | true
+    }
+
+  export interface AdvisorSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdvisorSetting'], meta: { name: 'AdvisorSetting' } }
+    /**
+     * Find zero or one AdvisorSetting that matches the filter.
+     * @param {AdvisorSettingFindUniqueArgs} args - Arguments to find a AdvisorSetting
+     * @example
+     * // Get one AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdvisorSettingFindUniqueArgs>(args: SelectSubset<T, AdvisorSettingFindUniqueArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdvisorSetting that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdvisorSettingFindUniqueOrThrowArgs} args - Arguments to find a AdvisorSetting
+     * @example
+     * // Get one AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdvisorSettingFindUniqueOrThrowArgs>(args: SelectSubset<T, AdvisorSettingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorSetting that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingFindFirstArgs} args - Arguments to find a AdvisorSetting
+     * @example
+     * // Get one AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdvisorSettingFindFirstArgs>(args?: SelectSubset<T, AdvisorSettingFindFirstArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorSetting that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingFindFirstOrThrowArgs} args - Arguments to find a AdvisorSetting
+     * @example
+     * // Get one AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdvisorSettingFindFirstOrThrowArgs>(args?: SelectSubset<T, AdvisorSettingFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdvisorSettings that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdvisorSettings
+     * const advisorSettings = await prisma.advisorSetting.findMany()
+     * 
+     * // Get first 10 AdvisorSettings
+     * const advisorSettings = await prisma.advisorSetting.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const advisorSettingWithIdOnly = await prisma.advisorSetting.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdvisorSettingFindManyArgs>(args?: SelectSubset<T, AdvisorSettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdvisorSetting.
+     * @param {AdvisorSettingCreateArgs} args - Arguments to create a AdvisorSetting.
+     * @example
+     * // Create one AdvisorSetting
+     * const AdvisorSetting = await prisma.advisorSetting.create({
+     *   data: {
+     *     // ... data to create a AdvisorSetting
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdvisorSettingCreateArgs>(args: SelectSubset<T, AdvisorSettingCreateArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdvisorSettings.
+     * @param {AdvisorSettingCreateManyArgs} args - Arguments to create many AdvisorSettings.
+     * @example
+     * // Create many AdvisorSettings
+     * const advisorSetting = await prisma.advisorSetting.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdvisorSettingCreateManyArgs>(args?: SelectSubset<T, AdvisorSettingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdvisorSettings and returns the data saved in the database.
+     * @param {AdvisorSettingCreateManyAndReturnArgs} args - Arguments to create many AdvisorSettings.
+     * @example
+     * // Create many AdvisorSettings
+     * const advisorSetting = await prisma.advisorSetting.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdvisorSettings and only return the `id`
+     * const advisorSettingWithIdOnly = await prisma.advisorSetting.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdvisorSettingCreateManyAndReturnArgs>(args?: SelectSubset<T, AdvisorSettingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdvisorSetting.
+     * @param {AdvisorSettingDeleteArgs} args - Arguments to delete one AdvisorSetting.
+     * @example
+     * // Delete one AdvisorSetting
+     * const AdvisorSetting = await prisma.advisorSetting.delete({
+     *   where: {
+     *     // ... filter to delete one AdvisorSetting
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdvisorSettingDeleteArgs>(args: SelectSubset<T, AdvisorSettingDeleteArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdvisorSetting.
+     * @param {AdvisorSettingUpdateArgs} args - Arguments to update one AdvisorSetting.
+     * @example
+     * // Update one AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdvisorSettingUpdateArgs>(args: SelectSubset<T, AdvisorSettingUpdateArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdvisorSettings.
+     * @param {AdvisorSettingDeleteManyArgs} args - Arguments to filter AdvisorSettings to delete.
+     * @example
+     * // Delete a few AdvisorSettings
+     * const { count } = await prisma.advisorSetting.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdvisorSettingDeleteManyArgs>(args?: SelectSubset<T, AdvisorSettingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdvisorSettings
+     * const advisorSetting = await prisma.advisorSetting.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdvisorSettingUpdateManyArgs>(args: SelectSubset<T, AdvisorSettingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorSettings and returns the data updated in the database.
+     * @param {AdvisorSettingUpdateManyAndReturnArgs} args - Arguments to update many AdvisorSettings.
+     * @example
+     * // Update many AdvisorSettings
+     * const advisorSetting = await prisma.advisorSetting.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdvisorSettings and only return the `id`
+     * const advisorSettingWithIdOnly = await prisma.advisorSetting.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdvisorSettingUpdateManyAndReturnArgs>(args: SelectSubset<T, AdvisorSettingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdvisorSetting.
+     * @param {AdvisorSettingUpsertArgs} args - Arguments to update or create a AdvisorSetting.
+     * @example
+     * // Update or create a AdvisorSetting
+     * const advisorSetting = await prisma.advisorSetting.upsert({
+     *   create: {
+     *     // ... data to create a AdvisorSetting
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdvisorSetting we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdvisorSettingUpsertArgs>(args: SelectSubset<T, AdvisorSettingUpsertArgs<ExtArgs>>): Prisma__AdvisorSettingClient<$Result.GetResult<Prisma.$AdvisorSettingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdvisorSettings.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingCountArgs} args - Arguments to filter AdvisorSettings to count.
+     * @example
+     * // Count the number of AdvisorSettings
+     * const count = await prisma.advisorSetting.count({
+     *   where: {
+     *     // ... the filter for the AdvisorSettings we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdvisorSettingCountArgs>(
+      args?: Subset<T, AdvisorSettingCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdvisorSettingCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdvisorSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdvisorSettingAggregateArgs>(args: Subset<T, AdvisorSettingAggregateArgs>): Prisma.PrismaPromise<GetAdvisorSettingAggregateType<T>>
+
+    /**
+     * Group by AdvisorSetting.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorSettingGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdvisorSettingGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdvisorSettingGroupByArgs['orderBy'] }
+        : { orderBy?: AdvisorSettingGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdvisorSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdvisorSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdvisorSetting model
+   */
+  readonly fields: AdvisorSettingFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdvisorSetting.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdvisorSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdvisorSetting model
+   */
+  interface AdvisorSettingFieldRefs {
+    readonly id: FieldRef<"AdvisorSetting", 'String'>
+    readonly enabled: FieldRef<"AdvisorSetting", 'Boolean'>
+    readonly grantedScopes: FieldRef<"AdvisorSetting", 'AdvisorScope[]'>
+    readonly userId: FieldRef<"AdvisorSetting", 'String'>
+    readonly createdAt: FieldRef<"AdvisorSetting", 'DateTime'>
+    readonly updatedAt: FieldRef<"AdvisorSetting", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdvisorSetting findUnique
+   */
+  export type AdvisorSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorSetting to fetch.
+     */
+    where: AdvisorSettingWhereUniqueInput
+  }
+
+  /**
+   * AdvisorSetting findUniqueOrThrow
+   */
+  export type AdvisorSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorSetting to fetch.
+     */
+    where: AdvisorSettingWhereUniqueInput
+  }
+
+  /**
+   * AdvisorSetting findFirst
+   */
+  export type AdvisorSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorSetting to fetch.
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorSettings to fetch.
+     */
+    orderBy?: AdvisorSettingOrderByWithRelationInput | AdvisorSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorSettings.
+     */
+    cursor?: AdvisorSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorSettings.
+     */
+    distinct?: AdvisorSettingScalarFieldEnum | AdvisorSettingScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorSetting findFirstOrThrow
+   */
+  export type AdvisorSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorSetting to fetch.
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorSettings to fetch.
+     */
+    orderBy?: AdvisorSettingOrderByWithRelationInput | AdvisorSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorSettings.
+     */
+    cursor?: AdvisorSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorSettings.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorSettings.
+     */
+    distinct?: AdvisorSettingScalarFieldEnum | AdvisorSettingScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorSetting findMany
+   */
+  export type AdvisorSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorSettings to fetch.
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorSettings to fetch.
+     */
+    orderBy?: AdvisorSettingOrderByWithRelationInput | AdvisorSettingOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdvisorSettings.
+     */
+    cursor?: AdvisorSettingWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorSettings from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorSettings.
+     */
+    skip?: number
+    distinct?: AdvisorSettingScalarFieldEnum | AdvisorSettingScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorSetting create
+   */
+  export type AdvisorSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdvisorSetting.
+     */
+    data: XOR<AdvisorSettingCreateInput, AdvisorSettingUncheckedCreateInput>
+  }
+
+  /**
+   * AdvisorSetting createMany
+   */
+  export type AdvisorSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdvisorSettings.
+     */
+    data: AdvisorSettingCreateManyInput | AdvisorSettingCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdvisorSetting createManyAndReturn
+   */
+  export type AdvisorSettingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdvisorSettings.
+     */
+    data: AdvisorSettingCreateManyInput | AdvisorSettingCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorSetting update
+   */
+  export type AdvisorSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdvisorSetting.
+     */
+    data: XOR<AdvisorSettingUpdateInput, AdvisorSettingUncheckedUpdateInput>
+    /**
+     * Choose, which AdvisorSetting to update.
+     */
+    where: AdvisorSettingWhereUniqueInput
+  }
+
+  /**
+   * AdvisorSetting updateMany
+   */
+  export type AdvisorSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdvisorSettings.
+     */
+    data: XOR<AdvisorSettingUpdateManyMutationInput, AdvisorSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorSettings to update
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * Limit how many AdvisorSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorSetting updateManyAndReturn
+   */
+  export type AdvisorSettingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * The data used to update AdvisorSettings.
+     */
+    data: XOR<AdvisorSettingUpdateManyMutationInput, AdvisorSettingUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorSettings to update
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * Limit how many AdvisorSettings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorSetting upsert
+   */
+  export type AdvisorSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdvisorSetting to update in case it exists.
+     */
+    where: AdvisorSettingWhereUniqueInput
+    /**
+     * In case the AdvisorSetting found by the `where` argument doesn't exist, create a new AdvisorSetting with this data.
+     */
+    create: XOR<AdvisorSettingCreateInput, AdvisorSettingUncheckedCreateInput>
+    /**
+     * In case the AdvisorSetting was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdvisorSettingUpdateInput, AdvisorSettingUncheckedUpdateInput>
+  }
+
+  /**
+   * AdvisorSetting delete
+   */
+  export type AdvisorSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+    /**
+     * Filter which AdvisorSetting to delete.
+     */
+    where: AdvisorSettingWhereUniqueInput
+  }
+
+  /**
+   * AdvisorSetting deleteMany
+   */
+  export type AdvisorSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorSettings to delete
+     */
+    where?: AdvisorSettingWhereInput
+    /**
+     * Limit how many AdvisorSettings to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorSetting without action
+   */
+  export type AdvisorSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorSetting
+     */
+    select?: AdvisorSettingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorSetting
+     */
+    omit?: AdvisorSettingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorSettingInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdvisorConversation
+   */
+
+  export type AggregateAdvisorConversation = {
+    _count: AdvisorConversationCountAggregateOutputType | null
+    _min: AdvisorConversationMinAggregateOutputType | null
+    _max: AdvisorConversationMaxAggregateOutputType | null
+  }
+
+  export type AdvisorConversationMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdvisorConversationMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AdvisorConversationCountAggregateOutputType = {
+    id: number
+    title: number
+    userId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AdvisorConversationMinAggregateInputType = {
+    id?: true
+    title?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdvisorConversationMaxAggregateInputType = {
+    id?: true
+    title?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AdvisorConversationCountAggregateInputType = {
+    id?: true
+    title?: true
+    userId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AdvisorConversationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorConversation to aggregate.
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorConversations to fetch.
+     */
+    orderBy?: AdvisorConversationOrderByWithRelationInput | AdvisorConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdvisorConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdvisorConversations
+    **/
+    _count?: true | AdvisorConversationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdvisorConversationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdvisorConversationMaxAggregateInputType
+  }
+
+  export type GetAdvisorConversationAggregateType<T extends AdvisorConversationAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdvisorConversation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdvisorConversation[P]>
+      : GetScalarType<T[P], AggregateAdvisorConversation[P]>
+  }
+
+
+
+
+  export type AdvisorConversationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdvisorConversationWhereInput
+    orderBy?: AdvisorConversationOrderByWithAggregationInput | AdvisorConversationOrderByWithAggregationInput[]
+    by: AdvisorConversationScalarFieldEnum[] | AdvisorConversationScalarFieldEnum
+    having?: AdvisorConversationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdvisorConversationCountAggregateInputType | true
+    _min?: AdvisorConversationMinAggregateInputType
+    _max?: AdvisorConversationMaxAggregateInputType
+  }
+
+  export type AdvisorConversationGroupByOutputType = {
+    id: string
+    title: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: AdvisorConversationCountAggregateOutputType | null
+    _min: AdvisorConversationMinAggregateOutputType | null
+    _max: AdvisorConversationMaxAggregateOutputType | null
+  }
+
+  type GetAdvisorConversationGroupByPayload<T extends AdvisorConversationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdvisorConversationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdvisorConversationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdvisorConversationGroupByOutputType[P]>
+            : GetScalarType<T[P], AdvisorConversationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdvisorConversationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    messages?: boolean | AdvisorConversation$messagesArgs<ExtArgs>
+    _count?: boolean | AdvisorConversationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorConversation"]>
+
+  export type AdvisorConversationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorConversation"]>
+
+  export type AdvisorConversationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorConversation"]>
+
+  export type AdvisorConversationSelectScalar = {
+    id?: boolean
+    title?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AdvisorConversationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["advisorConversation"]>
+  export type AdvisorConversationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    messages?: boolean | AdvisorConversation$messagesArgs<ExtArgs>
+    _count?: boolean | AdvisorConversationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AdvisorConversationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AdvisorConversationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AdvisorConversationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdvisorConversation"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      messages: Prisma.$AdvisorChatMessagePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      userId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["advisorConversation"]>
+    composites: {}
+  }
+
+  type AdvisorConversationGetPayload<S extends boolean | null | undefined | AdvisorConversationDefaultArgs> = $Result.GetResult<Prisma.$AdvisorConversationPayload, S>
+
+  type AdvisorConversationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdvisorConversationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdvisorConversationCountAggregateInputType | true
+    }
+
+  export interface AdvisorConversationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdvisorConversation'], meta: { name: 'AdvisorConversation' } }
+    /**
+     * Find zero or one AdvisorConversation that matches the filter.
+     * @param {AdvisorConversationFindUniqueArgs} args - Arguments to find a AdvisorConversation
+     * @example
+     * // Get one AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdvisorConversationFindUniqueArgs>(args: SelectSubset<T, AdvisorConversationFindUniqueArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdvisorConversation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdvisorConversationFindUniqueOrThrowArgs} args - Arguments to find a AdvisorConversation
+     * @example
+     * // Get one AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdvisorConversationFindUniqueOrThrowArgs>(args: SelectSubset<T, AdvisorConversationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorConversation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationFindFirstArgs} args - Arguments to find a AdvisorConversation
+     * @example
+     * // Get one AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdvisorConversationFindFirstArgs>(args?: SelectSubset<T, AdvisorConversationFindFirstArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorConversation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationFindFirstOrThrowArgs} args - Arguments to find a AdvisorConversation
+     * @example
+     * // Get one AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdvisorConversationFindFirstOrThrowArgs>(args?: SelectSubset<T, AdvisorConversationFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdvisorConversations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdvisorConversations
+     * const advisorConversations = await prisma.advisorConversation.findMany()
+     * 
+     * // Get first 10 AdvisorConversations
+     * const advisorConversations = await prisma.advisorConversation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const advisorConversationWithIdOnly = await prisma.advisorConversation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdvisorConversationFindManyArgs>(args?: SelectSubset<T, AdvisorConversationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdvisorConversation.
+     * @param {AdvisorConversationCreateArgs} args - Arguments to create a AdvisorConversation.
+     * @example
+     * // Create one AdvisorConversation
+     * const AdvisorConversation = await prisma.advisorConversation.create({
+     *   data: {
+     *     // ... data to create a AdvisorConversation
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdvisorConversationCreateArgs>(args: SelectSubset<T, AdvisorConversationCreateArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdvisorConversations.
+     * @param {AdvisorConversationCreateManyArgs} args - Arguments to create many AdvisorConversations.
+     * @example
+     * // Create many AdvisorConversations
+     * const advisorConversation = await prisma.advisorConversation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdvisorConversationCreateManyArgs>(args?: SelectSubset<T, AdvisorConversationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdvisorConversations and returns the data saved in the database.
+     * @param {AdvisorConversationCreateManyAndReturnArgs} args - Arguments to create many AdvisorConversations.
+     * @example
+     * // Create many AdvisorConversations
+     * const advisorConversation = await prisma.advisorConversation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdvisorConversations and only return the `id`
+     * const advisorConversationWithIdOnly = await prisma.advisorConversation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdvisorConversationCreateManyAndReturnArgs>(args?: SelectSubset<T, AdvisorConversationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdvisorConversation.
+     * @param {AdvisorConversationDeleteArgs} args - Arguments to delete one AdvisorConversation.
+     * @example
+     * // Delete one AdvisorConversation
+     * const AdvisorConversation = await prisma.advisorConversation.delete({
+     *   where: {
+     *     // ... filter to delete one AdvisorConversation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdvisorConversationDeleteArgs>(args: SelectSubset<T, AdvisorConversationDeleteArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdvisorConversation.
+     * @param {AdvisorConversationUpdateArgs} args - Arguments to update one AdvisorConversation.
+     * @example
+     * // Update one AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdvisorConversationUpdateArgs>(args: SelectSubset<T, AdvisorConversationUpdateArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdvisorConversations.
+     * @param {AdvisorConversationDeleteManyArgs} args - Arguments to filter AdvisorConversations to delete.
+     * @example
+     * // Delete a few AdvisorConversations
+     * const { count } = await prisma.advisorConversation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdvisorConversationDeleteManyArgs>(args?: SelectSubset<T, AdvisorConversationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorConversations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdvisorConversations
+     * const advisorConversation = await prisma.advisorConversation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdvisorConversationUpdateManyArgs>(args: SelectSubset<T, AdvisorConversationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorConversations and returns the data updated in the database.
+     * @param {AdvisorConversationUpdateManyAndReturnArgs} args - Arguments to update many AdvisorConversations.
+     * @example
+     * // Update many AdvisorConversations
+     * const advisorConversation = await prisma.advisorConversation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdvisorConversations and only return the `id`
+     * const advisorConversationWithIdOnly = await prisma.advisorConversation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdvisorConversationUpdateManyAndReturnArgs>(args: SelectSubset<T, AdvisorConversationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdvisorConversation.
+     * @param {AdvisorConversationUpsertArgs} args - Arguments to update or create a AdvisorConversation.
+     * @example
+     * // Update or create a AdvisorConversation
+     * const advisorConversation = await prisma.advisorConversation.upsert({
+     *   create: {
+     *     // ... data to create a AdvisorConversation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdvisorConversation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdvisorConversationUpsertArgs>(args: SelectSubset<T, AdvisorConversationUpsertArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdvisorConversations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationCountArgs} args - Arguments to filter AdvisorConversations to count.
+     * @example
+     * // Count the number of AdvisorConversations
+     * const count = await prisma.advisorConversation.count({
+     *   where: {
+     *     // ... the filter for the AdvisorConversations we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdvisorConversationCountArgs>(
+      args?: Subset<T, AdvisorConversationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdvisorConversationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdvisorConversation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdvisorConversationAggregateArgs>(args: Subset<T, AdvisorConversationAggregateArgs>): Prisma.PrismaPromise<GetAdvisorConversationAggregateType<T>>
+
+    /**
+     * Group by AdvisorConversation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorConversationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdvisorConversationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdvisorConversationGroupByArgs['orderBy'] }
+        : { orderBy?: AdvisorConversationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdvisorConversationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdvisorConversationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdvisorConversation model
+   */
+  readonly fields: AdvisorConversationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdvisorConversation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdvisorConversationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    messages<T extends AdvisorConversation$messagesArgs<ExtArgs> = {}>(args?: Subset<T, AdvisorConversation$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdvisorConversation model
+   */
+  interface AdvisorConversationFieldRefs {
+    readonly id: FieldRef<"AdvisorConversation", 'String'>
+    readonly title: FieldRef<"AdvisorConversation", 'String'>
+    readonly userId: FieldRef<"AdvisorConversation", 'String'>
+    readonly createdAt: FieldRef<"AdvisorConversation", 'DateTime'>
+    readonly updatedAt: FieldRef<"AdvisorConversation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdvisorConversation findUnique
+   */
+  export type AdvisorConversationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorConversation to fetch.
+     */
+    where: AdvisorConversationWhereUniqueInput
+  }
+
+  /**
+   * AdvisorConversation findUniqueOrThrow
+   */
+  export type AdvisorConversationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorConversation to fetch.
+     */
+    where: AdvisorConversationWhereUniqueInput
+  }
+
+  /**
+   * AdvisorConversation findFirst
+   */
+  export type AdvisorConversationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorConversation to fetch.
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorConversations to fetch.
+     */
+    orderBy?: AdvisorConversationOrderByWithRelationInput | AdvisorConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorConversations.
+     */
+    cursor?: AdvisorConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorConversations.
+     */
+    distinct?: AdvisorConversationScalarFieldEnum | AdvisorConversationScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorConversation findFirstOrThrow
+   */
+  export type AdvisorConversationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorConversation to fetch.
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorConversations to fetch.
+     */
+    orderBy?: AdvisorConversationOrderByWithRelationInput | AdvisorConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorConversations.
+     */
+    cursor?: AdvisorConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorConversations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorConversations.
+     */
+    distinct?: AdvisorConversationScalarFieldEnum | AdvisorConversationScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorConversation findMany
+   */
+  export type AdvisorConversationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorConversations to fetch.
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorConversations to fetch.
+     */
+    orderBy?: AdvisorConversationOrderByWithRelationInput | AdvisorConversationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdvisorConversations.
+     */
+    cursor?: AdvisorConversationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorConversations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorConversations.
+     */
+    skip?: number
+    distinct?: AdvisorConversationScalarFieldEnum | AdvisorConversationScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorConversation create
+   */
+  export type AdvisorConversationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdvisorConversation.
+     */
+    data: XOR<AdvisorConversationCreateInput, AdvisorConversationUncheckedCreateInput>
+  }
+
+  /**
+   * AdvisorConversation createMany
+   */
+  export type AdvisorConversationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdvisorConversations.
+     */
+    data: AdvisorConversationCreateManyInput | AdvisorConversationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdvisorConversation createManyAndReturn
+   */
+  export type AdvisorConversationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdvisorConversations.
+     */
+    data: AdvisorConversationCreateManyInput | AdvisorConversationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorConversation update
+   */
+  export type AdvisorConversationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdvisorConversation.
+     */
+    data: XOR<AdvisorConversationUpdateInput, AdvisorConversationUncheckedUpdateInput>
+    /**
+     * Choose, which AdvisorConversation to update.
+     */
+    where: AdvisorConversationWhereUniqueInput
+  }
+
+  /**
+   * AdvisorConversation updateMany
+   */
+  export type AdvisorConversationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdvisorConversations.
+     */
+    data: XOR<AdvisorConversationUpdateManyMutationInput, AdvisorConversationUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorConversations to update
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * Limit how many AdvisorConversations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorConversation updateManyAndReturn
+   */
+  export type AdvisorConversationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * The data used to update AdvisorConversations.
+     */
+    data: XOR<AdvisorConversationUpdateManyMutationInput, AdvisorConversationUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorConversations to update
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * Limit how many AdvisorConversations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorConversation upsert
+   */
+  export type AdvisorConversationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdvisorConversation to update in case it exists.
+     */
+    where: AdvisorConversationWhereUniqueInput
+    /**
+     * In case the AdvisorConversation found by the `where` argument doesn't exist, create a new AdvisorConversation with this data.
+     */
+    create: XOR<AdvisorConversationCreateInput, AdvisorConversationUncheckedCreateInput>
+    /**
+     * In case the AdvisorConversation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdvisorConversationUpdateInput, AdvisorConversationUncheckedUpdateInput>
+  }
+
+  /**
+   * AdvisorConversation delete
+   */
+  export type AdvisorConversationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+    /**
+     * Filter which AdvisorConversation to delete.
+     */
+    where: AdvisorConversationWhereUniqueInput
+  }
+
+  /**
+   * AdvisorConversation deleteMany
+   */
+  export type AdvisorConversationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorConversations to delete
+     */
+    where?: AdvisorConversationWhereInput
+    /**
+     * Limit how many AdvisorConversations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorConversation.messages
+   */
+  export type AdvisorConversation$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    where?: AdvisorChatMessageWhereInput
+    orderBy?: AdvisorChatMessageOrderByWithRelationInput | AdvisorChatMessageOrderByWithRelationInput[]
+    cursor?: AdvisorChatMessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AdvisorChatMessageScalarFieldEnum | AdvisorChatMessageScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorConversation without action
+   */
+  export type AdvisorConversationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorConversation
+     */
+    select?: AdvisorConversationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorConversation
+     */
+    omit?: AdvisorConversationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorConversationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdvisorChatMessage
+   */
+
+  export type AggregateAdvisorChatMessage = {
+    _count: AdvisorChatMessageCountAggregateOutputType | null
+    _min: AdvisorChatMessageMinAggregateOutputType | null
+    _max: AdvisorChatMessageMaxAggregateOutputType | null
+  }
+
+  export type AdvisorChatMessageMinAggregateOutputType = {
+    id: string | null
+    role: $Enums.AdvisorChatRole | null
+    content: string | null
+    conversationId: string | null
+    createdAt: Date | null
+  }
+
+  export type AdvisorChatMessageMaxAggregateOutputType = {
+    id: string | null
+    role: $Enums.AdvisorChatRole | null
+    content: string | null
+    conversationId: string | null
+    createdAt: Date | null
+  }
+
+  export type AdvisorChatMessageCountAggregateOutputType = {
+    id: number
+    role: number
+    content: number
+    conversationId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AdvisorChatMessageMinAggregateInputType = {
+    id?: true
+    role?: true
+    content?: true
+    conversationId?: true
+    createdAt?: true
+  }
+
+  export type AdvisorChatMessageMaxAggregateInputType = {
+    id?: true
+    role?: true
+    content?: true
+    conversationId?: true
+    createdAt?: true
+  }
+
+  export type AdvisorChatMessageCountAggregateInputType = {
+    id?: true
+    role?: true
+    content?: true
+    conversationId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AdvisorChatMessageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorChatMessage to aggregate.
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorChatMessages to fetch.
+     */
+    orderBy?: AdvisorChatMessageOrderByWithRelationInput | AdvisorChatMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdvisorChatMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorChatMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorChatMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdvisorChatMessages
+    **/
+    _count?: true | AdvisorChatMessageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdvisorChatMessageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdvisorChatMessageMaxAggregateInputType
+  }
+
+  export type GetAdvisorChatMessageAggregateType<T extends AdvisorChatMessageAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdvisorChatMessage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdvisorChatMessage[P]>
+      : GetScalarType<T[P], AggregateAdvisorChatMessage[P]>
+  }
+
+
+
+
+  export type AdvisorChatMessageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdvisorChatMessageWhereInput
+    orderBy?: AdvisorChatMessageOrderByWithAggregationInput | AdvisorChatMessageOrderByWithAggregationInput[]
+    by: AdvisorChatMessageScalarFieldEnum[] | AdvisorChatMessageScalarFieldEnum
+    having?: AdvisorChatMessageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdvisorChatMessageCountAggregateInputType | true
+    _min?: AdvisorChatMessageMinAggregateInputType
+    _max?: AdvisorChatMessageMaxAggregateInputType
+  }
+
+  export type AdvisorChatMessageGroupByOutputType = {
+    id: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    conversationId: string
+    createdAt: Date
+    _count: AdvisorChatMessageCountAggregateOutputType | null
+    _min: AdvisorChatMessageMinAggregateOutputType | null
+    _max: AdvisorChatMessageMaxAggregateOutputType | null
+  }
+
+  type GetAdvisorChatMessageGroupByPayload<T extends AdvisorChatMessageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdvisorChatMessageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdvisorChatMessageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdvisorChatMessageGroupByOutputType[P]>
+            : GetScalarType<T[P], AdvisorChatMessageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdvisorChatMessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    role?: boolean
+    content?: boolean
+    conversationId?: boolean
+    createdAt?: boolean
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorChatMessage"]>
+
+  export type AdvisorChatMessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    role?: boolean
+    content?: boolean
+    conversationId?: boolean
+    createdAt?: boolean
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorChatMessage"]>
+
+  export type AdvisorChatMessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    role?: boolean
+    content?: boolean
+    conversationId?: boolean
+    createdAt?: boolean
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["advisorChatMessage"]>
+
+  export type AdvisorChatMessageSelectScalar = {
+    id?: boolean
+    role?: boolean
+    content?: boolean
+    conversationId?: boolean
+    createdAt?: boolean
+  }
+
+  export type AdvisorChatMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "role" | "content" | "conversationId" | "createdAt", ExtArgs["result"]["advisorChatMessage"]>
+  export type AdvisorChatMessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }
+  export type AdvisorChatMessageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }
+  export type AdvisorChatMessageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
+  }
+
+  export type $AdvisorChatMessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdvisorChatMessage"
+    objects: {
+      conversation: Prisma.$AdvisorConversationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      role: $Enums.AdvisorChatRole
+      content: string
+      conversationId: string
+      createdAt: Date
+    }, ExtArgs["result"]["advisorChatMessage"]>
+    composites: {}
+  }
+
+  type AdvisorChatMessageGetPayload<S extends boolean | null | undefined | AdvisorChatMessageDefaultArgs> = $Result.GetResult<Prisma.$AdvisorChatMessagePayload, S>
+
+  type AdvisorChatMessageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AdvisorChatMessageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AdvisorChatMessageCountAggregateInputType | true
+    }
+
+  export interface AdvisorChatMessageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdvisorChatMessage'], meta: { name: 'AdvisorChatMessage' } }
+    /**
+     * Find zero or one AdvisorChatMessage that matches the filter.
+     * @param {AdvisorChatMessageFindUniqueArgs} args - Arguments to find a AdvisorChatMessage
+     * @example
+     * // Get one AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdvisorChatMessageFindUniqueArgs>(args: SelectSubset<T, AdvisorChatMessageFindUniqueArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AdvisorChatMessage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AdvisorChatMessageFindUniqueOrThrowArgs} args - Arguments to find a AdvisorChatMessage
+     * @example
+     * // Get one AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdvisorChatMessageFindUniqueOrThrowArgs>(args: SelectSubset<T, AdvisorChatMessageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorChatMessage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageFindFirstArgs} args - Arguments to find a AdvisorChatMessage
+     * @example
+     * // Get one AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdvisorChatMessageFindFirstArgs>(args?: SelectSubset<T, AdvisorChatMessageFindFirstArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AdvisorChatMessage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageFindFirstOrThrowArgs} args - Arguments to find a AdvisorChatMessage
+     * @example
+     * // Get one AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdvisorChatMessageFindFirstOrThrowArgs>(args?: SelectSubset<T, AdvisorChatMessageFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AdvisorChatMessages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdvisorChatMessages
+     * const advisorChatMessages = await prisma.advisorChatMessage.findMany()
+     * 
+     * // Get first 10 AdvisorChatMessages
+     * const advisorChatMessages = await prisma.advisorChatMessage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const advisorChatMessageWithIdOnly = await prisma.advisorChatMessage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdvisorChatMessageFindManyArgs>(args?: SelectSubset<T, AdvisorChatMessageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AdvisorChatMessage.
+     * @param {AdvisorChatMessageCreateArgs} args - Arguments to create a AdvisorChatMessage.
+     * @example
+     * // Create one AdvisorChatMessage
+     * const AdvisorChatMessage = await prisma.advisorChatMessage.create({
+     *   data: {
+     *     // ... data to create a AdvisorChatMessage
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdvisorChatMessageCreateArgs>(args: SelectSubset<T, AdvisorChatMessageCreateArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AdvisorChatMessages.
+     * @param {AdvisorChatMessageCreateManyArgs} args - Arguments to create many AdvisorChatMessages.
+     * @example
+     * // Create many AdvisorChatMessages
+     * const advisorChatMessage = await prisma.advisorChatMessage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdvisorChatMessageCreateManyArgs>(args?: SelectSubset<T, AdvisorChatMessageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdvisorChatMessages and returns the data saved in the database.
+     * @param {AdvisorChatMessageCreateManyAndReturnArgs} args - Arguments to create many AdvisorChatMessages.
+     * @example
+     * // Create many AdvisorChatMessages
+     * const advisorChatMessage = await prisma.advisorChatMessage.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdvisorChatMessages and only return the `id`
+     * const advisorChatMessageWithIdOnly = await prisma.advisorChatMessage.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdvisorChatMessageCreateManyAndReturnArgs>(args?: SelectSubset<T, AdvisorChatMessageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AdvisorChatMessage.
+     * @param {AdvisorChatMessageDeleteArgs} args - Arguments to delete one AdvisorChatMessage.
+     * @example
+     * // Delete one AdvisorChatMessage
+     * const AdvisorChatMessage = await prisma.advisorChatMessage.delete({
+     *   where: {
+     *     // ... filter to delete one AdvisorChatMessage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdvisorChatMessageDeleteArgs>(args: SelectSubset<T, AdvisorChatMessageDeleteArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AdvisorChatMessage.
+     * @param {AdvisorChatMessageUpdateArgs} args - Arguments to update one AdvisorChatMessage.
+     * @example
+     * // Update one AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdvisorChatMessageUpdateArgs>(args: SelectSubset<T, AdvisorChatMessageUpdateArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AdvisorChatMessages.
+     * @param {AdvisorChatMessageDeleteManyArgs} args - Arguments to filter AdvisorChatMessages to delete.
+     * @example
+     * // Delete a few AdvisorChatMessages
+     * const { count } = await prisma.advisorChatMessage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdvisorChatMessageDeleteManyArgs>(args?: SelectSubset<T, AdvisorChatMessageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorChatMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdvisorChatMessages
+     * const advisorChatMessage = await prisma.advisorChatMessage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdvisorChatMessageUpdateManyArgs>(args: SelectSubset<T, AdvisorChatMessageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdvisorChatMessages and returns the data updated in the database.
+     * @param {AdvisorChatMessageUpdateManyAndReturnArgs} args - Arguments to update many AdvisorChatMessages.
+     * @example
+     * // Update many AdvisorChatMessages
+     * const advisorChatMessage = await prisma.advisorChatMessage.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AdvisorChatMessages and only return the `id`
+     * const advisorChatMessageWithIdOnly = await prisma.advisorChatMessage.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AdvisorChatMessageUpdateManyAndReturnArgs>(args: SelectSubset<T, AdvisorChatMessageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AdvisorChatMessage.
+     * @param {AdvisorChatMessageUpsertArgs} args - Arguments to update or create a AdvisorChatMessage.
+     * @example
+     * // Update or create a AdvisorChatMessage
+     * const advisorChatMessage = await prisma.advisorChatMessage.upsert({
+     *   create: {
+     *     // ... data to create a AdvisorChatMessage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdvisorChatMessage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdvisorChatMessageUpsertArgs>(args: SelectSubset<T, AdvisorChatMessageUpsertArgs<ExtArgs>>): Prisma__AdvisorChatMessageClient<$Result.GetResult<Prisma.$AdvisorChatMessagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AdvisorChatMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageCountArgs} args - Arguments to filter AdvisorChatMessages to count.
+     * @example
+     * // Count the number of AdvisorChatMessages
+     * const count = await prisma.advisorChatMessage.count({
+     *   where: {
+     *     // ... the filter for the AdvisorChatMessages we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdvisorChatMessageCountArgs>(
+      args?: Subset<T, AdvisorChatMessageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdvisorChatMessageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdvisorChatMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdvisorChatMessageAggregateArgs>(args: Subset<T, AdvisorChatMessageAggregateArgs>): Prisma.PrismaPromise<GetAdvisorChatMessageAggregateType<T>>
+
+    /**
+     * Group by AdvisorChatMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdvisorChatMessageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdvisorChatMessageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdvisorChatMessageGroupByArgs['orderBy'] }
+        : { orderBy?: AdvisorChatMessageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdvisorChatMessageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdvisorChatMessageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdvisorChatMessage model
+   */
+  readonly fields: AdvisorChatMessageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdvisorChatMessage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdvisorChatMessageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    conversation<T extends AdvisorConversationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdvisorConversationDefaultArgs<ExtArgs>>): Prisma__AdvisorConversationClient<$Result.GetResult<Prisma.$AdvisorConversationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdvisorChatMessage model
+   */
+  interface AdvisorChatMessageFieldRefs {
+    readonly id: FieldRef<"AdvisorChatMessage", 'String'>
+    readonly role: FieldRef<"AdvisorChatMessage", 'AdvisorChatRole'>
+    readonly content: FieldRef<"AdvisorChatMessage", 'String'>
+    readonly conversationId: FieldRef<"AdvisorChatMessage", 'String'>
+    readonly createdAt: FieldRef<"AdvisorChatMessage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdvisorChatMessage findUnique
+   */
+  export type AdvisorChatMessageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorChatMessage to fetch.
+     */
+    where: AdvisorChatMessageWhereUniqueInput
+  }
+
+  /**
+   * AdvisorChatMessage findUniqueOrThrow
+   */
+  export type AdvisorChatMessageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorChatMessage to fetch.
+     */
+    where: AdvisorChatMessageWhereUniqueInput
+  }
+
+  /**
+   * AdvisorChatMessage findFirst
+   */
+  export type AdvisorChatMessageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorChatMessage to fetch.
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorChatMessages to fetch.
+     */
+    orderBy?: AdvisorChatMessageOrderByWithRelationInput | AdvisorChatMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorChatMessages.
+     */
+    cursor?: AdvisorChatMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorChatMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorChatMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorChatMessages.
+     */
+    distinct?: AdvisorChatMessageScalarFieldEnum | AdvisorChatMessageScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorChatMessage findFirstOrThrow
+   */
+  export type AdvisorChatMessageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorChatMessage to fetch.
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorChatMessages to fetch.
+     */
+    orderBy?: AdvisorChatMessageOrderByWithRelationInput | AdvisorChatMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdvisorChatMessages.
+     */
+    cursor?: AdvisorChatMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorChatMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorChatMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdvisorChatMessages.
+     */
+    distinct?: AdvisorChatMessageScalarFieldEnum | AdvisorChatMessageScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorChatMessage findMany
+   */
+  export type AdvisorChatMessageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which AdvisorChatMessages to fetch.
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdvisorChatMessages to fetch.
+     */
+    orderBy?: AdvisorChatMessageOrderByWithRelationInput | AdvisorChatMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdvisorChatMessages.
+     */
+    cursor?: AdvisorChatMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdvisorChatMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdvisorChatMessages.
+     */
+    skip?: number
+    distinct?: AdvisorChatMessageScalarFieldEnum | AdvisorChatMessageScalarFieldEnum[]
+  }
+
+  /**
+   * AdvisorChatMessage create
+   */
+  export type AdvisorChatMessageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AdvisorChatMessage.
+     */
+    data: XOR<AdvisorChatMessageCreateInput, AdvisorChatMessageUncheckedCreateInput>
+  }
+
+  /**
+   * AdvisorChatMessage createMany
+   */
+  export type AdvisorChatMessageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdvisorChatMessages.
+     */
+    data: AdvisorChatMessageCreateManyInput | AdvisorChatMessageCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdvisorChatMessage createManyAndReturn
+   */
+  export type AdvisorChatMessageCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * The data used to create many AdvisorChatMessages.
+     */
+    data: AdvisorChatMessageCreateManyInput | AdvisorChatMessageCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorChatMessage update
+   */
+  export type AdvisorChatMessageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AdvisorChatMessage.
+     */
+    data: XOR<AdvisorChatMessageUpdateInput, AdvisorChatMessageUncheckedUpdateInput>
+    /**
+     * Choose, which AdvisorChatMessage to update.
+     */
+    where: AdvisorChatMessageWhereUniqueInput
+  }
+
+  /**
+   * AdvisorChatMessage updateMany
+   */
+  export type AdvisorChatMessageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdvisorChatMessages.
+     */
+    data: XOR<AdvisorChatMessageUpdateManyMutationInput, AdvisorChatMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorChatMessages to update
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * Limit how many AdvisorChatMessages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorChatMessage updateManyAndReturn
+   */
+  export type AdvisorChatMessageUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * The data used to update AdvisorChatMessages.
+     */
+    data: XOR<AdvisorChatMessageUpdateManyMutationInput, AdvisorChatMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which AdvisorChatMessages to update
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * Limit how many AdvisorChatMessages to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AdvisorChatMessage upsert
+   */
+  export type AdvisorChatMessageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AdvisorChatMessage to update in case it exists.
+     */
+    where: AdvisorChatMessageWhereUniqueInput
+    /**
+     * In case the AdvisorChatMessage found by the `where` argument doesn't exist, create a new AdvisorChatMessage with this data.
+     */
+    create: XOR<AdvisorChatMessageCreateInput, AdvisorChatMessageUncheckedCreateInput>
+    /**
+     * In case the AdvisorChatMessage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdvisorChatMessageUpdateInput, AdvisorChatMessageUncheckedUpdateInput>
+  }
+
+  /**
+   * AdvisorChatMessage delete
+   */
+  export type AdvisorChatMessageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+    /**
+     * Filter which AdvisorChatMessage to delete.
+     */
+    where: AdvisorChatMessageWhereUniqueInput
+  }
+
+  /**
+   * AdvisorChatMessage deleteMany
+   */
+  export type AdvisorChatMessageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdvisorChatMessages to delete
+     */
+    where?: AdvisorChatMessageWhereInput
+    /**
+     * Limit how many AdvisorChatMessages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AdvisorChatMessage without action
+   */
+  export type AdvisorChatMessageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdvisorChatMessage
+     */
+    select?: AdvisorChatMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AdvisorChatMessage
+     */
+    omit?: AdvisorChatMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AdvisorChatMessageInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model AiInsight
    */
 
@@ -46290,6 +49895,40 @@ export namespace Prisma {
   export type AnalyticsSnapshotScalarFieldEnum = (typeof AnalyticsSnapshotScalarFieldEnum)[keyof typeof AnalyticsSnapshotScalarFieldEnum]
 
 
+  export const AdvisorSettingScalarFieldEnum: {
+    id: 'id',
+    enabled: 'enabled',
+    grantedScopes: 'grantedScopes',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AdvisorSettingScalarFieldEnum = (typeof AdvisorSettingScalarFieldEnum)[keyof typeof AdvisorSettingScalarFieldEnum]
+
+
+  export const AdvisorConversationScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AdvisorConversationScalarFieldEnum = (typeof AdvisorConversationScalarFieldEnum)[keyof typeof AdvisorConversationScalarFieldEnum]
+
+
+  export const AdvisorChatMessageScalarFieldEnum: {
+    id: 'id',
+    role: 'role',
+    content: 'content',
+    conversationId: 'conversationId',
+    createdAt: 'createdAt'
+  };
+
+  export type AdvisorChatMessageScalarFieldEnum = (typeof AdvisorChatMessageScalarFieldEnum)[keyof typeof AdvisorChatMessageScalarFieldEnum]
+
+
   export const AiInsightScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -46783,6 +50422,34 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'AdvisorScope[]'
+   */
+  export type ListEnumAdvisorScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdvisorScope[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdvisorScope'
+   */
+  export type EnumAdvisorScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdvisorScope'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdvisorChatRole'
+   */
+  export type EnumAdvisorChatRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdvisorChatRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'AdvisorChatRole[]'
+   */
+  export type ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdvisorChatRole[]'>
+    
+
+
+  /**
    * Reference to a field of type 'InsightTrigger'
    */
   export type EnumInsightTriggerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightTrigger'>
@@ -46968,6 +50635,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
     aiInsights?: AiInsightListRelationFilter
     financeScoreBoard?: FinanceScoreBoardListRelationFilter
+    advisorSetting?: XOR<AdvisorSettingNullableScalarRelationFilter, AdvisorSettingWhereInput> | null
+    advisorConversations?: AdvisorConversationListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -47018,6 +50687,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotOrderByRelationAggregateInput
     aiInsights?: AiInsightOrderByRelationAggregateInput
     financeScoreBoard?: FinanceScoreBoardOrderByRelationAggregateInput
+    advisorSetting?: AdvisorSettingOrderByWithRelationInput
+    advisorConversations?: AdvisorConversationOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -47071,6 +50742,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotListRelationFilter
     aiInsights?: AiInsightListRelationFilter
     financeScoreBoard?: FinanceScoreBoardListRelationFilter
+    advisorSetting?: XOR<AdvisorSettingNullableScalarRelationFilter, AdvisorSettingWhereInput> | null
+    advisorConversations?: AdvisorConversationListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -49614,6 +53287,179 @@ export namespace Prisma {
     computedAt?: DateTimeWithAggregatesFilter<"AnalyticsSnapshot"> | Date | string
   }
 
+  export type AdvisorSettingWhereInput = {
+    AND?: AdvisorSettingWhereInput | AdvisorSettingWhereInput[]
+    OR?: AdvisorSettingWhereInput[]
+    NOT?: AdvisorSettingWhereInput | AdvisorSettingWhereInput[]
+    id?: StringFilter<"AdvisorSetting"> | string
+    enabled?: BoolFilter<"AdvisorSetting"> | boolean
+    grantedScopes?: EnumAdvisorScopeNullableListFilter<"AdvisorSetting">
+    userId?: StringFilter<"AdvisorSetting"> | string
+    createdAt?: DateTimeFilter<"AdvisorSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"AdvisorSetting"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AdvisorSettingOrderByWithRelationInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    grantedScopes?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AdvisorSettingWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: AdvisorSettingWhereInput | AdvisorSettingWhereInput[]
+    OR?: AdvisorSettingWhereInput[]
+    NOT?: AdvisorSettingWhereInput | AdvisorSettingWhereInput[]
+    enabled?: BoolFilter<"AdvisorSetting"> | boolean
+    grantedScopes?: EnumAdvisorScopeNullableListFilter<"AdvisorSetting">
+    createdAt?: DateTimeFilter<"AdvisorSetting"> | Date | string
+    updatedAt?: DateTimeFilter<"AdvisorSetting"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type AdvisorSettingOrderByWithAggregationInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    grantedScopes?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AdvisorSettingCountOrderByAggregateInput
+    _max?: AdvisorSettingMaxOrderByAggregateInput
+    _min?: AdvisorSettingMinOrderByAggregateInput
+  }
+
+  export type AdvisorSettingScalarWhereWithAggregatesInput = {
+    AND?: AdvisorSettingScalarWhereWithAggregatesInput | AdvisorSettingScalarWhereWithAggregatesInput[]
+    OR?: AdvisorSettingScalarWhereWithAggregatesInput[]
+    NOT?: AdvisorSettingScalarWhereWithAggregatesInput | AdvisorSettingScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdvisorSetting"> | string
+    enabled?: BoolWithAggregatesFilter<"AdvisorSetting"> | boolean
+    grantedScopes?: EnumAdvisorScopeNullableListFilter<"AdvisorSetting">
+    userId?: StringWithAggregatesFilter<"AdvisorSetting"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AdvisorSetting"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AdvisorSetting"> | Date | string
+  }
+
+  export type AdvisorConversationWhereInput = {
+    AND?: AdvisorConversationWhereInput | AdvisorConversationWhereInput[]
+    OR?: AdvisorConversationWhereInput[]
+    NOT?: AdvisorConversationWhereInput | AdvisorConversationWhereInput[]
+    id?: StringFilter<"AdvisorConversation"> | string
+    title?: StringFilter<"AdvisorConversation"> | string
+    userId?: StringFilter<"AdvisorConversation"> | string
+    createdAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+    updatedAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    messages?: AdvisorChatMessageListRelationFilter
+  }
+
+  export type AdvisorConversationOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    messages?: AdvisorChatMessageOrderByRelationAggregateInput
+  }
+
+  export type AdvisorConversationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdvisorConversationWhereInput | AdvisorConversationWhereInput[]
+    OR?: AdvisorConversationWhereInput[]
+    NOT?: AdvisorConversationWhereInput | AdvisorConversationWhereInput[]
+    title?: StringFilter<"AdvisorConversation"> | string
+    userId?: StringFilter<"AdvisorConversation"> | string
+    createdAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+    updatedAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    messages?: AdvisorChatMessageListRelationFilter
+  }, "id">
+
+  export type AdvisorConversationOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AdvisorConversationCountOrderByAggregateInput
+    _max?: AdvisorConversationMaxOrderByAggregateInput
+    _min?: AdvisorConversationMinOrderByAggregateInput
+  }
+
+  export type AdvisorConversationScalarWhereWithAggregatesInput = {
+    AND?: AdvisorConversationScalarWhereWithAggregatesInput | AdvisorConversationScalarWhereWithAggregatesInput[]
+    OR?: AdvisorConversationScalarWhereWithAggregatesInput[]
+    NOT?: AdvisorConversationScalarWhereWithAggregatesInput | AdvisorConversationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdvisorConversation"> | string
+    title?: StringWithAggregatesFilter<"AdvisorConversation"> | string
+    userId?: StringWithAggregatesFilter<"AdvisorConversation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AdvisorConversation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AdvisorConversation"> | Date | string
+  }
+
+  export type AdvisorChatMessageWhereInput = {
+    AND?: AdvisorChatMessageWhereInput | AdvisorChatMessageWhereInput[]
+    OR?: AdvisorChatMessageWhereInput[]
+    NOT?: AdvisorChatMessageWhereInput | AdvisorChatMessageWhereInput[]
+    id?: StringFilter<"AdvisorChatMessage"> | string
+    role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
+    content?: StringFilter<"AdvisorChatMessage"> | string
+    conversationId?: StringFilter<"AdvisorChatMessage"> | string
+    createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
+    conversation?: XOR<AdvisorConversationScalarRelationFilter, AdvisorConversationWhereInput>
+  }
+
+  export type AdvisorChatMessageOrderByWithRelationInput = {
+    id?: SortOrder
+    role?: SortOrder
+    content?: SortOrder
+    conversationId?: SortOrder
+    createdAt?: SortOrder
+    conversation?: AdvisorConversationOrderByWithRelationInput
+  }
+
+  export type AdvisorChatMessageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdvisorChatMessageWhereInput | AdvisorChatMessageWhereInput[]
+    OR?: AdvisorChatMessageWhereInput[]
+    NOT?: AdvisorChatMessageWhereInput | AdvisorChatMessageWhereInput[]
+    role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
+    content?: StringFilter<"AdvisorChatMessage"> | string
+    conversationId?: StringFilter<"AdvisorChatMessage"> | string
+    createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
+    conversation?: XOR<AdvisorConversationScalarRelationFilter, AdvisorConversationWhereInput>
+  }, "id">
+
+  export type AdvisorChatMessageOrderByWithAggregationInput = {
+    id?: SortOrder
+    role?: SortOrder
+    content?: SortOrder
+    conversationId?: SortOrder
+    createdAt?: SortOrder
+    _count?: AdvisorChatMessageCountOrderByAggregateInput
+    _max?: AdvisorChatMessageMaxOrderByAggregateInput
+    _min?: AdvisorChatMessageMinOrderByAggregateInput
+  }
+
+  export type AdvisorChatMessageScalarWhereWithAggregatesInput = {
+    AND?: AdvisorChatMessageScalarWhereWithAggregatesInput | AdvisorChatMessageScalarWhereWithAggregatesInput[]
+    OR?: AdvisorChatMessageScalarWhereWithAggregatesInput[]
+    NOT?: AdvisorChatMessageScalarWhereWithAggregatesInput | AdvisorChatMessageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
+    role?: EnumAdvisorChatRoleWithAggregatesFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
+    content?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
+    conversationId?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AdvisorChatMessage"> | Date | string
+  }
+
   export type AiInsightWhereInput = {
     AND?: AiInsightWhereInput | AiInsightWhereInput[]
     OR?: AiInsightWhereInput[]
@@ -49976,6 +53822,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -50026,6 +53874,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -50076,6 +53926,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -50126,6 +53978,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -52932,6 +56786,182 @@ export namespace Prisma {
     computedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AdvisorSettingCreateInput = {
+    id?: string
+    enabled?: boolean
+    grantedScopes?: AdvisorSettingCreategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdvisorSettingInput
+  }
+
+  export type AdvisorSettingUncheckedCreateInput = {
+    id?: string
+    enabled?: boolean
+    grantedScopes?: AdvisorSettingCreategrantedScopesInput | $Enums.AdvisorScope[]
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorSettingUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdvisorSettingNestedInput
+  }
+
+  export type AdvisorSettingUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorSettingCreateManyInput = {
+    id?: string
+    enabled?: boolean
+    grantedScopes?: AdvisorSettingCreategrantedScopesInput | $Enums.AdvisorScope[]
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorSettingUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorSettingUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorConversationCreateInput = {
+    id: string
+    title: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdvisorConversationsInput
+    messages?: AdvisorChatMessageCreateNestedManyWithoutConversationInput
+  }
+
+  export type AdvisorConversationUncheckedCreateInput = {
+    id: string
+    title: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: AdvisorChatMessageUncheckedCreateNestedManyWithoutConversationInput
+  }
+
+  export type AdvisorConversationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdvisorConversationsNestedInput
+    messages?: AdvisorChatMessageUpdateManyWithoutConversationNestedInput
+  }
+
+  export type AdvisorConversationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: AdvisorChatMessageUncheckedUpdateManyWithoutConversationNestedInput
+  }
+
+  export type AdvisorConversationCreateManyInput = {
+    id: string
+    title: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorConversationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorConversationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorChatMessageCreateInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    createdAt?: Date | string
+    conversation: AdvisorConversationCreateNestedOneWithoutMessagesInput
+  }
+
+  export type AdvisorChatMessageUncheckedCreateInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    conversationId: string
+    createdAt?: Date | string
+  }
+
+  export type AdvisorChatMessageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversation?: AdvisorConversationUpdateOneRequiredWithoutMessagesNestedInput
+  }
+
+  export type AdvisorChatMessageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorChatMessageCreateManyInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    conversationId: string
+    createdAt?: Date | string
+  }
+
+  export type AdvisorChatMessageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorChatMessageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    conversationId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AiInsightCreateInput = {
     id?: string
     generatedAt?: Date | string
@@ -53498,6 +57528,17 @@ export namespace Prisma {
     none?: FinanceScoreBoardWhereInput
   }
 
+  export type AdvisorSettingNullableScalarRelationFilter = {
+    is?: AdvisorSettingWhereInput | null
+    isNot?: AdvisorSettingWhereInput | null
+  }
+
+  export type AdvisorConversationListRelationFilter = {
+    every?: AdvisorConversationWhereInput
+    some?: AdvisorConversationWhereInput
+    none?: AdvisorConversationWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -53584,6 +57625,10 @@ export namespace Prisma {
   }
 
   export type FinanceScoreBoardOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AdvisorConversationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -55731,6 +59776,119 @@ export namespace Prisma {
     _max?: NestedEnumSnapshotTypeFilter<$PrismaModel>
   }
 
+  export type EnumAdvisorScopeNullableListFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdvisorScope[] | ListEnumAdvisorScopeFieldRefInput<$PrismaModel> | null
+    has?: $Enums.AdvisorScope | EnumAdvisorScopeFieldRefInput<$PrismaModel> | null
+    hasEvery?: $Enums.AdvisorScope[] | ListEnumAdvisorScopeFieldRefInput<$PrismaModel>
+    hasSome?: $Enums.AdvisorScope[] | ListEnumAdvisorScopeFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type AdvisorSettingCountOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    grantedScopes?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdvisorSettingMaxOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdvisorSettingMinOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdvisorChatMessageListRelationFilter = {
+    every?: AdvisorChatMessageWhereInput
+    some?: AdvisorChatMessageWhereInput
+    none?: AdvisorChatMessageWhereInput
+  }
+
+  export type AdvisorChatMessageOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AdvisorConversationCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdvisorConversationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AdvisorConversationMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAdvisorChatRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdvisorChatRole | EnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdvisorChatRoleFilter<$PrismaModel> | $Enums.AdvisorChatRole
+  }
+
+  export type AdvisorConversationScalarRelationFilter = {
+    is?: AdvisorConversationWhereInput
+    isNot?: AdvisorConversationWhereInput
+  }
+
+  export type AdvisorChatMessageCountOrderByAggregateInput = {
+    id?: SortOrder
+    role?: SortOrder
+    content?: SortOrder
+    conversationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdvisorChatMessageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    role?: SortOrder
+    content?: SortOrder
+    conversationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdvisorChatMessageMinOrderByAggregateInput = {
+    id?: SortOrder
+    role?: SortOrder
+    content?: SortOrder
+    conversationId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumAdvisorChatRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdvisorChatRole | EnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdvisorChatRoleWithAggregatesFilter<$PrismaModel> | $Enums.AdvisorChatRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdvisorChatRoleFilter<$PrismaModel>
+    _max?: NestedEnumAdvisorChatRoleFilter<$PrismaModel>
+  }
+
   export type EnumInsightTriggerFilter<$PrismaModel = never> = {
     equals?: $Enums.InsightTrigger | EnumInsightTriggerFieldRefInput<$PrismaModel>
     in?: $Enums.InsightTrigger[] | ListEnumInsightTriggerFieldRefInput<$PrismaModel>
@@ -56054,6 +60212,19 @@ export namespace Prisma {
     connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
   }
 
+  export type AdvisorSettingCreateNestedOneWithoutUserInput = {
+    create?: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AdvisorSettingCreateOrConnectWithoutUserInput
+    connect?: AdvisorSettingWhereUniqueInput
+  }
+
+  export type AdvisorConversationCreateNestedManyWithoutUserInput = {
+    create?: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput> | AdvisorConversationCreateWithoutUserInput[] | AdvisorConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutUserInput | AdvisorConversationCreateOrConnectWithoutUserInput[]
+    createMany?: AdvisorConversationCreateManyUserInputEnvelope
+    connect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -56217,6 +60388,19 @@ export namespace Prisma {
     connectOrCreate?: FinanceScoreBoardCreateOrConnectWithoutUserInput | FinanceScoreBoardCreateOrConnectWithoutUserInput[]
     createMany?: FinanceScoreBoardCreateManyUserInputEnvelope
     connect?: FinanceScoreBoardWhereUniqueInput | FinanceScoreBoardWhereUniqueInput[]
+  }
+
+  export type AdvisorSettingUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AdvisorSettingCreateOrConnectWithoutUserInput
+    connect?: AdvisorSettingWhereUniqueInput
+  }
+
+  export type AdvisorConversationUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput> | AdvisorConversationCreateWithoutUserInput[] | AdvisorConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutUserInput | AdvisorConversationCreateOrConnectWithoutUserInput[]
+    createMany?: AdvisorConversationCreateManyUserInputEnvelope
+    connect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -56567,6 +60751,30 @@ export namespace Prisma {
     deleteMany?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
   }
 
+  export type AdvisorSettingUpdateOneWithoutUserNestedInput = {
+    create?: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AdvisorSettingCreateOrConnectWithoutUserInput
+    upsert?: AdvisorSettingUpsertWithoutUserInput
+    disconnect?: AdvisorSettingWhereInput | boolean
+    delete?: AdvisorSettingWhereInput | boolean
+    connect?: AdvisorSettingWhereUniqueInput
+    update?: XOR<XOR<AdvisorSettingUpdateToOneWithWhereWithoutUserInput, AdvisorSettingUpdateWithoutUserInput>, AdvisorSettingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AdvisorConversationUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput> | AdvisorConversationCreateWithoutUserInput[] | AdvisorConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutUserInput | AdvisorConversationCreateOrConnectWithoutUserInput[]
+    upsert?: AdvisorConversationUpsertWithWhereUniqueWithoutUserInput | AdvisorConversationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AdvisorConversationCreateManyUserInputEnvelope
+    set?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    disconnect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    delete?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    connect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    update?: AdvisorConversationUpdateWithWhereUniqueWithoutUserInput | AdvisorConversationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AdvisorConversationUpdateManyWithWhereWithoutUserInput | AdvisorConversationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AdvisorConversationScalarWhereInput | AdvisorConversationScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -56889,6 +61097,30 @@ export namespace Prisma {
     update?: FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput | FinanceScoreBoardUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: FinanceScoreBoardUpdateManyWithWhereWithoutUserInput | FinanceScoreBoardUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: FinanceScoreBoardScalarWhereInput | FinanceScoreBoardScalarWhereInput[]
+  }
+
+  export type AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+    connectOrCreate?: AdvisorSettingCreateOrConnectWithoutUserInput
+    upsert?: AdvisorSettingUpsertWithoutUserInput
+    disconnect?: AdvisorSettingWhereInput | boolean
+    delete?: AdvisorSettingWhereInput | boolean
+    connect?: AdvisorSettingWhereUniqueInput
+    update?: XOR<XOR<AdvisorSettingUpdateToOneWithWhereWithoutUserInput, AdvisorSettingUpdateWithoutUserInput>, AdvisorSettingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput> | AdvisorConversationCreateWithoutUserInput[] | AdvisorConversationUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutUserInput | AdvisorConversationCreateOrConnectWithoutUserInput[]
+    upsert?: AdvisorConversationUpsertWithWhereUniqueWithoutUserInput | AdvisorConversationUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AdvisorConversationCreateManyUserInputEnvelope
+    set?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    disconnect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    delete?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    connect?: AdvisorConversationWhereUniqueInput | AdvisorConversationWhereUniqueInput[]
+    update?: AdvisorConversationUpdateWithWhereUniqueWithoutUserInput | AdvisorConversationUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AdvisorConversationUpdateManyWithWhereWithoutUserInput | AdvisorConversationUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AdvisorConversationScalarWhereInput | AdvisorConversationScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAccountsInput = {
@@ -58047,6 +62279,103 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAnalyticsSnapshotsInput, UserUpdateWithoutAnalyticsSnapshotsInput>, UserUncheckedUpdateWithoutAnalyticsSnapshotsInput>
   }
 
+  export type AdvisorSettingCreategrantedScopesInput = {
+    set: $Enums.AdvisorScope[]
+  }
+
+  export type UserCreateNestedOneWithoutAdvisorSettingInput = {
+    create?: XOR<UserCreateWithoutAdvisorSettingInput, UserUncheckedCreateWithoutAdvisorSettingInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdvisorSettingInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AdvisorSettingUpdategrantedScopesInput = {
+    set?: $Enums.AdvisorScope[]
+    push?: $Enums.AdvisorScope | $Enums.AdvisorScope[]
+  }
+
+  export type UserUpdateOneRequiredWithoutAdvisorSettingNestedInput = {
+    create?: XOR<UserCreateWithoutAdvisorSettingInput, UserUncheckedCreateWithoutAdvisorSettingInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdvisorSettingInput
+    upsert?: UserUpsertWithoutAdvisorSettingInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdvisorSettingInput, UserUpdateWithoutAdvisorSettingInput>, UserUncheckedUpdateWithoutAdvisorSettingInput>
+  }
+
+  export type UserCreateNestedOneWithoutAdvisorConversationsInput = {
+    create?: XOR<UserCreateWithoutAdvisorConversationsInput, UserUncheckedCreateWithoutAdvisorConversationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdvisorConversationsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AdvisorChatMessageCreateNestedManyWithoutConversationInput = {
+    create?: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput> | AdvisorChatMessageCreateWithoutConversationInput[] | AdvisorChatMessageUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: AdvisorChatMessageCreateOrConnectWithoutConversationInput | AdvisorChatMessageCreateOrConnectWithoutConversationInput[]
+    createMany?: AdvisorChatMessageCreateManyConversationInputEnvelope
+    connect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+  }
+
+  export type AdvisorChatMessageUncheckedCreateNestedManyWithoutConversationInput = {
+    create?: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput> | AdvisorChatMessageCreateWithoutConversationInput[] | AdvisorChatMessageUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: AdvisorChatMessageCreateOrConnectWithoutConversationInput | AdvisorChatMessageCreateOrConnectWithoutConversationInput[]
+    createMany?: AdvisorChatMessageCreateManyConversationInputEnvelope
+    connect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutAdvisorConversationsNestedInput = {
+    create?: XOR<UserCreateWithoutAdvisorConversationsInput, UserUncheckedCreateWithoutAdvisorConversationsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdvisorConversationsInput
+    upsert?: UserUpsertWithoutAdvisorConversationsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdvisorConversationsInput, UserUpdateWithoutAdvisorConversationsInput>, UserUncheckedUpdateWithoutAdvisorConversationsInput>
+  }
+
+  export type AdvisorChatMessageUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput> | AdvisorChatMessageCreateWithoutConversationInput[] | AdvisorChatMessageUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: AdvisorChatMessageCreateOrConnectWithoutConversationInput | AdvisorChatMessageCreateOrConnectWithoutConversationInput[]
+    upsert?: AdvisorChatMessageUpsertWithWhereUniqueWithoutConversationInput | AdvisorChatMessageUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: AdvisorChatMessageCreateManyConversationInputEnvelope
+    set?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    disconnect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    delete?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    connect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    update?: AdvisorChatMessageUpdateWithWhereUniqueWithoutConversationInput | AdvisorChatMessageUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: AdvisorChatMessageUpdateManyWithWhereWithoutConversationInput | AdvisorChatMessageUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: AdvisorChatMessageScalarWhereInput | AdvisorChatMessageScalarWhereInput[]
+  }
+
+  export type AdvisorChatMessageUncheckedUpdateManyWithoutConversationNestedInput = {
+    create?: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput> | AdvisorChatMessageCreateWithoutConversationInput[] | AdvisorChatMessageUncheckedCreateWithoutConversationInput[]
+    connectOrCreate?: AdvisorChatMessageCreateOrConnectWithoutConversationInput | AdvisorChatMessageCreateOrConnectWithoutConversationInput[]
+    upsert?: AdvisorChatMessageUpsertWithWhereUniqueWithoutConversationInput | AdvisorChatMessageUpsertWithWhereUniqueWithoutConversationInput[]
+    createMany?: AdvisorChatMessageCreateManyConversationInputEnvelope
+    set?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    disconnect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    delete?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    connect?: AdvisorChatMessageWhereUniqueInput | AdvisorChatMessageWhereUniqueInput[]
+    update?: AdvisorChatMessageUpdateWithWhereUniqueWithoutConversationInput | AdvisorChatMessageUpdateWithWhereUniqueWithoutConversationInput[]
+    updateMany?: AdvisorChatMessageUpdateManyWithWhereWithoutConversationInput | AdvisorChatMessageUpdateManyWithWhereWithoutConversationInput[]
+    deleteMany?: AdvisorChatMessageScalarWhereInput | AdvisorChatMessageScalarWhereInput[]
+  }
+
+  export type AdvisorConversationCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<AdvisorConversationCreateWithoutMessagesInput, AdvisorConversationUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutMessagesInput
+    connect?: AdvisorConversationWhereUniqueInput
+  }
+
+  export type EnumAdvisorChatRoleFieldUpdateOperationsInput = {
+    set?: $Enums.AdvisorChatRole
+  }
+
+  export type AdvisorConversationUpdateOneRequiredWithoutMessagesNestedInput = {
+    create?: XOR<AdvisorConversationCreateWithoutMessagesInput, AdvisorConversationUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: AdvisorConversationCreateOrConnectWithoutMessagesInput
+    upsert?: AdvisorConversationUpsertWithoutMessagesInput
+    connect?: AdvisorConversationWhereUniqueInput
+    update?: XOR<XOR<AdvisorConversationUpdateToOneWithWhereWithoutMessagesInput, AdvisorConversationUpdateWithoutMessagesInput>, AdvisorConversationUncheckedUpdateWithoutMessagesInput>
+  }
+
   export type UserCreateNestedOneWithoutAiInsightsInput = {
     create?: XOR<UserCreateWithoutAiInsightsInput, UserUncheckedCreateWithoutAiInsightsInput>
     connectOrCreate?: UserCreateOrConnectWithoutAiInsightsInput
@@ -58761,6 +63090,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSnapshotTypeFilter<$PrismaModel>
     _max?: NestedEnumSnapshotTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAdvisorChatRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdvisorChatRole | EnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdvisorChatRoleFilter<$PrismaModel> | $Enums.AdvisorChatRole
+  }
+
+  export type NestedEnumAdvisorChatRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AdvisorChatRole | EnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AdvisorChatRole[] | ListEnumAdvisorChatRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumAdvisorChatRoleWithAggregatesFilter<$PrismaModel> | $Enums.AdvisorChatRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAdvisorChatRoleFilter<$PrismaModel>
+    _max?: NestedEnumAdvisorChatRoleFilter<$PrismaModel>
   }
 
   export type NestedEnumInsightTriggerFilter<$PrismaModel = never> = {
@@ -59682,6 +64028,53 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AdvisorSettingCreateWithoutUserInput = {
+    id?: string
+    enabled?: boolean
+    grantedScopes?: AdvisorSettingCreategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorSettingUncheckedCreateWithoutUserInput = {
+    id?: string
+    enabled?: boolean
+    grantedScopes?: AdvisorSettingCreategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorSettingCreateOrConnectWithoutUserInput = {
+    where: AdvisorSettingWhereUniqueInput
+    create: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+  }
+
+  export type AdvisorConversationCreateWithoutUserInput = {
+    id: string
+    title: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: AdvisorChatMessageCreateNestedManyWithoutConversationInput
+  }
+
+  export type AdvisorConversationUncheckedCreateWithoutUserInput = {
+    id: string
+    title: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    messages?: AdvisorChatMessageUncheckedCreateNestedManyWithoutConversationInput
+  }
+
+  export type AdvisorConversationCreateOrConnectWithoutUserInput = {
+    where: AdvisorConversationWhereUniqueInput
+    create: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput>
+  }
+
+  export type AdvisorConversationCreateManyUserInputEnvelope = {
+    data: AdvisorConversationCreateManyUserInput | AdvisorConversationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
     where: AccountWhereUniqueInput
     update: XOR<AccountUpdateWithoutUserInput, AccountUncheckedUpdateWithoutUserInput>
@@ -60503,6 +64896,60 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"FinanceScoreBoard"> | Date | string
   }
 
+  export type AdvisorSettingUpsertWithoutUserInput = {
+    update: XOR<AdvisorSettingUpdateWithoutUserInput, AdvisorSettingUncheckedUpdateWithoutUserInput>
+    create: XOR<AdvisorSettingCreateWithoutUserInput, AdvisorSettingUncheckedCreateWithoutUserInput>
+    where?: AdvisorSettingWhereInput
+  }
+
+  export type AdvisorSettingUpdateToOneWithWhereWithoutUserInput = {
+    where?: AdvisorSettingWhereInput
+    data: XOR<AdvisorSettingUpdateWithoutUserInput, AdvisorSettingUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AdvisorSettingUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorSettingUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    grantedScopes?: AdvisorSettingUpdategrantedScopesInput | $Enums.AdvisorScope[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorConversationUpsertWithWhereUniqueWithoutUserInput = {
+    where: AdvisorConversationWhereUniqueInput
+    update: XOR<AdvisorConversationUpdateWithoutUserInput, AdvisorConversationUncheckedUpdateWithoutUserInput>
+    create: XOR<AdvisorConversationCreateWithoutUserInput, AdvisorConversationUncheckedCreateWithoutUserInput>
+  }
+
+  export type AdvisorConversationUpdateWithWhereUniqueWithoutUserInput = {
+    where: AdvisorConversationWhereUniqueInput
+    data: XOR<AdvisorConversationUpdateWithoutUserInput, AdvisorConversationUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AdvisorConversationUpdateManyWithWhereWithoutUserInput = {
+    where: AdvisorConversationScalarWhereInput
+    data: XOR<AdvisorConversationUpdateManyMutationInput, AdvisorConversationUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AdvisorConversationScalarWhereInput = {
+    AND?: AdvisorConversationScalarWhereInput | AdvisorConversationScalarWhereInput[]
+    OR?: AdvisorConversationScalarWhereInput[]
+    NOT?: AdvisorConversationScalarWhereInput | AdvisorConversationScalarWhereInput[]
+    id?: StringFilter<"AdvisorConversation"> | string
+    title?: StringFilter<"AdvisorConversation"> | string
+    userId?: StringFilter<"AdvisorConversation"> | string
+    createdAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+    updatedAt?: DateTimeFilter<"AdvisorConversation"> | Date | string
+  }
+
   export type UserCreateWithoutAccountsInput = {
     id?: string
     email: string
@@ -60550,6 +64997,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -60599,6 +65048,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -60664,6 +65115,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -60713,6 +65166,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -60762,6 +65217,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -60811,6 +65268,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -60876,6 +65335,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -60925,6 +65386,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutLoginActivityInput = {
@@ -60974,6 +65437,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLoginActivityInput = {
@@ -61023,6 +65488,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLoginActivityInput = {
@@ -61088,6 +65555,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLoginActivityInput = {
@@ -61137,6 +65606,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionInput = {
@@ -61186,6 +65657,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -61235,6 +65708,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -61300,6 +65775,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -61349,6 +65826,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageTrackersInput = {
@@ -61398,6 +65877,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageTrackersInput = {
@@ -61447,6 +65928,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageTrackersInput = {
@@ -61512,6 +65995,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageTrackersInput = {
@@ -61561,6 +66046,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserBalanceInput = {
@@ -61610,6 +66097,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserBalanceInput = {
@@ -61659,6 +66148,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserBalanceInput = {
@@ -61724,6 +66215,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserBalanceInput = {
@@ -61773,6 +66266,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -61822,6 +66317,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonthlyBalanceSnapshotsInput = {
@@ -61871,6 +66368,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonthlyBalanceSnapshotsInput = {
@@ -61936,6 +66435,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonthlyBalanceSnapshotsInput = {
@@ -61985,6 +66486,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBackupCodesInput = {
@@ -62034,6 +66537,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBackupCodesInput = {
@@ -62083,6 +66588,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBackupCodesInput = {
@@ -62148,6 +66655,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBackupCodesInput = {
@@ -62197,6 +66706,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutActivityLogsInput = {
@@ -62246,6 +66757,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -62295,6 +66808,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -62360,6 +66875,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -62409,6 +66926,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSettingInput = {
@@ -62458,6 +66977,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSettingInput = {
@@ -62507,6 +67028,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSettingInput = {
@@ -62572,6 +67095,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSettingInput = {
@@ -62621,6 +67146,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCategoriesInput = {
@@ -62670,6 +67197,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -62719,6 +67248,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -62944,6 +67475,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -62993,6 +67526,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -63127,6 +67662,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -63176,6 +67713,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -63312,6 +67851,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -63361,6 +67902,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BudgetHistoryUpsertWithWhereUniqueWithoutBudgetInput = {
@@ -63523,6 +68066,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOcrDraftsInput = {
@@ -63572,6 +68117,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOcrDraftsInput = {
@@ -63637,6 +68184,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOcrDraftsInput = {
@@ -63686,6 +68235,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutTransactionsInput = {
@@ -63772,6 +68323,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -63821,6 +68374,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -64103,6 +68658,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -64152,6 +68709,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type RecurringItemUpsertWithoutTransactionsInput = {
@@ -64437,6 +68996,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRecurringItemsInput = {
@@ -64486,6 +69047,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRecurringItemsInput = {
@@ -64656,6 +69219,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRecurringItemsInput = {
@@ -64705,6 +69270,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutRecurringItemInput = {
@@ -64770,6 +69337,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutGoalsInput = {
@@ -64819,6 +69388,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutGoalsInput = {
@@ -64916,6 +69487,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -64965,6 +69538,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type GoalContributionUpsertWithWhereUniqueWithoutGoalInput = {
@@ -65233,6 +69808,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSplitsInput = {
@@ -65282,6 +69859,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSplitsInput = {
@@ -65462,6 +70041,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSplitsInput = {
@@ -65511,6 +70092,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithoutSplitInput = {
@@ -66016,6 +70599,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMonoBankAccountsInput = {
@@ -66065,6 +70650,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMonoBankAccountsInput = {
@@ -66192,6 +70779,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMonoBankAccountsInput = {
@@ -66241,6 +70830,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TransactionUpsertWithWhereUniqueWithoutMonoBankAccountInput = {
@@ -66306,6 +70897,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFcmDevicesInput = {
@@ -66355,6 +70948,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFcmDevicesInput = {
@@ -66420,6 +71015,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFcmDevicesInput = {
@@ -66469,6 +71066,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -66518,6 +71117,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -66567,6 +71168,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -66632,6 +71235,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -66681,6 +71286,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutClassificationCorrectionsInput = {
@@ -66730,6 +71337,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClassificationCorrectionsInput = {
@@ -66779,6 +71388,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClassificationCorrectionsInput = {
@@ -66844,6 +71455,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClassificationCorrectionsInput = {
@@ -66893,6 +71506,8 @@ export namespace Prisma {
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAnalyticsSnapshotsInput = {
@@ -66942,6 +71557,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAnalyticsSnapshotsInput = {
@@ -66991,6 +71608,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAnalyticsSnapshotsInput = {
@@ -67056,6 +71675,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalyticsSnapshotsInput = {
@@ -67105,6 +71726,547 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutAdvisorSettingInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdvisorSettingInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdvisorSettingInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdvisorSettingInput, UserUncheckedCreateWithoutAdvisorSettingInput>
+  }
+
+  export type UserUpsertWithoutAdvisorSettingInput = {
+    update: XOR<UserUpdateWithoutAdvisorSettingInput, UserUncheckedUpdateWithoutAdvisorSettingInput>
+    create: XOR<UserCreateWithoutAdvisorSettingInput, UserUncheckedCreateWithoutAdvisorSettingInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdvisorSettingInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdvisorSettingInput, UserUncheckedUpdateWithoutAdvisorSettingInput>
+  }
+
+  export type UserUpdateWithoutAdvisorSettingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdvisorSettingInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutAdvisorConversationsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingCreateNestedOneWithoutUserInput
+    categories?: CategoryCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    budgets?: BudgetCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemCreateNestedManyWithoutUserInput
+    goals?: GoalCreateNestedManyWithoutUserInput
+    splits?: SplitCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAdvisorConversationsInput = {
+    id?: string
+    email: string
+    password?: string | null
+    loginAttempts?: number
+    emailVerified?: boolean
+    emailVerifiedAt?: Date | string | null
+    firstName: string
+    lastName: string
+    avatar?: string | null
+    lastLoginAt?: Date | string | null
+    twoFactorAttempts?: number
+    twoFactorEnabled?: boolean
+    twoFactorSecret?: string | null
+    twoFactorLastUsedAt?: Date | string | null
+    hasSeenTwoFaPrompt?: boolean
+    hasCompletedOnboarding?: boolean
+    currency?: $Enums.Currency
+    language?: $Enums.Language
+    timezone?: string
+    dateFormat?: $Enums.DateFormat
+    scheduledDeletionAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageTrackers?: UsageTrackerUncheckedCreateNestedManyWithoutUserInput
+    backupCodes?: BackupCodesUncheckedCreateNestedManyWithoutUserInput
+    loginActivity?: LoginActivityUncheckedCreateNestedManyWithoutUserInput
+    setting?: NotificationSettingUncheckedCreateNestedOneWithoutUserInput
+    categories?: CategoryUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    budgets?: BudgetUncheckedCreateNestedManyWithoutUserInput
+    recurringItems?: RecurringItemUncheckedCreateNestedManyWithoutUserInput
+    goals?: GoalUncheckedCreateNestedManyWithoutUserInput
+    splits?: SplitUncheckedCreateNestedManyWithoutUserInput
+    ocrDrafts?: OCRDraftUncheckedCreateNestedManyWithoutUserInput
+    fcmDevices?: FcmDeviceUncheckedCreateNestedManyWithoutUserInput
+    activityLogs?: ActivityLogsUncheckedCreateNestedManyWithoutUserInput
+    monoBankAccounts?: MonoBankAccountUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    classificationCorrections?: ClassificationCorrectionUncheckedCreateNestedManyWithoutUserInput
+    userBalance?: UserBalanceUncheckedCreateNestedOneWithoutUserInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
+    aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAdvisorConversationsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdvisorConversationsInput, UserUncheckedCreateWithoutAdvisorConversationsInput>
+  }
+
+  export type AdvisorChatMessageCreateWithoutConversationInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type AdvisorChatMessageUncheckedCreateWithoutConversationInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type AdvisorChatMessageCreateOrConnectWithoutConversationInput = {
+    where: AdvisorChatMessageWhereUniqueInput
+    create: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput>
+  }
+
+  export type AdvisorChatMessageCreateManyConversationInputEnvelope = {
+    data: AdvisorChatMessageCreateManyConversationInput | AdvisorChatMessageCreateManyConversationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutAdvisorConversationsInput = {
+    update: XOR<UserUpdateWithoutAdvisorConversationsInput, UserUncheckedUpdateWithoutAdvisorConversationsInput>
+    create: XOR<UserCreateWithoutAdvisorConversationsInput, UserUncheckedCreateWithoutAdvisorConversationsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdvisorConversationsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdvisorConversationsInput, UserUncheckedUpdateWithoutAdvisorConversationsInput>
+  }
+
+  export type UserUpdateWithoutAdvisorConversationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUpdateOneWithoutUserNestedInput
+    categories?: CategoryUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUpdateManyWithoutUserNestedInput
+    goals?: GoalUpdateManyWithoutUserNestedInput
+    splits?: SplitUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdvisorConversationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    loginAttempts?: IntFieldUpdateOperationsInput | number
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    emailVerifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    twoFactorAttempts?: IntFieldUpdateOperationsInput | number
+    twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorLastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hasSeenTwoFaPrompt?: BoolFieldUpdateOperationsInput | boolean
+    hasCompletedOnboarding?: BoolFieldUpdateOperationsInput | boolean
+    currency?: EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+    language?: EnumLanguageFieldUpdateOperationsInput | $Enums.Language
+    timezone?: StringFieldUpdateOperationsInput | string
+    dateFormat?: EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
+    scheduledDeletionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageTrackers?: UsageTrackerUncheckedUpdateManyWithoutUserNestedInput
+    backupCodes?: BackupCodesUncheckedUpdateManyWithoutUserNestedInput
+    loginActivity?: LoginActivityUncheckedUpdateManyWithoutUserNestedInput
+    setting?: NotificationSettingUncheckedUpdateOneWithoutUserNestedInput
+    categories?: CategoryUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    budgets?: BudgetUncheckedUpdateManyWithoutUserNestedInput
+    recurringItems?: RecurringItemUncheckedUpdateManyWithoutUserNestedInput
+    goals?: GoalUncheckedUpdateManyWithoutUserNestedInput
+    splits?: SplitUncheckedUpdateManyWithoutUserNestedInput
+    ocrDrafts?: OCRDraftUncheckedUpdateManyWithoutUserNestedInput
+    fcmDevices?: FcmDeviceUncheckedUpdateManyWithoutUserNestedInput
+    activityLogs?: ActivityLogsUncheckedUpdateManyWithoutUserNestedInput
+    monoBankAccounts?: MonoBankAccountUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    classificationCorrections?: ClassificationCorrectionUncheckedUpdateManyWithoutUserNestedInput
+    userBalance?: UserBalanceUncheckedUpdateOneWithoutUserNestedInput
+    monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
+    aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type AdvisorChatMessageUpsertWithWhereUniqueWithoutConversationInput = {
+    where: AdvisorChatMessageWhereUniqueInput
+    update: XOR<AdvisorChatMessageUpdateWithoutConversationInput, AdvisorChatMessageUncheckedUpdateWithoutConversationInput>
+    create: XOR<AdvisorChatMessageCreateWithoutConversationInput, AdvisorChatMessageUncheckedCreateWithoutConversationInput>
+  }
+
+  export type AdvisorChatMessageUpdateWithWhereUniqueWithoutConversationInput = {
+    where: AdvisorChatMessageWhereUniqueInput
+    data: XOR<AdvisorChatMessageUpdateWithoutConversationInput, AdvisorChatMessageUncheckedUpdateWithoutConversationInput>
+  }
+
+  export type AdvisorChatMessageUpdateManyWithWhereWithoutConversationInput = {
+    where: AdvisorChatMessageScalarWhereInput
+    data: XOR<AdvisorChatMessageUpdateManyMutationInput, AdvisorChatMessageUncheckedUpdateManyWithoutConversationInput>
+  }
+
+  export type AdvisorChatMessageScalarWhereInput = {
+    AND?: AdvisorChatMessageScalarWhereInput | AdvisorChatMessageScalarWhereInput[]
+    OR?: AdvisorChatMessageScalarWhereInput[]
+    NOT?: AdvisorChatMessageScalarWhereInput | AdvisorChatMessageScalarWhereInput[]
+    id?: StringFilter<"AdvisorChatMessage"> | string
+    role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
+    content?: StringFilter<"AdvisorChatMessage"> | string
+    conversationId?: StringFilter<"AdvisorChatMessage"> | string
+    createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
+  }
+
+  export type AdvisorConversationCreateWithoutMessagesInput = {
+    id: string
+    title: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAdvisorConversationsInput
+  }
+
+  export type AdvisorConversationUncheckedCreateWithoutMessagesInput = {
+    id: string
+    title: string
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorConversationCreateOrConnectWithoutMessagesInput = {
+    where: AdvisorConversationWhereUniqueInput
+    create: XOR<AdvisorConversationCreateWithoutMessagesInput, AdvisorConversationUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type AdvisorConversationUpsertWithoutMessagesInput = {
+    update: XOR<AdvisorConversationUpdateWithoutMessagesInput, AdvisorConversationUncheckedUpdateWithoutMessagesInput>
+    create: XOR<AdvisorConversationCreateWithoutMessagesInput, AdvisorConversationUncheckedCreateWithoutMessagesInput>
+    where?: AdvisorConversationWhereInput
+  }
+
+  export type AdvisorConversationUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: AdvisorConversationWhereInput
+    data: XOR<AdvisorConversationUpdateWithoutMessagesInput, AdvisorConversationUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type AdvisorConversationUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAdvisorConversationsNestedInput
+  }
+
+  export type AdvisorConversationUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutAiInsightsInput = {
@@ -67154,6 +72316,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAiInsightsInput = {
@@ -67203,6 +72367,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     financeScoreBoard?: FinanceScoreBoardUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAiInsightsInput = {
@@ -67268,6 +72434,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAiInsightsInput = {
@@ -67317,6 +72485,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     financeScoreBoard?: FinanceScoreBoardUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutFinanceScoreBoardInput = {
@@ -67366,6 +72536,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFinanceScoreBoardInput = {
@@ -67415,6 +72587,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedCreateNestedManyWithoutUserInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedCreateNestedManyWithoutUserInput
     aiInsights?: AiInsightUncheckedCreateNestedManyWithoutUserInput
+    advisorSetting?: AdvisorSettingUncheckedCreateNestedOneWithoutUserInput
+    advisorConversations?: AdvisorConversationUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFinanceScoreBoardInput = {
@@ -67480,6 +72654,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFinanceScoreBoardInput = {
@@ -67529,6 +72705,8 @@ export namespace Prisma {
     monthlyBalanceSnapshots?: MonthlyBalanceSnapshotUncheckedUpdateManyWithoutUserNestedInput
     analyticsSnapshots?: AnalyticsSnapshotUncheckedUpdateManyWithoutUserNestedInput
     aiInsights?: AiInsightUncheckedUpdateManyWithoutUserNestedInput
+    advisorSetting?: AdvisorSettingUncheckedUpdateOneWithoutUserNestedInput
+    advisorConversations?: AdvisorConversationUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -67795,6 +72973,13 @@ export namespace Prisma {
     savingScore: Decimal | DecimalJsLike | number | string
     goalScore: Decimal | DecimalJsLike | number | string
     splitScore: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AdvisorConversationCreateManyUserInput = {
+    id: string
+    title: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -68627,6 +73812,29 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AdvisorConversationUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: AdvisorChatMessageUpdateManyWithoutConversationNestedInput
+  }
+
+  export type AdvisorConversationUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    messages?: AdvisorChatMessageUncheckedUpdateManyWithoutConversationNestedInput
+  }
+
+  export type AdvisorConversationUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type TransactionCreateManyCategoryInput = {
     id?: string
     amount: number
@@ -69297,6 +74505,34 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     aiClassified?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AdvisorChatMessageCreateManyConversationInput = {
+    id?: string
+    role: $Enums.AdvisorChatRole
+    content: string
+    createdAt?: Date | string
+  }
+
+  export type AdvisorChatMessageUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorChatMessageUncheckedUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdvisorChatMessageUncheckedUpdateManyWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
+    content?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

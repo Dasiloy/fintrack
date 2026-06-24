@@ -1,45 +1,44 @@
 'use client';
 
 // ── ContextOracleSection ──────────────────────────────────────────────────────
-// Live market signals from the latest insight's macroContext field.
-// If no insight exists yet the section shows placeholder dashes.
+// Live market signals read from the gateway macro-context cache (advisor.getMacroContext),
+// independent of insight runs. Individual stats show "—" when a value is unavailable.
 
 import * as React from 'react';
 import { Globe, ChevronDown, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 import { Skeleton } from '@ui/components';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { relativeTime, getMacroContext } from '../_lib/advisor.helpers';
+import { relativeTime } from '../_lib/advisor.helpers';
 
 export function ContextOracleSection() {
   const [expanded, setExpanded] = React.useState(true);
 
-  const { data, isLoading } = api_client.advisor.getInsights.useQuery(
-    { limit: 1 },
-    { staleTime: 60_000 },
-  );
+  // Read macro context live from the gateway cache so values are never stale.
+  const { data, isLoading } = api_client.advisor.getMacroContext.useQuery(undefined, {
+    staleTime: 60_000,
+  });
 
-  const insight = data?.data?.[0] ?? null;
-  const macroContext = insight ? getMacroContext(insight) : null;
+  const macroContext = data?.data ?? null;
 
   return (
-    <div className="border-b border-border-subtle">
+    <div className="border-border-subtle border-b">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-bg-surface-hover"
+        className="hover:bg-bg-surface-hover flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left transition-colors"
         aria-expanded={expanded}
       >
-        <Globe className="size-3.5 shrink-0 text-text-tertiary" aria-hidden />
-        <span className="flex-1 text-[12px] font-semibold text-text-primary">Market Signals</span>
+        <Globe className="text-text-tertiary size-3.5 shrink-0" aria-hidden />
+        <span className="text-text-primary flex-1 text-[12px] font-semibold">Market Signals</span>
         {macroContext && (
-          <span className="mr-1 text-[10px] text-text-disabled">
+          <span className="text-text-disabled mr-1 text-[10px]">
             {relativeTime(new Date(macroContext.fetchedAt))}
           </span>
         )}
         <ChevronDown
           className={cn(
-            'size-3.5 text-text-tertiary transition-transform duration-200',
+            'text-text-tertiary size-3.5 transition-transform duration-200',
             expanded && 'rotate-180',
           )}
           aria-hidden
@@ -56,19 +55,32 @@ export function ContextOracleSection() {
             </>
           ) : macroContext ? (
             <>
-              <OracleStat label="USD / NGN" value={`₦${macroContext.ngnUsdRate.toLocaleString()}`} subtext="Exchange rate" />
+              <OracleStat
+                label="USD / NGN"
+                value={
+                  macroContext.ngnUsdRate != null
+                    ? `₦${macroContext.ngnUsdRate.toLocaleString()}`
+                    : '—'
+                }
+                subtext="Exchange rate"
+              />
               <OracleStat
                 label="Food CPI"
-                value={`+${macroContext.foodCpiYoY}%`}
+                value={macroContext.foodCpiYoY != null ? `+${macroContext.foodCpiYoY}%` : '—'}
                 subtext="YoY inflation"
                 trend="up"
-                alert={macroContext.foodCpiYoY > 15}
+                alert={macroContext.foodCpiYoY != null && macroContext.foodCpiYoY > 15}
               />
-              <OracleStat label="CBN Rate" value={`${macroContext.cbnPolicyRate}%`} subtext="Policy rate" trend="up" />
+              <OracleStat
+                label="CBN Rate"
+                value={macroContext.cbnPolicyRate != null ? `${macroContext.cbnPolicyRate}%` : '—'}
+                subtext="Policy rate"
+                trend="up"
+              />
             </>
           ) : (
-            <p className="py-2 text-[11px] text-text-disabled">
-              Market data will appear after the first insights run.
+            <p className="text-text-disabled py-2 text-[11px]">
+              No insights data available right now
             </p>
           )}
         </div>
@@ -89,17 +101,27 @@ interface OracleStatProps {
 
 function OracleStat({ label, value, subtext, trend, alert = false }: OracleStatProps) {
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-bg-elevated px-3 py-2.5">
+    <div className="bg-bg-elevated flex items-center gap-3 rounded-lg px-3 py-2.5">
       <div className="flex flex-1 flex-col gap-0.5">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-text-tertiary">{label}</span>
-        <span className="text-[10px] text-text-disabled">{subtext}</span>
+        <span className="text-text-tertiary text-[10px] font-medium tracking-wide uppercase">
+          {label}
+        </span>
+        <span className="text-text-disabled text-[10px]">{subtext}</span>
       </div>
       <div className="flex items-center gap-1">
         {trend === 'up' && (
-          <TrendingUp className={cn('size-3', alert ? 'text-warning' : 'text-text-disabled')} aria-hidden />
+          <TrendingUp
+            className={cn('size-3', alert ? 'text-warning' : 'text-text-disabled')}
+            aria-hidden
+          />
         )}
-        {trend === 'down' && <TrendingDown className="size-3 text-success" aria-hidden />}
-        <span className={cn('text-[13px] font-semibold tabular-nums', alert ? 'text-warning' : 'text-text-primary')}>
+        {trend === 'down' && <TrendingDown className="text-success size-3" aria-hidden />}
+        <span
+          className={cn(
+            'text-[13px] font-semibold tabular-nums',
+            alert ? 'text-warning' : 'text-text-primary',
+          )}
+        >
           {value}
         </span>
       </div>

@@ -303,6 +303,12 @@ Items are ordered by priority. Each entry follows the format:
 
 ## 🐛 Bugs
 
+1. After every message stream , we need to append to the localstorage on that thread just that new message, we need to avoid double message occurence at aall cost while doing this
+2. Switching betwen tabs when sending a message cuts stream,... how does cluade and the rest handle this in the web app?
+3. Even thoiugh we using localstorage, the converstaion list still shjows empty for a fraction of a few seconds before loading the chat, this needs to be instant
+4. Lets style the scrollarea scrollbar in the advisort chat panel, use the style we already apply for scroll in other part of the app
+5. in dev mode avein db needs ssl config like we do for the database connection, howeever, the graph perstence postgress connections cannot allow us to custoimize the string, so we prolly need to add ssl support via query string and use the ca.pem file authorize connectiuon
+
 ### [BG-003] Google sign-in fails in staging — "access denied" error
 
 - **Type**: Bug

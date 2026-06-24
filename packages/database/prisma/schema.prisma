@@ -296,8 +296,10 @@ model User {
   scheduledDeletionAt DateTime?
 
   // time stamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  advisorSetting       AdvisorSetting?
+  advisorConversations AdvisorConversation[]
 }
 
 enum AccountType {
@@ -1084,6 +1086,74 @@ model AnalyticsSnapshot {
 
   @@unique([userId, period, type])
   @@index([userId, period])
+}
+
+// Data-access scopes the AI advisor may use on a user's behalf. Each scope
+// gates one family of financial data — both the scope-gated tools and the
+enum AdvisorScope {
+  TRANSACTIONS
+  BUDGETS
+  GOALS
+  RECURRING
+  SPLITS
+  ANALYTICS
+}
+
+// Per-user consent for the AI advisor. Created on user sign up
+model AdvisorSetting {
+  id            String         @id @default(cuid())
+  enabled       Boolean        @default(true)
+  grantedScopes AdvisorScope[] @default([TRANSACTIONS, BUDGETS, GOALS, RECURRING, SPLITS, ANALYTICS])
+
+  // owner (one setting row per user)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// A persisted advisor conversation thread. `id` IS the LangGraph thread_id, so
+// the checkpointer's working memory and the durable display history line up. The
+// checkpointer compacts/drops old messages for the context window, so the full
+// user-facing transcript lives in AdvisorChatMessage instead.
+model AdvisorConversation {
+  id    String @id // = LangGraph thread_id (generated client-side)
+  title String
+
+  // owner
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  messages AdvisorChatMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, updatedAt])
+}
+
+enum AdvisorChatRole {
+  USER
+  ASSISTANT
+}
+
+// One durable message in an advisor conversation, for display history. Distinct
+// from the checkpointer's working memory (which compacts).
+model AdvisorChatMessage {
+  id      String          @id @default(cuid())
+  role    AdvisorChatRole
+  content String
+
+  conversationId String
+  conversation   AdvisorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
 }
 
 model AiInsight {
