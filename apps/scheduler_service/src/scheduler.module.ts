@@ -18,6 +18,7 @@ import {
   FCM_NOTIFICATION_QUEUE,
   FINANCE_SCORE_QUEUE,
   INSIGHTS_QUEUE,
+  ORACLE_REFRESH_QUEUE,
   PAYMENT_QUEUE,
   RECURRING_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
@@ -79,6 +80,7 @@ import { FinanceScoreProcessor } from './processors/finance_score.processor';
       { name: TRANSACTION_SEMANTIC_QUEUE },
       { name: FCM_NOTIFICATION_QUEUE },
       { name: FINANCE_SCORE_QUEUE },
+      { name: ORACLE_REFRESH_QUEUE },
     ),
   ],
   providers: [

@@ -76,8 +76,8 @@ function summariseTransactions(
  * Creates the transaction-fetching tool for the insights graph ToolNode.
  *
  * `prisma` is bound at graph-build time. `userId` is NOT a tool parameter —
- * it is read from `config.configurable.userId` at call time, which LangGraph
- * populates automatically from the graph invocation config.
+ * it is read from `config.context.userId` at call time, which LangGraph
+ * populates from the graph invocation's `context`.
  *
  * This ensures the tool can never be directed at another user's data even if
  * an LLM attempts to pass a different userId in the tool arguments.
@@ -93,12 +93,11 @@ export function createTransactionsTool(prisma: PrismaService) {
       { month, year, limit = 100, categorySlug },
       config?: RunnableConfig,
     ) => {
-      const userId = (config?.configurable as any)?.userId as
-        | string
-        | undefined;
+      const userId = (config as { context?: { userId?: string } } | undefined)
+        ?.context?.userId;
       if (!userId)
         throw new Error(
-          'fetch_transactions: userId missing from config.configurable',
+          'fetch_transactions: userId missing from config.context',
         );
 
       const from = dayjs()
