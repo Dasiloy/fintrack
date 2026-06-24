@@ -14,31 +14,23 @@
 import * as React from 'react';
 import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { ScrollArea } from '@ui/components';
-import { ContextToolsSection } from './context_tools_section';
+import { AdvisorPermissionsPanel } from './advisor_permissions_panel';
 import { ContextOracleSection } from './context_oracle_section';
 import { ContextBudgetSection } from './context_budget_section';
-import type { AdvisorTool } from '../_lib/advisor.types';
 
 interface ContextPanelProps {
-  tools: AdvisorTool[];
-  onToolToggle: (id: string) => void;
   isCollapsed?: boolean;
   onToggle?: () => void;
 }
 
-export function ContextPanel({
-  tools,
-  onToolToggle,
-  isCollapsed = false,
-  onToggle,
-}: ContextPanelProps) {
+export function ContextPanel({ isCollapsed = false, onToggle }: ContextPanelProps) {
   if (isCollapsed) {
     return (
-      <div className="flex h-full flex-col items-center border-l border-border-subtle bg-bg-elevated pt-2">
+      <div className="border-border-subtle bg-bg-elevated flex h-full flex-col items-center border-l pt-2">
         <button
           type="button"
           onClick={onToggle}
-          className="flex size-8 items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-bg-surface-hover hover:text-text-secondary"
+          className="text-text-tertiary hover:bg-bg-surface-hover hover:text-text-secondary flex size-8 items-center justify-center rounded-md transition-colors"
           aria-label="Expand context panel"
         >
           <PanelRightOpen className="size-4" aria-hidden />
@@ -48,17 +40,17 @@ export function ContextPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden border-l border-border-subtle bg-bg-elevated">
+    <div className="border-border-subtle bg-bg-elevated flex h-full flex-col overflow-hidden border-l">
       {/* Panel heading */}
-      <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-subtle px-4">
-        <span className="text-[12px] font-semibold uppercase tracking-wide text-text-tertiary">
+      <div className="border-border-subtle flex h-12 shrink-0 items-center justify-between border-b px-4">
+        <span className="text-text-tertiary text-[12px] font-semibold tracking-wide uppercase">
           Context
         </span>
         {onToggle && (
           <button
             type="button"
             onClick={onToggle}
-            className="flex size-7 items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-bg-surface-hover hover:text-text-secondary"
+            className="text-text-tertiary hover:bg-bg-surface-hover hover:text-text-secondary flex size-7 items-center justify-center rounded-md transition-colors"
             aria-label="Collapse context panel"
           >
             <PanelRightClose className="size-3.5" aria-hidden />
@@ -68,7 +60,7 @@ export function ContextPanel({
 
       {/* Scrollable sections */}
       <ScrollArea className="flex-1 overflow-y-auto">
-        <ContextToolsSection tools={tools} onToolToggle={onToolToggle} />
+        <AdvisorPermissionsPanel />
         <ContextOracleSection />
         <ContextBudgetSection />
       </ScrollArea>

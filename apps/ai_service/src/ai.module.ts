@@ -10,7 +10,7 @@ import { DatabaseModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 
-import { ChatModule } from './chat/chat.module';
+import { AdvisorModule } from './advisor/advisor.module';
 import { InsightsModule } from './insights/insights.module';
 import { ClassificationModule } from './classification/classification.module';
 import { OcrModule } from './ocr/ocr.module';
@@ -38,7 +38,7 @@ import { RegistoryModule } from './registory/registory.module';
  * |---------------------|--------------------------------------------------------|
  * | RegistoryModule     | Provider repos + ModelRessolver + LangChain/LangGraph  |
  * | ClassificationModule| `ClassifyTransactions` gRPC + correction feedback loop |
- * | ChatModule          | Chat completions (stub — not yet exposed via gRPC)     |
+ * | AdvisorModule       | AI financial advisor (stub — not yet exposed via gRPC) |
  * | InsightsModule      | Spending insights (stub — not yet exposed via gRPC)    |
  */
 @Module({
@@ -75,7 +75,7 @@ import { RegistoryModule } from './registory/registory.module';
 
     // main modules
     RegistoryModule,
-    ChatModule,
+    AdvisorModule,
     InsightsModule,
     ClassificationModule,
     OcrModule,
