@@ -1,64 +1,191 @@
 'use client';
 
 // ── ConversationItem ──────────────────────────────────────────────────────────
-// Single row in the conversation history list.
-// Shows: title (truncated), relative timestamp, and message count badge.
+// Single row in the conversation history list: title + relative time, with a
+// three-dot menu to rename (inline edit) or delete (confirm dialog). No preview
+// or message-count — those go stale on every turn.
 
 import * as React from 'react';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, MoreHorizontal, Pencil, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@ui/components';
 import { cn } from '@ui/lib/utils';
-import { relativeTime, truncate } from '../_lib/advisor.helpers';
+import { relativeTime } from '../_lib/advisor.helpers';
 import type { ConversationThread } from '../_lib/advisor.types';
 
 interface ConversationItemProps {
   thread: ConversationThread;
   isActive: boolean;
   onClick: () => void;
+  onRename: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
+  isDeleting?: boolean;
 }
 
-export function ConversationItem({ thread, isActive, onClick }: ConversationItemProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        // Base: full-width, left-aligned, min 44px touch target
-        'flex w-full min-h-[44px] cursor-pointer items-start gap-2.5 rounded-lg px-3 py-2.5 text-left',
-        'transition-colors duration-150',
-        isActive
-          ? 'bg-primary/10 text-text-primary'
-          : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary',
-      )}
-    >
-      {/* Icon */}
-      <MessageSquare
-        className={cn('mt-0.5 size-3.5 shrink-0', isActive ? 'text-primary' : 'text-text-disabled')}
-        aria-hidden
-      />
+export function ConversationItem({
+  thread,
+  isActive,
+  onClick,
+  onRename,
+  onDelete,
+  isDeleting,
+}: ConversationItemProps) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(thread.title);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-      {/* Text content */}
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        {/* Title row */}
-        <div className="flex items-center justify-between gap-1">
-          <span className="text-[13px] font-medium leading-tight truncate">
+  React.useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [isEditing]);
+
+  const startRename = () => {
+    setDraft(thread.title);
+    setIsEditing(true);
+  };
+
+  const commitRename = () => {
+    const next = draft.trim();
+    setIsEditing(false);
+    if (next && next !== thread.title) onRename(thread.id, next);
+  };
+
+  // ── Inline rename mode ──────────────────────────────────────────────────────
+  if (isEditing) {
+    return (
+      <div className="bg-bg-surface flex min-h-[44px] items-center gap-2.5 rounded-lg px-3 py-2.5">
+        <MessageSquare className="text-primary size-3.5 shrink-0" aria-hidden />
+        <input
+          ref={inputRef}
+          value={draft}
+          maxLength={120}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commitRename}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commitRename();
+            if (e.key === 'Escape') setIsEditing(false);
+          }}
+          className="text-text-primary min-w-0 flex-1 bg-transparent text-[13px] font-medium leading-tight outline-none"
+        />
+      </div>
+    );
+  }
+
+  // ── Normal row ──────────────────────────────────────────────────────────────
+  return (
+    <>
+      <div
+        className={cn(
+          'group flex min-h-[44px] items-center gap-2.5 rounded-lg px-3 py-2.5',
+          'transition-colors duration-150',
+          isActive
+            ? 'bg-primary/10 text-text-primary'
+            : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary',
+        )}
+      >
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 text-left"
+        >
+          <MessageSquare
+            className={cn(
+              'size-3.5 shrink-0',
+              isActive ? 'text-primary' : 'text-text-disabled',
+            )}
+            aria-hidden
+          />
+          <span className="min-w-0 flex-1 truncate text-[13px] font-medium leading-tight">
             {thread.title}
           </span>
-          {/* Message count badge */}
-          <span className="shrink-0 rounded-full bg-bg-surface px-1.5 py-0.5 text-[10px] font-medium text-text-tertiary tabular-nums">
-            {thread.messageCount}
-          </span>
-        </div>
-
-        {/* Last message preview + timestamp */}
-        <div className="flex items-center justify-between gap-1">
-          <span className="text-[11px] text-text-tertiary truncate leading-tight">
-            {truncate(thread.lastMessage, 42)}
-          </span>
-          <span className="shrink-0 text-[10px] text-text-disabled">
+          <span className="text-text-disabled shrink-0 text-[10px]">
             {relativeTime(thread.updatedAt)}
           </span>
-        </div>
+        </button>
+
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label="Conversation options"
+              className={cn(
+                'text-text-disabled hover:text-text-primary hover:bg-bg-surface-hover flex size-6 shrink-0 cursor-pointer items-center justify-center rounded outline-none transition-all',
+                'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                menuOpen && 'opacity-100',
+              )}
+            >
+              <MoreHorizontal className="size-3.5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40 rounded-md p-1.5">
+            <DropdownMenuItem
+              className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
+              onClick={() => {
+                setMenuOpen(false);
+                startRename();
+              }}
+            >
+              <Pencil className="size-3.5 shrink-0" />
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
+              onClick={() => {
+                setMenuOpen(false);
+                setDeleteOpen(true);
+              }}
+            >
+              <Trash2 className="size-3.5 shrink-0" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </button>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-red-500/10">
+              <TriangleAlert className="size-6 text-red-400" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Delete &quot;{thread.title}&quot;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This conversation and all its messages will be permanently deleted.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              loading={isDeleting}
+              onClick={() => onDelete(thread.id)}
+            >
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

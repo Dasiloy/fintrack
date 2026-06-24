@@ -9,7 +9,10 @@ import {
   StreamMode,
 } from '@langchain/langgraph';
 
-import { ChatModelId } from '@fintrack/types/interfaces/ai';
+import { AdvisorAction, ChatModelId } from '@fintrack/types/interfaces/ai';
+
+// Re-exported so existing imports from this module keep resolving.
+export type { AdvisorAction };
 
 export interface BuildChainOptions<TInput = BaseMessage[], TOutput = string> {
   modelId: ChatModelId;
@@ -42,7 +45,6 @@ export interface InvokeGraphOptions<
   TConfig = Record<string, unknown>,
   TContext = Record<string, unknown>,
 > {
-  threadId?: string;
   configurable?: TConfig;
   context?: TContext;
 }
@@ -56,45 +58,9 @@ export interface StreamGraphOptions<
 
 // Discriminated union yielded by LangGraphService.streamEvents()
 export type GraphStreamEvent<TState> =
-  | { type: 'token'; content: string }
+  // `node` is the graph node that produced the token (e.g. only stream `respond`).
+  | { type: 'token'; content: string; node?: string }
   | { type: 'state'; node: string; state: Partial<TState> }
-  | { type: 'approval_required'; action: AdvisorAction }; // human-in-the-loop pause
-
-// Advisor action types — proposals requiring explicit user approval before execution
-export type AdvisorAction =
-  | {
-      kind: 'adjust_budget';
-      budgetId: string;
-      categorySlug: string;
-      currentLimit: number;
-      proposedLimit: number;
-      reason: string;
-    }
-  | {
-      kind: 'create_budget';
-      categorySlug: string;
-      proposedLimit: number;
-      reason: string;
-    }
-  | {
-      kind: 'adjust_goal_contribution';
-      goalId: string;
-      currentAmount: number;
-      proposedAmount: number;
-      reason: string;
-    }
-  | {
-      kind: 'suggest_recurring';
-      name: string;
-      amount: number;
-      categorySlug: string;
-      frequency: string;
-      reason: string;
-    }
-  | {
-      kind: 'flag_subscription';
-      name: string;
-      amount: number;
-      categorySlug: string;
-      reason: string;
-    };
+  // Human-in-the-loop pauses (surfaced from a graph `interrupt()`):
+  | { type: 'approval_required'; action: AdvisorAction } // an action awaiting Approve/Reject
+  | { type: 'permission_required'; scope: string; reason: string }; // a scope awaiting Allow/Deny

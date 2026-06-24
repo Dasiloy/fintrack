@@ -15,7 +15,10 @@ interface AdvisorTabsProps {
   expandedSections: Record<string, boolean>;
   onToggleSection: (id: string) => void;
   activeConversationId: string | null;
+  loadHistory: boolean;
   onFirstMessageSent: () => void;
+  onConversationUpdated: () => void;
+  onConversationStarted: (conversationId: string) => void;
 }
 
 export function AdvisorTabs({
@@ -24,7 +27,10 @@ export function AdvisorTabs({
   expandedSections,
   onToggleSection,
   activeConversationId,
+  loadHistory,
   onFirstMessageSent,
+  onConversationUpdated,
+  onConversationStarted,
 }: AdvisorTabsProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-bg-deep">
@@ -36,7 +42,10 @@ export function AdvisorTabs({
       ) : (
         <ChatPanel
           activeConversationId={activeConversationId}
+          loadHistory={loadHistory}
           onFirstMessageSent={onFirstMessageSent}
+          onConversationUpdated={onConversationUpdated}
+          onConversationStarted={onConversationStarted}
         />
       )}
     </div>

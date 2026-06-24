@@ -73,9 +73,6 @@ export function AdvisorHeader({
         <span className="text-text-primary hidden truncate text-sm font-semibold sm:block">
           Fintrack Advisor
         </span>
-        <Badge variant="outline" className="hidden h-4 shrink-0 px-1.5 text-[10px] sm:inline-flex">
-          Beta
-        </Badge>
       </div>
 
       {/* ── Tab switcher (centre, visible on all breakpoints) ──────────────── */}
