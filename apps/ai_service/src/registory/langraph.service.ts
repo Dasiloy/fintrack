@@ -7,7 +7,7 @@ import {
   BaseStore,
 } from '@langchain/langgraph';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import {
   CompileGraphOptions,
@@ -46,6 +46,7 @@ import {
  */
 @Injectable()
 export class LangraphService {
+  private readonly logger = new Logger(LangraphService.name);
   constructor() {}
 
   /**
@@ -113,7 +114,10 @@ export class LangraphService {
     });
 
     for await (const chunk of stream) {
-      if (chunk) yield chunk;
+      if (chunk) {
+        this.logger.debug(chunk);
+        yield chunk;
+      }
     }
   }
 
@@ -142,12 +146,17 @@ export class LangraphService {
       const [mode, payload] = chunk as [string, unknown];
 
       if (mode === 'messages') {
-        const [msgChunk] = payload as [{ content: unknown }, unknown];
+        const [msgChunk, meta] = payload as [
+          { content: unknown },
+          { langgraph_node?: string } | undefined,
+        ];
         const text =
           typeof msgChunk?.content === 'string'
             ? msgChunk.content
             : ((msgChunk?.content as any)?.[0]?.text ?? '');
-        if (text) yield { type: 'token', content: text };
+        if (text) {
+          yield { type: 'token', content: text, node: meta?.langgraph_node };
+        }
       } else if (mode === 'updates') {
         for (const [node, state] of Object.entries(
           payload as Record<string, Partial<TState>>,
@@ -159,19 +168,27 @@ export class LangraphService {
   }
 
   /**
-   * Builds the LangGraph `RunnableConfig` from invoke/stream options.
-   * Returns `undefined` when neither `threadId` nor `configurable` is set
-   * so LangGraph uses its default stateless execution path.
+   * Builds the LangGraph run config from invoke/stream options.
+   *
+   * - `configurable` → forwarded as-is (carries `thread_id`, which keys the
+   *   checkpointer).
+   * - `context` → forwarded as the top-level `context` field, which LangGraph
+   *   exposes to nodes as `runtime.context` (static per-run data such as
+   *   `userId`). This is deliberately separate from graph state — it is never
+   *   persisted in checkpoints.
+   *
+   * Returns `undefined` when neither `configurable` nor `context` is set so
+   * LangGraph uses its default stateless execution path.
    */
   private buildConfig<Tconfig, TContext>(
     opts?: InvokeGraphOptions<Tconfig, TContext>,
   ) {
-    if (!opts?.threadId && !opts?.configurable) return undefined;
+    if (!opts?.configurable && !opts?.context) return undefined;
     return {
-      configurable: {
-        ...opts.configurable,
-        ...(opts.threadId && { thread_id: opts.threadId }),
-      },
+      ...(opts.context !== undefined && {
+        context: opts.context as Record<string, unknown>,
+      }),
+      ...(opts.configurable && { configurable: { ...opts.configurable } }),
     };
   }
 }

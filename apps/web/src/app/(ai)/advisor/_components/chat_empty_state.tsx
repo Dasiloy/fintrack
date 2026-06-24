@@ -25,13 +25,13 @@ export function ChatEmptyState({ onPromptSelect, inputSlot }: ChatEmptyStateProp
     <div className="flex w-full flex-col gap-6">
       {/* ── Greeting ── */}
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10">
-          <BrainCircuit className="size-7 text-primary" aria-hidden />
+        <div className="bg-primary/10 flex size-14 items-center justify-center rounded-2xl">
+          <BrainCircuit className="text-primary size-7" aria-hidden />
         </div>
         <div className="flex flex-col items-center gap-1">
-          <h2 className="text-[16px] font-semibold text-text-primary">FinTrack Advisor</h2>
-          <p className="max-w-[260px] text-[13px] text-text-tertiary">
-            Your personal AI financial advisor. Ask me anything about your spending, budgets, or goals.
+          <h2 className="text-text-primary text-[16px] font-semibold">FinTrack Advisor</h2>
+          <p className="text-text-tertiary max-w-[260px] text-[13px]">
+            Your personal AI financial advisor
           </p>
         </div>
       </div>
@@ -42,8 +42,8 @@ export function ChatEmptyState({ onPromptSelect, inputSlot }: ChatEmptyStateProp
       {/* ── Suggested prompts ── */}
       <div>
         <div className="mb-3 flex items-center gap-1.5">
-          <Sparkles className="size-3.5 text-text-disabled" aria-hidden />
-          <span className="text-[11px] font-medium uppercase tracking-wide text-text-disabled">
+          <Sparkles className="text-text-disabled size-3.5" aria-hidden />
+          <span className="text-text-disabled text-[11px] font-medium tracking-wide uppercase">
             Try asking
           </span>
         </div>
@@ -53,7 +53,7 @@ export function ChatEmptyState({ onPromptSelect, inputSlot }: ChatEmptyStateProp
               key={prompt}
               type="button"
               onClick={() => onPromptSelect(prompt)}
-              className="min-h-[44px] cursor-pointer rounded-xl border border-border-subtle bg-bg-surface px-3 py-3 text-left text-[12px] text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary"
+              className="border-border-subtle bg-bg-surface text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary min-h-[44px] cursor-pointer rounded-xl border px-3 py-3 text-left text-[12px] transition-colors"
             >
               {prompt}
             </button>

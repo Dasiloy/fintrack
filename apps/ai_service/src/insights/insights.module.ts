@@ -10,13 +10,16 @@ import {
 import {
   FCM_NOTIFICATION_QUEUE,
   INSIGHTS_QUEUE,
+  ORACLE_REFRESH_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
+import { FetcherService } from '@fintrack/common/services/fetcher.service';
 
 import { InsightService } from './insights.service';
 import { InsightsController } from './insights.controller';
 import { InsightsWorker } from './insights.worker';
 import { InsightsOracleService } from './insights.oracle.service';
+import { OracleRefreshProcessor } from './oracle_refresh.processor';
 import { BudgetBreachService } from './budget_breach.service';
 
 /**
@@ -38,6 +41,7 @@ import { BudgetBreachService } from './budget_breach.service';
       { name: INSIGHTS_QUEUE },
       { name: FCM_NOTIFICATION_QUEUE },
       { name: TOKEN_NOTIFICATION_QUEUE },
+      { name: ORACLE_REFRESH_QUEUE },
     ),
     ClientsModule.registerAsync([
       {
@@ -63,8 +67,10 @@ import { BudgetBreachService } from './budget_breach.service';
   providers: [
     InsightService,
     InsightsWorker,
+    FetcherService,
     InsightsOracleService,
     BudgetBreachService,
+    OracleRefreshProcessor,
   ],
   exports: [InsightService],
 })

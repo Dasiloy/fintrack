@@ -183,6 +183,27 @@ export const MODEL_CONFIGS: Record<ModelId, ModelProviderConfig> = {
     timeout: 30_000,
     streaming: true,
   },
+  // Moderate reasoning — low cost. Used for cheap work like conversation
+  // compaction/summarisation.
+  'google:gemini-3-flash-preview': {
+    model: 'gemini-3-flash-preview',
+    provider: 'google',
+    cache: true,
+    maxTokens: 4096,
+    temperature: 0.7,
+    timeout: 30_000,
+    streaming: true,
+  },
+  // Deep reasoning — the main advisor responses (tool selection, grounded advice).
+  'google:gemini-3.5-flash': {
+    model: 'gemini-3.5-flash',
+    provider: 'google',
+    cache: true,
+    maxTokens: 8192,
+    temperature: 0.7,
+    timeout: 60_000,
+    streaming: true,
+  },
 
   // ─── Google embeddings ────────────────────────────────────────────────────
   'google:gemini-embedding-2': {
