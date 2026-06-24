@@ -10,6 +10,7 @@ import {
 } from './repositories';
 import { LangchainService } from './langchain.service';
 import { LangraphService } from './langraph.service';
+import { GraphPersistenceService } from './graph_persistence.service';
 
 /**
  * Global infrastructure module that registers all LLM provider repos and
@@ -29,6 +30,7 @@ import { LangraphService } from './langraph.service';
  * | `ModelRessolver`      | Routes `ModelId` → correct repo at compile + runtime        |
  * | `LangchainService`    | Factory for LangChain chains and structured-output runnables|
  * | `LangraphService`     | Compile/invoke/stream helpers for LangGraph `StateGraph`s   |
+ * | `GraphPersistenceService` | Postgres-backed checkpointer + store for stateful graphs|
  *
  * Provider repos are internal — inject `ModelRessolver` instead.
  */
@@ -47,7 +49,14 @@ import { LangraphService } from './langraph.service';
     // Langchain Service
     LangchainService,
     LangraphService,
+    // Durable LangGraph persistence (Postgres checkpointer + store)
+    GraphPersistenceService,
   ],
-  exports: [ModelRessolver, LangchainService, LangraphService],
+  exports: [
+    ModelRessolver,
+    LangchainService,
+    LangraphService,
+    GraphPersistenceService,
+  ],
 })
 export class RegistoryModule {}
