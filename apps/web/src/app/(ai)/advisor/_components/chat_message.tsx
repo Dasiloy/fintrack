@@ -83,43 +83,187 @@ export function ChatMessage({ message, onActionApprove, onActionReject }: ChatMe
 }
 
 // ── RichText ──────────────────────────────────────────────────────────────────
-// Minimal markdown-like renderer for assistant messages.
-// Handles: **bold**, newlines → <br />, and bullet lists (lines starting with -).
+// Markdown-subset renderer for advisor replies. Supports the small set of
+// Markdown the advisor is prompted to use, styled for easy reading:
+//   - ### headings, "- " bullet lists, "1." numbered lists, paragraphs
+//   - **bold** (accent colour — the "this matters" highlight), *italic*, `code`
+//   - ₦ amounts emphasised so figures pop
+// Deliberately not a full Markdown engine (no tables/code-blocks) — the prompt
+// keeps output within this subset.
+
+type Block =
+  | { kind: 'heading'; text: string }
+  | { kind: 'bullet'; items: string[] }
+  | { kind: 'numbered'; items: string[] }
+  | { kind: 'para'; lines: string[] };
+
+function parseBlocks(text: string): Block[] {
+  const blocks: Block[] = [];
+  let current: Block | null = null;
+
+  for (const rawLine of text.split('\n')) {
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      current = null; // blank line ends the current block
+      continue;
+    }
+
+    if (/^#{1,6}\s+/.test(trimmed)) {
+      blocks.push({ kind: 'heading', text: trimmed.replace(/^#{1,6}\s+/, '') });
+      current = null;
+    } else if (/^[-*]\s+/.test(trimmed)) {
+      if (current?.kind !== 'bullet') {
+        current = { kind: 'bullet', items: [] };
+        blocks.push(current);
+      }
+      current.items.push(trimmed.replace(/^[-*]\s+/, ''));
+    } else if (/^\d+\.\s+/.test(trimmed)) {
+      if (current?.kind !== 'numbered') {
+        current = { kind: 'numbered', items: [] };
+        blocks.push(current);
+      }
+      current.items.push(trimmed.replace(/^\d+\.\s+/, ''));
+    } else {
+      if (current?.kind !== 'para') {
+        current = { kind: 'para', lines: [] };
+        blocks.push(current);
+      }
+      current.lines.push(trimmed);
+    }
+  }
+
+  return blocks;
+}
 
 function RichText({ text }: { text: string }) {
-  // Split on double-newlines to get paragraphs; single newlines become <br>
-  const paragraphs = text.split('\n\n');
+  const blocks = parseBlocks(text);
 
   return (
     <>
-      {paragraphs.map((para, pi) => {
-        const lines = para.split('\n');
-        return (
-          <p key={pi} className={cn(pi > 0 && 'mt-2')}>
-            {lines.map((line, li) => (
-              <React.Fragment key={li}>
-                {li > 0 && <br />}
-                <InlineText text={line} />
-              </React.Fragment>
-            ))}
-          </p>
-        );
+      {blocks.map((block, bi) => {
+        const spacing = bi > 0 ? 'mt-2' : '';
+        switch (block.kind) {
+          case 'heading':
+            return (
+              <p
+                key={bi}
+                className={cn(
+                  'text-text-primary text-[13px] font-semibold',
+                  bi > 0 && 'mt-3',
+                )}
+              >
+                {renderInline(block.text)}
+              </p>
+            );
+          case 'bullet':
+            return (
+              <ul key={bi} className={cn('space-y-1', spacing)}>
+                {block.items.map((item, ii) => (
+                  <li key={ii} className="flex gap-2">
+                    <span className="bg-text-disabled mt-[7px] size-1 shrink-0 rounded-full" />
+                    <span>{renderInline(item)}</span>
+                  </li>
+                ))}
+              </ul>
+            );
+          case 'numbered':
+            return (
+              <ol key={bi} className={cn('space-y-1', spacing)}>
+                {block.items.map((item, ii) => (
+                  <li key={ii} className="flex gap-2">
+                    <span className="text-text-tertiary shrink-0 tabular-nums">
+                      {ii + 1}.
+                    </span>
+                    <span>{renderInline(item)}</span>
+                  </li>
+                ))}
+              </ol>
+            );
+          default:
+            return (
+              <p key={bi} className={spacing}>
+                {block.lines.map((line, li) => (
+                  <React.Fragment key={li}>
+                    {li > 0 && <br />}
+                    {renderInline(line)}
+                  </React.Fragment>
+                ))}
+              </p>
+            );
+        }
       })}
     </>
   );
 }
 
-// Handles **bold** within a single line of text.
-function InlineText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i} className="font-semibold text-text-primary">{part.slice(2, -2)}</strong>;
-        }
-        return <React.Fragment key={i}>{part}</React.Fragment>;
-      })}
-    </>
+// Inline tokens, rendered in the advisor's semantic colours:
+//   **bold**     → accent (the single "this matters" highlight)
+//   ++positive++ → success colour (a win, on track, money saved)
+//   ==caution==  → warning colour (over budget, behind, a risk)
+//   `code`, *italic*
+// Plain runs get ₦ amounts emphasised. A coloured span is left uniform (no
+// nested amount highlighting), so its colour reads cleanly. Order matters —
+// `**` is matched before `*`.
+function renderInline(text: string): React.ReactNode {
+  const parts = text.split(
+    /(\*\*[^*]+\*\*|\+\+[^+]+\+\+|==[^=]+==|`[^`]+`|\*[^*\n]+\*)/g,
+  );
+
+  return parts.map((part, i) => {
+    if (!part) return null;
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="text-primary font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('++') && part.endsWith('++')) {
+      return (
+        <strong key={i} className="text-success font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('==') && part.endsWith('==')) {
+      return (
+        <strong key={i} className="text-warning font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code
+          key={i}
+          className="bg-bg-elevated text-text-primary rounded px-1 py-0.5 font-mono text-[12px]"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (part.startsWith('*') && part.endsWith('*')) {
+      return (
+        <em key={i} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    return <React.Fragment key={i}>{highlightAmounts(part, i)}</React.Fragment>;
+  });
+}
+
+// Emphasises Naira amounts (e.g. ₦12,500) so figures stand out in body text.
+function highlightAmounts(text: string, keyPrefix: number): React.ReactNode {
+  const parts = text.split(/(₦[\d,]+(?:\.\d+)?)/g);
+  return parts.map((part, i) =>
+    /^₦[\d,]/.test(part) ? (
+      <span key={`${keyPrefix}-${i}`} className="text-text-primary font-semibold">
+        {part}
+      </span>
+    ) : (
+      <React.Fragment key={`${keyPrefix}-${i}`}>{part}</React.Fragment>
+    ),
   );
 }

@@ -11,6 +11,31 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "ai";
 
+export interface AdvisorMessageReq {
+  /** maps to the LangGraph thread_id */
+  conversationId: string;
+  userId: string;
+  message: string;
+  /**
+   * Data scopes the user has granted, resolved by the gateway. Gates the
+   * advisor's tools and grounded prompt sections.
+   */
+  grantedScopes: string[];
+}
+
+/**
+ * One streamed chunk. The type field discriminates the chunk:
+ *   token               - content holds a text delta
+ *   approval_required   - data holds the proposed action as JSON
+ *   permission_required - data holds the scope and reason as JSON
+ *   error               - content holds an error message
+ */
+export interface AdvisorChunkRes {
+  type: string;
+  content: string;
+  data: string;
+}
+
 export interface MonoTransaction {
   id: string;
   narration: string;
@@ -43,6 +68,13 @@ export const AI_PACKAGE_NAME = "ai";
 
 export interface AiServiceClient {
   classifyTransactions(request: ClassifyTransactionsReq, metadata?: Metadata): Observable<ClassifyTransactionsRes>;
+
+  /**
+   * Streams the advisor's response for one user message as a sequence of chunks
+   * (tokens plus human-in-the-loop events). Server-side streaming.
+   */
+
+  sendAdvisorMessage(request: AdvisorMessageReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
 }
 
 export interface AiServiceController {
@@ -50,11 +82,18 @@ export interface AiServiceController {
     request: ClassifyTransactionsReq,
     metadata?: Metadata,
   ): Promise<ClassifyTransactionsRes> | Observable<ClassifyTransactionsRes> | ClassifyTransactionsRes;
+
+  /**
+   * Streams the advisor's response for one user message as a sequence of chunks
+   * (tokens plus human-in-the-loop events). Server-side streaming.
+   */
+
+  sendAdvisorMessage(request: AdvisorMessageReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
 }
 
 export function AiServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["classifyTransactions"];
+    const grpcMethods: string[] = ["classifyTransactions", "sendAdvisorMessage"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AiService", method)(constructor.prototype[method], method, descriptor);

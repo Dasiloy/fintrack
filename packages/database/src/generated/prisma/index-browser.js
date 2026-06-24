@@ -549,6 +549,31 @@ exports.Prisma.AnalyticsSnapshotScalarFieldEnum = {
   computedAt: 'computedAt'
 };
 
+exports.Prisma.AdvisorSettingScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  grantedScopes: 'grantedScopes',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AdvisorConversationScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AdvisorChatMessageScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  content: 'content',
+  conversationId: 'conversationId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AiInsightScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -935,6 +960,20 @@ exports.SnapshotType = exports.$Enums.SnapshotType = {
   YEARLY_SUMMARY: 'YEARLY_SUMMARY'
 };
 
+exports.AdvisorScope = exports.$Enums.AdvisorScope = {
+  TRANSACTIONS: 'TRANSACTIONS',
+  BUDGETS: 'BUDGETS',
+  GOALS: 'GOALS',
+  RECURRING: 'RECURRING',
+  SPLITS: 'SPLITS',
+  ANALYTICS: 'ANALYTICS'
+};
+
+exports.AdvisorChatRole = exports.$Enums.AdvisorChatRole = {
+  USER: 'USER',
+  ASSISTANT: 'ASSISTANT'
+};
+
 exports.InsightTrigger = exports.$Enums.InsightTrigger = {
   DAILY: 'DAILY',
   BUDGET_BREACH: 'BUDGET_BREACH',
@@ -981,6 +1020,9 @@ exports.Prisma.ModelName = {
   Notification: 'Notification',
   ClassificationCorrection: 'ClassificationCorrection',
   AnalyticsSnapshot: 'AnalyticsSnapshot',
+  AdvisorSetting: 'AdvisorSetting',
+  AdvisorConversation: 'AdvisorConversation',
+  AdvisorChatMessage: 'AdvisorChatMessage',
   AiInsight: 'AiInsight',
   FinanceScoreBoard: 'FinanceScoreBoard'
 };

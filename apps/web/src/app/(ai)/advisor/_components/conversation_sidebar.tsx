@@ -17,6 +17,9 @@ interface ConversationSidebarProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onNewConversation: () => void;
+  onRename: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
+  deletingId?: string | null;
 }
 
 export function ConversationSidebar({
@@ -24,6 +27,9 @@ export function ConversationSidebar({
   activeId,
   onSelect,
   onNewConversation,
+  onRename,
+  onDelete,
+  deletingId,
 }: ConversationSidebarProps) {
   return (
     <div className="flex h-full flex-col bg-bg-elevated">
@@ -66,6 +72,9 @@ export function ConversationSidebar({
                 thread={thread}
                 isActive={thread.id === activeId}
                 onClick={() => onSelect(thread.id)}
+                onRename={onRename}
+                onDelete={onDelete}
+                isDeleting={deletingId === thread.id}
               />
             ))}
           </div>

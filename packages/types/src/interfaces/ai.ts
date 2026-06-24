@@ -27,7 +27,10 @@ export type ChatModelId =
   | 'anthropic:claude-opus-4.6'
   // Google — 2.5 series (current stable)
   | 'google:gemini-2.5-pro'
-  | 'google:gemini-2.5-flash';
+  | 'google:gemini-2.5-flash'
+  // Google — 3 series
+  | 'google:gemini-3-flash-preview'
+  | 'google:gemini-3.5-flash';
 
 // ─── Canonical Google model constants ────────────────────────────────────────
 // Import these instead of inlining raw strings so every usage stays in sync.
@@ -36,6 +39,10 @@ export type ChatModelId =
 export const GOOGLE_GEMINI_2_5_PRO = 'google:gemini-2.5-pro' as const;
 /** Gemini 2.5 Flash — fast, cost-efficient text generation and summarisation. */
 export const GOOGLE_GEMINI_2_5_FLASH = 'google:gemini-2.5-flash' as const;
+/** Gemini 3 Flash (preview) — moderate reasoning at low cost (e.g. summarisation). */
+export const GOOGLE_GEMINI_3_FLASH_PREVIEW = 'google:gemini-3-flash-preview' as const;
+/** Gemini 3.5 Flash — deep reasoning for the main advisor responses. */
+export const GOOGLE_GEMINI_3_5_FLASH = 'google:gemini-3.5-flash' as const;
 
 // ─── Embedding model IDs ──────────────────────────────────────────────────────
 
@@ -65,4 +72,108 @@ export interface ModelConfig {
 
 export interface ModelProviderConfig extends ModelConfig {
   provider: ModleProvider;
+}
+
+/** One streamed chunk, mirroring the gateway/proto `AdvisorChunkRes`. */
+export interface AdvisorChunk {
+  /** 'token' | 'approval_required' | 'permission_required' | 'error' */
+  type: string;
+  /** Text delta (token) or error message. */
+  content: string;
+  /** JSON payload for structured (non-token) chunks; '' otherwise. */
+  data: string;
+}
+
+/**
+ * An agentic action the advisor proposes and the user must approve before it
+ * executes (human-in-the-loop). Shared by the AI service (which proposes and,
+ * on approval, executes it) and the web client (which renders the approval
+ * card), so it carries both the identifiers needed to execute the action and
+ * the human-readable fields the card displays.
+ */
+export type AdvisorAction =
+  | {
+      kind: 'adjust_budget';
+      budgetId: string;
+      categorySlug: string;
+      currentLimit: number;
+      proposedLimit: number;
+      reason: string;
+    }
+  | {
+      kind: 'create_budget';
+      categorySlug: string;
+      proposedLimit: number;
+      reason: string;
+    }
+  | {
+      kind: 'adjust_goal_contribution';
+      goalId: string;
+      goalName: string;
+      currentAmount: number;
+      proposedAmount: number;
+      reason: string;
+    }
+  | {
+      kind: 'suggest_recurring';
+      name: string;
+      amount: number;
+      categorySlug: string;
+      frequency: string;
+      reason: string;
+    }
+  | {
+      kind: 'flag_subscription';
+      name: string;
+      amount: number;
+      categorySlug: string;
+      reason: string;
+    };
+
+// ─── Advisor conversations & consent ─────────────────────────────────────────
+// Shared shapes for the advisor's consent state and chat-history surfaces.
+// `AdvisorScope` / `AdvisorChatRole` mirror the Prisma enums of the same name —
+// kept as string unions here so this (lower-level) package needs no dependency
+// on `@fintrack/database`. They are structurally identical, so values typed by
+// the Prisma enums remain assignable to these and vice versa.
+
+export type AdvisorScope =
+  | 'TRANSACTIONS'
+  | 'BUDGETS'
+  | 'GOALS'
+  | 'RECURRING'
+  | 'SPLITS'
+  | 'ANALYTICS';
+
+export type AdvisorChatRole = 'USER' | 'ASSISTANT';
+
+/** Advisor consent state returned by the scope endpoints. */
+export interface AdvisorConsent {
+  enabled: boolean;
+  grantedScopes: AdvisorScope[];
+}
+
+/**
+ * One row in the conversation history sidebar. Intentionally minimal — title +
+ * recency only. Preview/message-count are omitted: they go stale on every turn
+ * and aren't worth the sync cost.
+ */
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  updatedAt: Date;
+}
+
+/** One persisted message in a conversation transcript. */
+export interface ConversationHistoryMessage {
+  id: string;
+  role: AdvisorChatRole;
+  content: string;
+  createdAt: Date;
+}
+
+/** A cursor-paginated page of messages (oldest→newest), `nextCursor` = older page. */
+export interface ConversationMessagePage {
+  messages: ConversationHistoryMessage[];
+  nextCursor: string | null;
 }

@@ -28,7 +28,6 @@ import {
   getAnomalies,
   getGoalAlerts,
   getRecommendations,
-  getMacroContext,
 } from '../_lib/advisor.helpers';
 
 interface InsightsPanelProps {
@@ -43,6 +42,13 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
   const { data, isLoading } = api_client.advisor.getInsights.useQuery(
     { limit: 1 },
+    { staleTime: 60_000 },
+  );
+
+  // Macro context is read live from the gateway cache (never the insight's saved
+  // snapshot) so the displayed values are always current.
+  const { data: macroData } = api_client.advisor.getMacroContext.useQuery(
+    undefined,
     { staleTime: 60_000 },
   );
 
@@ -209,7 +215,7 @@ export function InsightsPanel({ expandedSections, onToggleSection }: InsightsPan
 
               <div id="insight-section-macro">
                 <InsightsMacroCard
-                  context={getMacroContext(insight)}
+                  context={macroData?.data ?? null}
                   expanded={expandedSections['macro'] ?? false}
                   onToggle={() => onToggleSection('macro')}
                 />
