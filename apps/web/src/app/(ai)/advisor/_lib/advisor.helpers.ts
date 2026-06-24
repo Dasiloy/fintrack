@@ -49,11 +49,9 @@ export function getRecommendations(insight: AiInsight): InsightRecommendation[] 
   return (insight.recommendations as unknown as InsightRecommendation[]) ?? [];
 }
 
-export function getMacroContext(insight: AiInsight): MacroContext | null {
-  const ctx = insight.macroContext as MacroContext | null;
-  if (!ctx || typeof ctx !== 'object') return null;
-  return ctx;
-}
+// Note: an insight's `macroContext` is a point-in-time snapshot kept for
+// reference only. Macro data shown in the UI is read live via
+// `advisor.getMacroContext` (gateway → Redis), never from the insight row.
 
 // ── Advisor actions ───────────────────────────────────────────────────────────
 

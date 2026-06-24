@@ -49,18 +49,24 @@ export function InsightsMacroCard({ context, expanded, onToggle }: InsightsMacro
           {/* Each stat rendered as a mini card */}
           <MacroStat
             label="USD/NGN"
-            value={`₦${context.ngnUsdRate.toLocaleString()}`}
+            value={
+              context.ngnUsdRate != null
+                ? `₦${context.ngnUsdRate.toLocaleString()}`
+                : '—'
+            }
             subtext="Live rate"
           />
           <MacroStat
             label="Food CPI"
-            value={`+${context.foodCpiYoY}%`}
+            value={context.foodCpiYoY != null ? `+${context.foodCpiYoY}%` : '—'}
             subtext="YoY inflation"
-            highlight={context.foodCpiYoY > 15}
+            highlight={context.foodCpiYoY != null && context.foodCpiYoY > 15}
           />
           <MacroStat
             label="CBN Rate"
-            value={`${context.cbnPolicyRate}%`}
+            value={
+              context.cbnPolicyRate != null ? `${context.cbnPolicyRate}%` : '—'
+            }
             subtext="Policy rate"
           />
         </div>

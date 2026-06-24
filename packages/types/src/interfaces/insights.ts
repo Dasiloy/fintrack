@@ -35,11 +35,20 @@ export interface InsightRecommendation {
 }
 
 export interface MacroContext {
-  ngnUsdRate: number;
-  /** YoY % change in food CPI */
-  foodCpiYoY: number;
-  cbnPolicyRate: number;
+  /** Live USD/NGN rate; null when the source is unavailable. */
+  ngnUsdRate: number | null;
+  /** YoY % change in food CPI; null until a live source is wired up. */
+  foodCpiYoY: number | null;
+  /** CBN policy rate; null until a live source is wired up. */
+  cbnPolicyRate: number | null;
   fetchedAt: string;
+}
+
+/** Shape of the Alpha Vantage CURRENCY_EXCHANGE_RATE response we read from. */
+export interface AlphaVantageFxResponse {
+  'Realtime Currency Exchange Rate'?: {
+    '5. Exchange Rate'?: string;
+  };
 }
 
 /**

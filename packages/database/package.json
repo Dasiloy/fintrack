@@ -12,6 +12,7 @@
     "db:seed": "prisma db seed",
     "db:backfill": "tsx prisma/scripts/backfill_user_balance.ts",
     "db:backfill-subscriptions": "tsx prisma/scripts/backfill_subscriptions.ts",
+    "db:backfill-advisor-settings": "tsx prisma/scripts/backfill_advisor_settings.ts",
     "build": "tsc && cp -r src/generated dist",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
     "lint": "eslint . --fix",

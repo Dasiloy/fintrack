@@ -17,6 +17,7 @@ import {
   InsightsJobPayload,
 } from '@fintrack/types/interfaces/insights';
 import { FcmNotificationPayload } from '@fintrack/types/interfaces/finance';
+import { slugToName } from '@fintrack/utils/format';
 
 import { ModelRessolver } from '../registory/repositories';
 import { extractText } from '../registory/llm.utils';
@@ -24,12 +25,6 @@ import { isTransientLLMError } from '../registory/retry.utils';
 import { BUDGET_BREACH_SYSTEM } from './insights.prompts';
 import { SUMMARY_MODEL } from './insights.constants';
 import { InsightService } from './insights.service';
-
-const SEVERITY_RANK: Record<string, number> = {
-  info: 0,
-  warning: 1,
-  critical: 2,
-};
 
 @Injectable()
 export class BudgetBreachService implements OnModuleInit {
@@ -63,18 +58,11 @@ export class BudgetBreachService implements OnModuleInit {
       return;
     }
 
-    // ── Step 1: load latest insight + budget names in parallel ───────────────
-    const [existingInsight, budgets] = await Promise.all([
-      this.prisma.aiInsight.findFirst({
-        where: { userId },
-        orderBy: { generatedAt: 'desc' },
-        select: { id: true, budgetBreach: true, severity: true },
-      }),
-      this.prisma.budget.findMany({
-        where: { id: { in: entries.map((e) => e.budgetId) }, userId },
-        select: { id: true, name: true, amount: true },
-      }),
-    ]);
+    // ── Step 1: load budget names for the breached budgets ───────────────────
+    const budgets = await this.prisma.budget.findMany({
+      where: { id: { in: entries.map((e) => e.budgetId) }, userId },
+      select: { id: true, name: true, amount: true },
+    });
 
     // ── Step 2: determine overall severity ───────────────────────────────────
     const newSeverity: 'warning' | 'critical' = entries.some(
@@ -96,11 +84,11 @@ export class BudgetBreachService implements OnModuleInit {
       budgetAmountMap,
     );
 
-    // ── Step 4: build patch data ─────────────────────────────────────────────
+    // ── Step 4: build breach data ────────────────────────────────────────────
     const now = new Date().toISOString();
-    const patchData: BudgetBreachInsightData[] = entries.map((e, idx) => ({
+    const breachData: BudgetBreachInsightData[] = entries.map((e, idx) => ({
       categorySlug: e.categorySlug,
-      budgetName: budgetNameMap.get(e.budgetId) ?? e.categorySlug,
+      budgetName: budgetNameMap.get(e.budgetId) ?? slugToName(e.categorySlug),
       severity: e.severity,
       currentPct: e.currentPct,
       threshold: e.threshold,
@@ -108,65 +96,42 @@ export class BudgetBreachService implements OnModuleInit {
       ...(idx === 0 && aiMessage ? { aiMessage } : {}),
     }));
 
-    // ── Step 5: upsert — update existing or create new ───────────────────────
-    let insightId: string;
+    // ── Step 5: always create a fresh breach insight ─────────────────────────
+    // Each breach is its own standalone insight (own summary + severity), never
+    // a patch onto the latest insight.
+    const topBudgetName =
+      budgetNameMap.get(topEntry.budgetId) ?? slugToName(topEntry.categorySlug);
 
-    if (existingInsight) {
-      const existingSeverityStr = existingInsight.severity.toLowerCase() as
-        | 'info'
-        | 'warning'
-        | 'critical';
-      const shouldEscalate =
-        SEVERITY_RANK[newSeverity] > SEVERITY_RANK[existingSeverityStr];
+    const created = await this.prisma.aiInsight.create({
+      data: {
+        userId,
+        trigger: InsightTrigger.BUDGET_BREACH,
+        severity:
+          newSeverity === 'critical'
+            ? InsightSeverity.CRITICAL
+            : InsightSeverity.WARNING,
+        summary:
+          aiMessage ??
+          `Budget alert: ${topBudgetName} is at ${Math.round(topEntry.currentPct * 100)}%`,
+        anomalies: [],
+        goalAlerts: [],
+        budgetBreach: breachData as any,
+      },
+    });
 
-      await this.prisma.aiInsight.update({
-        where: { id: existingInsight.id },
-        data: {
-          budgetBreach: patchData as any,
-          ...(shouldEscalate && {
-            severity:
-              newSeverity === 'critical'
-                ? InsightSeverity.CRITICAL
-                : InsightSeverity.WARNING,
-          }),
-          updatedAt: new Date(),
-        },
-      });
-
-      insightId = existingInsight.id;
-      this.logger.log(
-        `[BudgetBreachService] Patched insight ${insightId} for userId=${userId}`,
-      );
-    } else {
-      const created = await this.prisma.aiInsight.create({
-        data: {
-          userId,
-          trigger: InsightTrigger.BUDGET_BREACH,
-          severity:
-            newSeverity === 'critical'
-              ? InsightSeverity.CRITICAL
-              : InsightSeverity.WARNING,
-          summary:
-            aiMessage ??
-            `Budget alert: ${budgetNameMap.get(topEntry.budgetId) ?? topEntry.categorySlug} is at ${Math.round(topEntry.currentPct * 100)}%`,
-          anomalies: [],
-          goalAlerts: [],
-          budgetBreach: patchData as any,
-        },
-      });
-
-      insightId = created.id;
-      this.logger.log(
-        `[BudgetBreachService] Created insight ${insightId} for userId=${userId}`,
-      );
-    }
+    const insightId = created.id;
+    this.logger.log(
+      `[BudgetBreachService] Created insight ${insightId} for userId=${userId}`,
+    );
 
     await this.insightService.incrementInsightUsage(payload.userId!);
 
+    // Bust the gateway insight cache so the FE sees this new breach insight
+    // immediately instead of the stale cached one.
+    await this.insightService.invalidateInsightCache(userId);
+
     // ── Step 6: dispatch FCM ─────────────────────────────────────────────────
     const pct = Math.round(topEntry.currentPct * 100);
-    const topBudgetName =
-      budgetNameMap.get(topEntry.budgetId) ?? topEntry.categorySlug;
 
     const fcmPayload: FcmNotificationPayload = {
       userId,
@@ -195,14 +160,14 @@ export class BudgetBreachService implements OnModuleInit {
     budgetAmountMap: Map<string, number>,
   ): Promise<string | undefined> {
     const lines = entries.map((e) => {
-      const name = budgetNameMap.get(e.budgetId) ?? e.categorySlug;
+      const name = budgetNameMap.get(e.budgetId) ?? slugToName(e.categorySlug);
       const amount = budgetAmountMap.get(e.budgetId) ?? 0;
       const pct = Math.round(e.currentPct * 100);
       const spent =
         amount > 0
           ? `₦${Math.round(amount * e.currentPct).toLocaleString()} of ₦${amount.toLocaleString()}`
           : `${pct}%`;
-      return `- ${name} (${e.categorySlug}): ${spent} used (${pct}%), threshold ${Math.round(e.threshold * 100)}%, severity: ${e.severity}`;
+      return `- ${name}: ${spent} used (${pct}%), threshold ${Math.round(e.threshold * 100)}%, severity: ${e.severity}`;
     });
 
     const human = `Breached budgets:\n${lines.join('\n')}`;
