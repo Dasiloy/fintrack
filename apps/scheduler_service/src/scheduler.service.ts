@@ -15,6 +15,8 @@ import {
   FINANCE_SCORE_QUEUE,
   FINANCE_SCORE_SNAPSHOT_JOB,
   INSIGHTS_QUEUE,
+  ORACLE_REFRESH_JOB,
+  ORACLE_REFRESH_QUEUE,
   PURGE_SCHEDULED_DELETIONS_JOB,
   PURGE_USAGE_TRACKING_JOB,
   RECURRING_QUEUE,
@@ -40,6 +42,8 @@ export class SchedulerService {
     private readonly insightsQueue: Queue,
     @InjectQueue(FINANCE_SCORE_QUEUE)
     private readonly financeScoreQueue: Queue,
+    @InjectQueue(ORACLE_REFRESH_QUEUE)
+    private readonly oracleRefreshQueue: Queue,
   ) {}
 
   @Cron('0 3 * * *') // 3:am everyday
@@ -124,6 +128,15 @@ export class SchedulerService {
   snapshotFinanceScores() {
     void this.financeScoreQueue.add(
       FINANCE_SCORE_SNAPSHOT_JOB,
+      {},
+      { removeOnComplete: true, removeOnFail: { count: 5 } },
+    );
+  }
+
+  @Cron('0 * * * *') // Every hour — refresh cached macro/oracle data (NGN rate, CPI, CBN)
+  refreshOracleMacro() {
+    void this.oracleRefreshQueue.add(
+      ORACLE_REFRESH_JOB,
       {},
       { removeOnComplete: true, removeOnFail: { count: 5 } },
     );

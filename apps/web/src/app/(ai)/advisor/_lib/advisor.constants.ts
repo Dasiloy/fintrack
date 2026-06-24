@@ -99,7 +99,8 @@ export const ADVISOR_TOOLS: AdvisorTool[] = [
   {
     id: 'market_data',
     name: 'Market Data',
-    description: 'Forex rates and economic indicators via Alpha Vantage (4h cache). 25 req/day free.',
+    description:
+      'Forex rates and economic indicators via Alpha Vantage (4h cache). 25 req/day free.',
     category: 'oracle',
     enabled: false,
   },
@@ -116,11 +117,3 @@ export const SUGGESTED_PROMPTS: string[] = [
   'How does my spending compare to last month?',
   "What's my cash flow for the rest of the month?",
 ];
-
-// ── Streaming simulation ──────────────────────────────────────────────────────
-
-/** Milliseconds between each word token during simulated streaming */
-export const STREAM_INTERVAL_MS = 40;
-
-/** Number of words per "tick" (1 = true word-by-word; higher = faster) */
-export const STREAM_WORDS_PER_TICK = 1;

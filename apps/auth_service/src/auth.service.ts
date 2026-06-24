@@ -208,6 +208,14 @@ export class AuthService implements OnModuleInit {
             },
           });
 
+          // Provision the advisor consent row up front (all scopes granted by
+          // default) so the AI advisor never has to lazily create it later.
+          await tx.advisorSetting.create({
+            data: {
+              userId: user.id,
+            },
+          });
+
           const otp = this.generateToken();
           await tx.verificationToken.create({
             data: {
@@ -1380,6 +1388,15 @@ export class AuthService implements OnModuleInit {
               },
             });
           }
+
+          // Ensure the advisor consent row exists (all scopes granted by
+          // default). Upsert keeps this idempotent for pre-existing accounts that
+          // predate advisor settings.
+          await tx.advisorSetting.upsert({
+            where: { userId: user.id },
+            create: { userId: user.id },
+            update: {},
+          });
 
           const hasNoSubscription = !user.subscription;
           if (hasNoSubscription) {

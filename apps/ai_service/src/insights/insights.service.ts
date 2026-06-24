@@ -7,7 +7,7 @@ import {
   SystemMessage,
   HumanMessage,
 } from '@langchain/core/messages';
-import { END, START, StateGraph } from '@langchain/langgraph';
+import { END, Runtime, START, StateGraph } from '@langchain/langgraph';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { Queue } from 'bullmq';
 import dayjs, { getTimeFromNow } from '@fintrack/utils/date';
@@ -31,7 +31,11 @@ import {
   FinanceServiceClient,
   FINANCE_SERVICE_NAME,
 } from '@fintrack/types/protos/finance/finance';
-import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
+import {
+  REDIS_CLIENT,
+  INSIGHTS_CACHE_PREFIX,
+  INSIGHTS_UNREAD_CACHE_PREFIX,
+} from '@fintrack/types/constants/redis.costants';
 import {
   FCM_NOTIFICATION_JOB,
   FCM_NOTIFICATION_QUEUE,
@@ -51,7 +55,11 @@ import {
 import { InsightState } from './insights.graph';
 import { InsightsOracleService } from './insights.oracle.service';
 import { createTransactionsTool } from './insights.tools';
-import { InsightsJobPayload } from './insights.types';
+import {
+  InsightsContext,
+  InsightsJobPayload,
+  MacroContext,
+} from './insights.types';
 import { AnalysisSchema, RecommendOutputSchema } from './insights.schemas';
 import {
   ANALYSIS_THINK_SYSTEM,
@@ -104,8 +112,14 @@ export class InsightService implements OnModuleInit {
   private financeService: FinanceServiceClient;
   /** Gemini 2.5 Pro — reasoning, structured output, analysis + recommendation nodes */
   private decisionModel: BaseChatModel;
+  /** Decision model with the fetch_transactions tool bound once at init. */
+  private decisionAgentModel: ReturnType<
+    NonNullable<BaseChatModel['bindTools']>
+  >;
   /** Gemini 2.0 Flash — cheap text generation, summarisation nodes */
   private summaryModel: BaseChatModel;
+  /** fetch_transactions tool with prisma bound; shared by the model and ToolNode. */
+  private txTool: ReturnType<typeof createTransactionsTool>;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -124,6 +138,11 @@ export class InsightService implements OnModuleInit {
       this.financeClient.getService<FinanceServiceClient>(FINANCE_SERVICE_NAME);
     this.decisionModel = this.modelRessolver.getRunnable(DECISION_MODEL);
     this.summaryModel = this.modelRessolver.getRunnable(SUMMARY_MODEL);
+
+    // Tool + bound model built once at init (prisma is stable for the process).
+    // bindTools is optional on BaseChatModel but present on all concrete LLMs.
+    this.txTool = createTransactionsTool(this.prisma);
+    this.decisionAgentModel = this.decisionModel.bindTools!([this.txTool]);
   }
 
   async runGraph(
@@ -143,12 +162,16 @@ export class InsightService implements OnModuleInit {
 
     try {
       const graph = this.buildGraph();
-      const result = await this.langraph.invoke(
+      const result = await this.langraph.invoke<
+        typeof InsightState.State,
+        never,
+        InsightsContext
+      >(
         graph,
-        { userId: payload.userId, trigger: payload.trigger },
-        // Pass userId in configurable so the ToolNode can forward it to the
-        // fetch_transactions tool at call time — tool never accepts userId as input.
-        { configurable: { userId: payload.userId } },
+        { trigger: payload.trigger },
+        // Pass userId as per-run context — nodes read it via runtime.context and
+        // the ToolNode forwards it to fetch_transactions via config.context.
+        { context: { userId: payload.userId! } },
       );
       this.logger.log(
         `Insights graph complete — userId=${payload.userId} trigger=${payload.trigger} severity=${result.severity}`,
@@ -171,12 +194,7 @@ export class InsightService implements OnModuleInit {
       // Increment monthly usage — fire-and-forget, never block the happy path.
       void this.incrementInsightUsage(payload.userId!);
 
-      await this.redis.del(`insights:${payload.userId}:**`).catch((err) => {
-        this.logger.error(
-          'Redis invalidation failed for insights',
-          JSON.stringify(err),
-        );
-      });
+      await this.invalidateInsightCache(payload.userId!);
       // Fire-and-forget — notification failure must not fail the insight job.
       this.dispatchNotification(insight, {
         skipEmail: payload.trigger === 'daily',
@@ -288,6 +306,44 @@ export class InsightService implements OnModuleInit {
     });
   }
 
+  /**
+   * Invalidates the API-gateway insight caches for a user after a new insight
+   * is persisted, so the next read serves the fresh row instead of the stale
+   * cached one. Deletes both the latest-insight key (`insights:{userId}`) and
+   * the unread-count key (`insights_unread:{userId}`). Fire-and-forget: a Redis
+   * failure must never fail the insight job.
+   */
+  async invalidateInsightCache(userId: string): Promise<void> {
+    await this.redis
+      .del(
+        `${INSIGHTS_CACHE_PREFIX}:${userId}`,
+        `${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`,
+      )
+      .catch((err) =>
+        this.logger.error(
+          'Redis invalidation failed for insights',
+          JSON.stringify(err),
+        ),
+      );
+  }
+
+  /**
+   * Formats macro context for a prompt, omitting any field whose value is null
+   * (no live data). Returns an empty string when nothing is available, so the
+   * line is dropped by the surrounding `.filter(Boolean)`.
+   */
+  private formatMacroContext(macro: MacroContext): string {
+    const parts: string[] = [];
+    if (macro.ngnUsdRate !== null) parts.push(`NGN/USD ${macro.ngnUsdRate}`);
+    if (macro.foodCpiYoY !== null) {
+      parts.push(`Food CPI YoY ${macro.foodCpiYoY}%`);
+    }
+    if (macro.cbnPolicyRate !== null) {
+      parts.push(`CBN rate ${macro.cbnPolicyRate}%`);
+    }
+    return parts.length ? `Macro: ${parts.join(', ')}` : '';
+  }
+
   // ── Notification dispatch ─────────────────────────────────────────────────
 
   /**
@@ -380,10 +436,8 @@ export class InsightService implements OnModuleInit {
   // ── Graph builder ─────────────────────────────────────────────────────────
 
   private buildGraph() {
-    // Tool is created once per graph build with prisma bound.
-    // userId is injected at call time via config.configurable.
-    const txTool = createTransactionsTool(this.prisma);
-
+    // Tool + bound model are created once in onModuleInit.
+    // userId is injected at call time via config.context.
     const graph = new StateGraph(InsightState)
       .addNode('load_context', this.makeLoadContextNode(), {
         retryPolicy: {
@@ -400,7 +454,7 @@ export class InsightService implements OnModuleInit {
           retryOn: isTransientLLMError,
         },
       })
-      .addNode('analysis_think', this.makeAnalysisThinkNode(txTool), {
+      .addNode('analysis_think', this.makeAnalysisThinkNode(), {
         retryPolicy: {
           maxAttempts: 2,
           initialInterval: 2.0,
@@ -408,8 +462,8 @@ export class InsightService implements OnModuleInit {
         },
       })
       // ToolNode executes tool calls emitted by analysis_think.
-      // Reads userId from config.configurable, writes ToolMessages to state.messages.
-      .addNode('tx_tools', new ToolNode([txTool]))
+      // Reads userId from config.context, writes ToolMessages to state.messages.
+      .addNode('tx_tools', new ToolNode([this.txTool]))
       .addNode('analysis_parse', this.makeAnalysisParseNode(), {
         retryPolicy: {
           maxAttempts: 2,
@@ -460,8 +514,10 @@ export class InsightService implements OnModuleInit {
    * the retryPolicy handles them. Non-critical gRPC calls use Promise.allSettled.
    */
   private makeLoadContextNode() {
-    return async (state: typeof InsightState.State) => {
-      const { userId } = state;
+    return async (_state: typeof InsightState.State, runtime: Runtime) => {
+      // userId is per-run context, not graph state.
+      const userId = (runtime.context as InsightsContext | undefined)?.userId;
+      if (!userId) throw new Error('load_context: userId missing from context');
       const meta = this.buildMeta(userId);
       const now = dayjs();
 
@@ -473,7 +529,7 @@ export class InsightService implements OnModuleInit {
           take: 3,
         }),
         this.prisma.userBalance.findUnique({ where: { userId } }),
-        this.oracle.getMacroContext(), // always resolves (has internal fallback)
+        this.oracle.getMacroContext(), // read-through cache; fields may be null when live data is unavailable
       ]);
 
       // ── Non-critical: degrade gracefully on failure ──────────────────────
@@ -617,7 +673,7 @@ export class InsightService implements OnModuleInit {
         topCategories.length > 0
           ? `Top spend categories this month: ${topCategories.map((c: any) => `${c.name ?? slugToName(c.slug)}: ${formatCurrency(c.total)} (${c.transactionCount ?? 0} transactions)`).join('; ')}`
           : 'Top spend categories this month: none recorded yet',
-        `NGN/USD rate: ${macroContext.ngnUsdRate} | Food CPI YoY: ${macroContext.foodCpiYoY}%`,
+        this.formatMacroContext(macroContext),
       ]
         .filter(Boolean)
         .join('\n');
@@ -652,13 +708,11 @@ export class InsightService implements OnModuleInit {
    *   - AI message has tool calls  → tx_tools (executes fetch_transactions)
    *   - No tool calls             → analysis_parse (structured output)
    */
-  private makeAnalysisThinkNode(
-    txTool: ReturnType<typeof createTransactionsTool>,
-  ) {
-    // Bind tool to model — the LLM can call fetch_transactions if it judges
-    // that budget/snapshot data is insufficient for confident anomaly detection.
-    // bindTools is optional on BaseChatModel but present on all concrete LLM implementations
-    const agentModel = this.decisionModel.bindTools!([txTool]);
+  private makeAnalysisThinkNode() {
+    // Uses the decision model with fetch_transactions already bound at init —
+    // the LLM can call it if budget/snapshot data is insufficient for confident
+    // anomaly detection.
+    const agentModel = this.decisionAgentModel;
 
     return async (state: typeof InsightState.State) => {
       const {
@@ -766,7 +820,7 @@ export class InsightService implements OnModuleInit {
           `Active goals: ${JSON.stringify(cleanGoals)}`,
           `Goal progress: ${JSON.stringify(cleanGoalProgress)}`,
           `Recurring items: ${JSON.stringify(cleanRecurrings)}`,
-          `Macro: NGN/USD ${macroContext.ngnUsdRate}, Food CPI YoY ${macroContext.foodCpiYoY}%, CBN rate ${macroContext.cbnPolicyRate}%`,
+          this.formatMacroContext(macroContext),
           userBalance
             ? `Balance: ${formatCurrency(userBalance.netBalance)} | Monthly income: ${formatCurrency(userBalance.monthlyIncome)} | Monthly expense: ${formatCurrency(userBalance.monthlyExpense)}`
             : 'Balance data unavailable.',
@@ -946,7 +1000,7 @@ export class InsightService implements OnModuleInit {
         userBalance
           ? `Balance ${formatCurrency(userBalance.netBalance)} | Income ${formatCurrency(userBalance.monthlyIncome)} | Expense ${formatCurrency(userBalance.monthlyExpense)}`
           : '',
-        `NGN/USD: ${macroContext.ngnUsdRate} | Food CPI: ${macroContext.foodCpiYoY}% | CBN rate: ${macroContext.cbnPolicyRate}%`,
+        this.formatMacroContext(macroContext),
         skippedAnalyses.length
           ? `Note: the following data was unavailable (service errors): ${skippedAnalyses.join(', ')}. Base recommendations only on what is provided above.`
           : '',

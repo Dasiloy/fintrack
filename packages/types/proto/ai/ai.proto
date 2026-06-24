@@ -4,6 +4,30 @@ package ai;
 
 service AiService {
   rpc ClassifyTransactions (ClassifyTransactionsReq) returns (ClassifyTransactionsRes) {}
+
+  // Streams the advisor's response for one user message as a sequence of chunks
+  // (tokens plus human-in-the-loop events). Server-side streaming.
+  rpc SendAdvisorMessage (AdvisorMessageReq) returns (stream AdvisorChunkRes) {}
+}
+
+message AdvisorMessageReq {
+  string conversation_id = 1; // maps to the LangGraph thread_id
+  string user_id = 2;
+  string message = 3;
+  // Data scopes the user has granted, resolved by the gateway. Gates the
+  // advisor's tools and grounded prompt sections.
+  repeated string granted_scopes = 4;
+}
+
+// One streamed chunk. The type field discriminates the chunk:
+//   token               - content holds a text delta
+//   approval_required   - data holds the proposed action as JSON
+//   permission_required - data holds the scope and reason as JSON
+//   error               - content holds an error message
+message AdvisorChunkRes {
+  string type = 1;
+  string content = 2;
+  string data = 3;
 }
 
 message MonoTransaction {

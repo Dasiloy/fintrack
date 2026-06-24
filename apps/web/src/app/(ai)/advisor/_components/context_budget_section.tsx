@@ -23,18 +23,18 @@ export function ContextBudgetSection() {
   const budgets = data?.data?.budgets ?? [];
 
   return (
-    <div className="border-b border-border-subtle">
+    <div className="border-border-subtle border-b">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-bg-surface-hover"
+        className="hover:bg-bg-surface-hover flex w-full cursor-pointer items-center gap-2 px-4 py-3 text-left transition-colors"
         aria-expanded={expanded}
       >
-        <PieChart className="size-3.5 shrink-0 text-text-tertiary" aria-hidden />
-        <span className="flex-1 text-[12px] font-semibold text-text-primary">Budget Snapshot</span>
+        <PieChart className="text-text-tertiary size-3.5 shrink-0" aria-hidden />
+        <span className="text-text-primary flex-1 text-[12px] font-semibold">Budget Snapshot</span>
         <ChevronDown
           className={cn(
-            'size-3.5 text-text-tertiary transition-transform duration-200',
+            'text-text-tertiary size-3.5 transition-transform duration-200',
             expanded && 'rotate-180',
           )}
           aria-hidden
@@ -52,7 +52,7 @@ export function ContextBudgetSection() {
           )}
 
           {!isLoading && budgets.length === 0 && (
-            <p className="py-2 text-[11px] text-text-disabled">No budgets set for this month.</p>
+            <p className="text-text-disabled py-2 text-[11px]">No budgets set for this month.</p>
           )}
 
           {!isLoading &&
@@ -67,18 +67,18 @@ export function ContextBudgetSection() {
               return (
                 <div key={budget.id} className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-text-secondary">{label}</span>
+                    <span className="text-text-secondary text-[11px] font-medium">{label}</span>
                     <span
                       className={cn(
-                        'text-[11px] tabular-nums font-medium',
+                        'text-[11px] font-medium tabular-nums',
                         isOver ? 'text-error' : isWarning ? 'text-warning' : 'text-text-tertiary',
                       )}
                     >
                       {formatNGN(spent)}{' '}
-                      <span className="font-normal text-text-disabled">/ {formatNGN(limit)}</span>
+                      <span className="text-text-disabled font-normal">/ {formatNGN(limit)}</span>
                     </span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-elevated">
+                  <div className="bg-bg-surface-hover h-1.5 w-full overflow-hidden rounded-full">
                     <div
                       className={cn(
                         'h-full rounded-full transition-all duration-300',

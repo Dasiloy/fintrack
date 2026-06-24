@@ -3,14 +3,24 @@
 // Backend-mirrored types (InsightRecommendation, MacroContext, AiInsight) are
 // imported from the shared packages directly.
 
-// ── Conversations (chat history — no backend yet) ─────────────────────────────
+import type { AdvisorAction } from '@fintrack/types/interfaces/ai';
+
+export interface AdvisorTool {
+  id: string;
+  name: string;
+  description: string;
+  category: 'postgres' | 'oracle';
+  enabled: boolean;
+}
+
+// ── Conversations (chat history) ──────────────────────────────────────────────
+// Minimal by design — title + recency only. Preview/message-count are dropped:
+// they go stale on every turn and aren't worth the sync cost.
 
 export interface ConversationThread {
   id: string;
   title: string;
-  lastMessage: string;
   updatedAt: Date;
-  messageCount: number;
 }
 
 // ── Chat messages ─────────────────────────────────────────────────────────────
@@ -32,53 +42,10 @@ export interface GeneratedFile {
 }
 
 // ── Agentic actions (Human-in-the-Loop) ──────────────────────────────────────
-// All 5 action kinds from AI-SERVICE.md Domain 3.
+// Unified with the AI service via the shared types package — single source of
+// truth so the proposed-action shape never drifts between client and server.
 
-export type AdvisorAction =
-  | {
-      kind: 'adjust_budget';
-      categorySlug: string;
-      currentLimit: number;
-      proposedLimit: number;
-      reason: string;
-    }
-  | {
-      kind: 'create_budget';
-      categorySlug: string;
-      proposedLimit: number;
-      reason: string;
-    }
-  | {
-      kind: 'adjust_goal_contribution';
-      goalName: string;
-      currentAmount: number;
-      proposedAmount: number;
-      reason: string;
-    }
-  | {
-      kind: 'suggest_recurring';
-      name: string;
-      amount: number;
-      frequency: string;
-      reason: string;
-    }
-  | {
-      kind: 'flag_subscription';
-      name: string;
-      amount: number;
-      reason: string;
-    };
-
-// ── Context panel tools ────────────────────────────────────────────────────────
-
-export interface AdvisorTool {
-  id: string;
-  name: string;
-  description: string;
-  /** postgres = queries user's own DB; oracle = external rate-limited APIs */
-  category: 'postgres' | 'oracle';
-  enabled: boolean;
-}
+export type { AdvisorAction };
 
 // ── File attachments (user uploads pending send) ──────────────────────────────
 
