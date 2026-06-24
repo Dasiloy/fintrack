@@ -25,7 +25,10 @@ export const OCR_RESULT_CACHE_PREFIX = 'ocr_result'; // ocr_result:{draftId}
 export const OCR_RESULT_CACHE_TTL = 3600; // 1 hour — terminal OCR results are immutable
 
 export const ORACLE_MACRO_CACHE_KEY = 'oracle:macro_context';
-export const ORACLE_MACRO_CACHE_TTL = 6 * 60 * 60; // 6 hours — macro data changes slowly
+// 25 hours — refreshed hourly by the scheduler's ORACLE_REFRESH_JOB; the TTL
+// outlives the refresh interval so a missed/failed run still serves the last
+// good value rather than going cold.
+export const ORACLE_MACRO_CACHE_TTL = 25 * 60 * 60;
 
 // ── Insights cache ────────────────────────────────────────────────────────
 // insights:{userId}              — latest AiInsight row for the user
@@ -43,3 +46,19 @@ export const INSIGHTS_UNREAD_CACHE_TTL = 300; // 5 minutes
 
 export const INSIGHTS_COOLDOWN = 'insights_trigger_cooldown';
 export const INSIGHTS_COOLDOWN_TTL = 600;
+
+// Advisor consent — granted scopes per user. Read on the advisor hot path and
+// when serving the permissions panel; busted whenever the user updates scopes.
+export const ADVISOR_SCOPES_CACHE_PREFIX = 'advisor_scopes'; // advisor_scopes:{userId}
+export const ADVISOR_SCOPES_CACHE_TTL = 300; // 5 minutes — mirrors USER_CACHE_TTL
+
+// Advisor pending message — staged by the POST step and consumed once by the
+// @Sse stream step (SSE is GET-only, so the message can't ride in the URL).
+export const ADVISOR_PENDING_PREFIX = 'advisor_pending'; // advisor_pending:{token}
+export const ADVISOR_PENDING_TTL = 60; // 1 minute — token is consumed immediately
+
+// Advisor conversation list — the chat-history sidebar per user. Read on every
+// sidebar render; busted whenever the user's conversations change (new turn,
+// rename, delete). Messages are NOT cached here — they paginate by cursor.
+export const ADVISOR_CONVERSATIONS_CACHE_PREFIX = 'advisor_conversations'; // advisor_conversations:{userId}
+export const ADVISOR_CONVERSATIONS_CACHE_TTL = 300; // 5 minutes

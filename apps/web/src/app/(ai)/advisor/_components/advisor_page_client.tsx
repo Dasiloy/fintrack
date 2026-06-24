@@ -28,10 +28,21 @@ import { InsightsSidebarNav } from './insights_sidebar_nav';
 import { AdvisorTabs } from './advisor_tabs';
 import { ContextPanel } from './context_panel';
 
-import type { AdvisorPageState, AdvisorTool } from '../_lib/advisor.types';
-import { ADVISOR_TOOLS } from '../_lib/advisor.constants';
+import type { AdvisorPageState, ConversationThread } from '../_lib/advisor.types';
+import { api_client } from '@/lib/trpc_app/api_client';
+import { advisorCache } from '../_lib/advisor.cache';
+import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import type { ConversationSummary } from '@fintrack/types/interfaces/ai';
+import { useBoolean } from '@ui/hooks';
 
-const SECTION_IDS = ['summary', 'anomalies', 'goal_alerts', 'cash_flow', 'recommendations', 'macro'] as const;
+const SECTION_IDS = [
+  'summary',
+  'anomalies',
+  'goal_alerts',
+  'cash_flow',
+  'recommendations',
+  'macro',
+] as const;
 
 function buildInitialSections(initialSection?: string): Record<string, boolean> {
   return Object.fromEntries(SECTION_IDS.map((id) => [id, id === initialSection]));
@@ -50,15 +61,14 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
     toolsSheetOpen: false,
   });
 
-  const [tools, setTools] = React.useState<AdvisorTool[]>(ADVISOR_TOOLS);
   const [isContextCollapsed, setIsContextCollapsed] = React.useState(false);
   const contextPanelRef = React.useRef<PanelImperativeHandle | null>(null);
 
   // Insights section expand/collapse — lifted here so InsightsSidebarNav and
   // InsightsPanel can share the same state.
   // When arriving from a notification deep-link, pre-open the targeted section.
-  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>(
-    () => buildInitialSections(initialSection),
+  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>(() =>
+    buildInitialSections(initialSection),
   );
 
   // Scroll the pre-opened section into view after the first paint.
@@ -70,10 +80,6 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
 
   const toggleSection = React.useCallback((id: string) => {
     setExpandedSections((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
-
-  const toggleTool = React.useCallback((id: string) => {
-    setTools((prev) => prev.map((t) => (t.id === id ? { ...t, enabled: !t.enabled } : t)));
   }, []);
 
   const toggleContextPanel = React.useCallback(() => {
@@ -90,13 +96,18 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
     pageState.activeConversationId !== null,
   );
 
+  // True only when an existing conversation is opened from history — tells the
+  // ChatPanel to fetch its transcript. A new (or just-promoted) conversation is
+  // owned locally and must not be reloaded.
+  const [loadHistory, setLoadHistory] = React.useState(false);
+
   const update = (patch: Partial<AdvisorPageState>) =>
     setPageState((prev) => ({ ...prev, ...patch }));
 
   // Selecting a conversation always switches to the Advisor (chat) tab.
-  // Stub conversations always carry messages, so the guard is lifted immediately.
   const selectConversation = (id: string) => {
     setChatHasMessages(true);
+    setLoadHistory(true);
     update({ activeConversationId: id, activeTab: 'advisor' });
   };
 
@@ -105,6 +116,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
   const newConversation = () => {
     if (pageState.activeConversationId === null && !chatHasMessages) return;
     setChatHasMessages(false);
+    setLoadHistory(false);
     update({ activeConversationId: null, activeTab: 'advisor' });
   };
 
@@ -114,7 +126,163 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
     setChatHasMessages(true);
   }, []);
 
+  // Called by ChatPanel once a brand-new conversation gets its id. Select it so
+  // the sidebar highlights it, without loading history (we own the live state).
+  const handleConversationStarted = React.useCallback((conversationId: string) => {
+    setLoadHistory(false);
+    update({ activeConversationId: conversationId });
+  }, []);
+
+  // ── Conversation history (sidebar) ──────────────────────────────────────────
+  const utils = api_client.useUtils();
+  const { data: conversationsData } = api_client.advisor.getConversations.useQuery(undefined, {
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    // Instant sidebar on reload from the localStorage cache; network refetches.
+    initialData: () => {
+      const cached = advisorCache.readConversations();
+      return cached
+        ? ({
+            success: true,
+            message: '',
+            statusCode: 200,
+            data: cached,
+          } as StandardResponse<ConversationSummary[]>)
+        : undefined;
+    },
+  });
+
+  // Persist the latest list for the next cold load.
+  React.useEffect(() => {
+    if (conversationsData?.data) advisorCache.writeConversations(conversationsData.data);
+  }, [conversationsData]);
+
+  const threads: ConversationThread[] = React.useMemo(
+    () =>
+      (conversationsData?.data ?? []).map((c) => ({
+        id: c.id,
+        title: c.title,
+        updatedAt: new Date(c.updatedAt),
+      })),
+    [conversationsData],
+  );
+
+  // After a turn completes the transcript changed — refresh the list so a new
+  // conversation appears and ordering stays current.
+  const handleConversationUpdated = React.useCallback(() => {
+    void utils.advisor.getConversations.invalidate();
+  }, [utils]);
+
+  // ── Rename / delete ─────────────────────────────────────────────────────────
+  const renameMutation = api_client.advisor.renameConversation.useMutation({
+    onMutate: async ({ conversationId, title }) => {
+      await utils.advisor.getConversations.cancel();
+      const prev = utils.advisor.getConversations.getData();
+      utils.advisor.getConversations.setData(undefined, (old) =>
+        old
+          ? {
+              ...old,
+              data: (old.data ?? []).map((c) =>
+                c.id === conversationId ? { ...c, title } : c,
+              ),
+            }
+          : old,
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) utils.advisor.getConversations.setData(undefined, ctx.prev);
+    },
+    onSettled: () => void utils.advisor.getConversations.invalidate(),
+  });
+
+  const deleteMutation = api_client.advisor.deleteConversation.useMutation({
+    onMutate: async ({ conversationId }) => {
+      await utils.advisor.getConversations.cancel();
+      const prev = utils.advisor.getConversations.getData();
+      utils.advisor.getConversations.setData(undefined, (old) =>
+        old
+          ? {
+              ...old,
+              data: (old.data ?? []).filter((c) => c.id !== conversationId),
+            }
+          : old,
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) utils.advisor.getConversations.setData(undefined, ctx.prev);
+    },
+    onSuccess: (_d, { conversationId }) => {
+      // If the open conversation was deleted, drop back to a fresh chat.
+      if (pageState.activeConversationId === conversationId) {
+        setChatHasMessages(false);
+        setLoadHistory(false);
+        update({ activeConversationId: null });
+      }
+    },
+    onSettled: () => void utils.advisor.getConversations.invalidate(),
+  });
+
+  const handleRename = React.useCallback(
+    (id: string, title: string) =>
+      renameMutation.mutate({ conversationId: id, title }),
+    [renameMutation],
+  );
+  const handleDelete = React.useCallback(
+    (id: string) => deleteMutation.mutate({ conversationId: id }),
+    [deleteMutation],
+  );
+  const deletingId = deleteMutation.isPending
+    ? (deleteMutation.variables?.conversationId ?? null)
+    : null;
+
   const isAdvisorTab = pageState.activeTab === 'advisor';
+
+  // react-resizable-panels computes its layout from a client-side measurement,
+  // so server-rendering it produces a brief wrong-sized flash on load. We render
+  // the resizable group only after mount; before that a static fallback with the
+  // same proportions stands in (see the desktop layout below). The rest of the
+  // page still server-renders normally.
+  const [mounted, setMounted] = useBoolean();
+
+  React.useEffect(() => {
+    setMounted.on();
+  }, []);
+
+  // Desktop panel children — shared by the resizable group and its pre-hydration
+  // fallback so the hand-off is seamless.
+  const desktopLeft = isAdvisorTab ? (
+    <ConversationSidebar
+      threads={threads}
+      activeId={pageState.activeConversationId}
+      onSelect={selectConversation}
+      onNewConversation={newConversation}
+      onRename={handleRename}
+      onDelete={handleDelete}
+      deletingId={deletingId}
+    />
+  ) : (
+    <InsightsSidebarNav expandedSections={expandedSections} onToggleSection={toggleSection} />
+  );
+
+  const desktopCenter = (
+    <AdvisorTabs
+      activeTab={pageState.activeTab}
+      onTabChange={(tab) => update({ activeTab: tab })}
+      expandedSections={expandedSections}
+      onToggleSection={toggleSection}
+      activeConversationId={pageState.activeConversationId}
+      loadHistory={loadHistory}
+      onFirstMessageSent={handleFirstMessageSent}
+      onConversationUpdated={handleConversationUpdated}
+      onConversationStarted={handleConversationStarted}
+    />
+  );
+
+  const desktopRight = (
+    <ContextPanel isCollapsed={isContextCollapsed} onToggle={toggleContextPanel} />
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -135,7 +303,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
       >
         <SheetContent side="left" className="w-72 p-0">
           <ConversationSidebar
-            threads={[]}
+            threads={threads}
             activeId={pageState.activeConversationId}
             onSelect={(id) => {
               selectConversation(id);
@@ -145,6 +313,9 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
               newConversation();
               update({ historySheetOpen: false });
             }}
+            onRename={handleRename}
+            onDelete={handleDelete}
+            deletingId={deletingId}
           />
         </SheetContent>
       </Sheet>
@@ -154,7 +325,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
         onOpenChange={(open) => update({ toolsSheetOpen: open })}
       >
         <SheetContent side="right" className="w-80 p-0">
-          <ContextPanel tools={tools} onToolToggle={toggleTool} />
+          <ContextPanel />
         </SheetContent>
       </Sheet>
 
@@ -166,10 +337,13 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
           <div className="border-border-subtle hidden shrink-0 flex-col border-r md:flex md:w-60">
             {isAdvisorTab ? (
               <ConversationSidebar
-                threads={[]}
+                threads={threads}
                 activeId={pageState.activeConversationId}
                 onSelect={selectConversation}
                 onNewConversation={newConversation}
+                onRename={handleRename}
+                onDelete={handleDelete}
+                deletingId={deletingId}
               />
             ) : (
               <InsightsSidebarNav
@@ -187,69 +361,59 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
               expandedSections={expandedSections}
               onToggleSection={toggleSection}
               activeConversationId={pageState.activeConversationId}
+              loadHistory={loadHistory}
               onFirstMessageSent={handleFirstMessageSent}
+              onConversationUpdated={handleConversationUpdated}
+              onConversationStarted={handleConversationStarted}
             />
           </div>
         </div>
 
         {/* ── Desktop 3-panel layout (lg+) ─────────────────────────────────── */}
         <div className="hidden h-full overflow-hidden lg:flex">
-          <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
-            {/* Left: content swaps per tab; panel is always present to keep index stable */}
-            <ResizablePanel defaultSize="20" minSize="14" maxSize="28" className="min-w-0">
-              {isAdvisorTab ? (
-                <ConversationSidebar
-                  threads={[]}
-                  activeId={pageState.activeConversationId}
-                  onSelect={selectConversation}
-                  onNewConversation={newConversation}
-                />
-              ) : (
-                <InsightsSidebarNav
-                  expandedSections={expandedSections}
-                  onToggleSection={toggleSection}
-                />
-              )}
-            </ResizablePanel>
+          {mounted ? (
+            <ResizablePanelGroup orientation="horizontal" className="h-full w-full">
+              {/* Left: content swaps per tab; panel is always present to keep index stable */}
+              <ResizablePanel defaultSize="20" minSize="14" maxSize="28" className="min-w-0">
+                {desktopLeft}
+              </ResizablePanel>
 
-            <ResizableHandle withHandle />
+              <ResizableHandle withHandle />
 
-            {/* Center: tabs */}
-            <ResizablePanel defaultSize="55" minSize="40" className="min-w-0">
-              <AdvisorTabs
-                activeTab={pageState.activeTab}
-                onTabChange={(tab) => update({ activeTab: tab })}
-                expandedSections={expandedSections}
-                onToggleSection={toggleSection}
-                activeConversationId={pageState.activeConversationId}
-                onFirstMessageSent={handleFirstMessageSent}
-              />
-            </ResizablePanel>
+              {/* Center: tabs */}
+              <ResizablePanel defaultSize="55" minSize="40" className="min-w-0">
+                {desktopCenter}
+              </ResizablePanel>
 
-            <ResizableHandle withHandle />
+              <ResizableHandle withHandle />
 
-            {/* Right: context + tools — collapsible via button or drag */}
-            <ResizablePanel
-              panelRef={contextPanelRef}
-              defaultSize="25"
-              minSize="18"
-              maxSize="35"
-              collapsible
-              collapsedSize="4"
-              className="min-w-0"
-              onResize={(size) => setIsContextCollapsed(size.asPercentage <= 4)}
-            >
-              <ContextPanel
-                tools={tools}
-                onToolToggle={toggleTool}
-                isCollapsed={isContextCollapsed}
-                onToggle={toggleContextPanel}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              {/* Right: context + tools — collapsible via button or drag */}
+              <ResizablePanel
+                panelRef={contextPanelRef}
+                defaultSize="25"
+                minSize="18"
+                maxSize="25"
+                collapsible
+                collapsedSize="4"
+                className="min-w-0"
+                onResize={(size) => setIsContextCollapsed(size.asPercentage <= 4)}
+              >
+                {desktopRight}
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            // Pre-hydration fallback — mirrors the resizable defaults (20 / 55 / 25
+            // plus 1px dividers) so the resizable group takes over without a jump.
+            <div className="flex h-full w-full">
+              <div className="min-w-0 shrink-0 basis-[20%]">{desktopLeft}</div>
+              <div className="bg-border-subtle w-px shrink-0" />
+              <div className="min-w-0 flex-1">{desktopCenter}</div>
+              <div className="bg-border-subtle w-px shrink-0" />
+              <div className="min-w-0 shrink-0 basis-[25%]">{desktopRight}</div>
+            </div>
+          )}
         </div>
       </div>
-
     </div>
   );
 }

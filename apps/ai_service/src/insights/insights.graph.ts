@@ -20,7 +20,8 @@ import {
  * - `nodeErrors` — merge reducer so parallel branches each contribute.
  */
 export const InsightState = Annotation.Root({
-  userId: Annotation<string>(),
+  // Note: `userId` is NOT in state — it is passed per run as `InsightsContext`
+  // and read via `runtime.context` (nodes) / `config.context` (tools).
   /** Trigger type for this generation run */
   trigger: Annotation<'manual' | 'daily' | 'budget_breach'>({
     value: (_, upd) => upd,

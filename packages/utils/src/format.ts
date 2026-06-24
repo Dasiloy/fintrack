@@ -155,7 +155,14 @@ export function genBankSourceId(monoTxId: string, txDate: string | Date): string
   return `BNK-${yymmdd(d)}-${shortHash(monoTxId)}`;
 }
 
-/** Converts a kebab-case slug to a Title Case display name for LLM output. */
+/**
+ * Converts a kebab-case slug to a Title Case display name for LLM output.
+ * Strips the internal `cat-` category prefix so `cat-food` renders as "Food",
+ * never "Cat Food".
+ */
 export function slugToName(slug: string): string {
-  return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  return slug
+    .replace(/^cat-/, '')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }

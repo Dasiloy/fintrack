@@ -1,27 +1,48 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  MessageEvent,
   Param,
   Patch,
   Post,
   Query,
+  Sse,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Observable } from 'rxjs';
 
-import { User, AiInsight } from '@fintrack/database/types';
+import {
+  User,
+  AiInsight,
+  AdvisorScope,
+  AdvisorChatRole,
+} from '@fintrack/database/types';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
+import { MacroContext } from '@fintrack/types/interfaces/insights';
+import type {
+  ConversationMessagePage,
+  ConversationSummary,
+} from '@fintrack/types/interfaces/ai';
 
 import { AdvisorService } from './advisor.service';
-import { GetInsightsQueryDto } from './dto/advisor.dto';
+import {
+  GetInsightsQueryDto,
+  RenameConversationDto,
+  SendAdvisorMessageDto,
+  UpdateAdvisorScopesDto,
+} from './dto/advisor.dto';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
 
@@ -40,6 +61,182 @@ import { CurrentUser } from '../decorators/current_user.decorator';
 @UseGuards(ApiGuard)
 export class AdvisorController {
   constructor(private readonly advisorService: AdvisorService) {}
+
+  // ================================================================
+  // POST /advisor/message  (stage a message, returns a stream token)
+  // ================================================================
+  @Post('message')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Stage an advisor message for streaming',
+    description:
+      'Stashes the message and returns a short-lived `streamToken`. Open the SSE ' +
+      'stream at GET /advisor/message/stream?token=… to receive the reply. This ' +
+      'two-step exists because SSE is GET-only and the message cannot ride in the ' +
+      'stream request body.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Message staged' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async stageMessage(
+    @CurrentUser() user: User,
+    @Body() body: SendAdvisorMessageDto,
+  ): Promise<StandardResponse<{ streamToken: string }>> {
+    const data = await this.advisorService.stageMessage(user.id, body);
+    return {
+      success: true,
+      message: 'Message staged successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // GET /advisor/message/stream  (Server-Sent Events stream)
+  // ================================================================
+  @Sse('message/stream')
+  @ApiOperation({
+    summary: 'Stream an advisor response',
+    description:
+      'Streams the reply for a staged message (by `token`) as Server-Sent ' +
+      'Events. Each event `data` is one advisor chunk { type, content, data }: ' +
+      'type=token carries a text delta; approval_required / permission_required ' +
+      'carry a JSON payload in `data`; error carries a message in `content`. ' +
+      'NestJS unsubscribes from the gRPC stream automatically on disconnect.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'SSE stream of advisor chunks',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  streamMessage(
+    @CurrentUser() user: User,
+    @Query('token') token: string,
+  ): Observable<MessageEvent> {
+    return this.advisorService.streamMessage(user.id, token);
+  }
+
+  // ================================================================
+  // GET /advisor/conversations
+  // ================================================================
+  @Get('conversations')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "List the user's advisor conversations",
+    description:
+      'Returns conversations newest-first (id, title, updatedAt). Redis-cached. ' +
+      'Powers the chat history sidebar.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Conversations fetched' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getConversations(
+    @CurrentUser() user: User,
+  ): Promise<StandardResponse<ConversationSummary[]>> {
+    const data = await this.advisorService.getConversations(user.id);
+    return {
+      success: true,
+      message: 'Conversations fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // GET /advisor/conversations/:id/messages?cursor=&limit=
+  // ================================================================
+  @Get('conversations/:id/messages')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Get a page of a conversation's messages",
+    description:
+      'Cursor-paginated, resolved oldest→newest for display, with a `nextCursor` ' +
+      'for the previous (older) page — drives infinite scroll-up. Ownership-enforced.',
+  })
+  @ApiParam({ name: 'id', type: String, description: 'Conversation id' })
+  @ApiQuery({ name: 'cursor', required: false, type: String })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Messages fetched' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getConversationMessages(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ): Promise<StandardResponse<ConversationMessagePage>> {
+    const data = await this.advisorService.getConversationMessages(
+      user.id,
+      id,
+      {
+        cursor,
+        limit: limit ? Number(limit) : undefined,
+      },
+    );
+    return {
+      success: true,
+      message: 'Messages fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // PATCH /advisor/conversations/:id
+  // ================================================================
+  @Patch('conversations/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Rename a conversation',
+    description: 'Updates the conversation title. Ownership-enforced.',
+  })
+  @ApiParam({ name: 'id', type: String, description: 'Conversation id' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Conversation renamed' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async renameConversation(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: RenameConversationDto,
+  ): Promise<StandardResponse<{ id: string; title: string; updatedAt: Date }>> {
+    const data = await this.advisorService.renameConversation(
+      user.id,
+      id,
+      body.title,
+    );
+    return {
+      success: true,
+      message: 'Conversation renamed successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // DELETE /advisor/conversations/:id
+  // ================================================================
+  @Delete('conversations/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete a conversation',
+    description:
+      'Permanently deletes the conversation, its messages and its checkpointer ' +
+      'thread. No archive. Ownership-enforced.',
+  })
+  @ApiParam({ name: 'id', type: String, description: 'Conversation id' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Conversation deleted' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async deleteConversation(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<StandardResponse<null>> {
+    await this.advisorService.deleteConversation(user.id, id);
+    return {
+      success: true,
+      message: 'Conversation deleted successfully',
+      statusCode: HttpStatus.OK,
+      data: null,
+    };
+  }
 
   // ================================================================
   // GET /advisor/insights
@@ -110,6 +307,89 @@ export class AdvisorController {
     return {
       success: true,
       message: 'Insights fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // GET /advisor/macro-context
+  // ================================================================
+  @Get('macro-context')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get the current macro-economic context',
+    description:
+      'Returns the latest macro context (USD/NGN rate, food CPI, CBN rate) read ' +
+      'live from the Redis cache refreshed hourly by the scheduler. This is the ' +
+      'canonical source for displaying macro data on the frontend, so the value ' +
+      'is never stale. Returns null when the cache is cold.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Macro context fetched successfully',
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getMacroContext(): Promise<StandardResponse<MacroContext | null>> {
+    const data = await this.advisorService.getMacroContext();
+    return {
+      success: true,
+      message: 'Macro context fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // GET /advisor/scopes
+  // ================================================================
+  @Get('scopes')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Get the user's advisor consent (enabled + granted scopes)",
+    description:
+      'Returns whether the advisor is enabled and which data scopes the user ' +
+      'has granted. Powers the advisor permissions panel.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Scopes fetched' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getScopes(
+    @CurrentUser() user: User,
+  ): Promise<
+    StandardResponse<{ enabled: boolean; grantedScopes: AdvisorScope[] }>
+  > {
+    const data = await this.advisorService.getAdvisorScopes(user.id);
+    return {
+      success: true,
+      message: 'Advisor scopes fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // PATCH /advisor/scopes
+  // ================================================================
+  @Patch('scopes')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Update the user's advisor consent",
+    description:
+      'Sets the granted scopes and/or the enabled flag, busts the scopes cache, ' +
+      'and records an audit entry. Returns the new consent state.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Scopes updated' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async updateScopes(
+    @CurrentUser() user: User,
+    @Body() body: UpdateAdvisorScopesDto,
+  ): Promise<
+    StandardResponse<{ enabled: boolean; grantedScopes: AdvisorScope[] }>
+  > {
+    const data = await this.advisorService.updateAdvisorScopes(user.id, body);
+    return {
+      success: true,
+      message: 'Advisor scopes updated successfully',
       statusCode: HttpStatus.OK,
       data,
     };

@@ -160,4 +160,5 @@ One or more of the user's budgets have triggered an alert. Write 2–3 concise, 
 1. Acknowledge all the affected budgets by name — do not focus on just one if several are listed.
 2. Give one or two concrete, actionable suggestions the user can act on right now to stabilise spending.
 3. Keep a calm, supportive tone — never alarmist.
-Use ₦ for monetary figures where available. Write connected prose — no bullet points or lists.`;
+Use ₦ for monetary figures where available. Write connected prose — no bullet points or lists.
+Refer to budgets and categories by their human-readable names exactly as given (e.g. "Food", "Bills & Utilities"). Never output internal slugs, IDs, or database keys (e.g. never write "cat-food" or "Cat Food").`;
