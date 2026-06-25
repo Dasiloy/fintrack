@@ -28,7 +28,7 @@ import {
   stopConversationStream,
   clearConversationStream,
   getFinalizedAt,
-  patchLiveMessage,
+  resumeConversation,
   readHead,
   writeHead,
 } from '../_lib/advisor.store';
@@ -37,7 +37,11 @@ import { Usage } from '@fintrack/types/constants/plan.constants';
 import { usePlan } from '@/app/providers/plan_usage_provider';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import type { ConversationMessagePage } from '@fintrack/types/interfaces/ai';
+import type {
+  AdvisorAction,
+  AdvisorMessageMetadata,
+  ConversationMessagePage,
+} from '@fintrack/types/interfaces/ai';
 import { ADVISOR_MESSAGE_PAGE_SIZE as MESSAGE_PAGE_SIZE } from '../_lib/advisor.config';
 
 /** Distance from the top (px) that triggers loading older messages. */
@@ -66,13 +70,66 @@ function toAdvisorMessage(m: {
   role: string;
   content: string;
   createdAt: string | Date;
+  metadata?: AdvisorMessageMetadata | null;
 }): AdvisorMessage {
   return {
     id: m.id,
     role: m.role === 'USER' ? 'user' : 'assistant',
     content: m.content,
     createdAt: new Date(m.createdAt),
+    proposedAction: m.metadata?.proposedAction ?? null,
+    actionState: m.metadata?.actionState,
   };
+}
+
+function actionKey(message: AdvisorMessage): string | null {
+  return message.proposedAction ? actionIdentity(message.proposedAction) : null;
+}
+
+function normalizeIdentityPart(value: string | undefined): string {
+  return (value ?? '').trim().toLowerCase();
+}
+
+function actionIdentity(action: AdvisorAction): string {
+  switch (action.kind) {
+    case 'adjust_budget':
+      return [
+        action.kind,
+        action.budgetId,
+        action.categorySlug,
+        action.currentLimit,
+        action.proposedLimit,
+      ].join(':');
+    case 'create_budget':
+      return [
+        action.kind,
+        action.categorySlug,
+        action.proposedLimit,
+      ].join(':');
+    case 'adjust_goal_contribution':
+      return [
+        action.kind,
+        action.goalId,
+        action.currentAmount,
+        action.proposedAmount,
+      ].join(':');
+    case 'suggest_recurring':
+      return [
+        action.kind,
+        normalizeIdentityPart(action.name),
+        action.amount,
+        action.categorySlug,
+        action.frequency,
+      ].join(':');
+    case 'flag_subscription':
+      return [
+        action.kind,
+        action.recurringId || normalizeIdentityPart(action.name),
+        action.operation,
+        action.currentAmount,
+        action.proposedAmount ?? '',
+      ].join(':');
+  }
 }
 
 export function ChatPanel({
@@ -168,13 +225,38 @@ export function ChatPanel({
     setAttachments([]);
   }, [activeConversationId]);
 
-  // View = history ++ live, de-duped by id (collapses the head-cache placeholder
-  // with the live buffer — both share the same FE ids — so nothing renders twice).
+  // View = history ++ live. Most duplicates share FE ids via appendToHead; user
+  // turns returned by the server can have backend ids, so also collapse exact
+  // same user text sent within a short window. This keeps the optimistic user
+  // bubble from rendering beside its persisted copy while an approval card keeps
+  // the live buffer alive.
   const displayMessages = React.useMemo(() => {
     const seen = new Set<string>();
+    const seenUserTurns: Array<{ content: string; createdAt: number }> = [];
+    const actionIndexes = new Map<string, number>();
     const out: AdvisorMessage[] = [];
     for (const m of [...historyMessages, ...stream.messages]) {
       if (seen.has(m.id)) continue;
+      const proposedActionKey = actionKey(m);
+      if (proposedActionKey) {
+        const previousIndex = actionIndexes.get(proposedActionKey);
+        if (previousIndex !== undefined) {
+          out[previousIndex] = m;
+          seen.add(m.id);
+          continue;
+        }
+        actionIndexes.set(proposedActionKey, out.length);
+      }
+      if (m.role === 'user') {
+        const createdAt = m.createdAt.getTime();
+        const duplicateUserTurn = seenUserTurns.some(
+          (seen) =>
+            seen.content === m.content &&
+            Math.abs(seen.createdAt - createdAt) < 5 * 60 * 1000,
+        );
+        if (duplicateUserTurn) continue;
+        seenUserTurns.push({ content: m.content, createdAt });
+      }
       seen.add(m.id);
       out.push(m);
     }
@@ -203,6 +285,17 @@ export function ChatPanel({
   // server even has the turn). Runs before paint.
   React.useLayoutEffect(() => {
     if (!activeConversationId || stream.isStreaming) return;
+    const liveActionKeys = stream.messages
+      .map(actionKey)
+      .filter((key): key is string => !!key);
+    if (
+      liveActionKeys.length > 0 &&
+      !liveActionKeys.every((key) =>
+        historyMessages.some((message) => actionKey(message) === key),
+      )
+    ) {
+      return;
+    }
     if (!messagesQuery.data || messagesQuery.isPlaceholderData || messagesQuery.isFetching) {
       return;
     }
@@ -211,10 +304,12 @@ export function ChatPanel({
   }, [
     activeConversationId,
     stream.isStreaming,
+    stream.messages,
     messagesQuery.data,
     messagesQuery.isPlaceholderData,
     messagesQuery.isFetching,
     messagesQuery.dataUpdatedAt,
+    historyMessages,
   ]);
 
   // Scroll positioning: maintain offset after prepending older messages; else
@@ -251,8 +346,7 @@ export function ChatPanel({
   };
 
   // ── Send ──────────────────────────────────────────────────────────────────
-  const handleSend = () => {
-    const text = inputText.trim();
+  const sendText = (text: string) => {
     if ((!text && attachments.length === 0) || stream.isStreaming) return;
 
     const isNewConversation = activeConversationId === null;
@@ -277,6 +371,14 @@ export function ChatPanel({
     });
   };
 
+  const handleSend = () => {
+    sendText(inputText.trim());
+  };
+
+  const handleRecommendationClick = (recommendation: string) => {
+    sendText(`Do this recommendation: ${recommendation}`);
+  };
+
   const handleStop = () => {
     const id = activeConversationId ?? conversationIdRef.current;
     if (id) stopConversationStream(id);
@@ -285,13 +387,23 @@ export function ChatPanel({
   // ── Action state (HITL — live messages only) ────────────────────────────────
   const handleActionApprove = (messageId: string) => {
     if (streamKey !== NO_CONVERSATION) {
-      patchLiveMessage(streamKey, messageId, { actionState: 'approved' });
+      void resumeConversation({
+        conversationId: streamKey,
+        approved: true,
+        actionMessageId: messageId,
+        onFinished: onConversationUpdated,
+      });
     }
   };
 
   const handleActionReject = (messageId: string) => {
     if (streamKey !== NO_CONVERSATION) {
-      patchLiveMessage(streamKey, messageId, { actionState: 'rejected' });
+      void resumeConversation({
+        conversationId: streamKey,
+        approved: false,
+        actionMessageId: messageId,
+        onFinished: onConversationUpdated,
+      });
     }
   };
 
@@ -365,12 +477,15 @@ export function ChatPanel({
           {displayMessages.map((message) =>
             // Hide the not-yet-streamed assistant bubble — the typing indicator
             // stands in for it until the first token arrives.
-            message.role === 'assistant' && message.content === '' ? null : (
+            message.role === 'assistant' &&
+            message.content === '' &&
+            !message.proposedAction ? null : (
               <ChatMessage
                 key={message.id}
                 message={message}
                 onActionApprove={handleActionApprove}
                 onActionReject={handleActionReject}
+                onRecommendationClick={handleRecommendationClick}
               />
             ),
           )}

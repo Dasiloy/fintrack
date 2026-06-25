@@ -58,7 +58,7 @@ import {
   type NavGroup,
   type NavItem,
 } from '@/constants/sidebar-nav.constants';
-import { signOut } from 'next-auth/react';
+import { signOutAndClearClientState } from '@/lib/auth/auth_cleanup';
 import { Logo } from '@/app/_components/logo';
 import { api_client } from '@/lib/trpc_app/api_client';
 import { useProgress } from '@bprogress/next';
@@ -360,7 +360,7 @@ function NavUser({ user, isPro }: { user: SessionUser; isPro: boolean }) {
             <DropdownMenuItem
               className="text-error focus:text-error focus:bg-error/10 py-space-2 cursor-pointer"
               onClick={() =>
-                signOut({
+                signOutAndClearClientState({
                   redirect: true,
                   redirectTo: AUTH_ROUTES.LOGIN,
                 })

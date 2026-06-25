@@ -1144,9 +1144,10 @@ enum AdvisorChatRole {
 // One durable message in an advisor conversation, for display history. Distinct
 // from the checkpointer's working memory (which compacts).
 model AdvisorChatMessage {
-  id      String          @id @default(cuid())
-  role    AdvisorChatRole
-  content String
+  id       String          @id @default(cuid())
+  role     AdvisorChatRole
+  content  String
+  metadata Json?
 
   conversationId String
   conversation   AdvisorConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)

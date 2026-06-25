@@ -3,8 +3,7 @@ import {
   GOOGLE_GEMINI_3_FLASH_PREVIEW,
   GOOGLE_GEMINI_3_5_FLASH,
 } from '@fintrack/types/interfaces/ai';
-
-import { AdvisorScope } from '@fintrack/database/types';
+import type { AdvisorScope } from '@fintrack/types/interfaces/ai';
 
 // ─── Models (chosen by reasoning depth to control cost) ───────────────────────
 
@@ -82,6 +81,7 @@ export const ADVISOR_NODES = {
   COMPACT: 'compact',
   RESPOND: 'respond',
   TOOLS: 'tools',
+  ACTION: 'action',
   MEMORY: 'memory',
 } as const;
 

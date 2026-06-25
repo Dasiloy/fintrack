@@ -15,7 +15,8 @@ export interface StreamAdvisorHandlers {
 
 export interface StreamAdvisorOptions extends StreamAdvisorHandlers {
   conversationId: string;
-  message: string;
+  message?: string;
+  resume?: { approved: boolean };
   signal?: AbortSignal;
 }
 
@@ -38,7 +39,9 @@ export async function streamAdvisor(opts: StreamAdvisorOptions): Promise<void> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       conversationId: opts.conversationId,
-      message: opts.message,
+      ...(opts.resume
+        ? { resume: opts.resume }
+        : { message: opts.message ?? '' }),
     }),
     signal: opts.signal,
   });
