@@ -45,6 +45,11 @@ export class AdvisorController {
       `[ADV-AI] gRPC SendAdvisorMessage IN convo=${request.conversationId} msgLen=${request.message?.length ?? 0} scopes=[${(request.grantedScopes ?? []).join(',')}]`,
     );
     return new Observable<AdvisorChunkRes>((subscriber) => {
+      // Aborts the graph run when the gRPC call is cancelled (the gateway/client
+      // disconnects → this Observable is unsubscribed → teardown below). Without
+      // this the LangGraph run would keep going after the user hit Stop.
+      const controller = new AbortController();
+
       // Drive the async generator into the gRPC stream; complete on end, and
       // surface any failure as a final `error` chunk rather than a stream error.
       void (async () => {
@@ -55,6 +60,7 @@ export class AdvisorController {
             conversationId: request.conversationId,
             message: request.message,
             grantedScopes: request.grantedScopes as AdvisorScope[],
+            signal: controller.signal,
           });
 
           for await (const event of events) {
@@ -69,6 +75,13 @@ export class AdvisorController {
           );
           subscriber.complete();
         } catch (err) {
+          // Cancellation is expected — the client is gone, so emit nothing.
+          if (controller.signal.aborted) {
+            this.logger.debug(
+              `[ADV-AI] gRPC stream ABORTED convo=${request.conversationId} after ${chunkCount} chunks`,
+            );
+            return;
+          }
           this.logger.error(
             `[ADV-AI] gRPC stream FAILED convo=${request.conversationId} after ${chunkCount} chunks: ${(err as Error).message}`,
             (err as Error).stack,
@@ -84,6 +97,9 @@ export class AdvisorController {
           subscriber.complete();
         }
       })();
+
+      // Teardown — runs when the gRPC call is cancelled/unsubscribed.
+      return () => controller.abort();
     });
   }
 }
