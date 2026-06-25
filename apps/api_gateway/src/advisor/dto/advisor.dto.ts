@@ -2,6 +2,7 @@ import {
   ArrayUnique,
   IsArray,
   IsBoolean,
+  IsDefined,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -9,11 +10,19 @@ import {
   IsString,
   Max,
   Min,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 import { AdvisorScope } from '@fintrack/database/types';
+
+class ResumeAdvisorDto {
+  @ApiProperty({ description: 'Whether the user approved the pending action.' })
+  @IsBoolean()
+  approved: boolean;
+}
 
 export class SendAdvisorMessageDto {
   @ApiProperty({
@@ -23,10 +32,23 @@ export class SendAdvisorMessageDto {
   @IsNotEmpty()
   conversationId: string;
 
-  @ApiProperty({ description: 'The user message to send to the advisor.' })
+  @ApiPropertyOptional({
+    description: 'The user message to send to the advisor.',
+  })
+  @ValidateIf((body: SendAdvisorMessageDto) => !body.resume)
   @IsString()
   @IsNotEmpty()
-  message: string;
+  message?: string;
+
+  @ApiPropertyOptional({
+    description: 'Resume payload for approving/rejecting a pending action.',
+    type: ResumeAdvisorDto,
+  })
+  @ValidateIf((body: SendAdvisorMessageDto) => !body.message)
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => ResumeAdvisorDto)
+  resume?: ResumeAdvisorDto;
 }
 
 export class RenameConversationDto {

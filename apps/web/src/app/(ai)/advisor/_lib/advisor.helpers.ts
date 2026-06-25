@@ -12,6 +12,9 @@ export type { InsightRecommendation, MacroContext };
 // ── Formatting ────────────────────────────────────────────────────────────────
 
 export function formatNGN(amount: number): string {
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+    return 'unknown amount';
+  }
   return formatCurrency(amount, 'NGN', 'en-NG');
 }
 
@@ -66,7 +69,9 @@ export function getActionLabel(action: AdvisorAction): string {
     case 'suggest_recurring':
       return `Add "${action.name}" as a recurring ${action.frequency} — ${formatNGN(action.amount)}`;
     case 'flag_subscription':
-      return `Flag "${action.name}" (${formatNGN(action.amount)}) as an unused subscription`;
+      return action.operation === 'cancel'
+        ? `Cancel "${action.name}" subscription — currently ${formatNGN(action.currentAmount)}`
+        : `Adjust "${action.name}" subscription ${formatNGN(action.currentAmount)} → ${formatNGN(action.proposedAmount ?? action.currentAmount)}`;
   }
 }
 

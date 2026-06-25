@@ -1,4 +1,4 @@
-import { AdvisorScope } from '@fintrack/database/types';
+import type { AdvisorScope } from '@fintrack/types/interfaces/ai';
 
 /**
  * Default posture: all scopes granted, individually revocable. Used until the

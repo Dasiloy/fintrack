@@ -45945,6 +45945,7 @@ export namespace Prisma {
     id: number
     role: number
     content: number
+    metadata: number
     conversationId: number
     createdAt: number
     _all: number
@@ -45971,6 +45972,7 @@ export namespace Prisma {
     id?: true
     role?: true
     content?: true
+    metadata?: true
     conversationId?: true
     createdAt?: true
     _all?: true
@@ -46052,6 +46054,7 @@ export namespace Prisma {
     id: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata: JsonValue | null
     conversationId: string
     createdAt: Date
     _count: AdvisorChatMessageCountAggregateOutputType | null
@@ -46077,6 +46080,7 @@ export namespace Prisma {
     id?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     conversationId?: boolean
     createdAt?: boolean
     conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
@@ -46086,6 +46090,7 @@ export namespace Prisma {
     id?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     conversationId?: boolean
     createdAt?: boolean
     conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
@@ -46095,6 +46100,7 @@ export namespace Prisma {
     id?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     conversationId?: boolean
     createdAt?: boolean
     conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
@@ -46104,11 +46110,12 @@ export namespace Prisma {
     id?: boolean
     role?: boolean
     content?: boolean
+    metadata?: boolean
     conversationId?: boolean
     createdAt?: boolean
   }
 
-  export type AdvisorChatMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "role" | "content" | "conversationId" | "createdAt", ExtArgs["result"]["advisorChatMessage"]>
+  export type AdvisorChatMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "role" | "content" | "metadata" | "conversationId" | "createdAt", ExtArgs["result"]["advisorChatMessage"]>
   export type AdvisorChatMessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     conversation?: boolean | AdvisorConversationDefaultArgs<ExtArgs>
   }
@@ -46128,6 +46135,7 @@ export namespace Prisma {
       id: string
       role: $Enums.AdvisorChatRole
       content: string
+      metadata: Prisma.JsonValue | null
       conversationId: string
       createdAt: Date
     }, ExtArgs["result"]["advisorChatMessage"]>
@@ -46557,6 +46565,7 @@ export namespace Prisma {
     readonly id: FieldRef<"AdvisorChatMessage", 'String'>
     readonly role: FieldRef<"AdvisorChatMessage", 'AdvisorChatRole'>
     readonly content: FieldRef<"AdvisorChatMessage", 'String'>
+    readonly metadata: FieldRef<"AdvisorChatMessage", 'Json'>
     readonly conversationId: FieldRef<"AdvisorChatMessage", 'String'>
     readonly createdAt: FieldRef<"AdvisorChatMessage", 'DateTime'>
   }
@@ -49922,6 +49931,7 @@ export namespace Prisma {
     id: 'id',
     role: 'role',
     content: 'content',
+    metadata: 'metadata',
     conversationId: 'conversationId',
     createdAt: 'createdAt'
   };
@@ -53412,6 +53422,7 @@ export namespace Prisma {
     id?: StringFilter<"AdvisorChatMessage"> | string
     role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
     content?: StringFilter<"AdvisorChatMessage"> | string
+    metadata?: JsonNullableFilter<"AdvisorChatMessage">
     conversationId?: StringFilter<"AdvisorChatMessage"> | string
     createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
     conversation?: XOR<AdvisorConversationScalarRelationFilter, AdvisorConversationWhereInput>
@@ -53421,6 +53432,7 @@ export namespace Prisma {
     id?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     conversationId?: SortOrder
     createdAt?: SortOrder
     conversation?: AdvisorConversationOrderByWithRelationInput
@@ -53433,6 +53445,7 @@ export namespace Prisma {
     NOT?: AdvisorChatMessageWhereInput | AdvisorChatMessageWhereInput[]
     role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
     content?: StringFilter<"AdvisorChatMessage"> | string
+    metadata?: JsonNullableFilter<"AdvisorChatMessage">
     conversationId?: StringFilter<"AdvisorChatMessage"> | string
     createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
     conversation?: XOR<AdvisorConversationScalarRelationFilter, AdvisorConversationWhereInput>
@@ -53442,6 +53455,7 @@ export namespace Prisma {
     id?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     conversationId?: SortOrder
     createdAt?: SortOrder
     _count?: AdvisorChatMessageCountOrderByAggregateInput
@@ -53456,6 +53470,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
     role?: EnumAdvisorChatRoleWithAggregatesFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
     content?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
+    metadata?: JsonNullableWithAggregatesFilter<"AdvisorChatMessage">
     conversationId?: StringWithAggregatesFilter<"AdvisorChatMessage"> | string
     createdAt?: DateTimeWithAggregatesFilter<"AdvisorChatMessage"> | Date | string
   }
@@ -56911,6 +56926,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     conversation: AdvisorConversationCreateNestedOneWithoutMessagesInput
   }
@@ -56919,6 +56935,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     conversationId: string
     createdAt?: Date | string
   }
@@ -56927,6 +56944,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     conversation?: AdvisorConversationUpdateOneRequiredWithoutMessagesNestedInput
   }
@@ -56935,6 +56953,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     conversationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56943,6 +56962,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     conversationId: string
     createdAt?: Date | string
   }
@@ -56951,6 +56971,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -56958,6 +56979,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     conversationId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -59859,6 +59881,7 @@ export namespace Prisma {
     id?: SortOrder
     role?: SortOrder
     content?: SortOrder
+    metadata?: SortOrder
     conversationId?: SortOrder
     createdAt?: SortOrder
   }
@@ -72061,6 +72084,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -72068,6 +72092,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -72217,6 +72242,7 @@ export namespace Prisma {
     id?: StringFilter<"AdvisorChatMessage"> | string
     role?: EnumAdvisorChatRoleFilter<"AdvisorChatMessage"> | $Enums.AdvisorChatRole
     content?: StringFilter<"AdvisorChatMessage"> | string
+    metadata?: JsonNullableFilter<"AdvisorChatMessage">
     conversationId?: StringFilter<"AdvisorChatMessage"> | string
     createdAt?: DateTimeFilter<"AdvisorChatMessage"> | Date | string
   }
@@ -74511,6 +74537,7 @@ export namespace Prisma {
     id?: string
     role: $Enums.AdvisorChatRole
     content: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -74518,6 +74545,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74525,6 +74553,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -74532,6 +74561,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAdvisorChatRoleFieldUpdateOperationsInput | $Enums.AdvisorChatRole
     content?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

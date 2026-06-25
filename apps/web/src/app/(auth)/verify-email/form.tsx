@@ -23,6 +23,7 @@ import { AUTH_ROUTES, DASHBOARD_ROUTES, ONBOARDING_ROUTES } from '@fintrack/type
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { VerifyEmailRes } from '@fintrack/types/protos/auth/auth';
 import { signIn } from 'next-auth/react';
+import { clearClientStateForAuthChange } from '@/lib/auth/auth_cleanup';
 
 export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
   const [otpValue, setOtpValue] = useState('');
@@ -45,6 +46,7 @@ export function VerifyEmailForm({ className }: React.ComponentProps<'form'>) {
       // Route to trial opt-in only for first-time emails; re-registrations go straight to dashboard
       const redirectTo = data.data?.trialUsed ? DASHBOARD_ROUTES.DASHBOARD : ONBOARDING_ROUTES.TRIAL;
 
+      clearClientStateForAuthChange();
       await signIn('credentials', {
         redirect: true,
         redirectTo,
