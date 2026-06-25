@@ -18,6 +18,8 @@
 //     autoSaveId persists the layout to localStorage so it survives HMR/refresh.
 
 import * as React from 'react';
+import { useAtomValue, useSetAtom } from 'jotai';
+import Cookies from 'js-cookie';
 import type { PanelImperativeHandle } from '@ui/components';
 import { Sheet, SheetContent } from '@ui/components';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@ui/components';
@@ -30,7 +32,8 @@ import { ContextPanel } from './context_panel';
 
 import type { AdvisorPageState, ConversationThread } from '../_lib/advisor.types';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { advisorCache } from '../_lib/advisor.cache';
+import { conversationsListAtom, clearConversationData } from '../_lib/advisor.store';
+import { ADVISOR_ACTIVE_CONVERSATION_COOKIE } from '../_lib/advisor.config';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { ConversationSummary } from '@fintrack/types/interfaces/ai';
 import { useBoolean } from '@ui/hooks';
@@ -51,12 +54,20 @@ function buildInitialSections(initialSection?: string): Record<string, boolean> 
 interface AdvisorPageClientProps {
   initialTab?: 'insights' | 'advisor';
   initialSection?: string;
+  /** The last-open conversation, read from a cookie by the server component. Its
+   *  messages are already prefetched into the hydrated cache, so it opens with no
+   *  loading gap on refresh. */
+  initialActiveConversationId?: string | null;
 }
 
-export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageClientProps) {
+export function AdvisorPageClient({
+  initialTab,
+  initialSection,
+  initialActiveConversationId = null,
+}: AdvisorPageClientProps) {
   const [pageState, setPageState] = React.useState<AdvisorPageState>({
     activeTab: initialTab ?? 'advisor',
-    activeConversationId: null,
+    activeConversationId: initialActiveConversationId,
     historySheetOpen: false,
     toolsSheetOpen: false,
   });
@@ -93,22 +104,42 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
   // Guards the New Conversation action: true once the user sends their first
   // message in a null-id session. Starts true if a real conversation is selected.
   const [chatHasMessages, setChatHasMessages] = React.useState(
-    pageState.activeConversationId !== null,
+    initialActiveConversationId !== null,
   );
 
   // True only when an existing conversation is opened from history — tells the
   // ChatPanel to fetch its transcript. A new (or just-promoted) conversation is
-  // owned locally and must not be reloaded.
-  const [loadHistory, setLoadHistory] = React.useState(false);
+  // owned locally and must not be reloaded. A restored conversation is existing,
+  // so it loads history.
+  const [loadHistory, setLoadHistory] = React.useState(
+    initialActiveConversationId !== null,
+  );
 
   const update = (patch: Partial<AdvisorPageState>) =>
     setPageState((prev) => ({ ...prev, ...patch }));
+
+  // Single writer for the active conversation: updates page state AND mirrors the
+  // id into a cookie so the server component can prefetch its messages on the next
+  // load. Imperative — never an effect — so it only fires on a real user action.
+  const setActiveConversation = React.useCallback((id: string | null) => {
+    if (id) {
+      Cookies.set(ADVISOR_ACTIVE_CONVERSATION_COOKIE, id, {
+        expires: 30,
+        sameSite: 'lax',
+        path: '/',
+      });
+    } else {
+      Cookies.remove(ADVISOR_ACTIVE_CONVERSATION_COOKIE, { path: '/' });
+    }
+    update({ activeConversationId: id });
+  }, []);
 
   // Selecting a conversation always switches to the Advisor (chat) tab.
   const selectConversation = (id: string) => {
     setChatHasMessages(true);
     setLoadHistory(true);
-    update({ activeConversationId: id, activeTab: 'advisor' });
+    setActiveConversation(id);
+    update({ activeTab: 'advisor' });
   };
 
   // No-op when already in the empty state (null id, no messages sent yet).
@@ -117,7 +148,8 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
     if (pageState.activeConversationId === null && !chatHasMessages) return;
     setChatHasMessages(false);
     setLoadHistory(false);
-    update({ activeConversationId: null, activeTab: 'advisor' });
+    setActiveConversation(null);
+    update({ activeTab: 'advisor' });
   };
 
   // Called by ChatPanel when the user sends their very first message.
@@ -128,34 +160,37 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
 
   // Called by ChatPanel once a brand-new conversation gets its id. Select it so
   // the sidebar highlights it, without loading history (we own the live state).
-  const handleConversationStarted = React.useCallback((conversationId: string) => {
-    setLoadHistory(false);
-    update({ activeConversationId: conversationId });
-  }, []);
+  const handleConversationStarted = React.useCallback(
+    (conversationId: string) => {
+      setLoadHistory(false);
+      setActiveConversation(conversationId);
+    },
+    [setActiveConversation],
+  );
 
   // ── Conversation history (sidebar) ──────────────────────────────────────────
   const utils = api_client.useUtils();
+  const cachedList = useAtomValue(conversationsListAtom);
+  const setCachedList = useSetAtom(conversationsListAtom);
   const { data: conversationsData } = api_client.advisor.getConversations.useQuery(undefined, {
     staleTime: 30_000,
     refetchOnWindowFocus: true,
-    // Instant sidebar on reload from the localStorage cache; network refetches.
-    initialData: () => {
-      const cached = advisorCache.readConversations();
-      return cached
+    // Instant sidebar on reload from the persisted list atom; network refetches.
+    placeholderData: () =>
+      cachedList.length
         ? ({
             success: true,
             message: '',
             statusCode: 200,
-            data: cached,
+            data: cachedList,
           } as StandardResponse<ConversationSummary[]>)
-        : undefined;
-    },
+        : undefined,
   });
 
   // Persist the latest list for the next cold load.
   React.useEffect(() => {
-    if (conversationsData?.data) advisorCache.writeConversations(conversationsData.data);
-  }, [conversationsData]);
+    if (conversationsData?.data) setCachedList(conversationsData.data);
+  }, [conversationsData, setCachedList]);
 
   const threads: ConversationThread[] = React.useMemo(
     () =>
@@ -182,9 +217,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
         old
           ? {
               ...old,
-              data: (old.data ?? []).map((c) =>
-                c.id === conversationId ? { ...c, title } : c,
-              ),
+              data: (old.data ?? []).map((c) => (c.id === conversationId ? { ...c, title } : c)),
             }
           : old,
       );
@@ -214,19 +247,20 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
       if (ctx?.prev) utils.advisor.getConversations.setData(undefined, ctx.prev);
     },
     onSuccess: (_d, { conversationId }) => {
+      // Forget the deleted thread's persisted head + live buffer.
+      clearConversationData(conversationId);
       // If the open conversation was deleted, drop back to a fresh chat.
       if (pageState.activeConversationId === conversationId) {
         setChatHasMessages(false);
         setLoadHistory(false);
-        update({ activeConversationId: null });
+        setActiveConversation(null);
       }
     },
     onSettled: () => void utils.advisor.getConversations.invalidate(),
   });
 
   const handleRename = React.useCallback(
-    (id: string, title: string) =>
-      renameMutation.mutate({ conversationId: id, title }),
+    (id: string, title: string) => renameMutation.mutate({ conversationId: id, title }),
     [renameMutation],
   );
   const handleDelete = React.useCallback(
@@ -255,6 +289,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
   const desktopLeft = isAdvisorTab ? (
     <ConversationSidebar
       threads={threads}
+      isLoading={!conversationsData}
       activeId={pageState.activeConversationId}
       onSelect={selectConversation}
       onNewConversation={newConversation}
@@ -301,9 +336,10 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
         open={pageState.historySheetOpen}
         onOpenChange={(open) => update({ historySheetOpen: open })}
       >
-        <SheetContent side="left" className="w-72 p-0">
+        <SheetContent side="left" className="w-[92vw] max-w-sm p-0">
           <ConversationSidebar
             threads={threads}
+            isLoading={!conversationsData}
             activeId={pageState.activeConversationId}
             onSelect={(id) => {
               selectConversation(id);
@@ -338,6 +374,7 @@ export function AdvisorPageClient({ initialTab, initialSection }: AdvisorPageCli
             {isAdvisorTab ? (
               <ConversationSidebar
                 threads={threads}
+                isLoading={!conversationsData}
                 activeId={pageState.activeConversationId}
                 onSelect={selectConversation}
                 onNewConversation={newConversation}

@@ -1,5 +1,6 @@
 'use client';
 
+import { BrainCircuit } from 'lucide-react';
 // ── AdvisorThinkingIndicator ──────────────────────────────────────────────────
 // Fluid "the advisor is working" indicator. A continuous shimmer sweeps the
 // label (Claude-style), and the label advances through friendly, abstracted
@@ -55,8 +56,8 @@ export function AdvisorThinkingIndicator() {
         }
       `}</style>
 
-      <div className="bg-primary/15 flex size-7 shrink-0 items-center justify-center rounded-full">
-        <span className="text-primary text-[10px] font-bold">AI</span>
+      <div className="bg-primary/15 mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full">
+        <BrainCircuit className="text-primary size-3.5" aria-hidden />
       </div>
 
       <div className="bg-bg-surface flex items-center gap-1.5 rounded-2xl rounded-tl-sm px-4 py-3">
