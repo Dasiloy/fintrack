@@ -20,6 +20,8 @@ interface ConversationSidebarProps {
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
   deletingId?: string | null;
+  /** Before the persisted list has hydrated — show skeleton rows, not "empty". */
+  isLoading?: boolean;
 }
 
 export function ConversationSidebar({
@@ -30,13 +32,13 @@ export function ConversationSidebar({
   onRename,
   onDelete,
   deletingId,
+  isLoading,
 }: ConversationSidebarProps) {
   return (
-    <div className="flex h-full flex-col bg-bg-elevated">
-
+    <div className="bg-bg-elevated flex h-full flex-col">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-b border-border-subtle px-3 py-3">
-        <span className="text-text-secondary text-xs font-semibold uppercase tracking-wider">
+      <div className="border-border-subtle flex items-center gap-2 border-b px-3 py-3">
+        <span className="text-text-secondary text-xs font-semibold tracking-wider uppercase">
           History
         </span>
       </div>
@@ -46,7 +48,7 @@ export function ConversationSidebar({
         <Button
           variant="outline"
           size="sm"
-          className="w-full justify-start gap-2 h-9"
+          className="h-9 w-full justify-start gap-2"
           onClick={onNewConversation}
         >
           <Plus className="size-3.5" aria-hidden />
@@ -60,8 +62,20 @@ export function ConversationSidebar({
        * flex-1 ensures it fills remaining height while the header and button stay fixed.
        */}
       <ScrollArea className="flex-1 px-2 pb-3">
-        {threads.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[12px] text-text-disabled">
+        {isLoading ? (
+          // Persisted list not hydrated yet — skeleton rows avoid an
+          // "empty → list" flash on refresh (SSR + first client render match).
+          <div className="flex flex-col gap-1.5 px-1 pt-1">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-bg-surface h-9 animate-pulse rounded-lg"
+                style={{ opacity: 1 - i * 0.12 }}
+              />
+            ))}
+          </div>
+        ) : threads.length === 0 ? (
+          <p className="text-text-disabled px-3 py-4 text-center text-[12px]">
             No conversations yet
           </p>
         ) : (

@@ -47,6 +47,9 @@ export interface InvokeGraphOptions<
 > {
   configurable?: TConfig;
   context?: TContext;
+  /** Aborts the run when triggered — wired to the client/stream disconnect so a
+   *  cancelled request stops the graph instead of running on. */
+  signal?: AbortSignal;
 }
 
 export interface StreamGraphOptions<

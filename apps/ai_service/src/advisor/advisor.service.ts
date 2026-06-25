@@ -156,6 +156,8 @@ export class AdvisorService implements OnModuleInit {
     conversationId: string;
     message: string;
     grantedScopes: AdvisorScope[];
+    /** Aborts the graph run when the client/stream disconnects. */
+    signal?: AbortSignal;
   }): AsyncGenerator<GraphStreamEvent<AdvisorStateType>> {
     this.logger.debug(
       `[ADV-AI] streamResponse START convo=${input.conversationId}`,
@@ -177,6 +179,7 @@ export class AdvisorService implements OnModuleInit {
           configurable: {
             thread_id: input.conversationId,
           },
+          signal: input.signal,
         },
       );
 
@@ -194,6 +197,13 @@ export class AdvisorService implements OnModuleInit {
         `[ADV-AI] streamResponse END convo=${input.conversationId} events=${eventCount}`,
       );
     } catch (err) {
+      // Abort is expected (client hit Stop / disconnected) — not an error.
+      if (input.signal?.aborted) {
+        this.logger.debug(
+          `[ADV-AI] streamResponse ABORTED convo=${input.conversationId} after ${eventCount} events`,
+        );
+        throw err;
+      }
       this.logger.error(
         `[ADV-AI] streamResponse THREW convo=${input.conversationId} after ${eventCount} events: ${(err as Error).message}`,
         (err as Error).stack,
@@ -317,10 +327,18 @@ export class AdvisorService implements OnModuleInit {
    * Compact node — keeps the persisted message history bounded.
    *
    * No-op until the history exceeds {@link COMPACTION_THRESHOLD}. Past that, the
-   * oldest messages are summarised by the cheap {@link COMPACTION_MODEL} and the
-   * channel is rewritten to `[summary, ...last MESSAGES_TO_KEEP]` — clearing the
-   * old messages via `REMOVE_ALL_MESSAGES` first so the summary replaces them
-   * rather than stacking on top. On a summariser failure it leaves history as-is.
+   * oldest messages are summarised by the cheap {@link COMPACTION_MODEL} into
+   * `state.summary` (the respond node injects it into the system prompt) and the
+   * channel is rewritten to the kept window — clearing the old messages via
+   * `REMOVE_ALL_MESSAGES` first so they are replaced rather than stacked on.
+   *
+   * Safe trim boundary: the kept window targets the last {@link MESSAGES_TO_KEEP}
+   * messages but is extended backwards to the start of that user turn, so it
+   * always begins with a `HumanMessage`. This prevents the window from starting
+   * on an orphaned `ToolMessage` (whose tool-call `AIMessage` was summarised
+   * away) or a dangling assistant turn — either of which violates the model's
+   * message contract and fails the turn. On a summariser failure it leaves
+   * history as-is.
    */
   private buildCompactNode() {
     return async (
@@ -329,8 +347,17 @@ export class AdvisorService implements OnModuleInit {
       const { messages, summary } = state;
       if (messages.length <= COMPACTION_THRESHOLD) return {};
 
-      const toSummarize = messages.slice(0, messages.length - MESSAGES_TO_KEEP);
-      const toKeep = messages.slice(-MESSAGES_TO_KEEP);
+      // Walk the split point back from `length - MESSAGES_TO_KEEP` to the nearest
+      // HumanMessage so the kept window opens on a clean user-turn boundary.
+      let splitAt = messages.length - MESSAGES_TO_KEEP;
+      while (splitAt > 0 && !(messages[splitAt] instanceof HumanMessage)) {
+        splitAt -= 1;
+      }
+      // No safe boundary before the keep window (one giant turn) — skip this round.
+      if (splitAt <= 0) return {};
+
+      const toSummarize = messages.slice(0, splitAt);
+      const toKeep = messages.slice(splitAt);
 
       const transcript = toSummarize
         .map((m) => `${this.roleLabel(m)}: ${extractText(m.content)}`)
