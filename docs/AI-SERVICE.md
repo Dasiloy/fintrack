@@ -1720,79 +1720,6 @@ const actionNode = async (state: typeof AdvisorState.State, runtime) => {
 };
 ```
 
-### Transaction-time Advisor Triggers (FE inline)
-
-The frontend shows advisor suggestions inline during transaction creation without requiring a full advisor conversation. Fast Postgres query — no AI involved.
-
-```typescript
-// tRPC procedure
-checkBudgetImpact: protectedProcedure
-  .input(z.object({ categorySlug: z.string(), amount: z.number(), date: z.string() }))
-  .query(async ({ ctx, input }) => {
-    const [budget, userPrefs] = await Promise.all([
-      getBudgetForCategory(ctx.session.user.id, input.categorySlug),
-      getUserPreferences(ctx.session.user.id),
-    ]);
-
-    // Always return spend totals even when no budget is configured
-    const txDate = new Date(input.date);
-    const currentSpend = await getMonthlySpend(
-      ctx.session.user.id,
-      input.categorySlug,
-      startOfMonth(txDate),
-    );
-
-    if (!budget) {
-      return {
-        status: 'no_budget' as const,
-        currentSpend,
-        budgetLimit: null,
-        currentPct: null,
-        projectedPct: null,
-        projectedOverspend: null,
-        daysRemaining: null,
-        threshold: null,
-      };
-    }
-
-    const threshold = userPrefs.budgetAlertThreshold; // e.g. 0.80
-    const warnAt = threshold - 0.20;                  // e.g. 0.60
-
-    const projectedSpend = currentSpend + input.amount;
-    const currentPct = currentSpend / budget.limit;
-    const projectedPct = projectedSpend / budget.limit;
-
-    // Project month-end spend at current daily burn rate
-    const today = new Date();
-    const daysInMonth = getDaysInMonth(today);
-    const daysElapsed = today.getDate();
-    const daysRemaining = daysInMonth - daysElapsed;
-    const dailyBurnRate = projectedSpend / daysElapsed;
-    const projectedMonthEndSpend = projectedSpend + dailyBurnRate * daysRemaining;
-    const projectedOverspend = Math.max(0, projectedMonthEndSpend - budget.limit);
-
-    let status: 'ok' | 'warning' | 'critical' = 'ok';
-    if (projectedPct >= threshold) status = 'critical';
-    else if (projectedPct >= warnAt) status = 'warning';
-
-    return {
-      status,
-      currentSpend,
-      budgetLimit: budget.limit,
-      currentPct,
-      projectedPct,
-      projectedOverspend,
-      daysRemaining,
-      threshold,
-    };
-  }),
-```
-
-FE usage in transaction form: when category or amount changes, debounce 300ms → query `advisor.checkBudgetImpact` → always show spend totals; additionally show an inline banner when `status` is `warning` or `critical`:
-
-- `warning`: *"Food: ₦20,400 of ₦30,000 used. Adding this puts you 8% from your 80% threshold."*
-- `critical`: *"Food: ₦25,200 of ₦30,000 used — past your 80% threshold. On track to overspend ₦4,800 by month end (12 days left)."*
-
 ### LangGraph Agent Loop
 
 ```
@@ -2212,43 +2139,6 @@ Implement and test all 5 action types:
 - `flag_subscription` → marks the transaction pattern — no write to finance_service, write to store only
 
 Test rejection persistence: reject a proposal → start a new conversation → verify the advisor does not re-propose the same action.
-
-#### Phase 11: Transaction-time inline warning
-
-Implement `advisor.checkBudgetImpact` as a fast tRPC procedure — no AI, no LangGraph, pure Postgres:
-
-```typescript
-checkBudgetImpact: protectedProcedure
-  .input(z.object({ categorySlug: z.string(), amount: z.number(), date: z.string() }))
-  .query(async ({ ctx, input }) => {
-    const budget = await getBudgetForCategory(ctx.session.user.id, input.categorySlug);
-    if (!budget) return { willBreach: false, willWarn: false };
-
-    const currentSpend = await getMonthlySpend(
-      ctx.session.user.id,
-      input.categorySlug,
-      startOfMonth(new Date(input.date)),
-    );
-    const projectedPct = (currentSpend + input.amount) / budget.limit;
-
-    return {
-      willBreach: projectedPct > 1,
-      willWarn: projectedPct > 0.8,
-      currentPct: currentSpend / budget.limit,
-      projectedPct,
-      budgetLimit: budget.limit,
-      currentSpend,
-    };
-  }),
-```
-
-Wire into `transaction_form_dialog.tsx`:
-- Debounce 300ms on `categorySlug` or `amount` change
-- `willWarn` (≥ 80%): yellow inline banner — `"Food budget 68% used. Adding this will push it to 82%."`
-- `willBreach` (> 100%): red inline banner — `"This transaction exceeds your Food budget."`
-- No budget for that category: no banner, no query
-
-Test: create a Food budget at ₦30,000. Set current spend to ₦20,400 (68%). Enter ₦4,200 in the form → warning banner appears. Verify the query is debounced and fires once, not on every keystroke.
 
 #### Phase 12: Conversation history UI
 

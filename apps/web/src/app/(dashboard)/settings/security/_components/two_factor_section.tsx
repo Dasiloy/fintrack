@@ -7,8 +7,8 @@ import { Check, Copy, Download, ShieldCheck, ShieldOff } from 'lucide-react';
 import { Button, Field, FieldGroup, OtpInput, Separator, Text, toast } from '@ui/components';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { signOut } from 'next-auth/react';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { signOutAndClearClientState } from '@/lib/auth/auth_cleanup';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -648,7 +648,7 @@ export default function TwoFactorSection() {
         description: 'Too many failed attempts. Please sign in again.',
       });
       setTimeout(() => {
-        signOut({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN }).then(resolve);
+        signOutAndClearClientState({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN }).then(resolve);
       }, 1500);
     });
   };

@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { Globe, Loader2, Monitor, Shield, WifiOff, X } from 'lucide-react';
-import { signOut } from 'next-auth/react';
 import { Button, toast } from '@ui/components';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { env } from '@/env';
@@ -11,6 +10,7 @@ import { api_client } from '@/lib/trpc_app/api_client';
 import { UiSession } from '@/app/(dashboard)/settings/_components/session';
 import type { LoginActivity, Session } from '@fintrack/database/types';
 import { LoginActivityItem } from '@/app/(dashboard)/settings/_components/login_activity';
+import { signOutAndClearClientState } from '@/lib/auth/auth_cleanup';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -44,7 +44,7 @@ export default function SessionsSection() {
 
       if (res.data?.wasCurrentSession) {
         toast.success('Session ended. Signing you out…');
-        void signOut({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
+        void signOutAndClearClientState({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
       } else {
         toast.success('Session ended');
       }

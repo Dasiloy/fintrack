@@ -2,6 +2,7 @@ import { Annotation, messagesStateReducer } from '@langchain/langgraph';
 import { BaseMessage } from '@langchain/core/messages';
 
 import { AdvisorEndReason } from './advisor.constants';
+import type { AdvisorAction } from '@fintrack/types/interfaces/ai';
 
 /**
  * The guardian node's verdict as stored in state. `relevant` drives routing;
@@ -12,6 +13,12 @@ import { AdvisorEndReason } from './advisor.constants';
 export interface GuardianVerdict {
   relevant: boolean;
   reason?: AdvisorEndReason;
+}
+
+export interface AdvisorActionResult {
+  approved: boolean;
+  status: 'rejected' | 'executed' | 'execution_failed';
+  message: string;
 }
 
 /**
@@ -54,6 +61,14 @@ export const AdvisorState = Annotation.Root({
   turnCount: Annotation<number>({
     value: (_current, update) => update,
     default: () => 0,
+  }),
+  proposedAction: Annotation<AdvisorAction | null>({
+    value: (_current, update) => update,
+    default: () => null,
+  }),
+  actionResult: Annotation<AdvisorActionResult | null>({
+    value: (_current, update) => update,
+    default: () => null,
   }),
 });
 

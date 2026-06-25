@@ -5,6 +5,7 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axio
 import { env } from '@/env';
 import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
 import { AUTH_ROUTES, STATIC_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { clearClientStateForAuthChange } from '@/lib/auth/auth_cleanup';
 
 const PUBLIC_PATHS = new Set([...Object.values(AUTH_ROUTES), ...Object.values(STATIC_ROUTES)]);
 
@@ -70,6 +71,7 @@ axiosClient.interceptors.response.use(
       const refreshRes = await fetch('/api/proxy-auth/refresh', { method: 'POST' });
       if (!refreshRes.ok) {
         if (typeof window !== 'undefined') {
+          clearClientStateForAuthChange();
           window.location.href = AUTH_ROUTES.LOGIN;
         }
         return Promise.reject(error);

@@ -4,6 +4,7 @@ import { observable } from '@trpc/server/observable';
 import type { AppRouter } from '@fintrack/trpc_app';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { INTERNET_CONNECTION_ERROR } from '@fintrack/types/constants/network.constants';
+import { clearClientStateForAuthChange } from '@/lib/auth/auth_cleanup';
 
 /**
  * tRPC link that catches UNAUTHORIZED (401) errors caused specifically by an
@@ -36,6 +37,7 @@ export const authRetryLink =
               const res = await fetch('/api/proxy-auth/refresh', { method: 'POST' });
               if (!res.ok) {
                 if (typeof window !== 'undefined') {
+                  clearClientStateForAuthChange();
                   window.location.href = AUTH_ROUTES.LOGIN;
                 }
                 observer.error(err);
