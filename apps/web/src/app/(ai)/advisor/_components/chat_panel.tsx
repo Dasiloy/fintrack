@@ -6,33 +6,46 @@
 // EMPTY MODE: full-height centered column — greeting → input → suggested prompts.
 // ACTIVE MODE: scrollable message list + input pinned to the bottom.
 //
-// Message model: the persisted transcript is an **infinite query** (latest page
-// on open; scroll-up fetches older pages by cursor). The current session's new
-// turns live in local state. The view = history ++ live, so streaming never
-// fights the paginated history. A localStorage head-cache gives instant render
-// on reload before the network responds.
+// State model:
+// - Persisted transcript = an infinite query (latest page on open; scroll-up
+//   fetches older pages by cursor), seeded instantly from the Jotai head atom.
+// - Live/in-flight turns live in the Jotai store (conversationStreamAtom), OUTSIDE
+//   the React tree — so a stream is never cut by switching tabs (unmount) or
+//   conversations. The view = history ++ live (de-duped by id). Once fresh server
+//   history supersedes a live turn, the live buffer is dropped.
 
 import * as React from 'react';
+import { useAtomValue } from 'jotai';
 import { Loader2 } from 'lucide-react';
 import { ChatMessage } from './chat_message';
 import { ChatInput } from './chat_input';
 import { ChatEmptyState } from './chat_empty_state';
 import { AdvisorThinkingIndicator } from './advisor_thinking_indicator';
-import type { AdvisorMessage, ChatState, PendingAttachment } from '../_lib/advisor.types';
-import { streamAdvisor, AdvisorStreamError } from '../_lib/advisor.stream';
-import { advisorCache } from '../_lib/advisor.cache';
+import type { AdvisorMessage, PendingAttachment } from '../_lib/advisor.types';
+import {
+  conversationStreamAtom,
+  streamConversationMessage,
+  stopConversationStream,
+  clearConversationStream,
+  getFinalizedAt,
+  patchLiveMessage,
+  readHead,
+  writeHead,
+} from '../_lib/advisor.store';
 import { UsageBanner } from '@/app/_components/usage_banner';
 import { Usage } from '@fintrack/types/constants/plan.constants';
 import { usePlan } from '@/app/providers/plan_usage_provider';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { ConversationMessagePage } from '@fintrack/types/interfaces/ai';
+import { ADVISOR_MESSAGE_PAGE_SIZE as MESSAGE_PAGE_SIZE } from '../_lib/advisor.config';
 
-const MESSAGE_PAGE_SIZE = 30;
 /** Distance from the top (px) that triggers loading older messages. */
 const LOAD_OLDER_THRESHOLD = 80;
 /** Distance from the bottom (px) within which we keep auto-scrolling. */
 const STICK_BOTTOM_THRESHOLD = 120;
+/** Sentinel stream key when no conversation is active yet. */
+const NO_CONVERSATION = '__none__';
 
 interface ChatPanelProps {
   activeConversationId: string | null;
@@ -70,17 +83,13 @@ export function ChatPanel({
   onConversationStarted,
 }: ChatPanelProps) {
   const plan = usePlan();
-  // `messages` here holds ONLY this session's live turns; history comes from the
-  // infinite query below.
-  const [chatState, setChatState] = React.useState<ChatState>({
-    messages: [],
-    inputText: '',
-    attachments: [],
-    isStreaming: false,
-  });
+  const utils = api_client.useUtils();
+
+  // Local UI draft only — messages + streaming live in the Jotai store.
+  const [inputText, setInputText] = React.useState('');
+  const [attachments, setAttachments] = React.useState<PendingAttachment[]>([]);
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
-  const abortRef = React.useRef<AbortController | null>(null);
   const hasNotifiedRef = React.useRef(false);
   const conversationIdRef = React.useRef<string | null>(null);
 
@@ -92,18 +101,27 @@ export function ChatPanel({
 
   const shouldLoadHistory = loadHistory && !!activeConversationId;
 
+  // The conversation whose live buffer we render: the active one, or — for a
+  // brand-new conversation mid-promotion — its freshly generated id.
+  const streamKey = activeConversationId ?? conversationIdRef.current ?? NO_CONVERSATION;
+  const stream = useAtomValue(conversationStreamAtom(streamKey));
+
   // ── Persisted history (cursor-paginated, newest page first) ─────────────────
   const messagesQuery = api_client.advisor.getConversationMessages.useInfiniteQuery(
     { conversationId: activeConversationId ?? '', limit: MESSAGE_PAGE_SIZE },
     {
       enabled: shouldLoadHistory,
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
       staleTime: 60_000,
       getNextPageParam: (lastPage) => lastPage.data?.nextCursor ?? undefined,
-      // Instant render from the localStorage head-cache while the network loads.
-      initialData: () => {
+      // Instant render from the persisted head atom while the network loads.
+      // placeholderData (not initialData) is re-evaluated every render, so it is
+      // picked up the moment a conversation is opened — no key poisoning. Gated on
+      // shouldLoadHistory so the cached turn never shows during promotion (which
+      // would duplicate the live turn).
+      placeholderData: () => {
         if (!shouldLoadHistory || !activeConversationId) return undefined;
-        const cached = advisorCache.readMessagesHead(activeConversationId);
+        const cached = readHead(activeConversationId);
         if (!cached) return undefined;
         return {
           pageParams: [null as string | null],
@@ -127,32 +145,77 @@ export function ChatPanel({
     return [...pages].reverse().flatMap((p) => (p.data?.messages ?? []).map(toAdvisorMessage));
   }, [messagesQuery.data]);
 
-  // Cache the latest page so a reopen/reload paints instantly.
+  // Persist the latest page so a reopen/reload paints instantly.
   React.useEffect(() => {
     if (!activeConversationId) return;
     const head = messagesQuery.data?.pages?.[0]?.data;
-    if (head) advisorCache.writeMessagesHead(activeConversationId, head);
+    if (head) writeHead(activeConversationId, head);
   }, [activeConversationId, messagesQuery.data]);
 
-  // Reset live state on conversation change — but NOT when the current
-  // conversation is just being "promoted" (null → its freshly-generated id).
+  // Reset local UI on conversation change — but NOT when the current conversation
+  // is just being "promoted" (null → its freshly-generated id). The live buffer is
+  // intentionally NOT touched here: it lives in the store and must survive switches
+  // so a backgrounded stream is never cut.
   React.useEffect(() => {
     if (activeConversationId && activeConversationId === conversationIdRef.current) {
       return;
     }
-    abortRef.current?.abort();
-    abortRef.current = null;
     hasNotifiedRef.current = false;
     conversationIdRef.current = activeConversationId;
     stickToBottomRef.current = true;
     didInitialScrollRef.current = false;
-    setChatState({ messages: [], inputText: '', attachments: [], isStreaming: false });
+    setInputText('');
+    setAttachments([]);
   }, [activeConversationId]);
 
-  const displayMessages = React.useMemo(
-    () => [...historyMessages, ...chatState.messages],
-    [historyMessages, chatState.messages],
-  );
+  // View = history ++ live, de-duped by id (collapses the head-cache placeholder
+  // with the live buffer — both share the same FE ids — so nothing renders twice).
+  const displayMessages = React.useMemo(() => {
+    const seen = new Set<string>();
+    const out: AdvisorMessage[] = [];
+    for (const m of [...historyMessages, ...stream.messages]) {
+      if (seen.has(m.id)) continue;
+      seen.add(m.id);
+      out.push(m);
+    }
+    return out;
+  }, [historyMessages, stream.messages]);
+
+  // When a turn finishes while viewing this conversation, refresh server history so
+  // it becomes authoritative (then the effect below drops the live buffer).
+  const wasStreamingRef = React.useRef(false);
+  React.useEffect(() => {
+    const was = wasStreamingRef.current;
+    wasStreamingRef.current = stream.isStreaming;
+    if (was && !stream.isStreaming && activeConversationId && shouldLoadHistory) {
+      void utils.advisor.getConversationMessages.invalidate({
+        conversationId: activeConversationId,
+        limit: MESSAGE_PAGE_SIZE,
+      });
+    }
+  }, [stream.isStreaming, activeConversationId, shouldLoadHistory, utils]);
+
+  // Drop the FE-id live buffer only once SERVER history that POSTDATES the last
+  // finished turn has landed — i.e. real data (not the placeholder cache), not
+  // mid-fetch, and updated AFTER the turn finalized. Gating on the finalize
+  // timestamp is what prevents the just-finished turn from briefly disappearing
+  // when a stale refetch lands after a tab switch (it would clear live before the
+  // server even has the turn). Runs before paint.
+  React.useLayoutEffect(() => {
+    if (!activeConversationId || stream.isStreaming) return;
+    if (!messagesQuery.data || messagesQuery.isPlaceholderData || messagesQuery.isFetching) {
+      return;
+    }
+    if (messagesQuery.dataUpdatedAt < getFinalizedAt(activeConversationId)) return;
+    clearConversationStream(activeConversationId);
+  }, [
+    activeConversationId,
+    stream.isStreaming,
+    messagesQuery.data,
+    messagesQuery.isPlaceholderData,
+    messagesQuery.isFetching,
+    messagesQuery.dataUpdatedAt,
+  ]);
 
   // Scroll positioning: maintain offset after prepending older messages; else
   // stick to the bottom for new content / first paint.
@@ -169,11 +232,6 @@ export function ChatPanel({
       didInitialScrollRef.current = true;
     }
   }, [displayMessages]);
-
-  // Abort any in-flight stream on unmount.
-  React.useEffect(() => {
-    return () => abortRef.current?.abort();
-  }, []);
 
   const handleScroll = () => {
     const vp = viewportRef.current;
@@ -193,11 +251,9 @@ export function ChatPanel({
   };
 
   // ── Send ──────────────────────────────────────────────────────────────────
-  const handleSend = async () => {
-    const text = chatState.inputText.trim();
-    if ((!text && chatState.attachments.length === 0) || chatState.isStreaming) {
-      return;
-    }
+  const handleSend = () => {
+    const text = inputText.trim();
+    if ((!text && attachments.length === 0) || stream.isStreaming) return;
 
     const isNewConversation = activeConversationId === null;
     const conversationId =
@@ -209,100 +265,45 @@ export function ChatPanel({
       if (isNewConversation) onConversationStarted(conversationId);
     }
 
-    const userMessage: AdvisorMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: text || '(attached file)',
-      createdAt: new Date(),
-    };
-    const assistantId = crypto.randomUUID();
-
+    setInputText('');
+    setAttachments([]);
     stickToBottomRef.current = true;
-    setChatState((prev) => ({
-      ...prev,
-      inputText: '',
-      attachments: [],
-      isStreaming: true,
-      messages: [
-        ...prev.messages,
-        userMessage,
-        { id: assistantId, role: 'assistant', content: '', createdAt: new Date() },
-      ],
-    }));
 
-    const controller = new AbortController();
-    abortRef.current = controller;
+    // Runs in the store (outside React) — survives unmount/navigation.
+    void streamConversationMessage({
+      conversationId,
+      message: text,
+      onFinished: onConversationUpdated,
+    });
+  };
 
-    try {
-      await streamAdvisor({
-        conversationId,
-        message: text,
-        signal: controller.signal,
-        onToken: (delta) => {
-          setChatState((prev) => ({
-            ...prev,
-            messages: prev.messages.map((m) =>
-              m.id === assistantId ? { ...m, content: m.content + delta } : m,
-            ),
-          }));
-        },
-        // Approval / permission cards are wired in a later phase (HITL).
-        onEvent: () => {},
-      });
-    } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
-        const note =
-          err instanceof AdvisorStreamError
-            ? 'Sorry, I could not finish that. Please try again.'
-            : 'Something went wrong reaching the advisor. Please try again.';
-        setChatState((prev) => ({
-          ...prev,
-          messages: prev.messages.map((m) =>
-            m.id === assistantId
-              ? { ...m, content: m.content ? `${m.content}\n\n${note}` : note }
-              : m,
-          ),
-        }));
-      }
-    } finally {
-      if (abortRef.current === controller) abortRef.current = null;
-      setChatState((prev) => ({ ...prev, isStreaming: false }));
-      onConversationUpdated();
-    }
+  const handleStop = () => {
+    const id = activeConversationId ?? conversationIdRef.current;
+    if (id) stopConversationStream(id);
   };
 
   // ── Action state (HITL — live messages only) ────────────────────────────────
   const handleActionApprove = (messageId: string) => {
-    setChatState((prev) => ({
-      ...prev,
-      messages: prev.messages.map((m) =>
-        m.id === messageId ? { ...m, actionState: 'approved' as const } : m,
-      ),
-    }));
+    if (streamKey !== NO_CONVERSATION) {
+      patchLiveMessage(streamKey, messageId, { actionState: 'approved' });
+    }
   };
 
   const handleActionReject = (messageId: string) => {
-    setChatState((prev) => ({
-      ...prev,
-      messages: prev.messages.map((m) =>
-        m.id === messageId ? { ...m, actionState: 'rejected' as const } : m,
-      ),
-    }));
+    if (streamKey !== NO_CONVERSATION) {
+      patchLiveMessage(streamKey, messageId, { actionState: 'rejected' });
+    }
   };
 
   const inputProps = {
-    value: chatState.inputText,
-    attachments: chatState.attachments,
-    isStreaming: chatState.isStreaming,
-    onChange: (v: string) => setChatState((prev) => ({ ...prev, inputText: v })),
+    value: inputText,
+    attachments,
+    isStreaming: stream.isStreaming,
+    onChange: setInputText,
     onSend: handleSend,
-    onAttach: (att: PendingAttachment) =>
-      setChatState((prev) => ({ ...prev, attachments: [...prev.attachments, att] })),
-    onRemoveAttachment: (id: string) =>
-      setChatState((prev) => ({
-        ...prev,
-        attachments: prev.attachments.filter((a) => a.id !== id),
-      })),
+    onStop: handleStop,
+    onAttach: (att: PendingAttachment) => setAttachments((prev) => [...prev, att]),
+    onRemoveAttachment: (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id)),
   };
 
   const isEmpty = displayMessages.length === 0;
@@ -326,7 +327,7 @@ export function ChatPanel({
         <div className="flex min-h-full w-full items-center justify-center px-4 py-10">
           <div className="w-full max-w-xl">
             <ChatEmptyState
-              onPromptSelect={(p) => setChatState((prev) => ({ ...prev, inputText: p }))}
+              onPromptSelect={(p) => setInputText(p)}
               inputSlot={
                 <>
                   <UsageBanner
@@ -351,7 +352,7 @@ export function ChatPanel({
       <div
         ref={viewportRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-x-hidden overflow-y-auto"
+        className="ft-scrollbar flex-1 overflow-x-hidden overflow-y-auto"
       >
         <div className="flex flex-col gap-4 px-4 py-4">
           {/* Older-messages loading spinner */}
@@ -374,10 +375,9 @@ export function ChatPanel({
             ),
           )}
 
-          {chatState.isStreaming &&
-            chatState.messages[chatState.messages.length - 1]?.content === '' && (
-              <AdvisorThinkingIndicator />
-            )}
+          {stream.isStreaming && stream.messages[stream.messages.length - 1]?.content === '' && (
+            <AdvisorThinkingIndicator />
+          )}
         </div>
       </div>
 
