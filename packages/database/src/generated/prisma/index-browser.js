@@ -570,6 +570,7 @@ exports.Prisma.AdvisorChatMessageScalarFieldEnum = {
   id: 'id',
   role: 'role',
   content: 'content',
+  metadata: 'metadata',
   conversationId: 'conversationId',
   createdAt: 'createdAt'
 };

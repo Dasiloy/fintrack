@@ -6,7 +6,8 @@ import { consoleLogger } from '@fintrack/common/console_logger/index';
 /**
  * Advisor streaming proxy.
  *
- * The browser POSTs `{ conversationId, message }` here (same-origin, so the
+ * The browser POSTs `{ conversationId, message }` or `{ conversationId, resume }`
+ * here (same-origin, so the
  * session cookie rides along). This handler authenticates via the session,
  * attaches the bearer token, and forwards to the gateway's `@Sse` endpoint
  * (`GET /advisor/message`) with the inputs as query params, piping the
@@ -19,7 +20,11 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: { conversationId?: string; message?: string };
+  let body: {
+    conversationId?: string;
+    message?: string;
+    resume?: { approved?: boolean };
+  };
   try {
     body = await request.json();
   } catch {
@@ -28,8 +33,15 @@ export async function POST(request: Request): Promise<Response> {
 
   const conversationId = body.conversationId?.trim();
   const message = body.message?.trim();
-  if (!conversationId || !message) {
-    return NextResponse.json({ error: 'conversationId and message are required' }, { status: 400 });
+  const resume =
+    typeof body.resume?.approved === 'boolean'
+      ? { approved: body.resume.approved }
+      : undefined;
+  if (!conversationId || (!message && !resume)) {
+    return NextResponse.json(
+      { error: 'conversationId and message or resume are required' },
+      { status: 400 },
+    );
   }
 
   const authHeaders: Record<string, string> = {
@@ -43,7 +55,9 @@ export async function POST(request: Request): Promise<Response> {
     const stageRes = await fetch(`${env.API_GATEWAY_URL}/api/advisor/message`, {
       method: 'POST',
       headers: { ...authHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ conversationId, message }),
+      body: JSON.stringify(
+        resume ? { conversationId, resume } : { conversationId, message },
+      ),
     });
     if (!stageRes.ok) {
       return NextResponse.json(

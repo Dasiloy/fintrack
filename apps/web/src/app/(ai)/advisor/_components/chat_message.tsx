@@ -21,22 +21,23 @@ interface ChatMessageProps {
   /** Called when user approves or rejects an action — parent updates actionState */
   onActionApprove?: (messageId: string) => void;
   onActionReject?: (messageId: string) => void;
+  onRecommendationClick?: (recommendation: string) => void;
 }
 
-export function ChatMessage({ message, onActionApprove, onActionReject }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  onActionApprove,
+  onActionReject,
+  onRecommendationClick,
+}: ChatMessageProps) {
   const isUser = message.role === 'user';
 
   return (
-    <div
-      className={cn(
-        'flex gap-2.5',
-        isUser ? 'flex-row-reverse' : 'flex-row',
-      )}
-    >
+    <div className={cn('flex gap-2.5', isUser ? 'flex-row-reverse' : 'flex-row')}>
       {/* Avatar — assistant only */}
       {!isUser && (
-        <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15">
-          <BrainCircuit className="size-3.5 text-primary" aria-hidden />
+        <div className="bg-primary/15 mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full">
+          <BrainCircuit className="text-primary size-3.5" aria-hidden />
         </div>
       )}
 
@@ -47,11 +48,15 @@ export function ChatMessage({ message, onActionApprove, onActionReject }: ChatMe
           className={cn(
             'rounded-2xl px-4 py-3 text-[13px] leading-relaxed',
             isUser
-              ? 'rounded-tr-sm bg-primary/10 text-text-primary'
-              : 'rounded-tl-sm bg-bg-surface text-text-primary',
+              ? 'bg-primary/10 text-text-primary rounded-tr-sm'
+              : 'bg-bg-surface text-text-primary rounded-tl-sm',
+            !message.content?.trim() && !message.generatedFiles ? 'hidden' : '',
           )}
         >
-          <RichText text={message.content} />
+          <RichText
+            text={message.content}
+            onRecommendationClick={!isUser ? onRecommendationClick : undefined}
+          />
         </div>
 
         {/* Generated file attachments */}
@@ -68,7 +73,7 @@ export function ChatMessage({ message, onActionApprove, onActionReject }: ChatMe
           <div className="w-full max-w-sm">
             <ChatApprovalCard
               action={message.proposedAction}
-              initialState={message.actionState ?? 'pending'}
+              state={message.actionState ?? 'pending'}
               onApprove={() => onActionApprove?.(message.id)}
               onReject={() => onActionReject?.(message.id)}
             />
@@ -76,7 +81,7 @@ export function ChatMessage({ message, onActionApprove, onActionReject }: ChatMe
         )}
 
         {/* Timestamp */}
-        <span className="text-[10px] text-text-disabled">{formatTime(message.createdAt)}</span>
+        <span className="text-text-disabled text-[10px]">{formatTime(message.createdAt)}</span>
       </div>
     </div>
   );
@@ -136,7 +141,13 @@ function parseBlocks(text: string): Block[] {
   return blocks;
 }
 
-function RichText({ text }: { text: string }) {
+function RichText({
+  text,
+  onRecommendationClick,
+}: {
+  text: string;
+  onRecommendationClick?: (recommendation: string) => void;
+}) {
   const blocks = parseBlocks(text);
 
   return (
@@ -148,12 +159,9 @@ function RichText({ text }: { text: string }) {
             return (
               <p
                 key={bi}
-                className={cn(
-                  'text-text-primary text-[13px] font-semibold',
-                  bi > 0 && 'mt-3',
-                )}
+                className={cn('text-text-primary text-[13px] font-semibold', bi > 0 && 'mt-3')}
               >
-                {renderInline(block.text)}
+                {renderInline(block.text, onRecommendationClick)}
               </p>
             );
           case 'bullet':
@@ -162,7 +170,7 @@ function RichText({ text }: { text: string }) {
                 {block.items.map((item, ii) => (
                   <li key={ii} className="flex gap-2">
                     <span className="bg-text-disabled mt-[7px] size-1 shrink-0 rounded-full" />
-                    <span>{renderInline(item)}</span>
+                    <span>{renderInline(item, onRecommendationClick)}</span>
                   </li>
                 ))}
               </ul>
@@ -172,10 +180,8 @@ function RichText({ text }: { text: string }) {
               <ol key={bi} className={cn('space-y-1', spacing)}>
                 {block.items.map((item, ii) => (
                   <li key={ii} className="flex gap-2">
-                    <span className="text-text-tertiary shrink-0 tabular-nums">
-                      {ii + 1}.
-                    </span>
-                    <span>{renderInline(item)}</span>
+                    <span className="text-text-tertiary shrink-0 tabular-nums">{ii + 1}.</span>
+                    <span>{renderInline(item, onRecommendationClick)}</span>
                   </li>
                 ))}
               </ol>
@@ -186,7 +192,7 @@ function RichText({ text }: { text: string }) {
                 {block.lines.map((line, li) => (
                   <React.Fragment key={li}>
                     {li > 0 && <br />}
-                    {renderInline(line)}
+                    {renderInline(line, onRecommendationClick)}
                   </React.Fragment>
                 ))}
               </p>
@@ -205,17 +211,33 @@ function RichText({ text }: { text: string }) {
 // Plain runs get ₦ amounts emphasised. A coloured span is left uniform (no
 // nested amount highlighting), so its colour reads cleanly. Order matters —
 // `**` is matched before `*`.
-function renderInline(text: string): React.ReactNode {
-  const parts = text.split(
-    /(\*\*[^*]+\*\*|\+\+[^+]+\+\+|==[^=]+==|`[^`]+`|\*[^*\n]+\*)/g,
-  );
+function renderInline(
+  text: string,
+  onRecommendationClick?: (recommendation: string) => void,
+): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*|\+\+[^+]+\+\+|==[^=]+==|`[^`]+`|\*[^*\n]+\*)/g);
 
   return parts.map((part, i) => {
     if (!part) return null;
     if (part.startsWith('**') && part.endsWith('**')) {
+      const label = part.slice(2, -2);
+      const clickable = Boolean(onRecommendationClick && isActionableRecommendation(label));
+      if (clickable) {
+        return (
+          <button
+            key={i}
+            type="button"
+            onClick={() => onRecommendationClick?.(label)}
+            className="text-primary decoration-primary/30 hover:text-primary/80 hover:decoration-primary focus-visible:ring-primary/30 cursor-pointer rounded-sm text-left font-semibold underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            title="Ask advisor to do this recommendation"
+          >
+            {label}
+          </button>
+        );
+      }
       return (
         <strong key={i} className="text-primary font-semibold">
-          {part.slice(2, -2)}
+          {label}
         </strong>
       );
     }
@@ -252,6 +274,12 @@ function renderInline(text: string): React.ReactNode {
     }
     return <React.Fragment key={i}>{highlightAmounts(part, i)}</React.Fragment>;
   });
+}
+
+function isActionableRecommendation(text: string): boolean {
+  return /^(cancel|stop|pause|reduce|lower|cut|adjust|raise|increase|create|add|move|switch|delete|remove)\b/i.test(
+    text.trim(),
+  );
 }
 
 // Emphasises Naira amounts (e.g. ₦12,500) so figures stand out in body text.

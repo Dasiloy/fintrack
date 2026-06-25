@@ -7,6 +7,7 @@ import {
   AI_SERVICE_NAME,
   AdvisorChunkRes,
   AdvisorMessageReq,
+  ResumeAdvisorReq,
 } from '@fintrack/types/protos/ai/ai';
 import { RpcUser } from '@fintrack/common/decorators/rpc_user.decorator';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
@@ -99,6 +100,64 @@ export class AdvisorController {
       })();
 
       // Teardown — runs when the gRPC call is cancelled/unsubscribed.
+      return () => controller.abort();
+    });
+  }
+
+  @GrpcMethod(AI_SERVICE_NAME, 'ResumeAdvisor')
+  resumeAdvisor(
+    @Payload() request: ResumeAdvisorReq,
+    @RpcUser() user: User,
+  ): Observable<AdvisorChunkRes> {
+    this.logger.debug(
+      `[ADV-AI] gRPC ResumeAdvisor IN convo=${request.conversationId} approved=${request.approved} scopes=[${(request.grantedScopes ?? []).join(',')}]`,
+    );
+    return new Observable<AdvisorChunkRes>((subscriber) => {
+      const controller = new AbortController();
+
+      void (async () => {
+        let chunkCount = 0;
+        try {
+          const events = this.advisorService.resumeResponse({
+            userId: user.id,
+            conversationId: request.conversationId,
+            approved: request.approved,
+            grantedScopes: request.grantedScopes as AdvisorScope[],
+            signal: controller.signal,
+          });
+
+          for await (const event of events) {
+            const chunk = this.advisorService.toChunk(event);
+            if (chunk) {
+              chunkCount += 1;
+              subscriber.next(chunk);
+            }
+          }
+          this.logger.debug(
+            `[ADV-AI] gRPC resume COMPLETE convo=${request.conversationId} chunks=${chunkCount}`,
+          );
+          subscriber.complete();
+        } catch (err) {
+          if (controller.signal.aborted) {
+            this.logger.debug(
+              `[ADV-AI] gRPC resume ABORTED convo=${request.conversationId} after ${chunkCount} chunks`,
+            );
+            return;
+          }
+          this.logger.error(
+            `[ADV-AI] gRPC resume FAILED convo=${request.conversationId} after ${chunkCount} chunks: ${(err as Error).message}`,
+            (err as Error).stack,
+          );
+          subscriber.next({
+            type: 'error',
+            content:
+              'Sorry, I ran into a problem finishing that. Please try again in a moment.',
+            data: '',
+          });
+          subscriber.complete();
+        }
+      })();
+
       return () => controller.abort();
     });
   }

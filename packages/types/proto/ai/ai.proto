@@ -8,6 +8,11 @@ service AiService {
   // Streams the advisor's response for one user message as a sequence of chunks
   // (tokens plus human-in-the-loop events). Server-side streaming.
   rpc SendAdvisorMessage (AdvisorMessageReq) returns (stream AdvisorChunkRes) {}
+
+  // Resumes a paused advisor thread after the user approves/rejects a proposed
+  // action. The continuation streams through the same chunk shape as a normal
+  // advisor message.
+  rpc ResumeAdvisor (ResumeAdvisorReq) returns (stream AdvisorChunkRes) {}
 }
 
 message AdvisorMessageReq {
@@ -16,6 +21,15 @@ message AdvisorMessageReq {
   string message = 3;
   // Data scopes the user has granted, resolved by the gateway. Gates the
   // advisor's tools and grounded prompt sections.
+  repeated string granted_scopes = 4;
+}
+
+message ResumeAdvisorReq {
+  string conversation_id = 1; // maps to the LangGraph thread_id
+  string user_id = 2;
+  bool approved = 3;
+  // Data scopes the user has granted, resolved by the gateway. The resumed run
+  // may continue into tools, so it needs the same scoped context as a fresh turn.
   repeated string granted_scopes = 4;
 }
 

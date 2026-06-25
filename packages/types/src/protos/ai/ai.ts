@@ -23,6 +23,18 @@ export interface AdvisorMessageReq {
   grantedScopes: string[];
 }
 
+export interface ResumeAdvisorReq {
+  /** maps to the LangGraph thread_id */
+  conversationId: string;
+  userId: string;
+  approved: boolean;
+  /**
+   * Data scopes the user has granted, resolved by the gateway. The resumed run
+   * may continue into tools, so it needs the same scoped context as a fresh turn.
+   */
+  grantedScopes: string[];
+}
+
 /**
  * One streamed chunk. The type field discriminates the chunk:
  *   token               - content holds a text delta
@@ -75,6 +87,14 @@ export interface AiServiceClient {
    */
 
   sendAdvisorMessage(request: AdvisorMessageReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
+
+  /**
+   * Resumes a paused advisor thread after the user approves/rejects a proposed
+   * action. The continuation streams through the same chunk shape as a normal
+   * advisor message.
+   */
+
+  resumeAdvisor(request: ResumeAdvisorReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
 }
 
 export interface AiServiceController {
@@ -89,11 +109,19 @@ export interface AiServiceController {
    */
 
   sendAdvisorMessage(request: AdvisorMessageReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
+
+  /**
+   * Resumes a paused advisor thread after the user approves/rejects a proposed
+   * action. The continuation streams through the same chunk shape as a normal
+   * advisor message.
+   */
+
+  resumeAdvisor(request: ResumeAdvisorReq, metadata?: Metadata): Observable<AdvisorChunkRes>;
 }
 
 export function AiServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["classifyTransactions", "sendAdvisorMessage"];
+    const grpcMethods: string[] = ["classifyTransactions", "sendAdvisorMessage", "resumeAdvisor"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AiService", method)(constructor.prototype[method], method, descriptor);
