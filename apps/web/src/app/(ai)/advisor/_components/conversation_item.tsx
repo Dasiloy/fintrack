@@ -27,6 +27,9 @@ import { cn } from '@ui/lib/utils';
 import { relativeTime } from '../_lib/advisor.helpers';
 import type { ConversationThread } from '../_lib/advisor.types';
 
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_MOVE_THRESHOLD = 10;
+
 interface ConversationItemProps {
   thread: ConversationThread;
   isActive: boolean;
@@ -49,6 +52,16 @@ export function ConversationItem({
   const [isEditing, setIsEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(thread.title);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const longPressTimerRef = React.useRef<number | null>(null);
+  const longPressStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const longPressTriggeredRef = React.useRef(false);
+
+  const clearLongPressTimer = React.useCallback(() => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
 
   React.useEffect(() => {
     if (isEditing) {
@@ -60,6 +73,34 @@ export function ConversationItem({
   const startRename = () => {
     setDraft(thread.title);
     setIsEditing(true);
+  };
+
+  React.useEffect(() => clearLongPressTimer, [clearLongPressTimer]);
+
+  const handleLongPressStart = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'mouse' || event.button !== 0) return;
+    clearLongPressTimer();
+    longPressTriggeredRef.current = false;
+    longPressStartRef.current = { x: event.clientX, y: event.clientY };
+    longPressTimerRef.current = window.setTimeout(() => {
+      longPressTriggeredRef.current = true;
+      setMenuOpen(true);
+    }, LONG_PRESS_MS);
+  };
+
+  const handleLongPressMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!longPressStartRef.current) return;
+    const dx = Math.abs(event.clientX - longPressStartRef.current.x);
+    const dy = Math.abs(event.clientY - longPressStartRef.current.y);
+    if (dx > LONG_PRESS_MOVE_THRESHOLD || dy > LONG_PRESS_MOVE_THRESHOLD) {
+      clearLongPressTimer();
+      longPressStartRef.current = null;
+    }
+  };
+
+  const handleLongPressEnd = () => {
+    clearLongPressTimer();
+    longPressStartRef.current = null;
   };
 
   const commitRename = () => {
@@ -83,7 +124,7 @@ export function ConversationItem({
             if (e.key === 'Enter') commitRename();
             if (e.key === 'Escape') setIsEditing(false);
           }}
-          className="text-text-primary min-w-0 flex-1 bg-transparent text-[13px] font-medium leading-tight outline-none"
+          className="text-text-primary min-w-0 flex-1 bg-transparent text-[13px] leading-tight font-medium outline-none"
         />
       </div>
     );
@@ -103,17 +144,27 @@ export function ConversationItem({
       >
         <button
           type="button"
-          onClick={onClick}
-          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 text-left"
+          onPointerDown={handleLongPressStart}
+          onPointerMove={handleLongPressMove}
+          onPointerUp={handleLongPressEnd}
+          onPointerCancel={handleLongPressEnd}
+          onPointerLeave={handleLongPressEnd}
+          onClick={(event) => {
+            if (longPressTriggeredRef.current) {
+              event.preventDefault();
+              event.stopPropagation();
+              longPressTriggeredRef.current = false;
+              return;
+            }
+            onClick();
+          }}
+          className="flex min-w-0 flex-1 cursor-pointer touch-manipulation items-center gap-2.5 text-left select-none"
         >
           <MessageSquare
-            className={cn(
-              'size-3.5 shrink-0',
-              isActive ? 'text-primary' : 'text-text-disabled',
-            )}
+            className={cn('size-3.5 shrink-0', isActive ? 'text-primary' : 'text-text-disabled')}
             aria-hidden
           />
-          <span className="min-w-0 flex-1 truncate text-[13px] font-medium leading-tight">
+          <span className="min-w-0 flex-1 truncate text-[13px] leading-tight font-medium">
             {thread.title}
           </span>
           <span className="text-text-disabled shrink-0 text-[10px]">
@@ -127,7 +178,7 @@ export function ConversationItem({
               type="button"
               aria-label="Conversation options"
               className={cn(
-                'text-text-disabled hover:text-text-primary hover:bg-bg-surface-hover flex size-6 shrink-0 cursor-pointer items-center justify-center rounded outline-none transition-all',
+                'text-text-disabled hover:text-text-primary hover:bg-bg-surface-hover flex size-6 shrink-0 cursor-pointer items-center justify-center rounded transition-all outline-none',
                 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                 menuOpen && 'opacity-100',
               )}
@@ -170,17 +221,13 @@ export function ConversationItem({
             </AlertDialogMedia>
             <AlertDialogTitle>Delete &quot;{thread.title}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This conversation and all its messages will be permanently deleted.
-              This action cannot be undone.
+              This conversation and all its messages will be permanently deleted. This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              loading={isDeleting}
-              onClick={() => onDelete(thread.id)}
-            >
+            <Button variant="destructive" loading={isDeleting} onClick={() => onDelete(thread.id)}>
               Delete
             </Button>
           </AlertDialogFooter>

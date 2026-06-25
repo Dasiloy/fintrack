@@ -44,7 +44,7 @@ From the conversation excerpt below, extract ONLY durable facts worth rememberin
 Rules:
 - Durable only. Ignore one-off questions, transient mood, and anything specific to just this conversation.
 - Do NOT invent or infer beyond what the messages support. When in doubt, leave it out.
-- Keep each fact a short phrase. Return empty arrays / null when nothing qualifies.
+- Keep each fact a short phrase. Return empty arrays / empty strings when nothing qualifies.
 - Never include sensitive identifiers (account numbers, passwords, full card numbers).`;
 
 /**
