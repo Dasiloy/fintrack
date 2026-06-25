@@ -124,9 +124,12 @@ export type AdvisorAction =
     }
   | {
       kind: 'flag_subscription';
+      /** Recurring item id from `get_recurring_items`; required for real writes. */
+      recurringId: string;
+      operation: 'cancel' | 'adjust';
       name: string;
-      amount: number;
-      categorySlug: string;
+      currentAmount: number;
+      proposedAmount?: number;
       reason: string;
     };
 
@@ -146,6 +149,49 @@ export type AdvisorScope =
   | 'ANALYTICS';
 
 export type AdvisorChatRole = 'USER' | 'ASSISTANT';
+
+export type AdvisorActionState =
+  | 'pending'
+  | 'processing'
+  | 'approved'
+  | 'rejected'
+  | 'failed';
+
+/** Structured UI metadata stored alongside a durable advisor chat message. */
+export interface AdvisorMessageMetadata {
+  proposedAction?: AdvisorAction | null;
+  actionState?: AdvisorActionState;
+}
+
+/** Minimal context required to execute a user-approved advisor action. */
+export interface AdvisorActionExecutionContext {
+  userId: string;
+}
+
+/** Result returned to the advisor graph after an approved action runs. */
+export interface AdvisorActionExecutionResult {
+  status: 'executed' | 'execution_failed';
+  message: string;
+}
+
+/** Payload staged by the gateway before opening the advisor SSE stream. */
+export type AdvisorPendingPayload =
+  | {
+      userId: string;
+      conversationId: string;
+      message: string;
+    }
+  | {
+      userId: string;
+      conversationId: string;
+      resume: { approved: boolean };
+    };
+
+/** Staged payload after gateway ownership checks and scope resolution. */
+export type ConsumedAdvisorPending = (
+  | { conversationId: string; message: string }
+  | { conversationId: string; resume: { approved: boolean } }
+) & { grantedScopes: AdvisorScope[] };
 
 /** Advisor consent state returned by the scope endpoints. */
 export interface AdvisorConsent {
@@ -170,6 +216,7 @@ export interface ConversationHistoryMessage {
   role: AdvisorChatRole;
   content: string;
   createdAt: Date;
+  metadata?: AdvisorMessageMetadata | null;
 }
 
 /** A cursor-paginated page of messages (oldest→newest), `nextCursor` = older page. */

@@ -93,39 +93,4 @@ export class AppController {
       message: 'System is healthy',
     };
   }
-
-  // ================================================================
-  //. Embeddings
-  // ================================================================
-  @Get('embeddings')
-  @ApiOperation({
-    summary: 'Embeddings',
-    description: 'Update Embeddings',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Embeddings collected',
-    schema: {
-      example: {
-        success: true,
-        statusCode: HttpStatus.OK,
-        data: [],
-        message: 'Embeddings ran successfully',
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.SERVICE_UNAVAILABLE,
-    description: 'System is unavailable',
-  })
-  async embed(): Promise<StandardResponse<any>> {
-    const transactions = await this.appService.updateSemantics();
-
-    return {
-      success: true,
-      data: transactions,
-      statusCode: HttpStatus.OK,
-      message: 'System is healthy',
-    };
-  }
 }

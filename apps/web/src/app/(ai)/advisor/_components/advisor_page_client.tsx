@@ -37,6 +37,8 @@ import { ADVISOR_ACTIVE_CONVERSATION_COOKIE } from '../_lib/advisor.config';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import type { ConversationSummary } from '@fintrack/types/interfaces/ai';
 import { useBoolean } from '@ui/hooks';
+import { useRouter } from '@bprogress/next';
+import { DASHBOARD_ROUTES } from '@fintrack/types/constants/routes.constants';
 
 const SECTION_IDS = [
   'summary',
@@ -65,6 +67,7 @@ export function AdvisorPageClient({
   initialSection,
   initialActiveConversationId = null,
 }: AdvisorPageClientProps) {
+  const router = useRouter();
   const [pageState, setPageState] = React.useState<AdvisorPageState>({
     activeTab: initialTab ?? 'advisor',
     activeConversationId: initialActiveConversationId,
@@ -111,12 +114,23 @@ export function AdvisorPageClient({
   // ChatPanel to fetch its transcript. A new (or just-promoted) conversation is
   // owned locally and must not be reloaded. A restored conversation is existing,
   // so it loads history.
-  const [loadHistory, setLoadHistory] = React.useState(
-    initialActiveConversationId !== null,
-  );
+  const [loadHistory, setLoadHistory] = React.useState(initialActiveConversationId !== null);
 
   const update = (patch: Partial<AdvisorPageState>) =>
     setPageState((prev) => ({ ...prev, ...patch }));
+
+  const onTabChnage = (tab: 'insights' | 'advisor') => {
+    update({ activeTab: tab });
+
+    const params = new URLSearchParams();
+    params.set('tab', tab);
+    const query = params.toString();
+
+    router.replace(`${DASHBOARD_ROUTES.ANALYTICS_CHAT}?${query}`, {
+      scroll: false,
+      showProgress: false,
+    });
+  };
 
   // Single writer for the active conversation: updates page state AND mirrors the
   // id into a cookie so the server component can prefetch its messages on the next
@@ -304,7 +318,7 @@ export function AdvisorPageClient({
   const desktopCenter = (
     <AdvisorTabs
       activeTab={pageState.activeTab}
-      onTabChange={(tab) => update({ activeTab: tab })}
+      onTabChange={onTabChnage}
       expandedSections={expandedSections}
       onToggleSection={toggleSection}
       activeConversationId={pageState.activeConversationId}
@@ -324,7 +338,7 @@ export function AdvisorPageClient({
       {/* ── Top header bar ─────────────────────────────────────────────────── */}
       <AdvisorHeader
         activeTab={pageState.activeTab}
-        onTabChange={(tab) => update({ activeTab: tab })}
+        onTabChange={onTabChnage}
         onHistoryOpen={() => update({ historySheetOpen: true })}
         onToolsOpen={() => update({ toolsSheetOpen: true })}
       />
@@ -394,7 +408,7 @@ export function AdvisorPageClient({
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             <AdvisorTabs
               activeTab={pageState.activeTab}
-              onTabChange={(tab) => update({ activeTab: tab })}
+              onTabChange={onTabChnage}
               expandedSections={expandedSections}
               onToggleSection={toggleSection}
               activeConversationId={pageState.activeConversationId}
