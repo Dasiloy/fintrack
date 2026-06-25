@@ -15,6 +15,7 @@ import {
   StreamGraphOptions,
   GraphStreamEvent,
 } from './lang.types';
+import type { AdvisorAction } from './lang.types';
 
 /**
  * Thin wrapper around LangGraph's `StateGraph` that standardises compile,
@@ -158,6 +159,12 @@ export class LangraphService {
           yield { type: 'token', content: text, node: meta?.langgraph_node };
         }
       } else if (mode === 'updates') {
+        const interruptEvent = this.toInterruptEvent<TState>(payload);
+        if (interruptEvent) {
+          yield interruptEvent;
+          continue;
+        }
+
         for (const [node, state] of Object.entries(
           payload as Record<string, Partial<TState>>,
         )) {
@@ -165,6 +172,28 @@ export class LangraphService {
         }
       }
     }
+  }
+
+  private toInterruptEvent<TState>(
+    payload: unknown,
+  ): GraphStreamEvent<TState> | null {
+    const interrupts = (payload as { __interrupt__?: unknown })?.__interrupt__;
+    if (!Array.isArray(interrupts)) return null;
+
+    for (const interrupt of interrupts) {
+      const value = (interrupt as { value?: unknown } | undefined)?.value;
+      if (!value || typeof value !== 'object') continue;
+
+      const hitl = value as { kind?: unknown; action?: unknown };
+      if (hitl.kind === 'action' && hitl.action) {
+        return {
+          type: 'approval_required',
+          action: hitl.action as AdvisorAction,
+        };
+      }
+    }
+
+    return null;
   }
 
   /**

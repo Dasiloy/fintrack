@@ -2,7 +2,9 @@ import { createHash } from 'crypto';
 
 import {
   BaseStore,
+  Command,
   END,
+  interrupt,
   REMOVE_ALL_MESSAGES,
   Runtime,
   START,
@@ -14,6 +16,7 @@ import {
   HumanMessage,
   RemoveMessage,
   SystemMessage,
+  ToolMessage,
 } from '@langchain/core/messages';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 
@@ -21,6 +24,10 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Redis } from 'ioredis';
 
 import { PrismaService } from '@fintrack/database/service';
+import type {
+  AdvisorAction,
+  AdvisorScope,
+} from '@fintrack/types/interfaces/ai';
 import { AdvisorChunkRes } from '@fintrack/types/protos/ai/ai';
 import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
 
@@ -30,8 +37,13 @@ import { GraphPersistenceService } from '../registory/graph_persistence.service'
 import { ModelRessolver } from '../registory/repositories';
 import { extractText } from '../registory/llm.utils';
 import { GraphStreamEvent } from '../registory/lang.types';
-import { createAdvisorTools } from './advisor.tools';
+import {
+  AdvisorActionSchema,
+  createAdvisorTools,
+  PROPOSE_ACTION_TOOL_NAME,
+} from './advisor.tools';
 import { createOracleTools } from './advisor.oracle.tools';
+import { AdvisorActionExecutor } from './advisor.action-executor';
 
 import { AdvisorState, AdvisorStateType } from './advisor.graph';
 import { GuardianSchema, MemoryExtractionSchema } from './advisor.schemas';
@@ -61,7 +73,6 @@ import {
   MESSAGES_TO_KEEP,
   RESPOND_MODEL,
 } from './advisor.constants';
-import { AdvisorScope } from '@fintrack/database/types';
 import dayjs from '@fintrack/utils/date';
 
 /**
@@ -132,6 +143,7 @@ export class AdvisorService implements OnModuleInit {
     private readonly persistence: GraphPersistenceService,
     private readonly prisma: PrismaService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly actionExecutor: AdvisorActionExecutor,
   ) {}
 
   onModuleInit() {
@@ -212,6 +224,69 @@ export class AdvisorService implements OnModuleInit {
     }
   }
 
+  /**
+   * Resumes a paused advisor graph after the user approves or rejects an action.
+   * Uses LangGraph's resume input with the same thread_id as the interrupted
+   * run so execution continues from the saved checkpoint.
+   */
+  async *resumeResponse(input: {
+    userId: string;
+    conversationId: string;
+    approved: boolean;
+    grantedScopes: AdvisorScope[];
+    signal?: AbortSignal;
+  }): AsyncGenerator<GraphStreamEvent<AdvisorStateType>> {
+    this.logger.debug(
+      `[ADV-AI] resumeResponse START convo=${input.conversationId} approved=${input.approved}`,
+    );
+    let eventCount = 0;
+    try {
+      const events = this.langGraph.streamEvents<
+        AdvisorStateType,
+        { thread_id: string },
+        AdvisorContext
+      >(
+        this.graph,
+        new Command({ resume: { approved: input.approved } }) as never,
+        {
+          context: {
+            userId: input.userId,
+            grantedScopes: input.grantedScopes,
+          },
+          configurable: {
+            thread_id: input.conversationId,
+          },
+          signal: input.signal,
+        },
+      );
+
+      for await (const event of events) {
+        eventCount += 1;
+        if (event.type !== 'token') {
+          this.logger.debug(
+            `[ADV-AI] resume event #${eventCount} type=${event.type} node=${(event as { node?: string }).node ?? '-'}`,
+          );
+        }
+        yield event;
+      }
+      this.logger.debug(
+        `[ADV-AI] resumeResponse END convo=${input.conversationId} events=${eventCount}`,
+      );
+    } catch (err) {
+      if (input.signal?.aborted) {
+        this.logger.debug(
+          `[ADV-AI] resumeResponse ABORTED convo=${input.conversationId} after ${eventCount} events`,
+        );
+        throw err;
+      }
+      this.logger.error(
+        `[ADV-AI] resumeResponse THREW convo=${input.conversationId} after ${eventCount} events: ${(err as Error).message}`,
+        (err as Error).stack,
+      );
+      throw err;
+    }
+  }
+
   // ── Graph assembly ──────────────────────────────────────────────────────────
 
   private buildGraph() {
@@ -231,6 +306,7 @@ export class AdvisorService implements OnModuleInit {
       .addNode(ADVISOR_NODES.TOOLS, this.toolNode, {
         retryPolicy: ADVISOR_NODE_RETRY,
       })
+      .addNode(ADVISOR_NODES.ACTION, this.buildActionNode())
       .addNode(ADVISOR_NODES.MEMORY, this.buildMemoryNode())
       .addEdge(START, ADVISOR_NODES.GUARDIAN)
       .addConditionalEdges(ADVISOR_NODES.GUARDIAN, this.routeAfterGuardian, [
@@ -241,11 +317,13 @@ export class AdvisorService implements OnModuleInit {
       .addEdge(ADVISOR_NODES.COMPACT, ADVISOR_NODES.RESPOND)
       // respond either calls tools or finishes the turn (→ memory → END).
       .addConditionalEdges(ADVISOR_NODES.RESPOND, this.routeAfterRespond, [
+        ADVISOR_NODES.ACTION,
         ADVISOR_NODES.TOOLS,
         ADVISOR_NODES.MEMORY,
       ])
       // After tools run, compact (keeps the loop's history bounded) then respond.
       .addEdge(ADVISOR_NODES.TOOLS, ADVISOR_NODES.COMPACT)
+      .addEdge(ADVISOR_NODES.ACTION, ADVISOR_NODES.RESPOND)
       // On turn completion, distil long-term memory, then end.
       .addEdge(ADVISOR_NODES.MEMORY, END);
 
@@ -423,9 +501,15 @@ export class AdvisorService implements OnModuleInit {
             latestUserText,
           )
         : '';
+      const actionFollowup = this.isActionFollowup(state);
+      const actionFollowupBlock = actionFollowup
+        ? '\n\nAction result for this turn:\n' +
+          `- ${state.actionResult?.message}\n` +
+          '- Do not call propose_action again in this turn. Confirm the result in natural language and, if useful, mention other findings as advice only.'
+        : '';
 
       const systemPrompt = new SystemMessage(
-        `${extractText(basePrompt.content)}${summaryBlock}${memoryBlock}`,
+        `${extractText(basePrompt.content)}${summaryBlock}${memoryBlock}${actionFollowupBlock}`,
       );
 
       // Bind ONLY the tools this user has granted, per request. The model can't
@@ -433,7 +517,9 @@ export class AdvisorService implements OnModuleInit {
       // here — not just by the in-tool `withScope` backstop. Binding is per
       // invocation, so each user's scopes are independent (no shared global bind).
       const model = this.respondModel.bindTools!(
-        this.toolsForScopes(grantedScopes),
+        this.toolsForScopes(grantedScopes, {
+          allowActions: !actionFollowup,
+        }),
       );
 
       const reply = await model.invoke([systemPrompt, ...state.messages]);
@@ -442,16 +528,160 @@ export class AdvisorService implements OnModuleInit {
     };
   }
 
+  private buildActionNode() {
+    return async (
+      state: AdvisorStateType,
+      runtime: Runtime,
+    ): Promise<Partial<AdvisorStateType>> => {
+      const proposed = this.proposedActionToolCall(state);
+      if (!proposed) {
+        return {
+          actionResult: {
+            approved: false,
+            status: 'execution_failed',
+            message: 'No proposed action was found to review.',
+          },
+        };
+      }
+
+      const parsed = AdvisorActionSchema.safeParse(proposed.action);
+      if (!parsed.success) {
+        const message =
+          'I could not prepare that approval card because the proposed action was missing required details. ' +
+          `Missing or invalid fields: ${parsed.error.issues
+            .map((issue) => issue.path.join('.') || issue.message)
+            .join(', ')}. ` +
+          'Review the data again and explain the finding before proposing a corrected action.';
+
+        return {
+          actionResult: {
+            approved: false,
+            status: 'execution_failed',
+            message,
+          },
+          messages: [
+            new ToolMessage({
+              content: message,
+              tool_call_id: proposed.toolCallId,
+            }),
+          ],
+        };
+      }
+
+      const decision = interrupt({
+        kind: 'action',
+        action: parsed.data,
+      }) as boolean | { approved?: boolean };
+      const approved =
+        typeof decision === 'object' && decision !== null
+          ? decision.approved === true
+          : decision === true;
+
+      const context = runtime.context as AdvisorContext | undefined;
+      const userId = context?.userId;
+      if (!userId) {
+        const message = 'No user context was available to process this action.';
+        return {
+          proposedAction: parsed.data,
+          actionResult: {
+            approved,
+            status: 'execution_failed',
+            message,
+          },
+          messages: [
+            new ToolMessage({
+              content: message,
+              tool_call_id: proposed.toolCallId,
+            }),
+          ],
+        };
+      }
+
+      if (!approved) {
+        await this.writeRejectedAction(runtime.store, userId, parsed.data);
+        const message =
+          'The user rejected this action. Do not make this change or re-propose the same action.';
+        return {
+          proposedAction: parsed.data,
+          actionResult: {
+            approved: false,
+            status: 'rejected',
+            message,
+          },
+          messages: [
+            new ToolMessage({
+              content: message,
+              tool_call_id: proposed.toolCallId,
+            }),
+          ],
+        };
+      }
+
+      const result = await this.actionExecutor.execute(parsed.data, {
+        userId,
+      });
+
+      return {
+        proposedAction: parsed.data,
+        actionResult: {
+          approved: true,
+          status: result.status,
+          message: result.message,
+        },
+        messages: [
+          new ToolMessage({
+            content: result.message,
+            tool_call_id: proposed.toolCallId,
+          }),
+        ],
+      };
+    };
+  }
+
+  private async writeRejectedAction(
+    store: BaseStore | undefined,
+    userId: string,
+    action: AdvisorAction,
+  ): Promise<void> {
+    if (!store) return;
+
+    const rejectedAt = dayjs().toISOString();
+    await store.put(
+      ['user', userId, MEMORY_NAMESPACE.REJECTIONS],
+      this.memoryKey(JSON.stringify(action)),
+      {
+        kind: action.kind,
+        action,
+        rejectedAt,
+      },
+    );
+  }
+
   /**
    * The tools available for a given run: every public tool plus the user-data
    * tools whose gating scope the user has granted. A tool with no entry in
    * {@link TOOL_SCOPES} (oracle/public data) is always included.
    */
-  private toolsForScopes(grantedScopes: AdvisorScope[]) {
+  private toolsForScopes(
+    grantedScopes: AdvisorScope[],
+    options: { allowActions?: boolean } = {},
+  ) {
     return this.tools.filter((t) => {
+      if (
+        options.allowActions === false &&
+        t.name === PROPOSE_ACTION_TOOL_NAME
+      ) {
+        return false;
+      }
       const required = TOOL_SCOPES[t.name];
       return !required || grantedScopes.includes(required);
     });
+  }
+
+  private isActionFollowup(state: AdvisorStateType): boolean {
+    return Boolean(
+      state.actionResult && state.messages.at(-1) instanceof ToolMessage,
+    );
   }
 
   /**
@@ -585,14 +815,16 @@ export class AdvisorService implements OnModuleInit {
 
     try {
       const search = { query: query || undefined, limit: MEMORY_READ_LIMIT };
-      const [prefItem, contextItems, patternItems] = await Promise.all([
-        store.get(
-          ['user', userId, MEMORY_NAMESPACE.PREFERENCES],
-          MEMORY_PREFERENCES_KEY,
-        ),
-        store.search(['user', userId, MEMORY_NAMESPACE.CONTEXT], search),
-        store.search(['user', userId, MEMORY_NAMESPACE.PATTERNS], search),
-      ]);
+      const [prefItem, contextItems, patternItems, rejectionItems] =
+        await Promise.all([
+          store.get(
+            ['user', userId, MEMORY_NAMESPACE.PREFERENCES],
+            MEMORY_PREFERENCES_KEY,
+          ),
+          store.search(['user', userId, MEMORY_NAMESPACE.CONTEXT], search),
+          store.search(['user', userId, MEMORY_NAMESPACE.PATTERNS], search),
+          store.search(['user', userId, MEMORY_NAMESPACE.REJECTIONS], search),
+        ]);
 
       const prefs = prefItem?.value as
         | { currency?: string; tone?: string }
@@ -603,6 +835,9 @@ export class AdvisorService implements OnModuleInit {
       const patterns = patternItems
         .map((i) => extractText((i.value as { text?: string })?.text))
         .filter(Boolean);
+      const rejections = rejectionItems
+        .map((i) => this.formatRejectedAction(i.value))
+        .filter(Boolean);
 
       const lines: string[] = [];
       if (prefs?.currency)
@@ -611,6 +846,13 @@ export class AdvisorService implements OnModuleInit {
       if (context.length) lines.push(`- About them: ${context.join('; ')}`);
       if (patterns.length)
         lines.push(`- Known patterns: ${patterns.join('; ')}`);
+      if (rejections.length)
+        lines.push(
+          [
+            '- Previously rejected action proposals: Do not re-propose the same or substantively equivalent action unless the user explicitly asks for it.',
+            ...rejections.map((rejection) => `  - ${rejection}`),
+          ].join('\n'),
+        );
 
       if (!lines.length) return '';
 
@@ -623,6 +865,21 @@ export class AdvisorService implements OnModuleInit {
       this.logger.warn('Memory read failed; continuing without it', err);
       return '';
     }
+  }
+
+  /** Formats a stored action rejection for the respond prompt. */
+  private formatRejectedAction(value: unknown): string {
+    const item = value as
+      | {
+          kind?: string;
+          action?: AdvisorAction;
+          rejectedAt?: string;
+        }
+      | undefined;
+    if (!item?.action) return '';
+
+    const when = item.rejectedAt ? ` rejectedAt=${item.rejectedAt}` : '';
+    return `${item.kind ?? item.action.kind}${when}: ${JSON.stringify(item.action)}`;
   }
 
   /** Short role label for a message, used when building a compaction transcript. */
@@ -651,10 +908,29 @@ export class AdvisorService implements OnModuleInit {
   private routeAfterRespond = (state: AdvisorStateType): string => {
     const last = state.messages.at(-1);
     const toolCalls = (last as AIMessage | undefined)?.tool_calls;
+    if (this.proposedActionToolCall(state)) return ADVISOR_NODES.ACTION;
     return toolCalls && toolCalls.length > 0
       ? ADVISOR_NODES.TOOLS
       : ADVISOR_NODES.MEMORY;
   };
+
+  /** Finds a pending action proposal tool call for routing and review. */
+  private proposedActionToolCall(
+    state: AdvisorStateType,
+  ): { action: AdvisorAction; toolCallId: string } | null {
+    const last = state.messages.at(-1);
+    const toolCalls = (last as AIMessage | undefined)?.tool_calls ?? [];
+    const call = toolCalls.find((toolCall) => {
+      const name = (toolCall as { name?: string }).name;
+      return name === PROPOSE_ACTION_TOOL_NAME;
+    });
+
+    if (!call?.id) return null;
+    return {
+      action: call.args as AdvisorAction,
+      toolCallId: call.id,
+    };
+  }
 
   /**
    * Maps a graph stream event to a wire chunk, or null to drop it.
@@ -683,12 +959,6 @@ export class AdvisorService implements OnModuleInit {
           type: 'approval_required',
           content: '',
           data: JSON.stringify(event.action),
-        };
-      case 'permission_required':
-        return {
-          type: 'permission_required',
-          content: '',
-          data: JSON.stringify({ scope: event.scope, reason: event.reason }),
         };
       default:
         return null;

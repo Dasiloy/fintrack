@@ -26,6 +26,7 @@ import { useRouter } from '@bprogress/next';
 import StyledLink from '@/app/_components/styled_linkt';
 import { axiosClient } from '@/lib/axios/axios_client';
 import { env } from '@/env';
+import { clearClientStateForAuthChange } from '@/lib/auth/auth_cleanup';
 
 const signupSchema = z
   .object({
@@ -77,6 +78,7 @@ export function SignupForm({ className, email }: SignupFormProps) {
     try {
       await axiosClient.post('/proxy-auth/signup', { ..._data, cfTurnstileToken });
 
+      clearClientStateForAuthChange();
       form.reset();
       router.push(AUTH_ROUTES.VERIFY_EMAIL);
     } catch (error: any) {

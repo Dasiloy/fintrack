@@ -21,8 +21,8 @@ import {
 import { PasswordInput } from '@ui/components';
 import { ServerFormatter } from '@fintrack/utils/server';
 import { api_client } from '@/lib/trpc_app/api_client';
-import { signOut } from 'next-auth/react';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
+import { signOutAndClearClientState } from '@/lib/auth/auth_cleanup';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -86,7 +86,7 @@ export default function PasswordSection() {
         description: 'Too many failed attempts. Please sign in again.',
       });
       setTimeout(() => {
-        signOut({
+        signOutAndClearClientState({
           redirect: true,
           redirectTo: AUTH_ROUTES.LOGIN,
         }).then(ressolve);
@@ -150,7 +150,7 @@ export default function PasswordSection() {
 
       if (hasPassword) {
         // Password change drops all sessions — redirect to login
-        await signOut({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
+        await signOutAndClearClientState({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
       } else {
         // Password creation keeps the current session active — just refresh the 2FA data
         await utils.auth.get2fa.invalidate();

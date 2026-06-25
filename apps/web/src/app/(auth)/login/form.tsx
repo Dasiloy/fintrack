@@ -36,6 +36,7 @@ import type { StandardResponse } from '@fintrack/types/interfaces/server_respons
 import type { LoginRes } from '@fintrack/types/protos/auth/auth';
 import { useRouter } from '@bprogress/next';
 import AuthLayout from '@/app/layouts/auth_layout';
+import { clearClientStateForAuthChange } from '@/lib/auth/auth_cleanup';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -122,6 +123,7 @@ export function LoginForm({ authError }: LoginFormProps) {
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   const completeSignIn = async (accessToken: string, refreshToken: string) => {
+    clearClientStateForAuthChange();
     await signIn('credentials', {
       redirect: false,
       accessToken,
@@ -239,6 +241,7 @@ export function LoginForm({ authError }: LoginFormProps) {
     if (isAnyLoading) return;
     setLoadingProvider(provider);
     try {
+      clearClientStateForAuthChange();
       await signIn(provider, { redirect: true, redirectTo: DASHBOARD_ROUTES.DASHBOARD });
       form.reset();
     } catch {
