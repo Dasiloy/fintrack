@@ -21,7 +21,7 @@ export default function AppProviver({ children }: React.PropsWithChildren) {
           <TooltipProvider>
             <AppProgressProvider
               color="#7c7aff"
-              disableSameURL
+              disableSameURL={false}
               shallowRouting={false}
               shouldCompareComplexProps
             >

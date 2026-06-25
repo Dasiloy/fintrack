@@ -5,10 +5,15 @@ import { z } from 'zod';
 import dayjs from '@fintrack/utils/date';
 import { formatCurrency, slugToName } from '@fintrack/utils/format';
 import { PrismaService } from '@fintrack/database/service';
+import type {
+  AdvisorAction,
+  AdvisorScope,
+} from '@fintrack/types/interfaces/ai';
 
-import { AdvisorScope } from '@fintrack/database/types';
 import { AdvisorContext } from './advisor.constants';
 import { SCOPE_CATALOG } from './advisor.scopes';
+
+export const PROPOSE_ACTION_TOOL_NAME = 'propose_action';
 
 /**
  * Advisor Postgres tools — the ONLY path by which the advisor reaches the
@@ -78,11 +83,101 @@ const GetSpendingSchema = z.object({
     .describe('Max expenses to scan (default 100)'),
 });
 
+const AdvisorActionBaseSchema = z.object({
+  kind: z.enum([
+    'adjust_budget',
+    'create_budget',
+    'adjust_goal_contribution',
+    'suggest_recurring',
+    'flag_subscription',
+  ]),
+  budgetId: z.string().min(1).optional(),
+  categorySlug: z.string().min(1).optional(),
+  currentLimit: z.number().optional(),
+  proposedLimit: z.number().optional(),
+  goalId: z.string().min(1).optional(),
+  goalName: z.string().min(1).optional(),
+  currentAmount: z.number().optional(),
+  proposedAmount: z.number().optional(),
+  name: z.string().min(1).optional(),
+  amount: z.number().optional(),
+  frequency: z.string().min(1).optional(),
+  recurringId: z.string().min(1).optional(),
+  operation: z.enum(['cancel', 'adjust']).optional(),
+  reason: z.string().min(1).optional(),
+});
+
+const requiredActionFields: Record<
+  AdvisorAction['kind'],
+  Array<keyof z.infer<typeof AdvisorActionBaseSchema>>
+> = {
+  adjust_budget: [
+    'budgetId',
+    'categorySlug',
+    'currentLimit',
+    'proposedLimit',
+    'reason',
+  ],
+  create_budget: ['categorySlug', 'proposedLimit', 'reason'],
+  adjust_goal_contribution: [
+    'goalId',
+    'goalName',
+    'currentAmount',
+    'proposedAmount',
+    'reason',
+  ],
+  suggest_recurring: ['name', 'amount', 'categorySlug', 'frequency', 'reason'],
+  flag_subscription: [
+    'recurringId',
+    'operation',
+    'name',
+    'currentAmount',
+    'reason',
+  ],
+};
+
+export const AdvisorActionSchema: z.ZodType<AdvisorAction> =
+  AdvisorActionBaseSchema.superRefine((action, ctx) => {
+    for (const field of requiredActionFields[action.kind]) {
+      if (action[field] === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: `${String(field)} is required for ${action.kind}`,
+        });
+      }
+    }
+
+    if (
+      action.kind === 'flag_subscription' &&
+      action.operation === 'adjust' &&
+      action.proposedAmount === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['proposedAmount'],
+        message: 'proposedAmount is required when adjusting a subscription',
+      });
+    }
+  }) as z.ZodType<AdvisorAction>;
+
 /**
  * Builds the full advisor toolset, binding the shared Prisma client. Pass the
  * result to both the model (`bindTools`) and the `ToolNode`.
  */
 export function createAdvisorTools(prisma: PrismaService) {
+  const proposeAction = tool(
+    async (_action: AdvisorAction) =>
+      'Proposal captured. Await human approval before making any changes.',
+    {
+      name: PROPOSE_ACTION_TOOL_NAME,
+      description:
+        'Propose one concrete financial action for the user to approve. ' +
+        'Never execute changes directly. Use only after checking the relevant user data.',
+      schema: AdvisorActionSchema,
+    },
+  );
+
   // ── ANALYTICS ───────────────────────────────────────────────────────────────
   const getFinancialSummary = tool(
     withScope('ANALYTICS', async (_args, ctx) => {
@@ -272,6 +367,7 @@ export function createAdvisorTools(prisma: PrismaService) {
         where: { userId: ctx.userId, isActive: true },
         orderBy: { nextRunAt: 'asc' },
         select: {
+          id: true,
           name: true,
           amount: true,
           type: true,
@@ -283,7 +379,7 @@ export function createAdvisorTools(prisma: PrismaService) {
 
       const lines = items.map(
         (i) =>
-          `${i.name}: ${formatCurrency(i.amount)} ${i.frequency.toLowerCase()} (${i.type.toLowerCase()}) — next on ${dayjs(i.nextRunAt).format('DD MMM')}`,
+          `${i.name} (id: ${i.id}): ${formatCurrency(i.amount)} ${i.frequency.toLowerCase()} (${i.type.toLowerCase()}) — next on ${dayjs(i.nextRunAt).format('DD MMM')}`,
       );
 
       return ['Recurring items:', ...lines].join('\n');
@@ -333,6 +429,7 @@ export function createAdvisorTools(prisma: PrismaService) {
   );
 
   return [
+    proposeAction,
     getFinancialSummary,
     getSpending,
     getBudgets,
