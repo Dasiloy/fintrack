@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Loader2, Trash2, TriangleAlert } from 'lucide-react';
-import { signOut } from 'next-auth/react';
 
 import {
   toast,
@@ -24,6 +23,7 @@ import {
 } from '@ui/components';
 import { AUTH_ROUTES } from '@fintrack/types/constants/routes.constants';
 import { api_client } from '@/lib/trpc_app/api_client';
+import { signOutAndClearClientState } from '@/lib/auth/auth_cleanup';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -41,7 +41,7 @@ export default function DangerZone() {
   const { mutate: deleteAccount, isPending } = api_client.auth.deleteAccount.useMutation({
     onSuccess: () => {
       toast.success('Your account has been scheduled for deletion. Signing you out…');
-      void signOut({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
+      void signOutAndClearClientState({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN });
     },
     onError: (err) => {
       const msg = err.message?.toLowerCase() ?? '';

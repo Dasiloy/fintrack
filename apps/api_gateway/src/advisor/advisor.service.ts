@@ -35,6 +35,7 @@ import {
   AdvisorChatRole,
   AdvisorScope,
   AiInsight,
+  Prisma,
   UsageFeature,
 } from '@fintrack/database/types';
 import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
@@ -62,6 +63,11 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import { InsightsJobPayload } from '@fintrack/types/interfaces/insights';
 import type {
+  AdvisorAction,
+  AdvisorActionState,
+  AdvisorMessageMetadata,
+  AdvisorPendingPayload,
+  ConsumedAdvisorPending,
   ConversationMessagePage,
   ConversationSummary,
 } from '@fintrack/types/interfaces/ai';
@@ -69,33 +75,21 @@ import type {
 import { UpdateAdvisorScopesDto } from './dto/advisor.dto';
 
 /**
- * API Gateway service for AI Advisor insights.
- * Reads directly from Prisma (DatabaseModule is global) and maintains a
- * Redis cache so the hot path never hits Postgres.
+ * Coordinates every API-gateway concern for the AI Advisor feature.
  *
- * ## Cache keys
+ * The gateway owns HTTP/SSE ergonomics, user ownership checks, durable chat
+ * history, advisor consent, insight caching, and manual insight queueing. The
+ * actual agent graph still runs in `ai_service`; this service adapts that gRPC
+ * stream into frontend-safe SSE events and stores the user-facing transcript.
  *
- *   insights:{userId}          — latest single AiInsight row (TTL 1 h).
- *                                 Populated on the first `getInsights(limit=1)` call after a cache miss.
- *                                 Deleted by `ai_service` InsightService.runGraph() after every
- *                                 successful graph run, forcing a fresh read on the next request.
+ * Cache ownership:
+ * - `insights:{userId}` stores the latest insight for the dashboard hot path.
+ * - `insights_unread:{userId}` stores the unread badge count.
+ * - `advisor_scopes:{userId}` stores consent scopes used by the chat hot path.
+ * - `advisor_conversations:{userId}` stores the sidebar conversation list.
  *
- *   insights_unread:{userId}   — count of insights with `readAt IS NULL` (TTL 5 min).
- *                                 Used to drive the notification badge on the frontend.
- *                                 Deleted after `markInsightRead` and `markAllRead`.
- *
- * ## Cache bypass
- * `getInsights` with `limit > 1` bypasses the cache (variable-size lists are not
- * worth caching at multiple granularities; the single-latest case is the 99th percentile).
- *
- * ## Manual trigger
- * `triggerInsights` enqueues an INSIGHTS_JOB with `trigger: 'manual'` and returns
- * immediately — the graph runs asynchronously in the AI service. A Redis cooldown key
- * (`insights_trigger_cooldown:{userId}`, TTL 10 min) prevents the user from spamming
- * the queue. BullMQ also deduplicates via `jobId` so concurrent requests that race past
- * the cooldown still only produce one queued job.
- *
- * @class AdvisorService
+ * Human-in-the-loop cards are persisted as assistant chat-message metadata so a
+ * page refresh can restore pending, approved, and rejected approval cards.
  */
 @Injectable()
 export class AdvisorService implements OnModuleInit {
@@ -109,27 +103,49 @@ export class AdvisorService implements OnModuleInit {
     @Inject(AI_PACKAGE_NAME) private readonly aiClient: ClientGrpc,
   ) {}
 
+  /**
+   * Binds the generated gRPC AI service client after Nest has created the
+   * underlying transport.
+   */
   onModuleInit(): void {
     this.aiServiceClient =
       this.aiClient.getService<AiServiceClient>(AI_SERVICE_NAME);
   }
 
+  /**
+   * Builds the Redis key used for one-time staged chat payloads.
+   */
   private pendingKey(token: string): string {
     return `${ADVISOR_PENDING_PREFIX}:${token}`;
   }
 
+  // ── Advisor chat streaming ────────────────────────────────────────────────
+
   /**
-   * Stages a message for streaming and returns a short-lived token.
+   * Stores a chat message or HITL resume decision long enough for SSE to read it.
    *
-   * SSE is GET-only, so the message can't be sent in the stream request's body.
-   * The client POSTs the message here first; we stash it in Redis (60s TTL) keyed
-   * by a random token, then the `@Sse` step consumes it by token. The owner is
-   * baked into the payload so the token can't be replayed by another user.
+   * Browser `EventSource` opens the stream with a GET request, so the client
+   * first POSTs the payload here. The payload is stored under a random token and
+   * consumed exactly once by {@link streamMessage}. The user id is embedded in
+   * the staged value to prevent token replay across accounts.
+   *
+   * @param userId Authenticated user id.
+   * @param body Message text or a resume decision for a pending approval card.
+   * @returns A short-lived stream token for the SSE endpoint.
+   * @throws BadRequestException when neither message nor resume data is present.
    */
   async stageMessage(
     userId: string,
-    body: { conversationId: string; message: string },
+    body: {
+      conversationId: string;
+      message?: string;
+      resume?: { approved: boolean };
+    },
   ): Promise<{ streamToken: string }> {
+    if (!body.resume && !body.message?.trim()) {
+      throw new BadRequestException('Message or resume payload is required');
+    }
+
     const streamToken = randomUUID();
     await this.redis.setex(
       this.pendingKey(streamToken),
@@ -137,24 +153,35 @@ export class AdvisorService implements OnModuleInit {
       JSON.stringify({
         userId,
         conversationId: body.conversationId,
-        message: body.message,
+        ...(body.resume
+          ? { resume: body.resume }
+          : { message: body.message?.trim() ?? '' }),
       }),
     );
     return { streamToken };
   }
 
   /**
-   * Opens the advisor stream for a previously staged message. Consumes the token
-   * (single use), resolves the user's granted scopes, then calls the ai_service
-   * `SendAdvisorMessage` server-stream and adapts each chunk into an SSE
-   * `MessageEvent`. A bad/expired token or a stream failure is surfaced as a
-   * final `error` chunk rather than tearing the connection down.
+   * Converts one staged advisor request into an SSE stream.
    *
-   * The user identity is carried in gRPC metadata (`x-user-id`), never the body.
+   * Normal messages call `SendAdvisorMessage`; approval or rejection decisions
+   * call `ResumeAdvisor`. Every gRPC chunk is forwarded as an SSE `MessageEvent`.
+   * Text chunks are accumulated for durable assistant history, and
+   * `approval_required` chunks are converted into persisted HITL card metadata.
+   *
+   * Stream errors are returned to the browser as an `error` chunk so the SSE
+   * connection can finish gracefully.
+   *
+   * @param userId Authenticated user id.
+   * @param streamToken Token returned by {@link stageMessage}.
+   * @returns Observable of SSE message events.
    */
   streamMessage(userId: string, streamToken: string): Observable<MessageEvent> {
     let conversationId = '';
     let assistantText = '';
+    let assistantMetadata: AdvisorMessageMetadata | null = null;
+    let resumeApproved: boolean | null = null;
+    let streamFailed = false;
 
     return from(this.consumePending(userId, streamToken)).pipe(
       switchMap((staged) => {
@@ -162,6 +189,19 @@ export class AdvisorService implements OnModuleInit {
 
         const metadata = new Metadata();
         metadata.set('x-user-id', userId);
+
+        if ('resume' in staged) {
+          resumeApproved = staged.resume.approved;
+          return this.aiServiceClient.resumeAdvisor(
+            {
+              conversationId: staged.conversationId,
+              userId,
+              approved: staged.resume.approved,
+              grantedScopes: staged.grantedScopes,
+            },
+            metadata,
+          );
+        }
 
         return this.aiServiceClient.sendAdvisorMessage(
           {
@@ -175,10 +215,21 @@ export class AdvisorService implements OnModuleInit {
       }),
       // Accumulate the advisor's text so the full turn can be persisted.
       tap((chunk) => {
+        if (chunk.type === 'error') streamFailed = true;
         if (chunk.type === 'token') assistantText += chunk.content;
+        if (chunk.type === 'approval_required') {
+          const proposedAction = this.parseAdvisorAction(chunk.data);
+          if (proposedAction) {
+            assistantMetadata = {
+              proposedAction,
+              actionState: 'pending',
+            };
+          }
+        }
       }),
       map((chunk) => ({ data: chunk }) as MessageEvent),
       catchError((err: Error) => {
+        streamFailed = true;
         this.logger.error(
           `[ADV-GW] stream failed convo=${conversationId}: ${err?.message}`,
         );
@@ -193,28 +244,40 @@ export class AdvisorService implements OnModuleInit {
       // Persist the assistant turn whether the stream completed or the client
       // disconnected (partial replies are still worth keeping).
       finalize(() => {
-        if (conversationId && assistantText.trim()) {
-          void this.persistAssistantTurn(conversationId, assistantText);
+        if (conversationId && resumeApproved !== null) {
+          void this.markLatestPendingActionMessage(
+            conversationId,
+            streamFailed ? 'failed' : resumeApproved ? 'approved' : 'rejected',
+          );
+        }
+        if (conversationId && (assistantText.trim() || assistantMetadata)) {
+          void this.persistAssistantTurn(
+            conversationId,
+            assistantText,
+            assistantMetadata,
+          );
         }
       }),
     );
   }
 
   /**
-   * Reads and deletes a staged message (single use), verifies token ownership,
-   * persists the user turn (which also verifies the conversation belongs to the
-   * user — guarding the checkpointer thread against cross-user access), then
-   * resolves granted scopes. Throws on an expired token or ownership mismatch;
-   * the caller turns that into an `error` chunk.
+   * Consumes a staged Redis payload and prepares it for the AI service.
+   *
+   * For normal user messages this persists the user turn before the graph runs,
+   * ensuring conversation ownership is checked before `ai_service` can load a
+   * checkpointer thread. For resume payloads it verifies ownership and marks the
+   * latest pending approval card as approved or rejected.
+   *
+   * @param userId Authenticated user id.
+   * @param streamToken One-time Redis token.
+   * @returns The normalized payload plus currently granted advisor scopes.
+   * @throws Error when the token is expired, owned by another user, or forbidden.
    */
   private async consumePending(
     userId: string,
     streamToken: string,
-  ): Promise<{
-    conversationId: string;
-    message: string;
-    grantedScopes: AdvisorScope[];
-  }> {
+  ): Promise<ConsumedAdvisorPending> {
     const key = this.pendingKey(streamToken);
     const raw = await this.redis.get(key);
     if (!raw) {
@@ -222,37 +285,59 @@ export class AdvisorService implements OnModuleInit {
     }
     await this.redis.del(key);
 
-    const staged = JSON.parse(raw) as {
-      userId: string;
-      conversationId: string;
-      message: string;
-    };
+    const staged = JSON.parse(raw) as AdvisorPendingPayload;
     if (staged.userId !== userId) throw new Error('Unauthorized');
 
-    // Persist the user turn + verify conversation ownership BEFORE the gRPC call,
-    // so we never load another user's checkpointer thread.
-    await this.persistUserTurn(userId, staged.conversationId, staged.message);
+    if ('resume' in staged) {
+      await this.assertConversationOwner(userId, staged.conversationId);
+      await this.markLatestPendingActionMessage(
+        staged.conversationId,
+        'processing',
+      );
+    } else {
+      // Persist the user turn + verify conversation ownership BEFORE the gRPC call,
+      // so we never load another user's checkpointer thread.
+      await this.persistUserTurn(userId, staged.conversationId, staged.message);
+    }
 
     const grantedScopes = await this.resolveGrantedScopes(userId);
-    return {
-      conversationId: staged.conversationId,
-      message: staged.message,
-      grantedScopes,
-    };
+    return 'resume' in staged
+      ? {
+          conversationId: staged.conversationId,
+          resume: staged.resume,
+          grantedScopes,
+        }
+      : {
+          conversationId: staged.conversationId,
+          message: staged.message,
+          grantedScopes,
+        };
   }
 
-  // ── Conversation persistence ─────────────────────────────────────────────────
+  // ── Conversation persistence and history ───────────────────────────────────
 
-  /** First-line title from the opening message, trimmed to a sensible length. */
+  /**
+   * Derives the sidebar title for a new conversation from its opening message.
+   *
+   * @param message First user message in the conversation.
+   * @returns A single-line title capped to the sidebar-friendly length.
+   */
   private deriveTitle(message: string): string {
     const firstLine = message.replace(/\s+/g, ' ').trim();
     return firstLine.length > 60 ? `${firstLine.slice(0, 57)}…` : firstLine;
   }
 
   /**
-   * Records the user message: creates the conversation on first use (titled from
-   * the message) or bumps `updatedAt`, then appends the message. Rejects if the
-   * conversation id already belongs to another user.
+   * Persists an inbound user chat turn.
+   *
+   * Creates the conversation on the first turn, otherwise bumps recency, then
+   * appends the user message. This method also enforces ownership before the AI
+   * graph receives the conversation id.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Client-generated conversation id / LangGraph thread id.
+   * @param message Trimmed user message text.
+   * @throws Error when the conversation belongs to another user.
    */
   private async persistUserTurn(
     userId: string,
@@ -300,15 +385,52 @@ export class AdvisorService implements OnModuleInit {
     }
   }
 
-  /** Appends the advisor's reply and bumps the conversation's `updatedAt`. */
+  /**
+   * Ensures a conversation exists and belongs to the authenticated user.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Conversation id to validate.
+   * @throws Error when the conversation does not exist or belongs to another user.
+   */
+  private async assertConversationOwner(
+    userId: string,
+    conversationId: string,
+  ): Promise<void> {
+    const existing = await this.prisma.advisorConversation.findUnique({
+      where: { id: conversationId },
+      select: { userId: true },
+    });
+
+    if (!existing || existing.userId !== userId) {
+      throw new Error('Forbidden');
+    }
+  }
+
+  /**
+   * Persists an assistant turn and bumps conversation recency.
+   *
+   * `metadata` is used for non-text UI artifacts, currently HITL approval cards.
+   * This is best-effort because a persistence failure should not break an active
+   * SSE response after chunks have already reached the browser.
+   *
+   * @param conversationId Conversation receiving the assistant turn.
+   * @param content Full assistant text accumulated from streamed tokens.
+   * @param metadata Optional structured metadata for approval-card rendering.
+   */
   private async persistAssistantTurn(
     conversationId: string,
     content: string,
+    metadata?: AdvisorMessageMetadata | null,
   ): Promise<void> {
     try {
       await this.prisma.$transaction([
         this.prisma.advisorChatMessage.create({
-          data: { conversationId, role: AdvisorChatRole.ASSISTANT, content },
+          data: {
+            conversationId,
+            role: AdvisorChatRole.ASSISTANT,
+            content,
+            ...(metadata ? { metadata: this.toJsonMetadata(metadata) } : {}),
+          },
         }),
         this.prisma.advisorConversation.update({
           where: { id: conversationId },
@@ -321,10 +443,14 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Lists a user's conversations, newest first — id + title + updatedAt only.
-   * Preview/message-count are deliberately omitted: they go stale on every turn
-   * and aren't worth the sync cost. Redis-cached per user; busted whenever the
-   * user's conversations change.
+   * Lists the user's advisor conversations for the sidebar.
+   *
+   * The list is intentionally lightweight: id, title, and `updatedAt` only.
+   * Preview text and counts are omitted because they go stale on every turn.
+   * Results are Redis-cached per user and invalidated by conversation writes.
+   *
+   * @param userId Authenticated user id.
+   * @returns Conversations newest first.
    */
   async getConversations(userId: string): Promise<ConversationSummary[]> {
     const cacheKey = this.conversationsCacheKey(userId);
@@ -362,10 +488,17 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Returns a page of a conversation's messages, newest-first internally but
-   * resolved oldest→newest for display, with a cursor for the previous (older)
-   * page. Powers the infinite scroll-up history. Ownership-enforced; an unknown
-   * conversation resolves to an empty page (e.g. a brand-new or just-deleted id).
+   * Returns a cursor page of durable chat messages for one conversation.
+   *
+   * Rows are fetched newest first so the cursor walks backward in time, then
+   * returned oldest to newest for rendering. Assistant metadata is parsed and
+   * exposed only when it matches the expected HITL-card shape.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Conversation to read.
+   * @param opts Pagination options.
+   * @returns Message page plus cursor for the next older page.
+   * @throws NotFoundException when the conversation is missing or not owned by the user.
    */
   async getConversationMessages(
     userId: string,
@@ -373,12 +506,11 @@ export class AdvisorService implements OnModuleInit {
     opts: { cursor?: string; limit?: number },
   ): Promise<ConversationMessagePage> {
     const conversation = await this.prisma.advisorConversation.findUnique({
-      where: { id: conversationId },
+      where: { id: conversationId, userId },
       select: { userId: true },
     });
 
-    if (!conversation) return { messages: [], nextCursor: null };
-    if (conversation.userId !== userId) {
+    if (!conversation) {
       throw new NotFoundException('Conversation not found');
     }
 
@@ -390,7 +522,13 @@ export class AdvisorService implements OnModuleInit {
       orderBy: { createdAt: 'desc' },
       take: limit + 1, // +1 sentinel tells us whether an older page exists
       ...(opts.cursor ? { cursor: { id: opts.cursor }, skip: 1 } : {}),
-      select: { id: true, role: true, content: true, createdAt: true },
+      select: {
+        id: true,
+        role: true,
+        content: true,
+        createdAt: true,
+        metadata: true,
+      },
     });
 
     const hasMore = rows.length > limit;
@@ -398,11 +536,142 @@ export class AdvisorService implements OnModuleInit {
     const nextCursor = hasMore ? page[page.length - 1].id : null;
 
     // `page` is newest→oldest; reverse to oldest→newest for rendering.
-    return { messages: page.reverse(), nextCursor };
+    const messages = page.reverse().map((row) => {
+      const metadata = this.parseAdvisorMessageMetadata(row.metadata);
+      return metadata
+        ? { ...row, metadata }
+        : {
+            id: row.id,
+            role: row.role,
+            content: row.content,
+            createdAt: row.createdAt,
+          };
+    });
+
+    return { messages, nextCursor };
   }
 
   /**
-   * Renames a conversation (ownership-enforced) and busts the list cache.
+   * Parses a streamed `approval_required` payload into an advisor action.
+   *
+   * @param data JSON string emitted by `ai_service`.
+   * @returns Parsed action, or null when the payload is malformed.
+   */
+  private parseAdvisorAction(data: string): AdvisorAction | null {
+    try {
+      const parsed = JSON.parse(data) as AdvisorAction;
+      return parsed && typeof parsed === 'object' && 'kind' in parsed
+        ? parsed
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Validates persisted chat-message metadata before returning it to clients.
+   *
+   * @param value Raw Prisma JSON value.
+   * @returns HITL metadata when it has a proposed action and valid state.
+   */
+  private parseAdvisorMessageMetadata(
+    value: unknown,
+  ): AdvisorMessageMetadata | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+
+    const metadata = value as AdvisorMessageMetadata;
+    const hasValidState =
+      !metadata.actionState ||
+      ['pending', 'processing', 'approved', 'rejected', 'failed'].includes(
+        metadata.actionState,
+      );
+    const hasAction =
+      !!metadata.proposedAction &&
+      typeof metadata.proposedAction === 'object' &&
+      'kind' in metadata.proposedAction;
+
+    if (!hasValidState || !hasAction) return null;
+    return metadata;
+  }
+
+  /**
+   * Updates the latest pending approval card after the user approves or rejects.
+   *
+   * The frontend sends only the resume decision to the stream endpoint. To keep
+   * refresh behavior durable, the gateway finds the most recent pending card in
+   * the conversation and stores the terminal state before the resume stream runs.
+   *
+   * @param conversationId Conversation that owns the pending action card.
+   * @param actionState Terminal state selected by the user.
+   */
+  private async markLatestPendingActionMessage(
+    conversationId: string,
+    actionState: AdvisorActionState,
+  ): Promise<void> {
+    try {
+      const candidates = await this.prisma.advisorChatMessage.findMany({
+        where: { conversationId, role: AdvisorChatRole.ASSISTANT },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: { id: true, metadata: true },
+      });
+
+      const pending = candidates
+        .map((row) => ({
+          id: row.id,
+          metadata: this.parseAdvisorMessageMetadata(row.metadata),
+        }))
+        .find((row) =>
+          actionState === 'processing'
+            ? row.metadata?.actionState === 'pending' ||
+              row.metadata?.actionState === 'failed'
+            : row.metadata?.actionState === 'processing',
+        );
+
+      if (!pending?.metadata) return;
+
+      await this.prisma.advisorChatMessage.update({
+        where: { id: pending.id },
+        data: {
+          metadata: this.toJsonMetadata({
+            ...pending.metadata,
+            actionState,
+          }),
+        },
+      });
+    } catch (err) {
+      this.logger.warn(
+        `[ADV-GW] pending action update skipped convo=${conversationId}: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Converts typed metadata into Prisma's JSON input shape.
+   *
+   * Prisma JSON inputs require indexable JSON values rather than plain typed
+   * interfaces, so serialization gives us a clean JSON object with the same data.
+   *
+   * @param metadata Typed advisor message metadata.
+   * @returns Prisma-compatible JSON value.
+   */
+  private toJsonMetadata(
+    metadata: AdvisorMessageMetadata,
+  ): Prisma.InputJsonValue {
+    return JSON.parse(JSON.stringify(metadata)) as Prisma.InputJsonValue;
+  }
+
+  /**
+   * Renames an advisor conversation owned by the user.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Conversation to rename.
+   * @param title New title; trimmed and capped at 120 characters.
+   * @returns Updated conversation summary.
+   * @throws BadRequestException when the title is blank.
+   * @throws NotFoundException when the conversation is missing or not owned by the user.
    */
   async renameConversation(
     userId: string,
@@ -431,8 +700,14 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Permanently deletes a conversation, its messages (FK cascade) and — best
-   * effort — its LangGraph checkpointer thread. No archive. Ownership-enforced.
+   * Permanently deletes a conversation and its related advisor state.
+   *
+   * Chat messages are removed by foreign-key cascade. LangGraph checkpointer
+   * rows are purged best-effort so stale graph memory does not accumulate.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Conversation to delete.
+   * @throws NotFoundException when the conversation is missing or not owned by the user.
    */
   async deleteConversation(
     userId: string,
@@ -455,10 +730,13 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Best-effort removal of a thread's rows from the LangGraph Postgres
-   * checkpointer (same database). Table names are fixed constants; the thread id
-   * is parameterised. Failures are logged and swallowed — the conversation is
-   * already gone, and orphaned checkpoint rows are harmless.
+   * Removes LangGraph checkpointer rows for a deleted conversation.
+   *
+   * The checkpointer uses fixed table names in the same database. Failures are
+   * logged and swallowed because the user-facing conversation has already been
+   * deleted and orphaned checkpoint rows are harmless.
+   *
+   * @param threadId LangGraph thread id, equal to the advisor conversation id.
    */
   private async purgeCheckpointerThread(threadId: string): Promise<void> {
     const tables = ['checkpoint_writes', 'checkpoint_blobs', 'checkpoints'];
@@ -476,19 +754,27 @@ export class AdvisorService implements OnModuleInit {
     }
   }
 
+  /**
+   * Builds the Redis key for the cached conversation sidebar list.
+   */
   private conversationsCacheKey(userId: string): string {
     return `${ADVISOR_CONVERSATIONS_CACHE_PREFIX}:${userId}`;
   }
 
+  /**
+   * Invalidates the cached conversation sidebar list for one user.
+   */
   private bustConversationsCache(userId: string): void {
     void this.redis.del(this.conversationsCacheKey(userId)).catch(() => {});
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
+  // ── Insight cache helpers ─────────────────────────────────────────────────
 
   /**
-   * Fire-and-forget invalidation of both insight cache keys for a user.
-   * A Redis failure must never surface to the caller — reads will recover via DB.
+   * Invalidates both insight caches for a user.
+   *
+   * This is fire-and-forget: Redis failures must not break the mutation that
+   * caused the invalidation, and future reads can recover from the database.
    */
   private invalidateInsightCache(userId: string): void {
     void this.redis
@@ -500,8 +786,10 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Fire-and-forget invalidation of only the unread-count cache.
-   * Used when a read operation changes `readAt` but leaves the insight list itself intact.
+   * Invalidates only the unread-count cache for a user.
+   *
+   * Used when a read operation changes badge state but leaves the cached latest
+   * insight row untouched.
    */
   private invalidateUnreadCache(userId: string): void {
     void this.redis
@@ -509,17 +797,18 @@ export class AdvisorService implements OnModuleInit {
       .catch(() => {});
   }
 
-  // ── Public API ─────────────────────────────────────────────────────────────
+  // ── Insights and macro context ────────────────────────────────────────────
 
   /**
-   * Returns the most recent AI insight(s) for a user, newest first.
+   * Returns recent AI insights for the dashboard.
    *
-   * When `limit === 1` (the default and most common case), the result is served
-   * from `insights:{userId}` for up to 1 hour. Multi-row requests bypass the cache.
+   * The single-row case is cached because it powers the common dashboard hot
+   * path. Multi-row reads bypass the cache because variable-size insight lists
+   * become stale too quickly to be worth caching.
    *
-   * @param {string} userId  - Authenticated user ID
-   * @param {number} limit   - Number of insights to return (1–20, default 1)
-   * @returns {Promise<AiInsight[]>} Ordered by generatedAt desc
+   * @param userId Authenticated user id.
+   * @param limit Number of insights to return.
+   * @returns Insights ordered newest first.
    */
   async getInsights(userId: string, limit: number = 1): Promise<AiInsight[]> {
     const cacheKey = `${INSIGHTS_CACHE_PREFIX}:${userId}`;
@@ -545,15 +834,13 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Returns the current macro-economic context (USD/NGN rate, food CPI, CBN rate)
-   * read live from the Redis cache populated by the scheduler's hourly oracle
-   * refresh. This is the canonical source for displaying macro data on the
-   * frontend — never the `macroContext` snapshot saved on an insight row, which
-   * is point-in-time and may be stale.
+   * Returns the latest macro-economic context used by advisor UI surfaces.
    *
-   * Returns `null` when the cache is cold (e.g. before the first refresh run).
+   * The Redis value populated by the scheduler is canonical. When the cache is
+   * cold, the method falls back to the latest stored insight snapshot and seeds
+   * Redis so the UI still has recent macro data.
    *
-   * @returns {Promise<MacroContext | null>} Latest cached macro context, or null
+   * @returns Latest macro context, or null when neither cache nor fallback exists.
    */
   async getMacroContext(): Promise<MacroContext | null> {
     // 1. Hot path — value populated by the scheduler's hourly oracle refresh.
@@ -594,19 +881,22 @@ export class AdvisorService implements OnModuleInit {
 
   // ── Advisor consent / scopes ─────────────────────────────────────────────────
 
+  /**
+   * Builds the Redis key for cached advisor data-scope consent.
+   */
   private scopesCacheKey(userId: string): string {
     return `${ADVISOR_SCOPES_CACHE_PREFIX}:${userId}`;
   }
 
   /**
-   * Returns a user's advisor consent exactly as stored — whether the advisor is
-   * enabled and which data scopes are granted.
+   * Returns the user's saved advisor consent state.
    *
-   * Every user has a row (created at signup, backfilled for older accounts via
-   * `db:backfill-advisor-settings`), so we never substitute a default that could
-   * misrepresent what the user actually saved. In the shouldn't-happen case of a
-   * missing row, we report a disabled, empty-scope state so the frontend prompts
-   * the user to set it up rather than silently granting access.
+   * Missing rows should be rare because settings are created at signup and
+   * backfilled for older accounts. If one is missing, the safe response is
+   * disabled with no granted scopes.
+   *
+   * @param userId Authenticated user id.
+   * @returns Advisor enablement and granted data scopes.
    */
   async getAdvisorScopes(
     userId: string,
@@ -620,9 +910,13 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Resolves just the granted scopes for a user, Redis-cached (5 min) so the
-   * advisor hot path never hits Postgres. Falls back to a DB read on a cache
-   * miss and re-seeds the cache. The cache is busted on every scope update.
+   * Resolves granted data scopes for the advisor graph hot path.
+   *
+   * Scopes are cached briefly in Redis because every chat stream needs them
+   * before calling `ai_service`.
+   *
+   * @param userId Authenticated user id.
+   * @returns Granted advisor scopes.
    */
   async resolveGrantedScopes(userId: string): Promise<AdvisorScope[]> {
     const cacheKey = this.scopesCacheKey(userId);
@@ -644,9 +938,14 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Updates a user's advisor consent, busts the scopes cache, and audits the
-   * change. Upserts defensively (the row normally already exists from signup /
-   * backfill). Returns the new consent state.
+   * Updates advisor consent and invalidates cached scopes.
+   *
+   * Uses an upsert defensively even though the setting row normally exists from
+   * signup/backfill.
+   *
+   * @param userId Authenticated user id.
+   * @param input Partial consent update.
+   * @returns Saved consent state.
    */
   async updateAdvisorScopes(
     userId: string,
@@ -671,12 +970,10 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Returns the count of unread insights (`readAt IS NULL`) for a user.
-   * Cached in `insights_unread:{userId}` for 5 minutes — this value powers
-   * the notification badge and is read on every page load.
+   * Returns the unread insight count for the notification badge.
    *
-   * @param {string} userId - Authenticated user ID
-   * @returns {Promise<number>} Number of insights the user has not yet read
+   * @param userId Authenticated user id.
+   * @returns Number of insights where `readAt` is null.
    */
   async getUnreadCount(userId: string): Promise<number> {
     const cacheKey = `${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`;
@@ -696,17 +993,15 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Marks a single insight as read by setting `readAt` to the current timestamp.
-   * No-ops gracefully if the insight is already read.
-   * Ownership is enforced — throws `NotFoundException` if the record doesn't belong to the user.
+   * Marks one insight as read.
    *
-   * Invalidates `insights_unread:{userId}` so the badge count refreshes immediately.
-   * Also invalidates `insights:{userId}` because the cached row now has a stale `readAt`.
+   * Already-read insights are returned without writing. Successful writes
+   * invalidate both the latest-insight cache and unread badge cache.
    *
-   * @param {string} userId    - Authenticated user ID (ownership check)
-   * @param {string} insightId - AiInsight ID to mark as read
-   * @returns {Promise<AiInsight>} The updated insight
-   * @throws {NotFoundException} If the insight does not exist or belongs to another user
+   * @param userId Authenticated user id.
+   * @param insightId Insight id to mark as read.
+   * @returns Existing or updated insight.
+   * @throws NotFoundException when the insight is missing or not owned by the user.
    */
   async markInsightRead(userId: string, insightId: string): Promise<AiInsight> {
     const existing = await this.prisma.aiInsight.findFirst({
@@ -732,14 +1027,13 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Marks all unread insights for a user as read in a single bulk update.
-   * A no-op if all insights are already read.
+   * Marks all unread insights for a user as read.
    *
-   * Invalidates both `insights:{userId}` and `insights_unread:{userId}` so
-   * all downstream reads see the updated state immediately.
+   * The bulk update is a no-op when everything is already read. Cache
+   * invalidation still keeps the unread badge honest.
    *
-   * @param {string} userId - Authenticated user ID
-   * @returns {Promise<number>} Number of insights updated (0 if all were already read)
+   * @param userId Authenticated user id.
+   * @returns Number of rows updated.
    */
   async markAllRead(userId: string): Promise<number> {
     const result = await this.prisma.aiInsight.updateMany({
@@ -760,16 +1054,13 @@ export class AdvisorService implements OnModuleInit {
   // ── Trigger ────────────────────────────────────────────────────────────────
 
   /**
-   * Enqueues a manual insights graph run for the user and returns immediately.
+   * Enqueues a manual insight generation job.
    *
-   * Enforces a 10-minute Redis cooldown so the user cannot spam the queue.
-   * BullMQ `jobId` deduplication (`manual_insights:{userId}:{date}`) is a second
-   * guard that prevents duplicate jobs from racing through the cooldown window.
+   * Free users are checked against monthly insight quota before queueing. A
+   * Redis cooldown prevents repeated manual triggers from spamming the worker.
    *
-   * @param {string} userId - Authenticated user ID
-   * @returns {Promise<{ queued: boolean; cooldownSeconds?: number ,limitReached?: boolean}>}
-   *   `queued: true` when the job was enqueued, or
-   *   `queued: false` + `cooldownSeconds` remaining when the cooldown is active.
+   * @param userId Authenticated user id.
+   * @returns Queue status, cooldown seconds, or quota-limit state.
    */
   async triggerInsights(userId: string): Promise<{
     queued: boolean;

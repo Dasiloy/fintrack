@@ -65,5 +65,4 @@ export type GraphStreamEvent<TState> =
   | { type: 'token'; content: string; node?: string }
   | { type: 'state'; node: string; state: Partial<TState> }
   // Human-in-the-loop pauses (surfaced from a graph `interrupt()`):
-  | { type: 'approval_required'; action: AdvisorAction } // an action awaiting Approve/Reject
-  | { type: 'permission_required'; scope: string; reason: string }; // a scope awaiting Allow/Deny
+  | { type: 'approval_required'; action: AdvisorAction }; // an action awaiting Approve/Reject
