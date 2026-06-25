@@ -23,15 +23,13 @@ export type GuardianResult = z.infer<typeof GuardianSchema>;
 export const MemoryExtractionSchema = z.object({
   currency: z
     .string()
-    .nullable()
     .describe(
-      "The user's preferred currency code if clearly stated (e.g. 'NGN'); null otherwise.",
+      "The user's preferred currency code if clearly stated (e.g. 'NGN'); empty string otherwise.",
     ),
   tone: z
     .string()
-    .nullable()
     .describe(
-      "A durable tone/communication preference if expressed (e.g. 'concise', 'encouraging'); null otherwise.",
+      "A durable tone/communication preference if expressed (e.g. 'concise', 'encouraging'); empty string otherwise.",
     ),
   context: z
     .array(z.string())

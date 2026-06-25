@@ -3,13 +3,16 @@ import { ConfigService } from '@nestjs/config';
 
 import { PrismaClient } from './generated/prisma/index.js';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { normalizePostgresConnectionString } from './connection_url.js';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private logger = new Logger(PrismaService.name);
   constructor(configService: ConfigService) {
     const adapter = new PrismaPg({
-      connectionString: configService.getOrThrow<string>('DATABASE_URL'),
+      connectionString: normalizePostgresConnectionString(
+        configService.getOrThrow<string>('DATABASE_URL'),
+      ),
       ssl: { rejectUnauthorized: false },
       max: parseInt(configService.get<string>('DB_POOL_MAX') ?? '2', 10),
       connectionTimeoutMillis: 10000,

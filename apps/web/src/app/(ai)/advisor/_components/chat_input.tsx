@@ -11,7 +11,7 @@
 // input stays above the iOS home indicator when the soft keyboard is open.
 
 import * as React from 'react';
-import { Send, Paperclip, X, FileText, Image } from 'lucide-react';
+import { Send, Square, Paperclip, X, FileText, Image } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 import type { PendingAttachment } from '../_lib/advisor.types';
 import { formatFileSize } from '../_lib/advisor.helpers';
@@ -22,6 +22,9 @@ interface ChatInputProps {
   isStreaming: boolean;
   onChange: (value: string) => void;
   onSend: () => void;
+  /** Stop the in-flight stream. When provided, the send button becomes a stop
+   *  button while streaming. */
+  onStop?: () => void;
   onAttach: (attachment: PendingAttachment) => void;
   onRemoveAttachment: (id: string) => void;
 }
@@ -32,6 +35,7 @@ export function ChatInput({
   isStreaming,
   onChange,
   onSend,
+  onStop,
   onAttach,
   onRemoveAttachment,
 }: ChatInputProps) {
@@ -150,21 +154,32 @@ export function ChatInput({
           aria-label="Message"
         />
 
-        {/* Send button */}
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={!canSend}
-          className={cn(
-            'mb-1 flex size-8 cursor-pointer shrink-0 items-center justify-center rounded-lg transition-colors',
-            canSend
-              ? 'bg-primary text-white hover:bg-primary/90'
-              : 'bg-bg-elevated text-text-disabled',
-          )}
-          aria-label="Send message"
-        >
-          <Send className="size-3.5" aria-hidden />
-        </button>
+        {/* Send / Stop button — becomes Stop while streaming (if onStop given). */}
+        {isStreaming && onStop ? (
+          <button
+            type="button"
+            onClick={onStop}
+            className="bg-primary text-white hover:bg-primary/90 mb-1 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors"
+            aria-label="Stop generating"
+          >
+            <Square className="size-3 fill-current" aria-hidden />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!canSend}
+            className={cn(
+              'mb-1 flex size-8 cursor-pointer shrink-0 items-center justify-center rounded-lg transition-colors',
+              canSend
+                ? 'bg-primary text-white hover:bg-primary/90'
+                : 'bg-bg-elevated text-text-disabled',
+            )}
+            aria-label="Send message"
+          >
+            <Send className="size-3.5" aria-hidden />
+          </button>
+        )}
       </div>
 
       {/* Hint */}

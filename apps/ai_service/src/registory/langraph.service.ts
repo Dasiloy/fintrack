@@ -183,12 +183,16 @@ export class LangraphService {
   private buildConfig<Tconfig, TContext>(
     opts?: InvokeGraphOptions<Tconfig, TContext>,
   ) {
-    if (!opts?.configurable && !opts?.context) return undefined;
+    if (!opts?.configurable && !opts?.context && !opts?.signal)
+      return undefined;
     return {
       ...(opts.context !== undefined && {
         context: opts.context as Record<string, unknown>,
       }),
       ...(opts.configurable && { configurable: { ...opts.configurable } }),
+      // Forwarded to LangGraph as the run's AbortSignal — aborting it stops the
+      // graph (no further nodes/model calls) and rejects the stream.
+      ...(opts.signal && { signal: opts.signal }),
     };
   }
 }

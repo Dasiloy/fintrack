@@ -11,6 +11,7 @@ import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';
 import { PostgresStore } from '@langchain/langgraph-checkpoint-postgres/store';
 
 import { ModelRessolver } from './repositories';
+import { normalizeLangGraphPostgresConnectionString } from './graph_persistence.utils';
 
 /**
  * Embedding model + vector size for the long-term store's semantic index. Kept
@@ -74,10 +75,9 @@ export class GraphPersistenceService implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly modelRessolver: ModelRessolver,
   ) {
-    // const connectionString =
-    //   'postgresql://postgres:hFCTgHAeRWzwYxcYFkIDnGCjeAxLajEn@acela.proxy.rlwy.net:22275/railway';
-
-    const connectionString = this.config.get('DATABASE_URL');
+    const connectionString = normalizeLangGraphPostgresConnectionString(
+      this.config.getOrThrow<string>('DATABASE_URL'),
+    );
 
     this.pgSaver = PostgresSaver.fromConnString(connectionString, {});
 

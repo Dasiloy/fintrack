@@ -71,6 +71,10 @@ export async function POST(request: Request): Promise<Response> {
       {
         method: 'GET',
         headers: { ...authHeaders, Accept: 'text/event-stream' },
+        // Propagate the client's abort (Stop / navigation): when the browser
+        // aborts this request, tear down the upstream SSE so the gateway drops
+        // its gRPC stream and the ai_service aborts the graph run.
+        signal: request.signal,
       },
     );
   } catch (err) {
