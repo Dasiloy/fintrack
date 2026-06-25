@@ -183,7 +183,8 @@ export class LangraphService {
   private buildConfig<Tconfig, TContext>(
     opts?: InvokeGraphOptions<Tconfig, TContext>,
   ) {
-    if (!opts?.configurable && !opts?.context && !opts?.signal) return undefined;
+    if (!opts?.configurable && !opts?.context && !opts?.signal)
+      return undefined;
     return {
       ...(opts.context !== undefined && {
         context: opts.context as Record<string, unknown>,
