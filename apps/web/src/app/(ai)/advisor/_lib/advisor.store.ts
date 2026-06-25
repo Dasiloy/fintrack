@@ -22,6 +22,7 @@ import { atom, getDefaultStore } from 'jotai';
 import { atomFamily, atomWithStorage, RESET } from 'jotai/utils';
 
 import type {
+  AdvisorAction,
   ConversationHistoryMessage,
   ConversationMessagePage,
   ConversationSummary,
@@ -29,6 +30,10 @@ import type {
 
 import type { AdvisorMessage } from './advisor.types';
 import { streamAdvisor, AdvisorStreamError } from './advisor.stream';
+import {
+  ADVISOR_CONVERSATIONS_STORAGE_KEY,
+  ADVISOR_MESSAGES_STORAGE_PREFIX,
+} from '@/lib/advisor/advisor_storage.constants';
 
 /** Max messages kept in a conversation's instant-render head (see appendToHead). */
 const HEAD_CAP = 50;
@@ -39,7 +44,7 @@ const store = getDefaultStore();
 
 export const conversationHeadAtom = atomFamily((conversationId: string) =>
   atomWithStorage<ConversationMessagePage | null>(
-    `advisor:messages:${conversationId}`,
+    `${ADVISOR_MESSAGES_STORAGE_PREFIX}${conversationId}`,
     null,
     undefined,
     { getOnInit: true },
@@ -47,7 +52,7 @@ export const conversationHeadAtom = atomFamily((conversationId: string) =>
 );
 
 export const conversationsListAtom = atomWithStorage<ConversationSummary[]>(
-  'advisor:conversations',
+  ADVISOR_CONVERSATIONS_STORAGE_KEY,
   [],
   undefined,
   { getOnInit: true },
@@ -75,6 +80,14 @@ const controllers = new Map<string, AbortController>();
 const lastFinalizedAt = new Map<string, number>();
 export function getFinalizedAt(conversationId: string): number {
   return lastFinalizedAt.get(conversationId) ?? 0;
+}
+
+function parseProposedAction(data: string): AdvisorAction | null {
+  try {
+    return JSON.parse(data) as AdvisorAction;
+  } catch {
+    return null;
+  }
 }
 
 function patchStream(
@@ -203,6 +216,7 @@ export async function streamConversationMessage(args: {
   controllers.set(conversationId, controller);
 
   let assistantContent = '';
+  let proposedAction: AdvisorAction | null = null;
   let succeeded = false;
 
   try {
@@ -219,8 +233,20 @@ export async function streamConversationMessage(args: {
           ),
         }));
       },
-      // Approval / permission cards are wired in a later phase (HITL).
-      onEvent: () => {},
+      onEvent: (chunk) => {
+        if (chunk.type !== 'approval_required') return;
+        const action = parseProposedAction(chunk.data);
+        if (!action) return;
+        proposedAction = action;
+        patchStream(conversationId, (prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === assistantId
+              ? { ...m, proposedAction: action, actionState: 'pending' }
+              : m,
+          ),
+        }));
+      },
     });
     succeeded = true;
   } catch (err) {
@@ -252,18 +278,138 @@ export async function streamConversationMessage(args: {
     lastFinalizedAt.set(conversationId, Date.now());
 
     if (succeeded) {
-      appendToHead(conversationId, [
+      const completedMessages: ConversationHistoryMessage[] = [
         {
           id: userMessage.id,
           role: 'USER',
           content: userMessage.content,
           createdAt: userMessage.createdAt,
         },
+      ];
+
+      if (!proposedAction) {
+        completedMessages.push({
+          id: assistantId,
+          role: 'ASSISTANT',
+          content: assistantContent,
+          createdAt: new Date(),
+        });
+      }
+
+      appendToHead(conversationId, completedMessages);
+    }
+
+    args.onFinished?.();
+  }
+}
+
+export async function resumeConversation(args: {
+  conversationId: string;
+  approved: boolean;
+  actionMessageId: string;
+  onFinished?: () => void;
+}): Promise<void> {
+  const { conversationId, approved, actionMessageId } = args;
+  const assistantId = crypto.randomUUID();
+  const actionState: AdvisorMessage['actionState'] = approved
+    ? 'approved'
+    : 'rejected';
+  const processingState: AdvisorMessage['actionState'] = 'processing';
+
+  patchStream(conversationId, (prev) => ({
+    isStreaming: true,
+    messages: [
+      ...prev.messages.map((m) =>
+        m.id === actionMessageId
+          ? { ...m, actionState: processingState }
+          : m,
+      ),
+      { id: assistantId, role: 'assistant', content: '', createdAt: new Date() },
+    ],
+  }));
+
+  const controller = new AbortController();
+  controllers.set(conversationId, controller);
+
+  let assistantContent = '';
+  let proposedAction: AdvisorAction | null = null;
+  let succeeded = false;
+
+  try {
+    await streamAdvisor({
+      conversationId,
+      resume: { approved },
+      signal: controller.signal,
+      onToken: (delta) => {
+        assistantContent += delta;
+        patchStream(conversationId, (prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === assistantId ? { ...m, content: m.content + delta } : m,
+          ),
+        }));
+      },
+      onEvent: (chunk) => {
+        if (chunk.type !== 'approval_required') return;
+        const action = parseProposedAction(chunk.data);
+        if (!action) return;
+        proposedAction = action;
+        patchStream(conversationId, (prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === assistantId
+              ? { ...m, proposedAction: action, actionState: 'pending' }
+              : m,
+          ),
+        }));
+      },
+    });
+    succeeded = true;
+  } catch (err) {
+    if ((err as Error).name !== 'AbortError') {
+      const note =
+        err instanceof AdvisorStreamError
+          ? 'Sorry, I could not finish that. Please try again.'
+          : 'Something went wrong reaching the advisor. Please try again.';
+      patchStream(conversationId, (prev) => ({
+        ...prev,
+        messages: prev.messages.map((m) =>
+          m.id === assistantId
+            ? { ...m, content: m.content ? `${m.content}\n\n${note}` : note }
+            : m,
+        ),
+      }));
+    }
+  } finally {
+    if (controllers.get(conversationId) === controller) {
+      controllers.delete(conversationId);
+    }
+    patchStream(conversationId, (prev) => ({
+      ...prev,
+      isStreaming: false,
+      messages: prev.messages.map((m) =>
+        m.id === actionMessageId
+          ? { ...m, actionState: succeeded ? actionState : 'failed' }
+          : m,
+      ),
+    }));
+    lastFinalizedAt.set(conversationId, Date.now());
+
+    if (succeeded && (assistantContent.trim() || proposedAction)) {
+      appendToHead(conversationId, [
         {
           id: assistantId,
           role: 'ASSISTANT',
           content: assistantContent,
           createdAt: new Date(),
+          ...(proposedAction
+            ? {
+                metadata: {
+                  proposedAction,
+                  actionState: 'pending',
+                },
+              }
+            : {}),
         },
       ]);
     }
