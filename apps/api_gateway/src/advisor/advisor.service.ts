@@ -992,7 +992,7 @@ export class AdvisorService implements OnModuleInit {
    * Caps a generated conversation title to the sidebar-friendly length.
    *
    * @param title Raw title candidate.
-   * @returns Title no longer than 60 characters.
+   * @returns Title no longer than 25 characters.
    */
   private capConversationTitle(title: string): string {
     return title.length > 25 ? `${title.slice(0, 25)}…` : title;
