@@ -12,11 +12,9 @@ import {
 import { RpcUser } from '@fintrack/common/decorators/rpc_user.decorator';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { AdvisorScope, User } from '@fintrack/database/types';
+import type { AdvisorAttachment } from '@fintrack/types/interfaces/ai';
 
 import { AdvisorService } from './advisor.service';
-import { GraphStreamEvent } from '../registory/lang.types';
-import { AdvisorStateType } from './advisor.graph';
-import { ADVISOR_NODES } from './advisor.constants';
 
 /**
  * gRPC controller for the advisor streaming surface.
@@ -60,6 +58,7 @@ export class AdvisorController {
             userId: user.id,
             conversationId: request.conversationId,
             message: request.message,
+            attachments: request.attachments as AdvisorAttachment[],
             grantedScopes: request.grantedScopes as AdvisorScope[],
             signal: controller.signal,
           });

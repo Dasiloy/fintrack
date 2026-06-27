@@ -6,7 +6,14 @@
 // or message-count — those go stale on every turn.
 
 import * as React from 'react';
-import { MessageSquare, MoreHorizontal, Pencil, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  Loader2,
+  MessageSquare,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -37,6 +44,7 @@ interface ConversationItemProps {
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
   isDeleting?: boolean;
+  isRenaming?: boolean;
 }
 
 export function ConversationItem({
@@ -46,6 +54,7 @@ export function ConversationItem({
   onRename,
   onDelete,
   isDeleting,
+  isRenaming,
 }: ConversationItemProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -55,6 +64,7 @@ export function ConversationItem({
   const longPressTimerRef = React.useRef<number | null>(null);
   const longPressStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const longPressTriggeredRef = React.useRef(false);
+  const isPending = Boolean(isDeleting || isRenaming);
 
   const clearLongPressTimer = React.useCallback(() => {
     if (longPressTimerRef.current !== null) {
@@ -71,6 +81,7 @@ export function ConversationItem({
   }, [isEditing]);
 
   const startRename = () => {
+    if (isPending) return;
     setDraft(thread.title);
     setIsEditing(true);
   };
@@ -78,6 +89,7 @@ export function ConversationItem({
   React.useEffect(() => clearLongPressTimer, [clearLongPressTimer]);
 
   const handleLongPressStart = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (isPending) return;
     if (event.pointerType === 'mouse' || event.button !== 0) return;
     clearLongPressTimer();
     longPressTriggeredRef.current = false;
@@ -104,6 +116,7 @@ export function ConversationItem({
   };
 
   const commitRename = () => {
+    if (isPending) return;
     const next = draft.trim();
     setIsEditing(false);
     if (next && next !== thread.title) onRename(thread.id, next);
@@ -140,16 +153,20 @@ export function ConversationItem({
           isActive
             ? 'bg-primary/10 text-text-primary'
             : 'text-text-secondary hover:bg-bg-surface-hover hover:text-text-primary',
+          isPending && 'pointer-events-none opacity-55',
         )}
+        aria-busy={isPending}
       >
         <button
           type="button"
+          disabled={isPending}
           onPointerDown={handleLongPressStart}
           onPointerMove={handleLongPressMove}
           onPointerUp={handleLongPressEnd}
           onPointerCancel={handleLongPressEnd}
           onPointerLeave={handleLongPressEnd}
           onClick={(event) => {
+            if (isPending) return;
             if (longPressTriggeredRef.current) {
               event.preventDefault();
               event.stopPropagation();
@@ -158,7 +175,7 @@ export function ConversationItem({
             }
             onClick();
           }}
-          className="flex min-w-0 flex-1 cursor-pointer touch-manipulation items-center gap-2.5 text-left select-none"
+          className="flex min-w-0 flex-1 cursor-pointer touch-manipulation items-center gap-2.5 text-left select-none disabled:cursor-not-allowed"
         >
           <MessageSquare
             className={cn('size-3.5 shrink-0', isActive ? 'text-primary' : 'text-text-disabled')}
@@ -170,6 +187,9 @@ export function ConversationItem({
           <span className="text-text-disabled shrink-0 text-[10px]">
             {relativeTime(thread.updatedAt)}
           </span>
+          {isPending ? (
+            <Loader2 className="text-primary size-3.5 shrink-0 animate-spin" aria-hidden />
+          ) : null}
         </button>
 
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -177,10 +197,12 @@ export function ConversationItem({
             <button
               type="button"
               aria-label="Conversation options"
+              disabled={isPending}
               className={cn(
                 'text-text-disabled hover:text-text-primary hover:bg-bg-surface-hover flex size-6 shrink-0 cursor-pointer items-center justify-center rounded transition-all outline-none',
                 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                 menuOpen && 'opacity-100',
+                isPending && 'cursor-not-allowed opacity-100',
               )}
             >
               <MoreHorizontal className="size-3.5" />
@@ -202,6 +224,7 @@ export function ConversationItem({
               variant="destructive"
               className="cursor-pointer gap-2.5 rounded-sm px-2.5 py-2 text-[12px]"
               onClick={() => {
+                if (isPending) return;
                 setMenuOpen(false);
                 setDeleteOpen(true);
               }}
@@ -213,7 +236,13 @@ export function ConversationItem({
         </DropdownMenu>
       </div>
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <AlertDialog
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          if (isDeleting) return;
+          setDeleteOpen(open);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-red-500/10">
@@ -227,7 +256,12 @@ export function ConversationItem({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <Button variant="destructive" loading={isDeleting} onClick={() => onDelete(thread.id)}>
+            <Button
+              variant="destructive"
+              loading={isDeleting}
+              disabled={isDeleting}
+              onClick={() => onDelete(thread.id)}
+            >
               Delete
             </Button>
           </AlertDialogFooter>

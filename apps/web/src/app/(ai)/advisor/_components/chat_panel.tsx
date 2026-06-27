@@ -17,11 +17,18 @@
 import * as React from 'react';
 import { useAtomValue } from 'jotai';
 import { Loader2 } from 'lucide-react';
+import { toast } from '@ui/components';
+import { fileToBase64 } from '@fintrack/utils/file';
 import { ChatMessage } from './chat_message';
 import { ChatInput } from './chat_input';
 import { ChatEmptyState } from './chat_empty_state';
 import { AdvisorThinkingIndicator } from './advisor_thinking_indicator';
-import type { AdvisorMessage, PendingAttachment } from '../_lib/advisor.types';
+import type {
+  AdvisorMessage,
+  FailedPendingAttachment,
+  PendingAttachment,
+  UploadingPendingAttachment,
+} from '../_lib/advisor.types';
 import {
   conversationStreamAtom,
   streamConversationMessage,
@@ -37,12 +44,14 @@ import { Usage } from '@fintrack/types/constants/plan.constants';
 import { usePlan } from '@/app/providers/plan_usage_provider';
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { StandardResponse } from '@fintrack/types/interfaces/server_response';
-import type {
-  AdvisorAction,
-  AdvisorMessageMetadata,
-  ConversationMessagePage,
-} from '@fintrack/types/interfaces/ai';
+import type { ConversationMessagePage } from '@fintrack/types/interfaces/ai';
 import { ADVISOR_MESSAGE_PAGE_SIZE as MESSAGE_PAGE_SIZE } from '../_lib/advisor.config';
+import {
+  ADVISOR_FILES_MAX_TOTAL_SIZE,
+  ADVISOR_FILE_MAX_SIZE,
+  ADVISOR_FILE_MIME_TYPES,
+} from '@fintrack/types/constants/file.constants';
+import { toAdvisorMessage, actionKey } from '@/app/(ai)/advisor/_lib/advisor.helpers';
 
 /** Distance from the top (px) that triggers loading older messages. */
 const LOAD_OLDER_THRESHOLD = 80;
@@ -50,6 +59,41 @@ const LOAD_OLDER_THRESHOLD = 80;
 const STICK_BOTTOM_THRESHOLD = 120;
 /** Sentinel stream key when no conversation is active yet. */
 const NO_CONVERSATION = '__none__';
+
+function attachmentIdentity(message: AdvisorMessage): string {
+  return (message.attachments ?? [])
+    .map((attachment) => attachment.publicId)
+    .sort()
+    .join('|');
+}
+
+function userTurnIdentity(message: AdvisorMessage): string {
+  return `${message.content.trim()}::${attachmentIdentity(message)}`;
+}
+
+function hasPersistedEquivalent(
+  liveMessage: AdvisorMessage,
+  historyMessages: AdvisorMessage[],
+): boolean {
+  const proposedActionKey = actionKey(liveMessage);
+  if (proposedActionKey) {
+    return historyMessages.some((message) => actionKey(message) === proposedActionKey);
+  }
+
+  if (liveMessage.role === 'user') {
+    const liveIdentity = userTurnIdentity(liveMessage);
+    return historyMessages.some(
+      (message) => message.role === 'user' && userTurnIdentity(message) === liveIdentity,
+    );
+  }
+
+  const content = liveMessage.content.trim();
+  if (!content) return true;
+
+  return historyMessages.some(
+    (message) => message.role === 'assistant' && message.content.trim() === content,
+  );
+}
 
 interface ChatPanelProps {
   activeConversationId: string | null;
@@ -65,73 +109,6 @@ interface ChatPanelProps {
   onConversationStarted: (conversationId: string) => void;
 }
 
-function toAdvisorMessage(m: {
-  id: string;
-  role: string;
-  content: string;
-  createdAt: string | Date;
-  metadata?: AdvisorMessageMetadata | null;
-}): AdvisorMessage {
-  return {
-    id: m.id,
-    role: m.role === 'USER' ? 'user' : 'assistant',
-    content: m.content,
-    createdAt: new Date(m.createdAt),
-    proposedAction: m.metadata?.proposedAction ?? null,
-    actionState: m.metadata?.actionState,
-  };
-}
-
-function actionKey(message: AdvisorMessage): string | null {
-  return message.proposedAction ? actionIdentity(message.proposedAction) : null;
-}
-
-function normalizeIdentityPart(value: string | undefined): string {
-  return (value ?? '').trim().toLowerCase();
-}
-
-function actionIdentity(action: AdvisorAction): string {
-  switch (action.kind) {
-    case 'adjust_budget':
-      return [
-        action.kind,
-        action.budgetId,
-        action.categorySlug,
-        action.currentLimit,
-        action.proposedLimit,
-      ].join(':');
-    case 'create_budget':
-      return [
-        action.kind,
-        action.categorySlug,
-        action.proposedLimit,
-      ].join(':');
-    case 'adjust_goal_contribution':
-      return [
-        action.kind,
-        action.goalId,
-        action.currentAmount,
-        action.proposedAmount,
-      ].join(':');
-    case 'suggest_recurring':
-      return [
-        action.kind,
-        normalizeIdentityPart(action.name),
-        action.amount,
-        action.categorySlug,
-        action.frequency,
-      ].join(':');
-    case 'flag_subscription':
-      return [
-        action.kind,
-        action.recurringId || normalizeIdentityPart(action.name),
-        action.operation,
-        action.currentAmount,
-        action.proposedAmount ?? '',
-      ].join(':');
-  }
-}
-
 export function ChatPanel({
   activeConversationId,
   loadHistory,
@@ -141,10 +118,17 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const plan = usePlan();
   const utils = api_client.useUtils();
+  const uploadFilesMutation = api_client.advisor.uploadFiles.useMutation();
+  const deleteUploadedFileMutation = api_client.advisor.deleteUploadedFile.useMutation();
 
   // Local UI draft only — messages + streaming live in the Jotai store.
   const [inputText, setInputText] = React.useState('');
   const [attachments, setAttachments] = React.useState<PendingAttachment[]>([]);
+  const [uploadingAttachments, setUploadingAttachments] = React.useState<
+    UploadingPendingAttachment[]
+  >([]);
+  const [failedAttachments, setFailedAttachments] = React.useState<FailedPendingAttachment[]>([]);
+  const [isUploadingAttachment, setIsUploadingAttachment] = React.useState(false);
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const hasNotifiedRef = React.useRef(false);
@@ -232,7 +216,7 @@ export function ChatPanel({
   // the live buffer alive.
   const displayMessages = React.useMemo(() => {
     const seen = new Set<string>();
-    const seenUserTurns: Array<{ content: string; createdAt: number }> = [];
+    const seenUserTurns: Array<{ identity: string; createdAt: number }> = [];
     const actionIndexes = new Map<string, number>();
     const out: AdvisorMessage[] = [];
     for (const m of [...historyMessages, ...stream.messages]) {
@@ -249,13 +233,13 @@ export function ChatPanel({
       }
       if (m.role === 'user') {
         const createdAt = m.createdAt.getTime();
+        const identity = userTurnIdentity(m);
         const duplicateUserTurn = seenUserTurns.some(
           (seen) =>
-            seen.content === m.content &&
-            Math.abs(seen.createdAt - createdAt) < 5 * 60 * 1000,
+            seen.identity === identity && Math.abs(seen.createdAt - createdAt) < 5 * 60 * 1000,
         );
         if (duplicateUserTurn) continue;
-        seenUserTurns.push({ content: m.content, createdAt });
+        seenUserTurns.push({ identity, createdAt });
       }
       seen.add(m.id);
       out.push(m);
@@ -285,14 +269,9 @@ export function ChatPanel({
   // server even has the turn). Runs before paint.
   React.useLayoutEffect(() => {
     if (!activeConversationId || stream.isStreaming) return;
-    const liveActionKeys = stream.messages
-      .map(actionKey)
-      .filter((key): key is string => !!key);
     if (
-      liveActionKeys.length > 0 &&
-      !liveActionKeys.every((key) =>
-        historyMessages.some((message) => actionKey(message) === key),
-      )
+      stream.messages.length > 0 &&
+      !stream.messages.every((message) => hasPersistedEquivalent(message, historyMessages))
     ) {
       return;
     }
@@ -347,11 +326,14 @@ export function ChatPanel({
 
   // ── Send ──────────────────────────────────────────────────────────────────
   const sendText = (text: string) => {
-    if ((!text && attachments.length === 0) || stream.isStreaming) return;
+    if ((!text && attachments.length === 0) || stream.isStreaming || isUploadingAttachment) {
+      return;
+    }
 
     const isNewConversation = activeConversationId === null;
     const conversationId =
       activeConversationId ?? (conversationIdRef.current ??= crypto.randomUUID());
+    const messageAttachments = attachments;
 
     if (!hasNotifiedRef.current) {
       hasNotifiedRef.current = true;
@@ -367,6 +349,7 @@ export function ChatPanel({
     void streamConversationMessage({
       conversationId,
       message: text,
+      attachments: messageAttachments,
       onFinished: onConversationUpdated,
     });
   };
@@ -377,6 +360,145 @@ export function ChatPanel({
 
   const handleRecommendationClick = (recommendation: string) => {
     sendText(`Do this recommendation: ${recommendation}`);
+  };
+
+  const handleWorkflowSelect = (prompt: string) => {
+    setInputText(prompt);
+    stickToBottomRef.current = true;
+  };
+
+  const uploadPickedFiles = async (files: File[], retryIds: string[] = []) => {
+    const accepted = files.filter((file) => {
+      if (!ADVISOR_FILE_MIME_TYPES.includes(file.type as never)) {
+        toast.error('File not accepted', {
+          description: 'Only images, PDF, CSV, and XLSX files are supported.',
+        });
+        return false;
+      }
+      if (file.size > ADVISOR_FILE_MAX_SIZE) {
+        toast.error('File too large', {
+          description: 'Each advisor file must be 1 MB or less.',
+        });
+        return false;
+      }
+      return true;
+    });
+    if (accepted.length === 0) return;
+
+    const currentTotal = attachments.reduce((sum, file) => sum + file.sizeBytes, 0);
+    const incomingTotal = accepted.reduce((sum, file) => sum + file.size, 0);
+    if (currentTotal + incomingTotal > ADVISOR_FILES_MAX_TOTAL_SIZE) {
+      toast.error('Too many files', {
+        description: 'Advisor attachments cannot exceed 10 MB total.',
+      });
+      return;
+    }
+
+    const uploading = accepted.map((file) => ({
+      id: crypto.randomUUID(),
+      file,
+      name: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+    }));
+    const uploadingIds = uploading.map((file) => file.id);
+    setUploadingAttachments((prev) => [...prev, ...uploading]);
+    setIsUploadingAttachment(true);
+    try {
+      if (retryIds.length > 0) {
+        setFailedAttachments((prev) => prev.filter((file) => !retryIds.includes(file.id)));
+      }
+
+      const result = await uploadFilesMutation.mutateAsync({
+        files: await Promise.all(
+          accepted.map(async (file) => ({
+            file: await fileToBase64(file),
+            filename: file.name,
+            mimeType: file.type,
+          })),
+        ),
+      });
+
+      setUploadingAttachments((prev) => prev.filter((file) => !uploadingIds.includes(file.id)));
+
+      if (result.uploaded.length > 0) {
+        setAttachments((prev) => [
+          ...prev,
+          ...result.uploaded.map((file) => ({
+            id: crypto.randomUUID(),
+            ...file,
+          })),
+        ]);
+      }
+
+      if (result.failed.length > 0) {
+        setFailedAttachments((prev) => [
+          ...prev,
+          ...result.failed.flatMap((failure) => {
+            const file = accepted[failure.index];
+            if (!file) return [];
+            return {
+              id: crypto.randomUUID(),
+              file,
+              name: failure.name,
+              mimeType: failure.mimeType,
+              sizeBytes: failure.sizeBytes,
+              reason: failure.reason,
+            };
+          }),
+        ]);
+        toast.error('Some files did not upload', {
+          description: 'Successful files were added. Retry only the failed files.',
+        });
+      }
+    } catch (err) {
+      setUploadingAttachments((prev) => prev.filter((file) => !uploadingIds.includes(file.id)));
+      const failed = accepted.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        name: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+        reason:
+          err instanceof Error ? err.message : 'Could not upload this file. Please try again.',
+      }));
+      setFailedAttachments((prev) => [...prev, ...failed]);
+      toast.error('Upload failed', {
+        description:
+          err instanceof Error
+            ? err.message
+            : 'Could not upload those advisor files. Please try again.',
+      });
+    } finally {
+      setIsUploadingAttachment(false);
+    }
+  };
+
+  const handleAttachFiles = async (files: File[]) => {
+    await uploadPickedFiles(files);
+  };
+
+  const handleRetryFailedAttachment = async (id: string) => {
+    const failed = failedAttachments.find((file) => file.id === id);
+    if (!failed) return;
+    await uploadPickedFiles([failed.file], [id]);
+  };
+
+  const handleRemoveFailedAttachment = (id: string) => {
+    setFailedAttachments((prev) => prev.filter((file) => file.id !== id));
+  };
+
+  const handleRemoveAttachment = (id: string) => {
+    const attachment = attachments.find((file) => file.id === id);
+    setAttachments((prev) => prev.filter((file) => file.id !== id));
+
+    if (!attachment) return;
+    void deleteUploadedFileMutation
+      .mutateAsync({
+        publicId: attachment.publicId,
+        kind: attachment.kind,
+      })
+      .catch(() => undefined);
   };
 
   const handleStop = () => {
@@ -410,15 +532,35 @@ export function ChatPanel({
   const inputProps = {
     value: inputText,
     attachments,
+    uploadingAttachments,
+    failedAttachments,
     isStreaming: stream.isStreaming,
+    isUploading: isUploadingAttachment,
     onChange: setInputText,
     onSend: handleSend,
     onStop: handleStop,
-    onAttach: (att: PendingAttachment) => setAttachments((prev) => [...prev, att]),
-    onRemoveAttachment: (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id)),
+    onAttach: handleAttachFiles,
+    onRemoveAttachment: handleRemoveAttachment,
+    onRetryFailedAttachment: handleRetryFailedAttachment,
+    onRemoveFailedAttachment: handleRemoveFailedAttachment,
+    onWorkflowSelect: handleWorkflowSelect,
   };
 
   const isEmpty = displayMessages.length === 0;
+  const streamingAssistantMessage = stream.messages[stream.messages.length - 1];
+  const streamingUserMessage = stream.messages[stream.messages.length - 2];
+  const isApprovalResumeStream =
+    streamingUserMessage?.role === 'assistant' &&
+    !!streamingUserMessage.proposedAction &&
+    streamingUserMessage.actionState === 'processing';
+  const showThinkingIndicator =
+    stream.isStreaming &&
+    !isApprovalResumeStream &&
+    streamingAssistantMessage?.role === 'assistant' &&
+    streamingAssistantMessage.content === '' &&
+    !streamingAssistantMessage.proposedAction;
+  const thinkingHasAttachments =
+    showThinkingIndicator && (streamingUserMessage?.attachments?.length ?? 0) > 0;
 
   // Opening an existing conversation with no cached head — spinner instead of a
   // greeting flash while the first page loads.
@@ -490,8 +632,8 @@ export function ChatPanel({
             ),
           )}
 
-          {stream.isStreaming && stream.messages[stream.messages.length - 1]?.content === '' && (
-            <AdvisorThinkingIndicator />
+          {showThinkingIndicator && (
+            <AdvisorThinkingIndicator hasAttachments={thinkingHasAttachments} />
           )}
         </div>
       </div>

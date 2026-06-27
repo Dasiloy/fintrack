@@ -8,6 +8,7 @@ describe('LangraphService', () => {
         kind: 'adjust_budget',
         budgetId: 'budget-1',
         categorySlug: 'food',
+        categoryName: 'Food',
         currentLimit: 40000,
         proposedLimit: 42000,
         reason: 'Food spending is trending above the current budget.',

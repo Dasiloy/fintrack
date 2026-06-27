@@ -3,8 +3,11 @@ import { randomUUID } from 'crypto';
 import {
   Observable,
   catchError,
+  concatWith,
+  defer,
   finalize,
   from,
+  ignoreElements,
   map,
   of,
   switchMap,
@@ -40,6 +43,10 @@ import {
 } from '@fintrack/database/types';
 import { PLAN_LIMITS, Usage } from '@fintrack/types/constants/plan.constants';
 import {
+  ADVISOR_FILES_MAX_TOTAL_SIZE,
+  ADVISOR_FILE_MIME_TYPES,
+} from '@fintrack/types/constants/file.constants';
+import {
   REDIS_CLIENT,
   INSIGHTS_CACHE_PREFIX,
   INSIGHTS_CACHE_TTL,
@@ -58,12 +65,16 @@ import {
 } from '@fintrack/types/constants/redis.costants';
 import { MacroContext } from '@fintrack/types/interfaces/insights';
 import {
+  ADVISOR_ATTACHMENT_CLEANUP_JOB,
+  ADVISOR_ATTACHMENT_CLEANUP_QUEUE,
   INSIGHTS_JOB,
   INSIGHTS_QUEUE,
 } from '@fintrack/types/constants/queus.constants';
 import { InsightsJobPayload } from '@fintrack/types/interfaces/insights';
 import type {
   AdvisorAction,
+  AdvisorAttachment,
+  AdvisorAttachmentCleanupItem,
   AdvisorActionState,
   AdvisorMessageMetadata,
   AdvisorPendingPayload,
@@ -73,6 +84,7 @@ import type {
 } from '@fintrack/types/interfaces/ai';
 
 import { UpdateAdvisorScopesDto } from './dto/advisor.dto';
+import { UploadService } from '../upload/upload.service';
 
 /**
  * Coordinates every API-gateway concern for the AI Advisor feature.
@@ -100,6 +112,9 @@ export class AdvisorService implements OnModuleInit {
     private readonly prisma: PrismaService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @InjectQueue(INSIGHTS_QUEUE) private readonly insightsQueue: Queue,
+    @InjectQueue(ADVISOR_ATTACHMENT_CLEANUP_QUEUE)
+    private readonly advisorAttachmentCleanupQueue: Queue,
+    private readonly uploadService: UploadService,
     @Inject(AI_PACKAGE_NAME) private readonly aiClient: ClientGrpc,
   ) {}
 
@@ -112,14 +127,7 @@ export class AdvisorService implements OnModuleInit {
       this.aiClient.getService<AiServiceClient>(AI_SERVICE_NAME);
   }
 
-  /**
-   * Builds the Redis key used for one-time staged chat payloads.
-   */
-  private pendingKey(token: string): string {
-    return `${ADVISOR_PENDING_PREFIX}:${token}`;
-  }
-
-  // ── Advisor chat streaming ────────────────────────────────────────────────
+  // ── Advisor chat public API ─────────────────────────────────────────────────
 
   /**
    * Stores a chat message or HITL resume decision long enough for SSE to read it.
@@ -140,9 +148,14 @@ export class AdvisorService implements OnModuleInit {
       conversationId: string;
       message?: string;
       resume?: { approved: boolean };
+      attachments?: AdvisorAttachment[];
     },
   ): Promise<{ streamToken: string }> {
-    if (!body.resume && !body.message?.trim()) {
+    const attachments = this.validateAdvisorAttachments(
+      userId,
+      body.attachments ?? [],
+    );
+    if (!body.resume && !body.message?.trim() && attachments.length === 0) {
       throw new BadRequestException('Message or resume payload is required');
     }
 
@@ -155,7 +168,12 @@ export class AdvisorService implements OnModuleInit {
         conversationId: body.conversationId,
         ...(body.resume
           ? { resume: body.resume }
-          : { message: body.message?.trim() ?? '' }),
+          : {
+              message: body.message?.trim() ?? '',
+              ...(attachments.length > 0
+                ? { attachments: attachments.map(this.toStoredAttachment) }
+                : {}),
+            }),
       }),
     );
     return { streamToken };
@@ -182,6 +200,7 @@ export class AdvisorService implements OnModuleInit {
     let assistantMetadata: AdvisorMessageMetadata | null = null;
     let resumeApproved: boolean | null = null;
     let streamFailed = false;
+    let finalStatePersisted = false;
 
     return from(this.consumePending(userId, streamToken)).pipe(
       switchMap((staged) => {
@@ -209,6 +228,11 @@ export class AdvisorService implements OnModuleInit {
             userId,
             message: staged.message,
             grantedScopes: staged.grantedScopes,
+            attachments: staged.attachments.map((attachment) => ({
+              ...attachment,
+              url: attachment.url ?? '',
+              extractedText: attachment.extractedText ?? '',
+            })),
           },
           metadata,
         );
@@ -241,206 +265,77 @@ export class AdvisorService implements OnModuleInit {
           },
         } as MessageEvent);
       }),
+      concatWith(
+        defer(() =>
+          from(
+            (async () => {
+              await this.persistStreamFinalState({
+                conversationId,
+                assistantText,
+                assistantMetadata,
+                resumeApproved,
+                streamFailed,
+              });
+              finalStatePersisted = true;
+            })(),
+          ).pipe(ignoreElements()),
+        ),
+      ),
       // Persist the assistant turn whether the stream completed or the client
       // disconnected (partial replies are still worth keeping).
       finalize(() => {
-        if (conversationId && resumeApproved !== null) {
-          void this.markLatestPendingActionMessage(
-            conversationId,
-            streamFailed ? 'failed' : resumeApproved ? 'approved' : 'rejected',
-          );
-        }
-        if (conversationId && (assistantText.trim() || assistantMetadata)) {
-          void this.persistAssistantTurn(
-            conversationId,
-            assistantText,
-            assistantMetadata,
-          );
-        }
+        if (finalStatePersisted) return;
+        finalStatePersisted = true;
+        void this.persistStreamFinalState({
+          conversationId,
+          assistantText,
+          assistantMetadata,
+          resumeApproved,
+          streamFailed,
+        });
       }),
     );
   }
 
   /**
-   * Consumes a staged Redis payload and prepares it for the AI service.
+   * Persists all state accumulated while streaming a single advisor turn.
    *
-   * For normal user messages this persists the user turn before the graph runs,
-   * ensuring conversation ownership is checked before `ai_service` can load a
-   * checkpointer thread. For resume payloads it verifies ownership and marks the
-   * latest pending approval card as approved or rejected.
+   * Normal completion awaits this method before the SSE Observable completes so
+   * the frontend can immediately refetch durable history without racing the DB
+   * write. Unsubscribes still call it best-effort from `finalize`.
    *
-   * @param userId Authenticated user id.
-   * @param streamToken One-time Redis token.
-   * @returns The normalized payload plus currently granted advisor scopes.
-   * @throws Error when the token is expired, owned by another user, or forbidden.
+   * @param state Accumulated stream state for the just-finished turn.
    */
-  private async consumePending(
-    userId: string,
-    streamToken: string,
-  ): Promise<ConsumedAdvisorPending> {
-    const key = this.pendingKey(streamToken);
-    const raw = await this.redis.get(key);
-    if (!raw) {
-      throw new Error('That message expired. Please send it again.');
-    }
-    await this.redis.del(key);
+  private async persistStreamFinalState(state: {
+    conversationId: string;
+    assistantText: string;
+    assistantMetadata: AdvisorMessageMetadata | null;
+    resumeApproved: boolean | null;
+    streamFailed: boolean;
+  }): Promise<void> {
+    if (!state.conversationId) return;
 
-    const staged = JSON.parse(raw) as AdvisorPendingPayload;
-    if (staged.userId !== userId) throw new Error('Unauthorized');
-
-    if ('resume' in staged) {
-      await this.assertConversationOwner(userId, staged.conversationId);
+    if (state.resumeApproved !== null) {
       await this.markLatestPendingActionMessage(
-        staged.conversationId,
-        'processing',
+        state.conversationId,
+        state.streamFailed
+          ? 'failed'
+          : state.resumeApproved
+            ? 'approved'
+            : 'rejected',
       );
-    } else {
-      // Persist the user turn + verify conversation ownership BEFORE the gRPC call,
-      // so we never load another user's checkpointer thread.
-      await this.persistUserTurn(userId, staged.conversationId, staged.message);
     }
 
-    const grantedScopes = await this.resolveGrantedScopes(userId);
-    return 'resume' in staged
-      ? {
-          conversationId: staged.conversationId,
-          resume: staged.resume,
-          grantedScopes,
-        }
-      : {
-          conversationId: staged.conversationId,
-          message: staged.message,
-          grantedScopes,
-        };
-  }
-
-  // ── Conversation persistence and history ───────────────────────────────────
-
-  /**
-   * Derives the sidebar title for a new conversation from its opening message.
-   *
-   * @param message First user message in the conversation.
-   * @returns A single-line title capped to the sidebar-friendly length.
-   */
-  private deriveTitle(message: string): string {
-    const firstLine = message.replace(/\s+/g, ' ').trim();
-    return firstLine.length > 60 ? `${firstLine.slice(0, 57)}…` : firstLine;
-  }
-
-  /**
-   * Persists an inbound user chat turn.
-   *
-   * Creates the conversation on the first turn, otherwise bumps recency, then
-   * appends the user message. This method also enforces ownership before the AI
-   * graph receives the conversation id.
-   *
-   * @param userId Authenticated user id.
-   * @param conversationId Client-generated conversation id / LangGraph thread id.
-   * @param message Trimmed user message text.
-   * @throws Error when the conversation belongs to another user.
-   */
-  private async persistUserTurn(
-    userId: string,
-    conversationId: string,
-    message: string,
-  ): Promise<void> {
-    try {
-      const existing = await this.prisma.advisorConversation.findUnique({
-        where: { id: conversationId },
-        select: { userId: true },
-      });
-
-      if (existing && existing.userId !== userId) {
-        throw new Error('Forbidden');
-      }
-
-      // Create the conversation on first use, else bump its activity time.
-      if (existing) {
-        await this.prisma.advisorConversation.update({
-          where: { id: conversationId },
-          data: { updatedAt: new Date() },
-        });
-      } else {
-        await this.prisma.advisorConversation.create({
-          data: {
-            id: conversationId,
-            userId,
-            title: this.deriveTitle(message),
-          },
-        });
-      }
-
-      // Append the user message.
-      await this.prisma.advisorChatMessage.create({
-        data: { conversationId, role: AdvisorChatRole.USER, content: message },
-      });
-
-      // New conversation or bumped recency → the sidebar list changed.
-      this.bustConversationsCache(userId);
-    } catch (err) {
-      this.logger.error(
-        `[ADV-GW] persistUserTurn failed convo=${conversationId}: ${(err as Error).message}`,
+    if (state.assistantText.trim() || state.assistantMetadata) {
+      await this.persistAssistantTurn(
+        state.conversationId,
+        state.assistantText,
+        state.assistantMetadata,
       );
-      throw err;
     }
   }
 
-  /**
-   * Ensures a conversation exists and belongs to the authenticated user.
-   *
-   * @param userId Authenticated user id.
-   * @param conversationId Conversation id to validate.
-   * @throws Error when the conversation does not exist or belongs to another user.
-   */
-  private async assertConversationOwner(
-    userId: string,
-    conversationId: string,
-  ): Promise<void> {
-    const existing = await this.prisma.advisorConversation.findUnique({
-      where: { id: conversationId },
-      select: { userId: true },
-    });
-
-    if (!existing || existing.userId !== userId) {
-      throw new Error('Forbidden');
-    }
-  }
-
-  /**
-   * Persists an assistant turn and bumps conversation recency.
-   *
-   * `metadata` is used for non-text UI artifacts, currently HITL approval cards.
-   * This is best-effort because a persistence failure should not break an active
-   * SSE response after chunks have already reached the browser.
-   *
-   * @param conversationId Conversation receiving the assistant turn.
-   * @param content Full assistant text accumulated from streamed tokens.
-   * @param metadata Optional structured metadata for approval-card rendering.
-   */
-  private async persistAssistantTurn(
-    conversationId: string,
-    content: string,
-    metadata?: AdvisorMessageMetadata | null,
-  ): Promise<void> {
-    try {
-      await this.prisma.$transaction([
-        this.prisma.advisorChatMessage.create({
-          data: {
-            conversationId,
-            role: AdvisorChatRole.ASSISTANT,
-            content,
-            ...(metadata ? { metadata: this.toJsonMetadata(metadata) } : {}),
-          },
-        }),
-        this.prisma.advisorConversation.update({
-          where: { id: conversationId },
-          data: { updatedAt: new Date() },
-        }),
-      ]);
-    } catch {
-      // Best-effort — a persistence failure must not break the user's stream.
-    }
-  }
+  // ── Conversation public API ─────────────────────────────────────────────────
 
   /**
    * Lists the user's advisor conversations for the sidebar.
@@ -552,118 +447,6 @@ export class AdvisorService implements OnModuleInit {
   }
 
   /**
-   * Parses a streamed `approval_required` payload into an advisor action.
-   *
-   * @param data JSON string emitted by `ai_service`.
-   * @returns Parsed action, or null when the payload is malformed.
-   */
-  private parseAdvisorAction(data: string): AdvisorAction | null {
-    try {
-      const parsed = JSON.parse(data) as AdvisorAction;
-      return parsed && typeof parsed === 'object' && 'kind' in parsed
-        ? parsed
-        : null;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Validates persisted chat-message metadata before returning it to clients.
-   *
-   * @param value Raw Prisma JSON value.
-   * @returns HITL metadata when it has a proposed action and valid state.
-   */
-  private parseAdvisorMessageMetadata(
-    value: unknown,
-  ): AdvisorMessageMetadata | null {
-    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-      return null;
-    }
-
-    const metadata = value as AdvisorMessageMetadata;
-    const hasValidState =
-      !metadata.actionState ||
-      ['pending', 'processing', 'approved', 'rejected', 'failed'].includes(
-        metadata.actionState,
-      );
-    const hasAction =
-      !!metadata.proposedAction &&
-      typeof metadata.proposedAction === 'object' &&
-      'kind' in metadata.proposedAction;
-
-    if (!hasValidState || !hasAction) return null;
-    return metadata;
-  }
-
-  /**
-   * Updates the latest pending approval card after the user approves or rejects.
-   *
-   * The frontend sends only the resume decision to the stream endpoint. To keep
-   * refresh behavior durable, the gateway finds the most recent pending card in
-   * the conversation and stores the terminal state before the resume stream runs.
-   *
-   * @param conversationId Conversation that owns the pending action card.
-   * @param actionState Terminal state selected by the user.
-   */
-  private async markLatestPendingActionMessage(
-    conversationId: string,
-    actionState: AdvisorActionState,
-  ): Promise<void> {
-    try {
-      const candidates = await this.prisma.advisorChatMessage.findMany({
-        where: { conversationId, role: AdvisorChatRole.ASSISTANT },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-        select: { id: true, metadata: true },
-      });
-
-      const pending = candidates
-        .map((row) => ({
-          id: row.id,
-          metadata: this.parseAdvisorMessageMetadata(row.metadata),
-        }))
-        .find((row) =>
-          actionState === 'processing'
-            ? row.metadata?.actionState === 'pending' ||
-              row.metadata?.actionState === 'failed'
-            : row.metadata?.actionState === 'processing',
-        );
-
-      if (!pending?.metadata) return;
-
-      await this.prisma.advisorChatMessage.update({
-        where: { id: pending.id },
-        data: {
-          metadata: this.toJsonMetadata({
-            ...pending.metadata,
-            actionState,
-          }),
-        },
-      });
-    } catch (err) {
-      this.logger.warn(
-        `[ADV-GW] pending action update skipped convo=${conversationId}: ${(err as Error).message}`,
-      );
-    }
-  }
-
-  /**
-   * Converts typed metadata into Prisma's JSON input shape.
-   *
-   * Prisma JSON inputs require indexable JSON values rather than plain typed
-   * interfaces, so serialization gives us a clean JSON object with the same data.
-   *
-   * @param metadata Typed advisor message metadata.
-   * @returns Prisma-compatible JSON value.
-   */
-  private toJsonMetadata(
-    metadata: AdvisorMessageMetadata,
-  ): Prisma.InputJsonValue {
-    return JSON.parse(JSON.stringify(metadata)) as Prisma.InputJsonValue;
-  }
-
-  /**
    * Renames an advisor conversation owned by the user.
    *
    * @param userId Authenticated user id.
@@ -703,7 +486,9 @@ export class AdvisorService implements OnModuleInit {
    * Permanently deletes a conversation and its related advisor state.
    *
    * Chat messages are removed by foreign-key cascade. LangGraph checkpointer
-   * rows are purged best-effort so stale graph memory does not accumulate.
+   * rows are purged best-effort so stale graph memory does not accumulate. Any
+   * Cloudinary attachments referenced by chat-message metadata are captured
+   * before the cascade delete and queued for non-blocking cleanup afterward.
    *
    * @param userId Authenticated user id.
    * @param conversationId Conversation to delete.
@@ -721,83 +506,23 @@ export class AdvisorService implements OnModuleInit {
       throw new NotFoundException('Conversation not found');
     }
 
+    const attachments =
+      await this.getConversationAttachmentCleanupItems(conversationId);
+
     await this.prisma.advisorConversation.delete({
       where: { id: conversationId },
     });
 
     await this.purgeCheckpointerThread(conversationId);
+    await this.queueAdvisorAttachmentCleanup(
+      userId,
+      conversationId,
+      attachments,
+    );
     this.bustConversationsCache(userId);
   }
 
-  /**
-   * Removes LangGraph checkpointer rows for a deleted conversation.
-   *
-   * The checkpointer uses fixed table names in the same database. Failures are
-   * logged and swallowed because the user-facing conversation has already been
-   * deleted and orphaned checkpoint rows are harmless.
-   *
-   * @param threadId LangGraph thread id, equal to the advisor conversation id.
-   */
-  private async purgeCheckpointerThread(threadId: string): Promise<void> {
-    const tables = ['checkpoint_writes', 'checkpoint_blobs', 'checkpoints'];
-    for (const table of tables) {
-      try {
-        await this.prisma.$executeRawUnsafe(
-          `DELETE FROM "${table}" WHERE thread_id = $1`,
-          threadId,
-        );
-      } catch (err) {
-        this.logger.warn(
-          `[ADV-GW] checkpointer purge skipped table=${table} convo=${threadId}: ${(err as Error).message}`,
-        );
-      }
-    }
-  }
-
-  /**
-   * Builds the Redis key for the cached conversation sidebar list.
-   */
-  private conversationsCacheKey(userId: string): string {
-    return `${ADVISOR_CONVERSATIONS_CACHE_PREFIX}:${userId}`;
-  }
-
-  /**
-   * Invalidates the cached conversation sidebar list for one user.
-   */
-  private bustConversationsCache(userId: string): void {
-    void this.redis.del(this.conversationsCacheKey(userId)).catch(() => {});
-  }
-
-  // ── Insight cache helpers ─────────────────────────────────────────────────
-
-  /**
-   * Invalidates both insight caches for a user.
-   *
-   * This is fire-and-forget: Redis failures must not break the mutation that
-   * caused the invalidation, and future reads can recover from the database.
-   */
-  private invalidateInsightCache(userId: string): void {
-    void this.redis
-      .del(
-        `${INSIGHTS_CACHE_PREFIX}:${userId}`,
-        `${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`,
-      )
-      .catch(() => {});
-  }
-
-  /**
-   * Invalidates only the unread-count cache for a user.
-   *
-   * Used when a read operation changes badge state but leaves the cached latest
-   * insight row untouched.
-   */
-  private invalidateUnreadCache(userId: string): void {
-    void this.redis
-      .del(`${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`)
-      .catch(() => {});
-  }
-
-  // ── Insights and macro context ────────────────────────────────────────────
+  // ── Insights public API ─────────────────────────────────────────────────────
 
   /**
    * Returns recent AI insights for the dashboard.
@@ -877,96 +602,6 @@ export class AdvisorService implements OnModuleInit {
       .catch(() => {});
 
     return macro;
-  }
-
-  // ── Advisor consent / scopes ─────────────────────────────────────────────────
-
-  /**
-   * Builds the Redis key for cached advisor data-scope consent.
-   */
-  private scopesCacheKey(userId: string): string {
-    return `${ADVISOR_SCOPES_CACHE_PREFIX}:${userId}`;
-  }
-
-  /**
-   * Returns the user's saved advisor consent state.
-   *
-   * Missing rows should be rare because settings are created at signup and
-   * backfilled for older accounts. If one is missing, the safe response is
-   * disabled with no granted scopes.
-   *
-   * @param userId Authenticated user id.
-   * @returns Advisor enablement and granted data scopes.
-   */
-  async getAdvisorScopes(
-    userId: string,
-  ): Promise<{ enabled: boolean; grantedScopes: AdvisorScope[] }> {
-    const setting = await this.prisma.advisorSetting.findUnique({
-      where: { userId },
-      select: { enabled: true, grantedScopes: true },
-    });
-
-    return setting ?? { enabled: false, grantedScopes: [] };
-  }
-
-  /**
-   * Resolves granted data scopes for the advisor graph hot path.
-   *
-   * Scopes are cached briefly in Redis because every chat stream needs them
-   * before calling `ai_service`.
-   *
-   * @param userId Authenticated user id.
-   * @returns Granted advisor scopes.
-   */
-  async resolveGrantedScopes(userId: string): Promise<AdvisorScope[]> {
-    const cacheKey = this.scopesCacheKey(userId);
-
-    try {
-      const cached = await this.redis.get(cacheKey);
-      if (cached) return JSON.parse(cached) as AdvisorScope[];
-    } catch {
-      // Treat a Redis failure as a miss — fall through to the DB.
-    }
-
-    const { grantedScopes } = await this.getAdvisorScopes(userId);
-
-    void this.redis
-      .setex(cacheKey, ADVISOR_SCOPES_CACHE_TTL, JSON.stringify(grantedScopes))
-      .catch(() => {});
-
-    return grantedScopes;
-  }
-
-  /**
-   * Updates advisor consent and invalidates cached scopes.
-   *
-   * Uses an upsert defensively even though the setting row normally exists from
-   * signup/backfill.
-   *
-   * @param userId Authenticated user id.
-   * @param input Partial consent update.
-   * @returns Saved consent state.
-   */
-  async updateAdvisorScopes(
-    userId: string,
-    input: UpdateAdvisorScopesDto,
-  ): Promise<{ enabled: boolean; grantedScopes: AdvisorScope[] }> {
-    const data = {
-      ...(input.grantedScopes && { grantedScopes: input.grantedScopes }),
-      ...(input.enabled !== undefined && { enabled: input.enabled }),
-    };
-
-    const updated = await this.prisma.advisorSetting.upsert({
-      where: { userId },
-      create: { userId, ...data },
-      update: data,
-      select: { enabled: true, grantedScopes: true },
-    });
-
-    // Busting the cache before returning keeps the next read consistent.
-    void this.redis.del(this.scopesCacheKey(userId)).catch(() => {});
-
-    return updated;
   }
 
   /**
@@ -1051,8 +686,6 @@ export class AdvisorService implements OnModuleInit {
     return result.count;
   }
 
-  // ── Trigger ────────────────────────────────────────────────────────────────
-
   /**
    * Enqueues a manual insight generation job.
    *
@@ -1108,5 +741,672 @@ export class AdvisorService implements OnModuleInit {
       .catch(() => {});
 
     return { queued: true };
+  }
+
+  // ── Advisor consent public API ──────────────────────────────────────────────
+
+  /**
+   * Returns the user's saved advisor consent state.
+   *
+   * Missing rows should be rare because settings are created at signup and
+   * backfilled for older accounts. If one is missing, the safe response is
+   * disabled with no granted scopes.
+   *
+   * @param userId Authenticated user id.
+   * @returns Advisor enablement and granted data scopes.
+   */
+  async getAdvisorScopes(
+    userId: string,
+  ): Promise<{ enabled: boolean; grantedScopes: AdvisorScope[] }> {
+    const setting = await this.prisma.advisorSetting.findUnique({
+      where: { userId },
+      select: { enabled: true, grantedScopes: true },
+    });
+
+    return setting ?? { enabled: false, grantedScopes: [] };
+  }
+
+  /**
+   * Resolves granted data scopes for the advisor graph hot path.
+   *
+   * Scopes are cached briefly in Redis because every chat stream needs them
+   * before calling `ai_service`.
+   *
+   * @param userId Authenticated user id.
+   * @returns Granted advisor scopes.
+   */
+  async resolveGrantedScopes(userId: string): Promise<AdvisorScope[]> {
+    const cacheKey = this.scopesCacheKey(userId);
+
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached) as AdvisorScope[];
+    } catch {
+      // Treat a Redis failure as a miss — fall through to the DB.
+    }
+
+    const { grantedScopes } = await this.getAdvisorScopes(userId);
+
+    void this.redis
+      .setex(cacheKey, ADVISOR_SCOPES_CACHE_TTL, JSON.stringify(grantedScopes))
+      .catch(() => {});
+
+    return grantedScopes;
+  }
+
+  /**
+   * Updates advisor consent and invalidates cached scopes.
+   *
+   * Uses an upsert defensively even though the setting row normally exists from
+   * signup/backfill.
+   *
+   * @param userId Authenticated user id.
+   * @param input Partial consent update.
+   * @returns Saved consent state.
+   */
+  async updateAdvisorScopes(
+    userId: string,
+    input: UpdateAdvisorScopesDto,
+  ): Promise<{ enabled: boolean; grantedScopes: AdvisorScope[] }> {
+    const data = {
+      ...(input.grantedScopes && { grantedScopes: input.grantedScopes }),
+      ...(input.enabled !== undefined && { enabled: input.enabled }),
+    };
+
+    const updated = await this.prisma.advisorSetting.upsert({
+      where: { userId },
+      create: { userId, ...data },
+      update: data,
+      select: { enabled: true, grantedScopes: true },
+    });
+
+    // Busting the cache before returning keeps the next read consistent.
+    void this.redis.del(this.scopesCacheKey(userId)).catch(() => {});
+
+    return updated;
+  }
+
+  // ── Chat staging helpers ────────────────────────────────────────────────────
+
+  /**
+   * Builds the Redis key used for one-time staged chat payloads.
+   */
+  private pendingKey(token: string): string {
+    return `${ADVISOR_PENDING_PREFIX}:${token}`;
+  }
+
+  /**
+   * Consumes a staged Redis payload and prepares it for the AI service.
+   *
+   * For normal user messages this persists the user turn before the graph runs,
+   * ensuring conversation ownership is checked before `ai_service` can load a
+   * checkpointer thread. For resume payloads it verifies ownership and marks the
+   * latest pending approval card as approved or rejected.
+   *
+   * @param userId Authenticated user id.
+   * @param streamToken One-time Redis token.
+   * @returns The normalized payload plus currently granted advisor scopes.
+   * @throws Error when the token is expired, owned by another user, or forbidden.
+   */
+  private async consumePending(
+    userId: string,
+    streamToken: string,
+  ): Promise<ConsumedAdvisorPending> {
+    const key = this.pendingKey(streamToken);
+    const raw = await this.redis.get(key);
+    if (!raw) {
+      throw new Error('That message expired. Please send it again.');
+    }
+    await this.redis.del(key);
+
+    const staged = JSON.parse(raw) as AdvisorPendingPayload;
+    if (staged.userId !== userId) throw new Error('Unauthorized');
+
+    if ('resume' in staged) {
+      await this.assertConversationOwner(userId, staged.conversationId);
+      await this.markLatestPendingActionMessage(
+        staged.conversationId,
+        'processing',
+      );
+    } else {
+      // Persist the user turn + verify conversation ownership BEFORE the gRPC call,
+      // so we never load another user's checkpointer thread.
+      await this.persistUserTurn(
+        userId,
+        staged.conversationId,
+        staged.message,
+        (staged.attachments ?? []).map(this.toStoredAttachment),
+      );
+    }
+
+    const grantedScopes = await this.resolveGrantedScopes(userId);
+    return 'resume' in staged
+      ? {
+          conversationId: staged.conversationId,
+          resume: staged.resume,
+          grantedScopes,
+        }
+      : {
+          conversationId: staged.conversationId,
+          message: staged.message,
+          attachments: (staged.attachments ?? []).map((attachment) =>
+            this.toModelAttachment(userId, attachment),
+          ),
+          grantedScopes,
+        };
+  }
+
+  /**
+   * Validate Advisor Attactchmenets file configurations
+   *
+   * @param userId The userId of the request
+   * @param attachments List of attachmenets to validate
+   * @returns passed list of attachmemnets
+   */
+  private validateAdvisorAttachments(
+    userId: string,
+    attachments: AdvisorAttachment[],
+  ): AdvisorAttachment[] {
+    if (!attachments.length) return [];
+
+    const total = attachments.reduce(
+      (sum, attachment) => sum + attachment.sizeBytes,
+      0,
+    );
+    if (total > ADVISOR_FILES_MAX_TOTAL_SIZE) {
+      throw new BadRequestException(
+        'Advisor attachments cannot exceed 10 MB total',
+      );
+    }
+
+    for (const attachment of attachments) {
+      if (!ADVISOR_FILE_MIME_TYPES.includes(attachment.mimeType as never)) {
+        throw new BadRequestException('Unsupported advisor attachment type');
+      }
+      if (!attachment.publicId.startsWith(`fintrack/advisor/${userId}/`)) {
+        throw new BadRequestException(
+          'Advisor attachment does not belong to user',
+        );
+      }
+    }
+
+    return attachments;
+  }
+
+  private toStoredAttachment(attachment: AdvisorAttachment): AdvisorAttachment {
+    const { url: _url, ...stored } = attachment;
+    return stored;
+  }
+
+  private toModelAttachment(
+    userId: string,
+    attachment: AdvisorAttachment,
+  ): AdvisorAttachment {
+    const url = this.uploadService.getAdvisorFileUrlForUser(
+      userId,
+      attachment.publicId,
+      attachment.format,
+      'model',
+    );
+    if (!url) {
+      throw new BadRequestException(
+        'Advisor attachment does not belong to user',
+      );
+    }
+    return { ...attachment, url };
+  }
+
+  // ── Conversation persistence helpers ────────────────────────────────────────
+
+  /**
+   * Derives the sidebar title for a new conversation from text or attachments.
+   *
+   * Text remains the preferred title source. Attachment-only starts use filenames
+   * so several document-only conversations do not all collapse into an empty or
+   * identical sidebar label.
+   *
+   * @param message First user message in the conversation.
+   * @param attachments Files sent with the opening user turn.
+   * @returns A single-line title capped to the sidebar-friendly length.
+   */
+  private deriveTitle(
+    message: string,
+    attachments: AdvisorAttachment[] = [],
+  ): string {
+    const firstLine = message.replace(/\s+/g, ' ').trim();
+    if (firstLine) return this.capConversationTitle(firstLine);
+
+    const firstAttachmentName = attachments[0]?.name
+      ?.replace(/\s+/g, ' ')
+      .trim();
+    if (!firstAttachmentName) return 'Document review';
+
+    const suffix =
+      attachments.length > 1 ? ` +${attachments.length - 1} more` : '';
+    return this.capConversationTitle(
+      `Documents: ${firstAttachmentName}${suffix}`,
+    );
+  }
+
+  /**
+   * Caps a generated conversation title to the sidebar-friendly length.
+   *
+   * @param title Raw title candidate.
+   * @returns Title no longer than 60 characters.
+   */
+  private capConversationTitle(title: string): string {
+    return title.length > 25 ? `${title.slice(0, 25)}…` : title;
+  }
+
+  /**
+   * Persists an inbound user chat turn.
+   *
+   * Creates the conversation on the first turn, otherwise bumps recency, then
+   * appends the user message. This method also enforces ownership before the AI
+   * graph receives the conversation id.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Client-generated conversation id / LangGraph thread id.
+   * @param message Trimmed user message text.
+   * @throws Error when the conversation belongs to another user.
+   */
+  private async persistUserTurn(
+    userId: string,
+    conversationId: string,
+    message: string,
+    attachments: AdvisorAttachment[] = [],
+  ): Promise<void> {
+    try {
+      const existing = await this.prisma.advisorConversation.findUnique({
+        where: { id: conversationId },
+        select: { userId: true },
+      });
+
+      if (existing && existing.userId !== userId) {
+        throw new Error('Forbidden');
+      }
+
+      // Create the conversation on first use, else bump its activity time.
+      if (existing) {
+        await this.prisma.advisorConversation.update({
+          where: { id: conversationId },
+          data: { updatedAt: new Date() },
+        });
+      } else {
+        await this.prisma.advisorConversation.create({
+          data: {
+            id: conversationId,
+            userId,
+            title: this.deriveTitle(message, attachments),
+          },
+        });
+      }
+
+      // Append the user message.
+      await this.prisma.advisorChatMessage.create({
+        data: {
+          conversationId,
+          role: AdvisorChatRole.USER,
+          content: message,
+          ...(attachments.length > 0
+            ? {
+                metadata: this.toJsonMetadata({
+                  attachments,
+                }),
+              }
+            : {}),
+        },
+      });
+
+      // New conversation or bumped recency → the sidebar list changed.
+      this.bustConversationsCache(userId);
+    } catch (err) {
+      this.logger.error(
+        `[ADV-GW] persistUserTurn failed convo=${conversationId}: ${(err as Error).message}`,
+      );
+      throw err;
+    }
+  }
+
+  /**
+   * Ensures a conversation exists and belongs to the authenticated user.
+   *
+   * @param userId Authenticated user id.
+   * @param conversationId Conversation id to validate.
+   * @throws Error when the conversation does not exist or belongs to another user.
+   */
+  private async assertConversationOwner(
+    userId: string,
+    conversationId: string,
+  ): Promise<void> {
+    const existing = await this.prisma.advisorConversation.findUnique({
+      where: { id: conversationId },
+      select: { userId: true },
+    });
+
+    if (!existing || existing.userId !== userId) {
+      throw new Error('Forbidden');
+    }
+  }
+
+  /**
+   * Persists an assistant turn and bumps conversation recency.
+   *
+   * `metadata` is used for non-text UI artifacts, currently HITL approval cards.
+   * This is best-effort because a persistence failure should not break an active
+   * SSE response after chunks have already reached the browser.
+   *
+   * @param conversationId Conversation receiving the assistant turn.
+   * @param content Full assistant text accumulated from streamed tokens.
+   * @param metadata Optional structured metadata for approval-card rendering.
+   */
+  private async persistAssistantTurn(
+    conversationId: string,
+    content: string,
+    metadata?: AdvisorMessageMetadata | null,
+  ): Promise<void> {
+    try {
+      await Promise.all([
+        this.prisma.advisorChatMessage.create({
+          data: {
+            conversationId,
+            role: AdvisorChatRole.ASSISTANT,
+            content,
+            ...(metadata ? { metadata: this.toJsonMetadata(metadata) } : {}),
+          },
+        }),
+        this.prisma.advisorConversation.update({
+          where: { id: conversationId },
+          data: { updatedAt: new Date() }, // best-fit, no -op // no update here does not really affet since user messager was updated
+        }),
+      ]);
+    } catch (err) {
+      this.logger.error(
+        `[ADV-GW] persistAssistantTurn failed convo=${conversationId}: ${(err as Error).message}`,
+      );
+      // Best-effort — a persistence failure must not break the user's stream.
+    }
+  }
+
+  // ── Message metadata and HITL helpers ───────────────────────────────────────
+
+  /**
+   * Parses a streamed `approval_required` payload into an advisor action.
+   *
+   * @param data JSON string emitted by `ai_service`.
+   * @returns Parsed action, or null when the payload is malformed.
+   */
+  private parseAdvisorAction(data: string): AdvisorAction | null {
+    try {
+      const parsed = JSON.parse(data) as AdvisorAction;
+      return parsed && typeof parsed === 'object' && 'kind' in parsed
+        ? parsed
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Validates persisted chat-message metadata before returning it to clients.
+   *
+   * @param value Raw Prisma JSON value.
+   * @returns HITL metadata when it has a proposed action and valid state.
+   */
+  private parseAdvisorMessageMetadata(
+    value: unknown,
+  ): AdvisorMessageMetadata | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return null;
+    }
+
+    const metadata = value as AdvisorMessageMetadata;
+    const hasValidState =
+      !metadata.actionState ||
+      ['pending', 'processing', 'approved', 'rejected', 'failed'].includes(
+        metadata.actionState,
+      );
+    const hasAction =
+      !!metadata.proposedAction &&
+      typeof metadata.proposedAction === 'object' &&
+      'kind' in metadata.proposedAction;
+    const hasAttachments =
+      Array.isArray(metadata.attachments) && metadata.attachments.length > 0;
+
+    if (!hasValidState || (!hasAction && !hasAttachments)) return null;
+    return metadata;
+  }
+
+  /**
+   * Updates the latest pending approval card after the user approves or rejects.
+   *
+   * The frontend sends only the resume decision to the stream endpoint. To keep
+   * refresh behavior durable, the gateway finds the most recent pending card in
+   * the conversation and stores the terminal state before the resume stream runs.
+   *
+   * @param conversationId Conversation that owns the pending action card.
+   * @param actionState Terminal state selected by the user.
+   */
+  private async markLatestPendingActionMessage(
+    conversationId: string,
+    actionState: AdvisorActionState,
+  ): Promise<void> {
+    try {
+      const candidates = await this.prisma.advisorChatMessage.findMany({
+        where: { conversationId, role: AdvisorChatRole.ASSISTANT },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: { id: true, metadata: true },
+      });
+
+      const pending = candidates
+        .map((row) => ({
+          id: row.id,
+          metadata: this.parseAdvisorMessageMetadata(row.metadata),
+        }))
+        .find((row) =>
+          actionState === 'processing'
+            ? row.metadata?.actionState === 'pending' ||
+              row.metadata?.actionState === 'failed'
+            : row.metadata?.actionState === 'processing',
+        );
+
+      if (!pending?.metadata) return;
+
+      await this.prisma.advisorChatMessage.update({
+        where: { id: pending.id },
+        data: {
+          metadata: this.toJsonMetadata({
+            ...pending.metadata,
+            actionState,
+          }),
+        },
+      });
+    } catch (err) {
+      this.logger.warn(
+        `[ADV-GW] pending action update skipped convo=${conversationId}: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Converts typed metadata into Prisma's JSON input shape.
+   *
+   * Prisma JSON inputs require indexable JSON values rather than plain typed
+   * interfaces, so serialization gives us a clean JSON object with the same data.
+   *
+   * @param metadata Typed advisor message metadata.
+   * @returns Prisma-compatible JSON value.
+   */
+  private toJsonMetadata(
+    metadata: AdvisorMessageMetadata,
+  ): Prisma.InputJsonValue {
+    return JSON.parse(JSON.stringify(metadata)) as Prisma.InputJsonValue;
+  }
+
+  // ── Conversation deletion helpers ───────────────────────────────────────────
+
+  /**
+   * Reads advisor message metadata before conversation deletion removes rows.
+   *
+   * @param conversationId Conversation whose message metadata should be scanned.
+   * @returns Deduped Cloudinary attachment cleanup items.
+   */
+  private async getConversationAttachmentCleanupItems(
+    conversationId: string,
+  ): Promise<AdvisorAttachmentCleanupItem[]> {
+    try {
+      const rows = await this.prisma.advisorChatMessage.findMany({
+        where: { conversationId },
+        select: { metadata: true },
+      });
+
+      return this.dedupeAttachmentCleanupItems(
+        rows.flatMap((row) => {
+          const metadata = this.parseAdvisorMessageMetadata(row.metadata);
+          return metadata?.attachments ?? [];
+        }),
+      );
+    } catch (err) {
+      this.logger.warn(
+        `[ADV-GW] advisor attachment scan skipped convo=${conversationId}: ${(err as Error).message}`,
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Enqueues best-effort Cloudinary cleanup for deleted conversation files.
+   *
+   * Queue failures are logged and swallowed because the conversation deletion
+   * has already succeeded and orphaned Cloudinary files are not user-facing.
+   *
+   * @param userId Conversation owner id.
+   * @param conversationId Deleted conversation id.
+   * @param attachments Attachment public ids captured before cascade deletion.
+   */
+  private async queueAdvisorAttachmentCleanup(
+    userId: string,
+    conversationId: string,
+    attachments: AdvisorAttachmentCleanupItem[],
+  ): Promise<void> {
+    if (attachments.length === 0) return;
+
+    try {
+      await this.advisorAttachmentCleanupQueue.add(
+        ADVISOR_ATTACHMENT_CLEANUP_JOB,
+        { userId, conversationId, attachments },
+        {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+          removeOnComplete: true,
+          removeOnFail: 50,
+        },
+      );
+    } catch (err) {
+      this.logger.warn(
+        `[ADV-GW] advisor attachment cleanup enqueue skipped convo=${conversationId}: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Converts full attachment metadata into minimal unique cleanup items.
+   *
+   * @param attachments Full metadata attachments stored on chat messages.
+   * @returns Unique Cloudinary cleanup candidates.
+   */
+  private dedupeAttachmentCleanupItems(
+    attachments: AdvisorAttachment[],
+  ): AdvisorAttachmentCleanupItem[] {
+    return Array.from(
+      new Map(
+        attachments
+          .filter((attachment) => attachment.publicId && attachment.kind)
+          .map((attachment) => [
+            attachment.publicId,
+            {
+              publicId: attachment.publicId,
+              kind: attachment.kind,
+              name: attachment.name,
+            },
+          ]),
+      ).values(),
+    );
+  }
+
+  /**
+   * Removes LangGraph checkpointer rows for a deleted conversation.
+   *
+   * The checkpointer uses fixed table names in the same database. Failures are
+   * logged and swallowed because the user-facing conversation has already been
+   * deleted and orphaned checkpoint rows are harmless.
+   *
+   * @param threadId LangGraph thread id, equal to the advisor conversation id.
+   */
+  private async purgeCheckpointerThread(threadId: string): Promise<void> {
+    const tables = ['checkpoint_writes', 'checkpoint_blobs', 'checkpoints'];
+    for (const table of tables) {
+      try {
+        await this.prisma.$executeRawUnsafe(
+          `DELETE FROM "${table}" WHERE thread_id = $1`,
+          threadId,
+        );
+      } catch (err) {
+        this.logger.warn(
+          `[ADV-GW] checkpointer purge skipped table=${table} convo=${threadId}: ${(err as Error).message}`,
+        );
+      }
+    }
+  }
+
+  // ── Cache helpers ───────────────────────────────────────────────────────────
+
+  /**
+   * Builds the Redis key for the cached conversation sidebar list.
+   */
+  private conversationsCacheKey(userId: string): string {
+    return `${ADVISOR_CONVERSATIONS_CACHE_PREFIX}:${userId}`;
+  }
+
+  /**
+   * Invalidates the cached conversation sidebar list for one user.
+   */
+  private bustConversationsCache(userId: string): void {
+    void this.redis.del(this.conversationsCacheKey(userId)).catch(() => {});
+  }
+
+  /**
+   * Invalidates both insight caches for a user.
+   *
+   * This is fire-and-forget: Redis failures must not break the mutation that
+   * caused the invalidation, and future reads can recover from the database.
+   */
+  private invalidateInsightCache(userId: string): void {
+    void this.redis
+      .del(
+        `${INSIGHTS_CACHE_PREFIX}:${userId}`,
+        `${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`,
+      )
+      .catch(() => {});
+  }
+
+  /**
+   * Invalidates only the unread-count cache for a user.
+   *
+   * Used when a read operation changes badge state but leaves the cached latest
+   * insight row untouched.
+   */
+  private invalidateUnreadCache(userId: string): void {
+    void this.redis
+      .del(`${INSIGHTS_UNREAD_CACHE_PREFIX}:${userId}`)
+      .catch(() => {});
+  }
+
+  /**
+   * Builds the Redis key for cached advisor data-scope consent.
+   */
+  private scopesCacheKey(userId: string): string {
+    return `${ADVISOR_SCOPES_CACHE_PREFIX}:${userId}`;
   }
 }
