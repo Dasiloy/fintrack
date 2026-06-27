@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsDefined,
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -17,11 +18,65 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 import { AdvisorScope } from '@fintrack/database/types';
+import { ADVISOR_FILE_MIME_TYPES } from '@fintrack/types/constants/file.constants';
+
+const ADVISOR_ATTACHMENT_KINDS = ['image', 'pdf', 'csv', 'excel'] as const;
 
 class ResumeAdvisorDto {
   @ApiProperty({ description: 'Whether the user approved the pending action.' })
   @IsBoolean()
   approved: boolean;
+}
+
+class AdvisorAttachmentDto {
+  @ApiPropertyOptional({
+    description: 'Short-lived signed URL used only during model handoff.',
+  })
+  @IsOptional()
+  @IsString()
+  url?: string;
+
+  @ApiProperty({ description: 'Cloudinary public id for the uploaded file.' })
+  @IsString()
+  @IsNotEmpty()
+  publicId: string;
+
+  @ApiProperty({ description: 'Original display filename.' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    description: 'MIME type accepted by advisor uploads.',
+    enum: ADVISOR_FILE_MIME_TYPES,
+  })
+  @IsString()
+  @IsIn(ADVISOR_FILE_MIME_TYPES)
+  mimeType: string;
+
+  @ApiProperty({ description: 'File size in bytes.' })
+  @IsInt()
+  @Min(1)
+  sizeBytes: number;
+
+  @ApiProperty({ description: 'Cloudinary resource format/extension.' })
+  @IsString()
+  @IsNotEmpty()
+  format: string;
+
+  @ApiProperty({
+    description: 'Advisor attachment category.',
+    enum: ADVISOR_ATTACHMENT_KINDS,
+  })
+  @IsIn(ADVISOR_ATTACHMENT_KINDS)
+  kind: (typeof ADVISOR_ATTACHMENT_KINDS)[number];
+
+  @ApiPropertyOptional({
+    description: 'Extracted attachment text retained after first model pass.',
+  })
+  @IsOptional()
+  @IsString()
+  extractedText?: string;
 }
 
 export class SendAdvisorMessageDto {
@@ -35,16 +90,34 @@ export class SendAdvisorMessageDto {
   @ApiPropertyOptional({
     description: 'The user message to send to the advisor.',
   })
-  @ValidateIf((body: SendAdvisorMessageDto) => !body.resume)
+  @ValidateIf(
+    (body: SendAdvisorMessageDto) =>
+      !body.resume && (body.attachments?.length ?? 0) === 0,
+  )
   @IsString()
   @IsNotEmpty()
   message?: string;
 
   @ApiPropertyOptional({
+    description:
+      'Advisor file attachments. A request may include attachments without message text.',
+    type: AdvisorAttachmentDto,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdvisorAttachmentDto)
+  attachments?: AdvisorAttachmentDto[];
+
+  @ApiPropertyOptional({
     description: 'Resume payload for approving/rejecting a pending action.',
     type: ResumeAdvisorDto,
   })
-  @ValidateIf((body: SendAdvisorMessageDto) => !body.message)
+  @ValidateIf(
+    (body: SendAdvisorMessageDto) =>
+      !body.message && (body.attachments?.length ?? 0) === 0,
+  )
   @IsDefined()
   @ValidateNested()
   @Type(() => ResumeAdvisorDto)
