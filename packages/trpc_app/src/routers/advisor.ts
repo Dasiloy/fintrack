@@ -6,6 +6,8 @@ import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../
 import type { AiInsight } from '@fintrack/database/types';
 import type { MacroContext } from '@fintrack/types/interfaces/insights';
 import type {
+  AdvisorAttachmentKind,
+  AdvisorAttachmentUploadResult,
   AdvisorConsent,
   ConversationSummary,
   ConversationMessagePage,
@@ -30,10 +32,9 @@ export const advisorRouter = createTRPCRouter({
       const params = new URLSearchParams();
       if (input?.limit !== undefined) params.set('limit', String(input.limit));
 
-      const response = await fetch(
-        `${GATEWAY_URL}/api/advisor/insights?${params.toString()}`,
-        { headers: gatewayHeaders(ctx.headers) },
-      );
+      const response = await fetch(`${GATEWAY_URL}/api/advisor/insights?${params.toString()}`, {
+        headers: gatewayHeaders(ctx.headers),
+      });
 
       if (!response.ok) await throwGatewayError(response);
 
@@ -48,10 +49,9 @@ export const advisorRouter = createTRPCRouter({
    * @throws UNAUTHORIZED if the session is invalid
    */
   getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-    const response = await fetch(
-      `${GATEWAY_URL}/api/advisor/insights/unread-count`,
-      { headers: gatewayHeaders(ctx.headers) },
-    );
+    const response = await fetch(`${GATEWAY_URL}/api/advisor/insights/unread-count`, {
+      headers: gatewayHeaders(ctx.headers),
+    });
 
     if (!response.ok) await throwGatewayError(response);
 
@@ -144,14 +144,101 @@ export const advisorRouter = createTRPCRouter({
 
       if (!response.ok) await throwGatewayError(response);
 
-      const data: StandardResponse<ConversationMessagePage> =
-        await response.json();
+      const data: StandardResponse<ConversationMessagePage> = await response.json();
       return data;
     }),
 
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
+
+  /**
+   * Uploads one picked batch of advisor attachments through the gateway upload
+   * service. The web client sends base64 file data; this tRPC server
+   * reconstructs one multipart request so the gateway can validate and stream
+   * the whole selection to Cloudinary without one HTTP round-trip per file.
+   */
+  uploadFiles: protectedProcedure
+    .input(
+      z.object({
+        files: z
+          .array(
+            z.object({
+              file: z.string().min(1),
+              filename: z.string().min(1),
+              mimeType: z.string().min(1),
+            }),
+          )
+          .min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const formData = new FormData();
+      for (const file of input.files) {
+        const base64 = file.file.replace(/^data:[^;]+;base64,/, '');
+        const bytes = Buffer.from(base64, 'base64');
+        const blob = new Blob([bytes], { type: file.mimeType });
+        formData.append('files', blob, file.filename);
+      }
+
+      const response = await fetch(`${GATEWAY_URL}/api/upload/advisor-file`, {
+        method: 'POST',
+        body: formData,
+        headers: gatewayHeaders(ctx.headers),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<AdvisorAttachmentUploadResult> = await response.json();
+      return data.data!;
+    }),
+
+  /**
+   * Best-effort cleanup for an advisor attachment removed from the local draft
+   * before the message is sent. The caller does not need to await this.
+   */
+  deleteUploadedFile: protectedProcedure
+    .input(
+      z.object({
+        publicId: z.string().min(1),
+        kind: z.enum(['image', 'pdf', 'csv', 'excel']),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/upload/advisor-file`, {
+        method: 'DELETE',
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+        body: JSON.stringify({
+          publicId: input.publicId,
+          kind: input.kind satisfies AdvisorAttachmentKind,
+        }),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<{ deleted: boolean }> = await response.json();
+      return data.data!;
+    }),
+
+  getAttachmentUrl: protectedProcedure
+    .input(
+      z.object({
+        publicId: z.string().min(1),
+        format: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${GATEWAY_URL}/api/upload/advisor-file/url`, {
+        method: 'POST',
+        headers: gatewayHeaders(ctx.headers, ContentType.JSON),
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<{ url: string }> = await response.json();
+      return data.data!;
+    }),
 
   /**
    * Renames a conversation. Ownership-enforced; busts the list cache server-side.
@@ -168,9 +255,7 @@ export const advisorRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const response = await fetch(
-        `${GATEWAY_URL}/api/advisor/conversations/${encodeURIComponent(
-          input.conversationId,
-        )}`,
+        `${GATEWAY_URL}/api/advisor/conversations/${encodeURIComponent(input.conversationId)}`,
         {
           method: 'PATCH',
           headers: gatewayHeaders(ctx.headers, ContentType.JSON),
@@ -195,9 +280,7 @@ export const advisorRouter = createTRPCRouter({
     .input(z.object({ conversationId: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const response = await fetch(
-        `${GATEWAY_URL}/api/advisor/conversations/${encodeURIComponent(
-          input.conversationId,
-        )}`,
+        `${GATEWAY_URL}/api/advisor/conversations/${encodeURIComponent(input.conversationId)}`,
         { method: 'DELETE', headers: gatewayHeaders(ctx.headers) },
       );
 
@@ -226,8 +309,11 @@ export const advisorRouter = createTRPCRouter({
 
     if (!response.ok) await throwGatewayError(response);
 
-    const data: StandardResponse<{ queued: boolean; cooldownSeconds: number | null; limitReached: boolean }> =
-      await response.json();
+    const data: StandardResponse<{
+      queued: boolean;
+      cooldownSeconds: number | null;
+      limitReached: boolean;
+    }> = await response.json();
     return data;
   }),
 
@@ -243,13 +329,10 @@ export const advisorRouter = createTRPCRouter({
   markRead: protectedProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const response = await fetch(
-        `${GATEWAY_URL}/api/advisor/insights/${input.id}/read`,
-        {
-          method: 'PATCH',
-          headers: gatewayHeaders(ctx.headers),
-        },
-      );
+      const response = await fetch(`${GATEWAY_URL}/api/advisor/insights/${input.id}/read`, {
+        method: 'PATCH',
+        headers: gatewayHeaders(ctx.headers),
+      });
 
       if (!response.ok) await throwGatewayError(response);
 
@@ -287,16 +370,7 @@ export const advisorRouter = createTRPCRouter({
     .input(
       z.object({
         grantedScopes: z
-          .array(
-            z.enum([
-              'TRANSACTIONS',
-              'BUDGETS',
-              'GOALS',
-              'RECURRING',
-              'SPLITS',
-              'ANALYTICS',
-            ]),
-          )
+          .array(z.enum(['TRANSACTIONS', 'BUDGETS', 'GOALS', 'RECURRING', 'SPLITS', 'ANALYTICS']))
           .optional(),
         enabled: z.boolean().optional(),
       }),

@@ -74,6 +74,45 @@ export interface ModelProviderConfig extends ModelConfig {
   provider: ModleProvider;
 }
 
+export type AdvisorAttachmentKind = 'image' | 'pdf' | 'csv' | 'excel';
+
+export interface AdvisorAttachment {
+  /** Short-lived signed URL. Present only while sending/viewing, never required for persisted metadata. */
+  url?: string;
+  publicId: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  format: string;
+  kind: AdvisorAttachmentKind;
+  extractedText?: string;
+}
+
+export interface AdvisorAttachmentUploadFailure {
+  index: number;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  reason: string;
+}
+
+export interface AdvisorAttachmentUploadResult {
+  uploaded: AdvisorAttachment[];
+  failed: AdvisorAttachmentUploadFailure[];
+}
+
+export interface AdvisorAttachmentCleanupItem {
+  publicId: string;
+  kind: AdvisorAttachmentKind;
+  name?: string;
+}
+
+export interface AdvisorAttachmentCleanupJob {
+  userId: string;
+  conversationId: string;
+  attachments: AdvisorAttachmentCleanupItem[];
+}
+
 /** One streamed chunk, mirroring the gateway/proto `AdvisorChunkRes`. */
 export interface AdvisorChunk {
   /** 'token' | 'approval_required' | 'permission_required' | 'error' */
@@ -93,9 +132,43 @@ export interface AdvisorChunk {
  */
 export type AdvisorAction =
   | {
+      kind: 'create_transaction';
+      amount: number;
+      date: string;
+      type: 'INCOME' | 'EXPENSE';
+      categorySlug: string;
+      categoryName?: string;
+      description?: string;
+      merchant?: string;
+      notes?: string;
+      reason: string;
+    }
+  | {
+      kind: 'update_transaction';
+      transactionId: string;
+      label: string;
+      amount?: number;
+      date?: string;
+      type?: 'INCOME' | 'EXPENSE';
+      categorySlug?: string;
+      categoryName?: string;
+      description?: string;
+      merchant?: string;
+      notes?: string;
+      reason: string;
+    }
+  | {
+      kind: 'delete_transaction';
+      transactionId: string;
+      label: string;
+      amount?: number;
+      reason: string;
+    }
+  | {
       kind: 'adjust_budget';
       budgetId: string;
       categorySlug: string;
+      categoryName: string;
       currentLimit: number;
       proposedLimit: number;
       reason: string;
@@ -103,7 +176,44 @@ export type AdvisorAction =
   | {
       kind: 'create_budget';
       categorySlug: string;
+      categoryName: string;
       proposedLimit: number;
+      reason: string;
+    }
+  | {
+      kind: 'delete_budget';
+      budgetId: string;
+      categorySlug: string;
+      categoryName: string;
+      currentLimit: number;
+      hardDelete?: boolean;
+      reason: string;
+    }
+  | {
+      kind: 'create_goal';
+      name: string;
+      targetDate: string;
+      targetAmount: number;
+      priority: 'LOW' | 'MEDIUM' | 'HIGH';
+      description?: string;
+      reason: string;
+    }
+  | {
+      kind: 'update_goal';
+      goalId: string;
+      goalName: string;
+      name?: string;
+      targetDate?: string;
+      targetAmount?: number;
+      priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+      status?: 'ACTIVE' | 'ON_HOLD';
+      description?: string;
+      reason: string;
+    }
+  | {
+      kind: 'delete_goal';
+      goalId: string;
+      goalName: string;
       reason: string;
     }
   | {
@@ -115,11 +225,57 @@ export type AdvisorAction =
       reason: string;
     }
   | {
+      kind: 'goal_contributions_batch';
+      goalId: string;
+      goalName: string;
+      operations: AdvisorGoalContributionOperation[];
+      reason: string;
+    }
+  | {
       kind: 'suggest_recurring';
       name: string;
       amount: number;
       categorySlug: string;
+      categoryName?: string;
       frequency: string;
+      reason: string;
+    }
+  | {
+      kind: 'create_split';
+      name: string;
+      amount: number;
+      transactionId?: string;
+      participants?: AdvisorSplitParticipantInput[];
+      reason: string;
+    }
+  | {
+      kind: 'update_split';
+      splitId: string;
+      splitName: string;
+      name?: string;
+      amount?: number;
+      transactionId?: string;
+      unlinkTransaction?: boolean;
+      reason: string;
+    }
+  | {
+      kind: 'delete_split';
+      splitId: string;
+      splitName: string;
+      reason: string;
+    }
+  | {
+      kind: 'split_participants_batch';
+      splitId: string;
+      splitName: string;
+      operations: AdvisorSplitParticipantOperation[];
+      reason: string;
+    }
+  | {
+      kind: 'split_settlements_batch';
+      splitId: string;
+      splitName: string;
+      operations: AdvisorSplitSettlementOperation[];
       reason: string;
     }
   | {
@@ -131,6 +287,66 @@ export type AdvisorAction =
       currentAmount: number;
       proposedAmount?: number;
       reason: string;
+    };
+
+export type AdvisorGoalContributionOperation =
+  | {
+      operation: 'add';
+      amount: number;
+      date: string;
+      description?: string;
+      transactionId?: string;
+    }
+  | {
+      operation: 'update';
+      contributionId: string;
+      amount?: number;
+      date?: string;
+      description?: string;
+      transactionId?: string;
+    }
+  | {
+      operation: 'delete';
+      contributionId: string;
+    };
+
+export interface AdvisorSplitParticipantInput {
+  name: string;
+  email: string;
+  amount: number;
+}
+
+export type AdvisorSplitParticipantOperation =
+  | {
+      operation: 'add';
+      name: string;
+      email: string;
+      amount: number;
+    }
+  | {
+      operation: 'update';
+      participantId: string;
+      name?: string;
+      email?: string;
+      amount?: number;
+    }
+  | {
+      operation: 'delete';
+      participantId: string;
+    };
+
+export type AdvisorSplitSettlementOperation =
+  | {
+      operation: 'add';
+      participantId: string;
+      participantName?: string;
+      paidAmount: number;
+      paidAt: string;
+      transactionId?: string;
+    }
+  | {
+      operation: 'delete';
+      settlementId: string;
     };
 
 // ─── Advisor conversations & consent ─────────────────────────────────────────
@@ -150,17 +366,13 @@ export type AdvisorScope =
 
 export type AdvisorChatRole = 'USER' | 'ASSISTANT';
 
-export type AdvisorActionState =
-  | 'pending'
-  | 'processing'
-  | 'approved'
-  | 'rejected'
-  | 'failed';
+export type AdvisorActionState = 'pending' | 'processing' | 'approved' | 'rejected' | 'failed';
 
 /** Structured UI metadata stored alongside a durable advisor chat message. */
 export interface AdvisorMessageMetadata {
   proposedAction?: AdvisorAction | null;
   actionState?: AdvisorActionState;
+  attachments?: AdvisorAttachment[];
 }
 
 /** Minimal context required to execute a user-approved advisor action. */
@@ -180,6 +392,7 @@ export type AdvisorPendingPayload =
       userId: string;
       conversationId: string;
       message: string;
+      attachments?: AdvisorAttachment[];
     }
   | {
       userId: string;
@@ -189,7 +402,11 @@ export type AdvisorPendingPayload =
 
 /** Staged payload after gateway ownership checks and scope resolution. */
 export type ConsumedAdvisorPending = (
-  | { conversationId: string; message: string }
+  | {
+      conversationId: string;
+      message: string;
+      attachments: AdvisorAttachment[];
+    }
   | { conversationId: string; resume: { approved: boolean } }
 ) & { grantedScopes: AdvisorScope[] };
 
@@ -217,6 +434,7 @@ export interface ConversationHistoryMessage {
   content: string;
   createdAt: Date;
   metadata?: AdvisorMessageMetadata | null;
+  attachments?: AdvisorAttachment[];
 }
 
 /** A cursor-paginated page of messages (oldest→newest), `nextCursor` = older page. */
