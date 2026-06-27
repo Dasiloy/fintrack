@@ -5,6 +5,7 @@
 
 import type {
   AdvisorAction,
+  AdvisorAttachment,
   AdvisorActionState,
   ConversationSummary,
 } from '@fintrack/types/interfaces/ai';
@@ -31,29 +32,40 @@ export interface AdvisorMessage {
   content: string;
   createdAt: Date;
   generatedFiles?: GeneratedFile[];
+  attachments?: AdvisorAttachment[];
   proposedAction?: AdvisorAction | null;
   actionState?: AdvisorActionState;
 }
 
-export interface GeneratedFile {
-  name: string;
-  type: 'pdf' | 'csv';
-  sizeKb: number;
-}
+export type GeneratedFile = AdvisorAttachment;
 
 // ── Agentic actions (Human-in-the-Loop) ──────────────────────────────────────
 // Unified with the AI service via the shared types package — single source of
 // truth so the proposed-action shape never drifts between client and server.
 
-export type { AdvisorAction, AdvisorActionState };
+export type { AdvisorAction, AdvisorAttachment, AdvisorActionState };
 
 // ── File attachments (user uploads pending send) ──────────────────────────────
 
-export interface PendingAttachment {
+export interface PendingAttachment extends AdvisorAttachment {
   id: string;
+}
+
+export interface FailedPendingAttachment {
+  id: string;
+  file: File;
   name: string;
-  type: 'image' | 'pdf';
-  sizeKb: number;
+  mimeType: string;
+  sizeBytes: number;
+  reason: string;
+}
+
+export interface UploadingPendingAttachment {
+  id: string;
+  file: File;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
 }
 
 // ── Object-based component states ─────────────────────────────────────────────

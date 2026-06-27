@@ -20,6 +20,7 @@ interface ConversationSidebarProps {
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
   deletingId?: string | null;
+  renamingId?: string | null;
   /** Before the persisted list has hydrated — show skeleton rows, not "empty". */
   isLoading?: boolean;
 }
@@ -32,6 +33,7 @@ export function ConversationSidebar({
   onRename,
   onDelete,
   deletingId,
+  renamingId,
   isLoading,
 }: ConversationSidebarProps) {
   return (
@@ -89,6 +91,7 @@ export function ConversationSidebar({
                 onRename={onRename}
                 onDelete={onDelete}
                 isDeleting={deletingId === thread.id}
+                isRenaming={renamingId === thread.id}
               />
             ))}
           </div>

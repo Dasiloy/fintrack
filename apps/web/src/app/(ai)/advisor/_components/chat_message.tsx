@@ -31,6 +31,8 @@ export function ChatMessage({
   onRecommendationClick,
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
+  const files = [...(message.generatedFiles ?? []), ...(message.attachments ?? [])];
+  const hasFiles = files.length > 0;
 
   return (
     <div className={cn('flex gap-2.5', isUser ? 'flex-row-reverse' : 'flex-row')}>
@@ -50,7 +52,7 @@ export function ChatMessage({
             isUser
               ? 'bg-primary/10 text-text-primary rounded-tr-sm'
               : 'bg-bg-surface text-text-primary rounded-tl-sm',
-            !message.content?.trim() && !message.generatedFiles ? 'hidden' : '',
+            !message.content?.trim() ? 'hidden' : '',
           )}
         >
           <RichText
@@ -60,9 +62,9 @@ export function ChatMessage({
         </div>
 
         {/* Generated file attachments */}
-        {message.generatedFiles && message.generatedFiles.length > 0 && (
+        {hasFiles && (
           <div className={cn('flex w-full max-w-xs flex-col gap-1.5', isUser && 'items-end')}>
-            {message.generatedFiles.map((file) => (
+            {files.map((file) => (
               <ChatFileAttachment key={file.name} file={file} />
             ))}
           </div>
