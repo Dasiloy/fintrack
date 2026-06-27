@@ -244,9 +244,7 @@ export function AdvisorPageClient({
   });
 
   const deleteMutation = api_client.advisor.deleteConversation.useMutation({
-    onMutate: async ({ conversationId }) => {
-      await utils.advisor.getConversations.cancel();
-      const prev = utils.advisor.getConversations.getData();
+    onSuccess: (_d, { conversationId }) => {
       utils.advisor.getConversations.setData(undefined, (old) =>
         old
           ? {
@@ -255,12 +253,6 @@ export function AdvisorPageClient({
             }
           : old,
       );
-      return { prev };
-    },
-    onError: (_e, _v, ctx) => {
-      if (ctx?.prev) utils.advisor.getConversations.setData(undefined, ctx.prev);
-    },
-    onSuccess: (_d, { conversationId }) => {
       // Forget the deleted thread's persisted head + live buffer.
       clearConversationData(conversationId);
       // If the open conversation was deleted, drop back to a fresh chat.
@@ -283,6 +275,9 @@ export function AdvisorPageClient({
   );
   const deletingId = deleteMutation.isPending
     ? (deleteMutation.variables?.conversationId ?? null)
+    : null;
+  const renamingId = renameMutation.isPending
+    ? (renameMutation.variables?.conversationId ?? null)
     : null;
 
   const isAdvisorTab = pageState.activeTab === 'advisor';
@@ -310,6 +305,7 @@ export function AdvisorPageClient({
       onRename={handleRename}
       onDelete={handleDelete}
       deletingId={deletingId}
+      renamingId={renamingId}
     />
   ) : (
     <InsightsSidebarNav expandedSections={expandedSections} onToggleSection={toggleSection} />
@@ -366,6 +362,7 @@ export function AdvisorPageClient({
             onRename={handleRename}
             onDelete={handleDelete}
             deletingId={deletingId}
+            renamingId={renamingId}
           />
         </SheetContent>
       </Sheet>
@@ -395,6 +392,7 @@ export function AdvisorPageClient({
                 onRename={handleRename}
                 onDelete={handleDelete}
                 deletingId={deletingId}
+                renamingId={renamingId}
               />
             ) : (
               <InsightsSidebarNav

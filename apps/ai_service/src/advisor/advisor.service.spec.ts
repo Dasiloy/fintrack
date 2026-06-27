@@ -70,6 +70,7 @@ describe('AdvisorService', () => {
     kind: 'adjust_budget' as const,
     budgetId: 'budget-1',
     categorySlug: 'food',
+    categoryName: 'Food',
     currentLimit: 40000,
     proposedLimit: 42000,
     reason: 'Food spending is trending above the current budget.',
@@ -369,6 +370,66 @@ describe('AdvisorService', () => {
         'Do not call propose_action again in this turn',
       );
     });
+
+    it('passes graph history through without stale attachment sanitization', async () => {
+      const invoke = jest.fn().mockResolvedValue(new AIMessage('Done.'));
+      const bindTools = jest.fn(() => ({ invoke }));
+      const service = makeService();
+      (
+        service as unknown as { respondModel: { bindTools: typeof bindTools } }
+      ).respondModel = { bindTools };
+      (service as unknown as { tools: [] }).tools = [];
+      const store = {
+        get: jest.fn().mockResolvedValue(undefined),
+        search: jest.fn().mockResolvedValue([]),
+      };
+      const respondNode = (
+        service as unknown as {
+          buildRespondNode: () => (
+            state: { messages: HumanMessage[] },
+            runtime: {
+              context: { userId: string; grantedScopes: never[] };
+              store: typeof store;
+            },
+          ) => Promise<{ messages: AIMessage[] }>;
+        }
+      ).buildRespondNode();
+
+      await respondNode(
+        {
+          messages: [
+            new HumanMessage({
+              content: [
+                { type: 'text', text: 'Analyze this file' },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: 'https://res.cloudinary.com/demo/image/upload/old.jpg',
+                  },
+                },
+              ],
+            }),
+          ],
+        },
+        {
+          context: { userId: 'user-1', grantedScopes: [] },
+          store,
+        },
+      );
+
+      const [messages] = invoke.mock.calls[0];
+      const userMessage = messages[1] as HumanMessage;
+      expect(userMessage.content).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'image_url',
+            image_url: {
+              url: 'https://res.cloudinary.com/demo/image/upload/old.jpg',
+            },
+          }),
+        ]),
+      );
+    });
   });
 
   describe('resumeResponse', () => {
@@ -419,6 +480,158 @@ describe('AdvisorService', () => {
           thread_id: 'conversation-1',
         },
       });
+    });
+  });
+
+  describe('streamResponse attachments', () => {
+    const originalFetch = global.fetch;
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('adds uploaded advisor attachments to the human message content', async () => {
+      const streamEvents = jest.fn(async function* (
+        _graph: unknown,
+        _input: unknown,
+        _opts: unknown,
+      ) {
+        yield { type: 'token', content: 'Done', node: ADVISOR_NODES.RESPOND };
+      });
+      const service = makeService({ streamEvents });
+      (service as unknown as { graph: unknown }).graph = 'compiled-graph';
+
+      const events: unknown[] = [];
+      for await (const event of (
+        service as unknown as {
+          streamResponse(input: {
+            userId: string;
+            conversationId: string;
+            message: string;
+            grantedScopes: never[];
+            attachments: Array<{
+              name: string;
+              mimeType: string;
+              url: string;
+              extractedText?: string;
+            }>;
+          }): AsyncGenerator<unknown>;
+        }
+      ).streamResponse({
+        userId: 'user-1',
+        conversationId: 'conversation-1',
+        message: 'Please review this statement.',
+        grantedScopes: ['TRANSACTIONS' as never],
+        attachments: [
+          {
+            name: 'statement.csv',
+            mimeType: 'text/csv',
+            url: 'https://res.cloudinary.com/demo/raw/upload/statement.csv',
+            extractedText: 'date,amount\n2026-06-26,1000',
+          },
+        ],
+      })) {
+        events.push(event);
+      }
+
+      expect(events).toEqual([
+        { type: 'token', content: 'Done', node: ADVISOR_NODES.RESPOND },
+      ]);
+      const [, input] = streamEvents.mock.calls[0] as unknown[];
+      const human = (input as { messages: HumanMessage[] }).messages[0];
+      expect(human.content).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'text',
+            text: expect.stringContaining('Please review this statement.'),
+          }),
+          expect.objectContaining({
+            type: 'text',
+            text: expect.stringContaining('statement.csv'),
+          }),
+          expect.objectContaining({
+            type: 'text',
+            text: expect.stringContaining('date,amount'),
+          }),
+        ]),
+      );
+    });
+
+    it('extracts image attachments once and stores only text in the graph input', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        headers: {
+          get: jest.fn().mockReturnValue('image/png'),
+        },
+        arrayBuffer: jest
+          .fn()
+          .mockResolvedValue(Buffer.from('fake-image-bytes').buffer),
+      }) as never;
+      const streamEvents = jest.fn(async function* (
+        _graph: unknown,
+        _input: unknown,
+        _opts: unknown,
+      ) {
+        yield { type: 'token', content: 'Done', node: ADVISOR_NODES.RESPOND };
+      });
+      const service = makeService({ streamEvents });
+      (service as unknown as { graph: unknown }).graph = 'compiled-graph';
+      (
+        service as unknown as {
+          respondModel: { invoke: jest.Mock };
+        }
+      ).respondModel = {
+        invoke: jest
+          .fn()
+          .mockResolvedValue(new AIMessage('Visible receipt text')),
+      };
+
+      for await (const _event of (
+        service as unknown as {
+          streamResponse(input: {
+            userId: string;
+            conversationId: string;
+            message: string;
+            grantedScopes: never[];
+            attachments: Array<{
+              name: string;
+              mimeType: string;
+              url: string;
+              sizeBytes: number;
+              kind: 'image';
+            }>;
+          }): AsyncGenerator<unknown>;
+        }
+      ).streamResponse({
+        userId: 'user-1',
+        conversationId: 'conversation-1',
+        message: 'What is in this receipt?',
+        grantedScopes: ['TRANSACTIONS' as never],
+        attachments: [
+          {
+            name: 'receipt.png',
+            mimeType: 'image/png',
+            url: 'https://res.cloudinary.com/demo/image/upload/receipt.png',
+            sizeBytes: 16,
+            kind: 'image',
+          },
+        ],
+      })) {
+        // drain
+      }
+
+      const [, input] = streamEvents.mock.calls[0] as unknown[];
+      const human = (input as { messages: HumanMessage[] }).messages[0];
+      expect(human.content).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: 'text',
+            text: expect.stringContaining('Visible receipt text'),
+          }),
+        ]),
+      );
+      expect(JSON.stringify(human.content)).not.toContain('"image_url"');
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
   });
 });

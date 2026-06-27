@@ -10,23 +10,18 @@ jest.mock('@fintrack/utils/date', () => ({
     toISOString: () => '2026-06-25T00:00:00.000Z',
   })),
 }));
+jest.mock('@fintrack/utils/format', () => ({
+  genTransactionSourceId: jest.fn(() => 'TXN-260625-ABC123'),
+}));
 
 import { Metadata } from '@grpc/grpc-js';
+import { Logger } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 
 import { AdvisorActionExecutor } from './advisor.action-executor';
 
 describe('AdvisorActionExecutor', () => {
-  function makeExecutor(financeService: {
-    createBudget?: jest.Mock;
-    createRecurring?: jest.Mock;
-    deleteRecurring?: jest.Mock;
-    getGoal?: jest.Mock;
-    getRecurring?: jest.Mock;
-    updateGoalContribution?: jest.Mock;
-    updateBudget?: jest.Mock;
-    updateRecurring?: jest.Mock;
-  }) {
+  function makeExecutor(financeService: Record<string, jest.Mock>) {
     const financeClient = {
       getService: jest.fn(() => financeService),
     };
@@ -52,6 +47,7 @@ describe('AdvisorActionExecutor', () => {
         kind: 'adjust_budget',
         budgetId: 'budget-1',
         categorySlug: 'food',
+        categoryName: 'Food',
         currentLimit: 40000,
         proposedLimit: 42000,
         reason: 'Food spending is trending above the current budget.',
@@ -69,9 +65,57 @@ describe('AdvisorActionExecutor', () => {
     expect(request).toEqual({
       id: 'budget-1',
       amount: 42000,
-      month: 6,
+      month: 5,
       year: 2026,
     });
+    expect(metadata.get('x-user-id')).toEqual(['user-1']);
+  });
+
+  it('creates a manual transaction for create_transaction actions', async () => {
+    const financeService = {
+      createTransaction: jest.fn(() =>
+        of({
+          id: 'transaction-1',
+          amount: '12000',
+        }),
+      ),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    const result = await executor.execute(
+      {
+        kind: 'create_transaction',
+        amount: 12000,
+        date: '2026-06-25',
+        type: 'EXPENSE',
+        categorySlug: 'food',
+        categoryName: 'Food',
+        merchant: 'Chicken Republic',
+        reason: 'User asked to record lunch.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(result).toEqual({
+      status: 'executed',
+      message:
+        'Expense transaction created for ₦12,000 in Fintrack. This is a manual Fintrack record, so it does not change your bank account.',
+    });
+    expect(financeService.createTransaction).toHaveBeenCalledTimes(1);
+    const [request, metadata] = financeService.createTransaction.mock
+      .calls[0] as unknown as [Record<string, unknown>, Metadata];
+    expect(request).toMatchObject({
+      amount: '12000',
+      date: '2026-06-25',
+      type: 1,
+      categorySlug: 'food',
+      source: 0,
+      merchant: 'Chicken Republic',
+      description: 'User asked to record lunch.',
+    });
+    expect(request.sourceId).toEqual(
+      expect.stringMatching(/^TXN-260625-[0-9A-Z]{6}$/),
+    );
     expect(metadata.get('x-user-id')).toEqual(['user-1']);
   });
 
@@ -91,6 +135,7 @@ describe('AdvisorActionExecutor', () => {
       {
         kind: 'create_budget',
         categorySlug: 'food',
+        categoryName: 'Food',
         proposedLimit: 42000,
         reason: 'Food spending needs its own guardrail.',
       },
@@ -113,6 +158,34 @@ describe('AdvisorActionExecutor', () => {
       year: 2026,
     });
     expect(metadata.get('x-user-id')).toEqual(['user-1']);
+  });
+
+  it('removes a budget for delete_budget actions', async () => {
+    const financeService = {
+      deleteBudget: jest.fn(() => of({})),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    const result = await executor.execute(
+      {
+        kind: 'delete_budget',
+        budgetId: 'budget-1',
+        categorySlug: 'transport',
+        categoryName: 'Transport',
+        currentLimit: 40000,
+        reason: 'User no longer tracks this budget.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(result).toEqual({
+      status: 'executed',
+      message: 'Transport budget removed.',
+    });
+    expect(financeService.deleteBudget).toHaveBeenCalledWith(
+      { id: 'budget-1', hardDelete: false },
+      expect.any(Metadata),
+    );
   });
 
   it('updates the latest contribution for adjust_goal_contribution actions', async () => {
@@ -171,6 +244,55 @@ describe('AdvisorActionExecutor', () => {
     expect(updateMetadata.get('x-user-id')).toEqual(['user-1']);
   });
 
+  it('applies a batch of goal contribution changes', async () => {
+    const financeService = {
+      contributeToGoal: jest.fn(() => of({ id: 'contribution-new' })),
+      deleteContribution: jest.fn(() => of({})),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    const result = await executor.execute(
+      {
+        kind: 'goal_contributions_batch',
+        goalId: 'goal-1',
+        goalName: 'Emergency Fund',
+        operations: [
+          {
+            operation: 'add',
+            amount: 10000,
+            date: '2026-06-25',
+            description: 'Extra savings',
+          },
+          { operation: 'delete', contributionId: 'contribution-old' },
+        ],
+        reason: 'Clean up this month’s goal progress.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(result).toEqual({
+      status: 'executed',
+      message: 'Emergency Fund goal contributions updated (2 changes).',
+    });
+    expect(financeService.contributeToGoal).toHaveBeenCalledWith(
+      {
+        goalId: 'goal-1',
+        amount: 10000,
+        date: '2026-06-25',
+        description: 'Extra savings',
+        transactionId: undefined,
+      },
+      expect.any(Metadata),
+    );
+    expect(financeService.deleteContribution).toHaveBeenCalledWith(
+      {
+        goalId: 'goal-1',
+        goalContributionId: 'contribution-old',
+      },
+      expect.any(Metadata),
+    );
+  });
+
   it('creates an expense recurring item for suggest_recurring actions', async () => {
     const financeService = {
       createRecurring: jest.fn(() =>
@@ -213,6 +335,61 @@ describe('AdvisorActionExecutor', () => {
       description: 'This looks like a repeating subscription.',
     });
     expect(metadata.get('x-user-id')).toEqual(['user-1']);
+  });
+
+  it('applies a batch of split participant changes', async () => {
+    const financeService = {
+      addParticipant: jest.fn(() => of({ id: 'participant-new' })),
+      updateParticipant: jest.fn(() => of({ id: 'participant-1' })),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    const result = await executor.execute(
+      {
+        kind: 'split_participants_batch',
+        splitId: 'split-1',
+        splitName: 'Weekend Trip',
+        operations: [
+          {
+            operation: 'add',
+            name: 'Ada',
+            email: 'ada@example.com',
+            amount: 20000,
+          },
+          {
+            operation: 'update',
+            participantId: 'participant-1',
+            amount: 25000,
+          },
+        ],
+        reason: 'Adjust trip balances.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(result).toEqual({
+      status: 'executed',
+      message: 'Weekend Trip participants updated (2 changes).',
+    });
+    expect(financeService.addParticipant).toHaveBeenCalledWith(
+      {
+        splitId: 'split-1',
+        name: 'Ada',
+        email: 'ada@example.com',
+        amount: 20000,
+      },
+      expect.any(Metadata),
+    );
+    expect(financeService.updateParticipant).toHaveBeenCalledWith(
+      {
+        splitId: 'split-1',
+        participantId: 'participant-1',
+        name: undefined,
+        email: undefined,
+        amount: 25000,
+      },
+      expect.any(Metadata),
+    );
   });
 
   it('adjusts an existing subscription for flag_subscription adjust actions', async () => {
@@ -337,6 +514,9 @@ describe('AdvisorActionExecutor', () => {
   });
 
   it('returns execution_failed when the finance update fails', async () => {
+    const loggerErrorSpy = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => undefined);
     const financeService = {
       updateBudget: jest.fn(() =>
         throwError(() => new Error('finance unavailable')),
@@ -350,6 +530,7 @@ describe('AdvisorActionExecutor', () => {
           kind: 'adjust_budget',
           budgetId: 'budget-1',
           categorySlug: 'food',
+          categoryName: 'Food',
           currentLimit: 40000,
           proposedLimit: 42000,
           reason: 'Food spending is trending above the current budget.',
@@ -361,5 +542,10 @@ describe('AdvisorActionExecutor', () => {
       message:
         'I could not update that budget just now. No financial changes were made.',
     });
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[ADV-ACTION] adjust_budget failed'),
+      expect.any(String),
+    );
+    loggerErrorSpy.mockRestore();
   });
 });
