@@ -2,6 +2,7 @@ import { env } from '@/env';
 import { auth } from '@/lib/nextauth';
 import { NextResponse } from 'next/server';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
+import type { AdvisorAttachment } from '@fintrack/types/interfaces/ai';
 
 /**
  * Advisor streaming proxy.
@@ -24,6 +25,7 @@ export async function POST(request: Request): Promise<Response> {
     conversationId?: string;
     message?: string;
     resume?: { approved?: boolean };
+    attachments?: AdvisorAttachment[];
   };
   try {
     body = await request.json();
@@ -37,9 +39,10 @@ export async function POST(request: Request): Promise<Response> {
     typeof body.resume?.approved === 'boolean'
       ? { approved: body.resume.approved }
       : undefined;
-  if (!conversationId || (!message && !resume)) {
+  const hasAttachments = (body.attachments?.length ?? 0) > 0;
+  if (!conversationId || (!message && !resume && !hasAttachments)) {
     return NextResponse.json(
-      { error: 'conversationId and message or resume are required' },
+      { error: 'conversationId and message, file, or resume are required' },
       { status: 400 },
     );
   }
@@ -56,7 +59,13 @@ export async function POST(request: Request): Promise<Response> {
       method: 'POST',
       headers: { ...authHeaders, 'Content-Type': 'application/json' },
       body: JSON.stringify(
-        resume ? { conversationId, resume } : { conversationId, message },
+        resume
+          ? { conversationId, resume }
+          : {
+              conversationId,
+              message: message ?? '',
+              attachments: body.attachments ?? [],
+            },
       ),
     });
     if (!stageRes.ok) {

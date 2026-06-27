@@ -18,5 +18,6 @@ import { UsageModule } from '../usage/usage.module';
   ],
   controllers: [UploadController],
   providers: [UploadService],
+  exports: [UploadService],
 })
 export class UploadModule {}

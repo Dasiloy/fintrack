@@ -5,11 +5,11 @@
 // source: ai/ai.proto
 
 /* eslint-disable */
-import type { Metadata } from "@grpc/grpc-js";
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import type { Metadata } from '@grpc/grpc-js';
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-export const protobufPackage = "ai";
+export const protobufPackage = 'ai';
 
 export interface AdvisorMessageReq {
   /** maps to the LangGraph thread_id */
@@ -21,6 +21,18 @@ export interface AdvisorMessageReq {
    * advisor's tools and grounded prompt sections.
    */
   grantedScopes: string[];
+  attachments: AdvisorAttachment[];
+}
+
+export interface AdvisorAttachment {
+  url: string;
+  publicId: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+  kind: string;
+  extractedText: string;
+  format: string;
 }
 
 export interface ResumeAdvisorReq {
@@ -76,10 +88,13 @@ export interface ClassifyTransactionsRes {
   classifications: ClassifyTransactionsUnit[];
 }
 
-export const AI_PACKAGE_NAME = "ai";
+export const AI_PACKAGE_NAME = 'ai';
 
 export interface AiServiceClient {
-  classifyTransactions(request: ClassifyTransactionsReq, metadata?: Metadata): Observable<ClassifyTransactionsRes>;
+  classifyTransactions(
+    request: ClassifyTransactionsReq,
+    metadata?: Metadata,
+  ): Observable<ClassifyTransactionsRes>;
 
   /**
    * Streams the advisor's response for one user message as a sequence of chunks
@@ -101,7 +116,10 @@ export interface AiServiceController {
   classifyTransactions(
     request: ClassifyTransactionsReq,
     metadata?: Metadata,
-  ): Promise<ClassifyTransactionsRes> | Observable<ClassifyTransactionsRes> | ClassifyTransactionsRes;
+  ):
+    | Promise<ClassifyTransactionsRes>
+    | Observable<ClassifyTransactionsRes>
+    | ClassifyTransactionsRes;
 
   /**
    * Streams the advisor's response for one user message as a sequence of chunks
@@ -121,17 +139,17 @@ export interface AiServiceController {
 
 export function AiServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["classifyTransactions", "sendAdvisorMessage", "resumeAdvisor"];
+    const grpcMethods: string[] = ['classifyTransactions', 'sendAdvisorMessage', 'resumeAdvisor'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AiService", method)(constructor.prototype[method], method, descriptor);
+      GrpcMethod('AiService', method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AiService", method)(constructor.prototype[method], method, descriptor);
+      GrpcStreamMethod('AiService', method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const AI_SERVICE_NAME = "AiService";
+export const AI_SERVICE_NAME = 'AiService';

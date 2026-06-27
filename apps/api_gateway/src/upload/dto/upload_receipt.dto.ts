@@ -1,3 +1,6 @@
+import { AdvisorAttachmentKind } from '@fintrack/types/interfaces/ai';
+import { IsEmpty, IsIn, IsNotEmpty, IsString } from 'class-validator';
+
 /**
  * Response returned by `POST /upload/receipt`.
  *
@@ -15,4 +18,25 @@ export interface UploadReceiptResponse {
    *            already exists; no new job was enqueued.
    */
   isNew: boolean;
+}
+
+export class GetAdvisorFileUrlDto {
+  @IsString()
+  @IsNotEmpty()
+  publicId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  format: string;
+}
+
+export class DeleteAdvisorFileDto {
+  @IsString()
+  @IsNotEmpty()
+  publicId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['image', 'pdf', 'csv', 'excel'])
+  kind: AdvisorAttachmentKind;
 }
