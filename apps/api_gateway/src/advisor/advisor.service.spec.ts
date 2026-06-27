@@ -402,7 +402,7 @@ describe('Gateway AdvisorService', () => {
         data: {
           id: 'conversation-1',
           userId: 'user-1',
-          title: 'Documents: Customer Statement.pdf',
+          title: 'Documents: Customer State…',
         },
       });
       expect(prisma.advisorChatMessage.create).toHaveBeenCalledWith({
@@ -435,11 +435,14 @@ describe('Gateway AdvisorService', () => {
 
     it('waits for assistant persistence before completing the stream', async () => {
       const { service, prisma, redis } = makeService();
-      let resolveTransaction!: () => void;
-      const transactionDone = new Promise<unknown[]>((resolve) => {
-        resolveTransaction = () => resolve([]);
+      let resolveAssistantCreate!: () => void;
+      const assistantCreateDone = new Promise((resolve) => {
+        resolveAssistantCreate = () => resolve({ id: 'assistant-message-1' });
       });
-      prisma.$transaction.mockReturnValue(transactionDone);
+      prisma.advisorChatMessage.create.mockImplementation(({ data }) => {
+        if (data.role === 'ASSISTANT') return assistantCreateDone;
+        return Promise.resolve({ id: 'user-message-1' });
+      });
       redis.get.mockResolvedValueOnce(
         JSON.stringify({
           userId: 'user-1',
@@ -470,11 +473,17 @@ describe('Gateway AdvisorService', () => {
       await flushPromises();
       expect(completed).toBe(false);
 
-      resolveTransaction();
+      resolveAssistantCreate();
       await streamPromise;
 
       expect(completed).toBe(true);
-      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.advisorChatMessage.create).toHaveBeenCalledWith({
+        data: {
+          conversationId: 'conversation-1',
+          role: 'ASSISTANT',
+          content: 'send',
+        },
+      });
     });
 
     it('persists approval-required cards as assistant metadata even when no text is streamed', async () => {
