@@ -1,61 +1,84 @@
 'use client';
 
 // ── ChatFileAttachment ────────────────────────────────────────────────────────
-// Renders a generated file card (PDF or CSV) inside a chat message.
-// Download href is a stub — real implementation will hit a signed S3 URL.
+// Compact attachment card inside a chat message. Clicking opens a short-lived
+// signed URL in a new tab.
 
 import * as React from 'react';
-import { FileText, Download, Sheet } from 'lucide-react';
+import { FileText, Download, Sheet, Image, Loader2 } from 'lucide-react';
+import { toast } from '@ui/components';
 import { cn } from '@ui/lib/utils';
 import { formatFileSize } from '../_lib/advisor.helpers';
 import type { GeneratedFile } from '../_lib/advisor.types';
+import { api_client } from '@/lib/trpc_app/api_client';
 
 interface ChatFileAttachmentProps {
   file: GeneratedFile;
 }
 
 export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
-  const isPdf = file.type === 'pdf';
+  const isPdf = file.kind === 'pdf';
+  const isImage = file.kind === 'image';
+  const viewMutation = api_client.advisor.getAttachmentUrl.useMutation({
+    onSuccess(data) {
+      window.open(data.url, '_blank', 'noopener,noreferrer');
+    },
+    onError() {
+      toast.error('Could not open attachment');
+    },
+  });
+
+  const openAttachment = async () => {
+    if (viewMutation.isPending) return;
+    viewMutation.mutateAsync({
+      publicId: file.publicId,
+      format: file.format,
+    });
+  };
 
   return (
-    <a
-      href="#"
-      onClick={(e) => e.preventDefault()}
+    <button
+      type="button"
+      onClick={openAttachment}
+      disabled={viewMutation.isPending}
       className={cn(
-        'group flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors',
-        isPdf
-          ? 'border-error/20 bg-error/5 hover:bg-error/10'
-          : 'border-success/20 bg-success/5 hover:bg-success/10',
+        'group bg-bg-elevated hover:bg-bg-surface-hover/20 flex w-full cursor-pointer items-center gap-2 rounded-xl px-2.5 py-2 text-left shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition-colors',
+        viewMutation.isPending && 'cursor-wait opacity-70',
       )}
-      aria-label={`Download ${file.name}`}
+      aria-label={`Open ${file.name}`}
     >
       {/* File type icon */}
       <div
         className={cn(
-          'flex size-8 shrink-0 items-center justify-center rounded-md',
-          isPdf ? 'bg-error/10' : 'bg-success/10',
+          'bg-bg-surface flex size-7 shrink-0 items-center justify-center rounded-lg',
+          isPdf || isImage ? 'bg-error/10' : 'bg-success/10',
         )}
       >
-        {isPdf ? (
-          <FileText className={cn('size-4', isPdf ? 'text-error' : 'text-success')} aria-hidden />
+        {isImage ? (
+          <Image className="text-error size-4" aria-hidden />
+        ) : isPdf ? (
+          <FileText className="text-error size-4" aria-hidden />
         ) : (
-          <Sheet className="size-4 text-success" aria-hidden />
+          <Sheet className="text-success size-4" aria-hidden />
         )}
       </div>
 
       {/* File name + size */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="truncate text-[12px] font-medium text-text-primary">{file.name}</span>
-        <span className="text-[10px] text-text-disabled">
-          {file.type.toUpperCase()} · {formatFileSize(file.sizeKb)}
+        <span className="text-text-primary truncate text-[11px] font-medium">{file.name}</span>
+        <span className="text-text-disabled text-[9px]">
+          {file.kind.toUpperCase()} · {formatFileSize(Math.round(file.sizeBytes / 1024))}
         </span>
       </div>
 
-      {/* Download icon */}
-      <Download
-        className="size-3.5 shrink-0 text-text-disabled transition-colors group-hover:text-text-tertiary"
-        aria-hidden
-      />
-    </a>
+      {viewMutation.isPending ? (
+        <Loader2 className="text-primary size-3.5 shrink-0 animate-spin" aria-hidden />
+      ) : (
+        <Download
+          className="text-text-disabled group-hover:text-text-tertiary size-3.5 shrink-0 transition-colors"
+          aria-hidden
+        />
+      )}
+    </button>
   );
 }

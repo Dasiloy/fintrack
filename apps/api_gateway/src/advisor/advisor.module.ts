@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 
-import { INSIGHTS_QUEUE } from '@fintrack/types/constants/queus.constants';
+import {
+  ADVISOR_ATTACHMENT_CLEANUP_QUEUE,
+  INSIGHTS_QUEUE,
+} from '@fintrack/types/constants/queus.constants';
 
+import { AdvisorAttachmentCleanupProcessor } from './advisor-attachment-cleanup.processor';
 import { AdvisorController } from './advisor.controller';
 import { AdvisorService } from './advisor.service';
+import { UploadModule } from '../upload/upload.module';
 
 /**
  * Module for the AI Advisor feature.
@@ -14,8 +19,14 @@ import { AdvisorService } from './advisor.service';
  * no gRPC hop required since AiInsight rows live in the shared Postgres instance.
  */
 @Module({
-  imports: [BullModule.registerQueue({ name: INSIGHTS_QUEUE })],
+  imports: [
+    BullModule.registerQueue(
+      { name: INSIGHTS_QUEUE },
+      { name: ADVISOR_ATTACHMENT_CLEANUP_QUEUE },
+    ),
+    UploadModule,
+  ],
   controllers: [AdvisorController],
-  providers: [AdvisorService],
+  providers: [AdvisorService, AdvisorAttachmentCleanupProcessor],
 })
 export class AdvisorModule {}

@@ -1,0 +1,1 @@
+export const PRIVATEUPLOAD_EXPIRY = 3600;
