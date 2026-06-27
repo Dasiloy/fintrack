@@ -26,16 +26,17 @@ export function ChatApprovalCard({
   const label = getActionLabel(action);
   const canAct = state === 'pending' || state === 'failed';
   const isProcessing = state === 'processing';
+  const showActions = canAct || isProcessing;
 
   return (
     <div
       className={cn(
-        'mt-2 rounded-xl border p-3 transition-colors',
-        state === 'pending' && 'border-primary/20 bg-primary/5',
-        state === 'processing' && 'border-primary/20 bg-primary/5',
-        state === 'approved' && 'border-success/20 bg-success/5',
-        state === 'rejected' && 'border-border-subtle bg-bg-elevated',
-        state === 'failed' && 'border-error/20 bg-error/5',
+        'mt-2 rounded-xl p-3 transition-all',
+        state === 'pending' && 'bg-bg-elevated shadow-[0_2px_8px_rgba(15,23,42,0.04)]',
+        state === 'processing' && 'bg-warning/10 shadow-[0_2px_10px_rgba(245,158,11,0.08)]',
+        state === 'approved' && 'bg-success/10 shadow-[0_2px_10px_rgba(34,197,94,0.09)]',
+        state === 'rejected' && 'bg-bg-elevated/70 shadow-[0_1px_6px_rgba(15,23,42,0.03)]',
+        state === 'failed' && 'bg-error/10 shadow-[0_2px_10px_rgba(239,68,68,0.08)]',
       )}
     >
       {/* Header */}
@@ -43,8 +44,8 @@ export function ChatApprovalCard({
         <div
           className={cn(
             'flex size-5 shrink-0 items-center justify-center rounded-full',
-            state === 'pending' && 'bg-primary/15',
-            state === 'processing' && 'bg-primary/15',
+            state === 'pending' && 'bg-primary/10',
+            state === 'processing' && 'bg-warning/15',
             state === 'approved' && 'bg-success/15',
             state === 'rejected' && 'bg-bg-surface',
             state === 'failed' && 'bg-error/15',
@@ -55,7 +56,7 @@ export function ChatApprovalCard({
           ) : state === 'rejected' ? (
             <X className="text-text-disabled size-3" aria-hidden />
           ) : state === 'processing' ? (
-            <Loader2 className="text-primary size-3 animate-spin" aria-hidden />
+            <Loader2 className="text-warning size-3 animate-spin" aria-hidden />
           ) : state === 'failed' ? (
             <X className="text-error size-3" aria-hidden />
           ) : (
@@ -66,7 +67,7 @@ export function ChatApprovalCard({
           className={cn(
             'text-[11px] font-semibold tracking-wide uppercase',
             state === 'pending' && 'text-primary',
-            state === 'processing' && 'text-primary',
+            state === 'processing' && 'text-warning',
             state === 'approved' && 'text-success',
             state === 'rejected' && 'text-text-disabled',
             state === 'failed' && 'text-error',
@@ -75,12 +76,12 @@ export function ChatApprovalCard({
           {state === 'pending'
             ? 'Proposed Action'
             : state === 'processing'
-              ? 'Processing'
+              ? 'In Progress'
               : state === 'approved'
                 ? 'Approved'
                 : state === 'failed'
                   ? 'Action Failed'
-                  : 'Rejected'}
+                  : 'Cancelled'}
         </span>
       </div>
 
@@ -110,21 +111,37 @@ export function ChatApprovalCard({
         </p>
       )}
 
-      {/* Action buttons — hidden once the final state is known */}
-      {canAct && (
+      {/* Action buttons stay visible while processing, but are disabled. */}
+      {showActions && (
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={onApprove}
-            className="bg-success/10 text-success hover:bg-success/20 flex min-h-[36px] flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors"
+            onClick={canAct ? onApprove : undefined}
+            disabled={!canAct}
+            className={cn(
+              'flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors',
+              canAct
+                ? 'bg-success/10 text-success hover:bg-success/20 cursor-pointer'
+                : 'bg-warning/10 text-warning/70 cursor-not-allowed opacity-70',
+            )}
           >
-            <Check className="size-3.5" aria-hidden />
-            Approve
+            {isProcessing ? (
+              <Loader2 className="size-3.5 animate-spin" aria-hidden />
+            ) : (
+              <Check className="size-3.5" aria-hidden />
+            )}
+            {isProcessing ? 'Working' : 'Approve'}
           </button>
           <button
             type="button"
-            onClick={onReject}
-            className="bg-error/10 text-error hover:bg-error/20 flex min-h-[36px] flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors"
+            onClick={canAct ? onReject : undefined}
+            disabled={!canAct}
+            className={cn(
+              'flex min-h-[36px] flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors',
+              canAct
+                ? 'bg-error/10 text-error hover:bg-error/20 cursor-pointer'
+                : 'bg-warning/10 text-warning/70 cursor-not-allowed opacity-70',
+            )}
           >
             <X className="size-3.5" aria-hidden />
             Reject
@@ -132,7 +149,7 @@ export function ChatApprovalCard({
         </div>
       )}
       {isProcessing && (
-        <p className="text-text-tertiary text-[11px] leading-relaxed">
+        <p className="text-warning mt-3 text-[11px] leading-relaxed">
           Confirming this with the advisor...
         </p>
       )}

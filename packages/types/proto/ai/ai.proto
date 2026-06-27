@@ -22,6 +22,18 @@ message AdvisorMessageReq {
   // Data scopes the user has granted, resolved by the gateway. Gates the
   // advisor's tools and grounded prompt sections.
   repeated string granted_scopes = 4;
+  repeated AdvisorAttachment attachments = 5;
+}
+
+message AdvisorAttachment {
+  string url = 1;
+  string public_id = 2;
+  string name = 3;
+  string mime_type = 4;
+  int32 size_bytes = 5;
+  string kind = 6;
+  string extracted_text = 7;
+  string format = 8;
 }
 
 message ResumeAdvisorReq {

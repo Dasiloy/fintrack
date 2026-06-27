@@ -1,4 +1,7 @@
-import type { AdvisorChunk } from '@fintrack/types/interfaces/ai';
+import type {
+  AdvisorAttachment,
+  AdvisorChunk,
+} from '@fintrack/types/interfaces/ai';
 
 // ── Advisor SSE client ────────────────────────────────────────────────────────
 // Reads the advisor stream from the Next proxy (`/api/advisor`) and dispatches
@@ -17,6 +20,7 @@ export interface StreamAdvisorOptions extends StreamAdvisorHandlers {
   conversationId: string;
   message?: string;
   resume?: { approved: boolean };
+  attachments?: AdvisorAttachment[];
   signal?: AbortSignal;
 }
 
@@ -41,7 +45,10 @@ export async function streamAdvisor(opts: StreamAdvisorOptions): Promise<void> {
       conversationId: opts.conversationId,
       ...(opts.resume
         ? { resume: opts.resume }
-        : { message: opts.message ?? '' }),
+        : {
+            message: opts.message ?? '',
+            attachments: opts.attachments ?? [],
+          }),
     }),
     signal: opts.signal,
   });

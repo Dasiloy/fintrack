@@ -26,6 +26,7 @@ import { Redis } from 'ioredis';
 import { PrismaService } from '@fintrack/database/service';
 import type {
   AdvisorAction,
+  AdvisorAttachment,
   AdvisorScope,
 } from '@fintrack/types/interfaces/ai';
 import { AdvisorChunkRes } from '@fintrack/types/protos/ai/ai';
@@ -74,6 +75,7 @@ import {
   RESPOND_MODEL,
 } from './advisor.constants';
 import dayjs from '@fintrack/utils/date';
+import { AdvisorMessageContentPart } from './advisor.types';
 
 /**
  * AdvisorService — orchestrates the AI financial advisor LangGraph.
@@ -167,6 +169,7 @@ export class AdvisorService implements OnModuleInit {
     userId: string;
     conversationId: string;
     message: string;
+    attachments?: AdvisorAttachment[];
     grantedScopes: AdvisorScope[];
     /** Aborts the graph run when the client/stream disconnects. */
     signal?: AbortSignal;
@@ -182,7 +185,11 @@ export class AdvisorService implements OnModuleInit {
         AdvisorContext
       >(
         this.graph,
-        { messages: [new HumanMessage(input.message)] },
+        {
+          messages: [
+            await this.buildUserMessage(input.message, input.attachments ?? []),
+          ],
+        },
         {
           context: {
             userId: input.userId,
@@ -334,6 +341,120 @@ export class AdvisorService implements OnModuleInit {
   }
 
   // ── Nodes ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Builds the LangChain human message for a user turn, including any uploaded
+   * advisor attachments.
+   *
+   * Every attachment is represented as durable text metadata. CSV and XLSX
+   * files arrive with extracted text from the gateway. Images and PDFs arrive
+   * with a short-lived URL for first use only; the advisor fetches that URL,
+   * extracts a text description, and stores only the resulting text in the graph
+   * state so later turns never refetch old files.
+   *
+   * @param message - User-entered chat text. A fallback prompt is used for
+   *   file-only turns.
+   * @param attachments - Uploaded advisor files already validated by the
+   *   gateway.
+   * @returns A LangChain human message ready to seed the advisor graph.
+   */
+  private async buildUserMessage(
+    message: string,
+    attachments: AdvisorAttachment[],
+  ): Promise<HumanMessage> {
+    if (attachments.length === 0) return new HumanMessage(message);
+
+    const content: AdvisorMessageContentPart[] = [
+      {
+        type: 'text',
+        text: message.trim() || 'Please review the attached advisor file(s).',
+      },
+    ];
+
+    for (const attachment of attachments) {
+      const extractedText =
+        attachment.extractedText?.trim() ||
+        (await this.extractAttachmentText(attachment));
+
+      content.push({
+        type: 'text',
+        text:
+          `\n\nAttached file: ${attachment.name}\n` +
+          `Type: ${attachment.kind} (${attachment.mimeType})\n` +
+          `Size: ${attachment.sizeBytes} bytes\n` +
+          (extractedText
+            ? `Extracted content:\n${extractedText}`
+            : 'No extracted text was available for this file.'),
+      });
+    }
+
+    return new HumanMessage({ content });
+  }
+
+  /**
+   * Extracts text from an advisor image/PDF attachment on first use.
+   *
+   * The returned text is placed into the human message that LangGraph persists.
+   * The transient signed URL and base64 payload are deliberately not saved in
+   * graph history, so future turns use this extracted text instead of refetching
+   * the private file.
+   *
+   * @param attachment - Uploaded advisor attachment with a transient signed URL.
+   * @returns Extracted text or an empty string for non-visual files.
+   */
+  private async extractAttachmentText(
+    attachment: AdvisorAttachment,
+  ): Promise<string> {
+    if (attachment.kind !== 'image' && attachment.kind !== 'pdf') return '';
+    const imageUrl = await this.fetchAttachmentAsDataUrl(attachment);
+    const result = await this.respondModel.invoke([
+      new SystemMessage(
+        'Extract the useful text and financial details from this advisor attachment. ' +
+          'Be concise, preserve amounts, dates, vendors, account names, and table-like rows when visible. ' +
+          'If there is no readable text, describe the relevant visual financial content.',
+      ),
+      new HumanMessage({
+        content: [
+          {
+            type: 'image_url',
+            image_url: { url: imageUrl },
+          },
+        ],
+      }),
+    ]);
+
+    return extractText(result.content).trim();
+  }
+
+  /**
+   * Downloads an uploaded image/PDF attachment and converts it into the base64
+   * data URL format required by LangChain's Google Gemini adapter.
+   *
+   * @param attachment - Uploaded advisor image or PDF attachment.
+   * @returns A `data:{mime};base64,{payload}` URL suitable for `image_url`.
+   * @throws Error when the uploaded Cloudinary asset cannot be fetched.
+   */
+  private async fetchAttachmentAsDataUrl(
+    attachment: AdvisorAttachment,
+  ): Promise<string> {
+    if (!attachment.url) {
+      throw new Error(
+        `No signed URL was provided for advisor attachment ${attachment.name}`,
+      );
+    }
+
+    const response = await fetch(attachment.url);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch advisor attachment ${attachment.name}: HTTP ${response.status}`,
+      );
+    }
+
+    const mimeType =
+      response.headers.get('content-type') || attachment.mimeType;
+    const buffer = Buffer.from(await response.arrayBuffer());
+    return `data:${mimeType};base64,${buffer.toString('base64')}`;
+  }
 
   /**
    * Guardian node — classifies the latest user message with the cheap
@@ -546,22 +667,20 @@ export class AdvisorService implements OnModuleInit {
 
       const parsed = AdvisorActionSchema.safeParse(proposed.action);
       if (!parsed.success) {
-        const message =
-          'I could not prepare that approval card because the proposed action was missing required details. ' +
-          `Missing or invalid fields: ${parsed.error.issues
-            .map((issue) => issue.path.join('.') || issue.message)
-            .join(', ')}. ` +
-          'Review the data again and explain the finding before proposing a corrected action.';
+        const userSafeMessage =
+          'I could not safely prepare that change from the available data. No financial changes were made.';
+        const internalMessage =
+          'The proposed action was missing internal execution details. Do not mention internal ids, execution keys, schema fields, or missing field names to the user. Review the relevant user data again with the read tools, then either propose one corrected approval action or give a safe plain-language fallback.';
 
         return {
           actionResult: {
             approved: false,
             status: 'execution_failed',
-            message,
+            message: userSafeMessage,
           },
           messages: [
             new ToolMessage({
-              content: message,
+              content: internalMessage,
               tool_call_id: proposed.toolCallId,
             }),
           ],

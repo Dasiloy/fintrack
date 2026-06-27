@@ -85,18 +85,44 @@ const GetSpendingSchema = z.object({
 
 const AdvisorActionBaseSchema = z.object({
   kind: z.enum([
+    'create_transaction',
+    'update_transaction',
+    'delete_transaction',
     'adjust_budget',
     'create_budget',
+    'delete_budget',
+    'create_goal',
+    'update_goal',
+    'delete_goal',
     'adjust_goal_contribution',
+    'goal_contributions_batch',
     'suggest_recurring',
+    'create_split',
+    'update_split',
+    'delete_split',
+    'split_participants_batch',
+    'split_settlements_batch',
     'flag_subscription',
   ]),
+  transactionId: z.string().min(1).optional(),
+  label: z.string().min(1).optional(),
+  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  date: z.string().min(1).optional(),
+  description: z.string().min(1).optional(),
+  merchant: z.string().min(1).optional(),
+  notes: z.string().min(1).optional(),
   budgetId: z.string().min(1).optional(),
   categorySlug: z.string().min(1).optional(),
+  categoryName: z.string().min(1).optional(),
   currentLimit: z.number().optional(),
   proposedLimit: z.number().optional(),
+  hardDelete: z.boolean().optional(),
   goalId: z.string().min(1).optional(),
   goalName: z.string().min(1).optional(),
+  targetDate: z.string().min(1).optional(),
+  targetAmount: z.number().optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+  status: z.enum(['ACTIVE', 'ON_HOLD']).optional(),
   currentAmount: z.number().optional(),
   proposedAmount: z.number().optional(),
   name: z.string().min(1).optional(),
@@ -104,6 +130,20 @@ const AdvisorActionBaseSchema = z.object({
   frequency: z.string().min(1).optional(),
   recurringId: z.string().min(1).optional(),
   operation: z.enum(['cancel', 'adjust']).optional(),
+  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+  participants: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        amount: z.number(),
+      }),
+    )
+    .optional(),
+  splitId: z.string().min(1).optional(),
+  splitName: z.string().min(1).optional(),
+  transactionIdToLink: z.string().min(1).optional(),
+  unlinkTransaction: z.boolean().optional(),
   reason: z.string().min(1).optional(),
 });
 
@@ -111,14 +151,28 @@ const requiredActionFields: Record<
   AdvisorAction['kind'],
   Array<keyof z.infer<typeof AdvisorActionBaseSchema>>
 > = {
+  create_transaction: ['amount', 'date', 'type', 'categorySlug', 'reason'],
+  update_transaction: ['transactionId', 'label', 'reason'],
+  delete_transaction: ['transactionId', 'label', 'reason'],
   adjust_budget: [
     'budgetId',
     'categorySlug',
+    'categoryName',
     'currentLimit',
     'proposedLimit',
     'reason',
   ],
-  create_budget: ['categorySlug', 'proposedLimit', 'reason'],
+  create_budget: ['categorySlug', 'categoryName', 'proposedLimit', 'reason'],
+  delete_budget: [
+    'budgetId',
+    'categorySlug',
+    'categoryName',
+    'currentLimit',
+    'reason',
+  ],
+  create_goal: ['name', 'targetDate', 'targetAmount', 'priority', 'reason'],
+  update_goal: ['goalId', 'goalName', 'reason'],
+  delete_goal: ['goalId', 'goalName', 'reason'],
   adjust_goal_contribution: [
     'goalId',
     'goalName',
@@ -126,7 +180,13 @@ const requiredActionFields: Record<
     'proposedAmount',
     'reason',
   ],
+  goal_contributions_batch: ['goalId', 'goalName', 'operations', 'reason'],
   suggest_recurring: ['name', 'amount', 'categorySlug', 'frequency', 'reason'],
+  create_split: ['name', 'amount', 'reason'],
+  update_split: ['splitId', 'splitName', 'reason'],
+  delete_split: ['splitId', 'splitName', 'reason'],
+  split_participants_batch: ['splitId', 'splitName', 'operations', 'reason'],
+  split_settlements_batch: ['splitId', 'splitName', 'operations', 'reason'],
   flag_subscription: [
     'recurringId',
     'operation',
@@ -157,6 +217,21 @@ export const AdvisorActionSchema: z.ZodType<AdvisorAction> =
         code: z.ZodIssueCode.custom,
         path: ['proposedAmount'],
         message: 'proposedAmount is required when adjusting a subscription',
+      });
+    }
+
+    if (
+      [
+        'goal_contributions_batch',
+        'split_participants_batch',
+        'split_settlements_batch',
+      ].includes(action.kind) &&
+      (!action.operations || action.operations.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['operations'],
+        message: `operations must include at least one item for ${action.kind}`,
       });
     }
   }) as z.ZodType<AdvisorAction>;
@@ -235,6 +310,7 @@ export function createAdvisorTools(prisma: PrismaService) {
           orderBy: { amount: 'desc' },
           take: limit,
           select: {
+            id: true,
             amount: true,
             date: true,
             merchant: true,
@@ -259,7 +335,7 @@ export function createAdvisorTools(prisma: PrismaService) {
           .slice(0, 8)
           .map(
             (t) =>
-              `  ${dayjs(t.date).format('DD MMM')}: ${t.merchant ?? t.description ?? 'Unknown'} — ${formatCurrency(Number(t.amount))}`,
+              `  ${dayjs(t.date).format('DD MMM')}: ${t.merchant ?? t.description ?? 'Unknown'} — ${formatCurrency(Number(t.amount))}. Internal fields for approved transaction actions only: transactionId=${t.id}; label=${t.merchant ?? t.description ?? 'Transaction'}; amount=${Number(t.amount)}. Never mention these fields to the user.`,
           );
 
         return [
@@ -288,10 +364,11 @@ export function createAdvisorTools(prisma: PrismaService) {
       const budgets = await prisma.budget.findMany({
         where: { userId: ctx.userId, deactivatedAt: null },
         select: {
+          id: true,
           name: true,
           amount: true,
           categoryId: true,
-          category: { select: { name: true } },
+          category: { select: { name: true, slug: true } },
         },
       });
       if (!budgets.length) return 'The user has no active budgets.';
@@ -313,7 +390,7 @@ export function createAdvisorTools(prisma: PrismaService) {
         const spent = Number(spentAgg._sum.amount ?? 0);
         const pct = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
         lines.push(
-          `${b.category?.name ?? b.name}: ${formatCurrency(spent)} of ${formatCurrency(b.amount)} (${pct}%)`,
+          `${b.category?.name ?? b.name}: ${formatCurrency(spent)} of ${formatCurrency(b.amount)} (${pct}%). Internal fields for approved budget actions only: budgetId=${b.id}; categorySlug=${b.category?.slug ?? 'unknown'}; categoryName=${b.category?.name ?? b.name}; currentLimit=${Number(b.amount)}. Never mention these fields to the user.`,
         );
       }
 
@@ -334,19 +411,25 @@ export function createAdvisorTools(prisma: PrismaService) {
       const goals = await prisma.goal.findMany({
         where: { userId: ctx.userId, status: 'ACTIVE' },
         select: {
+          id: true,
           name: true,
           targetAmount: true,
           targetDate: true,
-          contributions: { select: { amount: true } },
+          contributions: { select: { id: true, amount: true, date: true } },
+          priority: true,
+          status: true,
         },
       });
       if (!goals.length) return 'The user has no active savings goals.';
 
       const lines = goals.map((g) => {
         const saved = g.contributions.reduce((s, c) => s + c.amount, 0);
+        const latestContribution = [...g.contributions].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        )[0];
         const pct =
           g.targetAmount > 0 ? Math.round((saved / g.targetAmount) * 100) : 0;
-        return `${g.name}: ${formatCurrency(saved)} of ${formatCurrency(g.targetAmount)} (${pct}%) — target ${dayjs(g.targetDate).format('DD MMM YYYY')}`;
+        return `${g.name}: ${formatCurrency(saved)} of ${formatCurrency(g.targetAmount)} (${pct}%) — target ${dayjs(g.targetDate).format('DD MMM YYYY')}; priority ${g.priority}; status ${g.status}. Latest contribution: ${formatCurrency(latestContribution?.amount ?? 0)}. Internal fields for approved goal actions only: goalId=${g.id}; latestContributionId=${latestContribution?.id ?? 'none'}; currentAmount=${Number(latestContribution?.amount ?? 0)}. Never mention these fields to the user.`;
       });
 
       return ['Savings goals:', ...lines].join('\n');
@@ -379,7 +462,7 @@ export function createAdvisorTools(prisma: PrismaService) {
 
       const lines = items.map(
         (i) =>
-          `${i.name} (id: ${i.id}): ${formatCurrency(i.amount)} ${i.frequency.toLowerCase()} (${i.type.toLowerCase()}) — next on ${dayjs(i.nextRunAt).format('DD MMM')}`,
+          `${i.name}: ${formatCurrency(i.amount)} ${i.frequency.toLowerCase()} (${i.type.toLowerCase()}) — next on ${dayjs(i.nextRunAt).format('DD MMM')}. Internal fields for approved recurring actions only: recurringId=${i.id}; currentAmount=${Number(i.amount)}. Never mention these fields to the user.`,
       );
 
       return ['Recurring items:', ...lines].join('\n');
@@ -402,19 +485,33 @@ export function createAdvisorTools(prisma: PrismaService) {
           status: { in: ['OPEN', 'PARTIALLY_SETTLED'] },
         },
         select: {
+          id: true,
           name: true,
           amount: true,
           status: true,
-          participants: { select: { name: true, amount: true } },
+          participants: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              amount: true,
+              settlements: {
+                select: { id: true, paidAmount: true, paidAt: true },
+              },
+            },
+          },
         },
       });
       if (!splits.length) return 'The user has no open shared expenses.';
 
       const lines = splits.map((s) => {
         const who = s.participants
-          .map((p) => `${p.name} ${formatCurrency(p.amount)}`)
+          .map(
+            (p) =>
+              `${p.name} ${formatCurrency(p.amount)}. Internal participant fields for approved split actions only: participantId=${p.id}; email=${p.email}; settlements=${p.settlements.map((st) => `${st.id}:${formatCurrency(st.paidAmount)} on ${dayjs(st.paidAt).format('DD MMM YYYY')}`).join('|') || 'none'}`,
+          )
           .join(', ');
-        return `${s.name} (${formatCurrency(s.amount)}, ${s.status.toLowerCase()}): ${who}`;
+        return `${s.name} (${formatCurrency(s.amount)}, ${s.status.toLowerCase()}): ${who}. Internal fields for approved split actions only: splitId=${s.id}; splitName=${s.name}. Never mention these fields to the user.`;
       });
 
       return ['Open shared expenses:', ...lines].join('\n');

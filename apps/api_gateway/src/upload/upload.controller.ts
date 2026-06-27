@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  Body,
   Controller,
+  Delete,
   FileTypeValidator,
   HttpStatus,
   Logger,
@@ -8,10 +10,11 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -23,15 +26,25 @@ import {
 import { type User } from '@fintrack/database/types';
 import { StandardResponse } from '@fintrack/types/interfaces/server_response';
 import {
+  ADVISOR_FILES_MAX_COUNT,
+  ADVISOR_FILES_MAX_TOTAL_SIZE,
   MAX_FILE_SIZE,
   IMAGE_FILE_TYPE,
   IMAGE_PDF_FILE_TYPE,
 } from '@fintrack/types/constants/file.constants';
+import type {
+  AdvisorAttachmentKind,
+  AdvisorAttachmentUploadResult,
+} from '@fintrack/types/interfaces/ai';
 
 import { UploadService } from './upload.service';
 import { ApiGuard } from '../guards/api.guard';
 import { CurrentUser } from '../decorators/current_user.decorator';
-import { UploadReceiptResponse } from './dto/upload_receipt.dto';
+import {
+  GetAdvisorFileUrlDto,
+  UploadReceiptResponse,
+  DeleteAdvisorFileDto,
+} from './dto/upload_receipt.dto';
 
 /**
  * Controller responsible for managing user uploads
@@ -253,6 +266,117 @@ export class UploadController {
       statusCode: HttpStatus.OK,
       data,
       message: 'Receipt uploaded successfully',
+    };
+  }
+
+  // ================================================================
+  //. Upload Advisor File
+  // ================================================================
+  @Post('advisor-file')
+  @ApiOperation({
+    summary: 'Upload Advisor Attachments',
+    description:
+      'Upload one or more advisor attachment images, PDFs, CSVs, or XLSX files',
+  })
+  @ApiBody({
+    description: 'Multipart payload for advisor attachment files',
+    required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          maxItems: ADVISOR_FILES_MAX_COUNT,
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @UseInterceptors(FilesInterceptor('files', ADVISOR_FILES_MAX_COUNT))
+  async uploadAdvisorFiles(
+    @CurrentUser() user: User,
+    @UploadedFiles()
+    files: Express.Multer.File[],
+  ): Promise<StandardResponse<AdvisorAttachmentUploadResult>> {
+    if (files.length === 0) {
+      throw new BadRequestException('At least one advisor file is required');
+    }
+
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > ADVISOR_FILES_MAX_TOTAL_SIZE) {
+      throw new BadRequestException('Advisor files cannot exceed 10 MB total');
+    }
+
+    const data = await this.uploadService.uploadAdvisorFiles(user, files);
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      data,
+      message: 'Advisor files uploaded successfully',
+    };
+  }
+
+  // ================================================================
+  //. Get Advisor File URL
+  // ================================================================
+  @Post('advisor-file/url')
+  @ApiOperation({
+    summary: 'Get Advisor Attachment URL',
+    description:
+      'Generates a short-lived view URL for a private advisor attachment',
+  })
+  async getAdvisorFileUrl(
+    @CurrentUser() user: User,
+    @Body()
+    body: GetAdvisorFileUrlDto,
+  ): Promise<StandardResponse<{ url: string }>> {
+    const url = this.uploadService.getAdvisorFileUrlForUser(
+      user.id,
+      body.publicId,
+      body.format,
+      'view',
+    );
+    if (!url) {
+      throw new BadRequestException(
+        'Advisor attachment does not belong to user',
+      );
+    }
+
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      data: { url },
+      message: 'Advisor file URL generated',
+    };
+  }
+
+  // ================================================================
+  //. Delete Advisor File
+  // ================================================================
+  @Delete('advisor-file')
+  @ApiOperation({
+    summary: 'Delete Advisor Attachment',
+    description:
+      'Best-effort cleanup for an advisor attachment removed before send',
+  })
+  async deleteAdvisorFile(
+    @CurrentUser() user: User,
+    @Body()
+    body: DeleteAdvisorFileDto,
+  ): Promise<StandardResponse<{ deleted: boolean }>> {
+    const deleted = await this.uploadService.deleteAdvisorFile(
+      user,
+      body.publicId,
+      body.kind,
+    );
+    return {
+      success: true,
+      statusCode: HttpStatus.OK,
+      data: { deleted },
+      message: 'Advisor file cleanup queued',
     };
   }
 }
