@@ -23,6 +23,7 @@ import { atomFamily, atomWithStorage, RESET } from 'jotai/utils';
 
 import type {
   AdvisorAction,
+  AdvisorAttachment,
   ConversationHistoryMessage,
   ConversationMessagePage,
   ConversationSummary,
@@ -90,6 +91,18 @@ function parseProposedAction(data: string): AdvisorAction | null {
   }
 }
 
+function toLiveMessage(message: ConversationHistoryMessage): AdvisorMessage {
+  return {
+    id: message.id,
+    role: message.role === 'USER' ? 'user' : 'assistant',
+    content: message.content,
+    createdAt: new Date(message.createdAt),
+    attachments: message.metadata?.attachments ?? message.attachments ?? [],
+    proposedAction: message.metadata?.proposedAction ?? null,
+    actionState: message.metadata?.actionState,
+  };
+}
+
 function patchStream(
   conversationId: string,
   patch: (prev: ConversationStream) => ConversationStream,
@@ -130,9 +143,7 @@ export function patchLiveMessage(
 ): void {
   patchStream(conversationId, (prev) => ({
     ...prev,
-    messages: prev.messages.map((m) =>
-      m.id === messageId ? { ...m, ...patch } : m,
-    ),
+    messages: prev.messages.map((m) => (m.id === messageId ? { ...m, ...patch } : m)),
   }));
 }
 
@@ -142,10 +153,7 @@ export function readHead(conversationId: string): ConversationMessagePage | null
   return store.get(conversationHeadAtom(conversationId));
 }
 
-export function writeHead(
-  conversationId: string,
-  page: ConversationMessagePage,
-): void {
+export function writeHead(conversationId: string, page: ConversationMessagePage): void {
   store.set(conversationHeadAtom(conversationId), page);
 }
 
@@ -154,10 +162,7 @@ export function writeHead(
  * (a message can never appear twice), trims to {@link HEAD_CAP}, and keeps the
  * cursor consistent so older pages stay fetchable (no gap, no dup).
  */
-export function appendToHead(
-  conversationId: string,
-  incoming: ConversationHistoryMessage[],
-): void {
+export function appendToHead(conversationId: string, incoming: ConversationHistoryMessage[]): void {
   if (incoming.length === 0) return;
 
   const existing = readHead(conversationId);
@@ -173,6 +178,34 @@ export function appendToHead(
   const nextCursor = olderExist ? (trimmed[0]?.id ?? null) : null;
 
   writeHead(conversationId, { messages: trimmed, nextCursor });
+}
+
+function findHeadMessage(conversationId: string, messageId: string): AdvisorMessage | null {
+  const message = readHead(conversationId)?.messages.find((m) => m.id === messageId);
+  return message ? toLiveMessage(message) : null;
+}
+
+function patchHeadActionState(
+  conversationId: string,
+  messageId: string,
+  actionState: AdvisorMessage['actionState'],
+): void {
+  const head = readHead(conversationId);
+  if (!head) return;
+
+  writeHead(conversationId, {
+    ...head,
+    messages: head.messages.map((message) => {
+      if (message.id !== messageId) return message;
+      return {
+        ...message,
+        metadata: {
+          ...(message.metadata ?? {}),
+          actionState,
+        },
+      };
+    }),
+  });
 }
 
 // ── Stream runner (runs outside React; survives unmount/navigation) ────────────
@@ -191,15 +224,17 @@ export function stopConversationStream(conversationId: string): void {
 export async function streamConversationMessage(args: {
   conversationId: string;
   message: string;
+  attachments?: AdvisorAttachment[];
   onFinished?: () => void;
 }): Promise<void> {
-  const { conversationId, message } = args;
+  const { conversationId, message, attachments = [] } = args;
 
   const userMessage: AdvisorMessage = {
     id: crypto.randomUUID(),
     role: 'user',
-    content: message || '(attached file)',
+    content: message,
     createdAt: new Date(),
+    attachments,
   };
   const assistantId = crypto.randomUUID();
 
@@ -223,6 +258,7 @@ export async function streamConversationMessage(args: {
     await streamAdvisor({
       conversationId,
       message,
+      attachments,
       signal: controller.signal,
       onToken: (delta) => {
         assistantContent += delta;
@@ -241,9 +277,7 @@ export async function streamConversationMessage(args: {
         patchStream(conversationId, (prev) => ({
           ...prev,
           messages: prev.messages.map((m) =>
-            m.id === assistantId
-              ? { ...m, proposedAction: action, actionState: 'pending' }
-              : m,
+            m.id === assistantId ? { ...m, proposedAction: action, actionState: 'pending' } : m,
           ),
         }));
       },
@@ -284,6 +318,13 @@ export async function streamConversationMessage(args: {
           role: 'USER',
           content: userMessage.content,
           createdAt: userMessage.createdAt,
+          ...(attachments.length > 0
+            ? {
+                metadata: {
+                  attachments,
+                },
+              }
+            : {}),
         },
       ];
 
@@ -311,22 +352,36 @@ export async function resumeConversation(args: {
 }): Promise<void> {
   const { conversationId, approved, actionMessageId } = args;
   const assistantId = crypto.randomUUID();
-  const actionState: AdvisorMessage['actionState'] = approved
-    ? 'approved'
-    : 'rejected';
+  const actionState: AdvisorMessage['actionState'] = approved ? 'approved' : 'rejected';
   const processingState: AdvisorMessage['actionState'] = 'processing';
 
   patchStream(conversationId, (prev) => ({
     isStreaming: true,
-    messages: [
-      ...prev.messages.map((m) =>
-        m.id === actionMessageId
-          ? { ...m, actionState: processingState }
-          : m,
-      ),
-      { id: assistantId, role: 'assistant', content: '', createdAt: new Date() },
-    ],
+    messages: (() => {
+      let foundAction = false;
+      const messages = prev.messages.map((m) => {
+        if (m.id !== actionMessageId) return m;
+        foundAction = true;
+        return { ...m, actionState: processingState };
+      });
+
+      if (!foundAction) {
+        const historyMessage = findHeadMessage(conversationId, actionMessageId);
+        if (historyMessage) {
+          messages.push({ ...historyMessage, actionState: processingState });
+        }
+      }
+
+      messages.push({
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        createdAt: new Date(),
+      });
+      return messages;
+    })(),
   }));
+  patchHeadActionState(conversationId, actionMessageId, processingState);
 
   const controller = new AbortController();
   controllers.set(conversationId, controller);
@@ -357,9 +412,7 @@ export async function resumeConversation(args: {
         patchStream(conversationId, (prev) => ({
           ...prev,
           messages: prev.messages.map((m) =>
-            m.id === assistantId
-              ? { ...m, proposedAction: action, actionState: 'pending' }
-              : m,
+            m.id === assistantId ? { ...m, proposedAction: action, actionState: 'pending' } : m,
           ),
         }));
       },
@@ -388,11 +441,10 @@ export async function resumeConversation(args: {
       ...prev,
       isStreaming: false,
       messages: prev.messages.map((m) =>
-        m.id === actionMessageId
-          ? { ...m, actionState: succeeded ? actionState : 'failed' }
-          : m,
+        m.id === actionMessageId ? { ...m, actionState: succeeded ? actionState : 'failed' } : m,
       ),
     }));
+    patchHeadActionState(conversationId, actionMessageId, succeeded ? actionState : 'failed');
     lastFinalizedAt.set(conversationId, Date.now());
 
     if (succeeded && (assistantContent.trim() || proposedAction)) {
