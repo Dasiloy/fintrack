@@ -1,6 +1,5 @@
 import * as cloudinary from 'cloudinary';
 import { Readable } from 'stream';
-import * as ExcelJS from 'exceljs';
 
 import {
   Injectable,
@@ -193,6 +192,7 @@ export class UploadService {
         overwrite: true,
         use_filename: true,
         unique_filename: false,
+        resource_type: this.advisorCloudinaryResourceType(kind),
         type: 'private', // crucial so that users docs stays private
         public_id: `fintrack/advisor/${user.id}/${safeName}`,
         tags: ['fintrack', 'advisor', kind],
@@ -207,7 +207,7 @@ export class UploadService {
     }
 
     return {
-      format: upload.format,
+      format: upload.format ?? this.advisorAttachmentFormat(file.originalname, kind),
       publicId: upload.public_id,
       name: file.originalname,
       mimeType: file.mimetype,
@@ -305,7 +305,10 @@ export class UploadService {
     }
 
     try {
-      const result = await cloudinary.v2.uploader.destroy(publicId, {});
+      const result = await cloudinary.v2.uploader.destroy(publicId, {
+        resource_type: this.advisorCloudinaryResourceType(kind),
+        type: 'private',
+      });
       return result.result === 'ok';
     } catch (error) {
       this.logger.warn(
@@ -340,7 +343,14 @@ export class UploadService {
       return null;
     }
 
-    return this.getPrivateSecureUrl(publicId, format, mode);
+    return this.getPrivateSecureUrl(
+      publicId,
+      format,
+      mode,
+      this.advisorCloudinaryResourceType(
+        this.advisorAttachmentKindFromFormat(format),
+      ),
+    );
   }
 
   /**
@@ -415,6 +425,54 @@ export class UploadService {
     return 'excel';
   }
 
+  private advisorAttachmentFormat(
+    filename: string,
+    kind: AdvisorAttachmentKind,
+  ): string {
+    const extension = filename.split('.').pop()?.trim().toLowerCase();
+    if (extension) return extension === 'jpeg' ? 'jpg' : extension;
+
+    switch (kind) {
+      case 'csv':
+        return 'csv';
+      case 'excel':
+        return 'xlsx';
+      case 'pdf':
+        return 'pdf';
+      case 'image':
+        return 'jpg';
+    }
+  }
+
+  /**
+   * Maps persisted advisor metadata back to the Cloudinary resource type needed
+   * for private URL signing and deletion.
+   *
+   * @param format - Cloudinary asset format returned at upload time.
+   * @returns Advisor attachment kind inferred from the format.
+   */
+  private advisorAttachmentKindFromFormat(
+    format: string,
+  ): AdvisorAttachmentKind {
+    if (format === 'csv') return 'csv';
+    if (format === 'xlsx') return 'excel';
+    if (format === 'pdf') return 'pdf';
+    return 'image';
+  }
+
+  /**
+   * Cloudinary stores CSV and XLSX as raw assets. `raw` is a resource type, not
+   * a file format; passing it as `format` causes "Invalid extension in transformation: raw".
+   *
+   * @param kind - Normalized advisor attachment kind.
+   * @returns Cloudinary resource type for upload, deletion, and signed URLs.
+   */
+  private advisorCloudinaryResourceType(
+    kind: AdvisorAttachmentKind,
+  ): cloudinary.UploadApiOptions['resource_type'] {
+    return kind === 'csv' || kind === 'excel' ? 'raw' : 'auto';
+  }
+
   /**
    * Extracts a bounded text preview for tabular advisor files.
    *
@@ -440,8 +498,11 @@ export class UploadService {
     if (kind !== 'excel') return {};
 
     try {
+      const ExcelJS = await import('exceljs');
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(file.buffer as unknown as ExcelJS.Buffer);
+      await workbook.xlsx.load(
+        file.buffer as unknown as Parameters<typeof workbook.xlsx.load>[0],
+      );
       const lines: string[] = [];
       workbook.eachSheet((sheet) => {
         lines.push(`# Sheet: ${sheet.name}`);
@@ -522,8 +583,11 @@ export class UploadService {
     publicId: string,
     format: string,
     mode: 'download' | 'view' | 'model' = 'view',
+    resourceType: cloudinary.UploadApiOptions['resource_type'] = 'auto',
   ): string {
     return cloudinary.v2.utils.private_download_url(publicId, format, {
+      resource_type: resourceType,
+      type: 'private',
       attachment: mode === 'download' ? true : false,
       expires_at: Math.floor(Date.now()) / 1000 + PRIVATEUPLOAD_EXPIRY,
     });

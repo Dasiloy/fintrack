@@ -37,22 +37,6 @@ import {
 import { ExportCacheService } from './export.cache.service';
 import { formatNGN } from './export.format';
 import { generateTransactionCsv } from './generators/csv.generator';
-import {
-  generateTransactionXlsx,
-  generateBudgetXlsx,
-  generateGoalXlsx,
-} from './generators/xlsx.generator';
-import {
-  generateBudgetPerformancePdf,
-  generateGoalProgressPdf,
-  generateMonthlySummaryPdf,
-  generateNetWorthPdf,
-  generateSpendingBreakdownPdf,
-} from './generators/pdf.generator';
-import {
-  generateSpendingBreakdownImage,
-  generateNetWorthImage,
-} from './generators/image.generator';
 
 /**
  * Orchestrates export generation for all six analytics document types.
@@ -249,10 +233,13 @@ export class ExportService implements OnModuleInit {
     meta: Metadata,
   ): Promise<{ buffer: Buffer; previewData: ExportPreviewData }> {
     const transactions = await this.fetchAllTransactions(dto, meta);
-    const buffer =
-      dto.format === 'csv'
-        ? generateTransactionCsv(transactions)
-        : await generateTransactionXlsx(transactions);
+    let buffer: Buffer;
+    if (dto.format === 'csv') {
+      buffer = generateTransactionCsv(transactions);
+    } else {
+      const { generateTransactionXlsx } = await this.loadXlsxGenerator();
+      buffer = await generateTransactionXlsx(transactions);
+    }
 
     const totalIncome = transactions
       .filter((t) => t.type === 'INCOME')
@@ -336,6 +323,18 @@ export class ExportService implements OnModuleInit {
     return allTx;
   }
 
+  private loadPdfGenerator() {
+    return import('./generators/pdf.generator');
+  }
+
+  private loadXlsxGenerator() {
+    return import('./generators/xlsx.generator');
+  }
+
+  private loadImageGenerator() {
+    return import('./generators/image.generator');
+  }
+
   // ────────────────────────── monthly-summary ──────────────────────
 
   /**
@@ -370,7 +369,9 @@ export class ExportService implements OnModuleInit {
       totalIncome > 0 ? ((netSaved / totalIncome) * 100).toFixed(1) : '0';
 
     return {
-      buffer: await generateMonthlySummaryPdf(series, periodLabel),
+      buffer: await (
+        await this.loadPdfGenerator()
+      ).generateMonthlySummaryPdf(series, periodLabel),
       previewData: {
         summary: [
           {
@@ -438,10 +439,17 @@ export class ExportService implements OnModuleInit {
     const cats = [...catMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
     const total = cats.reduce((s, [, v]) => s + v, 0) || 1;
 
+    const buffer =
+      dto.format === 'image'
+        ? await (
+            await this.loadImageGenerator()
+          ).generateSpendingBreakdownImage(trendData, periodLabel)
+        : await (
+            await this.loadPdfGenerator()
+          ).generateSpendingBreakdownPdf(trendData, periodLabel);
+
     return {
-      buffer: await (dto.format === 'image'
-        ? generateSpendingBreakdownImage(trendData, periodLabel)
-        : generateSpendingBreakdownPdf(trendData, periodLabel)),
+      buffer,
       previewData: {
         summary: [
           { label: 'Total Spending', value: this.fmt(total) },
@@ -482,10 +490,15 @@ export class ExportService implements OnModuleInit {
       (b) => parseFloat(b.spent ?? '0') > b.amount,
     ).length;
 
+    const buffer =
+      dto.format === 'xlsx'
+        ? await (await this.loadXlsxGenerator()).generateBudgetXlsx(budgets)
+        : await (
+            await this.loadPdfGenerator()
+          ).generateBudgetPerformancePdf(budgets, periodLabel);
+
     return {
-      buffer: await (dto.format === 'xlsx'
-        ? generateBudgetXlsx(budgets)
-        : generateBudgetPerformancePdf(budgets, periodLabel)),
+      buffer,
       previewData: {
         summary: [
           { label: 'Total Budget', value: this.fmt(totalLimit) },
@@ -533,10 +546,15 @@ export class ExportService implements OnModuleInit {
       return pct >= 50;
     }).length;
 
+    const buffer =
+      dto.format === 'xlsx'
+        ? await (await this.loadXlsxGenerator()).generateGoalXlsx(goals)
+        : await (
+            await this.loadPdfGenerator()
+          ).generateGoalProgressPdf(goals, periodLabel);
+
     return {
-      buffer: await (dto.format === 'xlsx'
-        ? generateGoalXlsx(goals)
-        : generateGoalProgressPdf(goals, periodLabel)),
+      buffer,
       previewData: {
         summary: [
           { label: 'Total Goals', value: String(goals.length) },
@@ -586,10 +604,17 @@ export class ExportService implements OnModuleInit {
         return [m.month, this.fmt(running)] as (string | null)[];
       });
 
+    const buffer =
+      dto.format === 'image'
+        ? await (
+            await this.loadImageGenerator()
+          ).generateNetWorthImage(series, summary.netBalance)
+        : await (
+            await this.loadPdfGenerator()
+          ).generateNetWorthPdf(series, summary.netBalance);
+
     return {
-      buffer: await (dto.format === 'image'
-        ? generateNetWorthImage(series, summary.netBalance)
-        : generateNetWorthPdf(series, summary.netBalance)),
+      buffer,
       previewData: {
         summary: [
           {

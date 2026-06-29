@@ -5,7 +5,7 @@ import { BaseLanguageModelInput } from '@langchain/core/language_models/base';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 import { RpcException } from '@nestjs/microservices';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import {
   ClassifyTransactionsReq,
@@ -39,7 +39,7 @@ import { Correction } from './dto/embedding.dto';
  * - `{corrections}` — newline-delimited `"narration" => "slug"` pairs
  *   (omitted from the system message when there are no corrections)
  *
- * The prompt is piped into `this.chain`, a LangChain structured-output runnable
+ * The prompt is piped into a cached LangChain structured-output runnable
  * built on `gemini-2.5-flash` with `classificationSchema` (Zod).  The model
  * must return a JSON object whose `classifications` array maps every transaction
  * id to a `categoryId` + `categorySlug`.
@@ -50,21 +50,22 @@ import { Correction } from './dto/embedding.dto';
  * partial result.
  *
  * ## Chain setup
- * The LangChain runnable is initialised once in `onModuleInit` via
- * `LangchainService.buildStructuredChain` with `strict: true`, which enables
- * JSON-mode on the Gemini API and guarantees the output conforms to the schema.
+ * The LangChain runnable is initialised lazily on the first non-empty
+ * classification call via `LangchainService.buildStructuredChain` with
+ * `strict: true`, which enables JSON-mode on the Gemini API and guarantees the
+ * output conforms to the schema.
  *
  * @class ClassificationService
  */
 @Injectable()
-export class ClassificationService implements OnModuleInit {
-  private chain: Runnable<
+export class ClassificationService {
+  private classificationChain: Runnable<
     BaseLanguageModelInput,
     {
       raw: BaseMessage;
       parsed: ClassifyTransactionsRes;
     }
-  >;
+  > | null = null;
   private readonly logger = new Logger(ClassificationService.name);
 
   constructor(
@@ -72,22 +73,6 @@ export class ClassificationService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly modelRessolver: ModelRessolver,
   ) {}
-
-  /**
-   * @description Build and cache the gemini-2.5-flash structured-output chain on startup.
-   * Called once by NestJS before the module is ready to serve requests.
-   *
-   * @public
-   */
-  onModuleInit() {
-    this.chain = this.langchain.buildStructuredChain({
-      modelId: 'google:gemini-2.5-flash',
-      schema: classificationSchema,
-      structuredOutputOptions: {
-        strict: true,
-      },
-    });
-  }
 
   /**
    * @description Classify a batch of Mono bank transactions against the user's categories
@@ -122,7 +107,7 @@ export class ClassificationService implements OnModuleInit {
       // get system prompt
       const prompt = this.constructSystemPrompt(corrections);
 
-      const result = await prompt.pipe(this.chain).invoke({
+      const result = await prompt.pipe(this.getClassificationChain()).invoke({
         categories_json: JSON.stringify(categories),
         transactions_json: JSON.stringify(transactions),
         corrections: corrections
@@ -187,6 +172,35 @@ export class ClassificationService implements OnModuleInit {
         content: '{transactions_json}',
       },
     ]);
+  }
+
+  /**
+   * @description Build and cache the gemini-2.5-flash structured-output chain
+   * on first use so idle workers avoid paying this setup cost at startup.
+   *
+   * @private
+   * @returns Structured classification runnable
+   */
+  private getClassificationChain(): Runnable<
+    BaseLanguageModelInput,
+    {
+      raw: BaseMessage;
+      parsed: ClassifyTransactionsRes;
+    }
+  > {
+    if (this.classificationChain) {
+      return this.classificationChain;
+    }
+
+    this.classificationChain = this.langchain.buildStructuredChain({
+      modelId: 'google:gemini-2.5-flash',
+      schema: classificationSchema,
+      structuredOutputOptions: {
+        strict: true,
+      },
+    });
+
+    return this.classificationChain;
   }
 
   /**
