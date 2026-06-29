@@ -155,11 +155,11 @@ Source of truth for all financial data. Five gRPC modules, all protected by `Rpc
 
 No HTTP or gRPC endpoints — runs entirely on its own clock; never called by other services.
 
-| Cron | Job | What it does |
-| ------------- | ------------------------------ | ----------------------------------------------------------------- |
-| `0 3 * * *` | Account Cleanup | Hard-deletes users past `scheduledDeletionAt`; cascades all rows |
-| `0 * * * *` | Recurring Transactions | Creates all recurring items that are due in the current hour |
-| `0 1 1 * *` | Usage Reset | Resets monthly AI usage counters on the first of each month |
+| Cron        | Job                    | What it does                                                     |
+| ----------- | ---------------------- | ---------------------------------------------------------------- |
+| `0 3 * * *` | Account Cleanup        | Hard-deletes users past `scheduledDeletionAt`; cascades all rows |
+| `0 * * * *` | Recurring Transactions | Creates all recurring items that are due in the current hour     |
+| `0 1 1 * *` | Usage Reset            | Resets monthly AI usage counters on the first of each month      |
 
 ### Notification Service (`apps/notification_service` · gRPC port 4009)
 
@@ -195,10 +195,10 @@ pnpm --filter @fintrack/database exec prisma generate
 
 **Automated deployment:**
 
-| Branch push | Secret used | What happens |
-| ----------- | ----------------------- | --------------------------------------- |
-| `staging` | `STAGING_DATABASE_URL` | `prisma migrate deploy` → staging DB |
-| `main` | `PROD_DATABASE_URL` | `prisma migrate deploy` → production DB |
+| Branch push | Secret used            | What happens                            |
+| ----------- | ---------------------- | --------------------------------------- |
+| `staging`   | `STAGING_DATABASE_URL` | `prisma migrate deploy` → staging DB    |
+| `main`      | `PROD_DATABASE_URL`    | `prisma migrate deploy` → production DB |
 
 **Golden rule — additive migrations only.** Migrations run in parallel with Railway's code deploy. Old code must stay functional against the new schema during the deploy window. Safe in one release: add nullable column, add column with `DEFAULT`, add new table/index/enum value. Requires two releases: drop column, rename column, change column type, add `NOT NULL` without a default.
 
@@ -210,29 +210,29 @@ Dark mode glassmorphism aesthetic. Primary typeface is **Manrope** (Google Fonts
 
 ### Color Tokens
 
-| Token | Hex | Use |
+| Token          | Hex       | Use                            |
 | -------------- | --------- | ------------------------------ |
-| Primary | `#7C7AFF` | Buttons, accents |
-| Success | `#00D9A5` | Positive values, income |
-| Error | `#FF6B6B` | Expenses, over-budget alerts |
-| Warning | `#FFB020` | Budget warnings, pending state |
-| Background | `#0F0F14` | Page background |
-| Elevated | `#18181D` | Raised surfaces |
-| Surface | `#1C1C23` | Cards, panels |
-| Text Primary | `#FFFFFF` | Headings |
-| Text Secondary | `#B4B4C0` | Body text |
-| Text Tertiary | `#8B8B98` | Captions, labels |
-| Text Disabled | `#5A5A68` | Disabled / placeholder |
+| Primary        | `#7C7AFF` | Buttons, accents               |
+| Success        | `#00D9A5` | Positive values, income        |
+| Error          | `#FF6B6B` | Expenses, over-budget alerts   |
+| Warning        | `#FFB020` | Budget warnings, pending state |
+| Background     | `#0F0F14` | Page background                |
+| Elevated       | `#18181D` | Raised surfaces                |
+| Surface        | `#1C1C23` | Cards, panels                  |
+| Text Primary   | `#FFFFFF` | Headings                       |
+| Text Secondary | `#B4B4C0` | Body text                      |
+| Text Tertiary  | `#8B8B98` | Captions, labels               |
+| Text Disabled  | `#5A5A68` | Disabled / placeholder         |
 
 ### Type Scale
 
-| Level | Size | Weight |
-| ------- | ----- | ----------- |
-| H1 | 32px | 700 (Bold) |
-| H2 | 24px | 700 (Bold) |
-| H3 | 20px | 600 |
-| Body | 14px | 400 |
-| Caption | 12px | 400 |
+| Level    | Size | Weight      |
+| -------- | ---- | ----------- |
+| H1       | 32px | 700 (Bold)  |
+| H2       | 24px | 700 (Bold)  |
+| H3       | 20px | 600         |
+| Body     | 14px | 400         |
+| Caption  | 12px | 400         |
 | Overline | 11px | 600 (upper) |
 
 ---
@@ -533,3 +533,12 @@ Check the connection limit for your Postgres provider. The default pool allocati
 ---
 
 Copyright © 2026 [dasiloy](https://github.com/dasiloy)
+
+Uploads
+Upload a profile image.
+Upload a receipt image.
+Upload a receipt PDF.
+Confirm OCR draft status updates from pending/processing to completed or failed.
+
+Trigger advisor chat with an uploaded CSV/XLSX attachment.
+Ask advisor something requiring tool/data access, like budget or spending summary.
