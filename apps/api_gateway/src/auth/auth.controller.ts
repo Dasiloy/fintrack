@@ -723,7 +723,7 @@ export class AuthController {
   // ================================================================
   //. Verify 2FA login challenge
   // ================================================================
-  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @Throttle({ default: { limit: 5, ttl: 1900000 } })
   @Post('2fa/verify')
   @ApiOperation({
     summary: 'Verify 2FA Challenge',
