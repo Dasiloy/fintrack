@@ -6,9 +6,10 @@ import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
-import { DatabaseModule } from '@fintrack/database/nest';
+import { PrismaModule, RedisModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 
 import { AdvisorModule } from './advisor/advisor.module';
 import { InsightsModule } from './insights/insights.module';
@@ -24,8 +25,8 @@ import { RegistoryModule } from './registory/registory.module';
  *
  * ## Infrastructure
  * - **ConfigModule** — validates required env vars at startup (`REDIS_URL`,
- *   `DATABASE_URL`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_GEN_AI_API_KEY`).
- *   Fails fast if any are absent.
+ *   `DATABASE_URL`, provider API keys, service bind address, and Finance gRPC
+ *   target). Fails fast if any are absent.
  * - **DatabaseModule** — Prisma client, used by classification and correction features.
  * - **BullModule** — Redis-backed job queue, shared with other services via the same
  *   `REDIS_URL`. Consumers registered in feature modules pick up cross-service jobs.
@@ -57,9 +58,14 @@ import { RegistoryModule } from './registory/registory.module';
         GOOGLE_GEN_AI_API_KEY: Joi.string().required(),
         AI_SERVICE_HOST: Joi.string().required(),
         AI_SERVICE_PORT: Joi.string().required(),
+        FINANCE_SERVICE_HOST: Joi.string().required(),
+        FINANCE_SERVICE_PORT: Joi.string().required(),
+        ALPHA_VANTAGE_API_KEY: Joi.string().required(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
-    DatabaseModule,
+    PrismaModule,
+    RedisModule,
     LoggerModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -69,6 +75,7 @@ import { RegistoryModule } from './registory/registory.module';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),

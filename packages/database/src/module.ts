@@ -11,7 +11,30 @@ import {
 @Global()
 @Module({
   imports: [ConfigModule],
-  providers: [PrismaService, redisProvider, redisSubscriberProvider],
-  exports: [PrismaService, REDIS_CLIENT, REDIS_SUBSCRIBER],
+  providers: [PrismaService],
+  exports: [PrismaService],
+})
+export class PrismaModule {}
+
+@Global()
+@Module({
+  imports: [ConfigModule],
+  providers: [redisProvider],
+  exports: [REDIS_CLIENT],
+})
+export class RedisModule {}
+
+@Global()
+@Module({
+  imports: [ConfigModule],
+  providers: [redisSubscriberProvider],
+  exports: [REDIS_SUBSCRIBER],
+})
+export class RedisSubscriberModule {}
+
+@Global()
+@Module({
+  imports: [PrismaModule, RedisModule, RedisSubscriberModule],
+  exports: [PrismaModule, RedisModule, RedisSubscriberModule],
 })
 export class DatabaseModule {}
