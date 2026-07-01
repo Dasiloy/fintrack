@@ -87,7 +87,8 @@ export const createAuthConfig = (env: AuthEnv, helpers: AuthHelpers): NextAuthCo
             refresh_token: credentials.refreshToken as string,
             name: `${payload.firstName} ${payload.lastName}`,
           };
-        } catch {
+        } catch (e) {
+          console.log(JSON.stringify(e));
           return null;
         }
       },

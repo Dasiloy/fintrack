@@ -31,6 +31,7 @@ import type {
 
 import type { AdvisorMessage } from './advisor.types';
 import { streamAdvisor, AdvisorStreamError } from './advisor.stream';
+import { normalizeAdvisorAttachments } from './advisor.helpers';
 import {
   ADVISOR_CONVERSATIONS_STORAGE_KEY,
   ADVISOR_MESSAGES_STORAGE_PREFIX,
@@ -97,7 +98,7 @@ function toLiveMessage(message: ConversationHistoryMessage): AdvisorMessage {
     role: message.role === 'USER' ? 'user' : 'assistant',
     content: message.content,
     createdAt: new Date(message.createdAt),
-    attachments: message.metadata?.attachments ?? message.attachments ?? [],
+    attachments: normalizeAdvisorAttachments(message.metadata?.attachments ?? message.attachments),
     proposedAction: message.metadata?.proposedAction ?? null,
     actionState: message.metadata?.actionState,
   };

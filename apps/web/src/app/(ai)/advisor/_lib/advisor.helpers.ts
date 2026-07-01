@@ -6,7 +6,10 @@ import { getTimeFromNow, format as dayjsFormat } from '@fintrack/utils/date';
 import type { InsightRecommendation, MacroContext } from '@fintrack/types/interfaces/insights';
 import type { AiInsight } from '@fintrack/database/types';
 import type { AdvisorAction, AdvisorMessage } from './advisor.types';
-import type { AdvisorMessageMetadata } from '@fintrack/types/interfaces/ai';
+import type {
+  AdvisorAttachment,
+  AdvisorMessageMetadata,
+} from '@fintrack/types/interfaces/ai';
 
 export type { InsightRecommendation, MacroContext };
 
@@ -137,6 +140,48 @@ function budgetCategoryLabel(
   return action.categoryName?.trim() || titleCase(action.categorySlug);
 }
 
+export function inferAdvisorAttachmentFormat(
+  attachment: Pick<AdvisorAttachment, 'format' | 'kind' | 'mimeType' | 'name'>,
+): string {
+  if (attachment.format?.trim()) {
+    return attachment.format.trim().toLowerCase();
+  }
+
+  const mimeFormat = attachment.mimeType.split('/').pop()?.toLowerCase();
+  if (mimeFormat) {
+    if (mimeFormat === 'jpeg') return 'jpg';
+    if (mimeFormat === 'csv') return 'csv';
+    if (mimeFormat === 'pdf') return 'pdf';
+    if (mimeFormat === 'vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      return 'xlsx';
+    }
+    if (['png', 'jpg', 'gif', 'webp', 'bmp'].includes(mimeFormat)) return mimeFormat;
+  }
+
+  const filenameFormat = attachment.name.split('.').pop()?.trim().toLowerCase();
+  if (filenameFormat) return filenameFormat === 'jpeg' ? 'jpg' : filenameFormat;
+
+  switch (attachment.kind) {
+    case 'csv':
+      return 'csv';
+    case 'excel':
+      return 'xlsx';
+    case 'pdf':
+      return 'pdf';
+    case 'image':
+      return 'jpg';
+  }
+}
+
+export function normalizeAdvisorAttachments(
+  attachments: AdvisorAttachment[] | undefined,
+): AdvisorAttachment[] {
+  return (attachments ?? []).map((attachment) => ({
+    ...attachment,
+    format: inferAdvisorAttachmentFormat(attachment),
+  }));
+}
+
 export function toAdvisorMessage(m: {
   id: string;
   role: string;
@@ -149,7 +194,7 @@ export function toAdvisorMessage(m: {
     role: m.role === 'USER' ? 'user' : 'assistant',
     content: m.content,
     createdAt: new Date(m.createdAt),
-    attachments: m.metadata?.attachments ?? [],
+    attachments: normalizeAdvisorAttachments(m.metadata?.attachments),
     proposedAction: m.metadata?.proposedAction ?? null,
     actionState: m.metadata?.actionState,
   };
