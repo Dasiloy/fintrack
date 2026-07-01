@@ -1549,7 +1549,6 @@ export class AuthService implements OnModuleInit {
       }
 
       const secret = this.otp.generateSecret();
-      console.log('secret', secret);
 
       const otpauthUri = this.otp.generateURI({
         issuer: 'Fintrack',
@@ -1622,6 +1621,8 @@ export class AuthService implements OnModuleInit {
         secret,
         token: data.code,
       });
+
+      this.logger.log(verify);
 
       if (!verify.valid) {
         throw new RpcException({
@@ -2573,6 +2574,7 @@ export class AuthService implements OnModuleInit {
 
       return payload.id;
     } catch (error) {
+      this.logger.error(JSON.stringify(error));
       throw new RpcException({
         code: status.UNAUTHENTICATED,
         message: 'Invalid or expired challenge token',

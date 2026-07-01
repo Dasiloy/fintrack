@@ -9,7 +9,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
 import { EncryptionService } from '@fintrack/common/services/encryption.service';
-import { DatabaseModule } from '@fintrack/database/nest';
+import { PrismaModule, RedisModule } from '@fintrack/database/nest';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 import {
   getProtoIncludeDirs,
   getServiceConfig,
@@ -52,6 +53,7 @@ import { AuthService } from './auth.service';
         AUTH_SERVICE_PORT: Joi.string().required(),
         PAYMENT_SERVICE_HOST: Joi.string().required(),
         PAYMENT_SERVICE_PORT: Joi.string().required(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
     JwtModule.registerAsync({
@@ -96,7 +98,8 @@ import { AuthService } from './auth.service';
         },
       ],
     }),
-    DatabaseModule,
+    PrismaModule,
+    RedisModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -105,6 +108,7 @@ import { AuthService } from './auth.service';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),

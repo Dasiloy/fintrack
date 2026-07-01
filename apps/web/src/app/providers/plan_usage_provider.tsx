@@ -3,6 +3,7 @@
 import { api_client } from '@/lib/trpc_app/api_client';
 import type { RouterOutputs } from '@/lib/trpc_app/client';
 import { Usage } from '@fintrack/types/constants/plan.constants';
+import { useSession } from 'next-auth/react';
 import { createContext, useContext, useMemo } from 'react';
 
 type PlanUsageContextValue = RouterOutputs['subscription']['getGatedUsage'];
@@ -10,8 +11,10 @@ type PlanUsageContextValue = RouterOutputs['subscription']['getGatedUsage'];
 const PlanUsageContext = createContext<PlanUsageContextValue | null>(null);
 
 export function PlanUsageProvider({ children }: React.PropsWithChildren) {
+  const { status } = useSession();
   const { data } = api_client.subscription.getGatedUsage.useQuery({} as any, {
     staleTime: 1000 * 60 * 5, //5min
+    enabled: status === 'authenticated',
   });
 
   const value = useMemo(() => data ?? null, [data]);

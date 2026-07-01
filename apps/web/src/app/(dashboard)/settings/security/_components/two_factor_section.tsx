@@ -649,7 +649,7 @@ export default function TwoFactorSection() {
       });
       setTimeout(() => {
         signOutAndClearClientState({ redirect: true, redirectTo: AUTH_ROUTES.LOGIN }).then(resolve);
-      }, 1500);
+      }, 500);
     });
   };
 
