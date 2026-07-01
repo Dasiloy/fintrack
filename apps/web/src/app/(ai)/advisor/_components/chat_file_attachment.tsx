@@ -8,7 +8,7 @@ import * as React from 'react';
 import { FileText, Download, Sheet, Image, Loader2 } from 'lucide-react';
 import { toast } from '@ui/components';
 import { cn } from '@ui/lib/utils';
-import { formatFileSize } from '../_lib/advisor.helpers';
+import { formatFileSize, inferAdvisorAttachmentFormat } from '../_lib/advisor.helpers';
 import type { GeneratedFile } from '../_lib/advisor.types';
 import { api_client } from '@/lib/trpc_app/api_client';
 
@@ -32,7 +32,7 @@ export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
     if (viewMutation.isPending) return;
     viewMutation.mutateAsync({
       publicId: file.publicId,
-      format: file.format,
+      format: inferAdvisorAttachmentFormat(file),
     });
   };
 
