@@ -15,7 +15,6 @@
   "dependencies": {
     "turbo": "^2.8.4",
     "dotenv": "^17.2.4",
-    "dotenv-expand": "^12.0.3",
     "typescript": "5.9.2"
   },
   "devDependencies": {

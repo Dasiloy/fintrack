@@ -1,7 +1,4 @@
-// CRITICAL: Load environment variables FIRST, before any imports that use them
-import { loadEnv } from '@fintrack/common/env/index';
-loadEnv();
-
+import 'dotenv/config';
 // Now safe to import modules that depend on environment variables
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
