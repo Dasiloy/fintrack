@@ -23,11 +23,13 @@ import {
   Plus,
   Upload,
   WandSparkles,
+  CircleAlert,
 } from 'lucide-react';
 import { cn } from '@ui/lib/utils';
 import { AdvisorWorkflowTools } from './advisor_workflow_tools';
 import type { AdvisorWorkflowTool } from './advisor_workflow_tools';
 import { AdvisorWorkflowDialog } from './advisor_workflow_dialog';
+import type { AdvisorWorkflowSubmission } from './advisor_workflow_dialog';
 import type {
   FailedPendingAttachment,
   PendingAttachment,
@@ -40,6 +42,7 @@ interface ChatInputProps {
   attachments: PendingAttachment[];
   uploadingAttachments: UploadingPendingAttachment[];
   failedAttachments: FailedPendingAttachment[];
+  streamError: string | null;
   isStreaming: boolean;
   isUploading: boolean;
   onChange: (value: string) => void;
@@ -51,7 +54,8 @@ interface ChatInputProps {
   onRemoveAttachment: (id: string) => void;
   onRetryFailedAttachment: (id: string) => void;
   onRemoveFailedAttachment: (id: string) => void;
-  onWorkflowSelect?: (prompt: string) => void;
+  onDismissStreamError: () => void;
+  onWorkflowSelect?: (submission: AdvisorWorkflowSubmission) => void;
 }
 
 export function ChatInput({
@@ -59,6 +63,7 @@ export function ChatInput({
   attachments,
   uploadingAttachments,
   failedAttachments,
+  streamError,
   isStreaming,
   isUploading,
   onChange,
@@ -68,6 +73,7 @@ export function ChatInput({
   onRemoveAttachment,
   onRetryFailedAttachment,
   onRemoveFailedAttachment,
+  onDismissStreamError,
   onWorkflowSelect,
 }: ChatInputProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -156,22 +162,14 @@ export function ChatInput({
   };
 
   const handleWorkflowToolSelect = (workflow: AdvisorWorkflowTool) => {
-    if (workflow.id === 'document-review-workspace') {
-      onWorkflowSelect?.(workflow.prompt);
-      setMenuOpen(false);
-      setWorkflowOpen(false);
-      fileInputRef.current?.click();
-      return;
-    }
-
     setSelectedWorkflow(workflow);
     setWorkflowDialogOpen(true);
     setMenuOpen(false);
     setWorkflowOpen(false);
   };
 
-  const handleWorkflowPrompt = (prompt: string) => {
-    onWorkflowSelect?.(prompt);
+  const handleWorkflowPrompt = (submission: AdvisorWorkflowSubmission) => {
+    onWorkflowSelect?.(submission);
   };
 
   const canSend = (value.trim().length > 0 || attachments.length > 0) && !isBusy;
@@ -268,6 +266,21 @@ export function ChatInput({
         </div>
       )}
 
+      {streamError && (
+        <div className="mx-auto flex max-w-4xl items-start gap-2 rounded-t-2xl border border-error/25 border-b-0 bg-error/10 px-3 py-2 text-error shadow-sm">
+          <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+          <p className="min-w-0 flex-1 text-[11px] leading-4">{streamError}</p>
+          <button
+            type="button"
+            onClick={onDismissStreamError}
+            className="text-error/70 hover:text-error flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md transition-colors"
+            aria-label="Dismiss advisor error"
+          >
+            <X className="size-3.5" aria-hidden />
+          </button>
+        </div>
+      )}
+
       {(menuOpen || workflowOpen) && (
         <div className="absolute inset-x-3 bottom-[calc(100%-0.25rem)] z-20 mx-auto flex max-w-4xl justify-start pl-1">
           {workflowOpen ? (
@@ -325,7 +338,12 @@ export function ChatInput({
       )}
 
       {/* Input row */}
-      <div className="mx-auto flex max-w-4xl items-center gap-2 rounded-2xl bg-bg-surface px-3 py-2 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.8)] ring-1 ring-border-subtle">
+      <div
+        className={cn(
+          'mx-auto flex max-w-4xl items-center gap-2 bg-bg-surface px-3 py-2 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.8)] ring-1 ring-border-subtle',
+          streamError ? 'rounded-b-2xl rounded-t-none' : 'rounded-2xl',
+        )}
+      >
         {/* Hidden file input */}
         <input
           ref={fileInputRef}

@@ -5,12 +5,14 @@ import { type StandardResponse } from '@fintrack/types/interfaces/server_respons
 import { ContentType, GATEWAY_URL, gatewayHeaders, throwGatewayError } from '../lib/gateway';
 import type { AiInsight } from '@fintrack/database/types';
 import type { MacroContext } from '@fintrack/types/interfaces/insights';
+import { ADVISOR_WORKFLOW_IDS, ADVISOR_WORKFLOW_STATUSES } from '@fintrack/types/interfaces/ai';
 import type {
   AdvisorAttachmentKind,
   AdvisorAttachmentUploadResult,
   AdvisorConsent,
   ConversationSummary,
   ConversationMessagePage,
+  AdvisorWorkflowRunHistoryItem,
 } from '@fintrack/types/interfaces/ai';
 
 export const advisorRouter = createTRPCRouter({
@@ -148,6 +150,39 @@ export const advisorRouter = createTRPCRouter({
       return data;
     }),
 
+  /**
+   * Returns recent advisor workflow runs, optionally filtered by workflow type
+   * and status. Used by workflow history surfaces and run pickers.
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   */
+  getWorkflowRuns: protectedProcedure
+    .input(
+      z
+        .object({
+          workflowId: z.enum(ADVISOR_WORKFLOW_IDS).optional(),
+          status: z.enum(ADVISOR_WORKFLOW_STATUSES).optional(),
+          limit: z.number().int().min(1).max(50).optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const params = new URLSearchParams();
+      if (input?.workflowId) params.set('workflowId', input.workflowId);
+      if (input?.status) params.set('status', input.status);
+      if (input?.limit) params.set('limit', String(input.limit));
+      const qs = params.toString();
+
+      const response = await fetch(`${GATEWAY_URL}/api/advisor/workflows${qs ? `?${qs}` : ''}`, {
+        headers: gatewayHeaders(ctx.headers),
+      });
+
+      if (!response.ok) await throwGatewayError(response);
+
+      const data: StandardResponse<AdvisorWorkflowRunHistoryItem[]> = await response.json();
+      return data;
+    }),
+
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
@@ -220,11 +255,18 @@ export const advisorRouter = createTRPCRouter({
       return data.data!;
     }),
 
+  /**
+   * Gets the private url for secure attachment download
+   *
+   * @throws UNAUTHORIZED if the session is invalid
+   * @throws NOT_FOUND if the \attactchment belongs to another user
+   */
   getAttachmentUrl: protectedProcedure
     .input(
       z.object({
         publicId: z.string().min(1),
         format: z.string().min(1),
+        kind: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
