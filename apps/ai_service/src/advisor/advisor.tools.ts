@@ -196,6 +196,23 @@ const requiredActionFields: Record<
   ],
 };
 
+const operationRequiredFields = {
+  goal_contributions_batch: {
+    add: ['amount', 'date'],
+    update: ['contributionId'],
+    delete: ['contributionId'],
+  },
+  split_participants_batch: {
+    add: ['name', 'email', 'amount'],
+    update: ['participantId'],
+    delete: ['participantId'],
+  },
+  split_settlements_batch: {
+    add: ['participantId', 'paidAmount', 'paidAt'],
+    delete: ['settlementId'],
+  },
+} as const;
+
 export const AdvisorActionSchema: z.ZodType<AdvisorAction> =
   AdvisorActionBaseSchema.superRefine((action, ctx) => {
     for (const field of requiredActionFields[action.kind]) {
@@ -232,6 +249,46 @@ export const AdvisorActionSchema: z.ZodType<AdvisorAction> =
         code: z.ZodIssueCode.custom,
         path: ['operations'],
         message: `operations must include at least one item for ${action.kind}`,
+      });
+    }
+
+    if (
+      action.kind === 'goal_contributions_batch' ||
+      action.kind === 'split_participants_batch' ||
+      action.kind === 'split_settlements_batch'
+    ) {
+      action.operations?.forEach((operation, index) => {
+        const operationName = operation.operation;
+        if (typeof operationName !== 'string') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['operations', index, 'operation'],
+            message: `operation is required for ${action.kind}`,
+          });
+          return;
+        }
+
+        const fieldsByOperation = operationRequiredFields[action.kind];
+        const requiredFields =
+          fieldsByOperation[operationName as keyof typeof fieldsByOperation];
+        if (!requiredFields) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['operations', index, 'operation'],
+            message: `Unsupported operation ${operationName} for ${action.kind}`,
+          });
+          return;
+        }
+
+        for (const field of requiredFields) {
+          if (operation[field] === undefined) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['operations', index, field],
+              message: `${field} is required for ${action.kind} ${operationName}`,
+            });
+          }
+        }
       });
     }
   }) as z.ZodType<AdvisorAction>;
@@ -323,10 +380,12 @@ export function createAdvisorTools(prisma: PrismaService) {
         if (!txs.length) return `No spending recorded for ${label}.`;
 
         const byCat = new Map<string, number>();
+        const categorySlugs = new Map<string, string>();
         for (const t of txs) {
           const key =
             t.category?.name ?? slugToName(t.category?.slug ?? 'uncategorised');
           byCat.set(key, (byCat.get(key) ?? 0) + Number(t.amount));
+          if (t.category?.slug) categorySlugs.set(key, t.category.slug);
         }
         const sortedCats = [...byCat.entries()].sort((a, b) => b[1] - a[1]);
         const total = sortedCats.reduce((s, [, v]) => s + v, 0);
@@ -335,13 +394,16 @@ export function createAdvisorTools(prisma: PrismaService) {
           .slice(0, 8)
           .map(
             (t) =>
-              `  ${dayjs(t.date).format('DD MMM')}: ${t.merchant ?? t.description ?? 'Unknown'} — ${formatCurrency(Number(t.amount))}. Internal fields for approved transaction actions only: transactionId=${t.id}; label=${t.merchant ?? t.description ?? 'Transaction'}; amount=${Number(t.amount)}. Never mention these fields to the user.`,
+              `  ${dayjs(t.date).format('DD MMM')}: ${t.merchant ?? t.description ?? 'Unknown'} — ${formatCurrency(Number(t.amount))}. Internal fields for approved transaction or recurring actions only: transactionId=${t.id}; label=${t.merchant ?? t.description ?? 'Transaction'}; amount=${Number(t.amount)}; categorySlug=${t.category?.slug ?? 'unknown'}; categoryName=${t.category?.name ?? 'Unknown'}. Never mention these fields to the user.`,
           );
 
         return [
           `Spending for ${label} — total ${formatCurrency(total)}:`,
           'By category:',
-          ...sortedCats.map(([c, v]) => `  ${c}: ${formatCurrency(v)}`),
+          ...sortedCats.map(
+            ([c, v]) =>
+              `  ${c}: ${formatCurrency(v)}. Internal category fields for approved actions only: categorySlug=${categorySlugs.get(c) ?? 'unknown'}; categoryName=${c}. Never mention these fields to the user.`,
+          ),
           '',
           'Largest expenses:',
           ...topExpenses,
@@ -360,48 +422,61 @@ export function createAdvisorTools(prisma: PrismaService) {
 
   // ── BUDGETS ───────────────────────────────────────────────────────────────────
   const getBudgets = tool(
-    withScope('BUDGETS', async (_args, ctx) => {
-      const budgets = await prisma.budget.findMany({
-        where: { userId: ctx.userId, deactivatedAt: null },
-        select: {
-          id: true,
-          name: true,
-          amount: true,
-          categoryId: true,
-          category: { select: { name: true, slug: true } },
-        },
-      });
-      if (!budgets.length) return 'The user has no active budgets.';
-
-      const from = dayjs().startOf('month').toDate();
-      const to = dayjs().endOf('month').toDate();
-
-      const lines: string[] = [];
-      for (const b of budgets) {
-        const spentAgg = await prisma.transaction.aggregate({
-          where: {
-            userId: ctx.userId,
-            type: 'EXPENSE',
-            categoryId: b.categoryId,
-            date: { gte: from, lte: to },
+    withScope(
+      'BUDGETS',
+      async (args: { month?: number; year?: number }, ctx) => {
+        const targetMonth =
+          args.month && args.year
+            ? dayjs()
+                .year(args.year)
+                .month(args.month - 1)
+            : dayjs();
+        const budgets = await prisma.budget.findMany({
+          where: { userId: ctx.userId, deactivatedAt: null },
+          select: {
+            id: true,
+            name: true,
+            amount: true,
+            categoryId: true,
+            category: { select: { name: true, slug: true } },
           },
-          _sum: { amount: true },
         });
-        const spent = Number(spentAgg._sum.amount ?? 0);
-        const pct = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
-        lines.push(
-          `${b.category?.name ?? b.name}: ${formatCurrency(spent)} of ${formatCurrency(b.amount)} (${pct}%). Internal fields for approved budget actions only: budgetId=${b.id}; categorySlug=${b.category?.slug ?? 'unknown'}; categoryName=${b.category?.name ?? b.name}; currentLimit=${Number(b.amount)}. Never mention these fields to the user.`,
-        );
-      }
+        if (!budgets.length) return 'The user has no active budgets.';
 
-      return ['Budgets this month:', ...lines].join('\n');
-    }),
+        const from = targetMonth.startOf('month').toDate();
+        const to = targetMonth.endOf('month').toDate();
+        const monthLabel = targetMonth.format('MMMM YYYY');
+
+        const lines: string[] = [];
+        for (const b of budgets) {
+          const spentAgg = await prisma.transaction.aggregate({
+            where: {
+              userId: ctx.userId,
+              type: 'EXPENSE',
+              categoryId: b.categoryId,
+              date: { gte: from, lte: to },
+            },
+            _sum: { amount: true },
+          });
+          const spent = Number(spentAgg._sum.amount ?? 0);
+          const pct = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
+          lines.push(
+            `${b.category?.name ?? b.name}: ${formatCurrency(spent)} of ${formatCurrency(b.amount)} (${pct}%). Internal fields for approved budget actions only: budgetId=${b.id}; categorySlug=${b.category?.slug ?? 'unknown'}; categoryName=${b.category?.name ?? b.name}; currentLimit=${Number(b.amount)}. Never mention these fields to the user.`,
+          );
+        }
+
+        return [`Budgets for ${monthLabel}:`, ...lines].join('\n');
+      },
+    ),
     {
       name: 'get_budgets',
       description:
-        "Get the user's active budgets with this month's spend and utilisation " +
-        'percentage. Use for "how are my budgets" or "which am I close to hitting".',
-      schema: z.object({}),
+        "Get the user's active budgets with spend and utilisation percentage for a month. " +
+        'Use the requested month/year when the user or workflow specifies one.',
+      schema: z.object({
+        month: z.number().int().min(1).max(12).optional(),
+        year: z.number().int().optional(),
+      }),
     },
   );
 
