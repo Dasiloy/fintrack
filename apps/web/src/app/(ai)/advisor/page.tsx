@@ -28,6 +28,8 @@ export default async function AdvisorPage({
   const activeConversationId =
     (await cookies()).get(ADVISOR_ACTIVE_CONVERSATION_COOKIE)?.value || null;
 
+  console.log('activeConversationId', activeConversationId);
+
   await Promise.all([
     api_server.advisor.getConversations.prefetch(),
     activeConversationId

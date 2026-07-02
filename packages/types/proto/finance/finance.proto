@@ -52,6 +52,7 @@ service FinanceService {
    rpc DeleteBudget (DeleteBudgetReq) returns (Empty) {}
    rpc GetArchivedBudgets(Empty) returns (GetArchivedBudgetsRes) {}
    rpc RestoreBudget(RestoreBudgetReq) returns (Budget) {}
+   rpc BatchBudgetWorkflowActions(BatchBudgetWorkflowActionsReq) returns (BatchBudgetWorkflowActionsRes) {}
 
 
   // Recurring
@@ -63,6 +64,7 @@ service FinanceService {
   rpc ToggleRecurringReminder(RecurringReq)    returns (Recurinrg) {}
   rpc DeleteRecurring(RecurringReq)            returns (Empty) {}
   rpc GetRecurringsAggregate(Empty)            returns (RecurringAggregateRes) {}
+  rpc BatchRecurringWorkflowActions(BatchRecurringWorkflowActionsReq) returns (BatchRecurringWorkflowActionsRes) {}
 
   // Splits
   rpc CreateSplit(CreateSplitReq)                   returns (Split) {}
@@ -92,4 +94,3 @@ service FinanceService {
 
 
 }
-

@@ -20,6 +20,8 @@ describe('createAdvisorTools', () => {
     (dayjs as unknown as jest.Mock).mockImplementation(() => ({
       startOf: jest.fn().mockReturnThis(),
       endOf: jest.fn().mockReturnThis(),
+      year: jest.fn().mockReturnThis(),
+      month: jest.fn().mockReturnThis(),
       toDate: jest.fn(() => new Date('2026-06-01T00:00:00.000Z')),
       format: jest.fn(() => '01 Jun 2026'),
     }));
@@ -71,6 +73,31 @@ describe('createAdvisorTools', () => {
     }
   });
 
+  it('validates nested batch operation fields before executor runs', () => {
+    const result = AdvisorActionSchema.safeParse({
+      kind: 'split_settlements_batch',
+      splitId: 'split-1',
+      splitName: 'Trip',
+      reason: 'Record payment',
+      operations: [
+        {
+          operation: 'add',
+          paidAmount: 10000,
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join('.'))).toEqual(
+        expect.arrayContaining([
+          'operations.0.participantId',
+          'operations.0.paidAt',
+        ]),
+      );
+    }
+  });
+
   it('returns internal budget execution keys required for approved budget actions', async () => {
     const prisma = {
       budget: {
@@ -80,7 +107,10 @@ describe('createAdvisorTools', () => {
             name: 'Bills Budget',
             amount: 35000,
             categoryId: 'category-1',
-            category: { name: 'Bills & Utilities', slug: 'bills-utilities' },
+            category: {
+              name: 'Bills & Utilities',
+              slug: 'cat-bills-utilities',
+            },
           },
         ]),
       },
@@ -100,9 +130,42 @@ describe('createAdvisorTools', () => {
 
     expect(result).toContain('Bills & Utilities: ₦168000 of ₦35000');
     expect(result).toContain('budgetId=budget-1');
-    expect(result).toContain('categorySlug=bills-utilities');
+    expect(result).toContain('categorySlug=cat-bills-utilities');
     expect(result).toContain('currentLimit=35000');
     expect(result).toContain('Never mention these fields to the user');
+  });
+
+  it('returns exact transaction category slugs for approved recurring actions', async () => {
+    const prisma = {
+      transaction: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'transaction-1',
+            amount: 18000,
+            date: new Date('2026-06-10T00:00:00.000Z'),
+            merchant: 'Spectranet',
+            description: 'Internet subscription',
+            category: {
+              name: 'Bills & Utilities',
+              slug: 'cat-bills-utilities',
+            },
+          },
+        ]),
+      },
+    };
+    const tools = createAdvisorTools(prisma as never);
+    const getSpending = tools.find((tool) => tool.name === 'get_spending') as
+      | { invoke(input: unknown, config?: unknown): Promise<string> }
+      | undefined;
+
+    const result = await getSpending!.invoke(
+      { month: 6, year: 2026 },
+      { context: { userId: 'user-1', grantedScopes: ['TRANSACTIONS'] } },
+    );
+
+    expect(result).toContain('categorySlug=cat-bills-utilities');
+    expect(result).toContain('categoryName=Bills & Utilities');
+    expect(result).toContain('approved transaction or recurring actions');
   });
 
   it('returns internal goal execution keys required for approved goal actions', async () => {

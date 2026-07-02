@@ -17,9 +17,14 @@ import {
   getServiceUrl,
   getServiceConfig,
 } from '@fintrack/common/config/services';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 import { TRANSACTION_SEMANTIC_QUEUE } from '@fintrack/types/constants/queus.constants';
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
-import { DatabaseModule } from '@fintrack/database/nest';
+import {
+  PrismaModule,
+  RedisModule,
+  RedisSubscriberModule,
+} from '@fintrack/database/nest';
 
 import { DeviceMiddleware } from './middleware/device.middleware';
 import { AppExceptionFilter } from './filters/rpc-exception.filter';
@@ -61,10 +66,9 @@ import { FinanceModule } from './finance/finance.module';
       envFilePath: `.env`,
       expandVariables: true,
       validationSchema: Joi.object({
+        MICROSERVICE_NAME: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
         AES_KEY: Joi.string().required(),
-        AUTH_GOOGLE_ID: Joi.string().required(),
-        AUTH_GOOGLE_SECRET: Joi.string().required(),
         API_GATEWAY_PORT: Joi.string().required(),
         API_GATEWAY_HOST: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
@@ -90,6 +94,7 @@ import { FinanceModule } from './finance/finance.module';
         SCHEDULER_SERVICE_HOST: Joi.string().required(),
         SCHEDULER_SERVICE_PORT: Joi.string().required(),
         FIREBASE_SERVICE_ACCOUNT: Joi.string().required(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
 
@@ -186,11 +191,14 @@ import { FinanceModule } from './finance/finance.module';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),
 
-    DatabaseModule,
+    PrismaModule,
+    RedisModule,
+    RedisSubscriberModule,
     LoggerModule,
 
     /// APP MODULES

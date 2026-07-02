@@ -6,10 +6,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
-import { DatabaseModule } from '@fintrack/database/nest';
+import { PrismaModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { PaystackService } from '@fintrack/common/services/paystack.service';
 import { FetcherService } from '@fintrack/common/services/fetcher.service';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 import { PAYMENT_QUEUE } from '@fintrack/types/constants/queus.constants';
 import { EncryptionService } from '@fintrack/common/services/encryption.service';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
@@ -27,14 +28,16 @@ import { PaymentService } from './payment.service';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        AES_KEY: Joi.string().required(),
         MICROSERVICE_NAME: Joi.string().required(),
         PAYSTACK_PRO_MONTHLY_PRICE_ID: Joi.string().required(),
         PAYSTACK_SECRET_KEY: Joi.string().required(),
         PAYMENT_SERVICE_HOST: Joi.string().required(),
         PAYMENT_SERVICE_PORT: Joi.string().required(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
-    DatabaseModule,
+    PrismaModule,
     LoggerModule,
 
     BullModule.forRootAsync({
@@ -45,6 +48,7 @@ import { PaymentService } from './payment.service';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),
