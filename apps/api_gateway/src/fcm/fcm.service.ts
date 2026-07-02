@@ -1,12 +1,37 @@
 import * as crypto from 'crypto';
-import * as admin from 'firebase-admin';
 
 import { ConfigService } from '@nestjs/config';
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { PrismaService } from '@fintrack/database/service';
-import { FCM_ADMIN } from '@fintrack/types/constants/fcm.constants';
 import { FcmNotificationPayload } from '@fintrack/types/interfaces/finance';
+
+type FcmMessage = {
+  token: string;
+  notification: {
+    title: string;
+    body: string;
+  };
+  data: Record<string, string>;
+  webpush: {
+    fcmOptions: {
+      link: string;
+    };
+  };
+};
+
+type FirebaseApp = {
+  messaging(): {
+    sendEach(messages: FcmMessage[]): Promise<{
+      responses: Array<{
+        success: boolean;
+        error?: {
+          code?: string;
+        };
+      }>;
+    }>;
+  };
+};
 
 /**
  * Service responsible for sending FCM notifications to users
@@ -19,11 +44,12 @@ import { FcmNotificationPayload } from '@fintrack/types/interfaces/finance';
 @Injectable()
 export class FcmService {
   private readonly logger = new Logger(FcmService.name);
+  private firebaseApp: FirebaseApp | null = null;
+  private firebaseAppPromise: Promise<FirebaseApp> | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-    @Inject(FCM_ADMIN) private readonly admin: admin.app.App,
   ) {}
 
   /**
@@ -66,7 +92,8 @@ export class FcmService {
       }));
 
       // sendEach sends to all tokens — does not fail if one token is stale
-      const response = await this.admin.messaging().sendEach(messages);
+      const firebaseApp = await this.getFirebaseApp();
+      const response = await firebaseApp.messaging().sendEach(messages);
 
       // Clean up stale tokens — FCM returns an error for invalid tokens
       const staleTokens: string[] = [];
@@ -111,5 +138,32 @@ export class FcmService {
    */
   private generateNotificationId(): string {
     return crypto.randomBytes(16).toString('hex');
+  }
+
+  private async getFirebaseApp(): Promise<FirebaseApp> {
+    if (this.firebaseApp) {
+      return this.firebaseApp;
+    }
+
+    this.firebaseAppPromise ??= this.createFirebaseApp();
+    this.firebaseApp = await this.firebaseAppPromise;
+
+    return this.firebaseApp;
+  }
+
+  private async createFirebaseApp(): Promise<FirebaseApp> {
+    const admin = await import('firebase-admin');
+    const app =
+      admin.apps.length > 0
+        ? admin.app()
+        : admin.initializeApp({
+            credential: admin.credential.cert(
+              JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT!) as Parameters<
+                typeof admin.credential.cert
+              >[0],
+            ),
+          });
+
+    return app as FirebaseApp;
   }
 }

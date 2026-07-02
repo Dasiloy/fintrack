@@ -115,36 +115,36 @@ jobs:
   # Secrets required in GitHub repo settings:
   #   STAGING_DATABASE_URL          — staging Postgres connection string
 
-  migrate-staging:
-    name: Migrate — Staging DB
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+  # migrate-staging:
+  #   name: Migrate — Staging DB
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+  #     - uses: pnpm/action-setup@v4
+  #       with:
+  #         version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
 
-      - name: Build database package
-        run: pnpm turbo build --filter=@fintrack/database
-        env:
-          SKIP_ENV_VALIDATION: 'true'
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+  #     - name: Build database package
+  #       run: pnpm turbo build --filter=@fintrack/database
+  #       env:
+  #         SKIP_ENV_VALIDATION: 'true'
+  #         DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
-      - name: Apply migrations to staging
-        run: pnpm --filter @fintrack/database db:deploy
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+  #     - name: Apply migrations to staging
+  #       run: pnpm --filter @fintrack/database db:deploy
+  #       env:
+  #         DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
   # ── Job 4: Production Database Migration ──────────────────────────────────────
   # Runs ONLY on merge to main. Applies any pending Prisma migrations to the
