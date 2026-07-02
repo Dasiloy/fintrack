@@ -7,6 +7,10 @@ import type {
   AdvisorAction,
   AdvisorAttachment,
   AdvisorActionState,
+  AdvisorWorkflowRun,
+  AdvisorWorkflowChangeCandidate,
+  AdvisorWorkflowResponse,
+  AdvisorWorkflowStatus,
   ConversationSummary,
 } from '@fintrack/types/interfaces/ai';
 
@@ -31,6 +35,8 @@ export interface AdvisorMessage {
   role: 'user' | 'assistant';
   content: string;
   createdAt: Date;
+  workflow?: AdvisorWorkflowRun;
+  workflowResponse?: AdvisorWorkflowResponse;
   generatedFiles?: GeneratedFile[];
   attachments?: AdvisorAttachment[];
   proposedAction?: AdvisorAction | null;
@@ -43,7 +49,15 @@ export type GeneratedFile = AdvisorAttachment;
 // Unified with the AI service via the shared types package — single source of
 // truth so the proposed-action shape never drifts between client and server.
 
-export type { AdvisorAction, AdvisorAttachment, AdvisorActionState };
+export type {
+  AdvisorAction,
+  AdvisorAttachment,
+  AdvisorActionState,
+  AdvisorWorkflowRun,
+  AdvisorWorkflowChangeCandidate,
+  AdvisorWorkflowResponse,
+  AdvisorWorkflowStatus,
+};
 
 // ── File attachments (user uploads pending send) ──────────────────────────────
 

@@ -2,18 +2,15 @@ import * as cloudinary from 'cloudinary';
 import { Readable } from 'stream';
 
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { OCRDraftStatus, type User } from '@fintrack/database/types';
 import { PrismaService } from '@fintrack/database/service';
-
-import { UserService } from '../user/user.service';
-import { TransactionService } from '../transaction/transaction.service';
-import { UsageService } from '../usage/usage.service';
-import { UploadReceiptResponse } from './dto/upload_receipt.dto';
 import type {
   AdvisorAttachment,
   AdvisorAttachmentKind,
@@ -24,7 +21,12 @@ import {
   ADVISOR_FILE_MAX_SIZE,
   ADVISOR_FILE_MIME_TYPES,
 } from '@fintrack/types/constants/file.constants';
-import { PRIVATEUPLOAD_EXPIRY } from '@fintrack/types/constants/upload.constants';
+import { parseJwtExpiration } from '@fintrack/utils/jwt';
+
+import { UserService } from '../user/user.service';
+import { TransactionService } from '../transaction/transaction.service';
+import { UsageService } from '../usage/usage.service';
+import { UploadReceiptResponse } from './dto/upload_receipt.dto';
 
 /**
  * Service responsible for uploading and fetching files from Cloudinary
@@ -39,6 +41,7 @@ export class UploadService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
+    private readonly config: ConfigService,
     private readonly transactionService: TransactionService,
     private readonly usageService: UsageService,
   ) {
@@ -186,13 +189,17 @@ export class UploadService {
     const kind = this.advisorAttachmentKind(file.mimetype);
     const safeName = file.originalname.replace(/[^\w.\-]+/g, '_');
 
+    const resource_type = ['csv', 'excel'].includes(kind)
+      ? this.advisorCloudinaryResourceType(kind)
+      : undefined;
+
     let upload: cloudinary.UploadApiResponse;
     try {
       upload = await this.uploadStream(file.buffer, {
         overwrite: true,
         use_filename: true,
         unique_filename: false,
-        resource_type: this.advisorCloudinaryResourceType(kind),
+        resource_type: resource_type,
         type: 'private', // crucial so that users docs stays private
         public_id: `fintrack/advisor/${user.id}/${safeName}`,
         tags: ['fintrack', 'advisor', kind],
@@ -207,7 +214,8 @@ export class UploadService {
     }
 
     return {
-      format: upload.format ?? this.advisorAttachmentFormat(file.originalname, kind),
+      format:
+        upload.format ?? this.advisorAttachmentFormat(file.originalname, kind),
       publicId: upload.public_id,
       name: file.originalname,
       mimeType: file.mimetype,
@@ -274,12 +282,8 @@ export class UploadService {
    * @param kind - Attachment kind used to select Cloudinary resource type.
    * @returns True when Cloudinary reports deletion, otherwise false.
    */
-  async deleteAdvisorFile(
-    user: User,
-    publicId: string,
-    kind: AdvisorAttachmentKind,
-  ): Promise<boolean> {
-    return this.deleteAdvisorFileForUser(user.id, publicId, kind);
+  async deleteAdvisorFile(user: User, publicId: string): Promise<boolean> {
+    return this.deleteAdvisorFileForUser(user.id, publicId);
   }
 
   /**
@@ -297,7 +301,6 @@ export class UploadService {
   async deleteAdvisorFileForUser(
     userId: string,
     publicId: string,
-    kind: AdvisorAttachmentKind,
   ): Promise<boolean> {
     const prefix = `fintrack/advisor/${userId}/`;
     if (!publicId.startsWith(prefix)) {
@@ -306,7 +309,6 @@ export class UploadService {
 
     try {
       const result = await cloudinary.v2.uploader.destroy(publicId, {
-        resource_type: this.advisorCloudinaryResourceType(kind),
         type: 'private',
       });
       return result.result === 'ok';
@@ -336,21 +338,15 @@ export class UploadService {
     userId: string,
     publicId: string,
     format: string,
-    mode: 'model' | 'view' = 'view',
-  ): string | null {
+    kind: AdvisorAttachmentKind,
+  ): string {
     const prefix = `fintrack/advisor/${userId}/`;
+
     if (!publicId.startsWith(prefix)) {
-      return null;
+      throw new BadRequestException('Attatchment not foun');
     }
 
-    return this.getPrivateSecureUrl(
-      publicId,
-      format,
-      mode,
-      this.advisorCloudinaryResourceType(
-        this.advisorAttachmentKindFromFormat(format),
-      ),
-    );
+    return this.getPrivateSecureUrl(publicId, format, kind);
   }
 
   /**
@@ -442,22 +438,6 @@ export class UploadService {
       case 'image':
         return 'jpg';
     }
-  }
-
-  /**
-   * Maps persisted advisor metadata back to the Cloudinary resource type needed
-   * for private URL signing and deletion.
-   *
-   * @param format - Cloudinary asset format returned at upload time.
-   * @returns Advisor attachment kind inferred from the format.
-   */
-  private advisorAttachmentKindFromFormat(
-    format: string,
-  ): AdvisorAttachmentKind {
-    if (format === 'csv') return 'csv';
-    if (format === 'xlsx') return 'excel';
-    if (format === 'pdf') return 'pdf';
-    return 'image';
   }
 
   /**
@@ -582,14 +562,25 @@ export class UploadService {
   private getPrivateSecureUrl(
     publicId: string,
     format: string,
-    mode: 'download' | 'view' | 'model' = 'view',
-    resourceType: cloudinary.UploadApiOptions['resource_type'] = 'auto',
+    kind: AdvisorAttachmentKind,
   ): string {
-    return cloudinary.v2.utils.private_download_url(publicId, format, {
-      resource_type: resourceType,
-      type: 'private',
-      attachment: mode === 'download' ? true : false,
-      expires_at: Math.floor(Date.now()) / 1000 + PRIVATEUPLOAD_EXPIRY,
-    });
+    try {
+      const expiration = parseJwtExpiration(
+        this.config.get('CLOUDINARY_SIGNATURE_EXPIRATION')!,
+      );
+      const resource_type = ['csv', 'excel'].includes(kind)
+        ? this.advisorCloudinaryResourceType(kind)
+        : undefined;
+
+      return cloudinary.v2.utils.private_download_url(publicId, format, {
+        type: 'private',
+        attachment: true,
+        resource_type,
+        expires_at: Math.floor(Date.now()) / 1000 + expiration,
+      });
+    } catch (error) {
+      this.logger.error(JSON.stringify(error));
+      throw new InternalServerErrorException('An error ocuured');
+    }
   }
 }

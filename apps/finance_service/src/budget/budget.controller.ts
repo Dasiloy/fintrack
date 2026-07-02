@@ -5,6 +5,8 @@ import { GrpcMethod, Payload } from '@nestjs/microservices';
 import { FINANCE_SERVICE_NAME } from '@fintrack/types/protos/finance/finance';
 import {
   BudgetDetail,
+  BatchBudgetWorkflowActionsReq,
+  BatchBudgetWorkflowActionsRes,
   CreateBudgetReq,
   DeleteBudgetReq,
   GetArchivedBudgetsRes,
@@ -100,5 +102,17 @@ export class BudgetController {
     @RpcUser() user: User,
   ): Promise<ProtoBudget> | Observable<ProtoBudget> | ProtoBudget {
     return this.budgetService.restoreBudget(user.id, request);
+  }
+
+  /**
+   * Applies advisor workflow budget candidates through the transaction-backed
+   * batch endpoint.
+   */
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'batchBudgetWorkflowActions')
+  batchBudgetWorkflowActions(
+    @Payload() request: BatchBudgetWorkflowActionsReq,
+    @RpcUser() user: User,
+  ): Promise<BatchBudgetWorkflowActionsRes> {
+    return this.budgetService.batchBudgetWorkflowActions(user.id, request);
   }
 }

@@ -24,12 +24,21 @@ import { atomFamily, atomWithStorage, RESET } from 'jotai/utils';
 import type {
   AdvisorAction,
   AdvisorAttachment,
+  AdvisorChunk,
+  AdvisorWorkflowActionBatchResult,
+  AdvisorWorkflowChangeCandidate,
+  AdvisorWorkflowCandidateApproval,
+  AdvisorWorkflowRequest,
+  AdvisorWorkflowResponse,
+  AdvisorWorkflowId,
   ConversationHistoryMessage,
   ConversationMessagePage,
   ConversationSummary,
+  AdvisorWorkflowEventPayload,
+  AdvisorWorkflowStatus,
 } from '@fintrack/types/interfaces/ai';
 
-import type { AdvisorMessage } from './advisor.types';
+import type { AdvisorMessage, AdvisorWorkflowRun } from './advisor.types';
 import { streamAdvisor, AdvisorStreamError } from './advisor.stream';
 import { normalizeAdvisorAttachments } from './advisor.helpers';
 import {
@@ -39,6 +48,7 @@ import {
 
 /** Max messages kept in a conversation's instant-render head (see appendToHead). */
 const HEAD_CAP = 50;
+const WORKFLOW_RUNS_STORAGE_KEY = 'fintrack.advisor.workflow-runs.v1';
 
 const store = getDefaultStore();
 
@@ -56,6 +66,13 @@ export const conversationHeadAtom = atomFamily((conversationId: string) =>
 export const conversationsListAtom = atomWithStorage<ConversationSummary[]>(
   ADVISOR_CONVERSATIONS_STORAGE_KEY,
   [],
+  undefined,
+  { getOnInit: true },
+);
+
+export const workflowRunsAtom = atomWithStorage<Record<string, AdvisorWorkflowRun>>(
+  WORKFLOW_RUNS_STORAGE_KEY,
+  {},
   undefined,
   { getOnInit: true },
 );
@@ -92,6 +109,50 @@ function parseProposedAction(data: string): AdvisorAction | null {
   }
 }
 
+function parseActionResultFailed(data: string): boolean {
+  try {
+    const parsed = JSON.parse(data) as { status?: unknown };
+    return parsed?.status === 'execution_failed';
+  } catch {
+    return false;
+  }
+}
+
+function parseWorkflowActionBatchResult(data: string): AdvisorWorkflowActionBatchResult | null {
+  try {
+    const parsed = JSON.parse(data) as Partial<AdvisorWorkflowActionBatchResult>;
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      (parsed.status !== 'executed' && parsed.status !== 'execution_failed') ||
+      parsed.atomic !== true ||
+      typeof parsed.message !== 'string' ||
+      !Array.isArray(parsed.candidateResults)
+    ) {
+      return null;
+    }
+
+    const candidateResults = parsed.candidateResults.filter(
+      (result): result is AdvisorWorkflowActionBatchResult['candidateResults'][number] =>
+        !!result &&
+        typeof result === 'object' &&
+        typeof result.candidateId === 'string' &&
+        (result.status === 'approved' || result.status === 'failed') &&
+        typeof result.message === 'string',
+    );
+    if (candidateResults.length !== parsed.candidateResults.length) return null;
+
+    return {
+      status: parsed.status,
+      atomic: true,
+      message: parsed.message,
+      candidateResults,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function toLiveMessage(message: ConversationHistoryMessage): AdvisorMessage {
   return {
     id: message.id,
@@ -99,8 +160,362 @@ function toLiveMessage(message: ConversationHistoryMessage): AdvisorMessage {
     content: message.content,
     createdAt: new Date(message.createdAt),
     attachments: normalizeAdvisorAttachments(message.metadata?.attachments ?? message.attachments),
+    workflowResponse: message.metadata?.workflowResponse,
     proposedAction: message.metadata?.proposedAction ?? null,
     actionState: message.metadata?.actionState,
+  };
+}
+
+function workflowRunKey(conversationId: string, prompt: string): string {
+  return `${conversationId}::${prompt.trim()}`;
+}
+
+/**
+ * Reads locally cached workflow metadata for a persisted user turn.
+ *
+ * This is a bridge for conversations created before backend workflow metadata is
+ * available in history; server metadata remains authoritative when present.
+ */
+export function readWorkflowRun(
+  conversationId: string,
+  prompt: string,
+): AdvisorWorkflowRun | undefined {
+  return store.get(workflowRunsAtom)[workflowRunKey(conversationId, prompt)];
+}
+
+/**
+ * Stores workflow metadata keyed by conversation and generated prompt text.
+ *
+ * The cache lets the optimistic workflow card survive client refreshes while
+ * the backend metadata path is being rolled out.
+ */
+function writeWorkflowRun(
+  conversationId: string,
+  prompt: string,
+  workflow: AdvisorWorkflowRun,
+): void {
+  store.set(workflowRunsAtom, {
+    ...store.get(workflowRunsAtom),
+    [workflowRunKey(conversationId, prompt)]: workflow,
+  });
+}
+
+/**
+ * Parses workflow lifecycle event payloads from advisor stream chunks.
+ *
+ * Malformed payloads are ignored so a bad progress event cannot break the whole
+ * chat stream.
+ */
+function parseWorkflowEventPayload(data: string): AdvisorWorkflowEventPayload | null {
+  if (!data) return null;
+  try {
+    return JSON.parse(data) as AdvisorWorkflowEventPayload;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Maps a workflow lifecycle status to the most appropriate visible stage index.
+ *
+ * Backend events may omit `stageIndex`; this keeps the user card moving through
+ * stages using a deterministic local fallback.
+ */
+function workflowStageIndexForStatus(
+  workflow: AdvisorWorkflowRun,
+  status: AdvisorWorkflowStatus,
+): number {
+  const lastIndex = Math.max(workflow.stages.length - 1, 0);
+  switch (status) {
+    case 'started':
+      return 0;
+    case 'loading_context':
+      return Math.min(1, lastIndex);
+    case 'fetching_records':
+      return Math.min(2, lastIndex);
+    case 'analyzing':
+      return Math.min(3, lastIndex);
+    case 'checking_recommendations':
+      return Math.min(4, lastIndex);
+    case 'generating_response':
+    case 'response_started':
+    case 'completed':
+      return lastIndex;
+    case 'failed':
+      return workflow.activeStageIndex;
+  }
+  return workflow.activeStageIndex;
+}
+
+/**
+ * Returns the default status label for a workflow lifecycle status.
+ *
+ * Backend events can override this with a more specific `message` or
+ * `stageLabel`.
+ */
+function workflowStatusLabel(status: AdvisorWorkflowStatus): string {
+  switch (status) {
+    case 'started':
+      return 'Workflow started';
+    case 'loading_context':
+      return 'Loading advisor context';
+    case 'fetching_records':
+      return 'Gathering financial records';
+    case 'analyzing':
+      return 'Analyzing your finances';
+    case 'checking_recommendations':
+      return 'Checking recommendations';
+    case 'generating_response':
+      return 'Preparing workflow response';
+    case 'response_started':
+      return 'Writing workflow response';
+    case 'completed':
+      return 'Workflow response ready';
+    case 'failed':
+      return 'Could not complete workflow';
+  }
+  return 'Working on workflow';
+}
+
+/**
+ * Applies a partial workflow update and writes the resulting run back to cache.
+ *
+ * The helper also fills missing `activeStageIndex` and `statusLabel` values so
+ * every rendered workflow card has complete display state.
+ */
+function patchWorkflowRun(
+  conversationId: string,
+  prompt: string,
+  workflow: AdvisorWorkflowRun,
+  patch: Partial<AdvisorWorkflowRun>,
+): AdvisorWorkflowRun {
+  const status = patch.status ?? workflow.status;
+  const activeStageIndex = patch.activeStageIndex ?? workflowStageIndexForStatus(workflow, status);
+  const next: AdvisorWorkflowRun = {
+    ...workflow,
+    ...patch,
+    status,
+    activeStageIndex,
+    statusLabel: patch.statusLabel ?? workflowStatusLabel(status),
+  };
+  writeWorkflowRun(conversationId, prompt, next);
+  return next;
+}
+
+/**
+ * Converts a streamed `workflow_*` chunk into a workflow-card patch.
+ *
+ * Non-workflow chunks return null so the normal token/HITL handling path can
+ * continue unchanged.
+ */
+function applyWorkflowEvent(
+  workflow: AdvisorWorkflowRun,
+  chunk: AdvisorChunk,
+): Partial<AdvisorWorkflowRun> | null {
+  if (!chunk.type.startsWith('workflow_')) return null;
+
+  const payload = parseWorkflowEventPayload(chunk.data);
+  const payloadStatus = payload?.status;
+  const payloadStageIndex =
+    typeof payload?.stageIndex === 'number' ? payload.stageIndex : undefined;
+
+  switch (chunk.type) {
+    case 'workflow_started':
+      return {
+        status: payloadStatus ?? 'started',
+        activeStageIndex: payloadStageIndex ?? 0,
+        statusLabel: payload?.message ?? payload?.stageLabel ?? workflowStatusLabel('started'),
+      };
+    case 'workflow_progress': {
+      const status = payloadStatus ?? workflow.status;
+      return {
+        status,
+        activeStageIndex: payloadStageIndex,
+        statusLabel: payload?.message ?? payload?.stageLabel ?? workflowStatusLabel(status),
+      };
+    }
+    case 'workflow_response_started':
+      return {
+        status: payloadStatus ?? 'response_started',
+        activeStageIndex: payloadStageIndex,
+        statusLabel:
+          payload?.message ?? payload?.stageLabel ?? workflowStatusLabel('response_started'),
+      };
+    case 'workflow_completed':
+      return {
+        status: payloadStatus ?? 'completed',
+        activeStageIndex: payloadStageIndex,
+        statusLabel: payload?.message ?? workflowStatusLabel('completed'),
+      };
+    case 'workflow_failed':
+      return {
+        status: payloadStatus ?? 'failed',
+        activeStageIndex: payloadStageIndex,
+        statusLabel: payload?.message ?? workflowStatusLabel('failed'),
+      };
+    default:
+      return null;
+  }
+}
+
+function firstWorkflowParagraph(content: string): string {
+  const paragraph =
+    content
+      .split(/\n{2,}/)
+      .map((part) => part.trim())
+      .find((part) => part && !part.startsWith('#')) ?? content.trim();
+
+  return paragraph.replace(/\s+/g, ' ').slice(0, 220);
+}
+
+function workflowResponseSections(content: string): AdvisorWorkflowResponse['sections'] {
+  const sections: AdvisorWorkflowResponse['sections'] = [];
+  let current: AdvisorWorkflowResponse['sections'][number] | null = null;
+
+  for (const rawLine of content.split('\n')) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    const heading = line.match(/^#{1,6}\s+(.+)$/);
+    if (heading) {
+      current = { title: heading[1]!.trim(), items: [] };
+      sections.push(current);
+      continue;
+    }
+
+    if (!current) continue;
+    const item = line.replace(/^[-*]\s+/, '').trim();
+    if (item) current.items.push(item);
+  }
+
+  return sections
+    .map((section) => ({ ...section, items: section.items.filter(Boolean).slice(0, 5) }))
+    .filter((section) => section.items.length > 0)
+    .slice(0, 4);
+}
+
+function workflowMetricLabels(workflowId: AdvisorWorkflowId): string[] {
+  return {
+    'bill-subscription-auditor': ['Monthly bills', 'Potential savings', 'Cost change'],
+    'cash-flow-forecast': ['Cash buffer', 'Forecast balance', 'Pressure amount'],
+    'budget-rebalancer': ['Current budget', 'Suggested budget', 'Net change'],
+    'monthly-money-review': ['Money in', 'Money out', 'Net position'],
+  }[workflowId];
+}
+
+function workflowResponseMetrics(
+  workflowId: AdvisorWorkflowId,
+  content: string,
+): AdvisorWorkflowResponse['metrics'] {
+  const matches = content.match(/(?:₦\s?[\d,]+(?:\.\d+)?|\d+(?:\.\d+)?%)/g) ?? [];
+  const labels = workflowMetricLabels(workflowId);
+  return Array.from(new Set(matches))
+    .slice(0, 3)
+    .map((value, index) => ({
+      label: labels[index] ?? `Metric ${index + 1}`,
+      value,
+      tone: 'neutral' as const,
+    }));
+}
+
+function buildWorkflowResponse(
+  workflow: AdvisorWorkflowRun,
+  content: string,
+): AdvisorWorkflowResponse {
+  const sections = workflowResponseSections(content);
+  const recommendationSection = sections.find((section) => /recommend/i.test(section.title));
+  const candidateSection = sections.find((section) =>
+    /change candidates?|candidates?|adjustments?/i.test(section.title),
+  );
+
+  return {
+    workflowRunId: workflow.id,
+    workflowId: workflow.workflowId,
+    title: workflow.title,
+    summary: firstWorkflowParagraph(content),
+    metrics: workflowResponseMetrics(workflow.workflowId, content),
+    sections: sections.length
+      ? sections
+          .filter((section) => !/recommend/i.test(section.title))
+          .filter((section) => !/change candidates?|candidates?|adjustments?/i.test(section.title))
+      : [{ title: 'Summary', items: [firstWorkflowParagraph(content)] }],
+    ...(candidateSection
+      ? { candidates: workflowChangeCandidates(workflow.id, candidateSection.items) }
+      : {}),
+    ...(recommendationSection?.items[0]
+      ? {
+          recommendation: {
+            title: recommendationSection.title,
+            detail: recommendationSection.items[0],
+          },
+        }
+      : {}),
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function workflowChangeCandidates(
+  workflowRunId: string,
+  items: string[],
+): NonNullable<AdvisorWorkflowResponse['candidates']> {
+  return normalizeWorkflowCandidateItems(items)
+    .slice(0, 8)
+    .map((item, index) => {
+      const { title, detail } = splitWorkflowCandidate(item);
+      return {
+        id: `${workflowRunId}-candidate-${index + 1}`,
+        title: stripWorkflowEvidenceTags(title),
+        detail: stripWorkflowEvidenceTags(detail),
+        selected: true,
+      };
+    });
+}
+
+function normalizeWorkflowCandidateItems(items: string[]): string[] {
+  const candidates: Array<{ display: string; hasEvidence: boolean }> = [];
+
+  for (const item of items) {
+    const trimmed = item.trim();
+    if (!trimmed) continue;
+    if (isStandaloneWorkflowEvidenceTag(trimmed)) {
+      const previous = candidates[candidates.length - 1];
+      if (previous) previous.hasEvidence = true;
+      continue;
+    }
+    candidates.push({
+      display: trimmed,
+      hasEvidence: parseWorkflowEvidenceKind(trimmed),
+    });
+  }
+
+  const hasStructuredCandidates = candidates.some((candidate) => candidate.hasEvidence);
+  return (
+    hasStructuredCandidates ? candidates.filter((candidate) => candidate.hasEvidence) : candidates
+  ).map((candidate) => candidate.display);
+}
+
+function isStandaloneWorkflowEvidenceTag(candidate: string): boolean {
+  return /^\[[^\]]+\]$/.test(candidate.trim());
+}
+
+function parseWorkflowEvidenceKind(candidate: string): boolean {
+  return /\[\s*kind=/.test(candidate);
+}
+
+function stripWorkflowEvidenceTags(value: string): string {
+  return value.replace(/\[[^\]]+\]\s*/g, '').trim();
+}
+
+function splitWorkflowCandidate(item: string): { title: string; detail: string } {
+  const normalized = item.replace(/\s+/g, ' ').trim().replace(/\.$/, '');
+  const split = normalized.match(
+    /^(.+?(?:₦\s?[\d,]+(?:\.\d+)?|\d+(?:\.\d+)?%))(?:\s+(to|because|so|for)\s+(.+))$/i,
+  );
+  if (!split) return { title: normalized, detail: '' };
+
+  return {
+    title: split[1]!.trim(),
+    detail: `${split[2]!.toLowerCase()} ${split[3]!.trim()}.`,
   };
 }
 
@@ -209,6 +624,132 @@ function patchHeadActionState(
   });
 }
 
+function patchWorkflowCandidateList(
+  candidates: AdvisorWorkflowChangeCandidate[] | undefined,
+  candidateIds: string[],
+  state: NonNullable<AdvisorWorkflowChangeCandidate['state']>,
+): AdvisorWorkflowChangeCandidate[] | undefined {
+  if (!candidates?.length) return candidates;
+  const selected = new Set(candidateIds);
+  return candidates.map((candidate) =>
+    selected.has(candidate.id) ? { ...candidate, state } : candidate,
+  );
+}
+
+function patchLiveWorkflowCandidateState(
+  conversationId: string,
+  responseMessageId: string,
+  candidateIds: string[],
+  state: NonNullable<AdvisorWorkflowChangeCandidate['state']>,
+): void {
+  patchStream(conversationId, (prev) => ({
+    ...prev,
+    messages: (() => {
+      let found = false;
+      const messages = prev.messages.map((message) => {
+        if (message.id !== responseMessageId || !message.workflowResponse) return message;
+        found = true;
+        return {
+          ...message,
+          workflowResponse: {
+            ...message.workflowResponse,
+            candidates: patchWorkflowCandidateList(
+              message.workflowResponse.candidates,
+              candidateIds,
+              state,
+            ),
+          },
+        };
+      });
+
+      if (found) return messages;
+
+      const historyMessage = findHeadMessage(conversationId, responseMessageId);
+      if (!historyMessage?.workflowResponse) return messages;
+
+      return [
+        ...messages,
+        {
+          ...historyMessage,
+          workflowResponse: {
+            ...historyMessage.workflowResponse,
+            candidates: patchWorkflowCandidateList(
+              historyMessage.workflowResponse.candidates,
+              candidateIds,
+              state,
+            ),
+          },
+        },
+      ];
+    })(),
+  }));
+}
+
+function patchHeadWorkflowCandidateState(
+  conversationId: string,
+  responseMessageId: string,
+  candidateIds: string[],
+  state: NonNullable<AdvisorWorkflowChangeCandidate['state']>,
+): void {
+  const head = readHead(conversationId);
+  if (!head) return;
+
+  writeHead(conversationId, {
+    ...head,
+    messages: head.messages.map((message) => {
+      if (message.id !== responseMessageId || !message.metadata?.workflowResponse) {
+        return message;
+      }
+      return {
+        ...message,
+        metadata: {
+          ...(message.metadata ?? {}),
+          workflowResponse: {
+            ...message.metadata.workflowResponse,
+            candidates: patchWorkflowCandidateList(
+              message.metadata.workflowResponse.candidates,
+              candidateIds,
+              state,
+            ),
+          },
+        },
+      };
+    }),
+  });
+}
+
+function expirePendingActionMessages(conversationId: string): void {
+  patchStream(conversationId, (prev) => ({
+    ...prev,
+    messages: prev.messages.map((message) =>
+      message.proposedAction && (message.actionState ?? 'pending') === 'pending'
+        ? { ...message, actionState: 'expired' }
+        : message,
+    ),
+  }));
+
+  const head = readHead(conversationId);
+  if (!head) return;
+
+  writeHead(conversationId, {
+    ...head,
+    messages: head.messages.map((message) => {
+      const hasPendingAction =
+        !!message.metadata?.proposedAction &&
+        (message.metadata.actionState ?? 'pending') === 'pending';
+      if (!hasPendingAction) return message;
+
+      return {
+        ...message,
+        metadata: {
+          ...(message.metadata ?? {}),
+          actionState: 'expired',
+        },
+      };
+    }),
+  });
+}
+
 // ── Stream runner (runs outside React; survives unmount/navigation) ────────────
 
 /** Aborts an in-flight stream (explicit Stop only — never on navigation). */
@@ -219,26 +760,36 @@ export function stopConversationStream(conversationId: string): void {
 /**
  * Streams one user message for a conversation, writing tokens into that
  * conversation's live buffer. On success the completed turn is appended to the
- * persisted head so a reopen/reload paints it instantly. Errors leave a friendly
- * note; aborts persist nothing.
+ * persisted head so a reopen/reload paints it instantly. Errors are surfaced
+ * through `onError` and are not rendered or cached as assistant messages.
  */
 export async function streamConversationMessage(args: {
   conversationId: string;
   message: string;
   attachments?: AdvisorAttachment[];
+  workflow?: AdvisorWorkflowRun;
+  workflowRequest?: AdvisorWorkflowRequest;
   onFinished?: () => void;
+  onError?: (message: string) => void;
 }): Promise<void> {
-  const { conversationId, message, attachments = [] } = args;
+  const { conversationId, message, attachments = [], workflow, workflowRequest } = args;
 
   const userMessage: AdvisorMessage = {
     id: crypto.randomUUID(),
     role: 'user',
     content: message,
     createdAt: new Date(),
+    workflow,
     attachments,
   };
   const assistantId = crypto.randomUUID();
+  let workflowState = workflow;
 
+  if (workflow) {
+    writeWorkflowRun(conversationId, message, workflow);
+  }
+
+  expirePendingActionMessages(conversationId);
   patchStream(conversationId, (prev) => ({
     isStreaming: true,
     messages: [
@@ -254,15 +805,34 @@ export async function streamConversationMessage(args: {
   let assistantContent = '';
   let proposedAction: AdvisorAction | null = null;
   let succeeded = false;
+  let workflowResponseStarted = false;
 
   try {
     await streamAdvisor({
       conversationId,
       message,
       attachments,
+      workflowRun: workflow,
+      workflow: workflowRequest,
       signal: controller.signal,
       onToken: (delta) => {
         assistantContent += delta;
+
+        if (workflowState && !workflowResponseStarted) {
+          workflowResponseStarted = true;
+          workflowState = patchWorkflowRun(conversationId, message, workflowState, {
+            status: 'response_started',
+          });
+          patchStream(conversationId, (prev) => ({
+            ...prev,
+            messages: prev.messages.map((m) =>
+              m.id === userMessage.id ? { ...m, workflow: workflowState } : m,
+            ),
+          }));
+        }
+
+        if (workflowState) return;
+
         patchStream(conversationId, (prev) => ({
           ...prev,
           messages: prev.messages.map((m) =>
@@ -271,6 +841,20 @@ export async function streamConversationMessage(args: {
         }));
       },
       onEvent: (chunk) => {
+        if (workflowState) {
+          const workflowPatch = applyWorkflowEvent(workflowState, chunk);
+          if (workflowPatch) {
+            workflowState = patchWorkflowRun(conversationId, message, workflowState, workflowPatch);
+            patchStream(conversationId, (prev) => ({
+              ...prev,
+              messages: prev.messages.map((m) =>
+                m.id === userMessage.id ? { ...m, workflow: workflowState } : m,
+              ),
+            }));
+            return;
+          }
+        }
+
         if (chunk.type !== 'approval_required') return;
         const action = parseProposedAction(chunk.data);
         if (!action) return;
@@ -290,14 +874,26 @@ export async function streamConversationMessage(args: {
         err instanceof AdvisorStreamError
           ? 'Sorry, I could not finish that. Please try again.'
           : 'Something went wrong reaching the advisor. Please try again.';
+      args.onError?.(note);
       patchStream(conversationId, (prev) => ({
         ...prev,
-        messages: prev.messages.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: m.content ? `${m.content}\n\n${note}` : note }
-            : m,
-        ),
+        messages: prev.messages.filter((m) => m.id !== assistantId),
       }));
+      if (workflow) {
+        const failedWorkflow = patchWorkflowRun(
+          conversationId,
+          message,
+          workflowState ?? workflow,
+          { status: 'failed' },
+        );
+        writeWorkflowRun(conversationId, message, failedWorkflow);
+        patchStream(conversationId, (prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === userMessage.id ? { ...m, workflow: failedWorkflow } : m,
+          ),
+        }));
+      }
     }
   } finally {
     if (controllers.get(conversationId) === controller) {
@@ -313,6 +909,30 @@ export async function streamConversationMessage(args: {
     lastFinalizedAt.set(conversationId, Date.now());
 
     if (succeeded) {
+      let workflowResponse: AdvisorWorkflowResponse | undefined;
+      if (workflow) {
+        const completedWorkflow = patchWorkflowRun(
+          conversationId,
+          message,
+          workflowState ?? workflow,
+          { status: 'completed' },
+        );
+        workflowResponse = assistantContent.trim()
+          ? buildWorkflowResponse(completedWorkflow, assistantContent)
+          : undefined;
+        writeWorkflowRun(conversationId, message, completedWorkflow);
+        patchStream(conversationId, (prev) => ({
+          ...prev,
+          messages: prev.messages.map((m) =>
+            m.id === userMessage.id
+              ? { ...m, workflow: completedWorkflow }
+              : m.id === assistantId && workflowResponse
+                ? { ...m, workflowResponse }
+                : m,
+          ),
+        }));
+      }
+
       const completedMessages: ConversationHistoryMessage[] = [
         {
           id: userMessage.id,
@@ -335,6 +955,13 @@ export async function streamConversationMessage(args: {
           role: 'ASSISTANT',
           content: assistantContent,
           createdAt: new Date(),
+          ...(workflowResponse
+            ? {
+                metadata: {
+                  workflowResponse,
+                },
+              }
+            : {}),
         });
       }
 
@@ -350,11 +977,13 @@ export async function resumeConversation(args: {
   approved: boolean;
   actionMessageId: string;
   onFinished?: () => void;
-}): Promise<void> {
+  onError?: (message: string) => void;
+}): Promise<AdvisorMessage['actionState']> {
   const { conversationId, approved, actionMessageId } = args;
   const assistantId = crypto.randomUUID();
   const actionState: AdvisorMessage['actionState'] = approved ? 'approved' : 'rejected';
   const processingState: AdvisorMessage['actionState'] = 'processing';
+  let finalActionState: AdvisorMessage['actionState'] = 'failed';
 
   patchStream(conversationId, (prev) => ({
     isStreaming: true,
@@ -389,12 +1018,13 @@ export async function resumeConversation(args: {
 
   let assistantContent = '';
   let proposedAction: AdvisorAction | null = null;
+  let actionExecutionFailed = false;
   let succeeded = false;
 
   try {
     await streamAdvisor({
       conversationId,
-      resume: { approved },
+      resume: { approved, actionMessageId },
       signal: controller.signal,
       onToken: (delta) => {
         assistantContent += delta;
@@ -406,6 +1036,11 @@ export async function resumeConversation(args: {
         }));
       },
       onEvent: (chunk) => {
+        if (chunk.type === 'action_result') {
+          actionExecutionFailed = actionExecutionFailed || parseActionResultFailed(chunk.data);
+          return;
+        }
+
         if (chunk.type !== 'approval_required') return;
         const action = parseProposedAction(chunk.data);
         if (!action) return;
@@ -425,13 +1060,10 @@ export async function resumeConversation(args: {
         err instanceof AdvisorStreamError
           ? 'Sorry, I could not finish that. Please try again.'
           : 'Something went wrong reaching the advisor. Please try again.';
+      args.onError?.(note);
       patchStream(conversationId, (prev) => ({
         ...prev,
-        messages: prev.messages.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: m.content ? `${m.content}\n\n${note}` : note }
-            : m,
-        ),
+        messages: prev.messages.filter((m) => m.id !== assistantId),
       }));
     }
   } finally {
@@ -442,10 +1074,16 @@ export async function resumeConversation(args: {
       ...prev,
       isStreaming: false,
       messages: prev.messages.map((m) =>
-        m.id === actionMessageId ? { ...m, actionState: succeeded ? actionState : 'failed' } : m,
+        m.id === actionMessageId
+          ? {
+              ...m,
+              actionState: succeeded && !actionExecutionFailed ? actionState : 'failed',
+            }
+          : m,
       ),
     }));
-    patchHeadActionState(conversationId, actionMessageId, succeeded ? actionState : 'failed');
+    finalActionState = succeeded && !actionExecutionFailed ? actionState : 'failed';
+    patchHeadActionState(conversationId, actionMessageId, finalActionState);
     lastFinalizedAt.set(conversationId, Date.now());
 
     if (succeeded && (assistantContent.trim() || proposedAction)) {
@@ -466,6 +1104,115 @@ export async function resumeConversation(args: {
         },
       ]);
     }
+
+    args.onFinished?.();
+  }
+
+  return finalActionState;
+}
+
+export async function approveWorkflowCandidates(args: {
+  conversationId: string;
+  responseMessageId: string;
+  selectedCandidateIds: string[];
+  onFinished?: () => void;
+  onError?: (message: string) => void;
+}): Promise<void> {
+  const { conversationId, responseMessageId, selectedCandidateIds } = args;
+  if (selectedCandidateIds.length === 0) return;
+
+  const workflowApproval: AdvisorWorkflowCandidateApproval = {
+    responseMessageId,
+    selectedCandidateIds,
+  };
+
+  patchLiveWorkflowCandidateState(
+    conversationId,
+    responseMessageId,
+    selectedCandidateIds,
+    'processing',
+  );
+  patchHeadWorkflowCandidateState(
+    conversationId,
+    responseMessageId,
+    selectedCandidateIds,
+    'processing',
+  );
+  patchStream(conversationId, (prev) => ({
+    isStreaming: true,
+    messages: prev.messages,
+  }));
+
+  const controller = new AbortController();
+  controllers.set(conversationId, controller);
+
+  let workflowActionBatchResult: AdvisorWorkflowActionBatchResult | null = null;
+  let succeeded = false;
+
+  try {
+    await streamAdvisor({
+      conversationId,
+      workflowApproval,
+      signal: controller.signal,
+      onToken: () => undefined,
+      onEvent: (chunk) => {
+        if (chunk.type !== 'workflow_action_batch_result') return;
+        workflowActionBatchResult = parseWorkflowActionBatchResult(chunk.data);
+        if (workflowActionBatchResult?.status === 'execution_failed') {
+          args.onError?.(workflowActionBatchResult.message);
+        }
+      },
+    });
+    succeeded = true;
+  } catch (err) {
+    if ((err as Error).name !== 'AbortError') {
+      const note =
+        err instanceof AdvisorStreamError
+          ? 'Sorry, I could not confirm those workflow candidates. Please try again.'
+          : 'Something went wrong reaching the advisor. Please try again.';
+      args.onError?.(note);
+    }
+  } finally {
+    if (controllers.get(conversationId) === controller) {
+      controllers.delete(conversationId);
+    }
+
+    const candidateResults =
+      (workflowActionBatchResult as AdvisorWorkflowActionBatchResult | null)?.candidateResults ??
+      [];
+    if (candidateResults.length > 0) {
+      const approvedIds = candidateResults
+        .filter((result) => result.status === 'approved')
+        .map((result) => result.candidateId);
+      const failedIds = candidateResults
+        .filter((result) => result.status === 'failed')
+        .map((result) => result.candidateId);
+
+      if (approvedIds.length > 0) {
+        patchLiveWorkflowCandidateState(conversationId, responseMessageId, approvedIds, 'approved');
+        patchHeadWorkflowCandidateState(conversationId, responseMessageId, approvedIds, 'approved');
+      }
+      if (failedIds.length > 0) {
+        patchLiveWorkflowCandidateState(conversationId, responseMessageId, failedIds, 'failed');
+        patchHeadWorkflowCandidateState(conversationId, responseMessageId, failedIds, 'failed');
+      }
+    } else {
+      const finalState = succeeded ? 'approved' : 'failed';
+      patchLiveWorkflowCandidateState(
+        conversationId,
+        responseMessageId,
+        selectedCandidateIds,
+        finalState,
+      );
+      patchHeadWorkflowCandidateState(
+        conversationId,
+        responseMessageId,
+        selectedCandidateIds,
+        finalState,
+      );
+    }
+    patchStream(conversationId, (prev) => ({ ...prev, isStreaming: false }));
+    lastFinalizedAt.set(conversationId, Date.now());
 
     args.onFinished?.();
   }

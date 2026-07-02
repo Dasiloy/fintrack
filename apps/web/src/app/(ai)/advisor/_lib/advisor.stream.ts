@@ -1,6 +1,9 @@
 import type {
   AdvisorAttachment,
   AdvisorChunk,
+  AdvisorWorkflowCandidateApproval,
+  AdvisorWorkflowRequest,
+  AdvisorWorkflowRun,
 } from '@fintrack/types/interfaces/ai';
 
 // ── Advisor SSE client ────────────────────────────────────────────────────────
@@ -19,8 +22,11 @@ export interface StreamAdvisorHandlers {
 export interface StreamAdvisorOptions extends StreamAdvisorHandlers {
   conversationId: string;
   message?: string;
-  resume?: { approved: boolean };
+  resume?: { approved: boolean; actionMessageId: string };
+  workflowApproval?: AdvisorWorkflowCandidateApproval;
   attachments?: AdvisorAttachment[];
+  workflowRun?: AdvisorWorkflowRun;
+  workflow?: AdvisorWorkflowRequest;
   signal?: AbortSignal;
 }
 
@@ -45,9 +51,13 @@ export async function streamAdvisor(opts: StreamAdvisorOptions): Promise<void> {
       conversationId: opts.conversationId,
       ...(opts.resume
         ? { resume: opts.resume }
+        : opts.workflowApproval
+          ? { workflowApproval: opts.workflowApproval }
         : {
             message: opts.message ?? '',
             attachments: opts.attachments ?? [],
+            ...(opts.workflowRun ? { workflowRun: opts.workflowRun } : {}),
+            ...(opts.workflow ? { workflow: opts.workflow } : {}),
           }),
     }),
     signal: opts.signal,
