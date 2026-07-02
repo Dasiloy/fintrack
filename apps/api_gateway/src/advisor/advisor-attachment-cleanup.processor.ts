@@ -69,7 +69,6 @@ export class AdvisorAttachmentCleanupProcessor extends WorkerHost {
       const wasDeleted = await this.uploadService.deleteAdvisorFileForUser(
         data.userId,
         attachment.publicId,
-        attachment.kind,
       );
 
       if (wasDeleted) {

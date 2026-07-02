@@ -112,6 +112,7 @@ export class GoalService {
           targetAmount: data.targetAmount,
           description: data.description,
           targetDate: new Date(data.targetDate),
+          priority: data.priority as GoalPriority,
         },
       });
 

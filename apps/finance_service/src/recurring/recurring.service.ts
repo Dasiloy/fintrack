@@ -12,6 +12,8 @@ import {
 } from '@fintrack/types/constants/queus.constants';
 import {
   Recurinrg as ProtoRecurring,
+  BatchRecurringWorkflowActionsReq,
+  BatchRecurringWorkflowActionsRes,
   CreateRecurringReq,
   UpdateRecurringReq,
   GetRecurringsReq,
@@ -23,6 +25,7 @@ import { Empty } from '@fintrack/types/protos/finance/transaction';
 import {
   ActivityLogs,
   Category,
+  Prisma,
   RecurringItem,
   RecurringItemFrequency,
   Transaction,
@@ -39,6 +42,11 @@ import { TransactionService } from '../transaction/transaction.service';
 
 type RecurringWithCategory = RecurringItem & {
   category?: Category | null;
+};
+
+type RecurringWorkflowEvent = {
+  recurring: RecurringWithCategory;
+  event: string;
 };
 
 const MONTHLY_MULTIPLIER: Record<string, number> = {
@@ -458,6 +466,124 @@ export class RecurringService {
   }
 
   /**
+   * Applies workflow-approved recurring changes in one database transaction.
+   *
+   * Every selected candidate is committed together or the whole batch is
+   * reported as failed. Activity events are queued only after the transaction
+   * commits.
+   *
+   * @param userId Authenticated user id.
+   * @param data Workflow batch operations.
+   * @returns Atomic batch result for advisor workflow cards.
+   */
+  async batchRecurringWorkflowActions(
+    userId: string,
+    data: BatchRecurringWorkflowActionsReq,
+  ): Promise<BatchRecurringWorkflowActionsRes> {
+    const operations = data.operations ?? [];
+    if (operations.length === 0) {
+      return {
+        status: 'execution_failed',
+        atomic: true,
+        message: 'No recurring workflow changes were selected.',
+        candidateResults: [],
+      };
+    }
+
+    const events: RecurringWorkflowEvent[] = [];
+    try {
+      await this.prismaService.$transaction(
+        async (tx) => {
+          for (const operation of operations) {
+            if (
+              operation.kind === 'suggest_recurring' &&
+              operation.createRecurring
+            ) {
+              events.push({
+                recurring: await this.createRecurringWithTx(
+                  tx,
+                  userId,
+                  operation.createRecurring,
+                ),
+                event: 'Recurring Created',
+              });
+              continue;
+            }
+
+            if (
+              operation.kind === 'flag_subscription_adjust' &&
+              operation.updateRecurring
+            ) {
+              events.push({
+                recurring: await this.updateRecurringWithTx(
+                  tx,
+                  userId,
+                  operation.updateRecurring,
+                ),
+                event: 'Recurring Updated',
+              });
+              continue;
+            }
+
+            if (
+              operation.kind === 'flag_subscription_cancel' &&
+              operation.deleteRecurring
+            ) {
+              events.push({
+                recurring: await this.deleteRecurringWithTx(
+                  tx,
+                  userId,
+                  operation.deleteRecurring,
+                ),
+                event: 'Recurring Deleted',
+              });
+              continue;
+            }
+
+            throw new RpcException({
+              code: status.INVALID_ARGUMENT,
+              message: 'Unsupported recurring workflow operation',
+            });
+          }
+        },
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
+      for (const event of events) {
+        this.callEvents(userId, event.recurring, event.event);
+      }
+
+      return {
+        status: 'executed',
+        atomic: true,
+        message: `Applied ${operations.length} recurring workflow change${operations.length === 1 ? '' : 's'}.`,
+        candidateResults: operations.map((operation) => ({
+          candidateId: operation.candidateId,
+          status: 'approved',
+          message: 'Recurring workflow change applied.',
+        })),
+      };
+    } catch (error) {
+      this.logger.error('batchRecurringWorkflowActions error:', error);
+      return {
+        status: 'execution_failed',
+        atomic: true,
+        message:
+          'I could not apply those recurring changes. No financial changes were made.',
+        candidateResults: operations.map((operation) => ({
+          candidateId: operation.candidateId,
+          status: 'failed',
+          message: 'This recurring change was not applied.',
+        })),
+      };
+    }
+  }
+
+  /**
    * Returns aggregate metrics for the bills page widgets using a single
    * `groupBy` query — no row-level iteration, no blocking computation.
    *
@@ -507,6 +633,142 @@ export class RecurringService {
         details: error.message,
       });
     }
+  }
+
+  /**
+   * Creates a recurring item using the active workflow transaction.
+   */
+  private async createRecurringWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: CreateRecurringReq,
+  ): Promise<RecurringWithCategory> {
+    const category = await this.getCategoryWithTx(
+      tx,
+      userId,
+      data.categorySlug,
+    );
+    const startDate = new Date(data.startDate);
+    startDate.setUTCHours(0, 0, 0, 0);
+    const frequency = data.frequency as RecurringItemFrequency;
+    const today = utcToday();
+
+    return tx.recurringItem.create({
+      data: {
+        userId,
+        name: data.name,
+        amount: data.amount,
+        type: data.type as any,
+        frequency,
+        startDate,
+        endDate: data.endDate ? new Date(data.endDate) : null,
+        description: data.description,
+        merchant: data.merchant,
+        nextRunAt:
+          startDate >= today
+            ? startDate
+            : computeFirstRunAt(frequency, startDate, today),
+        isActive: true,
+        reminderEnabled: data.reminderEnabled ?? true,
+        categoryId: category.id,
+      },
+      include: { category: true },
+    });
+  }
+
+  /**
+   * Updates a recurring item using the active workflow transaction.
+   */
+  private async updateRecurringWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: UpdateRecurringReq,
+  ): Promise<RecurringWithCategory> {
+    const existing = await tx.recurringItem.findFirst({
+      where: { id: data.id, userId },
+    });
+    if (!existing) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Recurring item not found',
+      });
+    }
+
+    const frequencyChanged =
+      data.frequency && data.frequency !== existing.frequency;
+
+    return tx.recurringItem.update({
+      where: { id: data.id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.amount !== undefined && { amount: data.amount }),
+        ...(data.frequency && {
+          frequency: data.frequency as RecurringItemFrequency,
+        }),
+        ...(data.endDate !== undefined && {
+          endDate: data.endDate ? new Date(data.endDate) : null,
+        }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.merchant !== undefined && { merchant: data.merchant }),
+        ...(data.reminderEnabled !== undefined && {
+          reminderEnabled: data.reminderEnabled,
+        }),
+        ...(frequencyChanged && {
+          nextRunAt: computeNextRunAt(data.frequency as string, utcToday()),
+        }),
+      },
+      include: { category: true },
+    });
+  }
+
+  /**
+   * Deletes a recurring item using the active workflow transaction.
+   */
+  private async deleteRecurringWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: RecurringReq,
+  ): Promise<RecurringWithCategory> {
+    const existing = await tx.recurringItem.findFirst({
+      where: { id: data.id, userId },
+      include: { category: true },
+    });
+    if (!existing) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Recurring item not found',
+      });
+    }
+    await tx.recurringItem.delete({ where: { id: data.id } });
+    return existing;
+  }
+
+  /**
+   * Resolves a user or system category inside the workflow transaction.
+   */
+  private async getCategoryWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    slug: string,
+  ): Promise<{ id: string }> {
+    const category = await tx.category.findFirst({
+      where: {
+        OR: [
+          { slug, userId, isSystem: false },
+          { slug, isSystem: true },
+        ],
+      },
+      select: { id: true },
+    });
+    if (!category) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Category not found',
+      });
+    }
+    return category;
   }
 
   /**

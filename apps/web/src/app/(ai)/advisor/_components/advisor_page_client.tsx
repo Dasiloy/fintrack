@@ -260,6 +260,7 @@ export function AdvisorPageClient({
         setChatHasMessages(false);
         setLoadHistory(false);
         setActiveConversation(null);
+        Cookies.remove(ADVISOR_ACTIVE_CONVERSATION_COOKIE, { path: '/' });
       }
     },
     onSettled: () => void utils.advisor.getConversations.invalidate(),

@@ -114,3 +114,28 @@ message GetArchivedBudgetsRes {
 message RestoreBudgetReq {
   string id = 1;
 }
+
+message BudgetWorkflowBatchOperation {
+  string candidate_id = 1;
+  string kind = 2;
+  optional CreateBudgetReq create_budget = 3;
+  optional UpdateBudgetReq update_budget = 4;
+  optional DeleteBudgetReq delete_budget = 5;
+}
+
+message BatchBudgetWorkflowActionsReq {
+  repeated BudgetWorkflowBatchOperation operations = 1;
+}
+
+message WorkflowActionCandidateResult {
+  string candidate_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message BatchBudgetWorkflowActionsRes {
+  string status = 1;
+  bool atomic = 2;
+  string message = 3;
+  repeated WorkflowActionCandidateResult candidate_results = 4;
+}

@@ -2,7 +2,12 @@ import { env } from '@/env';
 import { auth } from '@/lib/nextauth';
 import { NextResponse } from 'next/server';
 import { consoleLogger } from '@fintrack/common/console_logger/index';
-import type { AdvisorAttachment } from '@fintrack/types/interfaces/ai';
+import type {
+  AdvisorAttachment,
+  AdvisorWorkflowCandidateApproval,
+  AdvisorWorkflowRequest,
+  AdvisorWorkflowRun,
+} from '@fintrack/types/interfaces/ai';
 
 /**
  * Advisor streaming proxy.
@@ -24,8 +29,11 @@ export async function POST(request: Request): Promise<Response> {
   let body: {
     conversationId?: string;
     message?: string;
-    resume?: { approved?: boolean };
+    resume?: { approved?: boolean; actionMessageId?: string };
+    workflowApproval?: AdvisorWorkflowCandidateApproval;
     attachments?: AdvisorAttachment[];
+    workflowRun?: AdvisorWorkflowRun;
+    workflow?: AdvisorWorkflowRequest;
   };
   try {
     body = await request.json();
@@ -36,11 +44,19 @@ export async function POST(request: Request): Promise<Response> {
   const conversationId = body.conversationId?.trim();
   const message = body.message?.trim();
   const resume =
-    typeof body.resume?.approved === 'boolean'
-      ? { approved: body.resume.approved }
+    typeof body.resume?.approved === 'boolean' && body.resume.actionMessageId?.trim()
+      ? {
+          approved: body.resume.approved,
+          actionMessageId: body.resume.actionMessageId.trim(),
+        }
       : undefined;
   const hasAttachments = (body.attachments?.length ?? 0) > 0;
-  if (!conversationId || (!message && !resume && !hasAttachments)) {
+  const hasWorkflow = !!body.workflow;
+  const workflowApproval = body.workflowApproval;
+  if (
+    !conversationId ||
+    (!message && !resume && !workflowApproval && !hasAttachments && !hasWorkflow)
+  ) {
     return NextResponse.json(
       { error: 'conversationId and message, file, or resume are required' },
       { status: 400 },
@@ -61,10 +77,14 @@ export async function POST(request: Request): Promise<Response> {
       body: JSON.stringify(
         resume
           ? { conversationId, resume }
+          : workflowApproval
+            ? { conversationId, workflowApproval }
           : {
               conversationId,
               message: message ?? '',
               attachments: body.attachments ?? [],
+              ...(body.workflowRun ? { workflowRun: body.workflowRun } : {}),
+              ...(body.workflow ? { workflow: body.workflow } : {}),
             },
       ),
     });

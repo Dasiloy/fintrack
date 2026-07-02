@@ -21,6 +21,7 @@ import { toast } from '@ui/components';
 import { fileToBase64 } from '@fintrack/utils/file';
 import { ChatMessage } from './chat_message';
 import { ChatInput } from './chat_input';
+import type { AdvisorWorkflowSubmission } from './advisor_workflow_dialog';
 import { ChatEmptyState } from './chat_empty_state';
 import { AdvisorThinkingIndicator } from './advisor_thinking_indicator';
 import type {
@@ -36,8 +37,10 @@ import {
   clearConversationStream,
   getFinalizedAt,
   resumeConversation,
+  approveWorkflowCandidates,
   readHead,
   writeHead,
+  readWorkflowRun,
 } from '../_lib/advisor.store';
 import { UsageBanner } from '@/app/_components/usage_banner';
 import { Usage } from '@fintrack/types/constants/plan.constants';
@@ -51,7 +54,13 @@ import {
   ADVISOR_FILE_MAX_SIZE,
   ADVISOR_FILE_MIME_TYPES,
 } from '@fintrack/types/constants/file.constants';
-import { toAdvisorMessage, actionKey } from '@/app/(ai)/advisor/_lib/advisor.helpers';
+import {
+  toAdvisorMessage,
+  actionKey,
+  userTurnIdentity,
+  hasPersistedEquivalent,
+} from '@/app/(ai)/advisor/_lib/advisor.helpers';
+import { useNetworkStatus } from '@/hooks/use_network_status';
 
 /** Distance from the top (px) that triggers loading older messages. */
 const LOAD_OLDER_THRESHOLD = 80;
@@ -59,41 +68,6 @@ const LOAD_OLDER_THRESHOLD = 80;
 const STICK_BOTTOM_THRESHOLD = 120;
 /** Sentinel stream key when no conversation is active yet. */
 const NO_CONVERSATION = '__none__';
-
-function attachmentIdentity(message: AdvisorMessage): string {
-  return (message.attachments ?? [])
-    .map((attachment) => attachment.publicId)
-    .sort()
-    .join('|');
-}
-
-function userTurnIdentity(message: AdvisorMessage): string {
-  return `${message.content.trim()}::${attachmentIdentity(message)}`;
-}
-
-function hasPersistedEquivalent(
-  liveMessage: AdvisorMessage,
-  historyMessages: AdvisorMessage[],
-): boolean {
-  const proposedActionKey = actionKey(liveMessage);
-  if (proposedActionKey) {
-    return historyMessages.some((message) => actionKey(message) === proposedActionKey);
-  }
-
-  if (liveMessage.role === 'user') {
-    const liveIdentity = userTurnIdentity(liveMessage);
-    return historyMessages.some(
-      (message) => message.role === 'user' && userTurnIdentity(message) === liveIdentity,
-    );
-  }
-
-  const content = liveMessage.content.trim();
-  if (!content) return true;
-
-  return historyMessages.some(
-    (message) => message.role === 'assistant' && message.content.trim() === content,
-  );
-}
 
 interface ChatPanelProps {
   activeConversationId: string | null;
@@ -129,6 +103,10 @@ export function ChatPanel({
   >([]);
   const [failedAttachments, setFailedAttachments] = React.useState<FailedPendingAttachment[]>([]);
   const [isUploadingAttachment, setIsUploadingAttachment] = React.useState(false);
+  const [streamError, setStreamError] = React.useState<string | null>(null);
+  const [actionStateOverrides, setActionStateOverrides] = React.useState<
+    Record<string, AdvisorMessage['actionState']>
+  >({});
 
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const hasNotifiedRef = React.useRef(false);
@@ -146,6 +124,12 @@ export function ChatPanel({
   // brand-new conversation mid-promotion — its freshly generated id.
   const streamKey = activeConversationId ?? conversationIdRef.current ?? NO_CONVERSATION;
   const stream = useAtomValue(conversationStreamAtom(streamKey));
+
+  React.useEffect(() => {
+    if (!streamError) return;
+    const timeout = window.setTimeout(() => setStreamError(null), 60_000);
+    return () => window.clearTimeout(timeout);
+  }, [streamError]);
 
   // ── Persisted history (cursor-paginated, newest page first) ─────────────────
   const messagesQuery = api_client.advisor.getConversationMessages.useInfiniteQuery(
@@ -183,8 +167,17 @@ export function ChatPanel({
   // later pages are older, so reverse the page order before flattening.
   const historyMessages = React.useMemo<AdvisorMessage[]>(() => {
     const pages = messagesQuery.data?.pages ?? [];
-    return [...pages].reverse().flatMap((p) => (p.data?.messages ?? []).map(toAdvisorMessage));
-  }, [messagesQuery.data]);
+    return [...pages].reverse().flatMap((p) =>
+      (p.data?.messages ?? []).map((message) => {
+        const advisorMessage = toAdvisorMessage(message);
+        if (!activeConversationId || advisorMessage.role !== 'user') {
+          return advisorMessage;
+        }
+        const workflow = readWorkflowRun(activeConversationId, advisorMessage.content);
+        return workflow ? { ...advisorMessage, workflow } : advisorMessage;
+      }),
+    );
+  }, [activeConversationId, messagesQuery.data]);
 
   // Persist the latest page so a reopen/reload paints instantly.
   React.useEffect(() => {
@@ -207,6 +200,8 @@ export function ChatPanel({
     didInitialScrollRef.current = false;
     setInputText('');
     setAttachments([]);
+    setStreamError(null);
+    setActionStateOverrides({});
   }, [activeConversationId]);
 
   // View = history ++ live. Most duplicates share FE ids via appendToHead; user
@@ -216,11 +211,16 @@ export function ChatPanel({
   // the live buffer alive.
   const displayMessages = React.useMemo(() => {
     const seen = new Set<string>();
+    const messageIndexes = new Map<string, number>();
     const seenUserTurns: Array<{ identity: string; createdAt: number }> = [];
     const actionIndexes = new Map<string, number>();
     const out: AdvisorMessage[] = [];
     for (const m of [...historyMessages, ...stream.messages]) {
-      if (seen.has(m.id)) continue;
+      if (seen.has(m.id)) {
+        const previousIndex = messageIndexes.get(m.id);
+        if (previousIndex !== undefined) out[previousIndex] = m;
+        continue;
+      }
       const proposedActionKey = actionKey(m);
       if (proposedActionKey) {
         const previousIndex = actionIndexes.get(proposedActionKey);
@@ -242,6 +242,7 @@ export function ChatPanel({
         seenUserTurns.push({ identity, createdAt });
       }
       seen.add(m.id);
+      messageIndexes.set(m.id, out.length);
       out.push(m);
     }
     return out;
@@ -325,8 +326,18 @@ export function ChatPanel({
   };
 
   // ── Send ──────────────────────────────────────────────────────────────────
-  const sendText = (text: string) => {
+  const { online } = useNetworkStatus();
+  const sendText = (
+    text: string,
+    workflow?: AdvisorWorkflowSubmission['workflow'],
+    workflowRequest?: AdvisorWorkflowSubmission['request'],
+  ) => {
     if ((!text && attachments.length === 0) || stream.isStreaming || isUploadingAttachment) {
+      return;
+    }
+
+    if (!online) {
+      toast.error('You are offline. Please check your internet connection and try again.');
       return;
     }
 
@@ -343,6 +354,16 @@ export function ChatPanel({
 
     setInputText('');
     setAttachments([]);
+    setStreamError(null);
+    setActionStateOverrides((prev) => {
+      const next = { ...prev };
+      for (const message of displayMessages) {
+        if (message.proposedAction && (message.actionState ?? 'pending') === 'pending') {
+          next[message.id] = 'expired';
+        }
+      }
+      return next;
+    });
     stickToBottomRef.current = true;
 
     // Runs in the store (outside React) — survives unmount/navigation.
@@ -350,7 +371,10 @@ export function ChatPanel({
       conversationId,
       message: text,
       attachments: messageAttachments,
+      workflow,
+      workflowRequest,
       onFinished: onConversationUpdated,
+      onError: setStreamError,
     });
   };
 
@@ -362,8 +386,8 @@ export function ChatPanel({
     sendText(`Do this recommendation: ${recommendation}`);
   };
 
-  const handleWorkflowSelect = (prompt: string) => {
-    setInputText(prompt);
+  const handleWorkflowSelect = ({ prompt, workflow, request }: AdvisorWorkflowSubmission) => {
+    sendText(prompt, workflow, request);
     stickToBottomRef.current = true;
   };
 
@@ -391,6 +415,11 @@ export function ChatPanel({
       toast.error('Too many files', {
         description: 'Advisor attachments cannot exceed 10 MB total.',
       });
+      return;
+    }
+
+    if (!online) {
+      toast.error('You are offline. Please check your internet connection and try again.');
       return;
     }
 
@@ -508,25 +537,64 @@ export function ChatPanel({
 
   // ── Action state (HITL — live messages only) ────────────────────────────────
   const handleActionApprove = (messageId: string) => {
+    if (!online) {
+      toast.error('You are offline. Please check your internet connection and try again.');
+      return;
+    }
     if (streamKey !== NO_CONVERSATION) {
+      if (actionStateOverrides[messageId] === 'processing') return;
+      setActionStateOverrides((prev) => ({ ...prev, [messageId]: 'processing' }));
+      setStreamError(null);
       void resumeConversation({
         conversationId: streamKey,
         approved: true,
         actionMessageId: messageId,
         onFinished: onConversationUpdated,
+        onError: setStreamError,
+      }).then((state) => {
+        setActionStateOverrides((prev) => ({ ...prev, [messageId]: state }));
       });
     }
   };
 
   const handleActionReject = (messageId: string) => {
+    if (!online) {
+      toast.error('You are offline. Please check your internet connection and try again.');
+      return;
+    }
     if (streamKey !== NO_CONVERSATION) {
+      if (actionStateOverrides[messageId] === 'processing') return;
+      setActionStateOverrides((prev) => ({ ...prev, [messageId]: 'processing' }));
+      setStreamError(null);
       void resumeConversation({
         conversationId: streamKey,
         approved: false,
         actionMessageId: messageId,
         onFinished: onConversationUpdated,
+        onError: setStreamError,
+      }).then((state) => {
+        setActionStateOverrides((prev) => ({ ...prev, [messageId]: state }));
       });
     }
+  };
+
+  const handleWorkflowCandidateApprove = (messageId: string, candidateIds: string[]) => {
+    if (!online) {
+      toast.error('You are offline. Please check your internet connection and try again.');
+      return;
+    }
+    if (streamKey === NO_CONVERSATION || stream.isStreaming || candidateIds.length === 0) {
+      return;
+    }
+
+    setStreamError(null);
+    void approveWorkflowCandidates({
+      conversationId: streamKey,
+      responseMessageId: messageId,
+      selectedCandidateIds: candidateIds,
+      onFinished: onConversationUpdated,
+      onError: setStreamError,
+    });
   };
 
   const inputProps = {
@@ -534,6 +602,7 @@ export function ChatPanel({
     attachments,
     uploadingAttachments,
     failedAttachments,
+    streamError,
     isStreaming: stream.isStreaming,
     isUploading: isUploadingAttachment,
     onChange: setInputText,
@@ -543,6 +612,7 @@ export function ChatPanel({
     onRemoveAttachment: handleRemoveAttachment,
     onRetryFailedAttachment: handleRetryFailedAttachment,
     onRemoveFailedAttachment: handleRemoveFailedAttachment,
+    onDismissStreamError: () => setStreamError(null),
     onWorkflowSelect: handleWorkflowSelect,
   };
 
@@ -556,6 +626,7 @@ export function ChatPanel({
   const showThinkingIndicator =
     stream.isStreaming &&
     !isApprovalResumeStream &&
+    !streamingUserMessage?.workflow &&
     streamingAssistantMessage?.role === 'assistant' &&
     streamingAssistantMessage.content === '' &&
     !streamingAssistantMessage.proposedAction;
@@ -621,12 +692,18 @@ export function ChatPanel({
             // stands in for it until the first token arrives.
             message.role === 'assistant' &&
             message.content === '' &&
-            !message.proposedAction ? null : (
+            !message.proposedAction &&
+            !message.workflowResponse ? null : (
               <ChatMessage
                 key={message.id}
-                message={message}
+                message={
+                  actionStateOverrides[message.id]
+                    ? { ...message, actionState: actionStateOverrides[message.id] }
+                    : message
+                }
                 onActionApprove={handleActionApprove}
                 onActionReject={handleActionReject}
+                onWorkflowCandidateApprove={handleWorkflowCandidateApprove}
                 onRecommendationClick={handleRecommendationClick}
               />
             ),

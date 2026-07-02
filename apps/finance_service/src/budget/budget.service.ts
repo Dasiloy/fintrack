@@ -14,6 +14,8 @@ import {
 import {
   Budget as ProtoBudget,
   BudgetDetail,
+  BatchBudgetWorkflowActionsReq,
+  BatchBudgetWorkflowActionsRes,
   CreateBudgetReq,
   DeleteBudgetReq,
   GetArchivedBudgetsRes,
@@ -37,6 +39,11 @@ import { UtilsService } from '../utils.service';
 
 type BudgetWithOptionalJoins = Budget & {
   category?: Category | null;
+};
+
+type BudgetWorkflowEvent = {
+  budget: BudgetWithOptionalJoins;
+  event: string;
 };
 
 /**
@@ -713,6 +720,376 @@ export class BudgetService {
         details: error.message,
       });
     }
+  }
+
+  /**
+   * Applies workflow-approved budget changes in one database transaction.
+   *
+   * Every selected candidate is either committed together or all candidates are
+   * reported as failed. Activity events are queued only after the transaction
+   * resolves, so failed batches do not emit misleading audit events.
+   *
+   * @param userId Authenticated user id.
+   * @param data Workflow batch operations.
+   * @returns Atomic batch result for the advisor workflow card.
+   */
+  async batchBudgetWorkflowActions(
+    userId: string,
+    data: BatchBudgetWorkflowActionsReq,
+  ): Promise<BatchBudgetWorkflowActionsRes> {
+    const operations = data.operations ?? [];
+    if (operations.length === 0) {
+      return {
+        status: 'execution_failed',
+        atomic: true,
+        message: 'No budget workflow changes were selected.',
+        candidateResults: [],
+      };
+    }
+
+    const events: BudgetWorkflowEvent[] = [];
+    try {
+      await this.prismaService.$transaction(
+        async (tx) => {
+          for (const operation of operations) {
+            if (operation.kind === 'create_budget' && operation.createBudget) {
+              events.push({
+                budget: await this.createBudgetWithTx(
+                  tx,
+                  userId,
+                  operation.createBudget,
+                ),
+                event: 'Budget Upserted',
+              });
+              continue;
+            }
+
+            if (operation.kind === 'adjust_budget' && operation.updateBudget) {
+              events.push({
+                budget: await this.updateBudgetWithTx(
+                  tx,
+                  userId,
+                  operation.updateBudget,
+                ),
+                event: 'Budget Updated',
+              });
+              continue;
+            }
+
+            if (operation.kind === 'delete_budget' && operation.deleteBudget) {
+              const deleted = await this.deleteBudgetWithTx(
+                tx,
+                userId,
+                operation.deleteBudget,
+              );
+              events.push({
+                budget: deleted,
+                event: operation.deleteBudget.hardDelete
+                  ? 'Budget Deleted'
+                  : 'Budget Deactivated',
+              });
+              continue;
+            }
+
+            throw new RpcException({
+              code: status.INVALID_ARGUMENT,
+              message: 'Unsupported budget workflow operation',
+            });
+          }
+        },
+        {
+          maxWait: 10_000,
+          timeout: 30_000,
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        },
+      );
+
+      for (const event of events) {
+        this.callEvents(userId, event.budget, event.event);
+      }
+
+      return {
+        status: 'executed',
+        atomic: true,
+        message: `Applied ${operations.length} budget workflow change${operations.length === 1 ? '' : 's'}.`,
+        candidateResults: operations.map((operation) => ({
+          candidateId: operation.candidateId,
+          status: 'approved',
+          message: 'Budget workflow change applied.',
+        })),
+      };
+    } catch (error) {
+      this.logger.error('batchBudgetWorkflowActions error:', error);
+      return {
+        status: 'execution_failed',
+        atomic: true,
+        message:
+          'I could not apply those budget changes. No financial changes were made.',
+        candidateResults: operations.map((operation) => ({
+          candidateId: operation.candidateId,
+          status: 'failed',
+          message: 'This budget change was not applied.',
+        })),
+      };
+    }
+  }
+
+  /**
+   * Creates or reactivates a budget using the active workflow transaction.
+   *
+   * This mirrors `createBudget`, but all reads and writes use the provided
+   * transaction client so workflow batches can commit or rollback together.
+   */
+  private async createBudgetWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: CreateBudgetReq,
+  ): Promise<BudgetWithOptionalJoins> {
+    const category = await this.getCategoryWithTx(
+      tx,
+      userId,
+      data.categorySlug,
+    );
+    const anchorDate =
+      data.month !== undefined && data.year !== undefined
+        ? new Date(Date.UTC(data.year, data.month, 1))
+        : new Date();
+    const period = (data.period as BudgetPeriod) ?? BudgetPeriod.MONTHLY;
+    const startDate = this.utils.getStartOfPeriod(period, anchorDate);
+    const futureHistory = await tx.budgetHistory.findFirst({
+      where: {
+        budget: { userId, categoryId: category.id },
+        startDate: { gt: startDate },
+      },
+      orderBy: { startDate: 'asc' },
+      select: { startDate: true },
+    });
+
+    return tx.budget.upsert({
+      where: {
+        userId_categoryId_period: {
+          userId,
+          categoryId: category.id,
+          period,
+        },
+      },
+      create: {
+        userId,
+        name: data.name,
+        amount: data.amount,
+        description: data.description,
+        alertThreshold: data.alertThreshold,
+        categoryId: category.id,
+        period,
+        ...(data.alertAtFrequency && {
+          alertAtFrequency: data.alertAtFrequency,
+        }),
+        budgetHistory: {
+          create: {
+            limit: data.amount,
+            startDate,
+            endDate: futureHistory?.startDate ?? null,
+          },
+        },
+      },
+      update: {
+        deactivatedAt: null,
+        name: data.name,
+        amount: data.amount,
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.alertThreshold !== undefined && {
+          alertThreshold: data.alertThreshold,
+        }),
+        ...(data.alertAtFrequency !== undefined && {
+          alertAtFrequency: data.alertAtFrequency,
+        }),
+        budgetHistory: {
+          create: {
+            limit: data.amount,
+            startDate,
+            endDate: futureHistory?.startDate ?? null,
+          },
+        },
+      },
+      include: { category: true },
+    });
+  }
+
+  /**
+   * Updates a budget and its current/past/future history inside a transaction.
+   *
+   * The history handling intentionally matches `updateBudget` so advisor
+   * workflow writes preserve the same period semantics as normal UI writes.
+   */
+  private async updateBudgetWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: UpdateBudgetReq,
+  ): Promise<BudgetWithOptionalJoins> {
+    const budget = await tx.budget.findFirst({
+      where: { id: data.id, userId },
+    });
+    if (!budget) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Budget not found',
+      });
+    }
+
+    const amountChanged =
+      data.amount !== undefined && data.amount !== budget.amount;
+    let isPastPeriodAmountEdit = false;
+
+    if (amountChanged) {
+      const anchorDate =
+        data.month !== undefined && data.year !== undefined
+          ? new Date(Date.UTC(data.year, data.month, 1))
+          : new Date();
+      const currentPeriodStart = this.utils.getStartOfPeriod(
+        budget.period,
+        anchorDate,
+      );
+      const activeHistory = await tx.budgetHistory.findFirst({
+        where: { budgetId: budget.id, endDate: null },
+        select: { id: true, startDate: true },
+      });
+      const activePeriodStart = activeHistory
+        ? this.utils.getStartOfPeriod(budget.period, activeHistory.startDate)
+        : null;
+      const isSamePeriod =
+        activePeriodStart?.getTime() === currentPeriodStart.getTime();
+      const isEditingPastPeriod =
+        activePeriodStart !== null &&
+        currentPeriodStart.getTime() < activePeriodStart.getTime();
+
+      if (isSamePeriod && activeHistory) {
+        await tx.budgetHistory.update({
+          where: { id: activeHistory.id },
+          data: { limit: data.amount! },
+        });
+      } else if (isEditingPastPeriod) {
+        isPastPeriodAmountEdit = true;
+        const existingPastEntry = await tx.budgetHistory.findFirst({
+          where: { budgetId: budget.id, startDate: currentPeriodStart },
+        });
+        if (existingPastEntry) {
+          await tx.budgetHistory.update({
+            where: { id: existingPastEntry.id },
+            data: { limit: data.amount! },
+          });
+        } else {
+          await tx.budgetHistory.create({
+            data: {
+              budgetId: budget.id,
+              limit: data.amount!,
+              startDate: currentPeriodStart,
+              endDate: activePeriodStart,
+            },
+          });
+        }
+      } else {
+        if (activeHistory) {
+          await tx.budgetHistory.update({
+            where: { id: activeHistory.id },
+            data: { endDate: currentPeriodStart },
+          });
+        }
+        await tx.budgetHistory.create({
+          data: {
+            budgetId: budget.id,
+            limit: data.amount!,
+            startDate: currentPeriodStart,
+            endDate: null,
+          },
+        });
+      }
+    }
+
+    return tx.budget.update({
+      where: { id: budget.id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.amount !== undefined &&
+          !isPastPeriodAmountEdit && { amount: data.amount }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
+        ...(data.alertThreshold !== undefined && {
+          alertThreshold: data.alertThreshold,
+        }),
+        ...(data.alertAtFrequency !== undefined && {
+          alertAtFrequency: data.alertAtFrequency,
+        }),
+      },
+      include: { category: true },
+    });
+  }
+
+  /**
+   * Deletes or deactivates a budget inside the workflow transaction.
+   */
+  private async deleteBudgetWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    data: DeleteBudgetReq,
+  ): Promise<BudgetWithOptionalJoins> {
+    const budget = await tx.budget.findFirst({
+      where: { id: data.id, userId },
+      include: { category: true },
+    });
+    if (!budget) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Budget not found',
+      });
+    }
+
+    if (data.hardDelete) {
+      await tx.budget.delete({ where: { id: data.id } });
+      return budget;
+    }
+
+    const now = new Date();
+    const deactivationDate = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    );
+    await tx.budget.update({
+      where: { id: data.id },
+      data: { deactivatedAt: deactivationDate },
+    });
+    await tx.budgetHistory.updateMany({
+      where: { budgetId: data.id, endDate: null },
+      data: { endDate: deactivationDate },
+    });
+    return budget;
+  }
+
+  /**
+   * Resolves a user or system category inside the workflow transaction.
+   */
+  private async getCategoryWithTx(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    slug: string,
+  ): Promise<{ id: string }> {
+    const category = await tx.category.findFirst({
+      where: {
+        OR: [
+          { slug, userId, isSystem: false },
+          { slug, isSystem: true },
+        ],
+      },
+      select: { id: true },
+    });
+    if (!category) {
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: 'Category not found',
+      });
+    }
+    return category;
   }
 
   /**
