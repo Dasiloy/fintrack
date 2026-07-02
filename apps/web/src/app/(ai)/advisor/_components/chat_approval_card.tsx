@@ -24,7 +24,7 @@ export function ChatApprovalCard({
   onReject,
 }: ChatApprovalCardProps) {
   const label = getActionLabel(action);
-  const canAct = state === 'pending' || state === 'failed';
+  const canAct = state === 'pending';
   const isProcessing = state === 'processing';
   const showActions = canAct || isProcessing;
 
@@ -37,6 +37,7 @@ export function ChatApprovalCard({
         state === 'approved' && 'bg-success/10 shadow-[0_2px_10px_rgba(34,197,94,0.09)]',
         state === 'rejected' && 'bg-bg-elevated/70 shadow-[0_1px_6px_rgba(15,23,42,0.03)]',
         state === 'failed' && 'bg-error/10 shadow-[0_2px_10px_rgba(239,68,68,0.08)]',
+        state === 'expired' && 'bg-bg-elevated/60 shadow-[0_1px_6px_rgba(15,23,42,0.03)]',
       )}
     >
       {/* Header */}
@@ -49,6 +50,7 @@ export function ChatApprovalCard({
             state === 'approved' && 'bg-success/15',
             state === 'rejected' && 'bg-bg-surface',
             state === 'failed' && 'bg-error/15',
+            state === 'expired' && 'bg-bg-surface',
           )}
         >
           {state === 'approved' ? (
@@ -59,6 +61,8 @@ export function ChatApprovalCard({
             <Loader2 className="text-warning size-3 animate-spin" aria-hidden />
           ) : state === 'failed' ? (
             <X className="text-error size-3" aria-hidden />
+          ) : state === 'expired' ? (
+            <X className="text-text-disabled size-3" aria-hidden />
           ) : (
             <Zap className="text-primary size-3" aria-hidden />
           )}
@@ -71,6 +75,7 @@ export function ChatApprovalCard({
             state === 'approved' && 'text-success',
             state === 'rejected' && 'text-text-disabled',
             state === 'failed' && 'text-error',
+            state === 'expired' && 'text-text-disabled',
           )}
         >
           {state === 'pending'
@@ -81,7 +86,9 @@ export function ChatApprovalCard({
                 ? 'Approved'
                 : state === 'failed'
                   ? 'Action Failed'
-                  : 'Cancelled'}
+                  : state === 'expired'
+                    ? 'Expired'
+                    : 'Cancelled'}
         </span>
       </div>
 
@@ -89,7 +96,9 @@ export function ChatApprovalCard({
       <p
         className={cn(
           'mb-1 text-[13px] leading-snug font-medium',
-          state === 'rejected' ? 'text-text-disabled line-through' : 'text-text-primary',
+          state === 'rejected' || state === 'expired'
+            ? 'text-text-disabled line-through'
+            : 'text-text-primary',
         )}
       >
         {label}
@@ -99,11 +108,19 @@ export function ChatApprovalCard({
       <p
         className={cn(
           'mb-3 text-[11px] leading-relaxed',
-          state === 'rejected' ? 'text-text-disabled' : 'text-text-tertiary',
+          state === 'rejected' || state === 'expired'
+            ? 'text-text-disabled'
+            : 'text-text-tertiary',
         )}
       >
         {action.reason}
       </p>
+
+      {state === 'expired' && (
+        <p className="text-text-disabled mb-3 text-[11px] leading-relaxed">
+          This proposal expired after the conversation moved on.
+        </p>
+      )}
 
       {state === 'failed' && (
         <p className="text-error mb-3 text-[11px] leading-relaxed">

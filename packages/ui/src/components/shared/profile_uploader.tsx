@@ -91,7 +91,7 @@ export function ProfileUploader({
           </Avatar>
           <span className="bg-bg-deep/60 duration-smooth absolute inset-0 flex items-center justify-center gap-1 opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100">
             <button type="button" onClick={handleClick}>
-              <PencilIcon className="text-text-primary size-5 cursor-pointer" aria-hidden />
+              <PencilIcon className="size-5 cursor-pointer text-white" aria-hidden />
             </button>
             <XIcon
               className="text-error size-5 cursor-pointer"

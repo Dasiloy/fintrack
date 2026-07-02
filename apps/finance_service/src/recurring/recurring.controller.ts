@@ -4,6 +4,8 @@ import { GrpcMethod, Payload } from '@nestjs/microservices';
 import { FINANCE_SERVICE_NAME } from '@fintrack/types/protos/finance/finance';
 import {
   Recurinrg as ProtoRecurring,
+  BatchRecurringWorkflowActionsReq,
+  BatchRecurringWorkflowActionsRes,
   CreateRecurringReq,
   UpdateRecurringReq,
   GetRecurringsReq,
@@ -204,5 +206,20 @@ export class RecurringController {
     @RpcUser() user: User,
   ): Promise<RecurringAggregateRes> {
     return this.recurringService.getRecurringsAggregate(user.id);
+  }
+
+  /**
+   * Applies advisor workflow recurring candidates through the transaction-backed
+   * batch endpoint.
+   */
+  @GrpcMethod(FINANCE_SERVICE_NAME, 'batchRecurringWorkflowActions')
+  batchRecurringWorkflowActions(
+    @Payload() request: BatchRecurringWorkflowActionsReq,
+    @RpcUser() user: User,
+  ): Promise<BatchRecurringWorkflowActionsRes> {
+    return this.recurringService.batchRecurringWorkflowActions(
+      user.id,
+      request,
+    );
   }
 }

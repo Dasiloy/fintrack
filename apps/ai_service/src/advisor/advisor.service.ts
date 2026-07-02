@@ -28,6 +28,9 @@ import type {
   AdvisorAction,
   AdvisorAttachment,
   AdvisorScope,
+  AdvisorWorkflowExecutableCandidate,
+  AdvisorWorkflowEventType,
+  AdvisorWorkflowStatus,
 } from '@fintrack/types/interfaces/ai';
 import { AdvisorChunkRes } from '@fintrack/types/protos/ai/ai';
 import { REDIS_CLIENT } from '@fintrack/types/constants/redis.costants';
@@ -45,6 +48,7 @@ import {
 } from './advisor.tools';
 import { createOracleTools } from './advisor.oracle.tools';
 import { AdvisorActionExecutor } from './advisor.action-executor';
+import { AdvisorWorkflowActionExecutor } from './advisor.workflow-action-executor';
 
 import { AdvisorState, AdvisorStateType } from './advisor.graph';
 import { GuardianSchema, MemoryExtractionSchema } from './advisor.schemas';
@@ -75,7 +79,12 @@ import {
   RESPOND_MODEL,
 } from './advisor.constants';
 import dayjs from '@fintrack/utils/date';
-import { AdvisorMessageContentPart } from './advisor.types';
+import {
+  AdvisorDirectActionResultEvent,
+  AdvisorMessageContentPart,
+  AdvisorWorkflowActionBatchResultEvent,
+  AdvisorWorkflowStreamEvent,
+} from './advisor.types';
 
 /**
  * AdvisorService — orchestrates the AI financial advisor LangGraph.
@@ -146,6 +155,7 @@ export class AdvisorService implements OnModuleInit {
     private readonly prisma: PrismaService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly actionExecutor: AdvisorActionExecutor,
+    private readonly workflowActionExecutor: AdvisorWorkflowActionExecutor,
   ) {}
 
   onModuleInit() {
@@ -173,12 +183,66 @@ export class AdvisorService implements OnModuleInit {
     grantedScopes: AdvisorScope[];
     /** Aborts the graph run when the client/stream disconnects. */
     signal?: AbortSignal;
-  }): AsyncGenerator<GraphStreamEvent<AdvisorStateType>> {
+  }): AsyncGenerator<
+    | GraphStreamEvent<AdvisorStateType>
+    | AdvisorWorkflowStreamEvent
+    | AdvisorWorkflowActionBatchResultEvent
+    | AdvisorDirectActionResultEvent
+  > {
     this.logger.debug(
       `[ADV-AI] streamResponse START convo=${input.conversationId}`,
     );
     let eventCount = 0;
+    const workflowRun = this.isWorkflowRunMessage(input.message);
+    let workflowResponseStarted = false;
     try {
+      const approvedWorkflowActions = this.parseApprovedWorkflowActions(
+        input.message,
+      );
+      if (approvedWorkflowActions.length > 0) {
+        const result = await this.workflowActionExecutor.executeAtomicBatch(
+          approvedWorkflowActions,
+          { userId: input.userId },
+        );
+        yield {
+          type: 'workflow_action_batch_result',
+          result,
+        };
+        yield {
+          type: 'token',
+          content: result.message,
+          node: ADVISOR_NODES.RESPOND,
+        };
+        this.logger.debug(
+          `[ADV-AI] streamResponse WORKFLOW_ACTIONS_END convo=${input.conversationId} actions=${approvedWorkflowActions.length}`,
+        );
+        return;
+      }
+
+      if (workflowRun) {
+        yield this.workflowEvent(
+          'workflow_started',
+          'started',
+          0,
+          'Workflow started',
+        ) as never;
+
+        await new Promise((resolve) => setTimeout(resolve, 500)); // add delay to simulate the workflow progress
+        yield this.workflowEvent(
+          'workflow_progress',
+          'loading_context',
+          1,
+          'Loading advisor context',
+        ) as never;
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // add delay to simulate the workflow progress
+        yield this.workflowEvent(
+          'workflow_progress',
+          'fetching_records',
+          2,
+          'Gathering financial records',
+        ) as never;
+      }
+
       const events = this.langGraph.streamEvents<
         AdvisorStateType,
         { thread_id: string },
@@ -204,6 +268,21 @@ export class AdvisorService implements OnModuleInit {
 
       for await (const event of events) {
         eventCount += 1;
+        if (workflowRun && event.type === 'approval_required') {
+          this.logger.warn(
+            `[ADV-AI] suppressed workflow approval_required convo=${input.conversationId}`,
+          );
+          continue;
+        }
+        if (workflowRun && event.type === 'token' && !workflowResponseStarted) {
+          workflowResponseStarted = true;
+          yield this.workflowEvent(
+            'workflow_response_started',
+            'response_started',
+            undefined,
+            'Writing workflow response',
+          ) as never;
+        }
         // Log non-token events in full; sample token events to avoid noise.
         if (event.type !== 'token') {
           this.logger.debug(
@@ -211,6 +290,14 @@ export class AdvisorService implements OnModuleInit {
           );
         }
         yield event;
+      }
+      if (workflowRun) {
+        yield this.workflowEvent(
+          'workflow_completed',
+          'completed',
+          undefined,
+          'Workflow response ready',
+        ) as never;
       }
       this.logger.debug(
         `[ADV-AI] streamResponse END convo=${input.conversationId} events=${eventCount}`,
@@ -227,6 +314,14 @@ export class AdvisorService implements OnModuleInit {
         `[ADV-AI] streamResponse THREW convo=${input.conversationId} after ${eventCount} events: ${(err as Error).message}`,
         (err as Error).stack,
       );
+      if (workflowRun) {
+        yield this.workflowEvent(
+          'workflow_failed',
+          'failed',
+          undefined,
+          'Could not complete workflow',
+        ) as never;
+      }
       throw err;
     }
   }
@@ -805,10 +900,9 @@ export class AdvisorService implements OnModuleInit {
 
   /**
    * Memory node — runs once per completed turn (after respond, no tool calls).
-   * On a cadence ({@link MEMORY_EXTRACTION_EVERY}) it distils durable facts from
-   * the recent transcript with the cheap {@link MEMORY_MODEL} and writes them to
-   * the cross-thread store, so later conversations recall them. Always advances
-   * `turnCount`. Best-effort: extraction/write failures never break the turn.
+   * It only advances `turnCount` inside the graph. On cadence, the expensive
+   * extraction/write work is scheduled in the background so the user-facing
+   * response stream can close as soon as the advisor reply is done.
    */
   private buildMemoryNode() {
     return async (
@@ -824,34 +918,52 @@ export class AdvisorService implements OnModuleInit {
         return { turnCount };
       }
 
-      try {
-        const transcript = state.messages
-          .slice(-MEMORY_SOURCE_MESSAGES)
-          .map((m) => `${this.roleLabel(m)}: ${extractText(m.content)}`)
-          .join('\n')
-          .trim();
-        if (!transcript) return { turnCount };
-
-        const chain = this.langChain.buildStructuredChain({
-          modelId: MEMORY_MODEL,
-          schema: MemoryExtractionSchema,
-          structuredOutputOptions: { strict: true },
-        });
-        const { parsed } = await chain.invoke([
-          new SystemMessage(MEMORY_EXTRACTION_SYSTEM),
-          new HumanMessage(transcript),
-        ]);
-
-        if (parsed) await this.writeUserMemory(store, context.userId, parsed);
-      } catch (err) {
+      void this.extractAndWriteUserMemory(
+        store,
+        context.userId,
+        state.messages,
+      ).catch((err) => {
         this.logger.warn('Memory extraction failed; skipping', err);
-      }
-
+      });
       return { turnCount };
     };
   }
 
   // ── Long-term memory (store) ────────────────────────────────────────────────
+
+  /**
+   * Distils durable memory facts from recent transcript messages and writes them
+   * to the long-term store. This is intentionally called fire-and-forget by the
+   * memory node so extraction latency cannot hold the gRPC/SSE stream open.
+   *
+   * @param store LangGraph long-term store.
+   * @param userId User whose memory namespace should receive extracted facts.
+   * @param messages Current graph messages used to build the extraction transcript.
+   */
+  private async extractAndWriteUserMemory(
+    store: BaseStore,
+    userId: string,
+    messages: AdvisorStateType['messages'],
+  ): Promise<void> {
+    const transcript = messages
+      .slice(-MEMORY_SOURCE_MESSAGES)
+      .map((m) => `${this.roleLabel(m)}: ${extractText(m.content)}`)
+      .join('\n')
+      .trim();
+    if (!transcript) return;
+
+    const chain = this.langChain.buildStructuredChain({
+      modelId: MEMORY_MODEL,
+      schema: MemoryExtractionSchema,
+      structuredOutputOptions: { strict: true },
+    });
+    const { parsed } = await chain.invoke([
+      new SystemMessage(MEMORY_EXTRACTION_SYSTEM),
+      new HumanMessage(transcript),
+    ]);
+
+    if (parsed) await this.writeUserMemory(store, userId, parsed);
+  }
 
   /** Stable, deduping key for a free-text memory fact. */
   private memoryKey(text: string): string {
@@ -1009,6 +1121,92 @@ export class AdvisorService implements OnModuleInit {
     return 'Message';
   }
 
+  // ── Workflow stream helpers ────────────────────────────────────────────────
+
+  /**
+   * Detects gateway-authored workflow prompts.
+   *
+   * The gateway prepends a stable guardrail to workflow prompts; checking for
+   * that marker lets the AI service switch to workflow stream behavior without
+   * changing the current protobuf request shape.
+   */
+  private isWorkflowRunMessage(message: string): boolean {
+    return message.includes('This is a workflow run.');
+  }
+
+  /**
+   * Builds a workflow lifecycle event for the stream.
+   *
+   * These events are later converted to `workflow_*` chunks by {@link toChunk}
+   * and used by the web client to update the user-side workflow progress card.
+   */
+  private workflowEvent(
+    type: AdvisorWorkflowEventType,
+    status: AdvisorWorkflowStatus,
+    stageIndex: number | undefined,
+    message: string,
+  ): AdvisorWorkflowStreamEvent {
+    return {
+      type,
+      status,
+      ...(stageIndex !== undefined ? { stageIndex } : {}),
+      stageLabel: message,
+      message,
+    };
+  }
+
+  /** Returns true for workflow lifecycle events emitted by this service. */
+  private isWorkflowStreamEvent(
+    event:
+      | GraphStreamEvent<AdvisorStateType>
+      | AdvisorWorkflowStreamEvent
+      | AdvisorWorkflowActionBatchResultEvent
+      | AdvisorDirectActionResultEvent,
+  ): event is AdvisorWorkflowStreamEvent {
+    return (
+      typeof event.type === 'string' &&
+      event.type.startsWith('workflow_') &&
+      event.type !== 'workflow_action_batch_result'
+    );
+  }
+
+  /**
+   * Extracts deterministic action payloads from workflow candidate approvals.
+   *
+   * The gateway only emits this marker after validating selected workflow
+   * candidates. When present, the AI service skips LangGraph and dispatches the
+   * approved structured actions through the workflow batch executor.
+   */
+  private parseApprovedWorkflowActions(
+    message: string,
+  ): AdvisorWorkflowExecutableCandidate[] {
+    const marker = 'WORKFLOW_APPROVED_ACTIONS_JSON:';
+    const markerIndex = message.indexOf(marker);
+    if (markerIndex === -1) return [];
+
+    const rawJson = message.slice(markerIndex + marker.length).trim();
+    try {
+      const parsed = JSON.parse(rawJson) as unknown;
+      if (!Array.isArray(parsed)) return [];
+      return parsed.flatMap((value) => {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+          return [];
+        }
+        const candidate = value as {
+          candidateId?: unknown;
+          action?: unknown;
+        };
+        if (typeof candidate.candidateId !== 'string') return [];
+        const result = AdvisorActionSchema.safeParse(candidate.action);
+        return result.success
+          ? [{ candidateId: candidate.candidateId, action: result.data }]
+          : [];
+      });
+    } catch {
+      return [];
+    }
+  }
+
   // ── Routing ─────────────────────────────────────────────────────────────────
 
   /**
@@ -1058,17 +1256,61 @@ export class AdvisorService implements OnModuleInit {
    * compaction model output is internal and filtered out. The `reject` node
    * emits a canned reply without an LLM call, so it produces no tokens; we
    * forward its message text from the node's state update instead (it never
-   * streams tokens, so there is no risk of double-emitting). All other `state`
-   * events are server-only progress and dropped.
+   * streams tokens, so there is no risk of double-emitting). The `action` node
+   * also emits a structured result so gateway/web can distinguish an approval
+   * click from a successful write. All other `state` events are server-only
+   * progress and dropped.
    */
   public toChunk(
-    event: GraphStreamEvent<AdvisorStateType>,
+    event:
+      | GraphStreamEvent<AdvisorStateType>
+      | AdvisorWorkflowStreamEvent
+      | AdvisorWorkflowActionBatchResultEvent
+      | AdvisorDirectActionResultEvent,
   ): AdvisorChunkRes | null {
+    if (this.isWorkflowStreamEvent(event)) {
+      const { type, status, stageIndex, stageLabel, message } = event;
+      return {
+        type,
+        content: message ?? '',
+        data: JSON.stringify({
+          status,
+          ...(stageIndex !== undefined ? { stageIndex } : {}),
+          ...(stageLabel ? { stageLabel } : {}),
+          ...(message ? { message } : {}),
+        }),
+      };
+    }
+
+    if (event.type === 'action_result') {
+      return {
+        type: 'action_result',
+        content: '',
+        data: JSON.stringify(event.result),
+      };
+    }
+
+    if (event.type === 'workflow_action_batch_result') {
+      return {
+        type: 'workflow_action_batch_result',
+        content: '',
+        data: JSON.stringify(event.result),
+      };
+    }
+
     switch (event.type) {
       case 'token':
         if (event.node && event.node !== ADVISOR_NODES.RESPOND) return null;
         return { type: 'token', content: event.content, data: '' };
       case 'state': {
+        if (event.node === ADVISOR_NODES.ACTION && event.state.actionResult) {
+          return {
+            type: 'action_result',
+            content: '',
+            data: JSON.stringify(event.state.actionResult),
+          };
+        }
+
         if (event.node !== ADVISOR_NODES.REJECT) return null;
         const text = extractText(event.state.messages?.at(-1)?.content);
         return text ? { type: 'token', content: text, data: '' } : null;
