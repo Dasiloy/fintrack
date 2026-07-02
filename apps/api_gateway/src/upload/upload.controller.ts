@@ -337,13 +337,8 @@ export class UploadController {
       user.id,
       body.publicId,
       body.format,
-      'view',
+      body.kind,
     );
-    if (!url) {
-      throw new BadRequestException(
-        'Advisor attachment does not belong to user',
-      );
-    }
 
     return {
       success: true,
@@ -370,7 +365,6 @@ export class UploadController {
     const deleted = await this.uploadService.deleteAdvisorFile(
       user,
       body.publicId,
-      body.kind,
     );
     return {
       success: true,

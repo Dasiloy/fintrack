@@ -34,10 +34,12 @@ import { MacroContext } from '@fintrack/types/interfaces/insights';
 import type {
   ConversationMessagePage,
   ConversationSummary,
+  AdvisorWorkflowRunHistoryItem,
 } from '@fintrack/types/interfaces/ai';
 
 import { AdvisorService } from './advisor.service';
 import {
+  GetAdvisorWorkflowRunsQueryDto,
   GetInsightsQueryDto,
   RenameConversationDto,
   SendAdvisorMessageDto,
@@ -135,6 +137,35 @@ export class AdvisorController {
     return {
       success: true,
       message: 'Conversations fetched successfully',
+      statusCode: HttpStatus.OK,
+      data,
+    };
+  }
+
+  // ================================================================
+  // GET /advisor/workflows?workflowId=&status=&limit=
+  // ================================================================
+  @Get('workflows')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "List the user's advisor workflow runs",
+    description:
+      'Returns recent workflow user-card runs with optional workflow/status filters. ' +
+      'Reads validated workflow metadata from advisor chat history.',
+  })
+  @ApiQuery({ name: 'workflowId', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Workflow runs fetched' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  async getWorkflowRuns(
+    @CurrentUser() user: User,
+    @Query() query: GetAdvisorWorkflowRunsQueryDto,
+  ): Promise<StandardResponse<AdvisorWorkflowRunHistoryItem[]>> {
+    const data = await this.advisorService.getWorkflowRuns(user.id, query);
+    return {
+      success: true,
+      message: 'Workflow runs fetched successfully',
       statusCode: HttpStatus.OK,
       data,
     };
