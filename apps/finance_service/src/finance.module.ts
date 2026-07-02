@@ -6,10 +6,11 @@ import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { LoggerModule } from '@fintrack/common/logger/logger.module';
-import { DatabaseModule } from '@fintrack/database/nest';
+import { PrismaModule, RedisModule } from '@fintrack/database/nest';
 import { RpcAuthGuard } from '@fintrack/common/guards/rpc.guard';
 import { BalanceService } from '@fintrack/common/services/balance.service';
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 
 import { TransactionModule } from './transaction/transaction.module';
 import { BudgetModule } from './budget/budget.module';
@@ -33,9 +34,11 @@ import { FinanceController } from './finnace.controller';
         MICROSERVICE_NAME: Joi.string().required(),
         FINANCE_SERVICE_HOST: Joi.string().required(),
         FINANCE_SERVICE_PORT: Joi.string().required(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
-    DatabaseModule,
+    PrismaModule,
+    RedisModule,
     LoggerModule,
 
     BullModule.forRootAsync({
@@ -46,6 +49,7 @@ import { FinanceController } from './finnace.controller';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),

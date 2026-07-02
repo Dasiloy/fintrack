@@ -11,7 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 import { GrpcLoggingInterceptor } from '@fintrack/common/logger/grpc-logging.interceptor';
-import { DatabaseModule } from '@fintrack/database/nest';
+import { BULLMQ_DEFAULT_JOB_OPTIONS } from '@fintrack/types/constants/bullmq.constants';
 import {
   PAYMENT_QUEUE,
   TOKEN_NOTIFICATION_QUEUE,
@@ -39,6 +39,7 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         NOTIFICATION_SERVICE_PORT: Joi.string().required(),
         MAIL_TRAP_SANDBOX_INBOX_ID: Joi.string().optional(),
         MAIL_TRAP_SANDBOX: Joi.bool().optional(),
+        DB_POOL_MAX: Joi.string().optional(),
       }),
     }),
     MailerModule.forRootAsync({
@@ -66,7 +67,6 @@ import { PaymentNotification } from './processors/payment_notification.pro';
         };
       },
     }),
-    DatabaseModule,
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -75,6 +75,7 @@ import { PaymentNotification } from './processors/payment_notification.pro';
           connection: {
             url: configService.getOrThrow('REDIS_URL'),
           },
+          defaultJobOptions: BULLMQ_DEFAULT_JOB_OPTIONS,
         };
       },
     }),

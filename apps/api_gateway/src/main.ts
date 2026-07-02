@@ -1,7 +1,4 @@
-// CRITICAL: Load environment variables FIRST, before any imports that use them
-import { loadEnv } from '@fintrack/common/env/index';
-loadEnv();
-
+import 'dotenv/config';
 // Now safe to import modules that depend on environment variables
 import helmet from 'helmet';
 import * as basicAuth from 'express-basic-auth';

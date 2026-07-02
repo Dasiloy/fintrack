@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { SystemMessage, HumanMessage } from '@langchain/core/messages';
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 
 import { PrismaService } from '@fintrack/database/service';
@@ -27,9 +27,9 @@ import { SUMMARY_MODEL } from './insights.constants';
 import { InsightService } from './insights.service';
 
 @Injectable()
-export class BudgetBreachService implements OnModuleInit {
+export class BudgetBreachService {
   private readonly logger = new Logger(BudgetBreachService.name);
-  private model: BaseChatModel;
+  private summaryModel: BaseChatModel | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -37,10 +37,6 @@ export class BudgetBreachService implements OnModuleInit {
     private readonly insightService: InsightService,
     @InjectQueue(FCM_NOTIFICATION_QUEUE) private readonly fcmQueue: Queue,
   ) {}
-
-  onModuleInit() {
-    this.model = this.modelRessolver.getRunnable(SUMMARY_MODEL);
-  }
 
   async run(payload: InsightsJobPayload): Promise<void> {
     const { userId, metadata: entries } = payload;
@@ -173,7 +169,7 @@ export class BudgetBreachService implements OnModuleInit {
     const human = `Breached budgets:\n${lines.join('\n')}`;
 
     try {
-      const res = await this.model.invoke([
+      const res = await this.getSummaryModel().invoke([
         new SystemMessage(BUDGET_BREACH_SYSTEM),
         new HumanMessage(human),
       ]);
@@ -185,5 +181,14 @@ export class BudgetBreachService implements OnModuleInit {
       );
       return undefined;
     }
+  }
+
+  private getSummaryModel(): BaseChatModel {
+    if (this.summaryModel) {
+      return this.summaryModel;
+    }
+
+    this.summaryModel = this.modelRessolver.getRunnable(SUMMARY_MODEL);
+    return this.summaryModel;
   }
 }
