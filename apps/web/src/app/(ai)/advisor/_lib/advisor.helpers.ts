@@ -5,8 +5,13 @@ import { formatCurrency, capitalize } from '@fintrack/utils/format';
 import { getTimeFromNow, format as dayjsFormat } from '@fintrack/utils/date';
 import type { InsightRecommendation, MacroContext } from '@fintrack/types/interfaces/insights';
 import type { AiInsight } from '@fintrack/database/types';
-import type { AdvisorAction, AdvisorMessage } from './advisor.types';
-import type { AdvisorMessageMetadata } from '@fintrack/types/interfaces/ai';
+import type {
+  AdvisorAction,
+  AdvisorMessage,
+  AdvisorWorkflowChangeCandidate,
+  AdvisorWorkflowRun,
+} from './advisor.types';
+import type { AdvisorAttachment, AdvisorMessageMetadata } from '@fintrack/types/interfaces/ai';
 
 export type { InsightRecommendation, MacroContext };
 
@@ -35,6 +40,135 @@ export function formatTime(date: Date): string {
 export function formatFileSize(sizeKb: number): string {
   if (sizeKb >= 1024) return `${(sizeKb / 1024).toFixed(1)} MB`;
   return `${sizeKb} KB`;
+}
+
+// ── Advisor rich text ────────────────────────────────────────────────────────
+
+export type AdvisorTextBlock =
+  | { kind: 'heading'; text: string }
+  | { kind: 'bullet'; items: string[] }
+  | { kind: 'numbered'; items: string[] }
+  | { kind: 'para'; lines: string[] };
+
+export function parseAdvisorTextBlocks(text: string): AdvisorTextBlock[] {
+  const blocks: AdvisorTextBlock[] = [];
+  let current: AdvisorTextBlock | null = null;
+
+  for (const rawLine of text.split('\n')) {
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      current = null;
+      continue;
+    }
+
+    if (/^#{1,6}\s+/.test(trimmed)) {
+      blocks.push({ kind: 'heading', text: trimmed.replace(/^#{1,6}\s+/, '') });
+      current = null;
+    } else if (/^[-*]\s+/.test(trimmed)) {
+      if (current?.kind !== 'bullet') {
+        current = { kind: 'bullet', items: [] };
+        blocks.push(current);
+      }
+      current.items.push(trimmed.replace(/^[-*]\s+/, ''));
+    } else if (/^\d+\.\s+/.test(trimmed)) {
+      if (current?.kind !== 'numbered') {
+        current = { kind: 'numbered', items: [] };
+        blocks.push(current);
+      }
+      current.items.push(trimmed.replace(/^\d+\.\s+/, ''));
+    } else {
+      if (current?.kind !== 'para') {
+        current = { kind: 'para', lines: [] };
+        blocks.push(current);
+      }
+      current.lines.push(trimmed);
+    }
+  }
+
+  return blocks;
+}
+
+export function isActionableRecommendation(text: string): boolean {
+  return /^(cancel|stop|pause|reduce|lower|cut|adjust|raise|increase|create|add|move|switch|delete|remove)\b/i.test(
+    text.trim(),
+  );
+}
+
+// ── Advisor workflow cards ───────────────────────────────────────────────────
+
+export function normalizeWorkflowCandidates(
+  candidates: AdvisorWorkflowChangeCandidate[],
+): AdvisorWorkflowChangeCandidate[] {
+  const normalized: AdvisorWorkflowChangeCandidate[] = [];
+
+  for (const candidate of candidates) {
+    if (isEvidenceOnlyWorkflowCandidate(candidate)) {
+      const previous = normalized[normalized.length - 1];
+      if (previous && candidate.action) {
+        normalized[normalized.length - 1] = {
+          ...previous,
+          id: candidate.id,
+          action: candidate.action,
+          selected: candidate.selected,
+          state: candidate.state ?? previous.state,
+        };
+      }
+      continue;
+    }
+
+    if (!candidate.title.trim()) continue;
+    normalized.push({
+      ...candidate,
+      title: stripWorkflowEvidenceTags(candidate.title),
+      detail: stripWorkflowEvidenceTags(candidate.detail),
+    });
+  }
+
+  const hasExecutableCandidates = normalized.some((candidate) => candidate.action);
+  return hasExecutableCandidates ? normalized.filter((candidate) => candidate.action) : normalized;
+}
+
+export function stripWorkflowEvidenceTags(value: string): string {
+  return value.replace(/\[[^\]]+\]\s*/g, '').trim();
+}
+
+function isEvidenceOnlyWorkflowCandidate(candidate: AdvisorWorkflowChangeCandidate): boolean {
+  return /^\[[^\]]+\]$/.test(candidate.title.trim()) || !candidate.title.trim();
+}
+
+export function workflowStatusPresentation(status: AdvisorWorkflowRun['status']): {
+  iconClass: string;
+  textClass: string;
+} {
+  if (status === 'failed') {
+    return {
+      iconClass: 'text-error',
+      textClass: 'text-error',
+    };
+  }
+
+  if (status === 'completed') {
+    return {
+      iconClass: 'text-success',
+      textClass: 'text-success',
+    };
+  }
+
+  return {
+    iconClass: 'animate-spin text-primary',
+    textClass: 'text-primary',
+  };
+}
+
+export function workflowStageState(
+  workflow: AdvisorWorkflowRun,
+  index: number,
+): 'done' | 'current' | 'pending' {
+  if (workflow.status === 'completed') return 'done';
+  if (index < workflow.activeStageIndex) return 'done';
+  if (index === workflow.activeStageIndex) return 'current';
+  return 'pending';
 }
 
 // ── AiInsight JSON field accessors ────────────────────────────────────────────
@@ -102,6 +236,49 @@ export function getActionLabel(action: AdvisorAction): string {
   }
 }
 
+export function attachmentIdentity(message: AdvisorMessage): string {
+  return (message.attachments ?? [])
+    .map((attachment) => attachment.publicId)
+    .sort()
+    .join('|');
+}
+
+export function userTurnIdentity(message: AdvisorMessage): string {
+  return `${message.content.trim()}::${attachmentIdentity(message)}`;
+}
+
+export function hasPersistedEquivalent(
+  liveMessage: AdvisorMessage,
+  historyMessages: AdvisorMessage[],
+): boolean {
+  if (liveMessage.workflowResponse) {
+    return historyMessages.some(
+      (message) =>
+        message.role === liveMessage.role &&
+        message.workflowResponse?.workflowRunId === liveMessage.workflowResponse?.workflowRunId,
+    );
+  }
+
+  const proposedActionKey = actionKey(liveMessage);
+  if (proposedActionKey) {
+    return historyMessages.some((message) => actionKey(message) === proposedActionKey);
+  }
+
+  if (liveMessage.role === 'user') {
+    const liveIdentity = userTurnIdentity(liveMessage);
+    return historyMessages.some(
+      (message) => message.role === 'user' && userTurnIdentity(message) === liveIdentity,
+    );
+  }
+
+  const content = liveMessage.content.trim();
+  if (!content) return true;
+
+  return historyMessages.some(
+    (message) => message.role === 'assistant' && message.content.trim() === content,
+  );
+}
+
 // ── Priority colours ──────────────────────────────────────────────────────────
 
 export function getPriorityColor(priority: InsightRecommendation['priority']): string {
@@ -129,12 +306,51 @@ function titleCase(str: string): string {
 }
 
 function budgetCategoryLabel(
-  action: Extract<
-    AdvisorAction,
-    { kind: 'adjust_budget' | 'create_budget' | 'delete_budget' }
-  >,
+  action: Extract<AdvisorAction, { kind: 'adjust_budget' | 'create_budget' | 'delete_budget' }>,
 ): string {
   return action.categoryName?.trim() || titleCase(action.categorySlug);
+}
+
+export function inferAdvisorAttachmentFormat(
+  attachment: Pick<AdvisorAttachment, 'format' | 'kind' | 'mimeType' | 'name'>,
+): string {
+  if (attachment.format?.trim()) {
+    return attachment.format.trim().toLowerCase();
+  }
+
+  const mimeFormat = attachment.mimeType.split('/').pop()?.toLowerCase();
+  if (mimeFormat) {
+    if (mimeFormat === 'jpeg') return 'jpg';
+    if (mimeFormat === 'csv') return 'csv';
+    if (mimeFormat === 'pdf') return 'pdf';
+    if (mimeFormat === 'vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      return 'xlsx';
+    }
+    if (['png', 'jpg', 'gif', 'webp', 'bmp'].includes(mimeFormat)) return mimeFormat;
+  }
+
+  const filenameFormat = attachment.name.split('.').pop()?.trim().toLowerCase();
+  if (filenameFormat) return filenameFormat === 'jpeg' ? 'jpg' : filenameFormat;
+
+  switch (attachment.kind) {
+    case 'csv':
+      return 'csv';
+    case 'excel':
+      return 'xlsx';
+    case 'pdf':
+      return 'pdf';
+    case 'image':
+      return 'jpg';
+  }
+}
+
+export function normalizeAdvisorAttachments(
+  attachments: AdvisorAttachment[] | undefined,
+): AdvisorAttachment[] {
+  return (attachments ?? []).map((attachment) => ({
+    ...attachment,
+    format: inferAdvisorAttachmentFormat(attachment),
+  }));
 }
 
 export function toAdvisorMessage(m: {
@@ -149,7 +365,9 @@ export function toAdvisorMessage(m: {
     role: m.role === 'USER' ? 'user' : 'assistant',
     content: m.content,
     createdAt: new Date(m.createdAt),
-    attachments: m.metadata?.attachments ?? [],
+    workflow: m.metadata?.workflowRun,
+    workflowResponse: m.metadata?.workflowResponse,
+    attachments: normalizeAdvisorAttachments(m.metadata?.attachments),
     proposedAction: m.metadata?.proposedAction ?? null,
     actionState: m.metadata?.actionState,
   };

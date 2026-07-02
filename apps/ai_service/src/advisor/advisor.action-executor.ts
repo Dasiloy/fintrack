@@ -16,16 +16,17 @@ import {
   FINANCE_SERVICE_NAME,
   FinanceServiceClient,
 } from '@fintrack/types/protos/finance/finance';
-import type {
-  TransactionSource,
-  TransactionType,
-} from '@fintrack/types/protos/finance/transaction';
-
-const MANUAL_TRANSACTION_SOURCE = 0 as TransactionSource;
-const TRANSACTION_TYPES = {
-  INCOME: 0,
-  EXPENSE: 1,
-} as const satisfies Record<'INCOME' | 'EXPENSE', TransactionType>;
+import type { TransactionType } from '@fintrack/types/protos/finance/transaction';
+import { PrismaService } from '@fintrack/database/service';
+import { PLAN_LIMITS } from '@fintrack/types/constants/plan.constants';
+import {
+  ADVISOR_ENTITY_LIMITS,
+  MANUAL_TRANSACTION_SOURCE,
+  SYSTEM_CATEGORY_SLUG_ALIASES,
+  TRANSACTION_TYPES,
+  type AdvisorLimitConfig,
+  type AdvisorLimitedEntity,
+} from './advisor.types';
 
 /**
  * Executes human-approved advisor actions against the Finance service.
@@ -48,6 +49,7 @@ export class AdvisorActionExecutor implements OnModuleInit {
    * @param financeClient Nest microservice client for the finance package.
    */
   constructor(
+    private readonly prisma: PrismaService,
     @Inject(FINANCE_PACKAGE_NAME) private readonly financeClient: ClientGrpc,
   ) {}
 
@@ -170,7 +172,7 @@ export class AdvisorActionExecutor implements OnModuleInit {
             amount: String(action.amount),
             date: action.date,
             type: this.transactionType(action.type),
-            categorySlug: action.categorySlug,
+            categorySlug: this.normalizeCategorySlug(action.categorySlug),
             source: MANUAL_TRANSACTION_SOURCE,
             sourceId: genTransactionSourceId(new Date(action.date)),
             description: action.description ?? action.reason,
@@ -219,7 +221,9 @@ export class AdvisorActionExecutor implements OnModuleInit {
               action.amount === undefined ? undefined : String(action.amount),
             date: action.date,
             type: action.type ? this.transactionType(action.type) : undefined,
-            categorySlug: action.categorySlug,
+            categorySlug: action.categorySlug
+              ? this.normalizeCategorySlug(action.categorySlug)
+              : undefined,
             description: action.description,
             merchant: action.merchant,
             notes: action.notes,
@@ -351,6 +355,9 @@ export class AdvisorActionExecutor implements OnModuleInit {
     action: Extract<AdvisorAction, { kind: 'create_budget' }>,
     context: AdvisorActionExecutionContext,
   ): Promise<AdvisorActionExecutionResult> {
+    const limitFailure = await this.guardEntityCreationLimit('budget', context);
+    if (limitFailure) return limitFailure;
+
     const metadata = this.metadataFor(context);
     const now = dayjs();
     const label = this.budgetCategoryLabel(action);
@@ -361,7 +368,7 @@ export class AdvisorActionExecutor implements OnModuleInit {
           {
             name: `${label} Budget`,
             amount: action.proposedLimit,
-            categorySlug: action.categorySlug,
+            categorySlug: this.normalizeCategorySlug(action.categorySlug),
             description: action.reason,
             month: now.month(),
             year: now.year(),
@@ -433,6 +440,9 @@ export class AdvisorActionExecutor implements OnModuleInit {
     action: Extract<AdvisorAction, { kind: 'create_goal' }>,
     context: AdvisorActionExecutionContext,
   ): Promise<AdvisorActionExecutionResult> {
+    const limitFailure = await this.guardEntityCreationLimit('goal', context);
+    if (limitFailure) return limitFailure;
+
     const metadata = this.metadataFor(context);
 
     try {
@@ -719,6 +729,12 @@ export class AdvisorActionExecutor implements OnModuleInit {
     action: Extract<AdvisorAction, { kind: 'suggest_recurring' }>,
     context: AdvisorActionExecutionContext,
   ): Promise<AdvisorActionExecutionResult> {
+    const limitFailure = await this.guardEntityCreationLimit(
+      'recurringItem',
+      context,
+    );
+    if (limitFailure) return limitFailure;
+
     const metadata = this.metadataFor(context);
 
     try {
@@ -727,10 +743,10 @@ export class AdvisorActionExecutor implements OnModuleInit {
           {
             name: action.name,
             amount: action.amount,
-            frequency: action.frequency,
+            frequency: this.normalizeRecurringFrequency(action.frequency),
             type: 'EXPENSE',
             startDate: dayjs().toISOString(),
-            categorySlug: action.categorySlug,
+            categorySlug: this.normalizeCategorySlug(action.categorySlug),
             description: action.reason,
           },
           metadata,
@@ -751,6 +767,33 @@ export class AdvisorActionExecutor implements OnModuleInit {
   }
 
   /**
+   * Converts model-proposed recurring cadence values into the Prisma enum
+   * strings expected by finance_service.
+   *
+   * @param frequency Cadence from the approved advisor action.
+   * @returns Uppercase recurring frequency accepted by the finance service.
+   */
+  private normalizeRecurringFrequency(frequency: string): string {
+    return frequency
+      .trim()
+      .toUpperCase()
+      .replace(/[\s-]+/g, '_');
+  }
+
+  /**
+   * Converts common model-proposed system category aliases to the canonical
+   * seeded slugs used by finance_service. Custom category slugs pass through.
+   *
+   * @param slug Category slug from the approved advisor action.
+   * @returns Canonical system slug when known, otherwise the original slug.
+   */
+  private normalizeCategorySlug(slug: string): string {
+    const normalized = slug.trim().toLowerCase();
+    if (normalized.startsWith('cat-')) return normalized;
+    return SYSTEM_CATEGORY_SLUG_ALIASES[normalized] ?? slug;
+  }
+
+  /**
    * Creates a split and optionally adds the approved participant list.
    *
    * @param action Approved split creation request.
@@ -761,6 +804,9 @@ export class AdvisorActionExecutor implements OnModuleInit {
     action: Extract<AdvisorAction, { kind: 'create_split' }>,
     context: AdvisorActionExecutionContext,
   ): Promise<AdvisorActionExecutionResult> {
+    const limitFailure = await this.guardEntityCreationLimit('split', context);
+    if (limitFailure) return limitFailure;
+
     const metadata = this.metadataFor(context);
 
     try {
@@ -896,19 +942,23 @@ export class AdvisorActionExecutor implements OnModuleInit {
     action: Extract<AdvisorAction, { kind: 'split_participants_batch' }>,
     context: AdvisorActionExecutionContext,
   ): Promise<AdvisorActionExecutionResult> {
+    const limitFailure = await this.guardSplitParticipantAddLimit(
+      action,
+      context,
+    );
+    if (limitFailure) return limitFailure;
+
     const metadata = this.metadataFor(context);
     let completed = 0;
 
     try {
       for (const operation of action.operations) {
-        if (operation.operation === 'add') {
+        if (operation.operation === 'delete') {
           await lastValueFrom(
-            this.financeService.addParticipant(
+            this.financeService.deleteParticipant(
               {
                 splitId: action.splitId,
-                name: operation.name,
-                email: operation.email,
-                amount: operation.amount,
+                participantId: operation.participantId,
               },
               metadata,
             ),
@@ -930,12 +980,14 @@ export class AdvisorActionExecutor implements OnModuleInit {
           );
         }
 
-        if (operation.operation === 'delete') {
+        if (operation.operation === 'add') {
           await lastValueFrom(
-            this.financeService.deleteParticipant(
+            this.financeService.addParticipant(
               {
                 splitId: action.splitId,
-                participantId: operation.participantId,
+                name: operation.name,
+                email: operation.email,
+                amount: operation.amount,
               },
               metadata,
             ),
@@ -1149,6 +1201,186 @@ export class AdvisorActionExecutor implements OnModuleInit {
    */
   private transactionType(type: 'INCOME' | 'EXPENSE'): TransactionType {
     return TRANSACTION_TYPES[type];
+  }
+
+  /**
+   * Blocks advisor-created entities when a Free user has reached that entity's
+   * plan limit. The Prisma query selects only the single relation count needed
+   * by the current action so budget checks do not also count goals, splits, etc.
+   *
+   * @param entity Limited entity type the approved action wants to create.
+   * @param context Execution context containing the authenticated user id.
+   * @returns An execution failure when blocked, otherwise null.
+   */
+  private async guardEntityCreationLimit(
+    entity: AdvisorLimitedEntity,
+    context: AdvisorActionExecutionContext,
+  ): Promise<AdvisorActionExecutionResult | null> {
+    const config = ADVISOR_ENTITY_LIMITS[entity];
+
+    try {
+      const userUsage = await this.prisma.user.findUnique({
+        where: { id: context.userId },
+        select: {
+          subscription: {
+            select: {
+              plan: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: {
+              [config.countKey]: true,
+            },
+          },
+        },
+      });
+
+      if (!userUsage?.subscription) {
+        return this.executionFailure(
+          'Cannot carry out this action at this point in time. Please try again later.',
+        );
+      }
+
+      if (userUsage.subscription.status === 'CANCELLED') {
+        return this.executionFailure(
+          'Cannot carry out this action at this point in time. Please try again later.',
+        );
+      }
+
+      const plan = userUsage.subscription.plan as keyof typeof PLAN_LIMITS;
+      const limit = PLAN_LIMITS[plan]?.[config.limitKey];
+
+      if (plan !== 'FREE' || typeof limit !== 'number') {
+        return null;
+      }
+
+      const currentCount = (
+        userUsage._count as Record<AdvisorLimitConfig['countKey'], number>
+      )[config.countKey];
+
+      if (currentCount >= limit) {
+        return this.executionFailure(
+          `You cannot create a new ${config.entityLabel} because your Free plan ${config.limitLabel} limit has been reached. Please upgrade to Pro to add more.`,
+        );
+      }
+
+      return null;
+    } catch (err) {
+      this.logger.error(
+        `[ADV-ACTION] creation limit guard failed user=${context.userId} entity=${entity}: ${(err as Error).message}`,
+        (err as Error).stack,
+      );
+      return this.executionFailure(
+        'Cannot carry out this action at this point in time. Please try again later.',
+      );
+    }
+  }
+
+  /**
+   * Blocks Free users from adding more participants than their per-split plan
+   * allows. Updates and deletes do not consume participant slots, so this guard
+   * only runs when the approved batch contains add operations.
+   *
+   * @param action Approved split participant batch.
+   * @param context Execution context containing the authenticated user id.
+   * @returns An execution failure when blocked, otherwise null.
+   */
+  private async guardSplitParticipantAddLimit(
+    action: Extract<AdvisorAction, { kind: 'split_participants_batch' }>,
+    context: AdvisorActionExecutionContext,
+  ): Promise<AdvisorActionExecutionResult | null> {
+    const participantsToAdd = action.operations.filter(
+      (operation) => operation.operation === 'add',
+    ).length;
+
+    if (participantsToAdd === 0) {
+      return null;
+    }
+
+    try {
+      const userUsage = await this.prisma.user.findUnique({
+        where: { id: context.userId },
+        select: {
+          subscription: {
+            select: {
+              plan: true,
+              status: true,
+            },
+          },
+        },
+      });
+
+      if (!userUsage?.subscription) {
+        return this.executionFailure(
+          'Cannot carry out this action at this point in time. Please try again later.',
+        );
+      }
+
+      if (userUsage.subscription.status === 'CANCELLED') {
+        return this.executionFailure(
+          'Cannot carry out this action at this point in time. Please try again later.',
+        );
+      }
+
+      const plan = userUsage.subscription.plan as keyof typeof PLAN_LIMITS;
+      const limit = PLAN_LIMITS[plan]?.MAX_PEOPLE_PER_SPLIT;
+
+      if (plan !== 'FREE' || typeof limit !== 'number') {
+        return null;
+      }
+
+      const split = await this.prisma.split.findFirst({
+        where: {
+          id: action.splitId,
+          userId: context.userId,
+        },
+        select: {
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
+        },
+      });
+
+      if (!split) {
+        return this.executionFailure(
+          'I could not find that split anymore. No financial changes were made.',
+        );
+      }
+
+      const existingParticipants = split._count.participants;
+
+      if (existingParticipants + participantsToAdd > limit) {
+        return this.executionFailure(
+          `You cannot add ${participantsToAdd} participant${participantsToAdd === 1 ? '' : 's'} to ${action.splitName} because your Free plan allows ${limit} people per split. Please upgrade to Pro to add more.`,
+        );
+      }
+
+      return null;
+    } catch (err) {
+      this.logger.error(
+        `[ADV-ACTION] split participant limit guard failed user=${context.userId} split=${action.splitId}: ${(err as Error).message}`,
+        (err as Error).stack,
+      );
+      return this.executionFailure(
+        'Cannot carry out this action at this point in time. Please try again later.',
+      );
+    }
+  }
+
+  /**
+   * Creates a standardized execution failure result for pre-flight guards.
+   *
+   * @param message User-facing reason the approved action could not continue.
+   * @returns Graph-friendly execution failure result.
+   */
+  private executionFailure(message: string): AdvisorActionExecutionResult {
+    return {
+      status: 'execution_failed',
+      message,
+    };
   }
 
   /**

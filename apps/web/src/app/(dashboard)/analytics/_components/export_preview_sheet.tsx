@@ -55,7 +55,7 @@ export function ExportPreviewSheet({
               disabled={isRegenerating}
               onClick={onRegenerate}
               className={cn(
-                'border-border-subtle text-text-tertiary hover:text-text-primary flex size-7 items-center justify-center rounded-lg border transition-colors',
+                'border-border-subtle text-text-tertiary hover:text-text-primary flex size-7 cursor-pointer items-center justify-center rounded-lg border transition-colors',
                 isRegenerating && 'cursor-not-allowed opacity-50',
               )}
             >
@@ -64,7 +64,7 @@ export function ExportPreviewSheet({
             <button
               type="button"
               onClick={handleDownload}
-              className="bg-primary flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
+              className="bg-primary flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold text-white transition-opacity hover:opacity-90"
             >
               <Download className="size-3.5" />
               Download
@@ -72,7 +72,7 @@ export function ExportPreviewSheet({
             <button
               type="button"
               onClick={onClose}
-              className="border-border-subtle text-text-tertiary hover:text-text-primary flex size-7 items-center justify-center rounded-lg border transition-colors"
+              className="border-border-subtle text-text-tertiary hover:text-text-primary flex size-7 cursor-pointer items-center justify-center rounded-lg border transition-colors"
             >
               <X className="size-3.5" />
             </button>
@@ -120,16 +120,14 @@ function PreviewBody({
     const isEmpty = previewData?.rows.length === 0;
     return (
       <div className="bg-bg-deep relative h-full w-full overflow-auto">
-        <img
-          src={dataUrl}
-          alt="Export preview"
-          className="block h-auto w-full"
-        />
+        <img src={dataUrl} alt="Export preview" className="block h-auto w-full" />
         {isEmpty && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="rounded-xl border border-border-subtle bg-bg-surface/90 px-5 py-3 text-center backdrop-blur-sm">
-              <p className="text-[12px] font-semibold text-text-primary">No data in this period</p>
-              <p className="mt-0.5 text-[10px] text-text-tertiary">The chart will populate once data is added</p>
+            <div className="border-border-subtle bg-bg-surface/90 rounded-xl border px-5 py-3 text-center backdrop-blur-sm">
+              <p className="text-text-primary text-[12px] font-semibold">No data in this period</p>
+              <p className="text-text-tertiary mt-0.5 text-[10px]">
+                The chart will populate once data is added
+              </p>
             </div>
           </div>
         )}

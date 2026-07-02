@@ -8,7 +8,7 @@ import * as React from 'react';
 import { FileText, Download, Sheet, Image, Loader2 } from 'lucide-react';
 import { toast } from '@ui/components';
 import { cn } from '@ui/lib/utils';
-import { formatFileSize } from '../_lib/advisor.helpers';
+import { formatFileSize, inferAdvisorAttachmentFormat } from '../_lib/advisor.helpers';
 import type { GeneratedFile } from '../_lib/advisor.types';
 import { api_client } from '@/lib/trpc_app/api_client';
 
@@ -23,8 +23,8 @@ export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
     onSuccess(data) {
       window.open(data.url, '_blank', 'noopener,noreferrer');
     },
-    onError() {
-      toast.error('Could not open attachment');
+    onError(error) {
+      toast.error(error.message ?? 'Could not open attachmemnt');
     },
   });
 
@@ -32,7 +32,8 @@ export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
     if (viewMutation.isPending) return;
     viewMutation.mutateAsync({
       publicId: file.publicId,
-      format: file.format,
+      kind: file.kind,
+      format: inferAdvisorAttachmentFormat(file),
     });
   };
 

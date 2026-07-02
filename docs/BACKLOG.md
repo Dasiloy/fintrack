@@ -337,6 +337,18 @@ Items are ordered by priority. Each entry follows the format:
     - [ ] Verify webhook signature validation is not silently rejecting Kuda payloads
     - [ ] Test with both debit and credit transaction types per bank
 
+### [BG-001] 2FA confirmation fails during setup
+
+- **Type**: Bug
+- **Priority**: High
+- **Status**: Pending
+- **Context**: Users can start two-factor authentication setup, but the confirmation step fails before 2FA is fully enabled. This blocks users from securing their accounts and undermines the security trust work before deployment.
+- **Notes**:
+  - Reproduce from settings → security → enable 2FA → enter/confirm the generated code.
+  - Verify whether the failure is caused by secret generation/storage, OTP verification, session/auth headers, or mismatched env values between `web`, `api_gateway`, and `auth_service`.
+  - Confirm the UI shows a useful error and does not leave the account in a half-enabled 2FA state.
+  - Related files: `apps/web/src/app/(dashboard)/settings/security/_components/two_factor_section.tsx`, `apps/api_gateway/src/auth/`, `apps/auth_service/src/auth.service.ts`, `packages/next_auth/src/config.ts`.
+
 ---
 
 ## ✅ Resolved Bugs

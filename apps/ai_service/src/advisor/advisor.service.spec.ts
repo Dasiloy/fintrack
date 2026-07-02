@@ -10,7 +10,12 @@ jest.mock('@fintrack/types/protos/finance/finance', () => ({
 jest.mock('@fintrack/types/constants/redis.costants', () => ({
   REDIS_CLIENT: 'REDIS_CLIENT',
 }));
+jest.mock('@fintrack/types/constants/plan.constants', () => ({
+  PLAN_LIMITS: {},
+}));
 jest.mock('@fintrack/types/interfaces/ai', () => ({
+  AdvisorWorkflowActionBatchResult: undefined,
+  AdvisorWorkflowExecutableCandidate: undefined,
   GOOGLE_GEMINI_2_5_FLASH: 'gemini-2.5-flash',
   GOOGLE_GEMINI_3_FLASH_PREVIEW: 'gemini-3-flash-preview',
   GOOGLE_GEMINI_3_5_FLASH: 'gemini-3.5-flash',
@@ -55,7 +60,13 @@ describe('AdvisorService', () => {
     jest.clearAllMocks();
   });
 
-  const makeService = (langGraph: unknown = {}, actionExecutor: unknown = {}) =>
+  const makeService = (
+    langGraph: unknown = {},
+    actionExecutor: unknown = {},
+    workflowActionExecutor: unknown = {
+      executeAtomicBatch: jest.fn(),
+    },
+  ) =>
     new AdvisorService(
       {} as never,
       langGraph as never,
@@ -64,6 +75,7 @@ describe('AdvisorService', () => {
       {} as never,
       {} as never,
       actionExecutor as never,
+      workflowActionExecutor as never,
     );
 
   const action = {
@@ -239,10 +251,11 @@ describe('AdvisorService', () => {
       expect(result.actionResult.status).toBe('execution_failed');
       expect(result.messages[0].tool_call_id).toBe('call-invalid');
       expect(result.messages[0].content).toContain(
-        'I could not prepare that approval card',
+        'The proposed action was missing internal execution details',
       );
-      expect(result.messages[0].content).toContain('currentAmount');
-      expect(result.messages[0].content).toContain('proposedAmount');
+      expect(result.messages[0].content).toContain(
+        'Do not mention internal ids',
+      );
     });
   });
 
@@ -632,6 +645,438 @@ describe('AdvisorService', () => {
       );
       expect(JSON.stringify(human.content)).not.toContain('"image_url"');
       expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('streamResponse workflow mode', () => {
+    it('emits workflow lifecycle events and suppresses approval-required proposals', async () => {
+      const streamEvents = jest.fn(async function* (
+        _graph: unknown,
+        _input: unknown,
+        _opts: unknown,
+      ) {
+        yield {
+          type: 'approval_required',
+          action,
+        };
+        yield {
+          type: 'token',
+          content: 'Workflow result',
+          node: ADVISOR_NODES.RESPOND,
+        };
+      });
+      const service = makeService({ streamEvents });
+      (service as unknown as { graph: unknown }).graph = 'compiled-graph';
+
+      const events: unknown[] = [];
+      for await (const event of (
+        service as unknown as {
+          streamResponse(input: {
+            userId: string;
+            conversationId: string;
+            message: string;
+            grantedScopes: never[];
+          }): AsyncGenerator<unknown>;
+        }
+      ).streamResponse({
+        userId: 'user-1',
+        conversationId: 'conversation-1',
+        message:
+          'This is a workflow run. Do not directly propose actions or trigger approval_required. Run a cash flow forecast.',
+        grantedScopes: ['BUDGETS' as never],
+      })) {
+        events.push(event);
+      }
+
+      expect(events).toEqual([
+        expect.objectContaining({
+          type: 'workflow_started',
+          status: 'started',
+        }),
+        expect.objectContaining({
+          type: 'workflow_progress',
+          status: 'loading_context',
+        }),
+        expect.objectContaining({
+          type: 'workflow_progress',
+          status: 'fetching_records',
+        }),
+        expect.objectContaining({
+          type: 'workflow_response_started',
+          status: 'response_started',
+        }),
+        {
+          type: 'token',
+          content: 'Workflow result',
+          node: ADVISOR_NODES.RESPOND,
+        },
+        expect.objectContaining({
+          type: 'workflow_completed',
+          status: 'completed',
+        }),
+      ]);
+      expect(events).not.toContainEqual(
+        expect.objectContaining({ type: 'approval_required' }),
+      );
+    });
+
+    it('delegates approved workflow action batches without running the graph', async () => {
+      const executeAtomicBatch = jest.fn().mockResolvedValue({
+        status: 'executed',
+        atomic: true,
+        message: 'Food budget updated to ₦55,000.',
+        candidateResults: [
+          {
+            candidateId: 'workflow-run-1-candidate-1',
+            status: 'approved',
+            message: 'Food budget updated to ₦55,000.',
+          },
+        ],
+      });
+      const streamEvents = jest.fn();
+      const service = makeService({ streamEvents }, {}, { executeAtomicBatch });
+      (service as unknown as { graph: unknown }).graph = 'compiled-graph';
+
+      const events: unknown[] = [];
+      for await (const event of (
+        service as unknown as {
+          streamResponse(input: {
+            userId: string;
+            conversationId: string;
+            message: string;
+            grantedScopes: never[];
+          }): AsyncGenerator<unknown>;
+        }
+      ).streamResponse({
+        userId: 'user-1',
+        conversationId: 'conversation-1',
+        message:
+          'WORKFLOW_APPROVED_ACTIONS_JSON:' +
+          JSON.stringify([
+            {
+              candidateId: 'workflow-run-1-candidate-1',
+              action: {
+                kind: 'adjust_budget',
+                budgetId: 'budget-1',
+                categorySlug: 'food',
+                categoryName: 'Food',
+                currentLimit: 40000,
+                proposedLimit: 55000,
+                reason: 'Workflow candidate approved by the user.',
+              },
+            },
+          ]),
+        grantedScopes: ['BUDGETS' as never],
+      })) {
+        events.push(event);
+      }
+
+      expect(streamEvents).not.toHaveBeenCalled();
+      expect(executeAtomicBatch).toHaveBeenCalledWith(
+        [
+          {
+            candidateId: 'workflow-run-1-candidate-1',
+            action: expect.objectContaining({
+              kind: 'adjust_budget',
+              budgetId: 'budget-1',
+              proposedLimit: 55000,
+            }),
+          },
+        ],
+        { userId: 'user-1' },
+      );
+      expect(events).toEqual([
+        {
+          type: 'workflow_action_batch_result',
+          result: {
+            status: 'executed',
+            atomic: true,
+            message: 'Food budget updated to ₦55,000.',
+            candidateResults: [
+              {
+                candidateId: 'workflow-run-1-candidate-1',
+                status: 'approved',
+                message: 'Food budget updated to ₦55,000.',
+              },
+            ],
+          },
+        },
+        {
+          type: 'token',
+          content: 'Food budget updated to ₦55,000.',
+          node: ADVISOR_NODES.RESPOND,
+        },
+      ]);
+    });
+
+    it('streams workflow batch failures returned by the workflow executor', async () => {
+      const executeAtomicBatch = jest.fn().mockResolvedValue({
+        status: 'execution_failed',
+        atomic: true,
+        message:
+          'I could not apply those workflow changes because they span multiple execution areas. No financial changes were made.',
+        candidateResults: [
+          {
+            candidateId: 'workflow-run-1-candidate-1',
+            status: 'failed',
+            message:
+              'This selected change was not applied because the workflow batch must stay in one execution area.',
+          },
+          {
+            candidateId: 'workflow-run-1-candidate-2',
+            status: 'failed',
+            message:
+              'This selected change was not applied because the workflow batch must stay in one execution area.',
+          },
+        ],
+      });
+      const streamEvents = jest.fn();
+      const service = makeService({ streamEvents }, {}, { executeAtomicBatch });
+      (service as unknown as { graph: unknown }).graph = 'compiled-graph';
+
+      const events: unknown[] = [];
+      for await (const event of (
+        service as unknown as {
+          streamResponse(input: {
+            userId: string;
+            conversationId: string;
+            message: string;
+            grantedScopes: never[];
+          }): AsyncGenerator<unknown>;
+        }
+      ).streamResponse({
+        userId: 'user-1',
+        conversationId: 'conversation-1',
+        message:
+          'WORKFLOW_APPROVED_ACTIONS_JSON:' +
+          JSON.stringify([
+            {
+              candidateId: 'workflow-run-1-candidate-1',
+              action: {
+                kind: 'adjust_budget',
+                budgetId: 'budget-1',
+                categorySlug: 'food',
+                categoryName: 'Food',
+                currentLimit: 40000,
+                proposedLimit: 55000,
+                reason: 'Workflow candidate approved by the user.',
+              },
+            },
+            {
+              candidateId: 'workflow-run-1-candidate-2',
+              action: {
+                kind: 'suggest_recurring',
+                name: 'Spectranet',
+                amount: 18000,
+                categorySlug: 'bills-utilities',
+                frequency: 'MONTHLY',
+                reason: 'Workflow candidate approved by the user.',
+              },
+            },
+          ]),
+        grantedScopes: ['BUDGETS' as never],
+      })) {
+        events.push(event);
+      }
+
+      expect(streamEvents).not.toHaveBeenCalled();
+      expect(executeAtomicBatch).toHaveBeenCalledTimes(1);
+      expect(events).toEqual([
+        {
+          type: 'workflow_action_batch_result',
+          result: {
+            status: 'execution_failed',
+            atomic: true,
+            message:
+              'I could not apply those workflow changes because they span multiple execution areas. No financial changes were made.',
+            candidateResults: [
+              {
+                candidateId: 'workflow-run-1-candidate-1',
+                status: 'failed',
+                message:
+                  'This selected change was not applied because the workflow batch must stay in one execution area.',
+              },
+              {
+                candidateId: 'workflow-run-1-candidate-2',
+                status: 'failed',
+                message:
+                  'This selected change was not applied because the workflow batch must stay in one execution area.',
+              },
+            ],
+          },
+        },
+        {
+          type: 'token',
+          content:
+            'I could not apply those workflow changes because they span multiple execution areas. No financial changes were made.',
+          node: ADVISOR_NODES.RESPOND,
+        },
+      ]);
+    });
+  });
+
+  describe('memory node', () => {
+    it('schedules extraction in the background without blocking graph completion', async () => {
+      let resolveExtraction: (value: unknown) => void = () => {};
+      const extractionPromise = new Promise((resolve) => {
+        resolveExtraction = resolve;
+      });
+      const invoke = jest.fn(() => extractionPromise);
+      const langChain = {
+        buildStructuredChain: jest.fn(() => ({ invoke })),
+      };
+      const service = makeService();
+      (service as unknown as { langChain: typeof langChain }).langChain =
+        langChain;
+      const store = {
+        get: jest.fn().mockResolvedValue(undefined),
+        put: jest.fn().mockResolvedValue(undefined),
+      };
+      const memoryNode = (
+        service as unknown as {
+          buildMemoryNode: () => (
+            state: {
+              messages: Array<HumanMessage | AIMessage>;
+              turnCount?: number;
+            },
+            runtime: {
+              context: { userId: string };
+              store: typeof store;
+            },
+          ) => Promise<{ turnCount: number }>;
+        }
+      ).buildMemoryNode();
+
+      await expect(
+        memoryNode(
+          {
+            turnCount: 2,
+            messages: [
+              new HumanMessage('I prefer a cautious savings plan.'),
+              new AIMessage('Got it.'),
+            ],
+          },
+          {
+            context: { userId: 'user-1' },
+            store,
+          },
+        ),
+      ).resolves.toEqual({ turnCount: 3 });
+      expect(invoke).toHaveBeenCalledTimes(1);
+      expect(store.put).not.toHaveBeenCalled();
+
+      resolveExtraction({
+        parsed: {
+          currency: 'NGN',
+          tone: 'concise',
+          context: [],
+          patterns: [],
+        },
+      });
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
+      expect(store.put).toHaveBeenCalledWith(
+        ['user', 'user-1', MEMORY_NAMESPACE.PREFERENCES],
+        'profile',
+        expect.objectContaining({
+          currency: 'NGN',
+          tone: 'concise',
+        }),
+        false,
+      );
+    });
+  });
+
+  describe('toChunk', () => {
+    it('maps workflow lifecycle events to workflow chunks', () => {
+      const service = makeService();
+
+      const chunk = service.toChunk({
+        type: 'workflow_progress',
+        status: 'analyzing',
+        stageIndex: 3,
+        stageLabel: 'Analyzing your finances',
+        message: 'Analyzing your finances',
+      } as never);
+
+      expect(chunk).toEqual({
+        type: 'workflow_progress',
+        content: 'Analyzing your finances',
+        data: JSON.stringify({
+          status: 'analyzing',
+          stageIndex: 3,
+          stageLabel: 'Analyzing your finances',
+          message: 'Analyzing your finances',
+        }),
+      });
+    });
+
+    it('maps direct workflow action batch results to workflow_action_batch_result chunks', () => {
+      const service = makeService();
+
+      const chunk = service.toChunk({
+        type: 'workflow_action_batch_result',
+        result: {
+          status: 'executed',
+          atomic: true,
+          message: 'Food budget updated to ₦55,000.',
+          candidateResults: [
+            {
+              candidateId: 'workflow-run-1-candidate-1',
+              status: 'approved',
+              message: 'Food budget updated to ₦55,000.',
+            },
+          ],
+        },
+      } as never);
+
+      expect(chunk).toEqual({
+        type: 'workflow_action_batch_result',
+        content: '',
+        data: JSON.stringify({
+          status: 'executed',
+          atomic: true,
+          message: 'Food budget updated to ₦55,000.',
+          candidateResults: [
+            {
+              candidateId: 'workflow-run-1-candidate-1',
+              status: 'approved',
+              message: 'Food budget updated to ₦55,000.',
+            },
+          ],
+        }),
+      });
+    });
+
+    it('emits action_result chunks when the action node updates execution status', () => {
+      const service = makeService();
+
+      const chunk = service.toChunk({
+        type: 'state',
+        node: ADVISOR_NODES.ACTION,
+        state: {
+          messages: [],
+          actionResult: {
+            approved: true,
+            status: 'execution_failed',
+            message:
+              'I could not create that recurring item just now. No financial changes were made.',
+          },
+        },
+      } as never);
+
+      expect(chunk).toEqual({
+        type: 'action_result',
+        content: '',
+        data: JSON.stringify({
+          approved: true,
+          status: 'execution_failed',
+          message:
+            'I could not create that recurring item just now. No financial changes were made.',
+        }),
+      });
     });
   });
 });

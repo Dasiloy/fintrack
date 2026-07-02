@@ -1,17 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { CalendarCheck, FileSearch, Landmark, LineChart, Scale } from 'lucide-react';
+import { CalendarCheck, Landmark, LineChart, Scale } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { AdvisorWorkflowId } from '@fintrack/types/interfaces/ai';
 
 import { cn } from '@ui/lib/utils';
-
-export type AdvisorWorkflowId =
-  | 'bill-subscription-auditor'
-  | 'document-review-workspace'
-  | 'cash-flow-forecast'
-  | 'budget-rebalancer'
-  | 'monthly-money-review';
 
 export interface AdvisorWorkflowTool {
   id: AdvisorWorkflowId;
@@ -45,14 +39,6 @@ const WORKFLOW_TOOLS: AdvisorWorkflowTool[] = [
     prompt:
       'Run a budget rebalancer for this month. Compare my spending against budget limits and suggest one useful budget adjustment if the numbers support it.',
     icon: Scale,
-  },
-  {
-    id: 'document-review-workspace',
-    label: 'Docs review',
-    description: 'Review uploaded statements, bills, or receipts',
-    prompt:
-      'Review the documents I attach. Extract the important amounts, dates, merchants, and financial changes, then summarize what I should do next.',
-    icon: FileSearch,
   },
   {
     id: 'monthly-money-review',

@@ -240,7 +240,7 @@ export function ExportCenter({ months }: ExportCenterProps) {
     <>
       <div className="glass-card rounded-card overflow-hidden">
         {/* Header */}
-        <div className="border-b border-border-subtle px-5 py-4">
+        <div className="border-border-subtle border-b px-5 py-4">
           <div className="flex items-center gap-3">
             <span className="bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-lg">
               <Download className="text-primary size-3.5" />
@@ -255,7 +255,7 @@ export function ExportCenter({ months }: ExportCenterProps) {
         </div>
 
         {/* Document cards grid */}
-        <div className="grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3">
+        <div className="bg-border-subtle grid grid-cols-1 gap-px sm:grid-cols-2 lg:grid-cols-3">
           {DOCS.map((doc) => {
             const state = cardState[doc.id]!;
             const Icon = doc.icon;
@@ -272,7 +272,7 @@ export function ExportCenter({ months }: ExportCenterProps) {
                     >
                       <Icon className="size-4" style={{ color: doc.iconColor }} />
                     </span>
-                    <p className="text-text-primary truncate text-[12px] font-semibold leading-tight">
+                    <p className="text-text-primary truncate text-[12px] leading-tight font-semibold">
                       {doc.title}
                     </p>
                   </div>
@@ -292,14 +292,14 @@ export function ExportCenter({ months }: ExportCenterProps) {
                   {doc.formats.length > 1 ? (
                     <div className="flex items-center gap-1.5">
                       <span className="text-text-disabled text-[10px]">Format</span>
-                      <div className="flex gap-0.5 rounded-md bg-bg-elevated p-0.5">
+                      <div className="bg-bg-elevated flex gap-0.5 rounded-md p-0.5">
                         {doc.formats.map((fmt) => (
                           <button
                             key={fmt}
                             type="button"
                             onClick={() => setFormat(doc.id, fmt)}
                             className={cn(
-                              'cursor-pointer rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide transition-colors',
+                              'cursor-pointer rounded px-1.5 py-0.5 text-[9px] font-semibold tracking-wide uppercase transition-colors',
                               state.format === fmt
                                 ? 'bg-primary/15 text-primary shadow-sm'
                                 : 'text-text-disabled hover:text-text-tertiary',
@@ -326,7 +326,7 @@ export function ExportCenter({ months }: ExportCenterProps) {
                       disabled={isBusy}
                       onClick={() => handlePreview(doc)}
                       className={cn(
-                        'flex items-center justify-center gap-1.5 rounded-lg border border-border-subtle px-3 py-1.5 text-[11px] font-medium text-text-tertiary transition-colors hover:border-primary/30 hover:text-primary',
+                        'border-border-subtle text-text-tertiary hover:border-primary/30 hover:text-primary flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors',
                         isBusy && 'cursor-not-allowed opacity-50',
                       )}
                     >
@@ -348,7 +348,7 @@ export function ExportCenter({ months }: ExportCenterProps) {
                       disabled={isBusy}
                       onClick={() => handleDownload(doc)}
                       className={cn(
-                        'flex items-center justify-center gap-1.5 rounded-lg border border-primary/25 px-3 py-1.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/5',
+                        'border-primary/25 text-primary hover:bg-primary/5 flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors',
                         isBusy && 'cursor-not-allowed opacity-50',
                       )}
                     >

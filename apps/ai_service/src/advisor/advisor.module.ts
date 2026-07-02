@@ -10,6 +10,7 @@ import {
 import { AdvisorService } from './advisor.service';
 import { AdvisorController } from './advisor.controller';
 import { AdvisorActionExecutor } from './advisor.action-executor';
+import { AdvisorWorkflowActionExecutor } from './advisor.workflow-action-executor';
 
 @Module({
   imports: [
@@ -34,6 +35,10 @@ import { AdvisorActionExecutor } from './advisor.action-executor';
     ]),
   ],
   controllers: [AdvisorController],
-  providers: [AdvisorService, AdvisorActionExecutor],
+  providers: [
+    AdvisorService,
+    AdvisorActionExecutor,
+    AdvisorWorkflowActionExecutor,
+  ],
 })
 export class AdvisorModule {}
