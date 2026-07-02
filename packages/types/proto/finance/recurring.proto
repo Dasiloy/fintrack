@@ -72,3 +72,27 @@ message RecurringAggregateRes {
   float monthly_income  = 4;
 }
 
+message RecurringWorkflowBatchOperation {
+  string candidate_id = 1;
+  string kind = 2;
+  optional CreateRecurringReq create_recurring = 3;
+  optional UpdateRecurringReq update_recurring = 4;
+  optional RecurringReq delete_recurring = 5;
+}
+
+message BatchRecurringWorkflowActionsReq {
+  repeated RecurringWorkflowBatchOperation operations = 1;
+}
+
+message RecurringWorkflowActionCandidateResult {
+  string candidate_id = 1;
+  string status = 2;
+  string message = 3;
+}
+
+message BatchRecurringWorkflowActionsRes {
+  string status = 1;
+  bool atomic = 2;
+  string message = 3;
+  repeated RecurringWorkflowActionCandidateResult candidate_results = 4;
+}
