@@ -40,9 +40,6 @@ export class AdvisorController {
     @Payload() request: AdvisorMessageReq,
     @RpcUser() user: User,
   ): Observable<AdvisorChunkRes> {
-    this.logger.debug(
-      `[ADV-AI] gRPC SendAdvisorMessage IN convo=${request.conversationId} msgLen=${request.message?.length ?? 0} scopes=[${(request.grantedScopes ?? []).join(',')}]`,
-    );
     return new Observable<AdvisorChunkRes>((subscriber) => {
       // Aborts the graph run when the gRPC call is cancelled (the gateway/client
       // disconnects → this Observable is unsubscribed → teardown below). Without

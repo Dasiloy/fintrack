@@ -740,6 +740,75 @@ describe('Gateway AdvisorService', () => {
       });
     });
 
+    it('normalizes inline workflow markdown headings before persisting card metadata', async () => {
+      const { service, prisma, redis, aiServiceClient } = makeService();
+      const workflowRun = {
+        id: 'workflow-run-1',
+        workflowId: 'bill-subscription-auditor',
+        title: 'Bill & subscription audit',
+        description: 'Find recurring cost issues',
+        status: 'started',
+        activeStageIndex: 0,
+        statusLabel: 'Workflow queued',
+        summaryItems: [{ label: 'Inspect', value: 'recurring bills' }],
+        focusItems: ['Duplicates'],
+        stages: ['Starting audit', 'Preparing response'],
+        startedAt: '2026-07-01T13:30:00.000Z',
+      };
+      aiServiceClient.sendAdvisorMessage.mockReturnValue(
+        of({
+          type: 'token',
+          content:
+            '### Snapshot Your active recurring commitments total ₦301,000 monthly. This includes rent, savings lock, utilities, transport, insurance, school fees, mobile data, internet service, streaming, food subscriptions, and other commitments that must be watched before salary arrives in July. ### Findings We identified a duplicate billing pattern.',
+          data: '',
+        }),
+      );
+      redis.get.mockResolvedValueOnce(
+        JSON.stringify({
+          userId: 'user-1',
+          conversationId: 'conversation-1',
+          message: 'Run a bill audit.',
+          workflowRun,
+        }),
+      );
+      redis.get.mockResolvedValueOnce(JSON.stringify(['RECURRING']));
+      redis.del.mockResolvedValue(1);
+      prisma.advisorConversation.findUnique.mockResolvedValue({
+        userId: 'user-1',
+      });
+
+      await new Promise((resolve, reject) => {
+        service
+          .streamMessage('user-1', 'stream-token')
+          .pipe(toArray())
+          .subscribe({ next: resolve, error: reject });
+      });
+
+      expect(prisma.advisorChatMessage.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          role: 'ASSISTANT',
+          metadata: {
+            workflowResponse: expect.objectContaining({
+              summary:
+                'Your active recurring commitments total ₦301,000 monthly. This includes rent, savings lock, utilities, transport, insurance, school fees, mobile data, internet service, streaming, food subscriptions, and other…',
+              sections: expect.arrayContaining([
+                {
+                  title: 'Snapshot',
+                  items: [
+                    'Your active recurring commitments total ₦301,000 monthly. This includes rent, savings lock, utilities, transport, insurance, school fees, mobile data, internet service, streaming, food subscriptions, and other commitments that must be watched before salary arrives in July.',
+                  ],
+                },
+                {
+                  title: 'Findings',
+                  items: ['We identified a duplicate billing pattern.'],
+                },
+              ]),
+            }),
+          },
+        }),
+      });
+    });
+
     it('does not persist executable candidates for analysis-only workflows', async () => {
       const { service, prisma, redis, aiServiceClient } = makeService();
       const workflowRun = {
@@ -1257,22 +1326,29 @@ describe('Gateway AdvisorService', () => {
         generatedAt: '2026-07-01T13:30:00.000Z',
       };
       aiServiceClient.sendAdvisorMessage.mockReturnValue(
-        of({
-          type: 'workflow_action_batch_result',
-          content: '',
-          data: JSON.stringify({
-            status: 'execution_failed',
-            atomic: true,
-            message: 'I could not update that budget.',
-            candidateResults: [
-              {
-                candidateId: 'workflow-run-1-candidate-1',
-                status: 'failed',
-                message: 'I could not update that budget.',
-              },
-            ],
-          }),
-        }),
+        of(
+          {
+            type: 'workflow_action_batch_result',
+            content: '',
+            data: JSON.stringify({
+              status: 'execution_failed',
+              atomic: true,
+              message: 'I could not update that budget.',
+              candidateResults: [
+                {
+                  candidateId: 'workflow-run-1-candidate-1',
+                  status: 'failed',
+                  message: 'I could not update that budget.',
+                },
+              ],
+            }),
+          },
+          {
+            type: 'token',
+            content: 'I could not update that budget.',
+            data: '',
+          },
+        ),
       );
       redis.get.mockResolvedValueOnce(
         JSON.stringify({
@@ -1317,6 +1393,7 @@ describe('Gateway AdvisorService', () => {
           },
         },
       });
+      expect(prisma.advisorChatMessage.create).not.toHaveBeenCalled();
     });
 
     it('rejects workflow approvals with actions outside the workflow domain', async () => {
