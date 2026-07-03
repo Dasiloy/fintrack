@@ -79,20 +79,18 @@ export async function POST(request: Request): Promise<Response> {
           ? { conversationId, resume }
           : workflowApproval
             ? { conversationId, workflowApproval }
-          : {
-              conversationId,
-              message: message ?? '',
-              attachments: body.attachments ?? [],
-              ...(body.workflowRun ? { workflowRun: body.workflowRun } : {}),
-              ...(body.workflow ? { workflow: body.workflow } : {}),
-            },
+            : {
+                conversationId,
+                message: message ?? '',
+                attachments: body.attachments ?? [],
+                ...(body.workflowRun ? { workflowRun: body.workflowRun } : {}),
+                ...(body.workflow ? { workflow: body.workflow } : {}),
+              },
       ),
     });
     if (!stageRes.ok) {
-      return NextResponse.json(
-        { error: 'Advisor not avaliable right now' },
-        { status: stageRes.status || 502 },
-      );
+      const error = await readGatewayError(stageRes, 'Advisor is not available right now');
+      return NextResponse.json({ error }, { status: stageRes.status || 502 });
     }
     const staged = (await stageRes.json()) as {
       data?: { streamToken?: string };
@@ -140,4 +138,23 @@ export async function POST(request: Request): Promise<Response> {
       Connection: 'keep-alive',
     },
   });
+}
+
+async function readGatewayError(response: Response, fallback: string): Promise<string> {
+  try {
+    const body = (await response.json()) as {
+      error?: unknown;
+      message?: unknown;
+    };
+    if (typeof body.error === 'string' && body.error.trim()) {
+      return body.error;
+    }
+    if (typeof body.message === 'string' && body.message.trim()) {
+      return body.message;
+    }
+  } catch {
+    // Keep the user-safe fallback when the gateway returns a non-JSON body.
+  }
+
+  return fallback;
 }

@@ -2,10 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@ui/lib/utils';
-import {
-  isActionableRecommendation,
-  parseAdvisorTextBlocks,
-} from '../_lib/advisor.helpers';
+import { isActionableRecommendation, parseAdvisorTextBlocks } from '../_lib/advisor.helpers';
 
 interface RichTextProps {
   text: string;
@@ -29,10 +26,7 @@ export function RichText({ text, onRecommendationClick }: RichTextProps) {
                   blockIndex > 0 && 'mt-3',
                 )}
               >
-                <RichInlineText
-                  text={block.text}
-                  onRecommendationClick={onRecommendationClick}
-                />
+                <RichInlineText text={block.text} onRecommendationClick={onRecommendationClick} />
               </p>
             );
           case 'bullet':
@@ -42,10 +36,7 @@ export function RichText({ text, onRecommendationClick }: RichTextProps) {
                   <li key={itemIndex} className="flex gap-2">
                     <span className="bg-text-disabled mt-[7px] size-1 shrink-0 rounded-full" />
                     <span>
-                      <RichInlineText
-                        text={item}
-                        onRecommendationClick={onRecommendationClick}
-                      />
+                      <RichInlineText text={item} onRecommendationClick={onRecommendationClick} />
                     </span>
                   </li>
                 ))}
@@ -60,10 +51,7 @@ export function RichText({ text, onRecommendationClick }: RichTextProps) {
                       {itemIndex + 1}.
                     </span>
                     <span>
-                      <RichInlineText
-                        text={item}
-                        onRecommendationClick={onRecommendationClick}
-                      />
+                      <RichInlineText text={item} onRecommendationClick={onRecommendationClick} />
                     </span>
                   </li>
                 ))}
@@ -75,10 +63,7 @@ export function RichText({ text, onRecommendationClick }: RichTextProps) {
                 {block.lines.map((line, lineIndex) => (
                   <React.Fragment key={lineIndex}>
                     {lineIndex > 0 && <br />}
-                    <RichInlineText
-                      text={line}
-                      onRecommendationClick={onRecommendationClick}
-                    />
+                    <RichInlineText text={line} onRecommendationClick={onRecommendationClick} />
                   </React.Fragment>
                 ))}
               </p>
@@ -89,13 +74,9 @@ export function RichText({ text, onRecommendationClick }: RichTextProps) {
   );
 }
 
-export function RichInlineText({
-  text,
-  onRecommendationClick,
-}: RichTextProps) {
-  const parts = text.split(
-    /(\*\*[^*]+\*\*|\+\+[^+]+\+\+|==[^=]+==|`[^`]+`|\*[^*\n]+\*)/g,
-  );
+export function RichInlineText({ text, onRecommendationClick }: RichTextProps) {
+  const displayText = text.replace(/#{1,6}\s+/g, '');
+  const parts = displayText.split(/(\*\*[^*]+\*\*|\+\+[^+]+\+\+|==[^=]+==|`[^`]+`|\*[^*\n]+\*)/g);
 
   return (
     <>
@@ -103,9 +84,7 @@ export function RichInlineText({
         if (!part) return null;
         if (part.startsWith('**') && part.endsWith('**')) {
           const label = part.slice(2, -2);
-          const clickable = Boolean(
-            onRecommendationClick && isActionableRecommendation(label),
-          );
+          const clickable = Boolean(onRecommendationClick && isActionableRecommendation(label));
           if (clickable) {
             return (
               <button
@@ -161,11 +140,7 @@ export function RichInlineText({
           );
         }
 
-        return (
-          <React.Fragment key={index}>
-            {highlightAmounts(part, index)}
-          </React.Fragment>
-        );
+        return <React.Fragment key={index}>{highlightAmounts(part, index)}</React.Fragment>;
       })}
     </>
   );

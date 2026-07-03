@@ -801,11 +801,6 @@ describe('AdvisorService', () => {
             ],
           },
         },
-        {
-          type: 'token',
-          content: 'Food budget updated to ₦55,000.',
-          node: ADVISOR_NODES.RESPOND,
-        },
       ]);
     });
 
@@ -904,12 +899,6 @@ describe('AdvisorService', () => {
               },
             ],
           },
-        },
-        {
-          type: 'token',
-          content:
-            'I could not apply those workflow changes because they span multiple execution areas. No financial changes were made.',
-          node: ADVISOR_NODES.RESPOND,
         },
       ]);
     });

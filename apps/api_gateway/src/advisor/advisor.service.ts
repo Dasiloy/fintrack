@@ -340,7 +340,9 @@ export class AdvisorService implements OnModuleInit {
             actionExecutionFailed ||
             workflowActionBatchResult?.status === 'execution_failed';
         }
-        if (chunk.type === 'token') assistantText += chunk.content;
+        if (chunk.type === 'token' && !workflowApproval) {
+          assistantText += chunk.content;
+        }
         if (this.isWorkflowEventType(chunk.type)) {
           const payload = this.parseWorkflowEventPayload(chunk.data);
           if (workflowRun && payload) {
@@ -1941,10 +1943,11 @@ export class AdvisorService implements OnModuleInit {
   private extractWorkflowSections(
     content: string,
   ): AdvisorWorkflowResponse['sections'] {
+    const normalizedContent = this.normalizeWorkflowMarkdown(content);
     const sections: AdvisorWorkflowResponse['sections'] = [];
     let current: AdvisorWorkflowResponse['sections'][number] | null = null;
 
-    for (const rawLine of content.split('\n')) {
+    for (const rawLine of normalizedContent.split('\n')) {
       const line = rawLine.trim();
       if (!line) continue;
 
@@ -1973,13 +1976,77 @@ export class AdvisorService implements OnModuleInit {
    * Returns the first plain paragraph in a workflow response for card summary.
    */
   private firstWorkflowParagraph(content: string): string {
-    const paragraph =
-      content
-        .split(/\n{2,}/)
-        .map((part) => part.trim())
-        .find((part) => part && !part.startsWith('#')) ?? content.trim();
+    const normalizedContent = this.normalizeWorkflowMarkdown(content);
+    const paragraph = normalizedContent
+      .split(/\n{2,}/)
+      .map((part) => part.trim())
+      .find((part) => part && !part.startsWith('#'));
+    if (paragraph) return this.truncateWorkflowSummary(paragraph);
 
-    return paragraph.replace(/\s+/g, ' ').slice(0, 220);
+    const sections = this.extractWorkflowSections(normalizedContent);
+    const firstSectionItem = sections.find(
+      (section) => section.items.length > 0,
+    )?.items[0];
+    return this.truncateWorkflowSummary(firstSectionItem ?? content.trim());
+  }
+
+  /**
+   * Truncates workflow summaries without cutting through visible words.
+   */
+  private truncateWorkflowSummary(value: string, maxLength = 220): string {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLength) return normalized;
+
+    const truncated = normalized.slice(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    return `${truncated.slice(0, lastSpace > 120 ? lastSpace : maxLength).trimEnd()}…`;
+  }
+
+  /**
+   * Normalizes model output where markdown headings arrive inline with content.
+   *
+   * Some model responses collapse `### Snapshot` and following text onto one
+   * line. Splitting known workflow headings back onto their own lines lets the
+   * card summary and section parser avoid rendering raw markdown markers.
+   */
+  private normalizeWorkflowMarkdown(content: string): string {
+    return this.workflowSectionTitles().reduce((text, title) => {
+      const pattern = new RegExp(
+        `\\s*#{1,6}\\s+${this.escapeRegExp(title)}\\b\\s*`,
+        'gi',
+      );
+      return text.replace(pattern, `\n\n### ${title}\n`);
+    }, content);
+  }
+
+  /**
+   * Returns the workflow section headings the parser knows how to split.
+   */
+  private workflowSectionTitles(): string[] {
+    return [
+      'Snapshot',
+      'Findings',
+      'Evidence',
+      'Change candidates',
+      'Budget snapshot',
+      'Categories to watch',
+      'Adjustment logic',
+      'Forecast snapshot',
+      'Pressure points',
+      'Risk window',
+      'Monthly snapshot',
+      'Wins',
+      'Risks',
+      'Recommendation',
+      'Recommended action',
+    ];
+  }
+
+  /**
+   * Escapes user-visible section labels before building RegExp instances.
+   */
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   /**
