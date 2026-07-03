@@ -72,7 +72,7 @@ export function WorkflowResponseCard({
           <p className="text-text-primary mt-0.5 text-[13px] leading-5 font-semibold">
             {response.title}
           </p>
-          <p className="text-text-tertiary mt-0.5 text-[11px] leading-4">
+          <p className="text-text-tertiary mt-1 line-clamp-3 text-[11px] leading-[1.65]">
             <RichInlineText text={response.summary} />
           </p>
         </div>
@@ -97,13 +97,13 @@ export function WorkflowResponseCard({
         {response.sections.slice(0, 3).map((section) => (
           <div key={section.title} className="px-3.5 py-3">
             <p className="text-text-secondary text-[11px] font-semibold">{section.title}</p>
-            <ul className="mt-1.5 space-y-1">
+            <ul className="mt-2 space-y-1.5">
               {section.items.slice(0, 3).map((item) => (
                 <li
                   key={item}
-                  className="text-text-tertiary grid grid-cols-[8px_1fr] gap-2 text-[11px] leading-4"
+                  className="text-text-tertiary grid grid-cols-[8px_1fr] gap-2 text-[11px] leading-[1.65]"
                 >
-                  <span className="bg-primary/50 mt-1.5 size-1 rounded-full" />
+                  <span className="bg-primary/50 mt-2 size-1 rounded-full" />
                   <span>
                     <RichInlineText text={item} />
                   </span>
@@ -124,7 +124,10 @@ export function WorkflowResponseCard({
             <div className="mt-2 space-y-1.5">
               {candidates.map((candidate) => {
                 const selected = selectedCandidateIds.has(candidate.id);
-                const locked = candidate.state === 'processing' || candidate.state === 'approved';
+                const locked =
+                  candidate.state === 'processing' ||
+                  candidate.state === 'approved' ||
+                  candidate.state === 'failed';
                 return (
                   <button
                     key={candidate.id}
@@ -160,7 +163,7 @@ export function WorkflowResponseCard({
                         <RichInlineText text={candidate.title} />
                       </span>
                       {candidate.detail && (
-                        <span className="text-text-tertiary mt-0.5 block text-[10px] leading-4">
+                        <span className="text-text-tertiary mt-1 block text-[10px] leading-[1.6]">
                           <RichInlineText text={candidate.detail} />
                         </span>
                       )}
@@ -175,7 +178,7 @@ export function WorkflowResponseCard({
                 !onApproveCandidates ||
                 selectedCount === 0 ||
                 hasProcessingCandidate ||
-                hasApprovedCandidate
+                hasTerminalCandidate
               }
               onClick={() => onApproveCandidates?.([...selectedCandidateIds])}
               className={cn(
@@ -183,7 +186,7 @@ export function WorkflowResponseCard({
                 onApproveCandidates &&
                   selectedCount > 0 &&
                   !hasProcessingCandidate &&
-                  !hasApprovedCandidate
+                  !hasTerminalCandidate
                   ? 'bg-success/10 text-success hover:bg-success/20'
                   : 'bg-bg-surface text-text-disabled cursor-not-allowed',
               )}
@@ -206,7 +209,7 @@ export function WorkflowResponseCard({
             <p className="text-success text-[11px] font-semibold">
               {response.recommendation.title}
             </p>
-            <p className="text-text-secondary mt-1 text-[11px] leading-4">
+            <p className="text-text-secondary mt-1.5 text-[11px] leading-[1.65]">
               <RichInlineText text={response.recommendation.detail} />
             </p>
           </div>

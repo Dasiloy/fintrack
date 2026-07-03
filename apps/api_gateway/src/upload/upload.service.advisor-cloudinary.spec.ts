@@ -59,6 +59,10 @@ jest.mock('@fintrack/types/constants/upload.constants', () => ({
   PRIVATEUPLOAD_EXPIRY: 3600,
 }));
 
+jest.mock('@fintrack/utils/jwt', () => ({
+  parseJwtExpiration: jest.fn(),
+}));
+
 describe('UploadService advisor Cloudinary uploads', () => {
   const uploadStream = cloudinary.v2.uploader
     .upload_stream as unknown as jest.Mock;
@@ -86,6 +90,7 @@ describe('UploadService advisor Cloudinary uploads', () => {
 
   it('uploads CSV advisor files as raw resources without using raw as a format', async () => {
     const service = new UploadService(
+      {} as never,
       {} as never,
       {} as never,
       {} as never,
