@@ -358,21 +358,50 @@ function applyWorkflowEvent(
   }
 }
 
-function firstWorkflowParagraph(content: string): string {
-  const paragraph =
-    content
-      .split(/\n{2,}/)
-      .map((part) => part.trim())
-      .find((part) => part && !part.startsWith('#')) ?? content.trim();
+const WORKFLOW_SECTION_TITLES = [
+  'Snapshot',
+  'Findings',
+  'Evidence',
+  'Change candidates',
+  'Budget snapshot',
+  'Categories to watch',
+  'Adjustment logic',
+  'Forecast snapshot',
+  'Pressure points',
+  'Risk window',
+  'Monthly snapshot',
+  'Wins',
+  'Risks',
+  'Recommendation',
+  'Recommended action',
+] as const;
 
-  return paragraph.replace(/\s+/g, ' ').slice(0, 220);
+function normalizeWorkflowMarkdown(content: string): string {
+  return WORKFLOW_SECTION_TITLES.reduce((text, title) => {
+    const pattern = new RegExp(`\\s*#{1,6}\\s+${escapeRegExp(title)}\\b\\s*`, 'gi');
+    return text.replace(pattern, `\n\n### ${title}\n`);
+  }, content);
+}
+
+function firstWorkflowParagraph(content: string): string {
+  const normalized = normalizeWorkflowMarkdown(content);
+  const paragraph = normalized
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .find((part) => part && !part.startsWith('#'));
+  if (paragraph) return truncateWorkflowSummary(paragraph);
+
+  const sections = workflowResponseSections(normalized);
+  const firstSectionItem = sections.find((section) => section.items.length > 0)?.items[0];
+  return truncateWorkflowSummary(firstSectionItem ?? content.trim());
 }
 
 function workflowResponseSections(content: string): AdvisorWorkflowResponse['sections'] {
+  const normalizedContent = normalizeWorkflowMarkdown(content);
   const sections: AdvisorWorkflowResponse['sections'] = [];
   let current: AdvisorWorkflowResponse['sections'][number] | null = null;
 
-  for (const rawLine of content.split('\n')) {
+  for (const rawLine of normalizedContent.split('\n')) {
     const line = rawLine.trim();
     if (!line) continue;
 
@@ -517,6 +546,19 @@ function splitWorkflowCandidate(item: string): { title: string; detail: string }
     title: split[1]!.trim(),
     detail: `${split[2]!.toLowerCase()} ${split[3]!.trim()}.`,
   };
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function truncateWorkflowSummary(value: string, maxLength = 220): string {
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+
+  const truncated = normalized.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return `${truncated.slice(0, lastSpace > 120 ? lastSpace : maxLength).trimEnd()}…`;
 }
 
 function patchStream(
@@ -1168,7 +1210,7 @@ export async function approveWorkflowCandidates(args: {
     if ((err as Error).name !== 'AbortError') {
       const note =
         err instanceof AdvisorStreamError
-          ? 'Sorry, I could not confirm those workflow candidates. Please try again.'
+          ? workflowApprovalErrorMessage(err)
           : 'Something went wrong reaching the advisor. Please try again.';
       args.onError?.(note);
     }
@@ -1216,4 +1258,11 @@ export async function approveWorkflowCandidates(args: {
 
     args.onFinished?.();
   }
+}
+
+function workflowApprovalErrorMessage(error: AdvisorStreamError): string {
+  return (
+    error.message.replace(/^Advisor request failed:\s*/i, '').trim() ||
+    'Sorry, I could not confirm those workflow candidates. Please try again.'
+  );
 }

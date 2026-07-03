@@ -208,11 +208,6 @@ export class AdvisorService implements OnModuleInit {
           type: 'workflow_action_batch_result',
           result,
         };
-        yield {
-          type: 'token',
-          content: result.message,
-          node: ADVISOR_NODES.RESPOND,
-        };
         this.logger.debug(
           `[ADV-AI] streamResponse WORKFLOW_ACTIONS_END convo=${input.conversationId} actions=${approvedWorkflowActions.length}`,
         );
