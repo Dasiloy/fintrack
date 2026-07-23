@@ -13,21 +13,82 @@ jest.mock('@fintrack/utils/date', () => ({
 jest.mock('@fintrack/utils/format', () => ({
   genTransactionSourceId: jest.fn(() => 'TXN-260625-ABC123'),
 }));
+jest.mock('@fintrack/types/constants/plan.constants', () => ({
+  PLAN_LIMITS: {
+    FREE: {
+      MAX_BUDGETS: 5,
+      MAX_RECURRING_ITEMS: 5,
+      MAX_GOALS: 3,
+      MAX_ACTIVE_SPLITS: 3,
+      MAX_PEOPLE_PER_SPLIT: 3,
+    },
+    PRO: {
+      MAX_BUDGETS: Infinity,
+      MAX_RECURRING_ITEMS: Infinity,
+      MAX_GOALS: Infinity,
+      MAX_ACTIVE_SPLITS: Infinity,
+      MAX_PEOPLE_PER_SPLIT: Infinity,
+    },
+  },
+}));
+jest.mock('@fintrack/database/service', () => ({
+  PrismaService: class PrismaService {},
+}));
 
 import { Metadata } from '@grpc/grpc-js';
 import { Logger } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 
+import { PLAN_LIMITS } from '@fintrack/types/constants/plan.constants';
+
 import { AdvisorActionExecutor } from './advisor.action-executor';
 
 describe('AdvisorActionExecutor', () => {
-  function makeExecutor(financeService: Record<string, jest.Mock>) {
+  function makePrismaUserFindUniqueResult(
+    overrides: {
+      subscription?: { plan: 'FREE' | 'PRO'; status: string } | null;
+      count?: Record<string, number>;
+    } = {},
+  ) {
+    return {
+      subscription: overrides.subscription ?? {
+        plan: 'PRO',
+        status: 'ACTIVE',
+      },
+      _count: overrides.count ?? {},
+    };
+  }
+
+  function makePrisma(
+    result = makePrismaUserFindUniqueResult(),
+    splitResult: unknown = null,
+  ): {
+    user: { findUnique: jest.Mock };
+    split: { findFirst: jest.Mock };
+  } {
+    return {
+      user: {
+        findUnique: jest.fn(() => Promise.resolve(result)),
+      },
+      split: {
+        findFirst: jest.fn(() => Promise.resolve(splitResult)),
+      },
+    };
+  }
+
+  function makeExecutor(
+    financeService: Record<string, jest.Mock>,
+    prisma = makePrisma(),
+  ) {
     const financeClient = {
       getService: jest.fn(() => financeService),
     };
-    const executor = new AdvisorActionExecutor(financeClient as never);
+    const executor = new AdvisorActionExecutor(
+      prisma as never,
+      financeClient as never,
+    );
     executor.onModuleInit();
-    return { executor, financeClient };
+    return { executor, financeClient, prisma };
   }
 
   it('updates an existing budget for adjust_budget actions', async () => {
@@ -108,7 +169,7 @@ describe('AdvisorActionExecutor', () => {
       amount: '12000',
       date: '2026-06-25',
       type: 1,
-      categorySlug: 'food',
+      categorySlug: 'cat-food',
       source: 0,
       merchant: 'Chicken Republic',
       description: 'User asked to record lunch.',
@@ -152,12 +213,50 @@ describe('AdvisorActionExecutor', () => {
     expect(request).toEqual({
       name: 'Food Budget',
       amount: 42000,
-      categorySlug: 'food',
+      categorySlug: 'cat-food',
       description: 'Food spending needs its own guardrail.',
       month: 5,
       year: 2026,
     });
     expect(metadata.get('x-user-id')).toEqual(['user-1']);
+  });
+
+  it('blocks free users from creating budgets after reaching the budget limit', async () => {
+    const financeService = {
+      createBudget: jest.fn(),
+    };
+    const prisma = makePrisma(
+      makePrismaUserFindUniqueResult({
+        subscription: { plan: 'FREE', status: 'ACTIVE' },
+        count: { budgets: PLAN_LIMITS.FREE.MAX_BUDGETS as number },
+      }),
+    );
+    const { executor } = makeExecutor(financeService, prisma);
+
+    await expect(
+      executor.execute(
+        {
+          kind: 'create_budget',
+          categorySlug: 'food',
+          categoryName: 'Food',
+          proposedLimit: 42000,
+          reason: 'Food spending needs its own guardrail.',
+        },
+        { userId: 'user-1' },
+      ),
+    ).resolves.toEqual({
+      status: 'execution_failed',
+      message:
+        'You cannot create a new budget because your Free plan budget limit has been reached. Please upgrade to Pro to add more.',
+    });
+    expect(financeService.createBudget).not.toHaveBeenCalled();
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          _count: { select: { budgets: true } },
+        }),
+      }),
+    );
   });
 
   it('removes a budget for delete_budget actions', async () => {
@@ -186,6 +285,88 @@ describe('AdvisorActionExecutor', () => {
       { id: 'budget-1', hardDelete: false },
       expect.any(Metadata),
     );
+  });
+
+  it('creates a savings goal with the approved priority', async () => {
+    const financeService = {
+      createGoal: jest.fn(() =>
+        of({
+          id: 'goal-1',
+          name: 'Emergency Fund',
+          targetAmount: 500000,
+          priority: 'HIGH',
+        }),
+      ),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    const result = await executor.execute(
+      {
+        kind: 'create_goal',
+        name: 'Emergency Fund',
+        targetDate: '2026-12-31',
+        targetAmount: 500000,
+        priority: 'HIGH',
+        reason: 'User wants to save aggressively.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(result).toEqual({
+      status: 'executed',
+      message: 'Emergency Fund goal created with a ₦500,000 target.',
+    });
+    expect(financeService.createGoal).toHaveBeenCalledWith(
+      {
+        name: 'Emergency Fund',
+        targetDate: '2026-12-31',
+        targetAmount: 500000,
+        priority: 'HIGH',
+        description: 'User wants to save aggressively.',
+      },
+      expect.any(Metadata),
+    );
+  });
+
+  it('checks only the goal count before creating a savings goal', async () => {
+    const financeService = {
+      createGoal: jest.fn(() =>
+        of({
+          id: 'goal-1',
+          name: 'Emergency Fund',
+          targetAmount: 500000,
+          priority: 'HIGH',
+        }),
+      ),
+    };
+    const prisma = makePrisma(
+      makePrismaUserFindUniqueResult({
+        subscription: { plan: 'FREE', status: 'ACTIVE' },
+        count: { goals: 0 },
+      }),
+    );
+    const { executor } = makeExecutor(financeService, prisma);
+
+    await executor.execute(
+      {
+        kind: 'create_goal',
+        name: 'Emergency Fund',
+        targetDate: '2026-12-31',
+        targetAmount: 500000,
+        priority: 'HIGH',
+        reason: 'User wants to save aggressively.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          _count: { select: { goals: true } },
+        }),
+      }),
+    );
+    expect(financeService.createGoal).toHaveBeenCalledTimes(1);
   });
 
   it('updates the latest contribution for adjust_goal_contribution actions', async () => {
@@ -328,13 +509,88 @@ describe('AdvisorActionExecutor', () => {
     expect(request).toEqual({
       name: 'Netflix',
       amount: 5500,
-      categorySlug: 'entertainment',
+      categorySlug: 'cat-entertainment',
       frequency: 'MONTHLY',
       type: 'EXPENSE',
       startDate: '2026-06-25T00:00:00.000Z',
       description: 'This looks like a repeating subscription.',
     });
     expect(metadata.get('x-user-id')).toEqual(['user-1']);
+  });
+
+  it('blocks free users from creating recurring items after reaching the recurring limit', async () => {
+    const financeService = {
+      createRecurring: jest.fn(),
+    };
+    const prisma = makePrisma(
+      makePrismaUserFindUniqueResult({
+        subscription: { plan: 'FREE', status: 'ACTIVE' },
+        count: {
+          recurringItems: PLAN_LIMITS.FREE.MAX_RECURRING_ITEMS as number,
+        },
+      }),
+    );
+    const { executor } = makeExecutor(financeService, prisma);
+
+    await expect(
+      executor.execute(
+        {
+          kind: 'suggest_recurring',
+          name: 'Netflix',
+          amount: 5500,
+          categorySlug: 'entertainment',
+          frequency: 'MONTHLY',
+          reason: 'This looks like a repeating subscription.',
+        },
+        { userId: 'user-1' },
+      ),
+    ).resolves.toEqual({
+      status: 'execution_failed',
+      message:
+        'You cannot create a new recurring item because your Free plan recurring item limit has been reached. Please upgrade to Pro to add more.',
+    });
+    expect(financeService.createRecurring).not.toHaveBeenCalled();
+    expect(prisma.user.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          _count: { select: { recurringItems: true } },
+        }),
+      }),
+    );
+  });
+
+  it('normalizes recurring frequency before calling finance service', async () => {
+    const financeService = {
+      createRecurring: jest.fn(() =>
+        of({
+          id: 'recurring-1',
+          name: 'Spectranet',
+          amount: 18000,
+          frequency: 'MONTHLY',
+        }),
+      ),
+    };
+    const { executor } = makeExecutor(financeService);
+
+    await executor.execute(
+      {
+        kind: 'suggest_recurring',
+        name: 'Spectranet',
+        amount: 18000,
+        categorySlug: 'bills-utilities',
+        frequency: 'monthly',
+        reason: 'This looks like a repeating internet bill.',
+      },
+      { userId: 'user-1' },
+    );
+
+    expect(financeService.createRecurring).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categorySlug: 'cat-bills-utilities',
+        frequency: 'MONTHLY',
+      }),
+      expect.any(Metadata),
+    );
   });
 
   it('applies a batch of split participant changes', async () => {
@@ -390,6 +646,74 @@ describe('AdvisorActionExecutor', () => {
       },
       expect.any(Metadata),
     );
+  });
+
+  it('blocks free users from adding split participants above the per-split limit', async () => {
+    const financeService = {
+      addParticipant: jest.fn(),
+      updateParticipant: jest.fn(),
+    };
+    const prisma = makePrisma(
+      makePrismaUserFindUniqueResult({
+        subscription: { plan: 'FREE', status: 'ACTIVE' },
+      }),
+      {
+        _count: {
+          participants: (PLAN_LIMITS.FREE.MAX_PEOPLE_PER_SPLIT as number) - 1,
+        },
+      },
+    );
+    const { executor } = makeExecutor(financeService, prisma);
+
+    await expect(
+      executor.execute(
+        {
+          kind: 'split_participants_batch',
+          splitId: 'split-1',
+          splitName: 'Weekend Trip',
+          operations: [
+            {
+              operation: 'update',
+              participantId: 'participant-1',
+              amount: 25000,
+            },
+            {
+              operation: 'add',
+              name: 'Ada',
+              email: 'ada@example.com',
+              amount: 20000,
+            },
+            {
+              operation: 'add',
+              name: 'Bola',
+              email: 'bola@example.com',
+              amount: 15000,
+            },
+          ],
+          reason: 'Add two people to the trip.',
+        },
+        { userId: 'user-1' },
+      ),
+    ).resolves.toEqual({
+      status: 'execution_failed',
+      message:
+        'You cannot add 2 participants to Weekend Trip because your Free plan allows 3 people per split. Please upgrade to Pro to add more.',
+    });
+    expect(prisma.split.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'split-1',
+        userId: 'user-1',
+      },
+      select: {
+        _count: {
+          select: {
+            participants: true,
+          },
+        },
+      },
+    });
+    expect(financeService.updateParticipant).not.toHaveBeenCalled();
+    expect(financeService.addParticipant).not.toHaveBeenCalled();
   });
 
   it('adjusts an existing subscription for flag_subscription adjust actions', async () => {

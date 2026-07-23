@@ -533,9 +533,3 @@ Check the connection limit for your Postgres provider. The default pool allocati
 ---
 
 Copyright © 2026 [dasiloy](https://github.com/dasiloy)
-
-Trigger advisor chat with an uploaded CSV/XLSX attachment.
-Download attachment after upload
-Make advisor remmeber detauls about files post upload
-sometimes upload works, but chat fails, what is the best options with the documents? keep them in cht? what does enterp[rise apps do??
-Ask advisor something requiring tool/data access, like budget or spending summary.
