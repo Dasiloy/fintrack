@@ -74,7 +74,9 @@ export interface ModelProviderConfig extends ModelConfig {
   provider: ModleProvider;
 }
 
-export type AdvisorAttachmentKind = 'image' | 'pdf' | 'csv' | 'excel';
+export const ADVISOR_ATTACHMENT_KINDS = ['image', 'pdf', 'csv', 'excel'] as const;
+
+export type AdvisorAttachmentKind = (typeof ADVISOR_ATTACHMENT_KINDS)[number];
 
 export interface AdvisorAttachment {
   /** Short-lived signed URL. Present only while sending/viewing, never required for persisted metadata. */
@@ -113,9 +115,162 @@ export interface AdvisorAttachmentCleanupJob {
   attachments: AdvisorAttachmentCleanupItem[];
 }
 
+export const ADVISOR_WORKFLOW_STATUSES = [
+  'started',
+  'loading_context',
+  'fetching_records',
+  'analyzing',
+  'checking_recommendations',
+  'generating_response',
+  'response_started',
+  'completed',
+  'failed',
+] as const;
+
+export type AdvisorWorkflowStatus = (typeof ADVISOR_WORKFLOW_STATUSES)[number];
+
+export type AdvisorWorkflowEventType =
+  | 'workflow_started'
+  | 'workflow_progress'
+  | 'workflow_response_started'
+  | 'workflow_completed'
+  | 'workflow_failed';
+
+export const ADVISOR_WORKFLOW_IDS = [
+  'bill-subscription-auditor',
+  'cash-flow-forecast',
+  'budget-rebalancer',
+  'monthly-money-review',
+] as const;
+
+export type AdvisorWorkflowId = (typeof ADVISOR_WORKFLOW_IDS)[number];
+
+export interface AdvisorWorkflowEventPayload {
+  workflowRunId?: string;
+  status?: AdvisorWorkflowStatus;
+  stageIndex?: number;
+  stageLabel?: string;
+  message?: string;
+}
+
+export interface AdvisorWorkflowRun {
+  id: string;
+  workflowId: AdvisorWorkflowId;
+  title: string;
+  description: string;
+  summaryItems: Array<{ label: string; value: string }>;
+  focusItems: string[];
+  stages: string[];
+  status: AdvisorWorkflowStatus;
+  activeStageIndex: number;
+  statusLabel: string;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface AdvisorWorkflowOptions {
+  horizonDays?: number;
+  reviewDepth?: 'quick' | 'standard' | 'deep';
+  monthLabel?: string;
+  month?: number;
+  year?: number;
+  strictness?: number;
+  includeRecurring?: boolean;
+  includeSpending?: boolean;
+  includeBudgets?: boolean;
+  includeGoals?: boolean;
+  includeSplits?: boolean;
+  focusDuplicates?: boolean;
+  focusRisingCosts?: boolean;
+  focusStaleBills?: boolean;
+  overspentOnly?: boolean;
+}
+
+export interface AdvisorWorkflowRequest {
+  workflowId: AdvisorWorkflowId;
+  runId?: string;
+  options: AdvisorWorkflowOptions;
+}
+
+export interface AdvisorWorkflowResponseMetric {
+  label: string;
+  value: string;
+  tone?: 'neutral' | 'positive' | 'warning' | 'danger';
+}
+
+export interface AdvisorWorkflowResponseSection {
+  title: string;
+  items: string[];
+}
+
+export interface AdvisorWorkflowChangeCandidate {
+  id: string;
+  title: string;
+  detail: string;
+  selected: boolean;
+  state?: 'pending' | 'processing' | 'approved' | 'failed';
+  action?: AdvisorAction;
+}
+
+export type AdvisorWorkflowExecutionDomain = 'budget' | 'recurring' | 'analysis';
+
+export interface AdvisorWorkflowExecutableCandidate {
+  candidateId: string;
+  action: AdvisorAction;
+}
+
+export interface AdvisorWorkflowActionCandidateResult {
+  candidateId: string;
+  status: 'approved' | 'failed';
+  message: string;
+}
+
+export interface AdvisorWorkflowActionBatchResult {
+  status: 'executed' | 'execution_failed';
+  atomic: true;
+  message: string;
+  candidateResults: AdvisorWorkflowActionCandidateResult[];
+}
+
+export interface AdvisorWorkflowResponse {
+  workflowRunId: string;
+  workflowId: AdvisorWorkflowId;
+  executionDomain?: AdvisorWorkflowExecutionDomain;
+  title: string;
+  summary: string;
+  metrics: AdvisorWorkflowResponseMetric[];
+  sections: AdvisorWorkflowResponseSection[];
+  candidates?: AdvisorWorkflowChangeCandidate[];
+  recommendation?: {
+    title: string;
+    detail: string;
+  };
+  generatedAt: string;
+}
+
+export interface AdvisorWorkflowCandidateApproval {
+  responseMessageId: string;
+  selectedCandidateIds: string[];
+}
+
+export interface AdvisorWorkflowRunHistoryFilter {
+  workflowId?: AdvisorWorkflowId;
+  status?: AdvisorWorkflowStatus;
+  limit?: number;
+}
+
+export interface AdvisorWorkflowRunHistoryItem {
+  messageId: string;
+  conversationId: string;
+  conversationTitle: string;
+  content: string;
+  createdAt: Date;
+  workflowRun: AdvisorWorkflowRun;
+}
+
 /** One streamed chunk, mirroring the gateway/proto `AdvisorChunkRes`. */
 export interface AdvisorChunk {
-  /** 'token' | 'approval_required' | 'permission_required' | 'error' */
+  /** token, HITL/action events, workflow_* events, or error. */
   type: string;
   /** Text delta (token) or error message. */
   content: string;
@@ -366,13 +521,21 @@ export type AdvisorScope =
 
 export type AdvisorChatRole = 'USER' | 'ASSISTANT';
 
-export type AdvisorActionState = 'pending' | 'processing' | 'approved' | 'rejected' | 'failed';
+export type AdvisorActionState =
+  | 'pending'
+  | 'processing'
+  | 'approved'
+  | 'rejected'
+  | 'failed'
+  | 'expired';
 
 /** Structured UI metadata stored alongside a durable advisor chat message. */
 export interface AdvisorMessageMetadata {
   proposedAction?: AdvisorAction | null;
   actionState?: AdvisorActionState;
   attachments?: AdvisorAttachment[];
+  workflowRun?: AdvisorWorkflowRun;
+  workflowResponse?: AdvisorWorkflowResponse;
 }
 
 /** Minimal context required to execute a user-approved advisor action. */
@@ -393,11 +556,18 @@ export type AdvisorPendingPayload =
       conversationId: string;
       message: string;
       attachments?: AdvisorAttachment[];
+      workflowRun?: AdvisorWorkflowRun;
+      workflow?: AdvisorWorkflowRequest;
     }
   | {
       userId: string;
       conversationId: string;
-      resume: { approved: boolean };
+      workflowApproval: AdvisorWorkflowCandidateApproval;
+    }
+  | {
+      userId: string;
+      conversationId: string;
+      resume: { approved: boolean; actionMessageId: string };
     };
 
 /** Staged payload after gateway ownership checks and scope resolution. */
@@ -406,8 +576,15 @@ export type ConsumedAdvisorPending = (
       conversationId: string;
       message: string;
       attachments: AdvisorAttachment[];
+      workflowRun?: AdvisorWorkflowRun;
+      workflowRunMessageId?: string;
     }
-  | { conversationId: string; resume: { approved: boolean } }
+  | {
+      conversationId: string;
+      message: string;
+      workflowApproval: AdvisorWorkflowCandidateApproval;
+    }
+  | { conversationId: string; resume: { approved: boolean; actionMessageId: string } }
 ) & { grantedScopes: AdvisorScope[] };
 
 /** Advisor consent state returned by the scope endpoints. */

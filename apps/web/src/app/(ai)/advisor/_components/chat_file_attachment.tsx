@@ -23,8 +23,8 @@ export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
     onSuccess(data) {
       window.open(data.url, '_blank', 'noopener,noreferrer');
     },
-    onError() {
-      toast.error('Could not open attachment');
+    onError(error) {
+      toast.error(error.message ?? 'Could not open attachmemnt');
     },
   });
 
@@ -32,6 +32,7 @@ export function ChatFileAttachment({ file }: ChatFileAttachmentProps) {
     if (viewMutation.isPending) return;
     viewMutation.mutateAsync({
       publicId: file.publicId,
+      kind: file.kind,
       format: inferAdvisorAttachmentFormat(file),
     });
   };

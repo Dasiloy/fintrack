@@ -28,6 +28,11 @@ export class GetAdvisorFileUrlDto {
   @IsString()
   @IsNotEmpty()
   format: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['image', 'pdf', 'csv', 'excel'])
+  kind: AdvisorAttachmentKind;
 }
 
 export class DeleteAdvisorFileDto {
